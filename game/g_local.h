@@ -32,6 +32,8 @@ extern vec3_t gPainPoint;
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
 
+#define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
+
 #define MAX_USERNAME_SIZE 32 //username size	16
 #define MAX_PASSWORD	16
 
@@ -531,7 +533,7 @@ typedef struct {
 	qboolean	initialSpawn;		// the first spawn should be at a cool location
 	qboolean	predictItemPickup;	// based on cg_predictItems userinfo
 	qboolean	pmoveFixed;			//
-	char		netname[MAX_NETNAME];
+	char		netname[MAX_NETNAME], netnameClean[MAX_NETNAME];
 	int			netnameTime;				// Last time the name was changed
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
@@ -1165,6 +1167,7 @@ void SaveRegisteredItems( void );
 //
 // g_utils.c
 //
+const char *	G_PrintClient(int clientNum);
 int		G_ModelIndex( const char *name );
 int		G_SoundIndex( const char *name );
 int		G_SoundSetIndex(const char *name);
@@ -1713,7 +1716,6 @@ int BotAIShutdownClient( int client, qboolean restart );
 int BotAIStartFrame( int time );
 
 #include "g_team.h" // teamplay specific stuff
-
 
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];

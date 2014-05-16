@@ -1256,9 +1256,35 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 	}
 
 }
+#define Q_IsColorStringExt(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) >= '0' && *((p)+1) <= '9') // ^[0-9]
+// removes extended ASCII and Q3 colour codes
+// use STRIP_*** for flags
+void Q_CleanString(char *string, int flags) {
+	qboolean doPass = qtrue;
+	char *r, *w; // read, write
 
-
-
+	while (doPass) {
+		doPass = qfalse;
+		r = w = string;
+		while (*r) {
+			if ((flags & STRIP_COLOUR) && Q_IsColorStringExt(r)) {
+				doPass = qtrue;
+				r += 2;
+			}
+			else if ((flags & STRIP_EXTASCII) && (*r < 0x20 || *r > 0x7E))
+				r++;
+			else {
+				// Avoid writing the same data over itself
+				if (w != r)
+					*w = *r;
+				w++, r++;
+			}
+		}
+		// Add trailing NUL byte if string has shortened
+		if (w < r)
+			*w = '\0';
+	}
+}
 
 /*
 ==================
