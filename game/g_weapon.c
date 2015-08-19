@@ -882,7 +882,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 				}
 
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_DISRUPTOR_SNIPER );
-				if (traceEnt->client && preHealth > 0 && traceEnt->health <= 0 && fullCharge &&
+				if (traceEnt->client && preHealth > 0 && traceEnt->health <= 0 && g_sexydisruptor.integer != 0 &&
 					G_CanDisruptify(traceEnt))
 				{ //was killed by a fully charged sniper shot, so disintegrate
 					VectorCopy(preAng, traceEnt->client->ps.viewangles);
