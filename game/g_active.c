@@ -3100,7 +3100,7 @@ void ClientThink_real( gentity_t *ent ) {
 					{
 						vec3_t	down = {0,0,-1};
 						//FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-						G_Damage(under, ent->m_pVehicle->m_pPilot, ent->m_pVehicle->m_pPilot, down, under->r.currentOrigin, 100, 0, MOD_CRUSH);
+						G_Damage(under, (gentity_t *)ent->m_pVehicle->m_pPilot, (gentity_t *)ent->m_pVehicle->m_pPilot, down, under->r.currentOrigin, 100, 0, MOD_CRUSH);
 					}
 				}
 			}
