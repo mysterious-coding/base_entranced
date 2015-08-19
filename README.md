@@ -16,6 +16,9 @@ This mod is based on base_enhanced with some extra features
 ###Proper ATST kills
 When you run someone over in the ATST, you get a kill.
 
+###Fixed countdown teamchat
+No more spying on the enemy team during siege countdown.
+
 ###[Click here to download latest version](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing)
 Version: base_entranced-8-19-2015-build4 (stable) - added countdown teamchat fix
 
