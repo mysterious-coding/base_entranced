@@ -1,4 +1,4 @@
-# base_enhanced
+# base_entranced
 a fork of sil's base_enhanced server mod
 
 This mod is based on base_enhanced with some extra features
