@@ -13,6 +13,14 @@ This mod is based on base_enhanced with some extra features
 
 1 = improved scoring (100 pts per obj)
 
-###[Click here to download](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing)
-Version: base_entranced-8-19-2015-build2 (stable)
-(Does not include ATST crush kill fix, which causes an error in compiler)
+###Proper ATST kills
+When you run someone over in the ATST, you get a kill.
+
+###[Click here to download latest version](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing)
+Version: base_entranced-8-19-2015-build3 (stable)
+
+
+
+Old versions:
+
+Version:  base_entranced-8-19-2015-build2 (stable) - [download](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing)
