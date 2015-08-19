@@ -17,7 +17,7 @@ This mod is based on base_enhanced with some extra features
 When you run someone over in the ATST, you get a kill.
 
 ###[Click here to download latest version](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing)
-Version: base_entranced-8-19-2015-build3 (stable)
+Version: base_entranced-8-19-2015-build3 (stable) - added proper ATST kills
 
 
 
