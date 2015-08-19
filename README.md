@@ -4,7 +4,7 @@ a fork of sil's base_enhanced server mod
 This mod is based on base_enhanced with some extra features
 
 ###g_sexydisruptor
-0 = Sniper shots with full charge (1.5 seconds or more) cause incineration effect
+0 = Sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
 1 = All sniper shots cause incineration effect
 
