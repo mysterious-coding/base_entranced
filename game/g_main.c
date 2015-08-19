@@ -150,6 +150,7 @@ vmCvar_t	g_logrcon;
 vmCvar_t	g_flags_overboarding;
 vmCvar_t	g_selfkill_penalty;
 vmCvar_t    g_sexydisruptor;
+vmCvar_t    g_fixsiegescoring;
 
 //DB - accounts system
 //extern vmCvar_t	db_url;
@@ -665,6 +666,7 @@ static cvarTable_t		gameCvarTable[] = {
     { &g_flags_overboarding, "g_flags_overboarding", "1", CVAR_ARCHIVE, 0, qtrue },
     { &g_selfkill_penalty, "g_selfkill_penalty", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_sexydisruptor, "g_sexydisruptor", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixsiegescoring, "g_fixsiegescoring", "0", CVAR_ARCHIVE, 0, qtrue },
     
 
 	//{ &g_cmdtimelimit,	"g_cmdtimelimit"	, "500"	, CVAR_INTERNAL, 0, qtrue },	

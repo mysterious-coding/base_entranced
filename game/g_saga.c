@@ -532,7 +532,8 @@ void BroadcastObjectiveCompletion(int team, int objective, int final, int client
 {
 	if (client != ENTITYNUM_NONE && g_entities[client].client && g_entities[client].client->sess.sessionTeam == team)
 	{ //guy who completed this objective gets points, providing he's on the opposing team
-		AddScore(&g_entities[client], g_entities[client].client->ps.origin, SIEGE_POINTS_OBJECTIVECOMPLETED);
+		AddScore(&g_entities[client], g_entities[client].client->ps.origin, g_fixsiegescoring.integer ? SIEGE_POINTS_OBJECTIVECOMPLETED_NEW : SIEGE_POINTS_OBJECTIVECOMPLETED
+			);
 	}
 
 	SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
@@ -551,11 +552,11 @@ void AddSiegeWinningTeamPoints(int team, int winner)
 		{
 			if (i == winner)
 			{
-				AddScore(ent, ent->client->ps.origin, SIEGE_POINTS_TEAMWONROUND+SIEGE_POINTS_FINALOBJECTIVECOMPLETED);
+				AddScore(ent, ent->client->ps.origin, g_fixsiegescoring.integer ? SIEGE_POINTS_TEAMWONROUND_NEW+SIEGE_POINTS_FINALOBJECTIVECOMPLETED_NEW : SIEGE_POINTS_TEAMWONROUND+SIEGE_POINTS_FINALOBJECTIVECOMPLETED);
 			}
 			else
 			{
-				AddScore(ent, ent->client->ps.origin, SIEGE_POINTS_TEAMWONROUND);
+				AddScore(ent, ent->client->ps.origin, g_fixsiegescoring.integer ? SIEGE_POINTS_TEAMWONROUND_NEW : SIEGE_POINTS_TEAMWONROUND);
 			}
 		}
 
