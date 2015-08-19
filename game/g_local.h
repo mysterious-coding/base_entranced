@@ -29,7 +29,7 @@ extern vec3_t gPainPoint;
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"base_enhanced"
+#define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
 
 #define MAX_USERNAME_SIZE 32 //username size	16
