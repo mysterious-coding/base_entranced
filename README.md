@@ -1,5 +1,8 @@
 # base_entranced
-a fork of sil's base_enhanced server mod
+
+by duo and exar
+
+a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) server mod
 
 This mod is based on base_enhanced with some extra features
 
@@ -27,7 +30,7 @@ No more spying on the enemy team during siege countdown.
 ###Fix Hoth first obj points
 Bugfix for not scoring points on Hoth first obj.
 
-###[Click here to download latest version](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing)
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing)
 Version: base_entranced-8-19-2015-build6 (stable) - fix hoth first obj points
 
 
