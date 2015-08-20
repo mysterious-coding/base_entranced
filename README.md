@@ -36,7 +36,7 @@ No more spying on the enemy team during siege countdown.
 Bugfix for not scoring points on Hoth first obj.
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing)
-Version: base_entranced-8-19-2015-build7 (stable) - add g_doorgreening
+Version: base_entranced-8-20-2015-build7 (stable) - add g_doorgreening
 
 
 
