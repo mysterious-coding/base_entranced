@@ -871,14 +871,16 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	if (ent->moverState != MOVER_POS1 && ent->moverState != MOVER_POS2)
-	{//dont activate movers when they are not in end position
-		if ( !(activator && activator->item && activator->item->giType == IT_TEAM) ){
-			// unless blocked by flags...
-			return;
+	if (!g_doorgreening.integer)
+	{
+		if (ent->moverState != MOVER_POS1 && ent->moverState != MOVER_POS2)
+		{//dont activate movers when they are not in end position
+			if (!(activator && activator->item && activator->item->giType == IT_TEAM)) {
+				// unless blocked by flags...
+				return;
+			}
 		}
 	}
-
 	// only the master should be used
 	if ( ent->flags & FL_TEAMSLAVE ) 
 	{
@@ -1029,13 +1031,13 @@ Blocked_Door
 ================
 */
 void Blocked_Door( gentity_t *ent, gentity_t *other )
-{
-	if ( ent->damage) {
+
+{	if ( ent->damage) {
 		G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
 	}
 	if ( ent->spawnflags & MOVER_CRUSHER){ // crushers don't reverse
-		if (!(other && other->item && other->item->giType == IT_TEAM)) // except for flags...
-			return;		
+		if (!(other && other->item && other->item->giType == IT_TEAM) && !g_doorgreening.integer) // except for flags...
+		return;		
 	}	
 
 	// reverse direction
