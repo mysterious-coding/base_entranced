@@ -1846,6 +1846,7 @@ extern vmCvar_t	   g_flags_overboarding;
 extern vmCvar_t	   g_selfkill_penalty;
 extern vmCvar_t    g_sexydisruptor;
 extern vmCvar_t    g_fixsiegescoring;
+extern vmCvar_t    g_fixfallingsounds;
 
 extern vmCvar_t	   g_rconpassword;
 
