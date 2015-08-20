@@ -13,19 +13,26 @@ This mod is based on base_enhanced with some extra features
 
 1 = improved scoring (100 pts per obj)
 
+###g_fixfallingsounds
+0 = default JK3 sound (normal death sound)
+
+1 = falling death scream sound effects for all trigger_hurt entities (such as death pits in siege)
+
 ###Proper ATST kills
 When you run someone over in the ATST, you get a kill.
 
 ###Fixed countdown teamchat
 No more spying on the enemy team during siege countdown.
 
-###[Click here to download latest version](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing)
-Version: base_entranced-8-19-2015-build4 (stable) - added countdown teamchat fix
+###[Click here to download latest version](https://drive.google.com/file/d/0B-vLJdPP0Uo8dERzQzNSVV9LR1E/view?usp=sharing)
+Version: base_entranced-8-19-2015-build5 (stable) - added g_fixfallingsounds
 
 
 
 Old versions:
 
-Version: base_entranced-8-19-2015-build3 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - added proper ATST kills
+Version: base_entranced-8-19-2015-build4 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing) - added countdown teamchat fix
+
+Version: base_entranced-8-19-2015-build3 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - added proper ATST kills
 
 Version:  base_entranced-8-19-2015-build2 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing) - added g_sexydisruptor and g_fixsiegescoring
