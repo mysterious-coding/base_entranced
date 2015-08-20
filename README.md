@@ -35,12 +35,14 @@ No more spying on the enemy team during siege countdown.
 ###Fix Hoth first obj points
 Bugfix for not scoring points on Hoth first obj.
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing)
-Version: base_entranced-8-20-2015-build8 (stable) - fix rancor bug, use sil's atst code
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8aTJJM2hjbGMtbmc/view?usp=sharing)
+Version: base_entranced-8-20-2015-build9 (stable) - use sil's siege pause fix
 
 
 
 Old versions:
+
+Version: base_entranced-8-20-2015-build8 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing) - fix rancor bug, use sil's atst code
 
 Version: base-entranced-8-20-2015-build7 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing) - add g_doorgreening
 
