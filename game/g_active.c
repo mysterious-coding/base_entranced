@@ -3069,19 +3069,19 @@ void ClientThink_real( gentity_t *ent ) {
 		VectorCopy(ent->r.maxs, pm.maxs);
 #if 1
 		if (ent->s.NPC_class == CLASS_VEHICLE &&
-			ent->m_pVehicle )
+			ent->m_pVehicle)
 		{
-			if ( ent->m_pVehicle->m_pPilot)
+			if (ent->m_pVehicle->m_pPilot)
 			{ //vehicles want to use their last pilot ucmd I guess
 				if ((level.time - ent->m_pVehicle->m_ucmd.serverTime) > 2000)
 				{ //Previous owner disconnected, maybe
 					ent->m_pVehicle->m_ucmd.serverTime = level.time;
-					ent->client->ps.commandTime = level.time-100;
+					ent->client->ps.commandTime = level.time - 100;
 					msec = 100;
 				}
 
 				memcpy(&pm.cmd, &ent->m_pVehicle->m_ucmd, sizeof(usercmd_t));
-				
+
 				//no veh can strafe
 				pm.cmd.rightmove = 0;
 				//no crouching or jumping!
@@ -3089,18 +3089,26 @@ void ClientThink_real( gentity_t *ent ) {
 
 				//NOTE: button presses were getting lost!
 				assert(g_entities[ent->m_pVehicle->m_pPilot->s.number].client);
-				pm.cmd.buttons = (g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK));
+				pm.cmd.buttons = (g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons&(BUTTON_ATTACK | BUTTON_ALT_ATTACK));
 			}
-			if ( ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
+			if (ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)
 			{
-				if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
+				if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE)
 				{//ATST crushes anything underneath it
 					gentity_t	*under = &g_entities[ent->client->ps.groundEntityNum];
-					if ( under && under->health && under->takedamage )
+
+					if (under && under->health && under->takedamage)
 					{
-						vec3_t	down = {0,0,-1};
+						vec3_t	down = { 0,0,-1 };
+						gentity_t	*attacker = ent;
+
+						if (ent->m_pVehicle->m_pPilot)
+						{
+							attacker = &g_entities[ent->m_pVehicle->m_pPilot->s.number];
+						}
+
 						//FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-						G_Damage(under, (gentity_t *)ent->m_pVehicle->m_pPilot, (gentity_t *)ent->m_pVehicle->m_pPilot, down, under->r.currentOrigin, 100, 0, MOD_CRUSH);
+						G_Damage(under, attacker, attacker, down, under->r.currentOrigin, 100, 0, MOD_CRUSH);
 					}
 				}
 			}
