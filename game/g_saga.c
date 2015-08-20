@@ -532,8 +532,14 @@ void BroadcastObjectiveCompletion(int team, int objective, int final, int client
 {
 	if (client != ENTITYNUM_NONE && g_entities[client].client && g_entities[client].client->sess.sessionTeam == team)
 	{ //guy who completed this objective gets points, providing he's on the opposing team
-		AddScore(&g_entities[client], g_entities[client].client->ps.origin, g_fixsiegescoring.integer ? SIEGE_POINTS_OBJECTIVECOMPLETED_NEW : SIEGE_POINTS_OBJECTIVECOMPLETED
-			);
+		if (g_entities[client].client->NPC_class == CLASS_VEHICLE)
+		{
+			AddScore((gentity_t *)g_entities[client].m_pVehicle->m_pPilot, g_entities[client].client->ps.origin, g_fixsiegescoring.integer ? SIEGE_POINTS_OBJECTIVECOMPLETED_NEW : SIEGE_POINTS_OBJECTIVECOMPLETED);
+		}
+		else
+		{
+			AddScore(&g_entities[client], g_entities[client].client->ps.origin, g_fixsiegescoring.integer ? SIEGE_POINTS_OBJECTIVECOMPLETED_NEW : SIEGE_POINTS_OBJECTIVECOMPLETED);
+		}
 	}
 
 	SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
