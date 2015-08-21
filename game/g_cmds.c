@@ -2428,6 +2428,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" );
 			return;
 		}
+		extern siegePers_t g_siegePersistant;
+		if (g_gametype.integer == GT_SIEGE && g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_nextmapwarning.integer)
+		{
+			trap_SendServerCommand(-1, va("cp \"Currently round 2,\nvote will reset timer going up\n\""));
+			trap_SendServerCommand(-1, va("print \"Currently round 2, vote will reset timer going up\n\""));
+		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr nextmap");
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	} 
