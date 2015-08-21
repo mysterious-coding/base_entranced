@@ -1055,7 +1055,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		{
 			clUser = activator->m_pVehicle->m_pPilot->s.number;
 		}
-		else
+		else if (activator->client)
 		{
 			clUser = activator->s.number;
 		}
