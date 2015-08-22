@@ -1172,6 +1172,7 @@ void respawn( gentity_t *ent ) {
 				ent->client->ps.stats[STAT_WEAPONS] = 0;
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
 				ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+				ent->client->ps.eFlags = 0;
 				ent->takedamage = qfalse;
 				trap_LinkEntity(ent);
 
