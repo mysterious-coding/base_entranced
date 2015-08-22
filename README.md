@@ -30,7 +30,7 @@ This mod is primarily for siege, and is based on base_enhanced with some extra f
 ####g_sexydisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
-1 = all lethal sniper shots cause incineration effect
+1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals)
 
 ####Reset siege to round 1 on /map vote
 No more changing maps with timer going down.
@@ -55,7 +55,7 @@ Many of these features were coded or conceived by us first, and then were added 
 Set to 0 so you don't lose points when you SK.
 
 ####"Joined the red/blue team" message
-See when someone joined a team in the center of your screen.
+See when someone joined a team in the center of your screen in siege mode.
 
 ####Pause / unpause
 Use command /pause or /unpause (also can be called as vote) to stop the game temporarily.
@@ -76,10 +76,25 @@ Use /specall to force all players to spec.
 No longer need two players to start running around ingame.
 
 ####Better logs
-Log detailed user info, rcon commands, and crash attempts.
+Log detailed user info, rcon commands, and crash attempts. Use g_hacklog filename, g_logclientinfo 1, and g_logrcon 1.
 
 ####Awards/medals
 Humiliation, impressive, etc.
+
+####Coin toss
+Call /cointoss vote for random heads/tails result.
+
+####Polls
+Ask everyone a question with /callvote q blahblahblah
+
+####HTTTP auto downloading
+Set url with g_dlurl
+
+####Quiet rcon
+No more leaking stuff from rcon, use g_quietrcon
+
+####Disallow some votes
+Use g_allow_vote_kick, etc. to prevent voting some things.
 
 ####Bug fixes:
 * When you run someone over in the ATST, you get a kill.
