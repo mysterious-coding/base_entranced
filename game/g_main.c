@@ -154,6 +154,7 @@ vmCvar_t    g_fixsiegescoring;
 vmCvar_t    g_fixfallingsounds;
 vmCvar_t    g_doorgreening;
 vmCvar_t    g_nextmapwarning;
+vmCvar_t    g_floating_items;
 
 //DB - accounts system
 //extern vmCvar_t	db_url;
@@ -672,6 +673,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixfallingsounds, "g_fixfallingsounds", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_doorgreening, "g_doorgreening", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_nextmapwarning, "g_nextmapwarning", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_floating_items, "g_floating_items", "0", CVAR_ARCHIVE, 0, qtrue },
     
 
 	//{ &g_cmdtimelimit,	"g_cmdtimelimit"	, "500"	, CVAR_INTERNAL, 0, qtrue },	
