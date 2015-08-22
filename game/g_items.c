@@ -236,10 +236,11 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 {
 	if (g_gametype.integer >= GT_TEAM)
 	{ // let teammates through
-		// compare the parent's team to the "other's" team
-		if (self->parent && ( self->parent->client) && (other->client))
+	  // compare the parent's team to the "other's" team
+		if (self->parent && (self->parent->client) && (other->client))
 		{
-			if (OnSameTeam(self->parent, other))
+			trap_Trace(trace, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, other->clipmask);
+			if (OnSameTeam(self->parent, other) || (trace->startsolid))
 			{
 				ShieldGoNotSolid(self);
 			}
