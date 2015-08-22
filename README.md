@@ -39,7 +39,7 @@ No more changing maps with timer going down.
 * Seeker no longer attacks walkers and fighters.
 
 #Features that are also in base_enhanced
-Many of these features were coded or conceived by us first, and then were added to base_enhanced by Sil later.
+Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
 
 ####g_rocketSurfing
 0 = no rocket surfing (good)
