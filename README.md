@@ -1,10 +1,11 @@
 # base_entranced
 
+##JK3 Siege server mod
 by duo and exar
 
 a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) JK3 server mod
 
-This mod is primarily for siege, and is based on base_enhanced with some extra features
+This mod is based on base_enhanced with some extra features for siege.
 
 #Features unique to base_entranced
 ####g_fixsiegescoring
