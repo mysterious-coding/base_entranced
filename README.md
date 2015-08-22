@@ -98,7 +98,7 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 
 ####Bug fixes:
 * When you run someone over in the ATST, you get a kill.
-* No more spying on the enemy team during siege countdown.
+* No more spying on the enemy teamchat during siege countdown.
 * Bugfix for not scoring points on Hoth first obj.
 * No more getting stuck because you(or walker) spawned in a shield.
 * "Was blasted" message when you get splashed by turrets instead of generic "died" message.
@@ -108,6 +108,7 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 * Bugfix for renaming causing saber style change.
 * Bugfix for disconnecting in ATST and going invisible.
 * No more SK when already dead.
+* No more weird spec glitch with possessing someone else's body.
 * Bugfix for sentry placed in lift.
 * Allow for many more siege maps/classes on server.
 * Security/crash fixes.
