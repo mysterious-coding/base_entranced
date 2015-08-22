@@ -119,8 +119,8 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8YWZVSUdldjBWM3M/view?usp=sharing)
-Version: base_entranced-8-22-2015-build12 (stable) - add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix vehicles spawning in shield, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing)
+Version: base_entranced-8-22-2015-build13 (stable) - revert sil's broken shield code, add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix vehicles spawning in shield, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
 
 Old versions:
 
