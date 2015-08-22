@@ -41,17 +41,17 @@ No more changing maps with timer going down.
 #Features that are also in base_enhanced
 Many of these features were coded or conceived by us first, and then were added to base_enhanced by Sil later.
 
-####g_rocket_surfing
+####g_rocketSurfing
 0 = no rocket surfing (good)
 
 1 = bullshit rocket surfing enabled (JK3 default)
 
-####g_floating_items
+####g_floatingItems
 0 = no floating siege items - useful for non-korriban maps
 
 1 = siege items float up walls when dropped - useful for korriban (JK3 default)
 
-####g_selfkill_penalty
+####g_selfkillPenalty
 Set to 0 so you don't lose points when you SK.
 
 ####"Joined the red/blue team" message
@@ -102,26 +102,25 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 * Bugfix for not scoring points on Hoth first obj.
 * No more getting stuck because you(or walker) spawned in a shield.
 * "Was blasted" message when you get splashed by turrets instead of generic "died" message.
-* No more seeker shooting at specs, teammates, or disconnected clients.
+* No more seeker/sentry shooting at specs, teammates, or disconnected clients.
 * No more rancor spec bug or SKing after rancor grab.
 * No more weird camera and seeker glitch from walker.
 * Bugfix for renaming causing saber style change.
+* Bugfix for camera getting stuck when incinerated by sniper shot.
 * Bugfix for disconnecting in ATST and going invisible.
 * No more SK when already dead.
 * No more weird spec glitch with possessing someone else's body.
 * Bugfix for sentry placed in lift.
 * Allow for many more siege maps/classes on server.
 * Security/crash fixes.
-* Map_restart 99999999 fix.
-* Spec voting fix.
-* Flechette stuck in wall fix.
+* Bugfix for map_restart 999999 (now maximum 10)
+* Bugfix for spec voting.
+* Bugfix for flechette stuck in wall.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8M05SQnh6QzJKTVU/view?usp=sharing)
-Version: base_entranced-8-21-2015-build11 (stable) - add g_rocket_surfing, g_floating_items, reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker attacking disconnected clients, fix vehicles spawning in shield, fix turret splash kill message
-
-
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8YWZVSUdldjBWM3M/view?usp=sharing)
+Version: base_entranced-8-22-2015-build12 (stable) - add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix vehicles spawning in shield, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
 
 Old versions:
 
