@@ -2325,7 +2325,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
             } 
             g_votedCounts[arenaNumber]++;
         }    
-       
+		SiegeClearSwitchData(); //reset siege to round 1 on map change
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "map %s", mapName);
 	}
 	else if (!Q_stricmp(arg1, "map_random"))
