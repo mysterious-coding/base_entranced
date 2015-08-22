@@ -20,9 +20,9 @@ This mod is based on base_enhanced with some extra features for siege.
 1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
 
 ####g_doorgreening
-0 = no door greening (ctf flag-in-door fix enabled)
+0 = no door greening, good for pub servers (ctf flag-in-door fix enabled)
 
-1 = door greening (default JK3 setting, ctf flag-in-door fix disabled)
+1 = door greening, good for pug servers (default JK3 setting, ctf flag-in-door fix disabled)
 
 ####g_nextmapwarning
 0 = no warning (default JK3)
