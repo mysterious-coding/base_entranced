@@ -58,8 +58,6 @@ vmCvar_t	g_chatLimit;
 
 vmCvar_t	g_allowNPC;
 
-vmCvar_t	g_key;
-
 vmCvar_t	g_armBreakage;
 
 vmCvar_t	g_saberLocking;
@@ -148,20 +146,14 @@ vmCvar_t	g_whitelist;
 vmCvar_t	g_dlURL;   
 vmCvar_t	g_logrcon;   
 vmCvar_t	g_flags_overboarding;
-vmCvar_t	g_selfkill_penalty;
-vmCvar_t    g_sexydisruptor;
-vmCvar_t    g_fixsiegescoring;
-vmCvar_t    g_fixfallingsounds;
-vmCvar_t    g_doorgreening;
-vmCvar_t    g_nextmapwarning;
-vmCvar_t    g_floating_items;
-vmCvar_t    g_rocket_surfing;
-
-//DB - accounts system
-//extern vmCvar_t	db_url;
-//extern vmCvar_t	db_serverid;
-//extern vmCvar_t	db_debug;
-//extern vmCvar_t	db_log;
+vmCvar_t	g_selfkillPenalty;
+vmCvar_t    g_sexyDisruptor;
+vmCvar_t    g_fixSiegeScoring;
+vmCvar_t    g_fixFallingSounds;
+vmCvar_t    g_doorGreening;
+vmCvar_t    g_nextmapWarning;
+vmCvar_t    g_floatingItems;
+vmCvar_t    g_rocketSurfing;
 
 #ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
@@ -270,10 +262,8 @@ vmCvar_t	g_protectQ3FillIPLimit;
 vmCvar_t	g_protectHPhack;
 vmCvar_t	g_maxIPConnected;
 vmCvar_t	g_protectCallvoteHack;
-vmCvar_t    g_fixLateCapture;
 vmCvar_t    g_minimumVotesCount;
 vmCvar_t    g_fixPitKills;
-vmCvar_t    g_fixRocketGlitch;
 
 vmCvar_t    g_enforceEvenVotersCount;
 vmCvar_t    g_minVotersForEvenVotersCount;
@@ -283,7 +273,6 @@ vmCvar_t    bot_maxping;
 vmCvar_t    bot_ping_sparsity;
 
 extern vmCvar_t     g_strafejump_mod;
-extern vmCvar_t     g_disableStrafejump;
 
 //allowing/disabling vote types
 vmCvar_t    g_allow_vote_gametype;
@@ -301,23 +290,10 @@ vmCvar_t	g_hackLog;
 
 vmCvar_t    g_default_restart_countdown;
 
-vmCvar_t	jp_DlBaseURL;
-
-vmCvar_t    g_info_url;
-vmCvar_t    g_info_location;
-vmCvar_t    g_info_forum;
-vmCvar_t    g_info_hosted_by;
-vmCvar_t    g_info_email;
-vmCvar_t    g_info_administrator;
-vmCvar_t    g_info_irc;
-
 vmCvar_t    g_fixboon;
 vmCvar_t    g_maxstatusrequests;
 vmCvar_t	g_testdebug; //for tmp debug
-vmCvar_t	g_callstackcounter; //debug
 vmCvar_t	g_rconpassword;
-
-vmCvar_t	g_testdeflection;
 
 
 vmCvar_t	g_callvotedelay;
@@ -374,8 +350,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_chatLimit, "g_chatLimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_allowNPC, "g_allowNPC", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-
-	{ &g_key, "g_flags", "0", CVAR_SERVERINFO, 0, qtrue  },
 
 	{ &g_armBreakage, "g_armBreakage", "0", 0, 0, qtrue  },
 
@@ -477,7 +451,6 @@ static cvarTable_t		gameCvarTable[] = {
     { &g_speed, "g_speed", "250", CVAR_SERVERINFO, 0, qtrue },
     { &g_gravity, "g_gravity", "800", CVAR_SERVERINFO, 0, qtrue },
     { &g_knockback, "g_knockback", "1000", 0, 0, qtrue },
-    //{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
     { &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue },
     { &g_weaponTeamRespawn, "g_weaponTeamRespawn", "5", 0, 0, qtrue },
     { &g_adaptRespawn, "g_adaptrespawn", "1", 0, 0, qtrue },		// Make weapons respawn faster with a lot of players.
@@ -508,9 +481,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_debugRight, "g_debugRight", "0", 0, 0, qfalse },
 	{ &g_debugUp, "g_debugUp", "0", 0, 0, qfalse },
 #endif
-
-//	{ &g_redteam, "g_redteam", "Empire", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
-//	{ &g_blueteam, "g_blueteam", "Rebellion", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
 
 	{ &g_enableBreath, "g_enableBreath", "0", 0, 0, qtrue, qfalse },
@@ -598,7 +568,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_protectCallvoteHack,	"g_protectCallvoteHack"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 
-	//{ &g_maxIPConnecting,	"g_maxIPConnecting"	, "2"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_maxIPConnected,	"g_maxIPConnected"	, "0"	, CVAR_ARCHIVE, 0, qtrue },	
 
 	// *CHANGE 10* anti q3fill
@@ -611,18 +580,13 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_fixPitKills,	"g_fixPitKills"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_fixLateCapture,	"g_fixLateCapture"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
     { &g_minimumVotesCount, "g_minimumVotesCount", "0", CVAR_ARCHIVE, 0, qtrue },
-	//{ &g_fixCaptureCondition,	"g_fixCaptureCondition"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &g_fixDetPackBug,	"g_fixDetPackBug"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixRocketGlitch,	"g_fixRocketGlitch"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 
     { &g_enforceEvenVotersCount, "g_enforceEvenVotersCount", "0", CVAR_ARCHIVE, 0, qtrue },
     { &g_minVotersForEvenVotersCount, "g_minVotersForEvenVotersCount", "7", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_strafejump_mod,	"g_strafejump_mod"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_disableStrafejump,	"g_disableStrafejump"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
     { &g_default_restart_countdown, "g_default_restart_countdown", "0", CVAR_ARCHIVE, 0, qtrue }, 
 
 	{ &g_allow_vote_gametype,	"g_allow_vote_gametype"	, "1023"	, CVAR_ARCHIVE, 0, qtrue },
@@ -639,55 +603,29 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_hackLog,	"g_hackLog"	, "hacks.log"	, CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_npc_spawn_limit,	"g_npc_spawn_limit"	, "100"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &g_bouncelimit,	"g_bouncelimit"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
-
-	
-/*
-	{ &g_info_url,	".Url"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_info_location,	".Location"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_info_forum,	".Forum"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_info_hosted_by,	".Hosted_By"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_info_email,	".Email"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_info_administrator,	".Administrator"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_info_irc,	".Irc"	, ""	, CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	*/
 
 	{ &g_accounts,	"g_accounts"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_accountsFile,	"g_accountsFile"	, "accounts.txt"	, CVAR_ARCHIVE, 0, qtrue },
     { &g_whitelist, "g_whitelist", "0", CVAR_ARCHIVE, 0, qtrue },
 	
-	//database info - accounts system
-	//{ &db_url,	"db_url"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &db_serverid,	"db_username"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &db_debug,	"db_debug"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &db_log,	"db_log"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
-	
 
 	{ &g_dlURL,	"g_dlURL"	, ""	, CVAR_SYSTEMINFO, 0, qtrue },
 
 	{ &g_fixboon,	"g_fixboon"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
-	{ &g_testdeflection,	"g_testdeflection"	, "0"	, CVAR_ARCHIVE, 0, qtrue },	
     { &g_flags_overboarding, "g_flags_overboarding", "1", CVAR_ARCHIVE, 0, qtrue },
-    { &g_selfkill_penalty, "g_selfkill_penalty", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_sexydisruptor, "g_sexydisruptor", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixsiegescoring, "g_fixsiegescoring", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixfallingsounds, "g_fixfallingsounds", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_doorgreening, "g_doorgreening", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_nextmapwarning, "g_nextmapwarning", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_floating_items, "g_floating_items", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_rocket_surfing, "g_rocket_surfing", "1", CVAR_ARCHIVE, 0, qtrue },
-    
-
-	//{ &g_cmdtimelimit,	"g_cmdtimelimit"	, "500"	, CVAR_INTERNAL, 0, qtrue },	
-	
+    { &g_selfkillPenalty, "g_selfkillPenalty", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_sexyDisruptor, "g_sexyDisruptor", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixSiegeScoring, "g_fixSiegeScoring", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixFallingSounds, "g_fixFallingSounds", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_doorGreening, "g_doorGreening", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_nextmapWarning, "g_nextmapWarning", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_floatingItems, "g_floatingItems", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_rocketSurfing, "g_rocketSurfing", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_maxstatusrequests,	"g_maxstatusrequests"	, "50"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &g_followSpectator,	"g_followSpectator"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
-	//{ &g_connectionsInChat,	"g_connectionsInChat"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_testdebug,	"g_testdebug"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	
 	{ &g_logrcon,	"g_logrcon"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
-	{ &g_callstackcounter,	"g_callstackcounter"	, "0"	, CVAR_ARCHIVE | CVAR_INTERNAL, 0, qfalse },
 	{ &g_rconpassword,	"rconpassword"	, "0"	, CVAR_ARCHIVE | CVAR_INTERNAL },
 
 	{ &g_callvotedelay,	"g_callvotedelay"	, "0"	, CVAR_ARCHIVE | CVAR_INTERNAL },
