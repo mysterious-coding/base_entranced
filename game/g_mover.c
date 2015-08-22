@@ -871,7 +871,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	if (!g_doorgreening.integer)
+	if (!g_doorGreening.integer)
 	{
 		if (ent->moverState != MOVER_POS1 && ent->moverState != MOVER_POS2)
 		{//dont activate movers when they are not in end position
@@ -1036,7 +1036,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other )
 		G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
 	}
 	if ( ent->spawnflags & MOVER_CRUSHER){ // crushers don't reverse
-		if (!(other && other->item && other->item->giType == IT_TEAM) && !g_doorgreening.integer) // except for flags...
+		if (!(other && other->item && other->item->giType == IT_TEAM) && !g_doorGreening.integer) // except for flags...
 		return;		
 	}	
 

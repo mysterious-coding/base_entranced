@@ -2429,7 +2429,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 		extern siegePers_t g_siegePersistant;
-		if (g_gametype.integer == GT_SIEGE && g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_nextmapwarning.integer)
+		if (g_gametype.integer == GT_SIEGE && g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_nextmapWarning.integer)
 		{
 			trap_SendServerCommand(-1, va("cp \"Currently round 2,\nvote will reset timer going up\n\""));
 			trap_SendServerCommand(-1, va("print \"Currently round 2, vote will reset timer going up\n\""));
