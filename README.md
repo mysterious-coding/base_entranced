@@ -7,27 +7,27 @@ by duo and exar
 a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod with some extra features for siege.
 
 #Features unique to base_entranced
-####g_fixsiegescoring
+####g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
 1 = improved scoring (100 pts per obj)
 
-####g_fixfallingsounds
+####g_fixFallingSounds
 0 = default JK3 sound (normal death sound)
 
 1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
 
-####g_doorgreening
-0 = no door greening, good for pub servers (ctf flag-in-door fix enabled)
+####g_doorGreening
+0 = no door greening, good for pub servers to prevent lamers (ctf flag-in-door fix enabled)
 
 1 = door greening, good for pug servers (default JK3 setting, ctf flag-in-door fix disabled)
 
-####g_nextmapwarning
+####g_nextmapWarning
 0 = no warning (default JK3)
 
 1 = when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
-####g_sexydisruptor
+####g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals)
@@ -73,7 +73,7 @@ Use /randomteams 2 2 for random 2v2, etc. and /randomcapts for random captains.
 Use /specall to force all players to spec.
 
 ####Start round with one player
-No longer need two players to start running around ingame.
+No longer need two players to start running around ingame in siege mode.
 
 ####Better logs
 Log detailed user info, rcon commands, and crash attempts. Use g_hacklog filename, g_logclientinfo 1, and g_logrcon 1.
