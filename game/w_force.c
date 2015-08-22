@@ -4673,10 +4673,12 @@ void FindGenericEnemyIndex(gentity_t *self)
 	while (i < MAX_CLIENTS)
 	{
 		ent = &g_entities[i];
-
-        if ( ent && 
-            ent->client && 
-			ent->inuse &&
+		if (ent && //potential target exists
+			ent->client && //potential target is a client
+			(!ent->client->ps.m_iVehicleNum ||
+				(&g_entities[ent->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type != VH_WALKER && //potential targets's vehicle is not a walker
+				(&g_entities[ent->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) &&//potential target's vehicle is not a fighter
+			ent->inuse && //potential target is connected to the server
             (ent->s.number != self->s.number) && 
             (ent->health > 0) && 
             !OnSameTeam( self, ent ) && 
@@ -4805,6 +4807,14 @@ void SeekerDroneUpdate(gentity_t *self)
 	{
 		en = &g_entities[self->client->ps.genericEnemyIndex];
 
+		if (en->client->ps.m_iVehicleNum) //in a vehicle
+		{
+			gentity_t *veh = &g_entities[en->client->ps.m_iVehicleNum];
+			if (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)//vehicle we are in is a walker
+			{
+				self->client->ps.genericEnemyIndex = ENTITYNUM_NONE;//don't attack the pilot
+			}
+		}
 		if (!en || !en->client || !en->inuse)
 		{
 			self->client->ps.genericEnemyIndex = ENTITYNUM_NONE;
