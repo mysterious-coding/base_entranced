@@ -100,7 +100,7 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 * When you run someone over in the ATST, you get a kill.
 * No more spying on the enemy teamchat during siege countdown.
 * Bugfix for not scoring points on Hoth first obj.
-* No more getting stuck because you(or walker) spawned in a shield.
+* No more getting stuck because you spawned in a shield.
 * "Was blasted" message when you get splashed by turrets instead of generic "died" message.
 * No more seeker/sentry shooting at specs, teammates, or disconnected clients.
 * No more rancor spec bug or SKing after rancor grab.
@@ -120,7 +120,7 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing)
-Version: base_entranced-8-22-2015-build13 (stable) - revert sil's broken shield code, add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix vehicles spawning in shield, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
+Version: base_entranced-8-22-2015-build13 (stable) - revert sil's broken shield code, add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
 
 Old versions:
 
