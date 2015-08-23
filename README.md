@@ -36,7 +36,7 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was /callvote nextmap (lol)
 
 ####/forceround2 mm:ss
-Restarts current map with siege timer going down from a specified time. For example, /forceround2 7:30 starts siege in round 2 with the timer going down 7:30. Currently experimental and rcon-only(callvote version soon).
+Restarts current map with siege timer going down from a specified time. For example, /forceround2 7:30 starts siege in round 2 with the timer going down from 7:30. Currently experimental and rcon-only(callvote version soon).
 
 ####Reset siege to round 1 on /map vote
 No more changing maps with timer going down.
