@@ -30,7 +30,7 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
-1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals)
+1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
 
 ####/siege_restart
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was /callvote nextmap (lol)
