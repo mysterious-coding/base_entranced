@@ -32,11 +32,18 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals)
 
+####siege_restart
+rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was /callvote nextmap (lol)
+
+###forceround2 mm:ss
+Restarts current map with siege timer going down from a specified time. For example, /forceround2 7:30 starts siege in round 2 with the timer going down 7:30. Currently experimental and rcon-only(callvote version soon).
+
 ####Reset siege to round 1 on /map vote
 No more changing maps with timer going down.
 
 ####Bugfixes:
 * Seeker no longer attacks walkers and fighters.
+* Fixed bug with nextmap failed vote causing siege to reset to round 1.
 
 #Features that are also in base_enhanced
 Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -119,10 +126,12 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing)
-Version: base_entranced-8-22-2015-build13 (stable) - revert sil's broken shield code, add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8bjlRbEY4WXptNE0/view?usp=sharing)
+Version: base_entranced-8-23-2015-build14 (experimental) - fix bug with siege resetting round 1 on failed nextmap vote, add siege_restart, add forceround2(rcon only for now)
 
 Old versions:
+
+Version: base_entranced-8-22-2015-build13 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing) - revert sil's broken shield code, add g_rocketSurfing, g_floatingItems, change g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
 
 Version: base_entranced-8-21-2015-build10 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ajRsbkx5TkRsaE0/view?usp=sharing) - add g_nextmapwarning
 
