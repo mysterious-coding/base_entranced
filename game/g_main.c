@@ -3628,11 +3628,6 @@ void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
 		level.voteExecuteTime = 0;
 
-		//special fix for siege status
-		if (!Q_strncmp(level.voteString,"vstr nextmap",sizeof(level.voteString))){
-			SiegeClearSwitchData();
-		}
-
 		if (!Q_stricmpn(level.voteString,"map_restart",11)){
 			trap_Cvar_Set("g_wasRestarted", "1");
 		}
@@ -3718,7 +3713,13 @@ void CheckVote( void ) {
 
 		// log the vote
             G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i g_minimumVotesCount:%i)\n", level.voteYes, level.voteNo, level.numVotingClients, g_minimumVotesCount.integer);
-
+			//special fix for siege status
+			if (!Q_strncmp(level.voteString, "vstr nextmap", sizeof(level.voteString))) {
+				SiegeClearSwitchData(); //clear siege to round 1 on nextmap vote
+			}
+			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
+				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
+			}
             level.voteExecuteTime = level.time + 3000;
         } else {
             trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
@@ -3741,7 +3742,12 @@ void CheckVote( void ) {
 
 			// log the vote
 			G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
-
+			if (!Q_strncmp(level.voteString, "vstr nextmap", sizeof(level.voteString))) {
+				SiegeClearSwitchData(); //clear siege to round 1 on nextmap vote
+			}
+			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
+				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
+			}
 			level.voteExecuteTime = level.time + 3000;
 		} else if ( level.voteNo >= (level.numVotingClients+1)/2 ) {
 			// same behavior as a timeout

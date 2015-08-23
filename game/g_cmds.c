@@ -2119,7 +2119,6 @@ void fixVoters(){
 Cmd_CallVote_f
 ==================
 */
-extern void SiegeClearSwitchData(void); //g_saga.c
 const char *G_GetArenaInfoByMap( const char *map );
 int G_GetArenaNumber( const char *map );
 
@@ -2236,11 +2235,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	if ( level.voteExecuteTime ) {
 		level.voteExecuteTime = 0;
 
-		//special fix for siege status
-		if (!Q_strncmp(level.voteString,"vstr nextmap",sizeof(level.voteString))){
-			SiegeClearSwitchData();
-		}
-
 		if (!Q_stricmpn(level.voteString,"map_restart",11)){
 			trap_Cvar_Set("g_wasRestarted", "1");
 		}
@@ -2325,7 +2319,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
             } 
             g_votedCounts[arenaNumber]++;
         }    
-		SiegeClearSwitchData(); //reset siege to round 1 on map change
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "map %s", mapName);
 	}
 	else if (!Q_stricmp(arg1, "map_random"))
