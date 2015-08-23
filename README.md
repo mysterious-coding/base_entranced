@@ -7,35 +7,35 @@ by duo and exar
 a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod with some extra features for siege.
 
 #Features unique to base_entranced
-####g_fixSiegeScoring
+####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
 1 = improved scoring (100 pts per obj)
 
-####g_fixFallingSounds
+####/g_fixFallingSounds
 0 = default JK3 sound (normal death sound)
 
 1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
 
-####g_doorGreening
+####/g_doorGreening
 0 = no door greening, good for pub servers to prevent lamers (ctf flag-in-door fix enabled)
 
 1 = door greening, good for pug servers (default JK3 setting, ctf flag-in-door fix disabled)
 
-####g_nextmapWarning
+####/g_nextmapWarning
 0 = no warning (default JK3)
 
 1 = when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
-####g_sexyDisruptor
+####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals)
 
-####siege_restart
+####/siege_restart
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was /callvote nextmap (lol)
 
-###forceround2 mm:ss
+###/forceround2 mm:ss
 Restarts current map with siege timer going down from a specified time. For example, /forceround2 7:30 starts siege in round 2 with the timer going down 7:30. Currently experimental and rcon-only(callvote version soon).
 
 ####Reset siege to round 1 on /map vote
@@ -48,26 +48,26 @@ No more changing maps with timer going down.
 #Features that are also in base_enhanced
 Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
 
-####g_rocketSurfing
+####/g_rocketSurfing
 0 = no rocket surfing (good)
 
 1 = bullshit rocket surfing enabled (JK3 default)
 
-####g_floatingItems
+####/g_floatingItems
 0 = no floating siege items - useful for non-korriban maps
 
 1 = siege items float up walls when dropped - useful for korriban (JK3 default)
 
-####g_selfkillPenalty
+####/g_selfkillPenalty
 Set to 0 so you don't lose points when you SK.
 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
 
-####Pause / unpause
+####/Pause and /unpause
 Use command /pause or /unpause (also can be called as vote) to stop the game temporarily.
 
-####whois
+####/whois
 Use command /whois to see all known aliases of a player.
 
 ####Auto-click on death
@@ -76,7 +76,7 @@ If you die 1 second before the spawn, the game now automatically "clicks" on you
 ####Random teams/capts
 Use /randomteams 2 2 for random 2v2, etc. and /randomcapts for random captains.
 
-####Specall
+####/specall
 Use /specall to force all players to spec.
 
 ####Start round with one player
@@ -88,7 +88,7 @@ Log detailed user info, rcon commands, and crash attempts. Use g_hacklog filenam
 ####Awards/medals
 Humiliation, impressive, etc.
 
-####Coin toss
+####/cointoss
 Call /cointoss vote for random heads/tails result.
 
 ####Polls
