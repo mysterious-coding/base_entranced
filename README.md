@@ -85,8 +85,8 @@ No longer need two players to start running around ingame in siege mode.
 ####Better logs
 Log detailed user info, rcon commands, and crash attempts. Use g_hacklog filename, g_logclientinfo 1, and g_logrcon 1.
 
-####Awards/medals
-Humiliation, impressive, etc.
+####Awards/medals support
+Humiliation, impressive, etc. if you use the clientside mod SMod.
 
 ####/cointoss
 Call /cointoss vote for random heads/tails result.
