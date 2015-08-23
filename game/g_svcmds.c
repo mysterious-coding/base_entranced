@@ -1184,6 +1184,12 @@ void Svcmd_RandomCapts_f() {
         }
     }
 }
+extern void SiegeClearSwitchData(void);
+void Svcmd_SiegeRestart_f() {
+	SiegeClearSwitchData(); //gives a way for the server to reset siege to round 1
+	trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+
+}
 
 void Svcmd_RandomTeams_f() {
     int i, j, temp, numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
@@ -1472,6 +1478,12 @@ qboolean	ConsoleCommand( void ) {
         Svcmd_PoolMapRemove_f();
         return qtrue;
     }
+
+	if (Q_stricmp(cmd, "siege_restart") == 0)
+	{
+		Svcmd_SiegeRestart_f();
+		return qtrue;
+	}
 
 	//if (Q_stricmp (cmd, "accountadd") == 0) {
 	//	Svcmd_AddAccount_f();
