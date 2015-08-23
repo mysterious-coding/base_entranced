@@ -127,7 +127,7 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing)
-Version: base_entranced-8-23-2015-build15 (stable) - fix nextmap vote failed bug, add /siege_restart, add /forceround2, some misc. engine fixes from sil
+Version: base_entranced-8-23-2015-build15 (stable) - fix nextmap vote failed bug, add /siege_restart, add /forceround2 (can be used from rcon or callvote), some misc. engine fixes from sil
 
 Old versions:
 
