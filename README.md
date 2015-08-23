@@ -71,7 +71,7 @@ Use command /pause or /unpause (also can be called as vote) to stop the game tem
 Use command /whois to see all known aliases of a player.
 
 ####Auto-click on death
-If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn
+If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn.
 
 ####Random teams/capts
 Use /randomteams 2 2 for random 2v2, etc. and /randomcapts for random captains.
