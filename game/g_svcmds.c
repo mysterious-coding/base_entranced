@@ -1191,9 +1191,7 @@ void Svcmd_SiegeRestart_f() {
 }
 extern siegePers_t g_siegePersistant;
 void Svcmd_ForceRound2_f() {
-	static char gParseObjectives[16];
 	char count[32];
-//	int timed;
 	int mins = 0;
 	int secs = 0;
 	int time;
@@ -1207,29 +1205,14 @@ void Svcmd_ForceRound2_f() {
 		trap_Printf("Usage: forceround2 <mm:ss> (e.g. 'forceround2 7:30' for 7 minutes, 30 seconds)\n");
 		return;
 	}
-//	if (atoi(count) >= 3001)
-//	{
-//		G_Printf("Time must be under 30 minutes.\n");
-//		return;
-//	}
-//	if (atoi(count) > BG_SiegeGetPairedValue(gParseObjectives, "Timed", timed))
-//	{
-//		G_Printf("Time must be within the time limit of the current map.\n");
-//		return;
-//	}
-	if (!atoi(count) || atoi(count) <= 0)
+	if (!atoi(count) || atoi(count) <= 0 || !(strstr(count, ":") != NULL) || strstr(count, ".") != NULL || strstr(count, "-") != NULL || strstr(count, ",") != NULL)
 	{
-		trap_Printf("Invalid time.\n");
+		trap_Printf("Usage: forceround2 <mm:ss> (e.g. 'forceround2 7:30' for 7 minutes, 30 seconds)\n");
 		return;
 	}
 	sscanf(count, "%d:%d", &mins, &secs);
 	time = (mins * 60) + secs;
-	if (secs >= 61)
-	{
-		trap_Printf("Invalid time.\n");
-		return;
-	}
-	if (secs >= 61)
+	if (!mins || secs > 59 || secs < 0 || mins < 0 || time <= 0)
 	{
 		trap_Printf("Invalid time.\n");
 		return;

@@ -2223,10 +2223,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "cointoss")) {
     } else if ( !Q_stricmp( arg1, "randomcapts")) {
     } else if ( !Q_stricmp( arg1, "randomteams")) {
+	} else if ( !Q_stricmp( arg1, "forceround2")) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
-			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, "
+			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, "
 			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>.\n\"" );
 		return;
 	}
@@ -2525,6 +2526,42 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
         Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random Teams - %i vs %i", team1Count, team2Count);
     }
+	else if (!Q_stricmp(arg1, "forceround2"))
+	{
+		char count[32];
+		int mins = 0;
+		int secs = 0;
+		int time;
+		if (g_gametype.integer != GT_SIEGE)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Must be in siege gametype.\n\"");
+			return;
+		}
+		trap_Argv(2, count, sizeof(count));
+		if (!count[0]) {
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: forceround2 <mm:ss> (e.g. 'forceround2 7:30' for 7 minutes, 30 seconds)\n\"");
+			return;
+		}
+		if (!atoi(count) || atoi(count) <= 0 || !(strstr(count, ":") != NULL) || strstr(count, ".") != NULL || strstr(count, "-") != NULL || strstr(count, ",") != NULL)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: forceround2 <mm:ss> (e.g. 'forceround2 7:30' for 7 minutes, 30 seconds)\n\"");
+			return;
+		}
+		sscanf(count, "%d:%d", &mins, &secs);
+		time = (mins * 60) + secs;
+		if (!mins || secs > 59 || secs < 0 || mins < 0 || time <= 0)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid time.\n\"");
+			return;
+		}
+		if (time >= 1801)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Time must be under 30 minutes.\n\"");
+			return;
+		}
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Force round 2 siege with %i:%i timer", mins, secs);
+	}
 	else if ( !Q_stricmp( arg1, "resetflags" )) 
 	{
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s", arg1 );
