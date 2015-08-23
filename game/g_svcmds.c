@@ -1188,7 +1188,64 @@ extern void SiegeClearSwitchData(void);
 void Svcmd_SiegeRestart_f() {
 	SiegeClearSwitchData(); //gives a way for the server to reset siege to round 1
 	trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+}
+extern siegePers_t g_siegePersistant;
+void Svcmd_ForceRound2_f() {
+	static char gParseObjectives[16];
+	char count[32];
+//	int timed;
+	int mins = 0;
+	int secs = 0;
+	int time;
+	if (g_gametype.integer != GT_SIEGE)
+	{
+		G_Printf("Must be in siege gametype.\n");
+		return;
+	}
+	trap_Argv(1, count, sizeof(count));
+	if (!count[0]) {
+		trap_Printf("Usage: forceround2 <mm:ss> (e.g. 'forceround2 7:30' for 7 minutes, 30 seconds)\n");
+		return;
+	}
+//	if (atoi(count) >= 3001)
+//	{
+//		G_Printf("Time must be under 30 minutes.\n");
+//		return;
+//	}
+//	if (atoi(count) > BG_SiegeGetPairedValue(gParseObjectives, "Timed", timed))
+//	{
+//		G_Printf("Time must be within the time limit of the current map.\n");
+//		return;
+//	}
+	if (!atoi(count) || atoi(count) <= 0)
+	{
+		trap_Printf("Invalid time.\n");
+		return;
+	}
+	sscanf(count, "%d:%d", &mins, &secs);
+	time = (mins * 60) + secs;
+	if (secs >= 61)
+	{
+		trap_Printf("Invalid time.\n");
+		return;
+	}
+	if (secs >= 61)
+	{
+		trap_Printf("Invalid time.\n");
+		return;
+	}
+	if (time >= 1801)
+	{
+		trap_Printf("Time must be under 30 minutes.\n");
+		return;
+	}
 
+	g_siegePersistant.beatingTime = qtrue;
+	g_siegePersistant.lastTeam = 1;
+	g_siegePersistant.lastTime = time * 1000;
+	trap_SiegePersSet(&g_siegePersistant);
+	trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+	trap_SendServerCommand(-1, va("print \"Round 2 beginning with countdown of %s.\n\"", count));
 }
 
 void Svcmd_RandomTeams_f() {
@@ -1482,6 +1539,12 @@ qboolean	ConsoleCommand( void ) {
 	if (Q_stricmp(cmd, "siege_restart") == 0)
 	{
 		Svcmd_SiegeRestart_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "forceRound2") == 0)
+	{
+		Svcmd_ForceRound2_f();
 		return qtrue;
 	}
 
