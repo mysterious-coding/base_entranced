@@ -64,7 +64,7 @@ Set to 0 so you don't lose points when you SK.
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
 
-####/Pause and /unpause
+####/pause and /unpause
 Use command /pause or /unpause (also can be called as vote) to stop the game temporarily.
 
 ####/whois
