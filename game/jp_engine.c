@@ -529,7 +529,7 @@
 #ifdef _WIN32
 #define PILOT_NETWORK_REPLACEPOS 0x41952B
 #else
-#define PILOT_NETWORK_REPLACEPOS 0x807A545
+#define PILOT_NETWORK_REPLACEPOS 0x8079A53
 #endif
 static hookEntry_t hooks[] =
 {//List of hooks to be placed
