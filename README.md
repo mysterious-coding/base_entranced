@@ -41,6 +41,14 @@ Restarts current map with siege timer going down from a specified time. For exam
 ####Reset siege to round 1 on /map vote
 No more changing maps with timer going down.
 
+####Additional control over vote-calling
+In addition to the base_enhanced vote controls, you can use these:
+* /g_allow_vote_randomteams;
+* /g_allow_vote_randomcapts;
+* /g_allow_vote_cointoss;
+* /g_allow_vote_allready;
+* /g_allow_vote_q;
+
 ####Bugfixes:
 * Seeker no longer attacks walkers and fighters.
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
@@ -100,8 +108,18 @@ Set url with g_dlurl
 ####Quiet rcon
 No more leaking stuff from rcon, use g_quietrcon
 
-####Disallow some votes
-Use g_allow_vote_kick, etc. to prevent voting some things.
+####Control vote-calling
+Prevent calling votes for some things:
+* /g_allow_vote_gametype;
+* /g_allow_vote_kick;
+* /g_allow_vote_restart;
+* /g_allow_vote_map;
+* /g_allow_vote_nextmap;
+* /g_allow_vote_timelimit;
+* /g_allow_vote_fraglimit;
+* /g_allow_vote_maprandom;
+* /g_allow_vote_warmup;
+* /g_default_restart_countdown;
 
 ####Bug fixes:
 * When you run someone over in the ATST, you get a kill.
@@ -126,27 +144,29 @@ Use g_allow_vote_kick, etc. to prevent voting some things.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing)
-Version: base_entranced-8-23-2015-build15 (stable) - fix nextmap vote failed bug, add /siege_restart, add /forceround2 (can be used from rcon or callvote), some misc. engine fixes from sil
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing)
+Version: base_entranced-8-25-2015-build16 (stable) - add g_allow_vote_randomteams, add g_allow_vote_randomcapts, add g_allow_vote_q, add g_allow_vote_allready, add g_allow_vote_cointoss, some minor bug fixes
 
 Old versions:
 
-Version: base_entranced-8-22-2015-build13 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing) - revert sil's broken shield code, add /g_rocketSurfing, /g_floatingItems, change /g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
+Version: base_entranced-8-23-2015-build15 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing) - fix nextmap vote failed bug, add /siege_restart, add /forceround2 (can be used from rcon or callvote), some misc. engine fixes from sil
 
-Version: base_entranced-8-21-2015-build10 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ajRsbkx5TkRsaE0/view?usp=sharing) - add /g_nextmapwarning
+Version: base_entranced-8-22-2015-build13 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing) - revert sil's broken shield code, add /g_rocketSurfing, /g_floatingItems, change /g_selfkill_penalty to g_selfkillPenalty (no underscores), reset siege to round 1 on /map vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
 
-Version: base_entranced-8-20-2015-build9 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aTJJM2hjbGMtbmc/view?usp=sharing) - use sil's siege /pause fix
+Version: base_entranced-8-21-2015-build10 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ajRsbkx5TkRsaE0/view?usp=sharing) - add /g_nextmapwarning
 
-Version: base_entranced-8-20-2015-build8 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing) - fix rancor bug, use sil's atst code
+Version: base_entranced-8-20-2015-build9 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aTJJM2hjbGMtbmc/view?usp=sharing) - use sil's siege /pause fix
 
-Version: base-entranced-8-20-2015-build7 (stable) [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing) - add /g_doorgreening
+Version: base_entranced-8-20-2015-build8 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing) - fix rancor bug, use sil's atst code
 
-Version: base-entranced-8-19-2015-build6 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing) - fix hoth first obj points
+Version: base-entranced-8-20-2015-build7 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing) - add /g_doorgreening
 
-Version: base-entranced-8-19-2015-build5 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dERzQzNSVV9LR1E/view?usp=sharing) - add /g_fixfallingsounds
+Version: base-entranced-8-19-2015-build6 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing) - fix hoth first obj points
 
-Version: base_entranced-8-19-2015-build4 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing) - fix countdown teamchat
+Version: base-entranced-8-19-2015-build5 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dERzQzNSVV9LR1E/view?usp=sharing) - add /g_fixfallingsounds
 
-Version: base_entranced-8-19-2015-build3 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - fix ATST kills
+Version: base_entranced-8-19-2015-build4 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing) - fix countdown teamchat
 
-Version:  base_entranced-8-19-2015-build2 (stable) - [[download]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing) - add /g_sexydisruptor and /g_fixsiegescoring
+Version: base_entranced-8-19-2015-build3 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - fix ATST kills
+
+Version:  base_entranced-8-19-2015-build2 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing) - add /g_sexydisruptor and /g_fixsiegescoring
