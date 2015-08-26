@@ -43,11 +43,11 @@ No more changing maps with timer going down.
 
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
-* /g_allow_vote_randomteams;
-* /g_allow_vote_randomcapts;
-* /g_allow_vote_cointoss;
-* /g_allow_vote_allready;
-* /g_allow_vote_q;
+* /g_allow_vote_randomteams
+* /g_allow_vote_randomcapts
+* /g_allow_vote_cointoss
+* /g_allow_vote_allready
+* /g_allow_vote_q
 
 ####Bugfixes:
 * Seeker no longer attacks walkers and fighters.
@@ -110,15 +110,15 @@ No more leaking stuff from rcon, use g_quietrcon
 
 ####Control vote-calling
 Prevent calling votes for some things:
-* /g_allow_vote_gametype;
-* /g_allow_vote_kick;
-* /g_allow_vote_restart;
-* /g_allow_vote_map;
-* /g_allow_vote_nextmap;
-* /g_allow_vote_timelimit;
-* /g_allow_vote_fraglimit;
-* /g_allow_vote_maprandom;
-* /g_allow_vote_warmup;
+* /g_allow_vote_gametype
+* /g_allow_vote_kick
+* /g_allow_vote_restart
+* /g_allow_vote_map
+* /g_allow_vote_nextmap
+* /g_allow_vote_timelimit
+* /g_allow_vote_fraglimit
+* /g_allow_vote_maprandom
+* /g_allow_vote_warmup
 
 ####Bug fixes:
 * When you run someone over in the ATST, you get a kill.
