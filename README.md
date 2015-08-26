@@ -144,7 +144,7 @@ Prevent calling votes for some things:
 
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing)
-Version: base_entranced-8-25-2015-build16 (stable) - add g_allow_vote_randomteams, add g_allow_vote_randomcapts, add g_allow_vote_q, add g_allow_vote_allready, add g_allow_vote_cointoss, some minor bug fixes
+Version: base_entranced-8-25-2015-build16 (stable) - add /g_allow_vote_randomteams, add /g_allow_vote_randomcapts, add /g_allow_vote_q, add /g_allow_vote_allready, add /g_allow_vote_cointoss, some minor bug fixes
 
 Old versions:
 
