@@ -119,7 +119,6 @@ Prevent calling votes for some things:
 * /g_allow_vote_fraglimit;
 * /g_allow_vote_maprandom;
 * /g_allow_vote_warmup;
-* /g_default_restart_countdown;
 
 ####Bug fixes:
 * When you run someone over in the ATST, you get a kill.
