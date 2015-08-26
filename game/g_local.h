@@ -1830,6 +1830,11 @@ extern vmCvar_t     g_allow_vote_fraglimit;
 extern vmCvar_t     g_allow_vote_maprandom;
 extern vmCvar_t     g_allow_vote_warmup;
 extern vmCvar_t     g_default_restart_countdown;
+extern vmCvar_t		g_allow_vote_randomteams;
+extern vmCvar_t		g_allow_vote_randomcapts;
+extern vmCvar_t		g_allow_vote_cointoss;
+extern vmCvar_t		g_allow_vote_allready;
+extern vmCvar_t		g_allow_vote_q;
 
 extern vmCvar_t	g_accounts;
 extern vmCvar_t	g_accountsFile;

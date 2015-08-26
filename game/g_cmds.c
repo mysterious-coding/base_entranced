@@ -2494,6 +2494,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} 
 	else if (!Q_stricmp(arg1, "allready"))
 	{
+		//disable this vote
+		if (!g_allow_vote_allready.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Allready is disabled.\n\"");
+			return;
+		}
 		if (!level.warmupTime) {
 			trap_SendServerCommand(ent - g_entities, "print \"allready is only available during warmup.\n\"");
 			return;
@@ -2504,16 +2509,31 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 	else if (!Q_stricmp(arg1, "cointoss"))
 	{
+		//disable this vote
+		if (!g_allow_vote_cointoss.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Coin toss is disabled.\n\"");
+			return;
+		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Coin Toss");
 	}
     else if (!Q_stricmp(arg1, "randomcapts"))
     {
+		//disable this vote
+		if (!g_allow_vote_randomcapts.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Random capts is disabled.\n\"");
+			return;
+		}
         Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
         Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random capts");
     }
     else if (!Q_stricmp(arg1, "randomteams"))
     {
+		//disable this vote
+		if (!g_allow_vote_randomteams.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Random teams is disabled.\n\"");
+			return;
+		}
         int team1Count, team2Count;
         char count[2];
 
@@ -2569,6 +2589,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 	else if ( !Q_stricmp( arg1, "q" )) 
 	{
+		if (!g_allow_vote_q.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Ask question is disabled.\n\"");
+			return;
+		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), ";" );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Poll: %s", arg2 );
 
