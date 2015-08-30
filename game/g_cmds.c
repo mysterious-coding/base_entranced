@@ -1162,6 +1162,81 @@ int G_TeamForSiegeClass(const char *clName)
 	return 0;
 }
 
+void SetSiegeClass(gentity_t *ent, char* className)
+{
+	qboolean startedAsSpec = qfalse;
+	int team = 0;
+	int preScore;
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+	{
+		startedAsSpec = qtrue;
+	}
+
+	team = G_TeamForSiegeClass(className);
+
+	if (!team)
+	{ //not a valid class name
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam != team)
+	{ //try changing it then
+		g_preventTeamBegin = qtrue;
+		if (team == TEAM_RED)
+		{
+			SetTeam(ent, "red");
+		}
+		else if (team == TEAM_BLUE)
+		{
+			SetTeam(ent, "blue");
+		}
+		g_preventTeamBegin = qfalse;
+
+		if (ent->client->sess.sessionTeam != team)
+		{ //failed, oh well
+			if (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+				ent->client->sess.siegeDesiredTeam != team)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSTEAM")));
+				return;
+			}
+		}
+	}
+
+	//preserve 'is score
+	preScore = ent->client->ps.persistant[PERS_SCORE];
+
+	//Make sure the class is valid for the team
+	BG_SiegeCheckClassLegality(team, className);
+
+	//Set the session data
+	strcpy(ent->client->sess.siegeClass, className);
+
+	// get and distribute relevent paramters
+	ClientUserinfoChanged(ent->s.number);
+
+	if (ent->client->tempSpectate < level.time)
+	{
+		// Kill him (makes sure he loses flags, etc)
+		if (ent->health > 0 && !startedAsSpec)
+		{
+			ent->flags &= ~FL_GODMODE;
+			ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
+			player_die(ent, ent, ent, 100000, MOD_SUICIDE);
+		}
+
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || startedAsSpec)
+		{ //respawn them instantly.
+			ClientBegin(ent->s.number, qfalse);
+		}
+	}
+	//set it back after we do all the stuff
+	ent->client->ps.persistant[PERS_SCORE] = preScore;
+
+	ent->client->switchClassTime = level.time + 5000;
+}
+
 /*
 =================
 Cmd_SiegeClass_f

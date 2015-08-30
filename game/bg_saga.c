@@ -1227,6 +1227,7 @@ siegeClass_t *BG_SiegeFindClassByName(const char *classname)
 
 	return NULL;
 }
+
 siegeClass_t* BG_SiegeGetClass(int team, int classNumber)
 {
 	siegeTeam_t* siegeTeam = 0;
@@ -1251,6 +1252,7 @@ siegeClass_t* BG_SiegeGetClass(int team, int classNumber)
 
 	return siegeTeam->classes[classNumber - 1];
 }
+
 void BG_SiegeParseTeamFile(const char *filename)
 {
 	fileHandle_t f;
