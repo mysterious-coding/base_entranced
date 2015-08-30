@@ -152,8 +152,8 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8eEZjRVNPOWRlc0E/view?usp=sharing)
-Version: base_entranced-8-30-2015-build17 (experimental) - add /class, add /g_fixNodropDetpacks, some misc fixes
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8WEE3VDhHNUI4dkk/view?usp=sharing)
+Version: base_entranced-8-30-2015-build18 (experimental) - add /class, add /g_fixNodropDetpacks, add shield logging, some misc fixes
 
 Old versions:
 
