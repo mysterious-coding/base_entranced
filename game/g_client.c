@@ -2652,7 +2652,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 			ent->client->ps.persistant[PERS_TEAM] = ent->client->sess.sessionTeam;
 
-			ClientUserinfoChanged( clientNum );
 			ClientBegin(clientNum, qfalse);
 			ClientUserinfoChanged(clientNum);
 			return;
