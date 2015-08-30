@@ -154,6 +154,7 @@ vmCvar_t    g_doorGreening;
 vmCvar_t    g_nextmapWarning;
 vmCvar_t    g_floatingItems;
 vmCvar_t    g_rocketSurfing;
+vmCvar_t	g_fixNodropDetpacks;
 
 #ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
@@ -631,6 +632,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_nextmapWarning, "g_nextmapWarning", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_floatingItems, "g_floatingItems", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rocketSurfing, "g_rocketSurfing", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixNodropDetpacks," g_fixNodropDetpacks", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_maxstatusrequests,	"g_maxstatusrequests"	, "50"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_testdebug,	"g_testdebug"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
