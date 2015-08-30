@@ -124,7 +124,7 @@ void ShieldThink(gentity_t *self)
 {
 	self->s.trickedentindex = 0;
 
-	if ( g_gametype.integer == GT_SIEGE )
+	if (g_gametype.integer == GT_SIEGE)
 	{
 		self->health -= SHIELD_SIEGE_HEALTH_DEC;
 	}
@@ -135,6 +135,8 @@ void ShieldThink(gentity_t *self)
 	self->nextthink = level.time + 1000;
 	if (self->health <= 0)
 	{
+		G_LogPrintf("ShieldThink() Removing shield %i by decay\n",
+			self - g_entities);
 		ShieldRemove(self);
 	}
 	return;
@@ -146,6 +148,12 @@ void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 {
 	// Play damaging sound...
 	G_AddEvent(self, EV_GENERAL_SOUND, shieldDamageSound);
+
+	if (!inflictor) inflictor = self;
+	if (!attacker) attacker = self;
+	G_LogPrintf("ShieldDie() Killing shield %i by inflictor %i (%s), attacker %i (%s), dmg %i, mod %i\n",
+		self - g_entities, inflictor - g_entities, inflictor->classname,
+		attacker - g_entities, attacker->classname, damage, mod);
 
 	ShieldRemove(self);
 }
@@ -163,6 +171,10 @@ void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 
 	self->s.trickedentindex = 1;
 
+	if (!attacker) attacker = self;
+	G_LogPrintf("ShieldPain() Damaging (dmg %i) shield %i by entity %i (%s)\n",
+		damage, self - g_entities, attacker - g_entities, attacker->classname);
+
 	return;
 }
 
@@ -176,12 +188,14 @@ void ShieldGoSolid(gentity_t *self)
 	self->health--;
 	if (self->health <= 0)
 	{
+		G_LogPrintf("ShieldGoSolid() Removing shield %i\n",
+			self - g_entities);
 		ShieldRemove(self);
 		return;
 	}
-	
-	trap_Trace (&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY );
-	if(tr.startsolid)
+
+	trap_Trace(&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY);
+	if (tr.startsolid)
 	{	// gah, we can't activate yet
 		self->nextthink = level.time + 200;
 		self->think = ShieldGoSolid;
@@ -189,6 +203,12 @@ void ShieldGoSolid(gentity_t *self)
 	}
 	else
 	{ // get hard... huh-huh...
+		if ((self->s.eFlags & EF_NODRAW))
+		{
+			G_LogPrintf("ShieldGoSolid() Enabling shield %i\n",
+				self - g_entities);
+		}
+
 		self->s.eFlags &= ~EF_NODRAW;
 
 		self->r.contents = CONTENTS_SOLID;
@@ -210,7 +230,7 @@ void ShieldGoSolid(gentity_t *self)
 // Turn the shield off to allow a friend to pass through.
 void ShieldGoNotSolid(gentity_t *self)
 {
-    qboolean wasSolid = (self->r.contents & CONTENTS_SOLID);
+	qboolean wasSolid = (self->r.contents & CONTENTS_SOLID);
 
 	// make the shield non-solid very briefly
 	self->r.contents = 0;
@@ -221,13 +241,13 @@ void ShieldGoNotSolid(gentity_t *self)
 	self->takedamage = qfalse;
 	trap_LinkEntity(self);
 
-    if ( wasSolid )
-    {
-        // Play kill sound...
-        G_AddEvent( self, EV_GENERAL_SOUND, shieldDeactivateSound );
-        self->s.loopSound = 0;
-        self->s.loopIsSoundset = qfalse;
-    } 
+	if (wasSolid)
+	{
+		// Play kill sound...
+		G_AddEvent(self, EV_GENERAL_SOUND, shieldDeactivateSound);
+		self->s.loopSound = 0;
+		self->s.loopIsSoundset = qfalse;
+	}
 }
 
 
@@ -239,8 +259,14 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	  // compare the parent's team to the "other's" team
 		if (self->parent && (self->parent->client) && (other->client))
 		{
-			if (OnSameTeam(self->parent, other))
+			trap_Trace(trace, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, other->clipmask);
+			if (OnSameTeam(self->parent, other) || (trace->startsolid && trace->entityNum == other->s.number))
 			{
+				if (!(self->s.eFlags & EF_NODRAW))
+				{
+					G_LogPrintf("ShieldTouch() Disabling shield %i for ally entity %i\n",
+						self - g_entities, other - g_entities);
+				}
 				ShieldGoNotSolid(self);
 			}
 		}
@@ -249,6 +275,8 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{//let the person who dropped the shield through
 		if (self->parent && self->parent->s.number == other->s.number)
 		{
+			G_LogPrintf("ShieldTouch() Disabling shield %i for owner (non-team gametypes)\n",
+				self - g_entities);
 			ShieldGoNotSolid(self);
 		}
 	}
@@ -267,7 +295,7 @@ void CreateShield(gentity_t *ent)
 	// trace upward to find height of shield
 	VectorCopy(ent->r.currentOrigin, end);
 	end[2] += MAX_SHIELD_HEIGHT;
-	trap_Trace (&tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT );
+	trap_Trace(&tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT);
 	height = (int)(MAX_SHIELD_HEIGHT * tr.fraction);
 
 	// use angles to find the proper axis along which to align the shield
@@ -276,29 +304,29 @@ void CreateShield(gentity_t *ent)
 
 	if ((int)(ent->s.angles[YAW]) == 0) // shield runs along y-axis
 	{
-		posTraceEnd[1]+=MAX_SHIELD_HALFWIDTH;
-		negTraceEnd[1]-=MAX_SHIELD_HALFWIDTH;
+		posTraceEnd[1] += MAX_SHIELD_HALFWIDTH;
+		negTraceEnd[1] -= MAX_SHIELD_HALFWIDTH;
 		xaxis = qfalse;
 	}
 	else  // shield runs along x-axis
 	{
-		posTraceEnd[0]+=MAX_SHIELD_HALFWIDTH;
-		negTraceEnd[0]-=MAX_SHIELD_HALFWIDTH;
+		posTraceEnd[0] += MAX_SHIELD_HALFWIDTH;
+		negTraceEnd[0] -= MAX_SHIELD_HALFWIDTH;
 		xaxis = qtrue;
 	}
 
 	// trace horizontally to find extend of shield
 	// positive trace
 	VectorCopy(ent->r.currentOrigin, start);
-	start[2] += (height>>1);
-	trap_Trace (&tr, start, 0, 0, posTraceEnd, ent->s.number, MASK_SHOT );
+	start[2] += (height >> 1);
+	trap_Trace(&tr, start, 0, 0, posTraceEnd, ent->s.number, MASK_SHOT);
 	posWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 	// negative trace
-	trap_Trace (&tr, start, 0, 0, negTraceEnd, ent->s.number, MASK_SHOT );
+	trap_Trace(&tr, start, 0, 0, negTraceEnd, ent->s.number, MASK_SHOT);
 	negWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 
 	// kef -- monkey with dimensions and place origin in center
-	halfWidth = (posWidth + negWidth)>>1;
+	halfWidth = (posWidth + negWidth) >> 1;
 	if (xaxis)
 	{
 		ent->r.currentOrigin[0] = ent->r.currentOrigin[0] - negWidth + halfWidth;
@@ -307,38 +335,38 @@ void CreateShield(gentity_t *ent)
 	{
 		ent->r.currentOrigin[1] = ent->r.currentOrigin[1] - negWidth + halfWidth;
 	}
-	ent->r.currentOrigin[2] += (height>>1);
+	ent->r.currentOrigin[2] += (height >> 1);
 
 	// set entity's mins and maxs to new values, make it solid, and link it
 	if (xaxis)
 	{
-		VectorSet(ent->r.mins, -halfWidth, -SHIELD_HALFTHICKNESS, -(height>>1));
-		VectorSet(ent->r.maxs, halfWidth, SHIELD_HALFTHICKNESS, height>>1);
+		VectorSet(ent->r.mins, -halfWidth, -SHIELD_HALFTHICKNESS, -(height >> 1));
+		VectorSet(ent->r.maxs, halfWidth, SHIELD_HALFTHICKNESS, height >> 1);
 	}
 	else
 	{
-		VectorSet(ent->r.mins, -SHIELD_HALFTHICKNESS, -halfWidth, -(height>>1));
+		VectorSet(ent->r.mins, -SHIELD_HALFTHICKNESS, -halfWidth, -(height >> 1));
 		VectorSet(ent->r.maxs, SHIELD_HALFTHICKNESS, halfWidth, height);
 	}
 	ent->clipmask = MASK_SHOT;
 
 	// Information for shield rendering.
 
-//	xaxis - 1 bit
-//	height - 0-254 8 bits
-//	posWidth - 0-255 8 bits
-//  negWidth - 0 - 255 8 bits
+	//	xaxis - 1 bit
+	//	height - 0-254 8 bits
+	//	posWidth - 0-255 8 bits
+	//  negWidth - 0 - 255 8 bits
 
 	paramData = (xaxis << 24) | (height << 16) | (posWidth << 8) | (negWidth);
 	ent->s.time2 = paramData;
 
-	if ( g_gametype.integer == GT_SIEGE )
+	if (g_gametype.integer == GT_SIEGE)
 	{
-		ent->health = ceil((float)(SHIELD_SIEGE_HEALTH*1));
+		ent->health = ceil((float)(SHIELD_SIEGE_HEALTH * 1));
 	}
 	else
 	{
-		ent->health = ceil((float)(SHIELD_HEALTH*1));
+		ent->health = ceil((float)(SHIELD_HEALTH * 1));
 	}
 
 	ent->s.time = ent->health;//???
@@ -347,7 +375,7 @@ void CreateShield(gentity_t *ent)
 	ent->touch = ShieldTouch;
 
 	// see if we're valid
-	trap_Trace (&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY ); 
+	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY);
 
 	if (tr.startsolid)
 	{	// Something in the way!
@@ -359,10 +387,14 @@ void CreateShield(gentity_t *ent)
 		ent->think = ShieldGoSolid;
 		ent->takedamage = qfalse;
 		trap_LinkEntity(ent);
+
+		if (tr.entityNum < 0 || tr.entityNum >= MAX_GENTITIES) tr.entityNum = ent - g_entities;
+		G_LogPrintf("CreateShield() Creating shield %i, entity %i in way (%s)\n",
+			ent - g_entities, tr.entityNum, g_entities[tr.entityNum].classname);
 	}
 	else
 	{	// Get solid.
-		ent->r.contents = CONTENTS_PLAYERCLIP|CONTENTS_SHOTCLIP;//CONTENTS_SOLID;
+		ent->r.contents = CONTENTS_PLAYERCLIP | CONTENTS_SHOTCLIP;//CONTENTS_SOLID;
 
 		ent->nextthink = level.time;
 		ent->think = ShieldThink;
@@ -374,6 +406,9 @@ void CreateShield(gentity_t *ent)
 		G_AddEvent(ent, EV_GENERAL_SOUND, shieldActivateSound);
 		ent->s.loopSound = shieldLoopSound;
 		ent->s.loopIsSoundset = qfalse;
+
+		G_LogPrintf("CreateShield() Creating shield %i, free space\n",
+			ent - g_entities);
 	}
 
 	ShieldGoSolid(ent);
