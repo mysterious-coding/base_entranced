@@ -150,7 +150,6 @@ qboolean G_CanEntityBeMoved(gentity_t *ent)
 /*
 ==================
 G_TryPushingEntity
-
 Returns qfalse if the move is blocked
 ==================
 */
@@ -165,64 +164,66 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	}
 
 	//This was only serverside not to mention it was never set.
-	if ( pusher->s.apos.trType != TR_STATIONARY//rotating
-		&& (pusher->spawnflags&16) //IMPACT
-		&& Q_stricmp( "func_rotating", pusher->classname ) == 0 )
+	if (pusher->s.apos.trType != TR_STATIONARY//rotating
+		&& (pusher->spawnflags & 16) //IMPACT
+		&& Q_stricmp("func_rotating", pusher->classname) == 0)
 	{//just blow the fuck out of them
-		G_Damage( check, pusher, pusher, NULL, NULL, pusher->damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
+		G_Damage(check, pusher, pusher, NULL, NULL, pusher->damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH);
 		return qtrue;
 	}
 
 	// save off the old position
 	if (pushed_p > &pushed[MAX_GENTITIES]) {
-		G_Error( "pushed_p > &pushed[MAX_GENTITIES]" );
+		G_Error("pushed_p > &pushed[MAX_GENTITIES]");
 	}
 	pushed_p->ent = check;
-	VectorCopy (check->s.pos.trBase, pushed_p->origin);
-	VectorCopy (check->s.apos.trBase, pushed_p->angles);
-	if ( check->client ) {
+	VectorCopy(check->s.pos.trBase, pushed_p->origin);
+	VectorCopy(check->s.apos.trBase, pushed_p->angles);
+	if (check->client) {
 		pushed_p->deltayaw = check->client->ps.delta_angles[YAW];
-		VectorCopy (check->client->ps.origin, pushed_p->origin);
+		VectorCopy(check->client->ps.origin, pushed_p->origin);
 	}
 	pushed_p++;
 
 	// try moving the contacted entity 
 	// figure movement due to the pusher's amove
-	G_CreateRotationMatrix( amove, transpose );
-	G_TransposeMatrix( transpose, matrix );
-	if ( check->client ) {
-		VectorSubtract (check->client->ps.origin, pusher->r.currentOrigin, org);
+	G_CreateRotationMatrix(amove, transpose);
+	G_TransposeMatrix(transpose, matrix);
+	if (check->client) {
+		VectorSubtract(check->client->ps.origin, pusher->r.currentOrigin, org);
 	}
 	else {
-		VectorSubtract (check->s.pos.trBase, pusher->r.currentOrigin, org);
+		VectorSubtract(check->s.pos.trBase, pusher->r.currentOrigin, org);
 	}
-	VectorCopy( org, org2 );
-	G_RotatePoint( org2, matrix );
-	VectorSubtract (org2, org, move2);
+	VectorCopy(org, org2);
+	G_RotatePoint(org2, matrix);
+	VectorSubtract(org2, org, move2);
 	// add movement
-	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
-	VectorAdd (check->s.pos.trBase, move2, check->s.pos.trBase);
-	if ( check->client ) {
-		VectorAdd (check->client->ps.origin, move, check->client->ps.origin);
-		VectorAdd (check->client->ps.origin, move2, check->client->ps.origin);
+	VectorAdd(check->s.pos.trBase, move, check->s.pos.trBase);
+	VectorAdd(check->s.pos.trBase, move2, check->s.pos.trBase);
+	if (check->client) {
+		VectorAdd(check->client->ps.origin, move, check->client->ps.origin);
+		VectorAdd(check->client->ps.origin, move2, check->client->ps.origin);
 		// make sure the client's view rotates when on a rotating mover
 		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
 	}
 
 	// may have pushed them off an edge
-	if ( check->s.groundEntityNum != pusher->s.number ) {
+	if (check->s.groundEntityNum != pusher->s.number) {
 		check->s.groundEntityNum = ENTITYNUM_NONE;
 	}
 
-	block = G_TestEntityPosition( check );
+	block = G_TestEntityPosition(check);
 	if (!block || (block->s.number == pusher->s.number))
+	{
 		// pushed ok
-		if ( check->client ) {
-			VectorCopy( check->client->ps.origin, check->r.currentOrigin );
-		} else {
-			VectorCopy( check->s.pos.trBase, check->r.currentOrigin );
+		if (check->client) {
+			VectorCopy(check->client->ps.origin, check->r.currentOrigin);
 		}
-		trap_LinkEntity (check);
+		else {
+			VectorCopy(check->s.pos.trBase, check->r.currentOrigin);
+		}
+		trap_LinkEntity(check);
 		return qtrue;
 	}
 	else
@@ -246,13 +247,13 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	// if it is ok to leave in the old position, do it
 	// this is only relevent for riding entities, not pushed
 	// Sliding trapdoors can cause this.
-	VectorCopy( (pushed_p-1)->origin, check->s.pos.trBase);
-	if ( check->client ) {
-		VectorCopy( (pushed_p-1)->origin, check->client->ps.origin);
+	VectorCopy((pushed_p - 1)->origin, check->s.pos.trBase);
+	if (check->client) {
+		VectorCopy((pushed_p - 1)->origin, check->client->ps.origin);
 	}
-	VectorCopy( (pushed_p-1)->angles, check->s.apos.trBase );
-	block = G_TestEntityPosition (check);
-	if ( !block ) {
+	VectorCopy((pushed_p - 1)->angles, check->s.apos.trBase);
+	block = G_TestEntityPosition(check);
+	if (!block) {
 		check->s.groundEntityNum = -1;
 		pushed_p--;
 		return qtrue;
@@ -263,7 +264,7 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 }
 
 
-void G_ExplodeMissile( gentity_t *ent );
+void G_ExplodeMissile(gentity_t *ent);
 
 /*
 ============
