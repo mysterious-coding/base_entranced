@@ -2544,7 +2544,10 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		if (firstTime || level.newSession)
 		{ //start as spec
 			client->sess.siegeDesiredTeam = client->sess.sessionTeam;
-			client->sess.sessionTeam = TEAM_SPECTATOR;
+				if (!isBot)
+				 {
+				client->sess.sessionTeam = TEAM_SPECTATOR;
+				}
 		}
 	}
 	else if (g_gametype.integer == GT_POWERDUEL && client->sess.sessionTeam != TEAM_SPECTATOR)
@@ -2647,10 +2650,11 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 			trap_SetUserinfo( clientNum, userinfo );
 
-			ent->client->ps.persistant[ PERS_TEAM ] = ent->client->sess.sessionTeam;
+			ent->client->ps.persistant[PERS_TEAM] = ent->client->sess.sessionTeam;
 
 			ClientUserinfoChanged( clientNum );
 			ClientBegin(clientNum, qfalse);
+			ClientUserinfoChanged(clientNum);
 			return;
 		}
 	}
