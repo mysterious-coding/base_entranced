@@ -56,6 +56,9 @@ In addition to the base_enhanced vote controls, you can use these:
 #Features that are also in base_enhanced
 Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
 
+####/class
+Clientside command. Use first letter of class to change, like /class a for assault, /class s for scout, etc.
+
 ####/g_rocketSurfing
 0 = no rocket surfing (good)
 
@@ -68,6 +71,11 @@ Many of these features were coded and/or conceived by us first, and then were ad
 
 ####/g_selfkillPenalty
 Set to 0 so you don't lose points when you SK.
+
+####/g_fixNodropDetpacks
+0 = Detpacks disappear on lifts (JK3 default)
+
+1 = Detpacks stick to lifts
 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
@@ -140,13 +148,16 @@ Prevent calling votes for some things:
 * Bugfix for map_restart 999999 (now maximum 10)
 * Bugfix for spec voting.
 * Bugfix for flechette stuck in wall.
+* Bugfix for bots getting messed up when changing gametypes.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing)
-Version: base_entranced-8-25-2015-build16 (stable) - add /g_allow_vote_randomteams, add /g_allow_vote_randomcapts, add /g_allow_vote_q, add /g_allow_vote_allready, add /g_allow_vote_cointoss, some minor bug fixes
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8eEZjRVNPOWRlc0E/view?usp=sharing)
+Version: base_entranced-8-25-2015-build17 (experimental) - add /class, add /g_fixNodropDetpacks, some misc fixes)
 
 Old versions:
+
+Version: base_entranced-8-25-2015-build16 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing) - add /g_allow_vote_randomteams, add /g_allow_vote_randomcapts, add /g_allow_vote_q, add /g_allow_vote_allready, add /g_allow_vote_cointoss, some minor bug fixes
 
 Version: base_entranced-8-23-2015-build15 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing) - fix nextmap vote failed bug, add /siege_restart, add /forceround2 (can be used from rcon or callvote), some misc. engine fixes from sil
 
