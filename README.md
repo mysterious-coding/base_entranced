@@ -17,11 +17,6 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
 
-####/g_doorGreening
-0 = no door greening, good for pub servers to prevent lamers (ctf flag-in-door fix enabled)
-
-1 = door greening, good for pug servers (default JK3 setting, ctf flag-in-door fix disabled)
-
 ####/g_nextmapWarning
 0 = no warning (default JK3)
 
@@ -52,6 +47,7 @@ In addition to the base_enhanced vote controls, you can use these:
 ####Bugfixes:
 * Seeker no longer attacks walkers and fighters.
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
+* Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 
 #Features that are also in base_enhanced
 Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -71,11 +67,6 @@ Clientside command. Use first letter of class to change, like /class a for assau
 
 ####/g_selfkillPenalty
 Set to 0 so you don't lose points when you SK.
-
-####/g_fixNodropDetpacks
-0 = Detpacks disappear on lifts (JK3 default)
-
-1 = Detpacks stick to lifts
 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
@@ -144,18 +135,20 @@ Prevent calling votes for some things:
 * No more weird spec glitch with possessing someone else's body.
 * Bugfix for sentry placed in lift.
 * Allow for many more siege maps/classes on server.
-* Security/crash fixes.
 * Bugfix for map_restart 999999 (now maximum 10)
 * Bugfix for spec voting.
 * Bugfix for flechette stuck in wall.
 * Bugfix for bots getting messed up when changing gametypes.
+* Security/crash fixes.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8WEE3VDhHNUI4dkk/view?usp=sharing)
-Version: base_entranced-8-30-2015-build18 (experimental) - add /class, add /g_fixNodropDetpacks, add shield logging, some misc fixes
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8WC1Obm55OHFOeTQ/view?usp=sharing)
+Version: base_entranced-8-31-2015-build19 (experimental) - fix weird lift behavior with people not getting crushed and dets making lifts reverse and other weird things, revert sil's walker-spawning-in-shield bugfix that re-added player-spawning-in-shield bug, remove g_doorGreening (it is now permanently enabled), remove g_fixNodropDetpacks (it is now permanently default JK3 behavior)
 
 Old versions:
+
+Version: base_entranced-8-30-2015-build18 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WEE3VDhHNUI4dkk/view?usp=sharing) - add /class, add /g_fixNodropDetpacks, add shield logging, some misc fixes
 
 Version: base_entranced-8-25-2015-build16 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing) - add /g_allow_vote_randomteams, add /g_allow_vote_randomcapts, add /g_allow_vote_q, add /g_allow_vote_allready, add /g_allow_vote_cointoss, some minor bug fixes
 
