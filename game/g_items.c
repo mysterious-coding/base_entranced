@@ -261,8 +261,10 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		{
 			if (OnSameTeam(self->parent, other))
 			{
-					G_LogPrintf("ShieldTouch() Disabling shield %i for ally entity %i\n",
-						self - g_entities, other - g_entities);
+				if (!(self->s.eFlags & EF_NODRAW))
+				{
+					G_LogPrintf("ShieldTouch() Disabling shield %i for ally entity %i\n", self - g_entities, other - g_entities);
+				}
 				ShieldGoNotSolid(self);
 			}
 		}
