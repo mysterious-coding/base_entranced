@@ -3235,35 +3235,26 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// if it is in a nodrop volume, remove it
-	contents = trap_PointContents( ent->r.currentOrigin, -1 );
-	if ( contents & CONTENTS_NODROP ) {
+	contents = trap_PointContents(ent->r.currentOrigin, -1);
+	if (contents & CONTENTS_NODROP) {
 		if (ent->item && ent->item->giType == IT_TEAM) {
-			if (!g_flags_overboarding.integer)
-			{
+			if (!g_flags_overboarding.integer) {
 				Team_FreeEntity(ent);
 			}
 		}
-		else
-		{
-			if (!g_fixNodropDetpacks.integer &&  ent->s.weapon == WP_DET_PACK)
+		else {
+			if (ent->die)
+			{
+				ent->die(ent, ent, ent, 100, MOD_UNKNOWN);
+			}
+			else
 			{
 				G_FreeEntity(ent);
-			}
-			else if (ent->s.weapon != WP_DET_PACK)  // for det packs we want consistent behaviour to trip mines
-			{
-				if (ent->takedamage)
-				{
-					G_Damage(ent, ent, ent, NULL, NULL, 9999, 0, MOD_UNKNOWN);
-				}
-				else
-				{
-					G_FreeEntity(ent);
-				}
 			}
 		}
 		return;
 	}
 
-	G_BounceItem( ent, &tr );
+	G_BounceItem(ent, &tr);
 }
 

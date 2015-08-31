@@ -1849,11 +1849,9 @@ extern vmCvar_t	   g_selfkillPenalty;
 extern vmCvar_t    g_sexyDisruptor;
 extern vmCvar_t    g_fixSiegeScoring;
 extern vmCvar_t    g_fixFallingSounds;
-extern vmCvar_t    g_doorGreening;
 extern vmCvar_t    g_nextmapWarning;
 extern vmCvar_t    g_floatingItems;
 extern vmCvar_t    g_rocketSurfing;
-extern vmCvar_t	   g_fixNodropDetpacks;
 
 extern vmCvar_t	   g_rconpassword;
 
