@@ -22,6 +22,16 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 1 = when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
+####/g_hideSpecLocation
+0 = teamchat between spectators shows location (default JK3)
+
+1 = remove useless location from teamchat between spectators, meaning you can now have a nice conversation in spec without annoying text like >Wrecked AT-AT< unnecessarily taking up space on every line
+
+####/g_denoteDead
+0 = normal teamchat when dead (default JK3)
+
+1 = (DEAD) message in teamchats from dead teammates
+
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
@@ -143,10 +153,12 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8WC1Obm55OHFOeTQ/view?usp=sharing)
-Version: base_entranced-8-31-2015-build19 (experimental) - fix weird lift behavior with people not getting crushed and dets making lifts reverse and other weird things, revert sil's walker-spawning-in-shield bugfix that re-added player-spawning-in-shield bug, remove g_doorGreening (it is now permanently enabled), remove g_fixNodropDetpacks (it is now permanently default JK3 behavior)
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing)
+Version: base_entranced-9-1-2015-build20 (experimental) - add g_hideSpecLocation, add g_denoteDead
 
 Old versions:
+
+Version: base_entranced-8-31-2015-build19 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WC1Obm55OHFOeTQ/view?usp=sharing) - fix weird lift behavior with people not getting crushed and dets making lifts reverse and other weird things, revert sil's walker-spawning-in-shield bugfix that re-added player-spawning-in-shield bug, remove g_doorGreening (it is now permanently enabled), remove g_fixNodropDetpacks (it is now permanently default JK3 behavior)
 
 Version: base_entranced-8-30-2015-build18 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WEE3VDhHNUI4dkk/view?usp=sharing) - add /class, add /g_fixNodropDetpacks, add shield logging, some misc fixes
 
