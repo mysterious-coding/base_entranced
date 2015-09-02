@@ -28,9 +28,9 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 1 = remove useless location from teamchat between spectators, meaning you can now have a nice conversation in spec without annoying text like >Wrecked AT-AT< unnecessarily taking up space on every line
 
 ####/g_denoteDead
-0 = normal teamchat when dead in siege mode(default JK3)
+0 = normal teamchat when dead (default JK3)
 
-1 = (DEAD) message in teamchats from dead teammates in siege mode
+1 = (DEAD) message in teamchats from dead teammates
 
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
@@ -66,14 +66,14 @@ Many of these features were coded and/or conceived by us first, and then were ad
 Clientside command. Use first letter of class to change, like /class a for assault, /class s for scout, etc.
 
 ####/g_rocketSurfing
-0 = no rocket surfing (good)
+0 = no rocket surfing (ideal setting)
 
 1 = bullshit rocket surfing enabled (JK3 default)
 
 ####/g_floatingItems
-0 = no floating siege items - useful for non-korriban maps
+0 = no floating siege items (ideal setting for most maps)
 
-1 = siege items float up walls when dropped - useful for korriban (JK3 default)
+1 = siege items float up walls when dropped - annoying bug on most maps, but classic strategy for korriban (JK3 default)
 
 ####/g_selfkillPenalty
 Set to 0 so you don't lose points when you SK.
