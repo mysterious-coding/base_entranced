@@ -3788,12 +3788,12 @@ void CheckReady(void)
     unsigned readyMask = 0;
     static qboolean restarting = qfalse;
 
-    if ((g_gametype.integer == GT_POWERDUEL) || (g_gametype.integer == GT_DUEL) || (g_gametype.integer == GT_SIEGE))
+    if ((g_gametype.integer == GT_POWERDUEL) || (g_gametype.integer == GT_DUEL))
         return;
 
     // for original functionality of /ready
     // if (!g_doWarmup.integer || !level.numPlayingClients || restarting || level.intermissiontime)
-    if (!g_doWarmup.integer || restarting || level.intermissiontime)
+    if (restarting || level.intermissiontime)
         return;
 
     for (i = 0, ent = g_entities; i < level.maxclients; i++, ent++)

@@ -2578,10 +2578,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Allready is disabled.\n\"");
 			return;
 		}
-		if (!level.warmupTime) {
-			trap_SendServerCommand(ent - g_entities, "print \"allready is only available during warmup.\n\"");
-			return;
-		}
 
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
@@ -2783,7 +2779,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 static void Cmd_Ready_f(gentity_t *ent) {
 	const char *publicMsg = NULL;
 
-	if (!g_doWarmup.integer || level.restarted  )
+	if (level.restarted  )
 		return;
 
 	if (ent->client->pers.readyTime > level.time - 2000)

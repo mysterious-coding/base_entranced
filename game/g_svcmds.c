@@ -862,11 +862,6 @@ void Svcmd_ResetFlags_f(){
 }
 
 void Svcmd_AllReady_f(void) {
-	if (!level.warmupTime) {
-		G_Printf("allready is only available during warmup\n");
-		return;
-	}
-
 	level.warmupTime = level.time;
 }
 
