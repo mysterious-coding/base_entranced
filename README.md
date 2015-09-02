@@ -117,6 +117,10 @@ Set url with g_dlurl
 ####Quiet rcon
 No more leaking stuff from rcon, use g_quietrcon
 
+####Fixed siege chat
+* Spectator chat can be seen by people who are in-game
+* Chat from dead players can be seen
+
 ####Control vote-calling
 Prevent calling votes for some things:
 * /g_allow_vote_gametype
