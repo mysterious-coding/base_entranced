@@ -1649,18 +1649,26 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 
 	//They've requested I take this out.
-
-	if (locMsg)
+	if (g_hideSpecLocation.integer && ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
-		trap_SendServerCommand( other-g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\"", 
-			mode == SAY_TEAM ? "ltchat" : "lchat",
-			name, locMsg, color, message));
+		trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
+			mode == SAY_TEAM ? "tchat" : "chat",
+			name, Q_COLOR_ESCAPE, color, message));
 	}
 	else
 	{
-		trap_SendServerCommand( other-g_entities, va("%s \"%s%c%c%s\"", 
-			mode == SAY_TEAM ? "tchat" : "chat",
-			name, Q_COLOR_ESCAPE, color, message));
+		if (locMsg)
+		{
+			trap_SendServerCommand(other - g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\"",
+				mode == SAY_TEAM ? "ltchat" : "lchat",
+				name, locMsg, color, message));
+		}
+		else
+		{
+			trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
+				mode == SAY_TEAM ? "tchat" : "chat",
+				name, Q_COLOR_ESCAPE, color, message));
+		}
 	}
 }
 

@@ -1852,6 +1852,7 @@ extern vmCvar_t    g_fixFallingSounds;
 extern vmCvar_t    g_nextmapWarning;
 extern vmCvar_t    g_floatingItems;
 extern vmCvar_t    g_rocketSurfing;
+extern vmCvar_t	   g_hideSpecLocation;
 
 extern vmCvar_t	   g_rconpassword;
 
