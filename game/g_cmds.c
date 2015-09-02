@@ -1730,7 +1730,10 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	Q_strncpyz( text, chatText, sizeof(text) );
-
+	if (g_denoteDead.integer && g_gametype.integer == GT_SIEGE && mode == SAY_TEAM && ent->client->sess.sessionTeam != TEAM_SPECTATOR && (ent->client->tempSpectate > level.time || ent->health <= 0))
+	{
+		Com_sprintf(text, sizeof(text), "^0(DEAD) %c%c%s", Q_COLOR_ESCAPE, color, text);
+	}
 
 	if ( target ) {
 		G_SayTo( ent, target, mode, color, name, text, locMsg );
