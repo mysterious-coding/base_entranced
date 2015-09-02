@@ -28,9 +28,9 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 1 = remove useless location from teamchat between spectators, meaning you can now have a nice conversation in spec without annoying text like >Wrecked AT-AT< unnecessarily taking up space on every line
 
 ####/g_denoteDead
-0 = normal teamchat when dead (default JK3)
+0 = normal teamchat when dead in siege mode(default JK3)
 
-1 = (DEAD) message in teamchats from dead teammates
+1 = (DEAD) message in teamchats from dead teammates in siege mode
 
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
