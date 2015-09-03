@@ -157,10 +157,12 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing)
-Version: base_entranced-9-1-2015-build20 (experimental) - add g_hideSpecLocation, add g_denoteDead
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing)
+Version: base_entranced-9-1-2015-build21 (experimental) - additional shield debug logging, experimental random teams support for siege
 
 Old versions:
+
+Version: base_entranced-9-1-2015-build20 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing) - add g_hideSpecLocation, add g_denoteDead
 
 Version: base_entranced-8-31-2015-build19 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WC1Obm55OHFOeTQ/view?usp=sharing) - fix weird lift behavior with people not getting crushed and dets making lifts reverse and other weird things, revert sil's walker-spawning-in-shield bugfix that re-added player-spawning-in-shield bug, remove g_doorGreening (it is now permanently enabled), remove g_fixNodropDetpacks (it is now permanently default JK3 behavior)
 
