@@ -54,6 +54,12 @@ In addition to the base_enhanced vote controls, you can use these:
 * /g_allow_vote_allready
 * /g_allow_vote_q
 
+####Random teams/capts in siege
+base_enhanced allows for random teams/capts generation, but it doesn't work in siege mode. I have enabled it to work for siege in base_entranced.
+
+####Support for kill-the-npc objectives
+Framework to support kill-the-npc objectives in future siege maps, such as the upcoming siege_ghetto. Mapmakers can specify "dempProof 1" in .npc files to make NPCs immune to demp. Mapmakers can also specify "specialKnockback #" -- in conjunction with teamnodmg, this makes it so enemies cannot knockback this NPC, and allies get extra knockback on this NPC when using melee(useful for moving him around). Knockback is multiplied by the specialKnockback number for friendly melee.
+
 ####Bugfixes:
 * Seeker no longer attacks walkers and fighters.
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
@@ -153,14 +159,18 @@ Prevent calling votes for some things:
 * Bugfix for spec voting.
 * Bugfix for flechette stuck in wall.
 * Bugfix for bots getting messed up when changing gametypes.
+* Working teamnodmg for NPCs.
+* Working healing of vehicles when healingclass is specified.
 * Security/crash fixes.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing)
-Version: base_entranced-9-1-2015-build21 (experimental) - additional shield debug logging, experimental random teams support for siege
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8NThibllXV20zUVE/view?usp=sharing)
+Version: base_entranced-9-4-2015-build22 (experimental) - fix teamnodmg for NPCs, fix healing vehicles, add some framework for future kill-the-npc objectives. Note that this "healing vehicles" addition is not adding any new functionality to maps that didn't intend for vehicles to healed. For example, mp/siege_hoth has always specified that offense tech can heal the walker; the code to actually do so was just simply broken.
 
 Old versions:
+
+Version: base_entranced-9-3-2015-build21 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing) - additional shield debug logging, experimental random teams support for siege
 
 Version: base_entranced-9-1-2015-build20 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing) - add g_hideSpecLocation, add g_denoteDead
 
