@@ -604,12 +604,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	{
 		if ( tr.entityNum < ENTITYNUM_WORLD && traceEnt->takedamage )
 		{
-			if ( traceEnt->client && LogAccuracyHit( traceEnt, ent )) 
-			{
-				ent->client->accuracy_hits++;
-			} 
-
-			if( LogAccuracyHit( traceEnt, ent ) ) {
+			if (traceEnt->client && LogAccuracyHit(traceEnt, ent)) {
 				hits++;
 			}
 
@@ -832,9 +827,8 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	
 				if ( LogAccuracyHit( traceEnt, ent )) {
 					if (ent->client) {
-						ent->client->accuracy_hits++;
+						hits++;
 					}
-					hits++;
 				}
 			} 
 			else 
