@@ -4351,6 +4351,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
+	if (targ->s.eType == ET_NPC && attacker->client && targ->teamnodmg && targ->NPC->stats.specialKnockback != 1) { //target in question is an npc, attacker is a client, a teamnodmg key is active, and special knockback is set
+		if (targ->teamnodmg == attacker->client->sess.sessionTeam && mod == MOD_MELEE) //target in question has teamnodmg set to same team as attacker and is using melee
+		{
+			knockback = (knockback * targ->NPC->stats.specialKnockback); //teammates deal extra knockback for melee, normal knockback for other weapons
+		}
+		else if (targ->teamnodmg != attacker->client->sess.sessionTeam)
+		{
+			knockback = 0; //no knockback at all for enemies
+		}
+	}
+
 
 	// figure momentum add, even if the damage won't be taken
 	if ( knockback && targ->client ) {
@@ -4446,7 +4457,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		targ->client->ps.otherKillerDebounceTime = level.time + 25000;
 	}
 
-	
 	if ( (g_trueJedi.integer || g_gametype.integer == GT_SIEGE)
 		&& client )
 	{//less explosive damage for jedi, more saber damage for non-jedi
