@@ -4135,6 +4135,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+
+	if (targ->s.eType == ET_NPC && mod == MOD_DEMP2 && targ->NPC->stats.dempProof)
+	{
+		return;
+	}
+
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
 		if ( targ->client->ps.electrifyTime < level.time )
