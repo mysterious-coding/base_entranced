@@ -153,14 +153,18 @@ Prevent calling votes for some things:
 * Bugfix for spec voting.
 * Bugfix for flechette stuck in wall.
 * Bugfix for bots getting messed up when changing gametypes.
+* Bugfix for healing NPCs/vehicles in siege.
+* Bugfix for teamnodmg for NPCs
 * Security/crash fixes.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing)
-Version: base_entranced-9-1-2015-build21 (experimental) - additional shield debug logging, experimental random teams support for siege
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing)
+Version: base_entranced-9-5-2015-build23 (experimental) - fix other players bugging shield, fix healing npcs, fix teamnodmg for npcs, some very minor bugfixes
 
 Old versions:
+
+Version: base_entranced-9-3-2015-build21 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing) - additional shield debug logging, experimental random teams support for siege
 
 Version: base_entranced-9-1-2015-build20 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing) - add g_hideSpecLocation, add g_denoteDead
 
