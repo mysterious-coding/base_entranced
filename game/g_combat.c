@@ -4136,10 +4136,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 
-	if (targ->s.eType == ET_NPC && mod == MOD_DEMP2 && targ->NPC->stats.dempProof)
-	{
-		return;
-	}
+	//if (targ->s.eType == ET_NPC && mod == MOD_DEMP2 && targ->NPC->stats.dempProof)
+	//{
+	//	return;
+	//}
 
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
@@ -4351,7 +4351,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
-	if (targ->s.eType == ET_NPC && attacker->client && targ->teamnodmg && targ->NPC->stats.specialKnockback != 1) { //target in question is an npc, attacker is a client, a teamnodmg key is active, and special knockback is set
+	/*if (targ->s.eType == ET_NPC && attacker->client && targ->teamnodmg && targ->NPC->stats.specialKnockback != 1) { //target in question is an npc, attacker is a client, a teamnodmg key is active, and special knockback is set
 		if (targ->teamnodmg == attacker->client->sess.sessionTeam && mod == MOD_MELEE) //target in question has teamnodmg set to same team as attacker and is using melee
 		{
 			knockback = (knockback * targ->NPC->stats.specialKnockback); //teammates deal extra knockback for melee, normal knockback for other weapons
@@ -4360,7 +4360,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		{
 			knockback = 0; //no knockback at all for enemies
 		}
-	}
+	}*/
 
 
 	// figure momentum add, even if the damage won't be taken

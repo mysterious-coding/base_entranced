@@ -103,8 +103,8 @@ typedef struct gNPCstats_e
 	float	yawSpeed;			// 1 - whatever, default is 50
 	int		health;
 	int		acceleration;
-	int     dempProof;
-	int  	specialKnockback;
+	//int     dempProof;
+	//int  	specialKnockback;
 } gNPCstats_t;
 
 // NOTE!!!  If you add any ptr fields into this structure could you please tell me so I can update the load/save code?

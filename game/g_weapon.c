@@ -1322,8 +1322,8 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 
 		// push the center of mass higher than the origin so players get knocked into the air more
 		dir[2] += 12;
-		
-		if (gent != myOwner && !(gent->s.eType == ET_NPC && gent->NPC->stats.dempProof))
+		if (gent != myOwner)
+		//if (gent != myOwner && !(gent->s.eType == ET_NPC && gent->NPC->stats.dempProof))
 		{
 			G_Damage( gent, myOwner, myOwner, dir, ent->r.currentOrigin, ent->damage, DAMAGE_DEATH_KNOCKBACK, ent->splashMethodOfDeath );
 			if ( gent->takedamage 
