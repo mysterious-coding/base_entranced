@@ -46,6 +46,9 @@ Restarts current map with siege timer going down from a specified time. For exam
 ####Reset siege to round 1 on /map vote
 No more changing maps with timer going down.
 
+####Random teams/capts in siege
+Although base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege.
+
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
 * /g_allow_vote_randomteams
