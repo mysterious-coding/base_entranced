@@ -92,7 +92,7 @@ Set to 0 so you don't lose points when you SK.
 See when someone joined a team in the center of your screen in siege mode.
 
 ####/pause and /unpause
-Use command /pause or /unpause (also can be called as vote) to stop the game temporarily.
+Use command /pause or /unpause (also can be called as vote) to stop the game temporarily. Useful if someone lags out. Stops game timer, siege timer, spawn timer, etc.
 
 ####/whois
 Use command /whois to see all known aliases of a player.
@@ -126,6 +126,9 @@ Set url with g_dlurl
 
 ####Quiet rcon
 No more leaking stuff from rcon, use g_quietrcon
+
+####Lag icon above head
+Players with 999 ping show a lag icon above their head in-game
 
 ####Fixed siege chat
 * Spectator chat can be seen by people who are in-game
