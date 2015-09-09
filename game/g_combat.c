@@ -4351,16 +4351,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
-	/*if (targ->s.eType == ET_NPC && attacker->client && targ->teamnodmg && targ->NPC->stats.specialKnockback != 1) { //target in question is an npc, attacker is a client, a teamnodmg key is active, and special knockback is set
-		if (targ->teamnodmg == attacker->client->sess.sessionTeam && mod == MOD_MELEE) //target in question has teamnodmg set to same team as attacker and is using melee
+	if (targ->s.eType == ET_NPC && targ->NPC->stats.specialKnockback) { //target in question is an npc and special knockback is set
+		if (targ->NPC->stats.specialKnockback == attacker->client->sess.sessionTeam || targ->NPC->stats.specialKnockback == 3 ) //target in question cannot be knockbacked by attacker
 		{
-			knockback = (knockback * targ->NPC->stats.specialKnockback); //teammates deal extra knockback for melee, normal knockback for other weapons
+			knockback = 0; //no knockback
 		}
-		else if (targ->teamnodmg != attacker->client->sess.sessionTeam)
-		{
-			knockback = 0; //no knockback at all for enemies
-		}
-	}*/
+	}
 
 
 	// figure momentum add, even if the damage won't be taken

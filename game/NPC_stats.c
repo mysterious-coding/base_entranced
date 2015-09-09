@@ -885,7 +885,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->runSpeed		= 300;
 		stats->acceleration	= 15;//Increase/descrease speed this much per frame (20fps)
 		stats->dempProof    = 0;
-		//stats->specialKnockback = 1;
+		stats->specialKnockback = 0;
 	}
 	else
 	{
@@ -1501,7 +1501,8 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 
 				// specialKnockback
-				/*if (!Q_stricmp(token, "specialKnockback")) {
+				// 0 default, 1=red can't knockback, 2=blue can't knockback, 3=nobody can knockback
+				if (!Q_stricmp(token, "specialKnockback")) {
 					if (COM_ParseInt(&p, &n)) {
 						SkipRestOfLine(&p);
 						continue;
@@ -1515,7 +1516,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						stats->specialKnockback = n;
 					}
 					continue;
-				}*/
+				}
 
 				// shootDistance
 				if ( !Q_stricmp( token, "shootDistance" ) ) {
