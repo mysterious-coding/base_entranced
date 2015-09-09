@@ -49,6 +49,13 @@ No more changing maps with timer going down.
 ####Random teams/capts in siege
 Although base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege.
 
+####Additional tools for mapmakers
+Mapmakers can add some extra flags to .npc files for additional control over NPCs:
+* dempProof 1 = NPC is invulnerable to DEMP damage
+* specialKnockback 1 = NPC cannot be knockbacked by red team
+* specialKnockback 2 = NPC cannot be knockbacked by blue team
+* specialKnockback 3 = NPC cannot be knockbacked by any team
+
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
 * /g_allow_vote_randomteams
@@ -163,10 +170,12 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing)
-Version: base_entranced-9-5-2015-build23 (experimental) - fix other players bugging shield, fix healing npcs, fix teamnodmg for npcs, some very minor bugfixes
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing)
+Version: base_entranced-9-8-2015-build24 (experimental) - fix jesus godmode bug from /pause, fix players unable to connect during /pause, fix sentry expiry timer bug from /pause, add dempProof and specialKnockback
 
 Old versions:
+
+Version: base_entranced-9-5-2015-build23 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing) - fix other players bugging shield, fix healing npcs, fix teamnodmg for npcs, some very minor bugfixes
 
 Version: base_entranced-9-3-2015-build21 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing) - additional shield debug logging, experimental random teams support for siege
 
