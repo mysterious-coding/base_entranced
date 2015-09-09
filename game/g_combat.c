@@ -4136,10 +4136,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 
-	//if (targ->s.eType == ET_NPC && mod == MOD_DEMP2 && targ->NPC->stats.dempProof)
-	//{
-	//	return;
-	//}
+	if (targ->s.eType == ET_NPC && mod == MOD_DEMP2 && targ->NPC->stats.dempProof)
+	{
+		return;
+	}
 
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{

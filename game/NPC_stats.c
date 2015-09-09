@@ -884,7 +884,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->walkSpeed	= 90;
 		stats->runSpeed		= 300;
 		stats->acceleration	= 15;//Increase/descrease speed this much per frame (20fps)
-		//stats->dempProof    = 0;
+		stats->dempProof    = 0;
 		//stats->specialKnockback = 1;
 	}
 	else
@@ -1488,7 +1488,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 
 				// dempProof
-				/*if (!Q_stricmp(token, "dempProof")) {
+				if (!Q_stricmp(token, "dempProof")) {
 					if (COM_ParseInt(&p, &n)) {
 						SkipRestOfLine(&p);
 						continue;
@@ -1498,7 +1498,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						stats->dempProof = n;
 					}
 					continue;
-				}*/
+				}
 
 				// specialKnockback
 				/*if (!Q_stricmp(token, "specialKnockback")) {

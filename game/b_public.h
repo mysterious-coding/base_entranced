@@ -103,7 +103,7 @@ typedef struct gNPCstats_e
 	float	yawSpeed;			// 1 - whatever, default is 50
 	int		health;
 	int		acceleration;
-	//int     dempProof;
+	int     dempProof;
 	//int  	specialKnockback;
 } gNPCstats_t;
 
