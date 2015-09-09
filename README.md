@@ -49,6 +49,12 @@ No more changing maps with timer going down.
 ####Random teams/capts in siege
 Although base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege.
 
+####/forceready and /forceunready
+Use /forceready <clientnumber> and /forceunready <clientnumber> to force a player to have ready or not ready status. Use -1 to force everybody.
+
+####/g_allow_ready
+Use to enable/disable players from using the /ready command.
+
 ####Additional tools for mapmakers
 Mapmakers can add some extra flags to .npc files for additional control over NPCs:
 * dempProof 1 = NPC is invulnerable to DEMP damage
@@ -169,14 +175,19 @@ Prevent calling votes for some things:
 * Bugfix for healing NPCs/vehicles in siege.
 * Bugfix for glitched shield because someone bodyblocked your placement.
 * Bugfix for teamnodmg for NPCs
+* Bugfix for mindtricking when no enemies are around
+* Golan alternate fire properly uses "was shrapnelled by" now
+* Trip mine alternate fire properly uses "was mined by" now
 * Security/crash fixes.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing)
-Version: base_entranced-9-8-2015-build24 (experimental) - fix jesus godmode bug from /pause, fix players unable to connect during /pause, fix sentry expiry timer bug from /pause, add dempProof and specialKnockback
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing)
+Version: base_entranced-9-9-2015-build25 (stable) - add /forceready, add /forceunready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
 
 Old versions:
+
+Version: base_entranced-9-8-2015-build24 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing) - fix jesus godmode bug from /pause, fix players unable to connect during /pause, fix sentry expiry timer bug from /pause, add dempProof and specialKnockback
 
 Version: base_entranced-9-5-2015-build23 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing) - fix other players bugging shield, fix healing npcs, fix teamnodmg for npcs, some very minor bugfixes
 
