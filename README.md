@@ -183,7 +183,7 @@ Prevent calling votes for some things:
 
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing)
-Version: base_entranced-9-9-2015-build25 (stable) - add /forceready, add /forceunready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
+Version: base_entranced-9-9-2015-build25 (stable) - add /forceready, add /forceunready, add /g_allow_ready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
 
 Old versions:
 
