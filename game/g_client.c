@@ -2580,8 +2580,10 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
         ent->client->sess.nameChangeTime = getGlobalTime();
     }
 
-	if ( g_gametype.integer >= GT_TEAM &&
-		client->sess.sessionTeam != TEAM_SPECTATOR ) {
+	if ((g_gametype.integer >= GT_TEAM) &&
+		(client->sess.sessionTeam != TEAM_SPECTATOR) &&
+		firstTime)
+	{
 		BroadcastTeamChange( client, -1 );
 	}
 
