@@ -861,8 +861,108 @@ void Svcmd_ResetFlags_f(){
 	Team_ResetFlags();
 }
 
-void Svcmd_AllReady_f(void) {
-	level.warmupTime = level.time;
+/*
+===================
+Svcmd_ForceReady_f
+
+forceready <player>
+===================
+*/
+void	Svcmd_ForceReady_f(void) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+
+	if (trap_Argc() != 2) {
+		Com_Printf("Usage: forceready <clientnumber> (use -1 for all clients)\n"); //bad number of arguments
+		return;
+	}
+
+	// find the player
+	trap_Argv(1, str, sizeof(str));
+	if (!Q_stricmp(str, "-1"))
+	{
+		int i = 0;
+		while (i < MAX_CLIENTS)
+		{
+			if ((&g_entities[i]) && (&g_entities[i])->client && (&g_entities[i])->client->pers.connected != CON_DISCONNECTED)
+			{
+				trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", (&g_entities[i])->client->pers.netname)); //tell everyone he is ready
+				if (!(&g_entities[i])->client->pers.ready)
+				{
+					trap_SendServerCommand(&g_entities[i] - g_entities, va("cp \""S_COLOR_GREEN"You are ready\"")); //if he's not already ready, tell him he's ready
+				}
+				(&g_entities[i])->client->pers.ready = 1; //ready him up
+				(&g_entities[i])->client->pers.readyTime = level.time;
+				
+			}
+
+			i++;
+		}
+		return;
+	}
+	cl = ClientForString(str);
+	if (!cl) {
+		Com_Printf("Usage: forceready <clientnumber> (use -1 for all clients)\n"); //bad client number
+		return;
+	}
+	trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", (&g_entities[cl - level.clients])->client->pers.netname)); //tell everyone he is ready
+	if (!(&g_entities[cl - level.clients])->client->pers.ready) {
+		trap_SendServerCommand((&g_entities[cl - level.clients]) - g_entities, va("cp \""S_COLOR_GREEN"You are ready\"")); //if he's not already ready, tell him he's ready
+	}
+	(&g_entities[cl - level.clients])->client->pers.ready = 1; //ready him up
+	(&g_entities[cl - level.clients])->client->pers.readyTime = level.time;
+}
+
+/*
+===================
+Svcmd_ForceUnReady_f
+
+forceunready <player>
+===================
+*/
+void	Svcmd_ForceUnReady_f(void) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+
+	if (trap_Argc() != 2) {
+		Com_Printf("Usage: forceunready <clientnumber> (use -1 for all clients)\n"); //bad number of arguments
+		return;
+	}
+
+	// find the player
+	trap_Argv(1, str, sizeof(str));
+	if (!Q_stricmp(str, "-1"))
+	{
+		int i = 0;
+		while (i < MAX_CLIENTS)
+		{
+			if ((&g_entities[i]) && (&g_entities[i])->client && (&g_entities[i])->client->pers.connected != CON_DISCONNECTED)
+			{
+				trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", (&g_entities[i])->client->pers.netname)); //tell everyone he is unready
+				if ((&g_entities[i])->client->pers.ready)
+				{
+					trap_SendServerCommand(&g_entities[i] - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\"")); //if he's not already unready, tell him he's unready
+				}
+				(&g_entities[i])->client->pers.ready = 0; //unready him up
+				(&g_entities[i])->client->pers.readyTime = level.time;
+
+			}
+
+			i++;
+		}
+		return;
+	}
+	cl = ClientForString(str);
+	if (!cl) {
+		Com_Printf("Usage: forceunready <clientnumber> (use -1 for all clients)\n"); //bad client number
+		return;
+	}
+	trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", (&g_entities[cl - level.clients])->client->pers.netname)); //tell everyone he is unready
+	if ((&g_entities[cl - level.clients])->client->pers.ready) {
+		trap_SendServerCommand((&g_entities[cl - level.clients]) - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\"")); //if he's not already unready, tell him he's unready
+	}
+	(&g_entities[cl - level.clients])->client->pers.ready = 0; //unready him up
+	(&g_entities[cl - level.clients])->client->pers.readyTime = level.time;
 }
 
 void Svcmd_Cointoss_f(void) 
@@ -1419,6 +1519,14 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	if (Q_stricmp(cmd, "forceready") == 0) {
+		Svcmd_ForceReady_f();
+		return qtrue;
+	}
+	if (Q_stricmp(cmd, "forceunready") == 0) {
+		Svcmd_ForceUnReady_f();
+		return qtrue;
+	}
 	if (Q_stricmp (cmd, "game_memory") == 0) {
 		Svcmd_GameMem_f();
 		return qtrue;
@@ -1594,12 +1702,6 @@ qboolean	ConsoleCommand( void ) {
 		LogExit( "Match forced to end." );
         return qtrue;
     } 
-
-	if (!Q_stricmp(cmd, "allready"))
-	{
-		Svcmd_AllReady_f();
-		return qtrue;
-	}
 
 	if (!Q_stricmp(cmd, "cointoss"))
 	{

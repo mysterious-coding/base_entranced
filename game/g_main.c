@@ -291,8 +291,9 @@ vmCvar_t	g_hackLog;
 vmCvar_t	g_allow_vote_randomteams;
 vmCvar_t	g_allow_vote_randomcapts;
 vmCvar_t	g_allow_vote_cointoss;
-vmCvar_t	g_allow_vote_allready;
 vmCvar_t	g_allow_vote_q;
+
+vmCvar_t    g_allow_ready;
 
 vmCvar_t    g_default_restart_countdown;
 
@@ -607,7 +608,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_vote_randomteams, "g_allow_vote_randomteams", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_randomcapts, "g_allow_vote_randomcapts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_cointoss, "g_allow_vote_cointoss", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_allow_vote_allready, "g_allow_vote_allready", "1", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_allow_ready, "g_allow_ready", "1", CVAR_ARCHIVE, 0, qtrue },
+
 	{ &g_allow_vote_q, "g_allow_vote_q", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_quietrcon,	"g_quietrcon"	, "0"	, CVAR_ARCHIVE, 0, qtrue },

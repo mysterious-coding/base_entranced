@@ -2571,17 +2571,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 
 	} 
-	else if (!Q_stricmp(arg1, "allready"))
-	{
-		//disable this vote
-		if (!g_allow_vote_allready.integer) {
-			trap_SendServerCommand(ent - g_entities, "print \"Allready is disabled.\n\"");
-			return;
-		}
-
-		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
-		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
-	}
 	else if (!Q_stricmp(arg1, "cointoss"))
 	{
 		//disable this vote
@@ -2779,6 +2768,11 @@ void Cmd_Vote_f( gentity_t *ent ) {
 static void Cmd_Ready_f(gentity_t *ent) {
 	const char *publicMsg = NULL;
 
+	if (!g_allow_ready.integer) {
+		trap_SendServerCommand(ent - g_entities, "print \"Ready is disabled.\n\"");
+		return;
+	}
+
 	if (level.restarted  )
 		return;
 
@@ -2792,13 +2786,13 @@ static void Cmd_Ready_f(gentity_t *ent) {
 	ent->client->pers.readyTime = level.time;
 
 	if (ent->client->pers.ready) {
-		publicMsg = va("print \"%s "S_COLOR_WHITE"is ready\n\"", ent->client->pers.netname);
+		trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", ent->client->pers.netname));
 		trap_SendServerCommand(ent - g_entities, va("cp \""S_COLOR_GREEN"You are ready\""));
 	}
 	else 
 	{
-		publicMsg = va("print \"%s "S_COLOR_YELLOW"is NOT ready\n\"", ent->client->pers.netname);
-		trap_SendServerCommand(ent - g_entities, va("cp \""S_COLOR_YELLOW"You are NOT ready\""));
+		trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", ent->client->pers.netname));
+		trap_SendServerCommand(ent - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\""));
 	}
 
 }
