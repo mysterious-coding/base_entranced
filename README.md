@@ -107,7 +107,7 @@ Use command /whois to see all known aliases of a player.
 If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn.
 
 ####Random teams/capts
-Use /randomteams 2 2 for random 2v2, etc. and /randomcapts for random captains.
+Use /randomteams 2 2 for random 2v2, etc. and /randomcapts for random captains. Make sure clients use /ready to be eligible for selection (or use /forceready through rcon)
 
 ####/specall
 Use /specall to force all players to spec.
