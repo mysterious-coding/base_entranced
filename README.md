@@ -57,10 +57,36 @@ Use to enable/disable players from using the /ready command.
 
 ####Additional tools for mapmakers
 Mapmakers can add some extra flags to .npc files for additional control over NPCs:
-* dempProof 1 = NPC is invulnerable to DEMP damage
 * specialKnockback 1 = NPC cannot be knockbacked by red team
 * specialKnockback 2 = NPC cannot be knockbacked by blue team
 * specialKnockback 3 = NPC cannot be knockbacked by any team
+
+nodmgfrom # = add bitvalue numbers to define weapons this NPC cannot be damaged by.
+* Melee				1
+* Stun baton			2
+* Saber				4
+* Pistol				8
+* E11				16
+* Disruptor		32
+* Bowcaster			64
+* Repeater			128
+* Demp				256
+* Golan			512
+* Rocket				1024
+* Thermal			2048			
+* Mine				4096
+* Detpack			8192
+* Conc				16384
+* Dark Force			32768
+* Vehicle			65536
+* Falling			131072
+* Crush				262144
+* Trigger_hurt		524288
+* All others				1048576
+* Vehicle freezing immunity		2097152
+* To make NPC immune to ALL damage, use nodmgfrom -1
+
+For example, to make an NPC immune to damage from pistol and bowcaster, add 8 + 64 = 72, so use the flag nodmgfrom 72
 
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
