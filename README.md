@@ -61,14 +61,30 @@ Use to enable/disable players from using the /ready command.
 base_entranced provides mapmakers with powerful tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
 
 Mapmakers can add some extra flags to .npc files for additional control over NPCs:
-* specialKnockback 1 = NPC cannot be knockbacked by red team
-* specialKnockback 2 = NPC cannot be knockbacked by blue team
-* specialKnockback 3 = NPC cannot be knockbacked by any team
-* victimOfForce 1 = Red team can use force powers on this NPC
-* victimOfForce 2 = Blue team can use force powers on this NPC
-* victimOfForce 3 = Everybody can use force powers on this NPC
 
-* nodmgfrom # = This NPC is immune to damage from the specified weapons. Add bitvalues to get the desired combination.
+specialKnockback 1 = NPC cannot be knockbacked by red team
+
+specialKnockback 2 = NPC cannot be knockbacked by blue team
+
+specialKnockback 3 = NPC cannot be knockbacked by any team
+
+victimOfForce 1 = Red team can use force powers on this NPC
+
+victimOfForce 2 = Blue team can use force powers on this NPC
+
+victimOfForce 3 = Everybody can use force powers on this NPC
+
+nodmgfrom # = This NPC is immune to damage from these weapons
+
+noKnockbackFrom # = This NPC is immune to knockback from these weapons
+
+doubleKnockbackFrom # = This NPC receives 2x knockback from these weapons
+
+tripleKnockbackFrom # = This NPC receives 3x knockback from these weapons
+
+quadKnockbackFrom # = This NPC receives 4x knockback from these weapons
+
+* Bit values for weapons:
 * Melee				1
 * Stun baton			2
 * Saber				4
@@ -91,9 +107,10 @@ Mapmakers can add some extra flags to .npc files for additional control over NPC
 * Trigger_hurt		524288
 * Other (lava, sentry, etc)				1048576
 * Vehicle freezing immunity		2097152
-* To make NPC immune to ALL damage (godmode), use nodmgfrom -1
 
-For example, to make an NPC immune to damage from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "nodmgfrom 11"
+For example, to make an NPC receive double knockback from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "doubleKnockbackFrom 11"
+
+Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode).
 
 Mapmakers can add some extra keys to worldspawn entity for additional control over their maps:
 * Mapmakers can set the "forceOnNpcs" key in worldspawn to 1-3, which forces the server to execute /g_forceOnNpcs to a desired number. If set, this cvar overrides victimOfForce for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - JK3 default).
