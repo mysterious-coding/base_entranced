@@ -7,6 +7,8 @@ by duo and exar
 a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod with some extra features for siege.
 
 #base_entranced features
+These are unique features for base_entranced.
+
 ####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
@@ -112,7 +114,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 
 #Features that are also in base_enhanced
-Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
+These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
 
 ####/class
 Clientside command. Use first letter of class to change, like /class a for assault, /class s for scout, etc.
