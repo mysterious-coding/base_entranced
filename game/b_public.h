@@ -104,6 +104,10 @@ typedef struct gNPCstats_e
 	int		health;
 	int		acceleration;
 	int  	specialKnockback;
+	int		noKnockbackFrom;
+	int		doubleKnockbackFrom;
+	int		tripleKnockbackFrom;
+	int		quadKnockbackFrom;
 	int     nodmgfrom;
 	int		victimOfForce;
 } gNPCstats_t;

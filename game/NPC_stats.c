@@ -886,6 +886,10 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->specialKnockback = 0;
 		stats->nodmgfrom = 0;
 		stats->victimOfForce = 0;
+		stats->noKnockbackFrom = 0;
+		stats->doubleKnockbackFrom = 0;
+		stats->tripleKnockbackFrom = 0;
+		stats->quadKnockbackFrom = 0;
 	}
 	else
 	{
@@ -1486,6 +1490,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					continue;
 				}
+
 				// specialKnockback
 				// 0 default, 1=red can't knockback, 2=blue can't knockback, 3=nobody can knockback
 				if (!Q_stricmp(token, "specialKnockback")) {
@@ -1503,6 +1508,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					continue;
 				}
+
 				// nodmgfrom
 				if (!Q_stricmp(token, "nodmgfrom")) {
 					if (COM_ParseInt(&p, &n)) {
@@ -1519,6 +1525,75 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					continue;
 				}
+
+				// noKnockbackFrom
+				if (!Q_stricmp(token, "noKnockbackFrom")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (n < 0 || n > 32767) {
+						Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+						continue;
+					}
+					if (NPC->NPC)
+					{
+						stats->noKnockbackFrom = n;
+					}
+					continue;
+				}
+
+				// doubleKnockbackFrom
+				if (!Q_stricmp(token, "doubleKnockbackFrom")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (n < 0 || n > 32767) {
+						Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+						continue;
+					}
+					if (NPC->NPC)
+					{
+						stats->doubleKnockbackFrom = n;
+					}
+					continue;
+				}
+
+				// tripleKnockbackFrom
+				if (!Q_stricmp(token, "tripleKnockbackFrom")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (n < 0 || n > 32767) {
+						Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+						continue;
+					}
+					if (NPC->NPC)
+					{
+						stats->tripleKnockbackFrom = n;
+					}
+					continue;
+				}
+
+				// quadKnockbackFrom
+				if (!Q_stricmp(token, "quadKnockbackFrom")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (n < 0 || n > 32767) {
+						Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+						continue;
+					}
+					if (NPC->NPC)
+					{
+						stats->quadKnockbackFrom = n;
+					}
+					continue;
+				}
+
 				// victimOfForce
 				if (!Q_stricmp(token, "victimOfForce")) {
 					if (COM_ParseInt(&p, &n)) {
@@ -1535,6 +1610,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					continue;
 				}
+
 				// shootDistance
 				if ( !Q_stricmp( token, "shootDistance" ) ) {
 					if ( COM_ParseFloat( &p, &f ) ) {

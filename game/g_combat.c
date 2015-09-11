@@ -4345,6 +4345,95 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
+
+	if (targ->s.eType == ET_NPC && targ->NPC->stats.noKnockbackFrom) //target in question is an npc and noKnockbackFrom is set
+	{
+		if (mod == MOD_MELEE && targ->NPC->stats.noKnockbackFrom & FLAG_MELEE ||
+			mod == MOD_STUN_BATON && targ->NPC->stats.noKnockbackFrom & FLAG_STUNBATON ||
+			mod == MOD_SABER && targ->NPC->stats.noKnockbackFrom & FLAG_SABER ||
+			(mod == MOD_BRYAR_PISTOL || mod == MOD_BRYAR_PISTOL_ALT) && targ->NPC->stats.noKnockbackFrom & FLAG_PISTOL ||
+			mod == MOD_BLASTER && targ->NPC->stats.noKnockbackFrom & FLAG_E11 ||
+			(mod == MOD_DISRUPTOR || mod == MOD_DISRUPTOR_SPLASH || mod == MOD_DISRUPTOR_SNIPER) && targ->NPC->stats.noKnockbackFrom & FLAG_DISRUPTOR ||
+			mod == MOD_BOWCASTER && targ->NPC->stats.noKnockbackFrom & FLAG_BOWCASTER ||
+			(mod == MOD_REPEATER || mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH) && targ->NPC->stats.noKnockbackFrom & FLAG_REPEATER ||
+			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && targ->NPC->stats.noKnockbackFrom & FLAG_DEMP ||
+			(mod == MOD_FLECHETTE || mod == MOD_FLECHETTE_ALT_SPLASH) && targ->NPC->stats.noKnockbackFrom & FLAG_GOLAN ||
+			(mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH) && targ->NPC->stats.noKnockbackFrom & FLAG_ROCKET ||
+			(mod == MOD_THERMAL || mod == MOD_THERMAL_SPLASH) && targ->NPC->stats.noKnockbackFrom & FLAG_THERMAL ||
+			(mod == MOD_TRIP_MINE_SPLASH || mod == MOD_TIMED_MINE_SPLASH) && targ->NPC->stats.noKnockbackFrom & FLAG_MINE ||
+			mod == MOD_DET_PACK_SPLASH && targ->NPC->stats.noKnockbackFrom & FLAG_DETPACK ||
+			(mod == MOD_CONC || mod == MOD_CONC_ALT) && targ->NPC->stats.noKnockbackFrom & FLAG_CONC)
+		{
+			knockback = 0; //no knockback
+		}
+	}
+
+	if (targ->s.eType == ET_NPC && targ->NPC->stats.doubleKnockbackFrom) //target in question is an npc and doubleKnockbackFrom is set
+	{
+		if (mod == MOD_MELEE && targ->NPC->stats.doubleKnockbackFrom & FLAG_MELEE ||
+			mod == MOD_STUN_BATON && targ->NPC->stats.doubleKnockbackFrom & FLAG_STUNBATON ||
+			mod == MOD_SABER && targ->NPC->stats.doubleKnockbackFrom & FLAG_SABER ||
+			(mod == MOD_BRYAR_PISTOL || mod == MOD_BRYAR_PISTOL_ALT) && targ->NPC->stats.doubleKnockbackFrom & FLAG_PISTOL ||
+			mod == MOD_BLASTER && targ->NPC->stats.doubleKnockbackFrom & FLAG_E11 ||
+			(mod == MOD_DISRUPTOR || mod == MOD_DISRUPTOR_SPLASH || mod == MOD_DISRUPTOR_SNIPER) && targ->NPC->stats.doubleKnockbackFrom & FLAG_DISRUPTOR ||
+			mod == MOD_BOWCASTER && targ->NPC->stats.doubleKnockbackFrom & FLAG_BOWCASTER ||
+			(mod == MOD_REPEATER || mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH) && targ->NPC->stats.doubleKnockbackFrom & FLAG_REPEATER ||
+			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && targ->NPC->stats.doubleKnockbackFrom & FLAG_DEMP ||
+			(mod == MOD_FLECHETTE || mod == MOD_FLECHETTE_ALT_SPLASH) && targ->NPC->stats.doubleKnockbackFrom & FLAG_GOLAN ||
+			(mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH) && targ->NPC->stats.doubleKnockbackFrom & FLAG_ROCKET ||
+			(mod == MOD_THERMAL || mod == MOD_THERMAL_SPLASH) && targ->NPC->stats.doubleKnockbackFrom & FLAG_THERMAL ||
+			(mod == MOD_TRIP_MINE_SPLASH || mod == MOD_TIMED_MINE_SPLASH) && targ->NPC->stats.doubleKnockbackFrom & FLAG_MINE ||
+			mod == MOD_DET_PACK_SPLASH && targ->NPC->stats.doubleKnockbackFrom & FLAG_DETPACK ||
+			(mod == MOD_CONC || mod == MOD_CONC_ALT) && targ->NPC->stats.doubleKnockbackFrom & FLAG_CONC)
+		{
+			knockback *= 2; //double the knockback
+		}
+	}
+
+	if (targ->s.eType == ET_NPC && targ->NPC->stats.tripleKnockbackFrom) //target in question is an npc and tripleKnockbackFrom is set
+	{
+		if (mod == MOD_MELEE && targ->NPC->stats.tripleKnockbackFrom & FLAG_MELEE ||
+			mod == MOD_STUN_BATON && targ->NPC->stats.tripleKnockbackFrom & FLAG_STUNBATON ||
+			mod == MOD_SABER && targ->NPC->stats.tripleKnockbackFrom & FLAG_SABER ||
+			(mod == MOD_BRYAR_PISTOL || mod == MOD_BRYAR_PISTOL_ALT) && targ->NPC->stats.tripleKnockbackFrom & FLAG_PISTOL ||
+			mod == MOD_BLASTER && targ->NPC->stats.tripleKnockbackFrom & FLAG_E11 ||
+			(mod == MOD_DISRUPTOR || mod == MOD_DISRUPTOR_SPLASH || mod == MOD_DISRUPTOR_SNIPER) && targ->NPC->stats.tripleKnockbackFrom & FLAG_DISRUPTOR ||
+			mod == MOD_BOWCASTER && targ->NPC->stats.tripleKnockbackFrom & FLAG_BOWCASTER ||
+			(mod == MOD_REPEATER || mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH) && targ->NPC->stats.tripleKnockbackFrom & FLAG_REPEATER ||
+			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && targ->NPC->stats.tripleKnockbackFrom & FLAG_DEMP ||
+			(mod == MOD_FLECHETTE || mod == MOD_FLECHETTE_ALT_SPLASH) && targ->NPC->stats.tripleKnockbackFrom & FLAG_GOLAN ||
+			(mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH) && targ->NPC->stats.tripleKnockbackFrom & FLAG_ROCKET ||
+			(mod == MOD_THERMAL || mod == MOD_THERMAL_SPLASH) && targ->NPC->stats.tripleKnockbackFrom & FLAG_THERMAL ||
+			(mod == MOD_TRIP_MINE_SPLASH || mod == MOD_TIMED_MINE_SPLASH) && targ->NPC->stats.tripleKnockbackFrom & FLAG_MINE ||
+			mod == MOD_DET_PACK_SPLASH && targ->NPC->stats.tripleKnockbackFrom & FLAG_DETPACK ||
+			(mod == MOD_CONC || mod == MOD_CONC_ALT) && targ->NPC->stats.tripleKnockbackFrom & FLAG_CONC)
+		{
+			knockback *= 3; //triple the knockback
+		}
+	}
+
+	if (targ->s.eType == ET_NPC && targ->NPC->stats.quadKnockbackFrom) //target in question is an npc and quadKnockbackFrom is set
+	{
+		if (mod == MOD_MELEE && targ->NPC->stats.quadKnockbackFrom & FLAG_MELEE ||
+			mod == MOD_STUN_BATON && targ->NPC->stats.quadKnockbackFrom & FLAG_STUNBATON ||
+			mod == MOD_SABER && targ->NPC->stats.quadKnockbackFrom & FLAG_SABER ||
+			(mod == MOD_BRYAR_PISTOL || mod == MOD_BRYAR_PISTOL_ALT) && targ->NPC->stats.quadKnockbackFrom & FLAG_PISTOL ||
+			mod == MOD_BLASTER && targ->NPC->stats.quadKnockbackFrom & FLAG_E11 ||
+			(mod == MOD_DISRUPTOR || mod == MOD_DISRUPTOR_SPLASH || mod == MOD_DISRUPTOR_SNIPER) && targ->NPC->stats.quadKnockbackFrom & FLAG_DISRUPTOR ||
+			mod == MOD_BOWCASTER && targ->NPC->stats.quadKnockbackFrom & FLAG_BOWCASTER ||
+			(mod == MOD_REPEATER || mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH) && targ->NPC->stats.quadKnockbackFrom & FLAG_REPEATER ||
+			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && targ->NPC->stats.quadKnockbackFrom & FLAG_DEMP ||
+			(mod == MOD_FLECHETTE || mod == MOD_FLECHETTE_ALT_SPLASH) && targ->NPC->stats.quadKnockbackFrom & FLAG_GOLAN ||
+			(mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH) && targ->NPC->stats.quadKnockbackFrom & FLAG_ROCKET ||
+			(mod == MOD_THERMAL || mod == MOD_THERMAL_SPLASH) && targ->NPC->stats.quadKnockbackFrom & FLAG_THERMAL ||
+			(mod == MOD_TRIP_MINE_SPLASH || mod == MOD_TIMED_MINE_SPLASH) && targ->NPC->stats.quadKnockbackFrom & FLAG_MINE ||
+			mod == MOD_DET_PACK_SPLASH && targ->NPC->stats.quadKnockbackFrom & FLAG_DETPACK ||
+			(mod == MOD_CONC || mod == MOD_CONC_ALT) && targ->NPC->stats.quadKnockbackFrom & FLAG_CONC)
+		{
+			knockback *= 4; //quadruple the knockback
+		}
+	}
+
 	if (targ->s.eType == ET_NPC && targ->NPC->stats.specialKnockback) { //target in question is an npc and special knockback is set
 		if (targ->NPC->stats.specialKnockback == 3 || (attacker && attacker->client && attacker->client->sess.sessionTeam && targ->NPC->stats.specialKnockback == attacker->client->sess.sessionTeam)) //target in question cannot be knockbacked by attacker
 		{
