@@ -56,10 +56,17 @@ Use /forceready <clientnumber> and /forceunready <clientnumber> to force a playe
 Use to enable/disable players from using the /ready command.
 
 ####Additional tools for mapmakers
+base_entranced provides mapmakers with powerful tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
+
 Mapmakers can add some extra flags to .npc files for additional control over NPCs:
 * specialKnockback 1 = NPC cannot be knockbacked by red team
 * specialKnockback 2 = NPC cannot be knockbacked by blue team
 * specialKnockback 3 = NPC cannot be knockbacked by any team
+* victimOfForce 1 = Red team can use force powers on this NPC
+* victimOfForce 2 = Blue team can use force powers on this NPC
+* victimOfForce 3 = Everybody can use force powers on this NPC
+
+Mapmakers can set the "forceOnNpcs" key in worldspawn to 1-3, which forces the server to execute /g_forceOnNpcs to a desired number. If set, this cvar overrides victimOfForce for all NPCs on the map.
 
 nodmgfrom # = add bitvalue numbers to define weapons this NPC cannot be damaged by.
 * Melee				1
