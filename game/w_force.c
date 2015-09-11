@@ -781,7 +781,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 
 	if (other && other->client && other->s.eType == ET_NPC && g_gametype.integer == GT_SIEGE)
 	{
-		if (g_forceOnNpcs.integer)
+		if (g_forceOnNpcs.integer == 3 || (attacker && attacker->client && attacker->client->sess.sessionTeam && attacker->client->sess.sessionTeam == g_forceOnNpcs.integer))
 		{
 			return 1;
 		}
