@@ -82,7 +82,7 @@ nodmgfrom # = add bitvalue numbers to define weapons this NPC cannot be damaged 
 * Falling			131072
 * Crush				262144
 * Trigger_hurt		524288
-* All others				1048576
+* Other (lava, sentry, etc)				1048576
 * Vehicle freezing immunity		2097152
 * To make NPC immune to ALL damage, use nodmgfrom -1
 
