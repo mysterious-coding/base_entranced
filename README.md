@@ -91,7 +91,7 @@ nodmgfrom # = add bitvalue numbers to define weapons this NPC cannot be damaged 
 * Trigger_hurt		524288
 * Other (lava, sentry, etc)				1048576
 * Vehicle freezing immunity		2097152
-* To make NPC immune to ALL damage, use nodmgfrom -1
+* To make NPC immune to ALL damage (godmode), use nodmgfrom -1
 
 For example, to make an NPC immune to damage from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "nodmgfrom 11"
 
