@@ -93,7 +93,7 @@ nodmgfrom # = add bitvalue numbers to define weapons this NPC cannot be damaged 
 * Vehicle freezing immunity		2097152
 * To make NPC immune to ALL damage, use nodmgfrom -1
 
-For example, to make an NPC immune to damage from pistol and bowcaster, add 8 + 64 = 72, so use the flag nodmgfrom 72
+For example, to make an NPC immune to damage from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "nodmgfrom 11"
 
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
