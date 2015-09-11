@@ -6,7 +6,7 @@ by duo and exar
 
 a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod with some extra features for siege.
 
-#Features unique to base_entranced
+#base_entranced features
 ####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
