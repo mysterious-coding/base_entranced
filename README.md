@@ -117,7 +117,7 @@ In addition to the base_enhanced vote controls, you can use these:
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
 
 ####/class
-Clientside command. Use first letter of class to change, like /class a for assault, /class s for scout, etc.
+Clientside command. Use first letter of class to change, like /class a for assault, /class s for scout, etc. For maps with more than 6 classes, you can use /class 7, /class 8, etc.
 
 ####/g_rocketSurfing
 0 = no rocket surfing (ideal setting)
