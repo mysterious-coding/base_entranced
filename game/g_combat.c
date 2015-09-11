@@ -4346,7 +4346,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		knockback = 0;
 	}
 	if (targ->s.eType == ET_NPC && targ->NPC->stats.specialKnockback) { //target in question is an npc and special knockback is set
-		if (targ->NPC->stats.specialKnockback == 3 || (attacker->client && attacker->client->sess.sessionTeam && targ->NPC->stats.specialKnockback == attacker->client->sess.sessionTeam)) //target in question cannot be knockbacked by attacker
+		if (targ->NPC->stats.specialKnockback == 3 || (attacker && attacker->client && attacker->client->sess.sessionTeam && targ->NPC->stats.specialKnockback == attacker->client->sess.sessionTeam)) //target in question cannot be knockbacked by attacker
 		{
 			knockback = 0; //no knockback
 		}

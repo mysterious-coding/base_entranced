@@ -779,12 +779,21 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 		}
 	}
 
-	if (other && other->client && other->s.eType == ET_NPC &&
-		g_gametype.integer == GT_SIEGE)
-	{ //can't use powers at all on npc's normally in siege...
-		return 0;
+	if (other && other->client && other->s.eType == ET_NPC && g_gametype.integer == GT_SIEGE)
+	{
+		if (g_forceOnNpcs.integer)
+		{
+			return 1;
+		}
+		else if (other->NPC->stats.victimOfForce == 3 || (attacker && attacker->client && attacker->client->sess.sessionTeam && other->NPC->stats.victimOfForce == attacker->client->sess.sessionTeam))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
-
 	return 1;
 }
 

@@ -1332,6 +1332,9 @@ void SP_worldspawn( void )
 	G_SpawnString( "gravity", "800", &text );
 	trap_Cvar_Set( "g_gravity", text );
 
+	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
+	trap_Cvar_Set("g_forceOnNPCs", text);
+
 	G_SpawnString( "enableBreath", "0", &text );
 	trap_Cvar_Set( "g_enableBreath", text );
 

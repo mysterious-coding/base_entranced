@@ -885,6 +885,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->acceleration	= 15;//Increase/descrease speed this much per frame (20fps)
 		stats->specialKnockback = 0;
 		stats->nodmgfrom = 0;
+		stats->victimOfForce = 0;
 	}
 	else
 	{
@@ -1515,6 +1516,22 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					if (NPC->NPC)
 					{
 						stats->nodmgfrom = n;
+					}
+					continue;
+				}
+				// victimOfForce
+				if (!Q_stricmp(token, "victimOfForce")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (n < 0 || n > 3) {
+						Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+						continue;
+					}
+					if (NPC->NPC)
+					{
+						stats->victimOfForce = n;
 					}
 					continue;
 				}

@@ -105,6 +105,7 @@ typedef struct gNPCstats_e
 	int		acceleration;
 	int  	specialKnockback;
 	int     nodmgfrom;
+	int		victimOfForce;
 } gNPCstats_t;
 
 // NOTE!!!  If you add any ptr fields into this structure could you please tell me so I can update the load/save code?

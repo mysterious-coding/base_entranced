@@ -1854,6 +1854,8 @@ extern vmCvar_t    g_rocketSurfing;
 extern vmCvar_t	   g_hideSpecLocation;
 extern vmCvar_t    g_denoteDead;
 
+extern vmCvar_t    g_forceOnNpcs;
+
 extern vmCvar_t	   g_rconpassword;
 
 extern vmCvar_t	   g_callvotedelay;
