@@ -110,6 +110,8 @@ quadKnockbackFrom # = This NPC receives 4x knockback from these weapons
 
 For example, to make an NPC receive double knockback from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "doubleKnockbackFrom 11"
 
+Note that specialKnockback overrides any other 0x/2x/3x/4x knockback flags.
+
 Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode).
 
 Mapmakers can add some extra keys to worldspawn entity for additional control over their maps:
