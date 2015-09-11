@@ -115,9 +115,12 @@ Note that specialKnockback overrides any other 0x/2x/3x/4x knockback flags.
 Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode).
 
 Mapmakers can add some extra keys to worldspawn entity for additional control over their maps:
-* Mapmakers can set the "forceOnNpcs" key in worldspawn to 1-3, which forces the server to execute /g_forceOnNpcs to a desired number. If set, this cvar overrides victimOfForce for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - JK3 default).
-* Mapmakers can set the "siegeRespawn" key in worldspawn, which forces the server to execute /g_siegeRespawn to a desired number. If this key is not set, it will default to 20 (JK3 default).
-* Mapmakers can set the "siegeTeamSwitch" key in worldspawn, which forces the server to execute /g_siegeTeamSwitch to a desired number. If this key is not set, it will default to 1 (JK3 default).
+
+Mapmakers can set the "forceOnNpcs" key in worldspawn to 1-3, which forces the server to execute /g_forceOnNpcs to a desired number. If set, this cvar overrides victimOfForce for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - JK3 default).
+
+Mapmakers can set the "siegeRespawn" key in worldspawn, which forces the server to execute /g_siegeRespawn to a desired number. If this key is not set, it will default to 20 (JK3 default).
+
+Mapmakers can set the "siegeTeamSwitch" key in worldspawn, which forces the server to execute /g_siegeTeamSwitch to a desired number. If this key is not set, it will default to 1 (JK3 default).
 
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
