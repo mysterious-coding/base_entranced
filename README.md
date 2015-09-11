@@ -106,7 +106,7 @@ quadKnockbackFrom # = This NPC receives 4x knockback from these weapons
 * Crush				262144
 * Trigger_hurt		524288
 * Other (lava, sentry, etc)				1048576
-* Vehicle freezing immunity		2097152
+* Vehicle freezing immunity (not fully tested)		2097152
 
 For example, to make an NPC receive double knockback from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "doubleKnockbackFrom 11"
 
