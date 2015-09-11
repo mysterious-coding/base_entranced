@@ -1169,6 +1169,30 @@ void BG_ClearRocketLock( playerState_t *ps );
 #define DF_FIXED_FOV			16
 #define	DF_NO_FOOTSTEPS			32
 
+// nodmgfrom bitvalue stuff
+#define FLAG_MELEE				1
+#define FLAG_STUNBATON			2
+#define FLAG_SABER				4
+#define FLAG_PISTOL				8
+#define FLAG_E11				16
+#define FLAG_DISRUPTOR			32
+#define FLAG_BOWCASTER			64
+#define FLAG_REPEATER			128
+#define FLAG_DEMP				256
+#define FLAG_GOLAN				512
+#define FLAG_ROCKET				1024
+#define FLAG_THERMAL			2048			
+#define FLAG_MINE				4096
+#define FLAG_DETPACK			8192
+#define FLAG_CONC				16384
+#define FLAG_DARKFORCE			32768
+#define FLAG_VEHICLE			65536
+#define FLAG_FALLING			131072
+#define FLAG_CRUSH				262144
+#define FLAG_TRIGGER_HURT		524288
+#define FLAG_MISC				1048576
+#define FLAG_VEHICLE_FREEZE		2097152
+
 //rwwRMG - added in CONTENTS_TERRAIN
 // content masks
 #define	MASK_ALL				(-1)

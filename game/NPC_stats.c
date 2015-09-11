@@ -824,7 +824,6 @@ void NPC_BuildRandom( gentity_t *NPC )
 	NPC->client->clientInfo.customBasicSoundDir = "kyle";//FIXME: generic default?
 }
 #endif
-
 extern void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName);
 qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC ) 
 {
@@ -884,8 +883,8 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->walkSpeed	= 90;
 		stats->runSpeed		= 300;
 		stats->acceleration	= 15;//Increase/descrease speed this much per frame (20fps)
-		stats->dempProof    = 0;
 		stats->specialKnockback = 0;
+		stats->nodmgfrom = 0;
 	}
 	else
 	{
@@ -1486,20 +1485,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					continue;
 				}
-
-				// dempProof
-				if (!Q_stricmp(token, "dempProof")) {
-					if (COM_ParseInt(&p, &n)) {
-						SkipRestOfLine(&p);
-						continue;
-					}
-					if (NPC->NPC)
-					{
-						stats->dempProof = n;
-					}
-					continue;
-				}
-
 				// specialKnockback
 				// 0 default, 1=red can't knockback, 2=blue can't knockback, 3=nobody can knockback
 				if (!Q_stricmp(token, "specialKnockback")) {
@@ -1517,7 +1502,22 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					continue;
 				}
-
+				// nodmgfrom
+				if (!Q_stricmp(token, "nodmgfrom")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (n < -1 || n > 4194303) {
+						Com_Printf("bad %s in NPC '%s'\n", token, NPCName);
+						continue;
+					}
+					if (NPC->NPC)
+					{
+						stats->nodmgfrom = n;
+					}
+					continue;
+				}
 				// shootDistance
 				if ( !Q_stricmp( token, "shootDistance" ) ) {
 					if ( COM_ParseFloat( &p, &f ) ) {

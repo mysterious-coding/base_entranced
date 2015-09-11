@@ -4135,23 +4135,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-
-	if (targ->s.eType == ET_NPC && mod == MOD_DEMP2 && targ->NPC->stats.dempProof)
-	{
-		return;
-	}
-
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
 		if ( targ->client->ps.electrifyTime < level.time )
 		{//electrocution effect
 			if (targ->s.eType == ET_NPC && targ->s.NPC_class == CLASS_VEHICLE &&
-				targ->m_pVehicle && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
-			{ //do some extra stuff to speeders/walkers
+				targ->m_pVehicle && !(targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE) && targ->NPC->stats.nodmgfrom != -1 && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
+			{ //do some extra stuff to speeders/walkers unless they have "can't get frozen" flag or "everything-proof" flags specified
 				targ->client->ps.electrifyTime = level.time + Q_irand( 3000, 4000 );
 			}
 			else if ( targ->s.NPC_class != CLASS_VEHICLE 
-				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
+				|| (targ->m_pVehicle && !(targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE) && targ->NPC->stats.nodmgfrom != -1 && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
 			{//don't do this to fighters
 				targ->client->ps.electrifyTime = level.time + Q_irand( 300, 800 );
 			}
@@ -4352,7 +4346,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		knockback = 0;
 	}
 	if (targ->s.eType == ET_NPC && targ->NPC->stats.specialKnockback) { //target in question is an npc and special knockback is set
-		if (targ->NPC->stats.specialKnockback == attacker->client->sess.sessionTeam || targ->NPC->stats.specialKnockback == 3 ) //target in question cannot be knockbacked by attacker
+		if (targ->NPC->stats.specialKnockback == 3 || (attacker->client && attacker->client->sess.sessionTeam && targ->NPC->stats.specialKnockback == attacker->client->sess.sessionTeam)) //target in question cannot be knockbacked by attacker
 		{
 			knockback = 0; //no knockback
 		}
@@ -4452,7 +4446,38 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		targ->client->ps.otherKillerTime = level.time + 25000;
 		targ->client->ps.otherKillerDebounceTime = level.time + 25000;
 	}
-
+	if (targ->s.eType == ET_NPC && targ->NPC->stats.nodmgfrom) //examine nodmgfrom flag
+	{
+		if (targ->NPC->stats.nodmgfrom == -1) //use -1 as a shortcut for invulnerability
+		{
+			return;
+		}
+		else if (mod == MOD_MELEE && targ->NPC->stats.nodmgfrom & FLAG_MELEE ||
+			mod == MOD_STUN_BATON && targ->NPC->stats.nodmgfrom & FLAG_STUNBATON ||
+			mod == MOD_SABER && targ->NPC->stats.nodmgfrom & FLAG_SABER ||
+			(mod == MOD_BRYAR_PISTOL || mod == MOD_BRYAR_PISTOL_ALT) && targ->NPC->stats.nodmgfrom & FLAG_PISTOL ||
+			mod == MOD_BLASTER && targ->NPC->stats.nodmgfrom & FLAG_E11 ||
+			(mod == MOD_DISRUPTOR || mod == MOD_DISRUPTOR_SPLASH || mod == MOD_DISRUPTOR_SNIPER) && targ->NPC->stats.nodmgfrom & FLAG_DISRUPTOR ||
+			mod == MOD_BOWCASTER && targ->NPC->stats.nodmgfrom & FLAG_BOWCASTER ||
+			(mod == MOD_REPEATER || mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH) && targ->NPC->stats.nodmgfrom & FLAG_REPEATER ||
+			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && targ->NPC->stats.nodmgfrom & FLAG_DEMP ||
+			(mod == MOD_FLECHETTE || mod == MOD_FLECHETTE_ALT_SPLASH) && targ->NPC->stats.nodmgfrom & FLAG_GOLAN ||
+			(mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH) && targ->NPC->stats.nodmgfrom & FLAG_ROCKET ||
+			(mod == MOD_THERMAL || mod == MOD_THERMAL_SPLASH) && targ->NPC->stats.nodmgfrom & FLAG_THERMAL ||
+			(mod == MOD_TRIP_MINE_SPLASH || mod == MOD_TIMED_MINE_SPLASH) && targ->NPC->stats.nodmgfrom & FLAG_MINE ||
+			mod == MOD_DET_PACK_SPLASH && targ->NPC->stats.nodmgfrom & FLAG_DETPACK ||
+			(mod == MOD_CONC || mod == MOD_CONC_ALT) && targ->NPC->stats.nodmgfrom & FLAG_CONC ||
+			mod == MOD_FORCE_DARK && targ->NPC->stats.nodmgfrom & FLAG_DARKFORCE ||
+			mod == MOD_VEHICLE && targ->NPC->stats.nodmgfrom & FLAG_VEHICLE ||
+			mod == MOD_FALLING && targ->NPC->stats.nodmgfrom & FLAG_FALLING ||
+			mod == MOD_CRUSH && targ->NPC->stats.nodmgfrom & FLAG_CRUSH ||
+			mod == MOD_TRIGGER_HURT && targ->NPC->stats.nodmgfrom & FLAG_TRIGGER_HURT ||
+			(mod == MOD_UNKNOWN || mod == MOD_TURBLAST || mod == MOD_WATER || mod == MOD_SLIME || mod == MOD_LAVA || mod == MOD_TELEFRAG || mod == MOD_SUICIDE
+				|| mod == MOD_TARGET_LASER || mod == MOD_TEAM_CHANGE || mod == MOD_SENTRY) && targ->NPC->stats.nodmgfrom & FLAG_MISC)
+		{
+			return;
+		}
+	}
 	if ( (g_trueJedi.integer || g_gametype.integer == GT_SIEGE)
 		&& client )
 	{//less explosive damage for jedi, more saber damage for non-jedi
