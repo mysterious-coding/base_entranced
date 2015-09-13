@@ -242,10 +242,12 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing)
-Version: base_entranced-9-9-2015-build25 (stable) - add /forceready, add /forceunready, add /g_allow_ready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing)
+Version: base_entranced-9-12-2015-build26 (experimental) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom/noKnockbackFrom/doubleKnockbackFrom/tripleKnockbackFrom/quadKnockbackFrom/victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
 
 Old versions:
+
+Version: base_entranced-9-9-2015-build25 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing) - add /forceready, add /forceunready, add /g_allow_ready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
 
 Version: base_entranced-9-8-2015-build24 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing) - fix jesus godmode bug from /pause, fix players unable to connect during /pause, fix sentry expiry timer bug from /pause, add dempProof and specialKnockback
 
