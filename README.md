@@ -243,7 +243,7 @@ Prevent calling votes for some things:
 
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing)
-Version: base_entranced-9-12-2015-build26 (experimental) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom/noKnockbackFrom/doubleKnockbackFrom/tripleKnockbackFrom/quadKnockbackFrom/victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
+Version: base_entranced-9-12-2015-build26 (experimental) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom / noKnockbackFrom / doubleKnockbackFrom / tripleKnockbackFrom / quadKnockbackFrom / victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
 
 Old versions:
 
