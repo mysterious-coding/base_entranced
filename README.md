@@ -112,7 +112,9 @@ For example, to make an NPC receive double knockback from melee, stun baton, and
 
 Note that specialKnockback overrides any other 0x/2x/3x/4x knockback flags.
 
-Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode). Note that using this or "demp freezing immunity" will prevent demp from knockbacking an NPC or causing electrocution effect.
+Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode).
+
+Note that using -1 or "demp freezing immunity" will prevent demp from damaging NPC, knockbacking an NPC, or causing electrocution effect.
 
 Mapmakers can add some extra keys to worldspawn entity for additional control over their maps:
 
