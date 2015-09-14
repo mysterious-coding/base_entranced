@@ -850,6 +850,24 @@ void	Svcmd_ForceTeam_f( void ) {
 	}
 	trap_Argv( 2, str, sizeof( str ) );
 	SetTeam(found, str );
+	if (g_gametype.integer == GT_SIEGE)
+	{
+		if (found->client->sess.siegeDesiredTeam == TEAM_RED)
+			trap_SendServerCommand(-1, va("print \"%s was forceteamed to ^1red team.\n\"", found->client->pers.netname));
+		else if (found->client->sess.siegeDesiredTeam == TEAM_BLUE)
+			trap_SendServerCommand(-1, va("print \"%s was forceteamed to ^4blue team.\n\"", found->client->pers.netname));
+		else
+			trap_SendServerCommand(-1, va("print \"%s was forceteamed to spectator.\n\"", found->client->pers.netname));
+	}
+	else
+	{
+		if (found->client->sess.sessionTeam == TEAM_RED)
+			trap_SendServerCommand(-1, va("print \"%s was forceteamed to ^1red team.\n\"", found->client->pers.netname));
+		else if (found->client->sess.sessionTeam == TEAM_BLUE)
+			trap_SendServerCommand(-1, va("print \"%s was forceteamed to ^4blue team.\n\"", found->client->pers.netname));
+		else
+			trap_SendServerCommand(-1, va("print \"%s was forceteamed to spectator.\n\"", found->client->pers.netname));
+	}
 }
 
 void Svcmd_ResetFlags_f(){
