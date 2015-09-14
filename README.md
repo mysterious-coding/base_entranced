@@ -106,13 +106,13 @@ quadKnockbackFrom # = This NPC receives 4x knockback from these weapons
 * Crush				262144
 * Trigger_hurt		524288
 * Other (lava, sentry, etc)				1048576
-* Vehicle freezing immunity (not fully tested)		2097152
+* Demp freezing immunity (not fully tested)		2097152
 
 For example, to make an NPC receive double knockback from melee, stun baton, and pistol, add 1+2+8=11, so use the flag "doubleKnockbackFrom 11"
 
 Note that specialKnockback overrides any other 0x/2x/3x/4x knockback flags.
 
-Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode).
+Special note on nodmgfrom: you can use -1 as shortcut for complete damage immunity(godmode). Note that using this or "demp freezing immunity" will prevent demp from knockbacking an NPC or causing electrocution effect.
 
 Mapmakers can add some extra keys to worldspawn entity for additional control over their maps:
 
