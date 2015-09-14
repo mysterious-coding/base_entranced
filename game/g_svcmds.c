@@ -1217,6 +1217,29 @@ void Svcmd_MapRandom_f()
     G_Printf( "Map pool '%s' not found\n", pool );
 }
 
+void Svcmd_KillTurrets_f()
+{
+	int i = 0;
+	gentity_t* ent;
+	while (i < level.num_entities)
+	{
+		ent = &g_entities[i];
+		if (ent->s.eType != ET_NPC && ent->s.eType != ET_PLAYER && ent->s.weapon)
+		{
+			if (ent->s.weapon == WP_EMPLACED_GUN)
+			{
+				G_RadiusDamage(ent->r.currentOrigin, NULL, 9999, 128, ent, NULL, MOD_SUICIDE); //kill it in style
+			}
+			else if (ent->s.weapon == WP_TURRET)
+			{
+				G_FreeEntity(ent); //boring, just remove it
+			}
+		}
+		i++;
+	}
+	trap_SendServerCommand(-1, va("print \"Turrets destroyed.\n\""));
+}
+
 void Svcmd_SpecAll_f() {
     int i;
 
@@ -1739,6 +1762,11 @@ qboolean	ConsoleCommand( void ) {
         Svcmd_SpecAll_f();
         return qtrue;
     }
+
+	if (!Q_stricmp(cmd, "killturrets")) {
+		Svcmd_KillTurrets_f();
+		return qtrue;
+	}
 
     if (!Q_stricmp(cmd, "randomcapts")) {
         Svcmd_RandomCapts_f();

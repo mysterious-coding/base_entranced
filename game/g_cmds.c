@@ -2319,11 +2319,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "cointoss")) {
     } else if ( !Q_stricmp( arg1, "randomcapts")) {
     } else if ( !Q_stricmp( arg1, "randomteams")) {
-	} else if ( !Q_stricmp( arg1, "forceround2")) {
+	} else if ( !Q_stricmp( arg1, "killturrets")) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
-			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, "
+			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, "
 			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>.\n\"" );
 		return;
 	}
@@ -2662,6 +2662,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Force round 2 siege with %i:%i timer", mins, secs);
+	}
+	else if (!Q_stricmp(arg1, "killturrets"))
+	{
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Kill Turrets");
+
 	}
 	else if ( !Q_stricmp( arg1, "resetflags" )) 
 	{
