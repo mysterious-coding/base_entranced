@@ -294,6 +294,7 @@ vmCvar_t	g_allow_vote_randomteams;
 vmCvar_t	g_allow_vote_randomcapts;
 vmCvar_t	g_allow_vote_cointoss;
 vmCvar_t	g_allow_vote_q;
+vmCvar_t    g_allow_vote_killturrets;
 
 vmCvar_t    g_allow_ready;
 
@@ -614,6 +615,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_ready, "g_allow_ready", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_allow_vote_q, "g_allow_vote_q", "1", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_allow_vote_killturrets, "g_allow_vote_killturrets", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_quietrcon,	"g_quietrcon"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_hackLog,	"g_hackLog"	, "hacks.log"	, CVAR_ARCHIVE, 0, qtrue },

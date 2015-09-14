@@ -2665,6 +2665,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 	else if (!Q_stricmp(arg1, "killturrets"))
 	{
+		//disable this vote
+		if (!g_allow_vote_killturrets.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Kill turrets is disabled.\n\"");
+			return;
+		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Kill Turrets");
 
