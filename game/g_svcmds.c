@@ -830,19 +830,26 @@ forceteam <player> <team>
 ===================
 */
 void	Svcmd_ForceTeam_f( void ) {
-	gclient_t	*cl;
+	char buffer[64];
+	gentity_t* found = NULL;
 	char		str[MAX_TOKEN_CHARS];
 
-	// find the player
-	trap_Argv( 1, str, sizeof( str ) );
-	cl = ClientForString( str );
-	if ( !cl ) {
+	if (trap_Argc() < 3)
+	{
+		Com_Printf("usage: forceteam [id/name] [team] (name can be just part of name, colors dont count)\n"); //bad number of arguments
 		return;
 	}
 
-	// set the team
+	trap_Argv(1, buffer, sizeof(buffer));
+	found = G_FindClient(buffer);
+
+	if (!found || !found->client)
+	{
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n",buffer);
+		return;
+	}
 	trap_Argv( 2, str, sizeof( str ) );
-	SetTeam( &g_entities[cl - level.clients], str );
+	SetTeam(found, str );
 }
 
 void Svcmd_ResetFlags_f(){
