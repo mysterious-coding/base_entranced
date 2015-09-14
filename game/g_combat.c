@@ -4135,17 +4135,22 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	if (mod == MOD_DEMP2 && targ->s.eType == ET_NPC && targ->NPC->stats.nodmgfrom && (targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE || targ->NPC->stats.nodmgfrom == -1))
+	{
+		return;
+	}
+
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
 		if ( targ->client->ps.electrifyTime < level.time )
 		{//electrocution effect
 			if (targ->s.eType == ET_NPC && targ->s.NPC_class == CLASS_VEHICLE &&
-				targ->m_pVehicle && !(targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE) && targ->NPC->stats.nodmgfrom != -1 && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
-			{ //do some extra stuff to speeders/walkers unless they have "can't get frozen" flag or "everything-proof" flags specified
+				targ->m_pVehicle && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
+			{ //do some extra stuff to speeders/walkers
 				targ->client->ps.electrifyTime = level.time + Q_irand( 3000, 4000 );
 			}
 			else if ( targ->s.NPC_class != CLASS_VEHICLE 
-				|| (targ->m_pVehicle && !(targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE) && targ->NPC->stats.nodmgfrom != -1 && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
+				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
 			{//don't do this to fighters
 				targ->client->ps.electrifyTime = level.time + Q_irand( 300, 800 );
 			}

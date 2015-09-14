@@ -1316,24 +1316,25 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 
 		// push the center of mass higher than the origin so players get knocked into the air more
 		dir[2] += 12;
+
+		if (gent->s.eType == ET_NPC && gent->NPC->stats.nodmgfrom && (gent->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE || gent->NPC->stats.nodmgfrom == -1))
+			continue;
+
 		if (gent != myOwner)
 		{
-			if (gent->s.eType != ET_NPC || (!(gent->NPC->stats.nodmgfrom & FLAG_DEMP) || gent->NPC->stats.nodmgfrom != -1)) //demp-proof or everything-proof is specified
-			{
-				G_Damage(gent, myOwner, myOwner, dir, ent->r.currentOrigin, ent->damage, DAMAGE_DEATH_KNOCKBACK, ent->splashMethodOfDeath);
-			}
+			G_Damage(gent, myOwner, myOwner, dir, ent->r.currentOrigin, ent->damage, DAMAGE_DEATH_KNOCKBACK, ent->splashMethodOfDeath);
 			if ( gent->takedamage 
 				&& gent->client ) 
 			{
 				if ( gent->client->ps.electrifyTime < level.time )
 				{//electrocution effect
 					if (gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE &&
-						gent->m_pVehicle && !(gent->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE) && gent->NPC->stats.nodmgfrom != -1 && (gent->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || gent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
-					{ //do some extra stuff to speeders/walkers unless they have "can't get frozen" flag or "everything-proof" flags specified
+						gent->m_pVehicle && (gent->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || gent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
+					{ //do some extra stuff to speeders/walkers
 						gent->client->ps.electrifyTime = level.time + Q_irand( 3000, 4000 );
 					}
 					else if ( gent->s.NPC_class != CLASS_VEHICLE 
-						|| (gent->m_pVehicle && !(gent->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE) && gent->NPC->stats.nodmgfrom != -1 && gent->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
+						|| (gent->m_pVehicle && gent->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
 					{//don't do this to fighters
 						gent->client->ps.electrifyTime = level.time + Q_irand( 300, 800 );
 					}
