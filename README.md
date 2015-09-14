@@ -45,6 +45,9 @@ rcon command that restarts the current map with siege timer going up from 00:00.
 ####/forceround2 mm:ss
 Restarts current map with siege timer going down from a specified time. For example, /forceround2 7:30 starts siege in round 2 with the timer going down from 7:30. Can be executed from rcon or callvote.
 
+####/killturrets
+Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
+
 ####Reset siege to round 1 on /map vote
 No more changing maps with timer going down.
 
@@ -56,6 +59,9 @@ Use /forceready <clientnumber> and /forceunready <clientnumber> to force a playe
 
 ####/g_allow_ready
 Use to enable/disable players from using the /ready command.
+
+####Improved /tell and /forceteam
+Use partial client name with /tell or /forceteam (for example, /tell pada hi)
 
 ####Additional tools for mapmakers
 base_entranced provides mapmakers with powerful tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
@@ -244,10 +250,12 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing)
-Version: base_entranced-9-12-2015-build26 (experimental) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom / noKnockbackFrom / doubleKnockbackFrom / tripleKnockbackFrom / quadKnockbackFrom / victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing)
+Version: base_entranced-9-14-2015-build27 (experimental) - add /killturrets, allow partial name for /tell and /forceteam, add notifications for /forceteam and /specall
 
 Old versions:
+
+Version: base_entranced-9-12-2015-build26 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom / noKnockbackFrom / doubleKnockbackFrom / tripleKnockbackFrom / quadKnockbackFrom / victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
 
 Version: base_entranced-9-9-2015-build25 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing) - add /forceready, add /forceunready, add /g_allow_ready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
 
