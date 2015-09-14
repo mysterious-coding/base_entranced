@@ -1226,9 +1226,10 @@ void Svcmd_SpecAll_f() {
         }
 
         if ((g_entities[i].client->sess.sessionTeam == TEAM_BLUE) || (g_entities[i].client->sess.sessionTeam == TEAM_RED)) {
-            trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i s\n", i));
+			SetTeam(&g_entities[i], "s");
         }
     }
+	trap_SendServerCommand(-1, va("print \"All players were forced to spectator.\n\""));
 }
 
 void Svcmd_RandomCapts_f() {
