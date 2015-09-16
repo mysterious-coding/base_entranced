@@ -664,10 +664,11 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 		if (!BG_SiegeGetPairedValue(gParseObjectives, "roundover_target", teamstr))
 		{ //didn't find the name of the thing to target upon win, just logexit now then.
 			LogExit( "Objectives completed" );
-			return;
+			//return;
+			//returning here breaks round 2 timer if there's no target_siege_end
 		}
 		
-		if (originalWinningClient == ENTITYNUM_NONE)
+		if (originalWinningClient && originalWinningClient == ENTITYNUM_NONE) //add null check
 		{ //oh well, just find something active and use it then.
             int i = 0;
 			gentity_t *ent;
