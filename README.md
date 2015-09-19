@@ -34,6 +34,16 @@ These are unique features for base_entranced.
 
 1 = (DEAD) message in teamchats from dead teammates
 
+####/g_fixHothBunkerLift
+0 = normal lift behavior for Hoth codes bunker lift (default JK3)
+
+1 = Hoth codes bunker lift requires pressing +use button (prevents you from killing yourself way too easily on this dumb lift)
+
+####/g_enableCloak
+0 = remove cloak from all siege classes
+
+1 = cloak enabled (default JK3)
+
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
@@ -137,11 +147,14 @@ In addition to the base_enhanced vote controls, you can use these:
 * /g_allow_vote_cointoss
 * /g_allow_vote_allready
 * /g_allow_vote_q
+* /g_allow_vote_killturrets
 
 ####Bugfixes:
+* Hoth bridge is forced to be crusher (prevents bridge lame).
 * Seeker no longer attacks walkers and fighters.
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
+* Fixed bug where round 2 timer wouldn't function properly on maps with roundover_target missing from the .siege file.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -250,12 +263,14 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing)
-Version: base_entranced-9-14-2015-build27 (experimental) - add /killturrets, allow partial name for /tell and /forceteam, add notifications for /forceteam and /specall
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing)
+Version: base_entranced-9-19-2015-build28 (stable) - add g_fixHothBunkerLift, add g_enableCloak, add g_allow_vote_killturrets, fix bugged timer if roundover_target is missing in .siege file, patch hoth bridge lame
 
 Old versions:
 
-Version: base_entranced-9-12-2015-build26 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom / noKnockbackFrom / doubleKnockbackFrom / tripleKnockbackFrom / quadKnockbackFrom / victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
+Version: base_entranced-9-14-2015-build27 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing) - add /killturrets (rcon or callvote), allow partial name for /tell and /forceteam, add notifications for /forceteam and /specall
+
+Version: base_entranced-9-12-2015-build26 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags nodmgfrom / noKnockbackFrom / doubleKnockbackFrom / tripleKnockbackFrom / quadKnockbackFrom / victimOfForce, add g_forceOnNpcs, define siegeRespawn/siegeTeamSwitch/forceOnNpcs in worldspawn)
 
 Version: base_entranced-9-9-2015-build25 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing) - add /forceready, add /forceunready, add /g_allow_ready, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
 
