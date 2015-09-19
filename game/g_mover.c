@@ -1519,6 +1519,54 @@ void Touch_PlatCenterTrigger(gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 
 /*
+==============
+Touch_PlatCenterTrigger_Hoth
+
+Require use button for Hoth bunker plat
+===============
+*/
+void Touch_PlatCenterTrigger_Hoth(gentity_t *ent, gentity_t *other, trace_t *trace) {
+	if (!other->client) {
+		return;
+	}
+	
+	if (g_fixHothBunkerLift.integer)
+	{
+		if (!(other->client->pers.cmd.buttons & BUTTON_USE))
+		{//not pressing use button
+			return;
+		}
+
+		if ((other->client->ps.weaponTime > 0 && other->client->ps.torsoAnim != BOTH_BUTTON_HOLD && other->client->ps.torsoAnim != BOTH_CONSOLE1) || other->health < 1 ||
+			(other->client->ps.pm_flags & PMF_FOLLOW) || other->client->sess.sessionTeam == TEAM_SPECTATOR ||
+			other->client->ps.forceHandExtend != HANDEXTEND_NONE)
+		{ //player has to be free of other things to use.
+			return;
+		}
+
+		if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
+			other->client->ps.torsoAnim != BOTH_CONSOLE1)
+		{
+			G_SetAnim(other, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+		}
+		else
+		{
+			other->client->ps.torsoTimer = 500;
+		}
+		other->client->ps.weaponTime = other->client->ps.torsoTimer;
+
+		Use_BinaryMover(ent->parent, ent, other);
+	}
+	else
+	{
+		Use_BinaryMover(ent->parent, ent, other);
+	}
+
+	
+}
+
+
+/*
 ================
 SpawnPlatTrigger
 
@@ -1527,16 +1575,24 @@ Elevator cars require that the trigger extend through the entire low position,
 not just sit on top of it.
 ================
 */
-void SpawnPlatTrigger(gentity_t *ent) {
+void SpawnPlatTrigger(gentity_t *ent, qboolean isHothBunkerLift) {
 	gentity_t	*trigger;
 	vec3_t	tmin, tmax;
 
 	// the middle trigger will be a thin trigger just
 	// above the starting position
 	trigger = G_Spawn();
-	trigger->touch = Touch_PlatCenterTrigger;
 	trigger->r.contents = CONTENTS_TRIGGER;
 	trigger->parent = ent;
+
+	if (isHothBunkerLift)
+	{
+		trigger->touch = Touch_PlatCenterTrigger_Hoth;
+	}
+	else
+	{
+		trigger->touch = Touch_PlatCenterTrigger;
+	}
 
 	tmin[0] = ent->pos1[0] + ent->r.mins[0] + 33;
 	tmin[1] = ent->pos1[1] + ent->r.mins[1] + 33;
@@ -1578,6 +1634,7 @@ Plats are always drawn in the extended position so they will light correctly.
 */
 void SP_func_plat(gentity_t *ent) {
 	float		lip, height;
+	vmCvar_t    mapname;
 
 	VectorClear(ent->s.angles);
 
@@ -1611,8 +1668,19 @@ void SP_func_plat(gentity_t *ent) {
 	ent->parent = ent;	// so it can be treated as a door
 
 						// spawn the trigger if one hasn't been custom made
-	if (!ent->targetname) {
-		SpawnPlatTrigger(ent);
+
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!ent->targetname)
+	{
+		if (!Q_stricmp(mapname.string, "mp/siege_hoth") && height == 568 && ent->damage == 9999) //hacktastic
+		{
+			SpawnPlatTrigger(ent, qtrue);
+		}
+		else
+		{
+			SpawnPlatTrigger(ent, qfalse);
+		}
 	}
 }
 
