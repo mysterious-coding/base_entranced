@@ -3803,6 +3803,11 @@ void ClientSpawn(gentity_t *ent) {
 		}
 	}
 
+	if (!g_enableCloak.integer && (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK)))
+	{
+		ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_CLOAK);
+	}
+
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR )
 	{
 		client->ps.stats[STAT_WEAPONS] = 0;
