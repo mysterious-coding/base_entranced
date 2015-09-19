@@ -62,7 +62,7 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 No more changing maps with timer going down.
 
 ####Random teams/capts in siege
-Although base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege.
+base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege.
 
 ####/forceready and /forceunready
 Use /forceready <clientnumber> and /forceunready <clientnumber> to force a player to have ready or not ready status. Use -1 to force everybody.
