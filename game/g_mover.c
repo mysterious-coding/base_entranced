@@ -1029,7 +1029,7 @@ void Blocked_Door(gentity_t *ent, gentity_t *other)
 	if (ent->damage) {
 		G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
 	}
-	if (ent->spawnflags & MOVER_CRUSHER) {
+	if (ent->spawnflags & MOVER_CRUSHER || (!Q_stricmp(ent->target, "droptheclip") && !Q_stricmp(ent->targetname, "bridge"))) { //dirty hack to fix hoth bridge crusher
 		return;		// crushers don't reverse
 	}
 
