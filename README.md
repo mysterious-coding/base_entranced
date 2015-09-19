@@ -40,7 +40,7 @@ These are unique features for base_entranced.
 1 = Hoth codes bunker lift requires pressing +use button (prevents you from killing yourself way too easily on this dumb lift)
 
 ####/g_enableCloak
-0 = remove cloak from all siege classes
+0 = remove cloak from all siege classes (eliminates need for no-cloak PK3 patches)
 
 1 = cloak enabled (default JK3)
 
