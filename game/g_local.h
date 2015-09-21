@@ -1857,6 +1857,7 @@ extern vmCvar_t	   g_hideSpecLocation;
 extern vmCvar_t    g_denoteDead;
 extern vmCvar_t    g_enableCloak;
 extern vmCvar_t    g_fixHothBunkerLift;
+extern vmCvar_t    g_infiniteCharge;
 
 extern vmCvar_t    g_forceOnNpcs;
 

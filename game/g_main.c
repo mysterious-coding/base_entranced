@@ -157,6 +157,7 @@ vmCvar_t    g_hideSpecLocation;
 vmCvar_t    g_denoteDead;
 vmCvar_t    g_enableCloak;
 vmCvar_t    g_fixHothBunkerLift;
+vmCvar_t    g_infiniteCharge;
 
 vmCvar_t    g_forceOnNpcs;
 
@@ -645,6 +646,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_denoteDead, "g_denoteDead", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_enableCloak, "g_enableCloak", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_forceOnNpcs, "g_forceOnNpcs", "0", CVAR_ARCHIVE, 0, qtrue },
 
