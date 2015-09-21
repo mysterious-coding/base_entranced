@@ -6779,6 +6779,7 @@ static void PM_Weapon( void )
 	{
 		// check for item using
 		if (pm->cmd.buttons & BUTTON_USE_HOLDABLE) {
+			BG_ClearRocketLock(pm->ps); //test
 			if (!(pm->ps->pm_flags & PMF_USE_ITEM_HELD)) {
 
 				if (pm_entSelf->s.NPC_class != CLASS_VEHICLE
