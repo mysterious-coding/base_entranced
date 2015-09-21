@@ -267,6 +267,7 @@ Prevent calling votes for some things:
 * Bugfix for mindtricking when no enemies are around
 * Golan alternate fire properly uses "was shrapnelled by" now
 * Trip mine alternate fire properly uses "was mined by" now
+* Bugfix for mines doing less splash damage when killed by player in slot 0.
 * Security/crash fixes.
 * Probably more fixes.
 
