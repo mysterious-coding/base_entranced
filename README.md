@@ -44,6 +44,11 @@ These are unique features for base_entranced.
 
 1 = cloak enabled (default JK3)
 
+####/g_infiniteCharge
+0 = no infinite charging bug with +useforce/+button2 (bugfix from base_enhanced)
+
+1 = infinite charging bug enabled (classic behavior, brought back by popular demand. hold +useforce or +button2 to hold weapon charge indefinitely)
+
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
@@ -140,6 +145,8 @@ Mapmakers can set the "siegeRespawn" key in worldspawn, which forces the server 
 
 Mapmakers can set the "siegeTeamSwitch" key in worldspawn, which forces the server to execute /g_siegeTeamSwitch to a desired number. If this key is not set, it will default to 1 (JK3 default).
 
+Mapmakers can specify multiple ideal classes (e.g. "Imperial Demo|Imperial Tech") - note that if a non-ideal class's name is a substring of an ideal class, it will be eligible to activate the trigger/spawnpoint. For example, if idealclass is "Rebel Jedi" then any class like "Rebel Jedi Guardian" or "Rebel Jedi Rocketeer" will be eligible.
+
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
 * /g_allow_vote_randomteams
@@ -155,6 +162,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 * Fixed bug where round 2 timer wouldn't function properly on maps with roundover_target missing from the .siege file.
+* Fixed bug where "idealclass" key didn't work with multiple classes
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -263,10 +271,12 @@ Prevent calling votes for some things:
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing)
-Version: base_entranced-9-19-2015-build28 (stable) - add g_fixHothBunkerLift, add g_enableCloak, add g_allow_vote_killturrets, fix bugged timer if roundover_target is missing in .siege file, patch hoth bridge lame
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8N05UaVpzakpuS2M/view?usp=sharing)
+Version: base_entranced-9-21-2015-build29 (stable) - add /g_infiniteCharge by popular demand, fix bug with idealclass not supporting multiple classes
 
 Old versions:
+
+Version: base_entranced-9-19-2015-build28 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing) - add /g_fixHothBunkerLift, add /g_enableCloak, add /g_allow_vote_killturrets, fix bugged timer if roundover_target is missing in .siege file, patch hoth bridge lame
 
 Version: base_entranced-9-14-2015-build27 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing) - add /killturrets (rcon or callvote), allow partial name for /tell and /forceteam, add notifications for /forceteam and /specall
 
