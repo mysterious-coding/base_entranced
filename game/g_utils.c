@@ -2345,3 +2345,8 @@ void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out )
 	VectorSubtract( p2, p1, v );
 	vectoangles( v, out );
 }
+
+qboolean G_IsPlayer( gentity_t* ent )
+{
+	return (ent && (ent->s.number < MAX_CLIENTS));
+}
