@@ -1107,7 +1107,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClas
         while (i < count)
 		{
 			if (spots[i] && spots[i]->idealclass && spots[i]->idealclass[0] &&
-				(strstr(spots[i]->idealclass, bgSiegeClasses[siegeClass].name) != NULL))
+				!Q_stricmp(spots[i]->idealclass, bgSiegeClasses[siegeClass].name))
 			{ //this spot's idealclass matches the class name
 				classCount++;
 			}

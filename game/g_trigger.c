@@ -91,16 +91,35 @@ void multi_trigger_run( gentity_t *ent )
 }
 
 //determine if the class given is listed in the string using the | formatting
-qboolean G_NameInTriggerClassList(char *siegeclass, char *idealclass)
+qboolean G_NameInTriggerClassList(char *list, char *str)
 {
-	if (strstr(idealclass, siegeclass) != NULL)
+	char cmp[MAX_STRING_CHARS];
+	int i = 0;
+	int j;
+
+	while (list[i])
 	{
-		return qtrue;
+        j = 0;
+        while (list[i] && list[i] != '|')
+		{
+			cmp[j] = list[i];
+			i++;
+			j++;
+		}
+		cmp[j] = 0;
+
+		if (!Q_stricmp(str, cmp))
+		{ //found it
+			return qtrue;
+		}
+		if (list[i] != '|')
+		{ //reached the end and never found it
+			return qfalse;
+		}
+		i++;
 	}
-	else
-	{
-		return qfalse;
-	}
+
+	return qfalse;
 }
 
 extern qboolean gSiegeRoundBegun;
@@ -137,11 +156,13 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		{ //no class
 			return;
 		}
+
 		if (!G_NameInTriggerClassList(bgSiegeClasses[activator->client->siegeClass].name, ent->idealclass))
 		{ //wasn't in the list
 			return;
 		}
 	}
+
 	if (g_gametype.integer == GT_SIEGE && ent->genericValue1)
 	{
 		haltTrigger = qtrue;
