@@ -145,8 +145,6 @@ Mapmakers can set the "siegeRespawn" key in worldspawn, which forces the server 
 
 Mapmakers can set the "siegeTeamSwitch" key in worldspawn, which forces the server to execute /g_siegeTeamSwitch to a desired number. If this key is not set, it will default to 1 (JK3 default).
 
-Mapmakers can specify multiple ideal classes (e.g. "Imperial Demo|Imperial Tech") - note that if a non-ideal class's name is a substring of an ideal class, it will be eligible to activate the trigger/spawnpoint. For example, if idealclass is "Rebel Jedi" then any class like "Rebel Jedi Guardian" or "Rebel Jedi Rocketeer" will be eligible.
-
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
 * /g_allow_vote_randomteams
@@ -162,7 +160,6 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 * Fixed bug where round 2 timer wouldn't function properly on maps with roundover_target missing from the .siege file.
-* Fixed bug where "idealclass" key didn't work with multiple classes
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -252,6 +249,7 @@ Prevent calling votes for some things:
 * No more weird camera and seeker glitch from walker.
 * Bugfix for renaming causing saber style change.
 * Bugfix for camera getting stuck when incinerated by sniper shot.
+* Bugfix for dying while RDFAing.
 * Bugfix for disconnecting in ATST and going invisible.
 * No more SK when already dead.
 * No more weird spec glitch with possessing someone else's body.
@@ -268,14 +266,18 @@ Prevent calling votes for some things:
 * Golan alternate fire properly uses "was shrapnelled by" now
 * Trip mine alternate fire properly uses "was mined by" now
 * Bugfix for mines doing less splash damage when killed by player in slot 0.
+* Miscellaneous slot 0 bugfixes
+* Fixed telefragging jumping players when spawning.
 * Security/crash fixes.
 * Probably more fixes.
 
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8N05UaVpzakpuS2M/view?usp=sharing)
-Version: base_entranced-9-21-2015-build29 (stable) - add /g_infiniteCharge by popular demand, fix bug with idealclass not supporting multiple classes
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing)
+Version: base_entranced-9-24-2015-build30 (stable) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
 
 Old versions:
+
+Version: base_entranced-9-21-2015-build29 (unstable) [download removed] - add /g_infiniteCharge by popular demand, fix bug with idealclass not supporting multiple classes (this introduced some new bugs, which are fixed in build 30)
 
 Version: base_entranced-9-19-2015-build28 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing) - add /g_fixHothBunkerLift, add /g_enableCloak, add /g_allow_vote_killturrets, fix bugged timer if roundover_target is missing in .siege file, patch hoth bridge lame
 
