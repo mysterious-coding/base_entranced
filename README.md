@@ -271,6 +271,7 @@ Prevent calling votes for some things:
 * Security/crash fixes.
 * Probably more fixes.
 
+###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing)
 Version: base_entranced-9-24-2015-build30 (stable) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
