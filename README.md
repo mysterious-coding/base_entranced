@@ -9,6 +9,11 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 #base_entranced features
 These are unique features for base_entranced.
 
+####/g_siegeStats
+0 = no stats (default JK3)
+
+1 = prints times for each objective after completion; writes all obj times at end of round (compares times and highlights faster time in green in round 2) This feature is still under development, and will improve with time
+
 ####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
@@ -267,6 +272,8 @@ Prevent calling votes for some things:
 * Trip mine alternate fire properly uses "was mined by" now
 * Bugfix for mines doing less splash damage when killed by player in slot 0.
 * Miscellaneous slot 0 bugfixes
+* Fix bryar pistol animations
+* Fix players rolling/running through mines unharmed
 * Fixed telefragging jumping players when spawning.
 * Security/crash fixes.
 * Probably more fixes.
@@ -275,10 +282,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing)
-Version: base_entranced-9-24-2015-build30 (stable) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZEZTeTRVN3JGNk0/view?usp=sharing)
+Version: base_entranced-9-25-2015-build31 (experimental) - add preliminary g_siegeStats, fix bryar animations, fix players rolling/running through tripmines unharmed
 
 Old versions:
+
+Version: base_entranced-9-24-2015-build30 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
 
 Version: base_entranced-9-21-2015-build29 (unstable) [download removed] - add /g_infiniteCharge by popular demand, fix bug with idealclass not supporting multiple classes (this introduced some new bugs, which are fixed in build 30)
 
