@@ -790,7 +790,7 @@ void pas_think( gentity_t *ent )
 	{
 		ent->r.contents = 0;
 		ent->s.fireflag = 0;
-		ent->nextthink = level.time + FRAMETIME;
+		ent->nextthink = level.time + level.frameTime;
 		return;
 	}
 	else
@@ -809,7 +809,7 @@ void pas_think( gentity_t *ent )
 	if ( !ent->damage )
 	{
 		ent->damage = 1;
-		ent->nextthink = level.time + FRAMETIME;
+		ent->nextthink = level.time + level.frameTime;
 		return;
 	}
 
@@ -824,7 +824,7 @@ void pas_think( gentity_t *ent )
 		return;
 	}
 
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.time + level.frameTime;
 
 	if ( ent->enemy )
 	{
@@ -1021,7 +1021,7 @@ void SP_PAS( gentity_t *base )
 	G_RunObject(base);
 
 	base->think = pas_think;
-	base->nextthink = level.time + FRAMETIME;
+	base->nextthink = level.time + level.frameTime;
 
 	if ( !base->health )
 	{
@@ -3103,7 +3103,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	ent->item = item;
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
-	ent->nextthink = level.time + FRAMETIME * 2;
+	ent->nextthink = level.time + level.frameTime * 2;
 	ent->think = FinishSpawningItem;
 
 	ent->physicsBounce = 0.50;		// items are bouncy
