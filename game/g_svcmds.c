@@ -1367,7 +1367,8 @@ void Svcmd_ForceRound2_f() {
 		trap_Printf("Time must be under 30 minutes.\n");
 		return;
 	}
-
+	trap_Cvar_Set("g_siegeObjStorage", "none");
+	trap_Cvar_Set("g_objscompleted_old", "0");
 	g_siegePersistant.beatingTime = qtrue;
 	g_siegePersistant.lastTeam = 1;
 	g_siegePersistant.lastTime = time * 1000;

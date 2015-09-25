@@ -14,6 +14,7 @@
 
 #define SIEGEITEM_STARTOFFRADAR 8
 
+
 static char		team1[512];
 static char		team2[512];
 
@@ -33,6 +34,18 @@ int			gRebelCountdown = 0;
 int			rebel_attackers = 0;
 int			imperial_attackers = 0;
 
+int			objtime[16] = { 0 };
+int			previousobjtime = 0;
+int         objscompleted = 0;
+int			objscompletedoffset = 0;
+int         roundstarttime = 0;
+int			totalroundtime = 0;
+int			heldformax = 0;
+
+int			objtime_old[16] = { 0 };
+
+int			totalroundtime_old = 10000;
+
 qboolean	gSiegeRoundBegun = qfalse;
 qboolean	gSiegeRoundEnded = qfalse;
 qboolean	gSiegeRoundWinningTeam = 0;
@@ -45,6 +58,308 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
 static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 static char gObjectiveCfgStr[1024];
+
+void SiegeParseMilliseconds(int objTimeInMilliseconds, char *string) //takes a time in milliseconds (e.g. 63000) and returns it as a pretty string ("1:03")
+{
+	int elapsedSeconds;
+	int minutes;
+	int seconds;
+	qboolean heldForMax = qfalse;
+
+	if (objTimeInMilliseconds < 0)
+	{
+		heldForMax = qtrue; //they got held for 20 minutes
+		objTimeInMilliseconds = abs(objTimeInMilliseconds); //make sure the number is positive before we work with it
+	}
+
+	elapsedSeconds = ((objTimeInMilliseconds + 500) / 1000); //convert milliseconds to seconds
+	minutes = (elapsedSeconds / 60) % 60; //find minutes
+	seconds = elapsedSeconds % 60; //find seconds
+
+	if (seconds >= 10) //seconds is double-digit
+	{
+		Com_sprintf(string, 32, "%i:%i", minutes, seconds); //convert to string as-is
+	}
+	else //seconds is single-digit
+	{
+		Com_sprintf(string, 32, "%i:0%i", minutes, seconds); //convert to string, and also add a zero if seconds is single-digit
+	}
+
+	if (heldForMax == qtrue)
+	{
+		if (!g_siegePersistant.beatingTime)
+		{
+			Com_sprintf(string, 32, "^1%s (DNF)", string); //round1 code in SiegePrintStats doesn't run the same color comparison stuff, so we have to set it red here instead
+		}
+		else
+		{
+			Com_sprintf(string, 32, "%s (DNF)", string);
+		}
+	}
+}
+
+void SiegeUpdateObjTime(int objective, qboolean heldForMax) //finds the time elapsed in milliseconds between the prior objective(or round start if first obj) and the objective we just got
+{
+	int multiplier;
+	char timeYouTook[32];
+
+	if (objective > 15)
+	{
+		G_LogPrintf("g_siegeStats error: objective %i is greater than 15.\n", objective);
+		return;
+	}
+
+	if (heldForMax == qtrue)
+	{
+		multiplier = -1; //you got held for 20 minutes, so let's set the time to negative so we can treat it differently later
+		heldformax = 1;
+	}
+	else
+	{
+		multiplier = 1;
+	}
+
+	objtime[objective] = (multiplier * (level.time - previousobjtime)); //save the obj time
+
+	previousobjtime = level.time; //save the current time so we can compare it with the next completed obj
+
+	if (heldForMax != qtrue)
+	{
+		objscompleted++;
+		if (objective != objscompleted) //we went out-of-order
+		{
+			objscompletedoffset++; //note this, so that if we get held for 20 it says we got held for 20 at the correct obj
+		}
+	}
+
+	if (g_siegeStats.integer)
+	{
+		SiegeParseMilliseconds(objtime[objective], timeYouTook);
+		G_TeamCommand(TEAM_BLUE, va("print \"Objective held for ^5%s^7.\n\"", timeYouTook));
+		if (heldForMax != qtrue)
+		{
+			G_TeamCommand(TEAM_RED, va("print \"Objective completed in ^5%s^7.\n\"", timeYouTook));
+			G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective completed in ^5%s^7.\n\"", timeYouTook));
+		}
+		else
+		{
+			G_TeamCommand(TEAM_RED, va("print \"Held at objective for ^5%s^7.\n\"", timeYouTook));
+			G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective held for in ^5%s^7.\n\"", timeYouTook));
+		}
+	}
+}
+
+void SiegeSetSpacing(char *timeString, char *spacingString)
+{
+
+	//adjust the number of spaces that will go between round 1 time and round 2 time based on the length of round 1 string
+	//the idea is to get all the round 2 times to line up visually.
+
+	if (strlen(timeString) == 4) //4 digits without dnf e.g. 1:30
+	{
+		Com_sprintf(spacingString, 32, "          "); //10 spaces
+	}
+	else if (strlen(timeString) == 5) //5 digits without dnf e.g. 12:30
+	{
+		Com_sprintf(spacingString, 32, "         "); //9 spaces
+	}
+	else if (strlen(timeString) == 10) //4 digits with dnf e.g. 1:30 (DNF)
+	{
+		Com_sprintf(spacingString, 32, "    "); //4 spaces
+	}
+	else if (strlen(timeString) == 11) //5 digits with dnf e.g. 12:30 (DNF)
+	{
+		Com_sprintf(spacingString, 32, "   "); //3 spaces
+	}
+	else //???
+	{
+		Com_sprintf(spacingString, 32, "              "); //14 spaces
+	}
+
+}
+
+void SiegeParseObjStorage() //reads g_siegeObjStorage and writes objtime_old array and totalroundtime_old 
+{
+	const char *delimiter = ",";
+	char *cp;
+	int i = 0;
+
+	cp = strdup(g_siegeObjStorage.string);
+	objtime_old[1] = atoi(strtok(cp, delimiter));
+	for (i = 2; i < 16; i++)
+	{
+		objtime_old[i] = atoi(strtok(NULL, delimiter));
+	}
+	totalroundtime_old = atoi(strtok(NULL, delimiter));
+}
+
+void SiegeSetTimeColors(int round1time, int round2time, char *round1string, char *round2string) //put faster time in green, slower time in red
+{
+	if (round2time <= 0 && round1time > 0) //round2 team didn't do obj, but round1 team did
+	{
+		Com_sprintf(round1string, 32, "^2%s", round1string);
+		Com_sprintf(round2string, 32, "^1%s", round2string);
+	}
+	else if (round1time <= 0 && round2time > 0)//round1 team didn't do obj, but round2 team did
+	{
+		Com_sprintf(round1string, 32, "^1%s", round1string);
+		Com_sprintf(round2string, 32, "^2%s", round2string);
+	}
+	else if (round1time <= 0 && round2time <= 0) //both teams got held for 20...shame on all of you! make them both red
+	{
+		Com_sprintf(round1string, 32, "^1%s", round1string);
+		Com_sprintf(round2string, 32, "^1%s", round2string);
+	}
+	else if (round1time > 0 && round2time > 0 && round1time < round2time) //round1 team was faster
+	{
+		Com_sprintf(round1string, 32, "^2%s", round1string);
+		Com_sprintf(round2string, 32, "^1%s", round2string);
+	}
+	else if (round1time > 0 && round2time > 0 && round2time < round1time) //round2 team was faster
+	{
+		Com_sprintf(round1string, 32, "^1%s", round1string);
+		Com_sprintf(round2string, 32, "^2%s", round2string);
+	}
+	else if (round1time == round2time) //extremely rare occurence. must be exactly equal to the millisecond!
+	{
+		Com_sprintf(round1string, 32, "^3%s", round1string);
+		Com_sprintf(round2string, 32, "^3%s", round2string);
+	}
+	else //???
+	{
+		Com_sprintf(round1string, 32, "^5%s", round1string);
+		Com_sprintf(round2string, 32, "^5%s", round2string);
+	}
+}
+
+void SiegeOverrideRoundColors(char *round1string, char *round2string) //make sure total round time colors are correct
+{
+	if (heldformax && !g_heldformax_old.integer) //round2 team was held for max; round1 team wasn't
+	{
+		Com_sprintf(round1string, 32, "^2%s", round1string);
+		Com_sprintf(round2string, 32, "^1%s", round2string);
+	}
+	else if (!heldformax && g_heldformax_old.integer) //round1 team was held for max; round2 team wasn't
+	{
+		Com_sprintf(round1string, 32, "^1%s", round1string);
+		Com_sprintf(round2string, 32, "^2%s", round2string);
+	}
+	else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer > objscompleted) //both held for max, but round1 team got more objs
+	{
+		Com_sprintf(round1string, 32, "^2%s", round1string);
+		Com_sprintf(round2string, 32, "^1%s", round2string);
+	}
+	else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer < objscompleted) //both held for max, but round2 team got more objs
+	{
+		Com_sprintf(round1string, 32, "^1%s", round1string);
+		Com_sprintf(round2string, 32, "^2%s", round2string);
+	}
+	else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer == objscompleted) //tie game
+	{
+		Com_sprintf(round1string, 32, "^3%s", round1string);
+		Com_sprintf(round2string, 32, "^3%s", round2string);
+	}
+}
+
+void SiegePrintStats() //print everything
+{
+	int i;
+	char timeString[32];
+	char timeString2[32];
+	char spacing[32];
+
+	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+	totalroundtime = (previousobjtime - roundstarttime);
+
+
+	if (g_siegePersistant.beatingTime && g_siegeObjStorage.string && (g_siegeObjStorage.string,"none") && g_siegeTeamSwitch.integer) //it's round 2
+	{
+		SiegeParseObjStorage(); //set objtime_old array and totalroundtime_old
+		for (i = 1; i < 16; i++)
+		{
+			Com_sprintf(timeString, sizeof(timeString), "");
+			Com_sprintf(timeString2, sizeof(timeString2), "");
+			if (objtime_old[i]) { SiegeParseMilliseconds(objtime_old[i], timeString); }
+			if (objtime[i]) { SiegeParseMilliseconds(objtime[i], timeString2); }
+			if (objtime_old[i] || objtime[i]) //at least one team completed this objective
+			{
+				SiegeSetSpacing(timeString,spacing);
+				SiegeSetTimeColors(objtime_old[i], objtime[i], timeString, timeString2);
+				trap_SendServerCommand(-1, va("print \"Objective %i time:   Round 1: %s%s^7Round 2: %s\n\"", i, timeString, spacing, timeString2));
+			}
+		}
+		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+		Com_sprintf(timeString, sizeof(timeString), "");
+		Com_sprintf(timeString2, sizeof(timeString2), "");
+		if (totalroundtime_old) { SiegeParseMilliseconds(totalroundtime_old, timeString); }
+		if (totalroundtime) { SiegeParseMilliseconds(totalroundtime, timeString2); }
+		SiegeSetSpacing(timeString, spacing);
+		if (heldformax || g_heldformax_old.integer)
+		{
+			SiegeOverrideRoundColors(timeString, timeString2);
+		}
+		else
+		{
+			SiegeSetTimeColors(totalroundtime_old, totalroundtime, timeString, timeString2);
+		}
+		trap_SendServerCommand(-1, va("print \"Total time:         Round 1: %s%s ^7Round 2: %s\n\"", timeString, spacing, timeString2));
+	}
+
+	else //it's either round 1, or g_siegeTeamSwitch is disabled (single-round games)
+	{
+		for (i = 1; i < 16; i++)
+		{
+			if (objtime[i])
+			{
+				SiegeParseMilliseconds(objtime[i], timeString);
+				trap_SendServerCommand(-1, va("print \"Objective %i time:    ^5%s\n\"", i, timeString));
+			}
+		}
+		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+		SiegeParseMilliseconds(totalroundtime, timeString);
+		trap_SendServerCommand(-1, va("print \"Total time:          ^5%s\n\"", timeString));
+	}
+	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+}
+
+void SiegePrintStatsOld() //print everything
+{
+	int i;
+	char timeString[32];
+
+	if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime) //only write this stuff in round 2
+	{
+		SiegeParseObjStorage();
+		for (i = 1; i < 16; i++)
+		{
+			if (objtime_old[i])
+			{
+				SiegeParseMilliseconds(objtime_old[i], timeString);
+				trap_SendServerCommand(-1, va("print \"Round 1, Objective %i time: %s\n\"", i, timeString));
+			}
+		}
+		if (totalroundtime_old)
+		{
+			SiegeParseMilliseconds(totalroundtime_old, timeString);
+			trap_SendServerCommand(-1, va("print \"Round 1 Total round time: %s\n\"", timeString));
+		}
+	}
+
+	for (i = 1; i < 16; i++) //this gets written regardless of round1/round2
+	{
+		if (objtime[i])
+		{
+			SiegeParseMilliseconds(objtime[i], timeString);
+			trap_SendServerCommand(-1, va("print \"Objective %i time: %s\n\"", i, timeString));
+		}
+	}
+
+	totalroundtime = (previousobjtime - roundstarttime);
+	SiegeParseMilliseconds(totalroundtime, timeString);
+	trap_SendServerCommand(-1, va("print \"Total round time: %s\n\"", timeString));
+}
 
 //go through all classes on a team and register their
 //weapons and items for precaching.
@@ -564,8 +879,18 @@ void AddSiegeWinningTeamPoints(int team, int winner)
 
 void SiegeClearSwitchData(void)
 {
+	trap_Cvar_Set("g_siegeObjStorage", "none");
+	trap_Cvar_Set("g_heldformax_old", "0");
+	trap_Cvar_Set("g_objscompleted_old", "0");
 	memset(&g_siegePersistant, 0, sizeof(g_siegePersistant));
 	trap_SiegePersSet(&g_siegePersistant);
+	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
+	previousobjtime = 0; //for time calculation of first objective
+	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	objscompleted = 0; //clear objs completed counter
+	objscompletedoffset = 0; //clear offset
+	totalroundtime = 0; //clear total round time
+	heldformax = 0;
 }
 
 void SiegeDoTeamAssign(void)
@@ -630,6 +955,42 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 	vec3_t nomatter;
 	char teamstr[1024];
 	int originalWinningClient = winningclient;
+	int i;
+	char objStorage[256];
+
+	if (g_siegeStats.integer)
+	{
+		SiegePrintStats();//write all the stats
+	}
+
+	if (g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime) //round 1, so store all the time stuff so we can compare it next round
+	{
+		for (i = 1; i < 16; i++)
+		{
+			if (i == 1)
+				Com_sprintf(objStorage, sizeof(objStorage), "%i", objtime[i]);
+			else
+				Com_sprintf(objStorage, sizeof(objStorage), "%s,%i", objStorage, objtime[i]);
+		}
+		Com_sprintf(objStorage, sizeof(objStorage), "%s,%i", objStorage, totalroundtime);
+		trap_Cvar_Set("g_siegeObjStorage", va("%s", objStorage));
+		if (heldformax)
+		{
+			trap_Cvar_Set("g_heldformax_old", "1");
+		}
+		else
+		{
+			trap_Cvar_Set("g_heldformax_old", "0");
+		}
+		trap_Cvar_Set("g_objscompleted_old", va("%i", objscompleted));
+	}
+
+	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
+	previousobjtime = 0; //for time calculation of first objective
+	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	objscompleted = 0; //clear objs completed counter
+	objscompletedoffset = 0; //clear offset
+	totalroundtime = 0; //clear total round time
 
 	if (winningclient != ENTITYNUM_NONE && g_entities[winningclient].client &&
 		g_entities[winningclient].client->sess.sessionTeam != winningteam)
@@ -872,6 +1233,12 @@ void SiegeBeginRound(int entNum)
 		}
 	}
 
+	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
+	previousobjtime = level.time; //for time calculation of first objective
+	roundstarttime = level.time; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	objscompleted = 0; //clear objs completed counter
+	objscompletedoffset = 0; //clear offset
+	heldformax = 0;
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
 }
 
@@ -944,8 +1311,16 @@ void SiegeCheckTimers(void)
 
 	if (imperial_time_limit)
 	{ //team1
-		if (gImperialCountdown < level.time)
+		if (gImperialCountdown < level.time) //they were held for 20 minutes, so let's notate this differently
 		{
+			if (objscompletedoffset)
+			{
+				SiegeUpdateObjTime(objscompleted + 1 - objscompletedoffset, qtrue); //we went out of order, so let's make sure we get a DNF at the correct obj
+			}
+			else
+			{
+				SiegeUpdateObjTime(objscompleted + 1, qtrue); //we didn't go out of order, so just go ahead and give a DNF for the next obj
+			}
 			SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
 			imperial_time_limit = 0;
 			return;
@@ -954,8 +1329,16 @@ void SiegeCheckTimers(void)
 
 	if (rebel_time_limit)
 	{ //team2
-		if (gRebelCountdown < level.time)
+		if (gRebelCountdown < level.time)//they were held for 20 minutes, so let's notate this differently
 		{
+			if (objscompletedoffset)
+			{
+				SiegeUpdateObjTime(objscompleted + 1 - objscompletedoffset, qtrue); //we went out of order, so let's make sure we get a DNF at the correct obj
+			}
+			else
+			{
+				SiegeUpdateObjTime(objscompleted + 1, qtrue); //we didn't go out of order, so just go ahead and give a DNF for the next obj
+			}
 			SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
 			rebel_time_limit = 0;
 			return;
@@ -988,6 +1371,8 @@ void SiegeCheckTimers(void)
 void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 {
 	int goals_completed, goals_required;
+
+	SiegeUpdateObjTime(objective, qfalse); //we just completed an obj, so let's write down the time it took for this obj
 
 	if (gSiegeRoundEnded)
 	{
