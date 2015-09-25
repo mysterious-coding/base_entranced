@@ -14,6 +14,8 @@ These are unique features for base_entranced.
 
 1 = prints times for each objective after completion; writes all obj times at end of round (compares times and highlights faster time in green in round 2) This feature is still under development, and will improve with time
 
+Note: siege_narshaddaa has a bug that causes offense to always complete final obj. There is a patched version of nar available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+
 ####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
