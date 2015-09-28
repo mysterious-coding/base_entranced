@@ -299,8 +299,8 @@ void SiegePrintStats() //print everything
 			}
 		}
 		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-		Com_sprintf(timeString, sizeof(timeString), "0");
-		Com_sprintf(timeString2, sizeof(timeString2), "0");
+		Com_sprintf(timeString, sizeof(timeString), "");
+		Com_sprintf(timeString2, sizeof(timeString2), "");
 		if (totalroundtime_old) { SiegeParseMilliseconds(totalroundtime_old, timeString); }
 		if (totalroundtime) { SiegeParseMilliseconds(totalroundtime, timeString2); }
 		SiegeSetSpacing(timeString, spacing);
@@ -315,8 +315,8 @@ void SiegePrintStats() //print everything
 		trap_SendServerCommand(-1, va("print \"Total time:         Round 1: %s%s^7Round 2: %s\n\"", timeString, spacing, timeString2));
 		if (heldformax && g_heldformax_old.integer)
 		{
-			Com_sprintf(timeString, sizeof(timeString), "");
-			Com_sprintf(timeString2, sizeof(timeString2), "");
+			Com_sprintf(timeString, sizeof(timeString), "0");
+			Com_sprintf(timeString2, sizeof(timeString2), "0");
 			if (g_objscompleted_old.integer) { Com_sprintf(timeString, sizeof(timeString), "%i", g_objscompleted_old.integer); }
 			if (objscompleted) { Com_sprintf(timeString2, sizeof(timeString2), "%i", objscompleted); }
 			SiegeSetObjColors(g_objscompleted_old.integer, objscompleted, timeString, timeString2);
