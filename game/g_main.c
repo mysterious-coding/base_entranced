@@ -3690,7 +3690,7 @@ void CheckVote( void ) {
 
 		if (level.votingGametype)
 		{
-			if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
+			/*if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
 			{ //If we're voting to a different game type, be sure to refresh all the map stuff
                 const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
 
@@ -3709,7 +3709,7 @@ void CheckVote( void ) {
 			else
 			{ //otherwise, just leave the map until a restart
 				G_RefreshNextMap(level.votingGametypeTo, qfalse);
-			}
+			}*/
 
 			if (g_fraglimitVoteCorrection.integer)
 			{ //This means to auto-correct fraglimit when voting to and from duel.
@@ -3759,6 +3759,29 @@ void CheckVote( void ) {
 			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
 			}
+			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
+			{
+				if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
+				{ //If we're voting to a different game type, be sure to refresh all the map stuff
+					const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
+
+					if (level.votingGametypeTo == GT_SIEGE)
+					{ //ok, kick all the bots, cause the aren't supported!
+						G_KickAllBots();
+						//just in case, set this to 0 too... I guess...maybe?
+						//trap_Cvar_Set("bot_minplayers", "0");
+					}
+
+					if (nextMap && nextMap[0])
+					{
+						trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", nextMap));
+					}
+				}
+				else
+				{ //otherwise, just leave the map until a restart
+					G_RefreshNextMap(level.votingGametypeTo, qfalse);
+				}
+			}
             level.voteExecuteTime = level.time + 3000;
         } else {
             trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
@@ -3786,6 +3809,29 @@ void CheckVote( void ) {
 			}
 			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
+			}
+			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
+			{
+				if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
+				{ //If we're voting to a different game type, be sure to refresh all the map stuff
+					const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
+
+					if (level.votingGametypeTo == GT_SIEGE)
+					{ //ok, kick all the bots, cause the aren't supported!
+						G_KickAllBots();
+						//just in case, set this to 0 too... I guess...maybe?
+						//trap_Cvar_Set("bot_minplayers", "0");
+					}
+
+					if (nextMap && nextMap[0])
+					{
+						trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", nextMap));
+					}
+				}
+				else
+				{ //otherwise, just leave the map until a restart
+					G_RefreshNextMap(level.votingGametypeTo, qfalse);
+				}
 			}
 			level.voteExecuteTime = level.time + 3000;
 		} else if ( level.voteNo >= (level.numVotingClients+1)/2 ) {
