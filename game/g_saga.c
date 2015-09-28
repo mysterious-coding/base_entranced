@@ -41,6 +41,7 @@ int			objscompletedoffset = 0;
 int         roundstarttime = 0;
 int			totalroundtime = 0;
 int			heldformax = 0;
+int			winningteam = 0;
 
 int			objtime_old[16] = { 0 };
 
@@ -188,16 +189,19 @@ void SiegeSetObjColors(int num1, int num2, char *num1string, char *num2string) /
 	{
 		Com_sprintf(num1string, 32, "^2%s", num1string);
 		Com_sprintf(num2string, 32, "^1%s", num2string);
+		winningteam = 1;
 	}
 	else if (num2 > num1)
 	{
 		Com_sprintf(num1string, 32, "^1%s", num1string);
 		Com_sprintf(num2string, 32, "^2%s", num2string);
+		winningteam = 2;
 	}
 	else //tie
 	{
 		Com_sprintf(num1string, 32, "^3%s", num1string);
 		Com_sprintf(num2string, 32, "^3%s", num2string);
+		winningteam = 3;
 	}
 }
 
@@ -252,17 +256,7 @@ void SiegeOverrideRoundColors(char *round1string, char *round2string) //make sur
 		Com_sprintf(round1string, 32, "^1%s", round1string);
 		Com_sprintf(round2string, 32, "^2%s", round2string);
 	}
-	/*else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer > objscompleted) //both held for max, but round1 team got more objs
-	{
-		Com_sprintf(round1string, 32, "^2%s", round1string);
-		Com_sprintf(round2string, 32, "^1%s", round2string);
-	}
-	else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer < objscompleted) //both held for max, but round2 team got more objs
-	{
-		Com_sprintf(round1string, 32, "^1%s", round1string);
-		Com_sprintf(round2string, 32, "^2%s", round2string);
-	}*/
-	else/* if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer == objscompleted)*/ //tie game
+	else //tie game
 	{
 		Com_sprintf(round1string, 32, "^3%s", round1string);
 		Com_sprintf(round2string, 32, "^3%s", round2string);
@@ -282,7 +276,7 @@ void SiegePrintStats() //print everything
 	totalroundtime = (previousobjtime - roundstarttime);
 
 
-	if (g_siegePersistant.beatingTime && g_siegeObjStorage.string && (g_siegeObjStorage.string,"none") && g_siegeTeamSwitch.integer) //it's round 2
+	if (g_siegePersistant.beatingTime && g_siegeObjStorage.string && (Q_stricmp(g_siegeObjStorage.string,"none")) && g_siegeTeamSwitch.integer) //it's round 2
 	{
 		SiegeParseObjStorage(); //set objtime_old array and totalroundtime_old
 		for (i = 1; i < 16; i++)
@@ -321,6 +315,18 @@ void SiegePrintStats() //print everything
 			if (objscompleted) { Com_sprintf(timeString2, sizeof(timeString2), "%i", objscompleted); }
 			SiegeSetObjColors(g_objscompleted_old.integer, objscompleted, timeString, timeString2);
 			trap_SendServerCommand(-1, va("print \"Objs completed:     Round 1: %s             ^7Round 2: %s\n\"", timeString, timeString2));
+			if (winningteam && winningteam == 1)
+			{
+				trap_SendServerCommand(-1, va("print \"                    ^2Winner\n\""));
+			}
+			else if (winningteam && winningteam == 2)
+			{
+				trap_SendServerCommand(-1, va("print \"                                           ^2Winner\n\""));
+			}
+			else if (winningteam && winningteam == 3)
+			{
+				trap_SendServerCommand(-1, va("print \"                                   ^3Draw\n\""));
+			}
 		}
 
 	}
@@ -342,43 +348,6 @@ void SiegePrintStats() //print everything
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-}
-
-void SiegePrintStatsOld() //print everything
-{
-	int i;
-	char timeString[32];
-
-	if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime) //only write this stuff in round 2
-	{
-		SiegeParseObjStorage();
-		for (i = 1; i < 16; i++)
-		{
-			if (objtime_old[i])
-			{
-				SiegeParseMilliseconds(objtime_old[i], timeString);
-				trap_SendServerCommand(-1, va("print \"Round 1, Objective %i time: %s\n\"", i, timeString));
-			}
-		}
-		if (totalroundtime_old)
-		{
-			SiegeParseMilliseconds(totalroundtime_old, timeString);
-			trap_SendServerCommand(-1, va("print \"Round 1 Total round time: %s\n\"", timeString));
-		}
-	}
-
-	for (i = 1; i < 16; i++) //this gets written regardless of round1/round2
-	{
-		if (objtime[i])
-		{
-			SiegeParseMilliseconds(objtime[i], timeString);
-			trap_SendServerCommand(-1, va("print \"Objective %i time: %s\n\"", i, timeString));
-		}
-	}
-
-	totalroundtime = (previousobjtime - roundstarttime);
-	SiegeParseMilliseconds(totalroundtime, timeString);
-	trap_SendServerCommand(-1, va("print \"Total round time: %s\n\"", timeString));
 }
 
 //go through all classes on a team and register their
