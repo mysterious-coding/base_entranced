@@ -187,6 +187,11 @@ Clientside command. Use first letter of class to change, like /class a for assau
 ####/g_selfkillPenalty
 Set to 0 so you don't lose points when you SK.
 
+####/g_fixPitKills
+0 = normal pit kills (JK3 default)
+
+1 = if you selfkill while above a pit, it grants a kill to whoever pushed you into the pit. This prevents people from denying enemies' kills with selfkill.
+
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
 
