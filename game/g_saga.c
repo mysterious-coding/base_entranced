@@ -154,26 +154,15 @@ void SiegeSetSpacing(char *timeString, char *spacingString)
 
 	//adjust the number of spaces that will go between round 1 time and round 2 time based on the length of round 1 string
 	//the idea is to get all the round 2 times to line up visually.
+	if (strlen(timeString) >= 14)
+	{
+		return;
+	}
 
-	if (strlen(timeString) == 4) //4 digits without dnf e.g. 1:30
+	Com_sprintf(spacingString, 32, "");
+	while (strlen(timeString) + strlen(spacingString) < 14) //sum of string lengths of time and spacing should always be 14.
 	{
-		Com_sprintf(spacingString, 32, "          "); //10 spaces
-	}
-	else if (strlen(timeString) == 5) //5 digits without dnf e.g. 12:30
-	{
-		Com_sprintf(spacingString, 32, "         "); //9 spaces
-	}
-	else if (strlen(timeString) == 10) //4 digits with dnf e.g. 1:30 (DNF)
-	{
-		Com_sprintf(spacingString, 32, "    "); //4 spaces
-	}
-	else if (strlen(timeString) == 11) //5 digits with dnf e.g. 12:30 (DNF)
-	{
-		Com_sprintf(spacingString, 32, "   "); //3 spaces
-	}
-	else //???
-	{
-		Com_sprintf(spacingString, 32, "              "); //14 spaces
+		Com_sprintf(spacingString, 32, "%s ", spacingString);
 	}
 
 }
@@ -191,6 +180,25 @@ void SiegeParseObjStorage() //reads g_siegeObjStorage and writes objtime_old arr
 		objtime_old[i] = atoi(strtok(NULL, delimiter));
 	}
 	totalroundtime_old = atoi(strtok(NULL, delimiter));
+}
+
+void SiegeSetObjColors(int num1, int num2, char *num1string, char *num2string) //put higher obj # in green
+{
+	if (num1 > num2)
+	{
+		Com_sprintf(num1string, 32, "^2%s", num1string);
+		Com_sprintf(num2string, 32, "^1%s", num2string);
+	}
+	else if (num2 > num1)
+	{
+		Com_sprintf(num1string, 32, "^1%s", num1string);
+		Com_sprintf(num2string, 32, "^2%s", num2string);
+	}
+	else //tie
+	{
+		Com_sprintf(num1string, 32, "^3%s", num1string);
+		Com_sprintf(num2string, 32, "^3%s", num2string);
+	}
 }
 
 void SiegeSetTimeColors(int round1time, int round2time, char *round1string, char *round2string) //put faster time in green, slower time in red
@@ -244,7 +252,7 @@ void SiegeOverrideRoundColors(char *round1string, char *round2string) //make sur
 		Com_sprintf(round1string, 32, "^1%s", round1string);
 		Com_sprintf(round2string, 32, "^2%s", round2string);
 	}
-	else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer > objscompleted) //both held for max, but round1 team got more objs
+	/*else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer > objscompleted) //both held for max, but round1 team got more objs
 	{
 		Com_sprintf(round1string, 32, "^2%s", round1string);
 		Com_sprintf(round2string, 32, "^1%s", round2string);
@@ -253,8 +261,8 @@ void SiegeOverrideRoundColors(char *round1string, char *round2string) //make sur
 	{
 		Com_sprintf(round1string, 32, "^1%s", round1string);
 		Com_sprintf(round2string, 32, "^2%s", round2string);
-	}
-	else if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer == objscompleted) //tie game
+	}*/
+	else/* if (heldformax && g_heldformax_old.integer && g_objscompleted_old.integer == objscompleted)*/ //tie game
 	{
 		Com_sprintf(round1string, 32, "^3%s", round1string);
 		Com_sprintf(round2string, 32, "^3%s", round2string);
@@ -268,6 +276,7 @@ void SiegePrintStats() //print everything
 	char timeString2[32];
 	char spacing[32];
 
+	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	totalroundtime = (previousobjtime - roundstarttime);
@@ -290,8 +299,8 @@ void SiegePrintStats() //print everything
 			}
 		}
 		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-		Com_sprintf(timeString, sizeof(timeString), "");
-		Com_sprintf(timeString2, sizeof(timeString2), "");
+		Com_sprintf(timeString, sizeof(timeString), "0");
+		Com_sprintf(timeString2, sizeof(timeString2), "0");
 		if (totalroundtime_old) { SiegeParseMilliseconds(totalroundtime_old, timeString); }
 		if (totalroundtime) { SiegeParseMilliseconds(totalroundtime, timeString2); }
 		SiegeSetSpacing(timeString, spacing);
@@ -303,7 +312,17 @@ void SiegePrintStats() //print everything
 		{
 			SiegeSetTimeColors(totalroundtime_old, totalroundtime, timeString, timeString2);
 		}
-		trap_SendServerCommand(-1, va("print \"Total time:         Round 1: %s%s ^7Round 2: %s\n\"", timeString, spacing, timeString2));
+		trap_SendServerCommand(-1, va("print \"Total time:         Round 1: %s%s^7Round 2: %s\n\"", timeString, spacing, timeString2));
+		if (heldformax && g_heldformax_old.integer)
+		{
+			Com_sprintf(timeString, sizeof(timeString), "");
+			Com_sprintf(timeString2, sizeof(timeString2), "");
+			if (g_objscompleted_old.integer) { Com_sprintf(timeString, sizeof(timeString), "%i", g_objscompleted_old.integer); }
+			if (objscompleted) { Com_sprintf(timeString2, sizeof(timeString2), "%i", objscompleted); }
+			SiegeSetObjColors(g_objscompleted_old.integer, objscompleted, timeString, timeString2);
+			trap_SendServerCommand(-1, va("print \"Objs completed:     Round 1: %s             ^7Round 2: %s\n\"", timeString, timeString2));
+		}
+
 	}
 
 	else //it's either round 1, or g_siegeTeamSwitch is disabled (single-round games)
@@ -320,6 +339,7 @@ void SiegePrintStats() //print everything
 		SiegeParseMilliseconds(totalroundtime, timeString);
 		trap_SendServerCommand(-1, va("print \"Total time:          ^5%s\n\"", timeString));
 	}
+	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 }
