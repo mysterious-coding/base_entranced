@@ -1393,8 +1393,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 		goals_completed = rebel_goals_completed;
 		goals_required = rebel_goals_required;
 	}
-
-	if (final == 1 || goals_completed >= goals_required)
+	if (final == 1 || goals_completed >= goals_required || (g_endSiege.integer && g_siegePersistant.beatingTime && g_siegeObjStorage.string && (Q_stricmp(g_siegeObjStorage.string, "none")) && g_siegeTeamSwitch.integer && objscompleted > g_objscompleted_old.integer))
 	{
 		SiegeRoundComplete(team, client);
 	}
