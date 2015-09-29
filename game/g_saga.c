@@ -1797,6 +1797,12 @@ void SiegeItemThink(gentity_t *ent)
 			if ( trap_PointContents(carrier->client->ps.origin, carrier->s.number) & CONTENTS_NODROP )
 			{ //In nodrop land, go back to the original spot.
 				SiegeItemRespawnOnOriginalSpot(ent, carrier);
+				if (!ent->genericValue16) //hacky...
+				{
+					ent->s.eFlags |= EF_NODRAW;
+					ent->genericValue11 = 0;
+					ent->s.eFlags &= ~EF_RADAROBJECT;
+				}
 			}
 			else
 			{
@@ -1807,7 +1813,7 @@ void SiegeItemThink(gentity_t *ent)
 
 				//We're in a nonstandard place, so if we go this long without being touched,
 				//assume we may not be reachable and respawn on the original spot.
-				ent->genericValue9 = level.time + SIEGE_ITEM_RESPAWN_TIME;
+				ent->genericValue9 = level.time + ent->genericValue17;
 
 				SiegeItemRemoveOwner(ent, carrier);
 			}
@@ -1818,6 +1824,12 @@ void SiegeItemThink(gentity_t *ent)
 	{ //time to respawn on the original spot then
 		SiegeItemRespawnEffect(ent, ent->pos1);
 		G_SetOrigin(ent, ent->pos1);
+		if (!ent->genericValue16) //hacky...
+		{
+			ent->s.eFlags |= EF_NODRAW;
+			ent->genericValue11 = 0;
+			ent->s.eFlags &= ~EF_RADAROBJECT;
+		}
 		ent->genericValue9 = 0;
 		
 		// stop flashing on radar
@@ -2045,6 +2057,8 @@ void SP_misc_siege_item (gentity_t *ent)
 
 	G_SpawnInt("canpickup", "1", &canpickup);
 	G_SpawnInt("usephysics", "1", &ent->genericValue1);
+	G_SpawnInt("autorespawn", "1", &ent->genericValue16);
+	G_SpawnInt("respawntime", "20000", &ent->genericValue17);
 
 	if (ent->genericValue1)
 	{ //if we're using physics we want lerporigin smoothing

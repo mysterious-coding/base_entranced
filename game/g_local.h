@@ -352,6 +352,8 @@ struct gentity_s {
 	int			genericValue13;
 	int			genericValue14;
 	int			genericValue15;
+	int			genericValue16;
+	int			genericValue17;
 
 	char		*soundSet;
 
