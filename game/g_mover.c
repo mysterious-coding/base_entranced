@@ -1560,7 +1560,8 @@ void Touch_PlatCenterTrigger_Hoth(gentity_t *ent, gentity_t *other, trace_t *tra
 		}
 		other->client->ps.weaponTime = other->client->ps.torsoTimer;
 
-		Use_BinaryMover(ent->parent, ent, other);
+		ent->parent->nextthink = level.time + 500;
+		ent->parent->think = Use_BinaryMover_Go;
 	}
 	else
 	{
