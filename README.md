@@ -12,7 +12,7 @@ These are unique features for base_entranced.
 ####/g_siegeStats
 0 = no stats (default JK3)
 
-1 = prints times for each objective after completion; writes all obj times at end of round (compares times and highlights faster time in green in round 2)
+1 = prints times for each objective after completion; writes all obj times at end of round. Compares times and highlights faster time in green in round 2.
 
 Note: siege_narshaddaa has a bug that causes offense to always complete final obj in stats. There is a patched version of nar available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff) this is only required serverside. Clients do not need to update to this version.
 
