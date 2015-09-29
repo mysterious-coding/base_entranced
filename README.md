@@ -16,20 +16,30 @@ These are unique features for base_entranced.
 
 Note: siege_narshaddaa has a bug that causes offense to always complete final obj in stats. There is a patched version of nar available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff) this is only required serverside. Clients do not need to update to this version.
 
+####/g_endSiege
+0 = no tiebreaking rules (JK3 default)
+
+1 = enforce traditional siege community tiebreaking rule. If round 1 offense got held for maximum time(20 minutes on most maps), game will end once round 2 offense has completed one more objective. Round 2 offense will be declared the winner of the match.
+
 ####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
 1 = improved scoring (100 pts per obj)
 
-####/g_fixFallingSounds
-0 = default JK3 sound (normal death sound)
+####/g_fixHothBunkerLift
+0 = normal lift behavior for Hoth codes bunker lift (default JK3)
 
-1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
+1 = Hoth codes bunker lift requires pressing +use button (prevents you from killing yourself way too easily on this dumb lift)
 
 ####/g_nextmapWarning
 0 = no warning (default JK3)
 
 1 = when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
+
+####/g_fixFallingSounds
+0 = default JK3 sound (normal death sound)
+
+1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
 
 ####/g_hideSpecLocation
 0 = teamchat between spectators shows location (default JK3)
@@ -41,11 +51,6 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 
 1 = (DEAD) message in teamchats from dead teammates
 
-####/g_fixHothBunkerLift
-0 = normal lift behavior for Hoth codes bunker lift (default JK3)
-
-1 = Hoth codes bunker lift requires pressing +use button (prevents you from killing yourself way too easily on this dumb lift)
-
 ####/g_enableCloak
 0 = remove cloak from all siege classes (eliminates need for no-cloak PK3 patches)
 
@@ -55,6 +60,11 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 0 = no infinite charging bug with +useforce/+button2 (bugfix from base_enhanced)
 
 1 = infinite charging bug enabled (classic behavior, brought back by popular demand. hold +useforce or +button2 to hold weapon charge indefinitely)
+
+####/g_moreTaunts
+0 = default JK3 behavior for /taunt command
+
+1 = if using saber, /taunt command will randomly use /taunt, /gloat, or /flourish animation. If using a gun, /taunt command will randomly use /taunt or /gloat animation (/flourish doesn't work with guns)
 
 ####/g_sexyDisruptor
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
@@ -167,6 +177,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 * Fixed bug where round 2 timer wouldn't function properly on maps with roundover_target missing from the .siege file.
+* Fixed bug where nextmap would change anyway when a gametype vote failed.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -238,6 +249,9 @@ Players with 999 ping show a lag icon above their head in-game
 * Spectator chat can be seen by people who are in-game
 * Chat from dead players can be seen
 
+####/npc spawnlist
+Use this command to list possible npc spawns. Note that ingame console only lets you scroll up so far; use qconsole.log to see entire list.
+
 ####Control vote-calling
 Prevent calling votes for some things:
 * /g_allow_vote_gametype
@@ -261,7 +275,7 @@ Prevent calling votes for some things:
 * No more weird camera and seeker glitch from walker.
 * Bugfix for renaming causing saber style change.
 * Bugfix for camera getting stuck when incinerated by sniper shot.
-* Bugfix for dying while RDFAing.
+* Bugfix for dying while RDFAing and getting camera stuck.
 * Bugfix for disconnecting in ATST and going invisible.
 * No more SK when already dead.
 * No more weird spec glitch with possessing someone else's body.
@@ -279,9 +293,15 @@ Prevent calling votes for some things:
 * Trip mine alternate fire properly uses "was mined by" now
 * Bugfix for mines doing less splash damage when killed by player in slot 0.
 * Miscellaneous slot 0 bugfixes
-* Fix bryar pistol animations
-* Fix players rolling/running through mines unharmed
+* Fixed bryar pistol animations
+* Fixed players rolling/running through mines unharmed
+* Fixed weird bug when getting incinerated while rolling.
+* Fixed rancor charging through BLOCKNPC areas (e.g. desert arena door)
 * Fixed telefragging jumping players when spawning.
+* Fixed weird things dependent on server frame time, half frames, etc.
+* Fixed NPCs attacking players in temporary dead mode.
+* Fixed sentries having retarded height detection for enemies.
+* Fixed CFL_SINGLE_ROCKET getting more rockets.
 * Security/crash fixes.
 * Probably more fixes.
 
@@ -289,10 +309,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZEZTeTRVN3JGNk0/view?usp=sharing)
-Version: base_entranced-9-25-2015-build31 (experimental) - add preliminary g_siegeStats, fix bryar animations, fix players rolling/running through tripmines unharmed
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8T0R0WXdOVHVrMTA/view?usp=sharing)
+Version: base_entranced-9-29-2015-build32 (experimental) - add g_endSiege, add g_moreTaunts, fix repeatedly calling lift bug with g_fixHothBunkerLift, add objective counter for tied timers in g_siegeStats, fix CFL_SINGLE_ROCKET getting more rockets, fix nextmap changing on failed gametype vote, fix sentries having retarded height detection for enemies, fix rancor charging through BLOCKNPC areas (e.g. desert arena door), fix camera bug from getting disintegrated while rolling, add /npc spawnlist, fix npcs attacking players in tempdeath, frametime bugfixes from sil
 
 Old versions:
+
+Version: base_entranced-9-25-2015-build31 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZEZTeTRVN3JGNk0/view?usp=sharing) - add preliminary g_siegeStats, fix bryar animations, fix players rolling/running through tripmines unharmed
 
 Version: base_entranced-9-24-2015-build30 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
 
