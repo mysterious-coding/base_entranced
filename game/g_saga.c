@@ -1686,8 +1686,6 @@ void SP_target_siege_end (gentity_t *ent)
 	ent->use = siegeEndUse;
 }
 
-#define SIEGE_ITEM_RESPAWN_TIME 20000
-
 void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 {
 	ent->genericValue2 = 0; //Remove picked-up flag
