@@ -449,7 +449,7 @@ void Rancor_Attack( float distance, qboolean doCharge )
 		}
 		else if ( NPC->enemy->health > 0 && doCharge )
 		{//charge
-			if (NPC_MoveToGoal(qtrue))
+			if (!g_fixRancorCharge.integer || NPC_MoveToGoal(qtrue))
 			{
 				vec3_t	fwd, yawAng;
 				VectorSet( yawAng, 0, NPC->client->ps.viewangles[YAW], 0 );

@@ -1867,6 +1867,7 @@ extern vmCvar_t    g_infiniteCharge;
 extern vmCvar_t    g_siegeStats;
 extern vmCvar_t    g_endSiege;
 extern vmCvar_t	   g_moreTaunts;
+extern vmCvar_t    g_fixRancorCharge;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
