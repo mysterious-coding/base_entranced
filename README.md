@@ -24,7 +24,7 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 ####/g_fixSiegeScoring
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
-1 = improved scoring (100 pts per obj)
+1 = improved/logical scoring (100 pts per obj)
 
 ####/g_fixHothBunkerLift
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
