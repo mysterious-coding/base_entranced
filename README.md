@@ -339,7 +339,7 @@ Prevent calling votes for some things:
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8dE9PMEtvTzNJQ2c/view?usp=sharing)
-Version: base_entranced-9-29-2015-build32 (experimental) - add `/g_fixRancorCharge`, add `/g_ammoCanisterSound`, fix problem with base_enhanced ammo code preventing HWs from getting >10 ammo from ammo canisters, add additional mapmaker tools for siege item spawning, add additional mapmaker tools for siege class ammo
+Version: base_entranced-9-29-2015-build33 (experimental) - add `/g_fixRancorCharge`, add `/g_ammoCanisterSound`, fix problem with base_enhanced ammo code preventing HWs from getting >10 ammo from ammo canisters, add additional mapmaker tools for siege item spawning, add additional mapmaker tools for siege class ammo
 
 Old versions:
 
