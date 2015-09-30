@@ -99,10 +99,10 @@ base_enhanced supports random teams/capts, but it doesn't work for siege mode. I
 ####`/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
 
-####/g_allow_ready
+####`/g_allow_ready`
 Use to enable/disable players from using the /ready command.
 
-####Improved /tell and /forceteam
+####Improved `/tell` and `/forceteam`
 Use partial client name with `/tell` or `/forceteam` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
 
 ####Additional tools for mapmakers
