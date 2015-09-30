@@ -636,6 +636,11 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue;
 		}
 
+		if (target->client && target->client->ps.m_iVehicleNum && ((&g_entities[target->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[target->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+		{
+			continue; //don't target people who are piloting walkers or fighters
+		}
+
 		if ( target->client )
 		{
 			VectorCopy( target->client->ps.origin, org );
