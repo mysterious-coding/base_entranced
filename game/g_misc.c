@@ -1210,10 +1210,75 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 				add = 1;
 			}
 
-			if ( Add_Ammo( activator, i, add ) > 0 )
+			if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)) && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
 			{
-				gaveSome = qtrue;
-				stop = 0;
+				if (activator->client->ps.ammo[i] < 2)
+				{
+					if (Add_Ammo(activator, i, add) > 0)
+					{
+						gaveSome = qtrue;
+						stop = 0;
+					}
+				}
+			}
+			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)))
+			{
+				if (activator->client->ps.ammo[i] < 1)
+				{
+					activator->client->ps.ammo[i] = 1;
+				}
+			}
+			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && bgSiegeClasses[activator->client->siegeClass].ammorockets && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
+			{
+				if (activator->client->ps.ammo[i] < (bgSiegeClasses[activator->client->siegeClass].ammorockets * 2))
+				{
+					if (Add_Ammo(activator, i, add) > 0)
+					{
+						gaveSome = qtrue;
+						stop = 0;
+					}
+				}
+			}
+			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && bgSiegeClasses[activator->client->siegeClass].ammorockets)
+			{
+				if (activator->client->ps.ammo[i] < bgSiegeClasses[activator->client->siegeClass].ammorockets)
+				{
+					if (Add_Ammo(activator, i, add) > 0)
+					{
+						gaveSome = qtrue;
+						stop = 0;
+					}
+				}
+			}
+			else if (g_gametype.integer == GT_SIEGE && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
+			{
+				if (activator->client->ps.ammo[i] < 20)
+				{
+					if (Add_Ammo(activator, i, add) > 0)
+					{
+						gaveSome = qtrue;
+						stop = 0;
+					}
+				}
+			}
+			else if (g_gametype.integer == GT_SIEGE && i == AMMO_ROCKETS)
+			{
+				if (activator->client->ps.ammo[i] < 10)
+				{
+					if (Add_Ammo(activator, i, add) > 0)
+					{
+						gaveSome = qtrue;
+						stop = 0;
+					}
+				}
+			}
+			else
+			{
+				if (Add_Ammo(activator, i, add) > 0)
+				{
+					gaveSome = qtrue;
+					stop = 0;
+				}
 			}
 				
 			i++;

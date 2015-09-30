@@ -2157,27 +2157,31 @@ int Get_Max_Ammo( gentity_t* ent, ammo_t ammoIndex )
 
 	int max = ammoData[ammoIndex].max;
 
-	// siege is always special...
-	if ( g_gametype.integer == GT_SIEGE )
+
+	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1)
 	{
-		if ( ammoIndex == AMMO_ROCKETS )
-		{
-			if ( ent->client->siegeClass != -1 &&
-				(bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)) )
-			{
-				max = 1;
-			}
-			else
-			{
-				max = 10;
-			}
-		}
-		else if ( (ent->client->siegeClass != -1)
-			&& (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)) )
-		{//double ammo
-			max *= 2;
-		}
-	}	 
+		if (ammoIndex == AMMO_BLASTER && bgSiegeClasses[ent->client->siegeClass].ammoblaster)
+			max = bgSiegeClasses[ent->client->siegeClass].ammoblaster;
+		else if (ammoIndex == AMMO_POWERCELL && bgSiegeClasses[ent->client->siegeClass].ammopowercell)
+			max = bgSiegeClasses[ent->client->siegeClass].ammopowercell;
+		else if (ammoIndex == AMMO_METAL_BOLTS && bgSiegeClasses[ent->client->siegeClass].ammometallicbolts)
+			max = bgSiegeClasses[ent->client->siegeClass].ammometallicbolts;
+		else if (ammoIndex == AMMO_ROCKETS && bgSiegeClasses[ent->client->siegeClass].ammorockets)
+			max = bgSiegeClasses[ent->client->siegeClass].ammorockets;
+		else if (ammoIndex == AMMO_THERMAL && bgSiegeClasses[ent->client->siegeClass].ammothermals)
+			max = bgSiegeClasses[ent->client->siegeClass].ammothermals;
+		else if (ammoIndex == AMMO_TRIPMINE && bgSiegeClasses[ent->client->siegeClass].ammotripmines)
+			max = bgSiegeClasses[ent->client->siegeClass].ammotripmines;
+		else if (ammoIndex == AMMO_DETPACK && bgSiegeClasses[ent->client->siegeClass].ammodetpacks)
+			max = bgSiegeClasses[ent->client->siegeClass].ammodetpacks;
+		else if (ammoIndex == AMMO_ROCKETS && (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)))
+			max = 1;
+		else if (ammoIndex == AMMO_ROCKETS)
+			max = 25;
+
+		if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO))
+			max *= 2; //double ammo
+	}
 
 	return max;
 }

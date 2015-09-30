@@ -3752,7 +3752,17 @@ void ClientSpawn(gentity_t *ent) {
 
 				if (m >= WP_BRYAR_PISTOL)
 				{ //Max his ammo out for all the weapons he has.
-					Add_Max_Ammo( ent, weaponData[m].ammoIndex );  
+					if (g_gametype.integer == GT_SIEGE && m == WP_ROCKET_LAUNCHER && !bgSiegeClasses[ent->client->siegeClass].ammorockets && !(bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)))
+					{
+						if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO))
+							Add_Ammo(ent, AMMO_ROCKETS, 20);
+						else
+							Add_Ammo(ent, AMMO_ROCKETS, 10);
+					}
+					else
+					{
+						Add_Max_Ammo(ent, weaponData[m].ammoIndex);
+					}
 				}
 			}
 			m++;

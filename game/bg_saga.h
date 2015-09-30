@@ -81,6 +81,13 @@ typedef struct
 	char		uiPortrait[256];
 	int			classShader;
 	short		playerClass;		// SPC_INFANTRY . .. 
+	int			ammoblaster;
+	int			ammopowercell;
+	int			ammometallicbolts;
+	int			ammorockets;
+	int			ammothermals;
+	int			ammotripmines;
+	int			ammodetpacks;
 } siegeClass_t;
 
 typedef struct

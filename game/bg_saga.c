@@ -935,6 +935,75 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		bgSiegeClasses[bgNumSiegeClasses].starthealth = bgSiegeClasses[bgNumSiegeClasses].maxhealth;
 	}
 
+	//Parse ammoblaster
+	if (BG_SiegeGetPairedValue(classInfo, "ammoblaster", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammoblaster = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammoblaster = 0;
+	}
+
+	//Parse ammopowercell
+	if (BG_SiegeGetPairedValue(classInfo, "ammopowercell", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammopowercell = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammopowercell = 0;
+	}
+
+	//Parse ammometallicbolts
+	if (BG_SiegeGetPairedValue(classInfo, "ammometallicbolts", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammometallicbolts = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammometallicbolts = 0;
+	}
+
+	//Parse ammorockets
+	if (BG_SiegeGetPairedValue(classInfo, "ammorockets", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammorockets = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammorockets = 0;
+	}
+
+	//Parse ammothermals
+	if (BG_SiegeGetPairedValue(classInfo, "ammothermals", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammothermals = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammothermals = 0;
+	}
+
+	//Parse ammotripmines
+	if (BG_SiegeGetPairedValue(classInfo, "ammotripmines", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammotripmines = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammotripmines = 0;
+	}
+
+	//Parse ammodetpacks
+	if (BG_SiegeGetPairedValue(classInfo, "ammodetpacks", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = 0;
+	}
 
 	//Parse startarmor
 	if (BG_SiegeGetPairedValue(classInfo, "maxarmor", parseBuf))
