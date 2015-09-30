@@ -311,7 +311,7 @@ Prevent calling votes for some things:
 * No more weird spec glitch with possessing someone else's body.
 * Bugfix for sentry placed in lift.
 * Allow for many more siege maps/classes on server.
-* Bugfix for map_restart 999999 (now maximum 10)
+* Bugfix for `map_restart 999999` (now maximum 10)
 * Bugfix for spec voting.
 * Bugfix for flechette stuck in wall.
 * Bugfix for bots getting messed up when changing gametypes.
