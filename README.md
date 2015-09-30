@@ -39,7 +39,7 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 ####`/g_fixFallingSounds`
 0 = default JK3 sound (normal death sound)
 
-1 = falling death scream sound for all trigger_hurt entities (such as death pits in siege)
+1 = falling death scream sound for all `trigger_hurt` entities (such as death pits in siege)
 
 ####`/g_hideSpecLocation`
 0 = teamchat between spectators shows location (default JK3)
@@ -82,10 +82,10 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
 
 ####`/siege_restart`
-rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was /callvote nextmap (lol)
+rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `/callvote nextmap` (lol)
 
 ####`/forceround2 mm:ss`
-Restarts current map with siege timer going down from a specified time. For example, /forceround2 7:30 starts siege in round 2 with the timer going down from 7:30. Can be executed from rcon or callvote.
+Restarts current map with siege timer going down from a specified time. For example, `/forceround2 7:30` starts siege in round 2 with the timer going down from 7:30. Can be executed from rcon or callvote.
 
 ####`/killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
@@ -203,10 +203,10 @@ In addition to the base_enhanced vote controls, you can use these:
 ####Bugfixes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
 * Seeker no longer attacks walkers and fighters.
-* Fixed bug with nextmap failed vote causing siege to reset to round 1 anyway.
+* Fixed bug with `nextmap` failed vote causing siege to reset to round 1 anyway.
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 * Fixed bug where round 2 timer wouldn't function properly on maps with `roundover_target` missing from the .siege file.
-* Fixed bug where nextmap would change anyway when a gametype vote failed.
+* Fixed bug where `nextmap` would change anyway when a gametype vote failed.
 * Fixed base_enhanced ammo code causing rocket classes not to be able to obtain >10 rockets from ammo canisters.
 
 #Features that are also in base_enhanced
