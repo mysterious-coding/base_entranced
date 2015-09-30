@@ -184,6 +184,7 @@ Mapmakers can add some extra flags to .scl siege class files for additional cont
 For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters.
 
 Mapmakers can add some extra keys to `misc_siege_item` for additional control over siege items:
+
 `autorespawn 0` = item will not automatically respawn when return timer expires. Must be targeted again (e.g., by a hack) to respawn.
 
 `autorespawn 1` = item will automatically respawn when return timer expires (default)
