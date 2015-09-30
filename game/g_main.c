@@ -262,9 +262,6 @@ vmCvar_t		g_siegeTeam2;
 
 vmCvar_t	g_austrian;
 
-vmCvar_t	g_powerDuelStartHealth;
-vmCvar_t	g_powerDuelEndHealth;
-
 /*
 
 Enhanced mod server cvars
@@ -579,8 +576,6 @@ static cvarTable_t		gameCvarTable[] = {
 // nmckenzie:
 // DUEL_HEALTH
 	{ &g_showDuelHealths, "g_showDuelHealths", "0", CVAR_SERVERINFO },
-	{ &g_powerDuelStartHealth, "g_powerDuelStartHealth", "150", CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_powerDuelEndHealth, "g_powerDuelEndHealth", "90", CVAR_ARCHIVE, 0, qtrue  },
 
 	// *CHANGE 12* allowing/disabling cvars
 	{ &g_protectQ3Fill,	"g_protectQ3Fill"	, "1"	, CVAR_ARCHIVE, 0, qtrue },

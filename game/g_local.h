@@ -1797,9 +1797,6 @@ extern	vmCvar_t	g_siegeTeam2;
 
 extern	vmCvar_t	g_austrian;
 
-extern	vmCvar_t	g_powerDuelStartHealth;
-extern	vmCvar_t	g_powerDuelEndHealth;
-
 extern vmCvar_t		g_showDuelHealths;
 
 // *CHANGE 12* allowing/disabling cvars

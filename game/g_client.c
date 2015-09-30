@@ -8,6 +8,9 @@
 //#include "accounts.h"
 #include "sha1.h"
 
+#define POWER_DUEL_START_HEALTH 150
+#define POWER_DUEL_END_HEALTH 90
+
 // g_client.c -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
@@ -3856,7 +3859,7 @@ void ClientSpawn(gentity_t *ent) {
 			{
 				
 				ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] =
-					g_powerDuelStartHealth.integer - ((g_powerDuelStartHealth.integer - g_powerDuelEndHealth.integer) * (float)client->sess.wins / (float)g_duel_fraglimit.integer);
+					POWER_DUEL_START_HEALTH - ((POWER_DUEL_START_HEALTH - POWER_DUEL_END_HEALTH) * (float)client->sess.wins / (float)g_duel_fraglimit.integer);
 			}
 			else
 			{
