@@ -3850,7 +3850,7 @@ void ClientSpawn(gentity_t *ent) {
 						}
 					}
 				}
-				if ((numgoodweapons != 15 || foundweapon == qfalse) && client->ps.weapon != WP_SABER)
+				if (foundweapon == qfalse && client->ps.weapon != WP_SABER)
 				{ //try to find the highest ranking weapon we have
 					if (m > client->ps.weapon)
 					{
