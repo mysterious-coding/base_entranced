@@ -754,7 +754,7 @@ void Use_BinaryMover_Go(gentity_t *ent)
 		ent->think = ReturnToPos1;
 		if (ent->spawnflags & 8)
 		{//TOGGLE doors don't use wait!
-			ent->nextthink = level.time + level.frameTime;
+			ent->nextthink = level.time + FRAMETIME;
 		}
 		else
 		{
@@ -1449,7 +1449,7 @@ void SP_func_door(gentity_t *ent)
 	}
 	InitMover(ent);
 
-	ent->nextthink = level.time + level.frameTime;
+	ent->nextthink = level.time + FRAMETIME;
 
 	if (!(ent->flags&FL_TEAMSLAVE))
 	{
@@ -1994,7 +1994,7 @@ void SP_func_train(gentity_t *self) {
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
-	self->nextthink = level.time + level.frameTime;
+	self->nextthink = level.time + FRAMETIME;
 	self->think = Think_SetupTrainTargets;
 }
 
@@ -3064,7 +3064,7 @@ void func_wait_return_solid(gentity_t *self)
 	{
 		self->clipmask = 0;
 		self->think = func_wait_return_solid;
-		self->nextthink = level.time + level.frameTime;
+		self->nextthink = level.time + FRAMETIME;
 	}
 }
 

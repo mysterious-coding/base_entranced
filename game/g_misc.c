@@ -3176,7 +3176,7 @@ void misc_weapon_shooter_aim( gentity_t *self )
 			vectoangles( self->pos1, self->client->ps.viewangles );
 			SetClientViewAngle( self, self->client->ps.viewangles );
 			//FIXME: don't keep doing this unless target is a moving target?
-			self->nextthink = level.time + level.frameTime;
+			self->nextthink = level.time + FRAMETIME;
 		}
 		else
 		{

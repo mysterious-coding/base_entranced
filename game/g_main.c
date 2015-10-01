@@ -1200,7 +1200,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
 	level.startTime = levelTime;
-	level.frameTime = g_svfps.integer ? (1000 / g_svfps.integer) : DEFAULT_FRAMETIME;
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
@@ -4331,7 +4330,7 @@ void G_RunFrame( int levelTime ) {
 	level.framenum++;
 	level.previousTime = level.time;
 	level.time = levelTime;
-	
+
 	//OSP: pause
 	if (level.pause.state != PAUSE_NONE)
 	{
