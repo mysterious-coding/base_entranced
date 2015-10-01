@@ -221,6 +221,8 @@ Mapmakers can add some extra keys to `misc_siege_item` for additional control ov
 
 `respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default)
 
+Note that if a map includes these special features, and is then played on a non-base_entranced server, those features will obviously not work.
+
 ####Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_randomteams`
