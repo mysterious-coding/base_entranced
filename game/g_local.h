@@ -1816,6 +1816,7 @@ extern vmCvar_t     g_quietrcon;
 extern vmCvar_t     g_hackLog;
 
 extern vmCvar_t     g_fixPitKills;
+extern vmCvar_t     g_fixGripKills;
 
 extern vmCvar_t    bot_minping;
 extern vmCvar_t    bot_maxping;
