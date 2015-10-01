@@ -66,6 +66,11 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 
 1 = infinite charging bug enabled (classic behavior, brought back by popular demand. hold `+useforce` or `+button2` to hold weapon charge indefinitely)
 
+####`/g_fixGripKills`
+0 = normal selfkilling while gripped (default JK3)
+
+1 = selfkilling while gripped counts as a kill for the gripper
+
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
 
@@ -90,6 +95,28 @@ Restarts current map with siege timer going down from a specified time. For exam
 ####`/killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
 
+####Weapon spawn preference
+Clients can decide their own preference of which weapon they would like to be holding when they spawn. To define your own preference list, type into your client JA: `/setu prefer <15 letters>`
+* `L` : Melee
+* `S` : Saber
+* `P` : Pistol
+* `Y` : Bryar Pistol
+* `E` : E-11
+* `U` : Disruptor
+* `B` : Bowcaster
+* `I` : Repeater
+* `D` : Demp
+* `G` : Golan
+* `R` : Rocket Launcher
+* `C` : Concussion Rifle
+* `T` : Thermal Detonators
+* `M` : Trip Mines
+* `K` : Det Packs
+
+Your most-preferred weapons go at the beginning; least-preferred weapons go at the end. For example, you could enter `/setu prefer RCTIGDUEBSMKYPL`
+
+Note that the command is `setu` with the letter `U` as in "universe" at the end!
+
 ####Reset siege to round 1 on map change vote
 No more changing maps with timer going down.
 
@@ -104,6 +131,9 @@ Use to enable/disable players from using the `/ready` command.
 
 ####Improved `/tell` and `/forceteam`
 Use partial client name with `/tell` or `/forceteam` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
+
+####More custom character colors
+Some models allow you to use custom color shading (for example, trandoshan and weequay). Basejka had a lower limit of 100 for these settings(to ensure colors couldn't be too dark); this limit has been removed in base_entranced. Now you can play as a black trandoshan if you want. As in basejka, use the clientside commands `char_color_red`, `char_color_green`, and `char_color_blue`
 
 ####Additional tools for mapmakers
 base_entranced provides mapmakers with powerful tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
@@ -202,12 +232,14 @@ In addition to the base_enhanced vote controls, you can use these:
 
 ####Bugfixes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
-* Seeker no longer attacks walkers and fighters.
+* Fixed seekers attacking walkers and fighters.
+* Fixed sentries attacking rancors, wampas, walkers, and fighters.
 * Fixed bug with `nextmap` failed vote causing siege to reset to round 1 anyway.
 * Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 * Fixed bug where round 2 timer wouldn't function properly on maps with `roundover_target` missing from the .siege file.
 * Fixed bug where `nextmap` would change anyway when a gametype vote failed.
 * Fixed base_enhanced ammo code causing rocket classes not to be able to obtain >10 rockets from ammo canisters.
+* Removed Sil's frametime code fixes, which caused knockback launches to have high height and low distance.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -327,7 +359,6 @@ Prevent calling votes for some things:
 * Fixed players rolling/running through mines unharmed
 * Fixed weird bug when getting incinerated while rolling.
 * Fixed telefragging jumping players when spawning.
-* Fixed weird things dependent on server frame time, half frames, etc.
 * Fixed NPCs attacking players in temporary dead mode.
 * Fixed sentries having retarded height detection for enemies.
 * Fixed `CFL_SINGLE_ROCKET` being able to obtain >1 rocket.
@@ -338,10 +369,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8dE9PMEtvTzNJQ2c/view?usp=sharing)
-Version: base_entranced-9-29-2015-build33 (experimental) - add `/g_fixRancorCharge`, add `/g_ammoCanisterSound`, fix problem with base_enhanced ammo code preventing HWs from getting >10 ammo from ammo canisters, add additional mapmaker tools for siege item spawning, add additional mapmaker tools for siege class ammo
-
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SVd0SFRzbE9GM1U/view?usp=sharing)
+Version: base_entranced-10-1-2015-build34 (experimental) - add `prefer`, remove lower limit on custom character colors, add `/g_fixGripKills`, revert Sil's frametime fix code which caused knockback launches to have high height and low distance, fix sentries attacking things they shouldn't attack (rancors, wampas, walkers, fighters), remove some unused powerduel cvars
 Old versions:
+
+Version: base_entranced-9-29-2015-build33 (unstable) [download removed] - add `/g_fixRancorCharge`, add `/g_ammoCanisterSound`, fix problem with base_enhanced ammo code preventing HWs from getting >10 ammo from ammo canisters, add additional mapmaker tools for siege item spawning, add additional mapmaker tools for siege class ammo
+
 
 Version: base_entranced-9-29-2015-build32 (unstable) [download removed] - add `/g_endSiege`, add `/g_moreTaunts`, fix repeatedly calling lift bug with `/g_fixHothBunkerLift`, add objective counter for tied timers in `/g_siegeStats`, fix `CFL_SINGLE_ROCKET` being able to obtain >1 rocket, fix nextmap changing on failed gametype vote, fix sentries having retarded height detection for enemies, fix rancor charging through `BLOCKNPC` areas (e.g. desert arena door), fix camera bug from getting disintegrated while rolling, add `/npc spawnlist`, fix npcs attacking players in tempdeath, frametime bugfixes from sil
 
