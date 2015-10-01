@@ -3201,6 +3201,10 @@ void ClientSpawn(gentity_t *ent) {
 	char				*saber;
 	qboolean			changedSaber = qfalse;
 	qboolean			inSiegeWithClass = qfalse;
+	int					n;
+	int					favweapon[16];
+	qboolean			foundweapon = qfalse;
+	int					numgoodweapons = 0;
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -3730,23 +3734,127 @@ void ClientSpawn(gentity_t *ent) {
 		{//double ammo
 			client->ps.eFlags |= EF_DOUBLE_AMMO;
 		}
-		value = Info_ValueForKey(userinfo, "holdthermal");
+
+
+		value = Info_ValueForKey(userinfo, "prefer");
+		if (value && strlen(value) == 15)
+		{
+			for (n = 0; n < 15; n++)
+			{
+				if (value[n] == 's')
+				{
+					favweapon[n] = WP_SABER;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'l')
+				{
+					favweapon[n] = WP_MELEE;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'p')
+				{
+					favweapon[n] = WP_BRYAR_PISTOL;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'y')
+				{
+					favweapon[n] = WP_BRYAR_OLD;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'e')
+				{
+					favweapon[n] = WP_BLASTER;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'u')
+				{
+					favweapon[n] = WP_DISRUPTOR;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'b')
+				{
+					favweapon[n] = WP_BOWCASTER;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'i')
+				{
+					favweapon[n] = WP_REPEATER;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'd')
+				{
+					favweapon[n] = WP_DEMP2;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'g')
+				{
+					favweapon[n] = WP_FLECHETTE;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'r')
+				{
+					favweapon[n] = WP_ROCKET_LAUNCHER;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'c')
+				{
+					favweapon[n] = WP_CONCUSSION;
+					numgoodweapons++;
+				}
+				else if (value[n] == 't')
+				{
+					favweapon[n] = WP_THERMAL;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'm')
+				{
+					favweapon[n] = WP_TRIP_MINE;
+					numgoodweapons++;
+				}
+				else if (value[n] == 'k')
+				{
+					favweapon[n] = WP_DET_PACK;
+					numgoodweapons++;
+				}
+				else if (value[n] == '\t' || value[n] == '\n' || value[n] == '\v' || value[n] == '\f' || value[n] == '\r') //detect sneaky mofos
+				{
+					G_HackLog("Client from %s is sending illegal preferred weapons list.\n", client->sess.ipString);
+					numgoodweapons = 0;
+					continue;
+				}
+				else
+				{
+					numgoodweapons = 0;
+					continue;
+				}
+			}
+		}
+		else
+		{
+			numgoodweapons = 0;
+		}
+
+
 		while (m < WP_NUM_WEAPONS)
 		{
 			if (client->ps.stats[STAT_WEAPONS] & (1 << m))
 			{
-				if (client->ps.weapon != WP_SABER)
+				if (numgoodweapons == 15)
+				{
+					for (n = 0; n < 15 && foundweapon == qfalse; n++)
+					{
+						if (foundweapon == qfalse && client->ps.stats[STAT_WEAPONS] & (1 << favweapon[n]))
+						{
+							client->ps.weapon = favweapon[n];
+							foundweapon = qtrue;
+						}
+					}
+				}
+				if ((numgoodweapons != 15 || foundweapon == qfalse) && client->ps.weapon != WP_SABER)
 				{ //try to find the highest ranking weapon we have
 					if (m > client->ps.weapon)
 					{
-						if (value && atoi(value) == 1 && client->ps.stats[STAT_WEAPONS] & (1 << WP_THERMAL))
-						{
-							client->ps.weapon = WP_THERMAL;
-						}
-						else
-						{
-							client->ps.weapon = m;
-						}
+						client->ps.weapon = m;
 					}
 				}
 
