@@ -3741,77 +3741,77 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			for (n = 0; n < 15; n++)
 			{
-				if (value[n] == 's')
+				if (value[n] == 's' || value[n] == 'S')
 				{
 					favweapon[n] = WP_SABER;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'l')
+				else if (value[n] == 'l' || value[n] == 'L')
 				{
 					favweapon[n] = WP_MELEE;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'p')
+				else if (value[n] == 'p' || value[n] == 'P')
 				{
 					favweapon[n] = WP_BRYAR_PISTOL;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'y')
+				else if (value[n] == 'y' || value[n] == 'Y')
 				{
 					favweapon[n] = WP_BRYAR_OLD;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'e')
+				else if (value[n] == 'e' || value[n] == 'E')
 				{
 					favweapon[n] = WP_BLASTER;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'u')
+				else if (value[n] == 'u' || value[n] == 'U')
 				{
 					favweapon[n] = WP_DISRUPTOR;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'b')
+				else if (value[n] == 'b' || value[n] == 'B')
 				{
 					favweapon[n] = WP_BOWCASTER;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'i')
+				else if (value[n] == 'i' || value[n] == 'I')
 				{
 					favweapon[n] = WP_REPEATER;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'd')
+				else if (value[n] == 'd' || value[n] == 'D')
 				{
 					favweapon[n] = WP_DEMP2;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'g')
+				else if (value[n] == 'g' || value[n] == 'G')
 				{
 					favweapon[n] = WP_FLECHETTE;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'r')
+				else if (value[n] == 'r' || value[n] == 'R')
 				{
 					favweapon[n] = WP_ROCKET_LAUNCHER;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'c')
+				else if (value[n] == 'c' || value[n] == 'C')
 				{
 					favweapon[n] = WP_CONCUSSION;
 					numgoodweapons++;
 				}
-				else if (value[n] == 't')
+				else if (value[n] == 't' || value[n] == 'T')
 				{
 					favweapon[n] = WP_THERMAL;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'm')
+				else if (value[n] == 'm' || value[n] == 'M')
 				{
 					favweapon[n] = WP_TRIP_MINE;
 					numgoodweapons++;
 				}
-				else if (value[n] == 'k')
+				else if (value[n] == 'k' || value[n] == 'K')
 				{
 					favweapon[n] = WP_DET_PACK;
 					numgoodweapons++;
