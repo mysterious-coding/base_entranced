@@ -3730,7 +3730,7 @@ void ClientSpawn(gentity_t *ent) {
 		{//double ammo
 			client->ps.eFlags |= EF_DOUBLE_AMMO;
 		}
-
+		value = Info_ValueForKey(userinfo, "holdthermal");
 		while (m < WP_NUM_WEAPONS)
 		{
 			if (client->ps.stats[STAT_WEAPONS] & (1 << m))
@@ -3739,7 +3739,14 @@ void ClientSpawn(gentity_t *ent) {
 				{ //try to find the highest ranking weapon we have
 					if (m > client->ps.weapon)
 					{
-						client->ps.weapon = m;
+						if (value && atoi(value) == 1 && client->ps.stats[STAT_WEAPONS] & (1 << WP_THERMAL))
+						{
+							client->ps.weapon = WP_THERMAL;
+						}
+						else
+						{
+							client->ps.weapon = m;
+						}
 					}
 				}
 
