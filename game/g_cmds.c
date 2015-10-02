@@ -2685,8 +2685,15 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Ask question is disabled.\n\"");
 			return;
 		}
-		Com_sprintf( level.voteString, sizeof( level.voteString ), ";" );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Poll: %s", arg2 );
+		char		*questionstring;
+		questionstring = ConcatArgs(2);
+		if (strlen(questionstring) > 234)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Question is too long.\n\"");
+			return;
+		}
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "svsay Poll Result ^2YES^7: %s", questionstring );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Poll: %s", questionstring );
 
 	} 
 	else if ( !Q_stricmp( arg1, "pause" )) 
