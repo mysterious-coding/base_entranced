@@ -228,7 +228,6 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_randomteams`
 * `/g_allow_vote_randomcapts`
 * `/g_allow_vote_cointoss`
-* `/g_allow_vote_allready`
 * `/g_allow_vote_q`
 * `/g_allow_vote_killturrets`
 
