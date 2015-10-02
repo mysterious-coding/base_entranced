@@ -1310,7 +1310,14 @@ void SiegeCheckTimers(void)
 			{
 				SiegeUpdateObjTime(objscompleted + 1, qtrue); //we didn't go out of order, so just go ahead and give a DNF for the next obj
 			}
-			SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
+			if (g_fixWinner.integer && g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_objscompleted_old.integer && objscompleted && objscompleted > g_objscompleted_old.integer)
+			{
+				SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
+			}
+			else
+			{
+				SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
+			}
 			imperial_time_limit = 0;
 			return;
 		}
@@ -1328,7 +1335,14 @@ void SiegeCheckTimers(void)
 			{
 				SiegeUpdateObjTime(objscompleted + 1, qtrue); //we didn't go out of order, so just go ahead and give a DNF for the next obj
 			}
-			SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
+			if (g_fixWinner.integer && g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_objscompleted_old.integer && objscompleted && objscompleted > g_objscompleted_old.integer)
+			{
+				SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
+			}
+			else
+			{
+				SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
+			}
 			rebel_time_limit = 0;
 			return;
 		}
