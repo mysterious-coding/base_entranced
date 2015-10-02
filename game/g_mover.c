@@ -1542,6 +1542,11 @@ void Touch_PlatCenterTrigger_Hoth(gentity_t *ent, gentity_t *other, trace_t *tra
 			return;
 		}
 
+		if (ent->parent->nextthink >= level.time || ent->parent->moverState != MOVER_POS1)
+		{
+			return; //prevents spamming lift button if holding +use
+		}
+
 		if ((other->client->ps.weaponTime > 0 && other->client->ps.torsoAnim != BOTH_BUTTON_HOLD && other->client->ps.torsoAnim != BOTH_CONSOLE1) || other->health < 1 ||
 			(other->client->ps.pm_flags & PMF_FOLLOW) || other->client->sess.sessionTeam == TEAM_SPECTATOR ||
 			other->client->ps.forceHandExtend != HANDEXTEND_NONE)
