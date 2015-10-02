@@ -2704,7 +2704,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "svsay Poll Result ^2YES^7: %s", questionstring );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Poll: %s", questionstring );
-
+		trap_SendServerCommand(-1, va("print \"Poll: %s\n\"", questionstring));
 	} 
 	else if ( !Q_stricmp( arg1, "pause" )) 
 	{
