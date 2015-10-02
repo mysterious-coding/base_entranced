@@ -2692,6 +2692,16 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Question is too long.\n\"");
 			return;
 		}
+		int i;
+		int length = strlen(questionstring);
+		for (i = 0; i < length; i++)
+		{
+			if (questionstring[i] == '\t' || questionstring[i] == '\n' || questionstring[i] == '\v' || questionstring[i] == '\f' || questionstring[i] == '\r')
+			{
+				G_HackLog("Client from %s is sending an illegal poll question.\n", ent->client->sess.ipString);
+				questionstring[i] = ' ';
+			}
+		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "svsay Poll Result ^2YES^7: %s", questionstring );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Poll: %s", questionstring );
 
