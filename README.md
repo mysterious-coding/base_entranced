@@ -242,6 +242,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug where `nextmap` would change anyway when a gametype vote failed.
 * Fixed base_enhanced ammo code causing rocket classes not to be able to obtain >10 rockets from ammo canisters.
 * Removed Sil's frametime code fixes, which caused knockback launches to have high height and low distance.
+* Grip refresh rate is increased from 3.33Hz to 20Hz; should make grip3 feel less laggy.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -371,9 +372,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8SVd0SFRzbE9GM1U/view?usp=sharing)
-Version: base_entranced-10-1-2015-build34 (experimental) - add `prefer`, remove lower limit on custom character colors, add `/g_fixGripKills`, revert Sil's frametime fix code which caused knockback launches to have high height and low distance, fix sentries attacking things they shouldn't attack (rancors, wampas, walkers, fighters), remove some unused powerduel cvars
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8a09vTGp5d3BqLVk/view?usp=sharing)
+Version: base_entranced-10-1-2015-build35 (experimental) - fix bug with g_fixHothBunkerLift getting stuck if you held down +use, increase grip refresh rate, allow spaces in poll, announce poll result if vote passes
+
 Old versions:
+
+Version: base_entranced-10-1-2015-build34 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SVd0SFRzbE9GM1U/view?usp=sharing) - add `prefer`, remove lower limit on custom character colors, add `/g_fixGripKills`, revert Sil's frametime fix code which caused knockback launches to have high height and low distance, fix sentries attacking things they shouldn't attack (rancors, wampas, walkers, fighters), remove some unused powerduel cvars
 
 Version: base_entranced-9-29-2015-build33 (unstable) [download removed] - add `/g_fixRancorCharge`, add `/g_ammoCanisterSound`, fix problem with base_enhanced ammo code preventing HWs from getting >10 ammo from ammo canisters, add additional mapmaker tools for siege item spawning, add additional mapmaker tools for siege class ammo
 
