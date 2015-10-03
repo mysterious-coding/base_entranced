@@ -2225,7 +2225,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->ps.fd.forceDeactivateAll = 1;
 
-	if (g_fixGripKills.integer && self == attacker && meansOfDeath == MOD_SUICIDE && self->client->ps.fd.forceGripBeingGripped && self->client->ps.fd.forceGripBeingGripped >= level.time)
+	if (g_fixGripKills.integer && self == attacker && meansOfDeath == MOD_SUICIDE && self->client->ps.fd.forceGripBeingGripped && self->client->ps.fd.forceGripBeingGripped >= level.time && &g_entities[self->client->ps.otherKiller] && &g_entities[self->client->ps.otherKiller].client)
 	{
 		meansOfDeath = MOD_FORCE_DARK;
 		attacker = &g_entities[self->client->ps.otherKiller];
