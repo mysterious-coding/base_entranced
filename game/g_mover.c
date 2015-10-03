@@ -386,6 +386,11 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 			continue;
 		}
 
+		if (check->methodOfDeath && (check->methodOfDeath == MOD_THERMAL || check->methodOfDeath == MOD_THERMAL_SPLASH))
+		{
+			continue; //dets can't block lifts
+		}
+
 		// the move was blocked an entity
 
 		// bobbing entities are instant-kill and never get blocked
@@ -409,6 +414,7 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 			}
 			trap_LinkEntity(p->ent);
 		}
+
 		return qfalse;
 	}
 
