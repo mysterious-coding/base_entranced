@@ -250,6 +250,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Grip refresh rate is increased from 3.33Hz to 20Hz; should make grip3 feel less laggy.
 * Fixed polls getting cut-off after the first word if you didn't use quotation marks. Also announce poll text for people without a compatible client mod.
 * Fixed a bug in Sil's ammo code where ammo_power_converters didn't check for custom maximum amounts (different thing from ammo_floor_units)
+* Fixed a bug in Sil's ammo code where direct-contact +use ammo dispensing didn't check for custom maximum amounts
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
