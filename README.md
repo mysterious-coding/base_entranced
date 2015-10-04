@@ -216,7 +216,7 @@ Mapmakers can add some extra flags to .scl siege class files for additional cont
 * `ammotripmines <#>`
 * `ammodetpacks <#>`
 
-For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters.
+For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
 
 Mapmakers can add some extra keys to `misc_siege_item` for additional control over siege items:
 
