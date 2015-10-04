@@ -443,6 +443,18 @@ void InitSiegeMode(void)
 
 	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
+	if (g_autoKorribanFloatingItems.integer)
+	{
+		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+		{
+			trap_Cvar_Set("g_floatingItems", "1");
+		}
+		else
+		{
+			trap_Cvar_Set("g_floatingItems", "0");
+		}
+	}
+
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
 
 	if (/*!levelname ||*/ !levelname[0])
