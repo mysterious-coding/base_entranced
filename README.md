@@ -71,6 +71,11 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 
 1 = selfkilling while gripped counts as a kill for the gripper
 
+####`/g_autoKorribanFloatingItems`
+0 = `g_floatingItems` is unaffected by map
+
+1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
+
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
 
@@ -233,6 +238,7 @@ In addition to the base_enhanced vote controls, you can use these:
 
 ####Bugfixes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
+* Fixed thermals bugging lifts
 * Fixed seekers attacking walkers and fighters.
 * Fixed sentries attacking rancors, wampas, walkers, and fighters.
 * Fixed bug with `nextmap` failed vote causing siege to reset to round 1 anyway.
@@ -243,6 +249,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Removed Sil's frametime code fixes, which caused knockback launches to have high height and low distance.
 * Grip refresh rate is increased from 3.33Hz to 20Hz; should make grip3 feel less laggy.
 * Fixed polls getting cut-off after the first word if you didn't use quotation marks. Also announce poll text for people without a compatible client mod.
+* Fixed a bug in Sil's ammo code where ammo_power_converters didn't check for custom maximum amounts (different thing from ammo_floor_units)
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -372,10 +379,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8UWt2R1lNT2dIbzg/view?usp=sharing)
-Version: base_entranced-10-1-2015-build35 (experimental) - fix bug with g_fixHothBunkerLift getting stuck if you held down +use, increase grip refresh rate, allow spaces in poll, announce poll
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHRRdjlfRlo0aEE/view?usp=sharing)
+Version: base_entranced-10-3-2015-build36 (experimental) - add `/g_autoKorribanFloatingItems`, fix thermals bugging lifts, fix +use ammo dispensing not checking for custom max ammo amounts, fix bug with `/g_fixGripKills` causing kills from unknown clients
 
 Old versions:
+
+Version: base_entranced-10-1-2015-build35 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8UWt2R1lNT2dIbzg/view?usp=sharing) - fix bug with g_fixHothBunkerLift getting stuck if you held down +use, increase grip refresh rate, allow spaces in poll, announce poll
 
 Version: base_entranced-10-1-2015-build34 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SVd0SFRzbE9GM1U/view?usp=sharing) - add `prefer`, remove lower limit on custom character colors, add `/g_fixGripKills`, revert Sil's frametime fix code which caused knockback launches to have high height and low distance, fix sentries attacking things they shouldn't attack (rancors, wampas, walkers, fighters), remove some unused powerduel cvars
 
