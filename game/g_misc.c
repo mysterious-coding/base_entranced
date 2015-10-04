@@ -1595,12 +1595,13 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 				{
 					add = 1;
 				}
-				if (activator->client->ps.ammo[i] < ammoData[i].max)
+				extern int Get_Max_Ammo(gentity_t* ent, ammo_t ammoIndex);
+				if (activator->client->ps.ammo[i] < Get_Max_Ammo(activator, weaponData[i].ammoIndex))
 				{
 					activator->client->ps.ammo[i] += add;
-					if (activator->client->ps.ammo[i] > ammoData[i].max)
+					if (activator->client->ps.ammo[i] > Get_Max_Ammo(activator, weaponData[i].ammoIndex))
 					{
-						activator->client->ps.ammo[i] = ammoData[i].max;
+						activator->client->ps.ammo[i] = Get_Max_Ammo(activator, weaponData[i].ammoIndex);
 					}
 				}
 				i++;
