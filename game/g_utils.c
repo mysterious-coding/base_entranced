@@ -1539,10 +1539,10 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 		{ //do the next increment
 			//increment based on the amount of ammo used per normal shot.
 			target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] += weaponData[target->client->ps.weapon].energyPerShot;
-
-			if (target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] > ammoData[weaponData[target->client->ps.weapon].ammoIndex].max)
+			extern int Get_Max_Ammo(gentity_t* ent, ammo_t ammoIndex);
+			if (target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] > 	Get_Max_Ammo(target, weaponData[target->client->ps.weapon].ammoIndex))
 			{ //cap it off
-				target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] = ammoData[weaponData[target->client->ps.weapon].ammoIndex].max;
+				target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] = Get_Max_Ammo(target, weaponData[target->client->ps.weapon].ammoIndex);
 			}
 
 			//base the next supply time on how long the weapon takes to fire. Seems fair enough.
@@ -1578,7 +1578,7 @@ int G_CanUseDispOn(gentity_t *ent, int dispType)
 			return 0;
 		}
 
-		if (ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] < ammoData[weaponData[ent->client->ps.weapon].ammoIndex].max)
+		if (ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] < Get_Max_Ammo(ent, weaponData[ent->client->ps.weapon].ammoIndex))
 		{ //needs more ammo for current weapon
 			return 1;
 		}
