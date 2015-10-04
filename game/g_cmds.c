@@ -1649,13 +1649,8 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	if ( other->client->pers.connected != CON_CONNECTED ) {
 		return;
 	}
-	if (mode == SAY_TEAM) {
-		if (!OnSameTeam(ent, other))
-			return;
-
-		if ((g_gametype.integer == GT_SIEGE)
-			&& (ent->client->sess.siegeDesiredTeam != other->client->sess.siegeDesiredTeam))
-			return;
+	if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) ) {
+		return;
 	}
 	if ((other->client->sess.ignoreFlags & (1<<(ent-g_entities)))
 		&& (ent!=other)	){
