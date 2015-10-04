@@ -4,7 +4,7 @@ Siege server mod for Jedi Knight 3
 
 by duo and exar
 
-a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod with some extra features for siege.
+a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod, with extra features and bugfixes for siege.
 
 #base_entranced features
 These are unique features for base_entranced.
