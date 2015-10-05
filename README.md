@@ -128,6 +128,9 @@ No more changing maps with timer going down.
 ####Random teams/capts in siege
 base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `/ready` command)
 
+####Unlimited class-changing during countdown
+Removed the 5-second delay for class changing during the countdown.
+
 ####`/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
 
@@ -236,7 +239,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_q`
 * `/g_allow_vote_killturrets`
 
-####Bugfixes:
+####Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
 * Fixed thermals bugging lifts
 * Fixed seekers attacking walkers and fighters.
@@ -251,6 +254,9 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed polls getting cut-off after the first word if you didn't use quotation marks. Also announce poll text for people without a compatible client mod.
 * Fixed a bug in Sil's ammo code where ammo_power_converters didn't check for custom maximum amounts (different thing from ammo_floor_units)
 * Fixed a bug in Sil's ammo code where direct-contact +use ammo dispensing didn't check for custom maximum amounts
+* Fixed a bug where some people couldn't see spectator chat, caused by the countdown teamchat bugfix.
+* Fixed bug with `/class` command not working during countdown.
+* Added confirmation messages to the `/class` command
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -337,7 +343,7 @@ Prevent calling votes for some things:
 * `/g_allow_vote_maprandom`
 * `/g_allow_vote_warmup`
 
-####Bug fixes:
+####Bug fixes and other changes:
 * When you run someone over in the ATST, you get a kill.
 * No more spying on the enemy teamchat during siege countdown.
 * Bugfix for not scoring points on Hoth first obj.
@@ -380,10 +386,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHRRdjlfRlo0aEE/view?usp=sharing)
-Version: base_entranced-10-3-2015-build36 (experimental) - add `/g_autoKorribanFloatingItems`, fix thermals bugging lifts, fix +use ammo dispensing not checking for custom max ammo amounts, fix bug with `/g_fixGripKills` causing kills from unknown clients
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZnVDQ0JrNng2QXc/view?usp=sharing)
+Version: base_entranced-10-5-2015-build37 (experimental) -  fix bug with some people not seeing spectator chat, allow unlimited class-changing during countdown(remove 5-second delay), fix `/class` not working during countdown, add confirmation for class change
 
 Old versions:
+
+Version: base_entranced-10-3-2015-build36 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHRRdjlfRlo0aEE/view?usp=sharing) - add `/g_autoKorribanFloatingItems`, fix thermals bugging lifts, fix +use ammo dispensing not checking for custom max ammo amounts, fix bug with `/g_fixGripKills` causing kills from unknown clients
 
 Version: base_entranced-10-1-2015-build35 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8UWt2R1lNT2dIbzg/view?usp=sharing) - fix bug with g_fixHothBunkerLift getting stuck if you held down +use, increase grip refresh rate, allow spaces in poll, announce poll
 
