@@ -241,7 +241,10 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	{
 		return qfalse;
 	}
-
+	if (g_gametype.integer == GT_SIEGE && level.inSiegeCountdown && level.inSiegeCountdown == qtrue && (ent1->client->sess.siegeDesiredTeam != ent2->client->sess.siegeDesiredTeam))
+	{
+		return qfalse;
+	}
 	if ( ent1->client->sess.sessionTeam == ent2->client->sess.sessionTeam ) {
 		return qtrue;
 	}
