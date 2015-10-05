@@ -1275,7 +1275,7 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->switchClassTime > level.time)
+	if (ent->client->switchClassTime > level.time && level.inSiegeCountdown != qtrue)
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")));
 		return;
