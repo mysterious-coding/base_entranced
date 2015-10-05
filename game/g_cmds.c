@@ -1354,7 +1354,7 @@ void Cmd_Class_f(gentity_t *ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Jedi\n\""));
 			break;
 		default:
-			trap_SendServerCommand(ent - g_entities, "print \"Invalid class identifier. \n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
 			return;
 		}
 
@@ -1371,7 +1371,7 @@ void Cmd_Class_f(gentity_t *ent)
 	
 	if (!siegeClass)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid class number. \n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
 		return;
 	}
 
