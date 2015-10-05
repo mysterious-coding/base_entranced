@@ -129,7 +129,7 @@ No more changing maps with timer going down.
 base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `/ready` command)
 
 ####Unlimited class-changing during countdown
-Removed the 5-second delay for class changing during the countdown.
+Removed the 5-second delay for class-changing during the countdown.
 
 ####`/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
