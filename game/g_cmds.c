@@ -1307,7 +1307,7 @@ void Cmd_Class_f(gentity_t *ent)
 
 	if (trap_Argc() < 1)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid arguments. \n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
 		return;
 	}
 
@@ -1322,18 +1322,37 @@ void Cmd_Class_f(gentity_t *ent)
 	if ((className[0] >= '0') && (className[0] <= '9'))
 	{
 		classNumber = atoi(className);
+		trap_SendServerCommand(ent - g_entities, va("print \"Changing to class %i\n\"", classNumber));
 	}
 	else
 	{
 		// funny way for pro siegers
 		switch (tolower(className[0]))
 		{
-		case 'a': classNumber = 1; break;
-		case 'h': classNumber = 2; break;
-		case 'd': classNumber = 3; break;
-		case 's': classNumber = 4; break;
-		case 't': classNumber = 5; break;
-		case 'j': classNumber = 6; break;
+		case 'a':
+			classNumber = 1;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Assault\n\""));
+			break;
+		case 'h':
+			classNumber = 2;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Heavy Weapons\n\""));
+			break;
+		case 'd':
+			classNumber = 3;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Demolitions\n\""));
+			break;
+		case 's':
+			classNumber = 4;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Scout\n\""));
+			break;
+		case 't':
+			classNumber = 5;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Tech\n\""));
+			break;
+		case 'j':
+			classNumber = 6;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Jedi\n\""));
+			break;
 		default:
 			trap_SendServerCommand(ent - g_entities, "print \"Invalid class identifier. \n\"");
 			return;
