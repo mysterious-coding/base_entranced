@@ -1299,7 +1299,10 @@ void Cmd_Class_f(gentity_t *ent)
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
-		return;
+		if (!(level.inSiegeCountdown && ent->client->sess.siegeDesiredTeam && (ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM1 || ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM2)))
+		{
+			return;
+		}
 	}
 
 	if (trap_Argc() < 1)
@@ -1338,7 +1341,15 @@ void Cmd_Class_f(gentity_t *ent)
 
 	}
 
-	siegeClass = BG_SiegeGetClass(ent->client->sess.sessionTeam, classNumber);
+	if (level.inSiegeCountdown && ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.siegeDesiredTeam && (ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM1 || ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM2))
+	{
+		siegeClass = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, classNumber);
+	}
+	else
+	{
+		siegeClass = BG_SiegeGetClass(ent->client->sess.sessionTeam, classNumber);
+	}
+	
 	if (!siegeClass)
 	{
 		trap_SendServerCommand(ent - g_entities, "print \"Invalid class number. \n\"");
