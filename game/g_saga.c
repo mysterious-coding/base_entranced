@@ -1194,7 +1194,7 @@ void SiegeBeginRound(int entNum)
 		int i = 0;
 		gentity_t *ent;
 		qboolean spawnEnt = qfalse;
-
+		level.inSiegeCountdown = qfalse;
 		//respawn everyone now
 		while (i < MAX_CLIENTS)
 		{
@@ -1352,19 +1352,23 @@ void SiegeCheckTimers(void)
 		{ //don't have people on both teams yet.
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			trap_SetConfigstring(CS_SIEGE_STATE, "1"); //"waiting for players on both teams"
+			level.inSiegeCountdown = qfalse;
 		}
 		else if (gSiegeBeginTime < level.time)
 		{ //mark the round as having begun
 			gSiegeRoundBegun = qtrue;
+			level.inSiegeCountdown = qtrue;
 			SiegeBeginRound(i); //perform any round start tasks
 		}
 		else if (gSiegeBeginTime > (level.time + SIEGE_ROUND_BEGIN_TIME))
 		{
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
+			level.inSiegeCountdown = qtrue;
 		}
 		else
 		{
 			trap_SetConfigstring(CS_SIEGE_STATE, va("2|%i", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME)); //getting ready to begin
+			level.inSiegeCountdown = qtrue;
 		}
 	}
 }

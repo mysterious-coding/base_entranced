@@ -927,6 +927,8 @@ typedef struct {
 
 	qboolean	restarted;				// waiting for a map_restart to fire
 
+	qboolean	inSiegeCountdown;
+
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients
 	int			numPlayingClients;		// connected, non-spectators
