@@ -71,6 +71,11 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 
 1 = selfkilling while gripped counts as a kill for the gripper
 
+####`/g_gripRefresh`
+300 = default JK3 grip refresh (your velocity is updated every 300ms while being gripped, which equals 3.33Hz refresh rate)
+
+Set for lower values to get smoother grip without lag (maybe 50, which equals 20Hz refresh rate)
+
 ####`/g_autoKorribanFloatingItems`
 0 = `g_floatingItems` is unaffected by map
 
@@ -136,6 +141,9 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 
 ####`/g_allow_ready`
 Use to enable/disable players from using the `/ready` command.
+
+####Public server / Pug server modes
+Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
 
 ####Improved `/tell` and `/forceteam`
 Use partial client name with `/tell` or `/forceteam` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
@@ -238,6 +246,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_cointoss`
 * `/g_allow_vote_q`
 * `/g_allow_vote_killturrets`
+* `/g_allow_vote_pug`
+* `/g_allow_vote_pub`
 
 ####Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
@@ -386,10 +396,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZnVDQ0JrNng2QXc/view?usp=sharing)
-Version: base_entranced-10-5-2015-build37 (experimental) -  fix bug with some people not seeing spectator chat, allow unlimited class-changing during countdown(remove 5-second delay), fix `/class` not working during countdown, add confirmation for class change
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXcxdkZiQmVPdk0/view?usp=sharing)
+Version: base_entranced-10-5-2015-build37 (experimental) -  add pug server and public server votes, add `/g_gripRefresh`
 
 Old versions:
+
+Version: base_entranced-10-5-2015-build37 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZnVDQ0JrNng2QXc/view?usp=sharing) - fix bug with some people not seeing spectator chat, allow unlimited class-changing during countdown(remove 5-second delay), fix `/class` not working during countdown, add confirmation for class change
 
 Version: base_entranced-10-3-2015-build36 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHRRdjlfRlo0aEE/view?usp=sharing) - add `/g_autoKorribanFloatingItems`, fix thermals bugging lifts, fix +use ammo dispensing not checking for custom max ammo amounts, fix bug with `/g_fixGripKills` causing kills from unknown clients
 
