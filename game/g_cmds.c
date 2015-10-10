@@ -3730,6 +3730,111 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 	G_CfgDbListAliases( found->client->sess.ip, maskInt, 3, listAliasesCallback, &context );
 }
 
+void ServerCfgColor(char *string, int integer, gentity_t *ent)
+{
+	if (integer && integer == 1)
+	{
+		Com_sprintf(string, 64, "%s:^2", string);
+	}
+	else if (integer && (integer > 1 || integer < 0))
+	{
+		Com_sprintf(string, 64, "%s:^5", string);
+	}
+	else
+	{
+		Com_sprintf(string, 64, "%s:^1", string);
+	}
+	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
+}
+void Cmd_ServerCfg_f(gentity_t *ent)
+{
+	char string[64];
+
+	Com_sprintf(string, 64, "g_allow_ready");
+	ServerCfgColor(string, g_allow_ready.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_cointoss");
+	ServerCfgColor(string, g_allow_vote_cointoss.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_fraglimit");
+	ServerCfgColor(string, g_allow_vote_fraglimit.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_gametype");
+	ServerCfgColor(string, g_allow_vote_gametype.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_kick");
+	ServerCfgColor(string, g_allow_vote_kick.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_killturrets");
+	ServerCfgColor(string, g_allow_vote_killturrets.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_map");
+	ServerCfgColor(string, g_allow_vote_map.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_maprandom");
+	ServerCfgColor(string, g_allow_vote_maprandom.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_netxmap");
+	ServerCfgColor(string, g_allow_vote_nextmap.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_pub");
+	ServerCfgColor(string, g_allow_vote_pub.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_pug");
+	ServerCfgColor(string, g_allow_vote_pug.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_q");
+	ServerCfgColor(string, g_allow_vote_q.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_randomcapts");
+	ServerCfgColor(string, g_allow_vote_randomcapts.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_randomteams");
+	ServerCfgColor(string, g_allow_vote_randomteams.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_restart");
+	ServerCfgColor(string, g_allow_vote_restart.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_timelimit");
+	ServerCfgColor(string, g_allow_vote_timelimit.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_warmup");
+	ServerCfgColor(string, g_allow_vote_warmup.integer, ent);
+	Com_sprintf(string, 64, "g_ammoCanisterSound");
+	ServerCfgColor(string, g_ammoCanisterSound.integer, ent);
+	Com_sprintf(string, 64, "g_autoKorribanFloatingItems");
+	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
+	Com_sprintf(string, 64, "g_denoteDead");
+	ServerCfgColor(string, g_denoteDead.integer, ent);
+	Com_sprintf(string, 64, "g_dismember");
+	ServerCfgColor(string, g_dismember.integer, ent);
+	Com_sprintf(string, 64, "g_enableCloak");
+	ServerCfgColor(string, g_enableCloak.integer, ent);
+	Com_sprintf(string, 64, "g_endSiege");
+	ServerCfgColor(string, g_endSiege.integer, ent);
+	Com_sprintf(string, 64, "g_fixFallingSounds");
+	ServerCfgColor(string, g_fixFallingSounds.integer, ent);
+	Com_sprintf(string, 64, "g_fitGripKills");
+	ServerCfgColor(string, g_fixGripKills.integer, ent);
+	Com_sprintf(string, 64, "g_fitPitKills");
+	ServerCfgColor(string, g_fixPitKills.integer, ent);
+	Com_sprintf(string, 64, "g_fixHothBunkerLift");
+	ServerCfgColor(string, g_fixHothBunkerLift.integer, ent);
+	Com_sprintf(string, 64, "g_fixRancorCharge");
+	ServerCfgColor(string, g_fixRancorCharge.integer, ent);
+	Com_sprintf(string, 64, "g_fixSiegeScoring");
+	ServerCfgColor(string, g_fixSiegeScoring.integer, ent);
+	Com_sprintf(string, 64, "g_floatingItems");
+	ServerCfgColor(string, g_floatingItems.integer, ent);
+	Com_sprintf(string, 64, "g_gripRefresh");
+	ServerCfgColor(string, g_gripRefresh.integer, ent);
+	Com_sprintf(string, 64, "g_hideSpecLocation");
+	ServerCfgColor(string, g_hideSpecLocation.integer, ent);
+	Com_sprintf(string, 64, "g_infiniteCharge");
+	ServerCfgColor(string, g_infiniteCharge.integer, ent);
+	Com_sprintf(string, 64, "g_knockback");
+	ServerCfgColor(string, g_knockback.integer, ent);
+	Com_sprintf(string, 64, "g_locationBasedDamage");
+	ServerCfgColor(string, g_locationBasedDamage.integer, ent);
+	Com_sprintf(string, 64, "g_moreTaunts");
+	ServerCfgColor(string, g_moreTaunts.integer, ent);
+	Com_sprintf(string, 64, "g_nextmapWarning");
+	ServerCfgColor(string, g_nextmapWarning.integer, ent);
+	Com_sprintf(string, 64, "g_rocketSurfing");
+	ServerCfgColor(string, g_rocketSurfing.integer, ent);
+	Com_sprintf(string, 64, "g_saberDamageScale");
+	ServerCfgColor(string, g_saberDamageScale.integer, ent);
+	Com_sprintf(string, 64, "g_sexyDisruptor");
+	ServerCfgColor(string, g_sexyDisruptor.integer, ent);
+	Com_sprintf(string, 64, "g_selfkillPenalty");
+	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
+
+}
+
 void Cmd_EngageDuel_f(gentity_t *ent)
 {
 	trace_t tr;
@@ -4268,8 +4373,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "ignore") == 0)
 		Cmd_Ignore_f( ent );
-	else if (Q_stricmp (cmd, "testcmd") == 0)
-		Cmd_TestCmd_f( ent );
+	else if (Q_stricmp(cmd, "testcmd") == 0)
+		Cmd_TestCmd_f(ent);
+	else if (Q_stricmp(cmd, "servercfg") == 0)
+		Cmd_ServerCfg_f(ent);
 		
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))
