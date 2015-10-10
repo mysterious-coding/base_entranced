@@ -2345,6 +2345,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
     } else if ( !Q_stricmp( arg1, "randomcapts")) {
     } else if ( !Q_stricmp( arg1, "randomteams")) {
 	} else if ( !Q_stricmp( arg1, "killturrets")) {
+	} else if (!Q_stricmp(arg1, "pug")) {
+	} else if (!Q_stricmp(arg1, "pub")) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
@@ -2697,6 +2699,28 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Kill Turrets");
+
+	}
+	else if (!Q_stricmp(arg1, "pug"))
+	{
+		//disable this vote
+		if (!g_allow_vote_pug.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Pug vote is disabled.\n\"");
+			return;
+		}
+		Com_sprintf(level.voteString, sizeof(level.voteString), "exec pug.cfg", arg1);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Pug Server Mode");
+
+	}
+	else if (!Q_stricmp(arg1, "pub"))
+	{
+		//disable this vote
+		if (!g_allow_vote_pub.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Pub vote is disabled.\n\"");
+			return;
+		}
+		Com_sprintf(level.voteString, sizeof(level.voteString), "exec pub.cfg", arg1);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Public Server Mode");
 
 	}
 	else if ( !Q_stricmp( arg1, "resetflags" )) 

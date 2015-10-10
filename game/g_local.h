@@ -1839,6 +1839,8 @@ extern vmCvar_t		g_allow_vote_randomcapts;
 extern vmCvar_t		g_allow_vote_cointoss;
 extern vmCvar_t		g_allow_vote_q;
 extern vmCvar_t		g_allow_vote_killturrets;
+extern vmCvar_t     g_allow_vote_pug;
+extern vmCvar_t     g_allow_vote_pub;
 
 extern vmCvar_t     g_allow_ready;
 
