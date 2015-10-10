@@ -397,7 +397,7 @@ Prevent calling votes for some things:
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 ###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXcxdkZiQmVPdk0/view?usp=sharing)
-Version: base_entranced-10-5-2015-build38 (experimental) -  add pug server and public server votes, add `/g_gripRefresh`
+Version: base_entranced-10-10-2015-build38 (experimental) -  add pug server and public server votes, add `/g_gripRefresh`
 
 Old versions:
 
