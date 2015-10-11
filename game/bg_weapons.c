@@ -313,9 +313,9 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 		400,					//	int		altFireTime;		// Amount of time between alt-firings
 		8192,					//	int		altRange;			// Range of alt-fire
 		0,						//	int		chargeSubTime;		// ms interval for subtracting ammo during charge
-		200,					//	int		altChargeSubTime;	// above for secondary
+		0,					//	int		altChargeSubTime;	// above for secondary
 		0,						//	int		chargeSub;			// amount to subtract during charge on each interval
-		1,						//int		altChargeSub;		// above for secondary
+		0,						//int		altChargeSub;		// above for secondary
 		0,						//	int		maxCharge;			// stop subtracting once charged for this many ms
 		1500					//	int		altMaxCharge;		// above for secondary
 	},
