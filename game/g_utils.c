@@ -1648,7 +1648,7 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 		siegeClass_t *scl = &bgSiegeClasses[ent->client->siegeClass];
 		if (ent->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
 		{
-			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+			//get generic type of class we are currently(tech, assault, whatever) and return if the healingclass does not match
 			short i1 = bgSiegeClasses[ent->client->siegeClass].playerClass;
 			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(target->healingclass)].playerClass;
 			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
@@ -1667,7 +1667,7 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 		}
 		else if (ent->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
 		{
-			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+			//get generic type of class we are currently(tech, assault, whatever) and return if the healingclass does not match
 			short i1 = bgSiegeClasses[ent->client->siegeClass].playerClass;
 			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(target->healingclass)].playerClass;
 			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
