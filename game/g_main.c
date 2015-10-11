@@ -501,7 +501,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
 	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
-	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
 #if 0
