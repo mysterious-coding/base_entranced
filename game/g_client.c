@@ -3707,12 +3707,20 @@ void ClientSpawn(gentity_t *ent) {
 		}
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
 	if (g_gametype.integer == GT_SIEGE && client->siegeClass != -1 &&
 		client->sess.sessionTeam != TEAM_SPECTATOR)
 	{ //well then, we will use a custom weaponset for our class
 		int m = 0;
 
 		client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].weapons;
+
+		if (!Q_stricmp(mapname.string, "mp/siege_hoth") && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && g_forceHothDTechItems.integer && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == 2)
+		{
+			ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_DEMP2);
+		}
 
 		if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
 		{
@@ -3883,6 +3891,10 @@ void ClientSpawn(gentity_t *ent) {
 	{ //use class-specified inventory
 		client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].invenItems;
 		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+		if (!Q_stricmp(mapname.string, "mp/siege_hoth") && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && g_forceHothDTechItems.integer && g_forceHothDTechItems.integer == 2 && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == 2)
+		{
+			client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_SHIELD);
+		}
 	}
 	else
 	{
