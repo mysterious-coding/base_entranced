@@ -3746,7 +3746,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	}
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
-void Cmd_ServerCfg_f(gentity_t *ent)
+void Cmd_ServerStatus2_f(gentity_t *ent)
 {
 	char string[64];
 
@@ -4375,8 +4375,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Ignore_f( ent );
 	else if (Q_stricmp(cmd, "testcmd") == 0)
 		Cmd_TestCmd_f(ent);
-	else if (Q_stricmp(cmd, "servercfg") == 0)
-		Cmd_ServerCfg_f(ent);
+	else if (Q_stricmp(cmd, "serverstatus2") == 0)
+		Cmd_ServerStatus2_f(ent);
 		
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))
