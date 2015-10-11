@@ -2347,6 +2347,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "killturrets")) {
 	} else if (!Q_stricmp(arg1, "pug")) {
 	} else if (!Q_stricmp(arg1, "pub")) {
+	} else if (!Q_stricmp(arg1, "g_redTeam")) {
+	} else if (!Q_stricmp(arg1, "g_blueTeam")) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
@@ -2615,6 +2617,40 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 
 	} 
+	else if (!Q_stricmp(arg1, "g_redTeam"))
+	{
+		if (!g_allow_vote_customTeams.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Custom teams is disabled.\n\"");
+			return;
+		}
+		if (!Q_stricmp(arg2, "none") || !Q_stricmp(arg2, "0")) //reset the classes
+		{
+			Com_sprintf(level.voteString, sizeof(level.voteString), "g_redTeam none");
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Reset ^1Red^7 Team Classes");
+		}
+		else
+		{
+			Com_sprintf(level.voteString, sizeof(level.voteString), "g_redTeam %s", arg2);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Custom ^1Red^7 Team Classes: %s", arg2);
+		}
+	}
+	else if (!Q_stricmp(arg1, "g_blueTeam"))
+	{
+		if (!g_allow_vote_customTeams.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Custom teams is disabled.\n\"");
+			return;
+		}
+		if (!Q_stricmp(arg2, "none") || !Q_stricmp(arg2, "0")) //reset the classes
+		{
+			Com_sprintf(level.voteString, sizeof(level.voteString), "g_blueTeam none");
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Reset ^4Blue^7 Team Classes");
+		}
+		else
+		{
+			Com_sprintf(level.voteString, sizeof(level.voteString), "g_blueTeam %s", arg2);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Custom ^4Blue^7 Team Classes: %s", arg2);
+		}
+	}
 	else if (!Q_stricmp(arg1, "cointoss"))
 	{
 		//disable this vote
@@ -3754,6 +3790,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_ready.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_cointoss");
 	ServerCfgColor(string, g_allow_vote_cointoss.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_customTeams");
+	ServerCfgColor(string, g_allow_vote_customTeams.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_fraglimit");
 	ServerCfgColor(string, g_allow_vote_fraglimit.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_gametype");

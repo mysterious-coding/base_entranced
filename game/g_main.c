@@ -293,6 +293,7 @@ vmCvar_t    bot_ping_sparsity;
 extern vmCvar_t     g_strafejump_mod;
 
 //allowing/disabling vote types
+vmCvar_t	g_allow_vote_customTeams;
 vmCvar_t    g_allow_vote_gametype;
 vmCvar_t    g_allow_vote_kick;
 vmCvar_t    g_allow_vote_restart;
@@ -576,8 +577,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeTeam1, "g_siegeTeam1", "none", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_siegeTeam2, "g_siegeTeam2", "none", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
 
-	{ &g_redTeam, "g_redTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_blueTeam, "g_blueTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_redTeam, "g_redTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_blueTeam, "g_blueTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 
 	//mainly for debugging with bots while I'm not around (want the server to
 	//cycle through levels naturally)
@@ -618,6 +619,7 @@ static cvarTable_t		gameCvarTable[] = {
 
     { &g_default_restart_countdown, "g_default_restart_countdown", "0", CVAR_ARCHIVE, 0, qtrue }, 
 
+	{ &g_allow_vote_customTeams,	"g_allow_vote_customTeams"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_gametype,	"g_allow_vote_gametype"	, "1023"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_kick,	"g_allow_vote_kick"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_restart,	"g_allow_vote_restart"	, "1"	, CVAR_ARCHIVE, 0, qtrue },

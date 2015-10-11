@@ -1826,7 +1826,7 @@ extern vmCvar_t    bot_minping;
 extern vmCvar_t    bot_maxping;
 extern vmCvar_t    bot_ping_sparsity;
 
-
+extern vmCvar_t		g_allow_vote_customTeams;
 extern vmCvar_t     g_allow_vote_gametype;
 extern vmCvar_t     g_allow_vote_kick;
 extern vmCvar_t     g_allow_vote_restart;
