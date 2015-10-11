@@ -304,6 +304,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Added confirmation messages to the `/class` command
 * Fixed Bryar pistol not having unlimited ammo.
 * Changes to `g_allowVote` are now announced to the server.
+* Fixed `/flourish` not working with gun equipped.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
