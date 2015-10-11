@@ -84,7 +84,9 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
 
-1 = if using saber, `/taunt` command will randomly use taunt, gloat, or flourish animation. If using a gun, `/taunt` command will randomly use taunt or gloat animation (flourish doesn't work with guns)
+1 = `/taunt` command will randomly use taunt, gloat, or flourish animation.
+
+2 = `/taunt` uses basejka behavior, but `/gloat`, `/flourish`, and `/bow` are enabled as separate commands
 
 ####`/g_ammoCanisterSound`
 0 = dispensing ammo cans is oddly silent (default JK3)
@@ -104,6 +106,32 @@ Restarts current map with siege timer going down from a specified time. For exam
 
 ####`/killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
+
+####Custom team/class overrides
+You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
+
+To reset to base classes, use `0` or `none` as the argument.
+
+This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable this vote with `/g_allow_vote_customTeams`.
+
+####`/g_forceDTechItems`
+This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban.
+
+0 = no additional weapons/items
+
+1 = only Hoth DTech gets demp only
+
+2 = only Hoth DTech gets shield only
+
+3 = only Hoth DTech gets demp and shield
+
+4 = all DTechs get demp only
+
+5 = all DTechs get shield only
+
+6 = all DTechs get demp and shield
+
+7 = all DTechs get shield; only Hoth DTech gets demp also (default setting)
 
 ####Weapon spawn preference
 Clients can decide their own preference of which weapon they would like to be holding when they spawn. To define your own preference list, type into your client JA: `/setu prefer <15 letters>`
@@ -126,6 +154,10 @@ Clients can decide their own preference of which weapon they would like to be ho
 Your most-preferred weapons go at the beginning; least-preferred weapons go at the end. For example, you could enter `/setu prefer RCTIGDUEBSMKYPL`
 
 Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use default JK3 weapon priority.
+
+####`/serverstatus2`
+
+Displays many cvars to the client that are not shown with basejka `/serverstatus` command.
 
 ####Reset siege to round 1 on map change vote
 No more changing maps with timer going down.
@@ -237,6 +269,8 @@ Mapmakers can add some extra keys to `misc_siege_item` for additional control ov
 
 `respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default)
 
+Mapmakers are advised to include the `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
+
 Note that if a map includes these special features, and is then played on a non-base_entranced server, those features will obviously not work.
 
 ####Additional control over vote-calling
@@ -248,6 +282,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_killturrets`
 * `/g_allow_vote_pug`
 * `/g_allow_vote_pub`
+* `/g_allow_vote_customTeams`
 
 ####Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
@@ -267,6 +302,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed a bug where some people couldn't see spectator chat, caused by the countdown teamchat bugfix.
 * Fixed bug with `/class` command not working during countdown.
 * Added confirmation messages to the `/class` command
+* Fixed Bryar pistol not having unlimited ammo.
+* Changes to `g_allowVote` are now announced to the server.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -396,10 +433,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXcxdkZiQmVPdk0/view?usp=sharing)
-Version: base_entranced-10-10-2015-build38 (experimental) -  add pug server and public server votes, add `/g_gripRefresh`
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXgxTEFJMWlYVnc/view?usp=sharing)
+Version: base_entranced-10-11-2015-build39 (experimental) - add `/g_redTeam`, add `/g_blueTeam`, add `/g_forceDTechItems`, add `/g_allow_vote_customTeams`, add `/g_moreTaunts 2`, add `/serverstatus2`, announce changes to `/g_allowVote`, fix bryar pistol not having unlimited ammo
 
 Old versions:
+
+Version: base_entranced-10-10-2015-build38 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXcxdkZiQmVPdk0/view?usp=sharing) - add pug server and public server votes, add `/g_gripRefresh`
 
 Version: base_entranced-10-5-2015-build37 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZnVDQ0JrNng2QXc/view?usp=sharing) - fix bug with some people not seeing spectator chat, allow unlimited class-changing during countdown(remove 5-second delay), fix `/class` not working during countdown, add confirmation for class change
 
