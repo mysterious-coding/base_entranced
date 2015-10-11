@@ -2811,8 +2811,25 @@ void SP_func_breakable(gentity_t *self)
 {
 	int t;
 	char *s = NULL;
+	vmCvar_t mapname;
 
 	G_SpawnString("playfx", "", &s);
+
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	//it's hackkkkkkin time
+	if (!Q_stricmp(mapname.string, "mp/siege_hoth") && !Q_stricmp(self->healingclass, "Rebel Tech"))
+	{
+		self->healingteam = 2;
+	}
+	if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(self->healingclass, "Rebel Smuggler"))
+	{
+		self->healingteam = 2;
+	}
+	if (!Q_stricmp(mapname.string, "siege_narshaddaa") && !Q_stricmp(self->healingclass, "Merc Technical Specialist"))
+	{
+		self->healingteam = 2;
+	}
 
 	if (s && s[0])
 	{ //should we play a special death effect?

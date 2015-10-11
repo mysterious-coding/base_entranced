@@ -1651,7 +1651,6 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
 			short i1 = bgSiegeClasses[ent->client->siegeClass].playerClass;
 			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(target->healingclass)].playerClass;
-			trap_SendServerCommand(-1, va("print \"Debug: your team == %i   healingteam == %i\n\"", ent->client->sess.sessionTeam, target->healingteam));
 			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
 			{
 				return qfalse;
@@ -1671,7 +1670,6 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
 			short i1 = bgSiegeClasses[ent->client->siegeClass].playerClass;
 			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(target->healingclass)].playerClass;
-			trap_SendServerCommand(-1, va("print \"Debug: your team == %i   healingteam == %i\n\"", ent->client->sess.sessionTeam, target->healingteam));
 			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
 			{
 				return qfalse;
@@ -1688,7 +1686,6 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 		}
 		else if (!Q_stricmp(scl->name, target->healingclass))
 		{ //this thing can be healed by the class this player is using
-			trap_SendServerCommand(-1, va("print \"Debug: your team == %i   healingteam == %i\n\"", ent->client->sess.sessionTeam, target->healingteam));
 			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
 			{
 				return qfalse;
