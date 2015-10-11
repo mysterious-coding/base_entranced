@@ -602,7 +602,14 @@ void InitSiegeMode(void)
 	{
 		if (BG_SiegeGetPairedValue(gParseObjectives, "UseTeam", goalreq))
 		{
-			BG_SiegeSetTeamTheme(SIEGETEAM_TEAM1, goalreq);
+			if (g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
+			{
+				BG_SiegeSetTeamTheme(SIEGETEAM_TEAM1, g_redTeam.string, goalreq);
+			}
+			else
+			{
+				BG_SiegeSetTeamTheme(SIEGETEAM_TEAM1, goalreq, goalreq);
+			}
 		}
 
 		//Now count up the objectives for this team.
@@ -619,7 +626,14 @@ void InitSiegeMode(void)
 	{
 		if (BG_SiegeGetPairedValue(gParseObjectives, "UseTeam", goalreq))
 		{
-			BG_SiegeSetTeamTheme(SIEGETEAM_TEAM2, goalreq);
+			if (g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
+			{
+				BG_SiegeSetTeamTheme(SIEGETEAM_TEAM2, g_blueTeam.string, goalreq);
+			}
+			else
+			{
+				BG_SiegeSetTeamTheme(SIEGETEAM_TEAM2, goalreq, goalreq);
+			}
 		}
 
 		//Now count up the objectives for this team.

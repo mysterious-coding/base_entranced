@@ -262,6 +262,9 @@ vmCvar_t		g_spskill;
 vmCvar_t		g_siegeTeam1;
 vmCvar_t		g_siegeTeam2;
 
+vmCvar_t		g_redTeam;
+vmCvar_t		g_blueTeam;
+
 vmCvar_t	g_austrian;
 
 /*
@@ -572,6 +575,9 @@ static cvarTable_t		gameCvarTable[] = {
 	//for overriding the level defaults
 	{ &g_siegeTeam1, "g_siegeTeam1", "none", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
 	{ &g_siegeTeam2, "g_siegeTeam2", "none", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
+
+	{ &g_redTeam, "g_redTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_blueTeam, "g_blueTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 
 	//mainly for debugging with bots while I'm not around (want the server to
 	//cycle through levels naturally)

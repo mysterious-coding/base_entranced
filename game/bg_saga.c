@@ -1556,11 +1556,10 @@ siegeTeam_t *BG_SiegeFindTeamForTheme(char *themeName)
 
 		i++;
 	}
-
 	return NULL;
 }
 
-void BG_SiegeSetTeamTheme(int team, char *themeName)
+void BG_SiegeSetTeamTheme(int team, char *themeName, char *backup)
 {
 	siegeTeam_t **teamPtr = NULL;
 
@@ -1572,8 +1571,14 @@ void BG_SiegeSetTeamTheme(int team, char *themeName)
 	{
 		teamPtr = &team2Theme;
 	}
-
-	(*teamPtr) = BG_SiegeFindTeamForTheme(themeName);
+	if (!BG_SiegeFindTeamForTheme(themeName))
+	{
+		(*teamPtr) = BG_SiegeFindTeamForTheme(backup);
+	}
+	else
+	{
+		(*teamPtr) = BG_SiegeFindTeamForTheme(themeName);
+	}
 }
 
 int BG_SiegeFindClassIndexByName(const char *classname)

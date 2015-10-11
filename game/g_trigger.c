@@ -156,8 +156,23 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		{ //no class
 			return;
 		}
-
-		if (!G_NameInTriggerClassList(bgSiegeClasses[activator->client->siegeClass].name, ent->idealclass))
+		if (activator->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
+		{
+			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+			short i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
+			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(ent->idealclass)].playerClass;
+			if (i1 != i2)
+				return;
+		}
+		else if (activator->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
+		{
+			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+			short i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
+			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(ent->idealclass)].playerClass;
+			if (i1 != i2)
+				return;
+		}
+		else if (!G_NameInTriggerClassList(bgSiegeClasses[activator->client->siegeClass].name, ent->idealclass))
 		{ //wasn't in the list
 			return;
 		}
@@ -435,7 +450,25 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 					return;
 				}
 
-				if (!G_NameInTriggerClassList(bgSiegeClasses[other->client->siegeClass].name, self->idealclass))
+				if (other->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
+				{
+					//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+					short i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+					short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
+					if (i1 != i2)
+					if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
+						return;
+				}
+				else if (other->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
+				{
+					//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+					short i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+					short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
+					if (i1 != i2)
+					if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
+						return;
+				}
+				else if (!G_NameInTriggerClassList(bgSiegeClasses[other->client->siegeClass].name, self->idealclass))
 				{ //wasn't in the list
 					return;
 				}

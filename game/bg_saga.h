@@ -118,7 +118,7 @@ void BG_PrecacheSabersForSiegeTeam(int team);
 siegeClass_t *BG_SiegeFindClassByName(const char *classname);
 siegeClass_t *BG_SiegeGetClass(int team, int classNumber);
 qboolean BG_SiegeCheckClassLegality(int team, char *classname);
-void BG_SiegeSetTeamTheme(int team, char *themeName);
+void BG_SiegeSetTeamTheme(int team, char *themeName, char *backup);
 int BG_SiegeFindClassIndexByName(const char *classname);
 
 extern char	siege_info[MAX_SIEGE_INFO_SIZE];
