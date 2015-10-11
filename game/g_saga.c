@@ -417,6 +417,15 @@ void InitSiegeMode(void)
 		goto failure;
 	}
 
+	if (!Q_stricmp(g_redTeam.string, "0"))
+	{
+		trap_Cvar_Set("g_redTeam", "none");
+	}
+	if (!Q_stricmp(g_blueTeam.string, "0"))
+	{
+		trap_Cvar_Set("g_blueTeam", "none");
+	}
+
 	//reset
 	SiegeSetCompleteData(0);
 

@@ -1396,6 +1396,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *client_ent, gentity_t *ent )
 	newent->healingclass = ent->healingclass;
 	newent->healingsound = ent->healingsound;
 	newent->healingrate = ent->healingrate;
+	newent->healingteam = ent->healingteam;
 	newent->model2 = ent->model2;//for droidNPC
 	VectorCopy(ent->s.origin, newent->s.origin);
 	VectorCopy(ent->s.origin, newent->client->ps.origin);

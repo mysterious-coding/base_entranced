@@ -61,6 +61,7 @@ BG_field_t fields[] = {
 	{"healingclass", FOFS(healingclass), F_LSTRING},
 	{"healingsound", FOFS(healingsound), F_LSTRING},
 	{"healingrate", FOFS(healingrate), F_INT},
+	{"healingteam", FOFS(healingteam), F_INT },
 	{"ownername", FOFS(ownername), F_LSTRING},
 	{"origin", FOFS(s.origin), F_VECTOR},
 	{"model", FOFS(model), F_LSTRING},

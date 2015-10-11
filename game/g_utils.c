@@ -1591,6 +1591,54 @@ int G_CanUseDispOn(gentity_t *ent, int dispType)
 	return 0;
 }
 
+void HealSomething(gentity_t *ent, gentity_t *target)
+{
+	if (target->healingDebounce < level.time)
+	{ //do the actual heal
+		target->health += 10;
+		if (target->health > target->maxHealth)
+		{ //don't go too high
+			target->health = target->maxHealth;
+		}
+		target->healingDebounce = level.time + target->healingrate;
+		if (target->healingsound && target->healingsound[0])
+		{ //play it
+			if (target->s.solid == SOLID_BMODEL)
+			{ //ok, well, just play it on the client then.
+				G_Sound(ent, CHAN_AUTO, G_SoundIndex(target->healingsound));
+			}
+			else
+			{
+				G_Sound(target, CHAN_AUTO, G_SoundIndex(target->healingsound));
+			}
+		}
+
+		//update net health for bar
+		G_ScaleNetHealth(target);
+		if (target->target_ent &&
+			target->target_ent->maxHealth)
+		{
+			target->target_ent->health = target->health;
+			G_ScaleNetHealth(target->target_ent);
+		}
+		if (target->client)
+		{
+			target->client->ps.stats[STAT_HEALTH] = target->health;
+		}
+	}
+
+	//keep them in the healing anim even when the healing debounce is not yet expired
+	if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
+		ent->client->ps.torsoAnim == BOTH_CONSOLE1)
+	{ //extend the time
+		ent->client->ps.torsoTimer = 500;
+	}
+	else
+	{
+		G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+	}
+}
+
 qboolean TryHeal(gentity_t *ent, gentity_t *target)
 {
 	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 &&
@@ -1598,54 +1646,54 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 		target->healingclass[0] && target->health > 0 && target->health < target->maxHealth)
 	{ //it's not dead yet...
 		siegeClass_t *scl = &bgSiegeClasses[ent->client->siegeClass];
-
-		if (!Q_stricmp(scl->name, target->healingclass))
-		{ //this thing can be healed by the class this player is using
-			if (target->healingDebounce < level.time)
-			{ //do the actual heal
-				target->health += 10;
-				if (target->health > target->maxHealth)
-				{ //don't go too high
-					target->health = target->maxHealth;
-				}
-				target->healingDebounce = level.time + target->healingrate;
-				if (target->healingsound && target->healingsound[0])
-				{ //play it
-					if (target->s.solid == SOLID_BMODEL)
-					{ //ok, well, just play it on the client then.
-						G_Sound(ent, CHAN_AUTO, G_SoundIndex(target->healingsound));
-					}
-					else
-					{
-						G_Sound(target, CHAN_AUTO, G_SoundIndex(target->healingsound));
-					}
-				}
-
-				//update net health for bar
-				G_ScaleNetHealth(target);
-				if (target->target_ent &&
-					target->target_ent->maxHealth)
-				{
-					target->target_ent->health = target->health;
-					G_ScaleNetHealth(target->target_ent);
-				}
-				if (target->client)
-				{
-					target->client->ps.stats[STAT_HEALTH] = target->health;
-				}
+		if (ent->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
+		{
+			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+			short i1 = bgSiegeClasses[ent->client->siegeClass].playerClass;
+			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(target->healingclass)].playerClass;
+			trap_SendServerCommand(-1, va("print \"Debug: your team == %i   healingteam == %i\n\"", ent->client->sess.sessionTeam, target->healingteam));
+			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
+			{
+				return qfalse;
 			}
-
-			//keep them in the healing anim even when the healing debounce is not yet expired
-			if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
-				ent->client->ps.torsoAnim == BOTH_CONSOLE1)
-			{ //extend the time
-				ent->client->ps.torsoTimer = 500;
+			if (i1 == i2)
+			{
+				HealSomething(ent, target);
+				return qtrue;
 			}
 			else
 			{
-				G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+				return qfalse;
 			}
-
+		}
+		else if (ent->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
+		{
+			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
+			short i1 = bgSiegeClasses[ent->client->siegeClass].playerClass;
+			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(target->healingclass)].playerClass;
+			trap_SendServerCommand(-1, va("print \"Debug: your team == %i   healingteam == %i\n\"", ent->client->sess.sessionTeam, target->healingteam));
+			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
+			{
+				return qfalse;
+			}
+			if (i1 == i2)
+			{
+				HealSomething(ent, target);
+				return qtrue;
+			}
+			else
+			{
+				return qfalse;
+			}
+		}
+		else if (!Q_stricmp(scl->name, target->healingclass))
+		{ //this thing can be healed by the class this player is using
+			trap_SendServerCommand(-1, va("print \"Debug: your team == %i   healingteam == %i\n\"", ent->client->sess.sessionTeam, target->healingteam));
+			if (target->healingteam && ent->client->sess.sessionTeam != target->healingteam)
+			{
+				return qfalse;
+			}
+			HealSomething(ent, target);
 			return qtrue;
 		}
 	}

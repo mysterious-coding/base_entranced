@@ -2623,7 +2623,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Custom teams is disabled.\n\"");
 			return;
 		}
-		if (trap_Argc() != 2) {
+		if (trap_Argc() != 3) {
 			trap_SendServerCommand(ent - g_entities, va("print \"usage: g_redTeam <teamName> (e.g. 'g_redTeam Siege3_Jedi')\n\""));
 			trap_SendServerCommand(ent - g_entities, va("print \"Use 'g_redTeam 0' or 'g_redTeam none' to reset classes.\n\""));
 			return;
@@ -2645,7 +2645,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Custom teams is disabled.\n\"");
 			return;
 		}
-		if (trap_Argc() != 2) {
+		if (trap_Argc() != 3) {
 			trap_SendServerCommand(ent - g_entities, va("print \"usage: g_blueTeam <teamName> (e.g. 'g_blueTeam Siege3_DarkJedi')\n\""));
 			trap_SendServerCommand(ent - g_entities, va("print \"Use 'g_blueTeam 0' or 'g_blueTeam none' to reset classes.\n\""));
 			return;
@@ -3858,8 +3858,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_fixSiegeScoring.integer, ent);
 	Com_sprintf(string, 64, "g_floatingItems");
 	ServerCfgColor(string, g_floatingItems.integer, ent);
-	Com_sprintf(string, 64, "g_forceHothDTechItems");
-	ServerCfgColor(string, g_forceHothDTechItems.integer, ent);
+	Com_sprintf(string, 64, "g_forceDTechItems");
+	ServerCfgColor(string, g_forceDTechItems.integer, ent);
 	Com_sprintf(string, 64, "g_gripRefresh");
 	ServerCfgColor(string, g_gripRefresh.integer, ent);
 	Com_sprintf(string, 64, "g_hideSpecLocation");
