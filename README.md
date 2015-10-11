@@ -295,7 +295,6 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug where `nextmap` would change anyway when a gametype vote failed.
 * Fixed base_enhanced ammo code causing rocket classes not to be able to obtain >10 rockets from ammo canisters.
 * Removed Sil's frametime code fixes, which caused knockback launches to have high height and low distance.
-* Grip refresh rate is increased from 3.33Hz to 20Hz; should make grip3 feel less laggy.
 * Fixed polls getting cut-off after the first word if you didn't use quotation marks. Also announce poll text for people without a compatible client mod.
 * Fixed a bug in Sil's ammo code where ammo_power_converters didn't check for custom maximum amounts (different thing from ammo_floor_units)
 * Fixed a bug in Sil's ammo code where direct-contact +use ammo dispensing didn't check for custom maximum amounts
