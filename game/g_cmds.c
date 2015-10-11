@@ -2353,7 +2353,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
 			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, "
-			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>.\n\"" );
+			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam\n\"" );
 		return;
 	}
 
@@ -2623,6 +2623,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Custom teams is disabled.\n\"");
 			return;
 		}
+		if (trap_Argc() != 2) {
+			trap_SendServerCommand(ent - g_entities, va("print \"usage: g_redTeam <teamName> (e.g. 'g_redTeam Siege3_Jedi')\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"Use 'g_redTeam 0' or 'g_redTeam none' to reset classes.\n\""));
+			return;
+		}
 		if (!Q_stricmp(arg2, "none") || !Q_stricmp(arg2, "0")) //reset the classes
 		{
 			Com_sprintf(level.voteString, sizeof(level.voteString), "g_redTeam none");
@@ -2638,6 +2643,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	{
 		if (!g_allow_vote_customTeams.integer) {
 			trap_SendServerCommand(ent - g_entities, "print \"Custom teams is disabled.\n\"");
+			return;
+		}
+		if (trap_Argc() != 2) {
+			trap_SendServerCommand(ent - g_entities, va("print \"usage: g_blueTeam <teamName> (e.g. 'g_blueTeam Siege3_DarkJedi')\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"Use 'g_blueTeam 0' or 'g_blueTeam none' to reset classes.\n\""));
 			return;
 		}
 		if (!Q_stricmp(arg2, "none") || !Q_stricmp(arg2, "0")) //reset the classes
