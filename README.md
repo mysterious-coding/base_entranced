@@ -69,7 +69,7 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 ####`/g_fixGripKills`
 0 = normal selfkilling while gripped (default JK3)
 
-1 = selfkilling while gripped counts as a kill for the gripper
+1 = selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill.
 
 ####`/g_gripRefresh`
 300 = default JK3 grip refresh (your velocity is updated every 300ms while being gripped, which equals 3.33Hz refresh rate)
