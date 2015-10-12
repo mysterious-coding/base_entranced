@@ -3708,27 +3708,6 @@ void CheckVote( void ) {
 
 		if (level.votingGametype)
 		{
-			/*if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
-			{ //If we're voting to a different game type, be sure to refresh all the map stuff
-                const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
-
-				if (level.votingGametypeTo == GT_SIEGE)
-				{ //ok, kick all the bots, cause the aren't supported!
-                    G_KickAllBots();
-					//just in case, set this to 0 too... I guess...maybe?
-					//trap_Cvar_Set("bot_minplayers", "0");
-				}
-
-				if (nextMap && nextMap[0])
-				{
-					trap_SendConsoleCommand( EXEC_APPEND, va("map %s\n", nextMap ) );
-				}
-			}
-			else
-			{ //otherwise, just leave the map until a restart
-				G_RefreshNextMap(level.votingGametypeTo, qfalse);
-			}*/
-
 			if (g_fraglimitVoteCorrection.integer)
 			{ //This means to auto-correct fraglimit when voting to and from duel.
 				const int currentGT = trap_Cvar_VariableIntegerValue("g_gametype");
