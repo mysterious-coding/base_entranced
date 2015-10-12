@@ -290,14 +290,14 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed seekers attacking walkers and fighters.
 * Fixed sentries attacking rancors, wampas, walkers, and fighters.
 * Fixed bug with `nextmap` failed vote causing siege to reset to round 1 anyway.
-* Fixed bug with sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
+* Fixed bug with Sil's ctf flag code causing weird lift behavior(people not getting crushed, thermals causing lifts to reverse, etc)
 * Fixed bug where round 2 timer wouldn't function properly on maps with `roundover_target` missing from the .siege file.
 * Fixed bug where `nextmap` would change anyway when a gametype vote failed.
 * Fixed base_enhanced ammo code causing rocket classes not to be able to obtain >10 rockets from ammo canisters.
 * Removed Sil's frametime code fixes, which caused knockback launches to have high height and low distance.
 * Fixed polls getting cut-off after the first word if you didn't use quotation marks. Also announce poll text for people without a compatible client mod.
-* Fixed a bug in Sil's ammo code where ammo_power_converters didn't check for custom maximum amounts (different thing from ammo_floor_units)
-* Fixed a bug in Sil's ammo code where direct-contact +use ammo dispensing didn't check for custom maximum amounts
+* Fixed a bug in Sil's ammo code where `ammo_power_converter`s didn't check for custom maximum amounts (different thing from `ammo_floor_unit`s)
+* Fixed a bug in Sil's ammo code where direct-contact `+use` ammo-dispensing didn't check for custom maximum amounts
 * Fixed a bug where some people couldn't see spectator chat, caused by the countdown teamchat bugfix.
 * Fixed bug with `/class` command not working during countdown.
 * Added confirmation messages to the `/class` command
@@ -354,7 +354,7 @@ No longer need two players to start running around ingame in siege mode.
 Log detailed user info, rcon commands, and crash attempts. Use `g_hacklog <filename>`, `g_logclientinfo 1`, and `g_logrcon 1`.
 
 ####Awards/medals support
-Humiliation, impressive, etc. if you use the clientside mod SMod.
+Humiliation, impressive, etc. if you use the clientside mod SMod and have `cg_drawRewards 1` enabled in your client game.
 
 ####`/cointoss`
 Call `/cointoss` vote for random heads/tails result.
