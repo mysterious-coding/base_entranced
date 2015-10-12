@@ -773,8 +773,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		qboolean teamChanged = qfalse;
-		if (client->tempSpectate >= level.time &&
-			team == TEAM_SPECTATOR)
+		if (ent->health <= 0 ||  (client->tempSpectate >= level.time &&
+			team == TEAM_SPECTATOR))
 		{ //sorry, can't do that.
 			return;
 		}
