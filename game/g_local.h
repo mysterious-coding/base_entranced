@@ -1873,7 +1873,8 @@ extern vmCvar_t    g_fixRancorCharge;
 extern vmCvar_t    g_ammoCanisterSound;
 extern vmCvar_t    g_autoKorribanFloatingItems;
 extern vmCvar_t    g_gripRefresh;
-extern vmCvar_t		g_forceDTechItems;
+extern vmCvar_t    g_forceDTechItems;
+extern vmCvar_t    g_specAfterDeath;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;

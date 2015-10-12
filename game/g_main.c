@@ -166,6 +166,7 @@ vmCvar_t    g_ammoCanisterSound;
 vmCvar_t    g_autoKorribanFloatingItems;
 vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
+vmCvar_t	g_specAfterDeath;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -668,6 +669,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_gripRefresh, "g_gripRefresh", "300", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_forceDTechItems, "g_forceDTechItems", "7", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },

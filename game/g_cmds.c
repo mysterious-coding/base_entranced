@@ -773,7 +773,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		qboolean teamChanged = qfalse;
-		if (ent->health <= 0 ||  (client->tempSpectate >= level.time &&
+		if ((ent->health <= 0 && !g_specAfterDeath.integer) ||  (client->tempSpectate >= level.time &&
 			team == TEAM_SPECTATOR))
 		{ //sorry, can't do that.
 			return;
@@ -3882,6 +3882,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_sexyDisruptor.integer, ent);
 	Com_sprintf(string, 64, "g_selfkillPenalty");
 	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
+	Com_sprintf(string, 64, "g_specAfterDeath");
+	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 
