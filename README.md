@@ -114,6 +114,10 @@ To reset to base classes, use `0` or `none` as the argument.
 
 This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable this vote with `/g_allow_vote_customTeams`.
 
+Two important clientside bugs to be aware of:
+* If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use /team r or /team b (easiest method), autojoin, or use a CFG classbind.
+* Ravensoft decided to combine force powers and items into one menu/cycle in JK3; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korri classes on Hoth and want to place a shield as D tesh, you need to use a /use_field bind.
+
 ####`/g_forceDTechItems`
 This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban. This cvar is only used when custom teams are in use, and does not affect any classes that already have demp/shield.
 
