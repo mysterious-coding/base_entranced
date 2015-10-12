@@ -2201,6 +2201,35 @@ int G_ClientNumberFromStrippedName ( const char* name )
 //
 //}
 
+qboolean TryingToDoCallvoteTakeover(gentity_t *ent)
+{
+	int i = 0;
+	int numEligible = 0;
+	int numTotal = 0;
+
+	for (i = 0; i < level.maxclients; i++)
+	{
+		if (level.clients[i].pers.connected != CON_DISCONNECTED && !(g_entities[i].r.svFlags & SVF_BOT)) //connected player who is not a bot
+		{
+			if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL || level.clients[i].sess.sessionTeam != TEAM_SPECTATOR)
+			{
+				numEligible++;
+				numTotal++;
+			}
+			else
+			{
+				numTotal++;
+			}
+		}
+	}
+	if (numTotal >= 6 && (double)numEligible / numTotal < 0.5)
+	{
+		return qtrue;
+	}
+	return qfalse;
+
+}
+
 void fixVoters(){
 	int i;
 
@@ -2390,6 +2419,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			return;
+		}
+
 		level.votingGametype = qtrue;
 		level.votingGametypeTo = i;
 
@@ -2414,6 +2449,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		if (result)
 		{
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", result) );
+			return;
+		}
+
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
 			return;
 		}
 
@@ -2460,6 +2501,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
             trap_SendServerCommand( ent - g_entities, "print \"Pool not found.\n\"" );
             return;
         }
+
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			return;
+		}
         
         Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Random Map: %s", poolInfo.long_name );
         Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
@@ -2495,16 +2542,22 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		if ( n < 0 || n >= MAX_CLIENTS )
 		{
-			trap_SendServerCommand( ent-g_entities, va("print \"invalid client number %d.\n\"", n ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"Invalid client number %d.\n\"", n ) );
 			return;
 		}
 
 		if ( g_entities[n].client->pers.connected == CON_DISCONNECTED )
 		{
-			trap_SendServerCommand( ent-g_entities, va("print \"there is no client with the client number %d.\n\"", n ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"There is no client with the client number %d.\n\"", n ) );
 			return;
 		}
 			
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			return;
+		}
+
 		Com_sprintf ( level.voteString, sizeof(level.voteString ), "%s %i", arg1, n );
 		Com_sprintf ( level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", g_entities[n].client->pers.netname );
 	}
@@ -2635,6 +2688,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		else
 		{
+			if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+				return;
+			}
 			Com_sprintf(level.voteString, sizeof(level.voteString), "g_redTeam %s", arg2);
 			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Custom ^1Red^7 Team Classes: %s", arg2);
 		}
@@ -2657,6 +2715,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		else
 		{
+			if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+				return;
+			}
 			Com_sprintf(level.voteString, sizeof(level.voteString), "g_blueTeam %s", arg2);
 			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Custom ^4Blue^7 Team Classes: %s", arg2);
 		}
@@ -2754,6 +2817,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Pug vote is disabled.\n\"");
 			return;
 		}
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			return;
+		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "exec pug.cfg", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Pug Server Mode");
 
@@ -2763,6 +2831,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		//disable this vote
 		if (!g_allow_vote_pub.integer) {
 			trap_SendServerCommand(ent - g_entities, "print \"Pub vote is disabled.\n\"");
+			return;
+		}
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
 			return;
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "exec pub.cfg", arg1);
@@ -3834,6 +3907,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_vote_warmup.integer, ent);
 	Com_sprintf(string, 64, "g_ammoCanisterSound");
 	ServerCfgColor(string, g_ammoCanisterSound.integer, ent);
+	Com_sprintf(string, 64, "g_antiCallvoteTakeover");
+	ServerCfgColor(string, g_antiCallvoteTakeover.integer, ent);
 	Com_sprintf(string, 64, "g_antiHothHangarLiftLame");
 	ServerCfgColor(string, g_antiHothHangarLiftLame.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanFloatingItems");
