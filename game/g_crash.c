@@ -302,7 +302,7 @@ LONG Win_Handler(LPEXCEPTION_POINTERS p)
 	CrashLogFile = fopen(CrashLogFileName,"w");
 	
 	fprintf(CrashLogFile, "===================================\n");
-	fprintf(CrashLogFile, "    JKA base_enhanced Crash Log       \n");
+	fprintf(CrashLogFile, "    JKA base_entranced Crash Log       \n");
 	fprintf(CrashLogFile, "===================================\n");
 	fprintf(CrashLogFile, "Process File Name: %s\n", ProcessName	);
 	fprintf(CrashLogFile, "Module File Name: %s\n", ModuleName	);
@@ -431,7 +431,7 @@ void Linux_Handler (int signo, siginfo_t * siginfo, void *context)
 	CrashLogFile = fopen(CrashLogFileName,"w");
 
 	fprintf(CrashLogFile, "===================================\n");
-	fprintf(CrashLogFile, "    JKA base_enhanced Crash Log       \n");
+	fprintf(CrashLogFile, "    JKA base_entranced Crash Log       \n");
 	fprintf(CrashLogFile, "===================================\n");
 	fprintf(CrashLogFile, "Process File Name: %s\n", __progname	);
 	fprintf(CrashLogFile, "Process ID: %d\n", getpid()	);
