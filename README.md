@@ -155,11 +155,11 @@ This cvar helps custom team/class overrides by adding some extra weapons/items t
 
 4 = all DTechs get demp only
 
-5 = all DTechs get shield only
+5 = all DTechs get shield only (default setting)
 
 6 = all DTechs get demp and shield
 
-7 = all DTechs get shield; only Hoth DTech gets demp also (default setting)
+7 = all DTechs get shield; only Hoth DTech gets demp also
 
 ####Weapon spawn preference
 Clients can decide their own preference of which weapon they would like to be holding when they spawn. To define your own preference list, type into your client JA: `/setu prefer <15 letters>`
