@@ -168,7 +168,7 @@ vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
 vmCvar_t	g_specAfterDeath;
 vmCvar_t    g_antiHothHangarLiftLame;
-vmCvar_t    g_moreCustomTeamVotes;
+vmCvar_t    g_requireMoreCustomTeamVotes;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -673,7 +673,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "3", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_moreCustomTeamVotes, "g_moreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
@@ -3685,7 +3685,7 @@ extern void SiegeClearSwitchData(void);
 
 qboolean IsVoteForCustomClasses(char *string)
 {
-	if (!g_moreCustomTeamVotes.integer) //only do all this crap if this integer is non-zero
+	if (!g_requireMoreCustomTeamVotes.integer) //only do all this crap if this integer is non-zero
 	{
 		return qfalse;
 	}
