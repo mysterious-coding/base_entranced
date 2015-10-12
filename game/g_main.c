@@ -3917,7 +3917,7 @@ void CheckVote( void ) {
 				G_GetStringEdString("MP_SVGAME", "VOTEPASSED")));
 
 			// log the vote
-			G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i) - 75% yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+			G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
 			level.voteExecuteTime = level.time + 3000;
 		}
 		else if (!IsVoteForCustomClasses(level.voteString) && level.voteNo >= (level.numVotingClients+1)/2)
@@ -3936,7 +3936,7 @@ void CheckVote( void ) {
 				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
 
 			// log the vote
-			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i) - 75% yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
 		}
 		else
 		{
