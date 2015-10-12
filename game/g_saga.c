@@ -1852,7 +1852,7 @@ void SiegeItemThink(gentity_t *ent)
 		}
 	}
 
-	if (ent->genericValue9 && ent->genericValue9 < level.time)
+	if (ent->genericValue9 && ent->genericValue9 < level.time && ent->genericValue9 != -1)
 	{ //time to respawn on the original spot then
 		SiegeItemRespawnEffect(ent, ent->pos1);
 		G_SetOrigin(ent, ent->pos1);
