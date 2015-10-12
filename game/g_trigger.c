@@ -3,6 +3,8 @@
 #include "g_local.h"
 #include "bg_saga.h"
 
+#define LIFT_LAME_DETECTION_DISTANCE 1200
+
 int gTrigFallSound;
 
 int hangarHackTime = 0;
@@ -414,6 +416,54 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qfalse && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmp(mapname.string, "mp/siege_hoth") && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer == 2)
+	{
+		gentity_t	*entity_list[MAX_GENTITIES], *liftLameTarget;
+		vec3_t		liftOrigin;
+		int			liftLameTargetsCount, i;
+		qboolean	iAmALiftLamer = qfalse;
+
+		VectorCopy(other->client->ps.origin, liftOrigin);
+		liftLameTargetsCount = G_RadiusList(liftOrigin, LIFT_LAME_DETECTION_DISTANCE, self, qtrue, entity_list);
+
+		for (i = 0; i < liftLameTargetsCount; i++)
+		{
+			liftLameTarget = entity_list[i];
+
+			if (!liftLameTarget->client)
+			{
+				continue;
+			}
+			if (liftLameTarget == self || !liftLameTarget->takedamage || liftLameTarget->health <= 0 || (liftLameTarget->flags & FL_NOTARGET))
+			{
+				continue;
+			}
+			if (liftLameTarget->client->sess.sessionTeam && liftLameTarget->client->sess.sessionTeam != TEAM_RED)
+			{
+				continue;
+			}
+
+			if (liftLameTarget->s.eType == ET_NPC &&
+				(liftLameTarget->s.NPC_class == CLASS_VEHICLE || liftLameTarget->s.NPC_class == CLASS_RANCOR || liftLameTarget->s.NPC_class == CLASS_WAMPA))
+			{ //don't get mad at vehicles, rancors, or wampas, silly.
+				continue;
+			}
+
+			if (liftLameTarget->client && liftLameTarget->client->ps.m_iVehicleNum && ((&g_entities[liftLameTarget->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[liftLameTarget->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+			{
+				continue; //don't target people who are piloting walkers or fighters
+			}
+			iAmALiftLamer = qtrue;
+		}
+
+		if (iAmALiftLamer == qtrue)
+		{
+			return;
+		}
+	}
+
 	if ( self->spawnflags & 2 )
 	{//FACING
 		vec3_t	forward;
@@ -503,8 +553,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				return;
 			}
 		}
-		vmCvar_t	mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 		if (!Q_stricmp(self->target,"hangarplatbig1") && !Q_stricmp(mapname.string, "mp/siege_hoth") && g_antiHothHangarLiftLame.integer &&
 			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && level.hangarCompleted == qfalse)
 		{
