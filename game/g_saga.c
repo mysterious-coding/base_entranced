@@ -426,6 +426,8 @@ void InitSiegeMode(void)
 		trap_Cvar_Set("g_blueTeam", "none");
 	}
 
+	level.hangarCompleted = qfalse;
+
 	//reset
 	SiegeSetCompleteData(0);
 
@@ -1386,6 +1388,14 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 	int goals_completed, goals_required;
 
 	SiegeUpdateObjTime(objective, qfalse); //we just completed an obj, so let's write down the time it took for this obj
+
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (objective == 5 && !Q_stricmp(mapname.string, "mp/siege_hoth"))
+	{
+		level.hangarCompleted = qtrue;
+	}
 
 	if (gSiegeRoundEnded)
 	{

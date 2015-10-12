@@ -5,6 +5,8 @@
 
 int gTrigFallSound;
 
+int hangarHackTime = 0;
+
 void InitTrigger( gentity_t *self ) {
 	if (!VectorCompare (self->s.angles, vec3_origin))
 		G_SetMovedir (self->s.angles, self->movedir);
@@ -495,6 +497,43 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			{ //finished with the hack, reset the hacking values and let it fall through
 				other->client->isHacking = 0; //can't hack a client
 				other->client->ps.hackingTime = 0;
+			}
+			else
+			{ //hack in progress
+				return;
+			}
+		}
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmp(self->target,"hangarplatbig1") && !Q_stricmp(mapname.string, "mp/siege_hoth") && g_antiHothHangarLiftLame.integer &&
+			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && level.hangarCompleted == qfalse)
+		{
+			if (hangarHackTime && (level.time - hangarHackTime < 2000))
+			{
+				return;
+			}
+			if (!G_PointInBounds(other->client->ps.origin, self->r.absmin, self->r.absmax))
+			{
+				return;
+			}
+			else if (other->client->isHacking != self->s.number && other->s.number < MAX_CLIENTS)
+			{ //start the hack
+				other->client->isHacking = self->s.number;
+				VectorCopy(other->client->ps.viewangles, other->client->hackingAngles);
+				other->client->ps.hackingTime = level.time + 2000;
+				other->client->ps.hackingBaseTime = 2000;
+				if (other->client->ps.hackingBaseTime > 60000)
+				{ //don't allow a bit overflow
+					other->client->ps.hackingTime = level.time + 60000;
+					other->client->ps.hackingBaseTime = 60000;
+				}
+				return;
+			}
+			else if (other->client->ps.hackingTime < level.time)
+			{ //finished with the hack, reset the hacking values and let it fall through
+				other->client->isHacking = 0; //can't hack a client
+				other->client->ps.hackingTime = 0;
+				hangarHackTime = level.time;
 			}
 			else
 			{ //hack in progress

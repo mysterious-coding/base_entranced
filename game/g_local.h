@@ -930,6 +930,8 @@ typedef struct {
 
 	qboolean	inSiegeCountdown;
 
+	qboolean	hangarCompleted;
+
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients
 	int			numPlayingClients;		// connected, non-spectators
@@ -1875,6 +1877,7 @@ extern vmCvar_t    g_autoKorribanFloatingItems;
 extern vmCvar_t    g_gripRefresh;
 extern vmCvar_t    g_forceDTechItems;
 extern vmCvar_t    g_specAfterDeath;
+extern vmCvar_t    g_antiHothHangarLiftLame;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
