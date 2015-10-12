@@ -683,7 +683,7 @@ SetTeam
 */
 qboolean g_dontPenalizeTeam = qfalse;
 qboolean g_preventTeamBegin = qfalse;
-void SetTeam( gentity_t *ent, char *s ) {
+void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	int					team, oldTeam;
 	gclient_t			*client;
 	int					clientNum;
@@ -773,8 +773,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		qboolean teamChanged = qfalse;
-		if ((ent->health <= 0 && !g_specAfterDeath.integer) ||  (client->tempSpectate >= level.time &&
-			team == TEAM_SPECTATOR))
+		if (forceteamed == qfalse && ((ent->health <= 0 && !g_specAfterDeath.integer) ||  (client->tempSpectate >= level.time &&
+			team == TEAM_SPECTATOR)))
 		{ //sorry, can't do that.
 			return;
 		}
@@ -1046,7 +1046,7 @@ void Cmd_Team_f( gentity_t *ent ) {
 	trap_Argv( 1, s, sizeof( s ) );
 
 	
-	SetTeam( ent, s );
+	SetTeam( ent, s , qfalse);
 
 	if (oldTeam != ent->client->sess.sessionTeam) // *CHANGE 16* team change actually happend
 		ent->client->switchTeamTime = level.time + 5000;
@@ -1199,11 +1199,11 @@ void SetSiegeClass(gentity_t *ent, char* className)
 		g_preventTeamBegin = qtrue;
 		if (team == TEAM_RED)
 		{
-			SetTeam(ent, "red");
+			SetTeam(ent, "red", qfalse);
 		}
 		else if (team == TEAM_BLUE)
 		{
-			SetTeam(ent, "blue");
+			SetTeam(ent, "blue", qfalse);
 		}
 		g_preventTeamBegin = qfalse;
 
@@ -1529,7 +1529,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 
 	// first set them to spectator
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		SetTeam( ent, "spectator" );
+		SetTeam( ent, "spectator" , qfalse);
 	}
 
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
@@ -1553,7 +1553,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	}
 	// first set them to spectator
 	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
-		SetTeam( ent, "spectator" );
+		SetTeam( ent, "spectator" , qfalse);
 	}
 
 	if ( dir != 1 && dir != -1 ) {
@@ -1599,7 +1599,7 @@ void Cmd_FollowFlag_f( gentity_t *ent )
 
 	// first set them to spectator
 	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
-		SetTeam( ent, "spectator" );
+		SetTeam( ent, "spectator" , qfalse);
 	}
 
 	clientnum = ent->client->sess.spectatorClient;

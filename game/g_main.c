@@ -1631,7 +1631,7 @@ void AddTournamentPlayer( void ) {
 	level.warmupTime = -1;
 
 	// set them to free-for-all team
-	SetTeam( &g_entities[ nextInLine - level.clients ], "f" );
+	SetTeam( &g_entities[ nextInLine - level.clients ], "f" , qfalse);
 }
 
 /*
@@ -1655,7 +1655,7 @@ void RemoveTournamentLoser( void ) {
 	}
 
 	// make them a spectator
-	SetTeam( &g_entities[ clientNum ], "s" );
+	SetTeam( &g_entities[ clientNum ], "s" , qfalse);
 }
 
 void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec)
@@ -1757,7 +1757,7 @@ void AddPowerDuelPlayers( void )
 	level.warmupTime = -1;
 
 	// set them to free-for-all team
-	SetTeam( &g_entities[ nextInLine - level.clients ], "f" );
+	SetTeam( &g_entities[ nextInLine - level.clients ], "f" , qfalse);
 
 	//Call recursively until everyone is in
 	AddPowerDuelPlayers();
@@ -1798,7 +1798,7 @@ void RemovePowerDuelLosers(void)
 	i = 0;
 	while (i < remNum)
 	{ //set them all to spectator
-		SetTeam( &g_entities[ remClients[i] ], "s" );
+		SetTeam( &g_entities[ remClients[i] ], "s" ,qfalse);
 		i++;
 	}
 
@@ -1841,11 +1841,11 @@ void RemoveDuelDrawLoser(void)
 
 	if (clFailure != 2)
 	{
-		SetTeam( &g_entities[ level.sortedClients[clFailure] ], "s" );
+		SetTeam( &g_entities[ level.sortedClients[clFailure] ], "s" ,qfalse);
 	}
 	else
 	{ //we could be more elegant about this, but oh well.
-		SetTeam( &g_entities[ level.sortedClients[1] ], "s" );
+		SetTeam( &g_entities[ level.sortedClients[1] ], "s" ,qfalse);
 	}
 }
 
@@ -1868,7 +1868,7 @@ void RemoveTournamentWinner( void ) {
 	}
 
 	// make them a spectator
-	SetTeam( &g_entities[ clientNum ], "s" );
+	SetTeam( &g_entities[ clientNum ], "s" ,qfalse);
 }
 
 /*
@@ -3423,7 +3423,7 @@ void G_RemoveDuelist(int team)
 		if (ent->inuse && ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
 			ent->client->sess.duelTeam == team)
 		{
-			SetTeam(ent, "s");
+			SetTeam(ent, "s",qfalse);
 		}
         i++;
 	}

@@ -2742,7 +2742,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	if (g_gametype.integer == GT_POWERDUEL && client->sess.sessionTeam != TEAM_SPECTATOR &&
 		client->sess.duelTeam == DUELTEAM_FREE)
 	{
-		SetTeam(ent, "s");
+		SetTeam(ent, "s", qfalse);
 	}
 	else
 	{
@@ -3619,7 +3619,7 @@ void ClientSpawn(gentity_t *ent) {
 				if ( WP_HasForcePowers( &client->ps ) && client->sess.sessionTeam != forceTeam )
 				{//using force but not on right team, switch him over
 					const char *teamName = TeamName( forceTeam );
-					SetTeam( ent, (char *)teamName );
+					SetTeam( ent, (char *)teamName , qfalse);
 					return;
 				}
 			}
