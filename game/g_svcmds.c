@@ -849,6 +849,14 @@ void	Svcmd_ForceTeam_f( void ) {
 		return;
 	}
 	trap_Argv( 2, str, sizeof( str ) );
+	if ((!Q_stricmp(str, "r") || !Q_stricmp(str, "red")) && (found->client->sess.sessionTeam == TEAM_RED || (g_gametype.integer == GT_SIEGE && found->client->sess.siegeDesiredTeam == TEAM_RED)))
+	{
+		return;
+	}
+	else if ((!Q_stricmp(str, "b") || !Q_stricmp(str, "blue")) && (found->client->sess.sessionTeam == TEAM_BLUE || (g_gametype.integer == GT_SIEGE && found->client->sess.siegeDesiredTeam == TEAM_BLUE)))
+	{
+		return;
+	}
 	SetTeam(found, str );
 	if (g_gametype.integer == GT_SIEGE)
 	{
