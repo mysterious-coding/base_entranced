@@ -1878,6 +1878,7 @@ extern vmCvar_t    g_gripRefresh;
 extern vmCvar_t    g_forceDTechItems;
 extern vmCvar_t    g_specAfterDeath;
 extern vmCvar_t    g_antiHothHangarLiftLame;
+extern vmCvar_t    g_moreCustomTeamVotes;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;

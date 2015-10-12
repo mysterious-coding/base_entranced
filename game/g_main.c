@@ -168,6 +168,7 @@ vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
 vmCvar_t	g_specAfterDeath;
 vmCvar_t    g_antiHothHangarLiftLame;
+vmCvar_t    g_moreCustomTeamVotes;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -672,6 +673,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "3", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_moreCustomTeamVotes, "g_moreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
@@ -3681,6 +3683,82 @@ CheckVote
 */
 extern void SiegeClearSwitchData(void);
 
+qboolean IsVoteForCustomClasses(char *string)
+{
+	if (!g_moreCustomTeamVotes.integer) //only do all this crap if this integer is non-zero
+	{
+		return qfalse;
+	}
+	if (!Q_stricmpn(string, "g_red", 5)) //custom red team vote
+	{
+		if (string[10] == 'n' && string[11] == 'o' && string[12] == 'n' && string[13] == 'e') //"none" argument
+		{
+			return qfalse;
+		}
+		else if (string[10] == '0') //"0" argument
+		{
+			return qfalse;
+		}
+		else
+		{
+			return qtrue;
+		}
+	}
+	else if (!Q_stricmpn(string, "g_blue", 6)) //custom blue team vote
+	{
+		if (string[11] == 'n' && string[12] == 'o' && string[13] == 'n' && string[14] == 'e') //"none" argument
+		{
+			return qfalse;
+		}
+		else if (string[11] == '0') //"0" argument
+		{
+			return qfalse;
+		}
+		else
+		{
+			return qtrue;
+		}
+	}
+	else
+	{
+		return qfalse;
+	}
+}
+
+int FindRequiredCustomTeamYesVoters(int numVotingClients)
+{
+	int i;
+	if (numVotingClients <= 3)
+	{
+		return numVotingClients;
+	}
+	for (i = 1; i <= numVotingClients; i++)
+	{
+		if ((double)i / numVotingClients >= 0.75) //vote will only pass if we get >=75% yes votes
+		{
+			return i;
+		}
+	}
+	return numVotingClients; //this should never happen
+}
+
+int FindRequiredCustomTeamNoVoters(int numVotingClients)
+{
+	int i;
+	if (numVotingClients <= 3)
+	{
+		return 1;
+	}
+	for (i = 1; i <= numVotingClients; i++)
+	{
+		if ((double)i / numVotingClients >= 0.75)
+		{
+			return (numVotingClients - i + 1); //vote fails if we get >25% no votes
+		}
+	}
+	return 1; //this should never happen
+}
+
 void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
 		level.voteExecuteTime = 0;
@@ -3795,7 +3873,8 @@ void CheckVote( void ) {
             }
         }
 
-		if ( level.voteYes > level.numVotingClients/2 ) {
+		if (!IsVoteForCustomClasses(level.voteString) && level.voteYes > level.numVotingClients/2)
+		{
 			trap_SendServerCommand( -1, va("print \"%s\n\"", 
 				G_GetStringEdString("MP_SVGAME", "VOTEPASSED")) );
 
@@ -3831,17 +3910,40 @@ void CheckVote( void ) {
 				}
 			}
 			level.voteExecuteTime = level.time + 3000;
-		} else if ( level.voteNo >= (level.numVotingClients+1)/2 ) {
+		}
+		else if (IsVoteForCustomClasses(level.voteString) && level.voteYes >= FindRequiredCustomTeamYesVoters(level.numVotingClients))
+		{
+			trap_SendServerCommand(-1, va("print \"%s\n\"",
+				G_GetStringEdString("MP_SVGAME", "VOTEPASSED")));
+
+			// log the vote
+			G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i) - 75% yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+			level.voteExecuteTime = level.time + 3000;
+		}
+		else if (!IsVoteForCustomClasses(level.voteString) && level.voteNo >= (level.numVotingClients+1)/2)
+		{
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, va("print \"%s\n\"", 
 				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")) );
 
 			// log the vote
 			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
-		} else {
+		}
+		else if (IsVoteForCustomClasses(level.voteString) && level.voteNo >= FindRequiredCustomTeamNoVoters(level.numVotingClients))
+		{
+			// same behavior as a timeout
+			trap_SendServerCommand(-1, va("print \"%s\n\"",
+				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
+
+			// log the vote
+			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i) - 75% yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+		}
+		else
+		{
 			// still waiting for a majority
 			return;
 		}
+
 	}
 	level.voteTime = 0;
 	g_entities[level.lastVotingClient].client->lastCallvoteTime = level.time;

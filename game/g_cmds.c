@@ -3876,6 +3876,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_moreTaunts.integer, ent);
 	Com_sprintf(string, 64, "g_nextmapWarning");
 	ServerCfgColor(string, g_nextmapWarning.integer, ent);
+	Com_sprintf(string, 64, "g_requireMoreCustomTeamVotes");
+	ServerCfgColor(string, g_requireMoreCustomTeamVotes.integer, ent);
 	Com_sprintf(string, 64, "g_rocketSurfing");
 	ServerCfgColor(string, g_rocketSurfing.integer, ent);
 	Com_sprintf(string, 64, "g_saberDamageScale");
