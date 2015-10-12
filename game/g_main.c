@@ -259,10 +259,6 @@ vmCvar_t		d_noIntermissionWait;
 
 vmCvar_t		g_spskill;
 
-
-vmCvar_t		g_siegeTeam1;
-vmCvar_t		g_siegeTeam2;
-
 vmCvar_t		g_redTeam;
 vmCvar_t		g_blueTeam;
 
@@ -573,10 +569,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &d_saberCombat, "d_saberCombat", "0", CVAR_CHEAT },
 
 	{ &g_spskill, "g_npcspskill", "0", CVAR_ARCHIVE | CVAR_INTERNAL },
-
-	//for overriding the level defaults
-	{ &g_siegeTeam1, "g_siegeTeam1", "none", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
-	{ &g_siegeTeam2, "g_siegeTeam2", "none", CVAR_ARCHIVE|CVAR_SERVERINFO, 0, qfalse  },
 
 	{ &g_redTeam, "g_redTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_blueTeam, "g_blueTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },

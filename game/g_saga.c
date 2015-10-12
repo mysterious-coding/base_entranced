@@ -495,23 +495,8 @@ void InitSiegeMode(void)
 
 	if (BG_SiegeGetValueGroup(siege_info, "Teams", teams))
 	{
-		if (g_siegeTeam1.string[0] && Q_stricmp(g_siegeTeam1.string, "none"))
-		{ //check for override
-			strcpy(team1, g_siegeTeam1.string);
-		}
-		else
-		{ //otherwise use level default
-			BG_SiegeGetPairedValue(teams, "team1", team1);
-		}
-
-		if (g_siegeTeam2.string[0] && Q_stricmp(g_siegeTeam2.string, "none"))
-		{ //check for override
-			strcpy(team2, g_siegeTeam2.string);
-		}
-		else
-		{ //otherwise use level default
-			BG_SiegeGetPairedValue(teams, "team2", team2);
-		}
+		BG_SiegeGetPairedValue(teams, "team1", team1);
+		BG_SiegeGetPairedValue(teams, "team2", team2);
 	}
 	else
 	{

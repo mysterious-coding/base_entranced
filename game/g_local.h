@@ -1794,9 +1794,6 @@ extern vmCvar_t		d_altRoutes;
 extern vmCvar_t		d_patched;
 extern	vmCvar_t	d_noIntermissionWait;
 
-extern	vmCvar_t	g_siegeTeam1;
-extern	vmCvar_t	g_siegeTeam2;
-
 extern vmCvar_t		g_redTeam;
 extern vmCvar_t     g_blueTeam;
 
