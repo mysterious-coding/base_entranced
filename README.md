@@ -81,6 +81,20 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 
 1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
 
+####`/g_antiCallvoteTakeover`
+0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
+
+1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least half of the server to be ingame. This prevents calling lame unpopular votes when most of the server is in spec unable to vote no.
+
+####`/g_antiHothHangarLiftLame`
+0 = normal behavior for Hoth hangar lift (default JK3)
+
+1 = defense tech uses a 2 second hack to call up the lift. Returns to normal behavior after the hangar objective is completed.
+
+2 = any player on defense is prevented from calling up the lift if any player on offense is nearby ("nearby" is defined as between the boxes in the middle of the hangar and the lift). Returns to normal behavior after the hangar objective is completed.
+
+3 = use both 1 and 2 methods.
+
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
 
@@ -92,6 +106,11 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 0 = dispensing ammo cans is oddly silent (default JK3)
 
 1 = dispensing an ammo can plays a small sound
+
+####`/g_specAfterDeath`
+0 = no going spec after death
+
+1 = you can join spectators in the brief moment after you die (default JK3)
 
 ####`/g_sexyDisruptor`
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
@@ -117,6 +136,11 @@ This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable 
 Two important clientside bugs to be aware of:
 * If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use `/team r` or `/team b` (easiest method), autojoin, or use a CFG classbind.
 * Ravensoft decided to combine force powers and items into one menu/cycle in JK3; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
+
+####`/g_requireMoreCustomTeamVotes`
+0 = 51% yes votes required for all votes to pass (default JK3)
+
+1 = custom team/class votes require 75% yes votes. This does not apply if the argument is `0` or `none` (resetting to normal classes)
 
 ####`/g_forceDTechItems`
 This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban. This cvar is only used when custom teams are in use, and does not affect any classes that already have demp/shield.
@@ -271,7 +295,7 @@ Mapmakers can add some extra keys to `misc_siege_item` for additional control ov
 
 `autorespawn 1` = item will automatically respawn when return timer expires (default)
 
-`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default)
+`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default). Use `respawntime -1` to make the item never return.
 
 Mapmakers are advised to include the `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
 
@@ -308,6 +332,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed Bryar pistol not having unlimited ammo.
 * Changes to `g_allowVote` are now announced to the server.
 * Fixed `/flourish` not working with gun equipped.
+* You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
+* Fixed bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -437,10 +463,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXgxTEFJMWlYVnc/view?usp=sharing)
-Version: base_entranced-10-11-2015-build39 (experimental) - add `/g_redTeam`, add `/g_blueTeam`, add `/g_forceDTechItems`, add `/g_allow_vote_customTeams`, add `/g_moreTaunts 2`, add `/serverstatus2`, announce changes to `/g_allowVote`, fix bryar pistol not having unlimited ammo
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing)
+Version: base_entranced-10-12-2015-build40 (debug compile) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
 
 Old versions:
+
+Version: base_entranced-10-11-2015-build39 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXgxTEFJMWlYVnc/view?usp=sharing) - add `/g_redTeam`, add `/g_blueTeam`, add `/g_forceDTechItems`, add `/g_allow_vote_customTeams`, add `/g_moreTaunts 2`, add `/serverstatus2`, announce changes to `/g_allowVote`, fix bryar pistol not having unlimited ammo
 
 Version: base_entranced-10-10-2015-build38 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXcxdkZiQmVPdk0/view?usp=sharing) - add pug server and public server votes, add `/g_gripRefresh`
 
