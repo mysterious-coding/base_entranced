@@ -115,7 +115,7 @@ To reset to base classes, use `0` or `none` as the argument.
 This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable this vote with `/g_allow_vote_customTeams`.
 
 ####`/g_forceDTechItems`
-This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban. This cvar is only used when custom teams are in use, an does not affect any classes that already have demp/shield.
+This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban. This cvar is only used when custom teams are in use, and does not affect any classes that already have demp/shield.
 
 0 = no additional weapons/items
 
