@@ -668,7 +668,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ammoCanisterSound, "g_ammoCanisterSound", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_gripRefresh, "g_gripRefresh", "300", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_forceDTechItems, "g_forceDTechItems", "7", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
