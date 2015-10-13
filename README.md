@@ -301,7 +301,7 @@ Mapmakers can add some new extra keys to `misc_siege_item` for additional contro
 
 `autorespawn 1` = item will automatically respawn when return timer expires (default)
 
-`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default). Use `respawntime -1` to make the item never return.
+`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default). Use `autorespawn -1` to make the item never return.
 
 Mapmakers are advised to include the new `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
 
