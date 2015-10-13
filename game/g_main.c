@@ -170,6 +170,7 @@ vmCvar_t	g_specAfterDeath;
 vmCvar_t    g_antiHothHangarLiftLame;
 vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
+vmCvar_t	g_autoResetCustomTeams;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -676,6 +677,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "3", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
@@ -3835,6 +3837,11 @@ void CheckVote( void ) {
 			}
 			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
+				if (g_autoResetCustomTeams.integer) //reset custom teams
+				{
+					trap_Cvar_set("g_redTeam", "none");
+					trap_Cvar_set("g_blueTeam", "none");
+				}
 			}
 			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
 			{
@@ -3887,6 +3894,11 @@ void CheckVote( void ) {
 			}
 			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
+				if (g_autoResetCustomTeams.integer) //reset custom teams
+				{
+					trap_Cvar_set("g_redTeam", "none");
+					trap_Cvar_set("g_blueTeam", "none");
+				}
 			}
 			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
 			{

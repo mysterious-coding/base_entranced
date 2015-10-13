@@ -3913,6 +3913,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_antiHothHangarLiftLame.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanFloatingItems");
 	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
+	Com_sprintf(string, 64, "g_autoResetCustomTeams");
+	ServerCfgColor(string, g_autoResetCustomTeams.integer, ent);
 	Com_sprintf(string, 64, "g_denoteDead");
 	ServerCfgColor(string, g_denoteDead.integer, ent);
 	Com_sprintf(string, 64, "g_dismember");
