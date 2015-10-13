@@ -599,6 +599,7 @@ void TargetDelayCancelUse(gentity_t *self, gentity_t *other, gentity_t *activato
 		return;
 	}
 	self->canContinue = 0;
+	self->nextthink = level.time;
 }
 
 void G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string ) {
