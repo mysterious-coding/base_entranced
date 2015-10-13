@@ -94,6 +94,7 @@ void Use_Target_Delay( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 	ent->nextthink = level.time + ( ent->wait + ent->random * crandom() ) * 1000;
 	ent->think = Think_Target_Delay;
 	ent->activator = activator;
+	ent->canContinue = 1;
 }
 
 void SP_target_delay( gentity_t *ent ) {
