@@ -133,9 +133,15 @@ To reset to base classes, use `0` or `none` as the argument.
 
 This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable this vote with `/g_allow_vote_customTeams`.
 
-Two important clientside bugs to be aware of:
+A few important clientside bugs to be aware of:
 * If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use `/team r` or `/team b` (easiest method), autojoin, or use a CFG classbind.
 * Ravensoft decided to combine force powers and items into one menu/cycle in JK3; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
+* If the server is using teams/class that you don't have at all (like completely new classes, or classes for a map you don't have), you will see people as using Kyle skin with no sounds.
+
+####`/g_autoResetCustomTeams`
+0 = retain custom teams/classes between map change votes
+
+1 = `/g_redTeam` and `/g_blueTeam` are automatically reset to 0 when map is changed via `/callvote`
 
 ####`/g_requireMoreCustomTeamVotes`
 0 = 51% yes votes required for all votes to pass (default JK3)
@@ -298,6 +304,8 @@ Mapmakers can add some extra keys to `misc_siege_item` for additional control ov
 `respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default). Use `respawntime -1` to make the item never return.
 
 Mapmakers are advised to include the `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
+
+Mapmakers can use the new entity `target_delay_cancel` to cancel the pending target-firing of a `target_delay`. This can be used to create bomb-defusal objectives in which one team must plant a bomb, and the other team must defuse it. For example, an offense hack could trigger a `target_delay` for a 10 second delay for the bomb detonation, and a defense hack could trigger a `target_delay_cancel` to cancel the explosion.
 
 Note that if a map includes these special features, and is then played on a non-base_entranced server, those features will obviously not work.
 
@@ -463,10 +471,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing)
-Version: base_entranced-10-12-2015-build40 (debug compile) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing)
+Version: base_entranced-10-13-2015-build41 (debug compile) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
 
 Old versions:
+
+Version: base_entranced-10-12-2015-build40 (debug compile) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
 
 Version: base_entranced-10-11-2015-build39 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXgxTEFJMWlYVnc/view?usp=sharing) - add `/g_redTeam`, add `/g_blueTeam`, add `/g_forceDTechItems`, add `/g_allow_vote_customTeams`, add `/g_moreTaunts 2`, add `/serverstatus2`, announce changes to `/g_allowVote`, fix bryar pistol not having unlimited ammo
 
