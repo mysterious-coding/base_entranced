@@ -3839,8 +3839,8 @@ void CheckVote( void ) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
 				if (g_autoResetCustomTeams.integer) //reset custom teams
 				{
-					trap_Cvar_set("g_redTeam", "none");
-					trap_Cvar_set("g_blueTeam", "none");
+					trap_Cvar_Set("g_redTeam", "none");
+					trap_Cvar_Set("g_blueTeam", "none");
 				}
 			}
 			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
@@ -3896,8 +3896,8 @@ void CheckVote( void ) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
 				if (g_autoResetCustomTeams.integer) //reset custom teams
 				{
-					trap_Cvar_set("g_redTeam", "none");
-					trap_Cvar_set("g_blueTeam", "none");
+					trap_Cvar_Set("g_redTeam", "none");
+					trap_Cvar_Set("g_blueTeam", "none");
 				}
 			}
 			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
