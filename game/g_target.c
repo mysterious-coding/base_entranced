@@ -75,7 +75,13 @@ activated again while it is counting down to an event.
 "wait" seconds to pause before firing targets.
 "random" delay variance, total delay = delay +/- random seconds
 */
-void Think_Target_Delay( gentity_t *ent ) {
+void Think_Target_Delay( gentity_t *ent )
+{
+	if (!ent->canContinue)
+	{
+		ent->canContinue = 1;
+		return;
+	}
 	G_UseTargets( ent, ent->activator );
 }
 
@@ -95,13 +101,70 @@ void SP_target_delay( gentity_t *ent ) {
 	if ( !G_SpawnFloat( "delay", "0", &ent->wait ) ) {
 		G_SpawnFloat( "wait", "1", &ent->wait );
 	}
-
+	G_SpawnInt("canContinue", "1", &ent->canContinue);
 	if ( !ent->wait ) {
 		ent->wait = 1;
 	}
 	ent->use = Use_Target_Delay;
 }
 
+/*QUAKED target_delay_cancel (.5 .5 .5) (-8 -8 -8) (8 8 8) RED_ONLY BLUE_ONLY RANDOM x x x x INACTIVE
+This doesn't perform any actions except fire its targets.
+The activator can be forced to be from a certain team.
+if RANDOM is checked, only one of the targets will be fired, not all of them
+
+INACTIVE  Can't be used until activated
+
+wait - set to -1 to use it only once
+*/
+void target_delay_cancel_use(gentity_t *self, gentity_t *other, gentity_t *activator) {
+	qboolean ranscript = qfalse;
+	if ((self->spawnflags & 1) && activator->client
+		&& activator->client->sess.sessionTeam != TEAM_RED) {
+		return;
+	}
+	if ((self->spawnflags & 2) && activator->client
+		&& activator->client->sess.sessionTeam != TEAM_BLUE) {
+		return;
+	}
+
+	if (self->flags & FL_INACTIVE)
+	{//set by target_deactivate
+		return;
+	}
+
+	ranscript = G_ActivateBehavior(self, BSET_USE);
+	if (self->wait == -1)
+	{//never use again
+		if (ranscript)
+		{//crap, can't remove!
+			self->use = NULL;
+		}
+		else
+		{//remove
+			self->think = G_FreeEntity;
+			self->nextthink = level.time + FRAMETIME;
+		}
+	}
+	if (self->spawnflags & 4) {
+		gentity_t	*ent;
+
+		ent = G_PickTarget(self->target);
+		if (ent && ent->use) {
+			TargetDelayCancelUse(ent, self, activator);
+		}
+		return;
+	}
+	G_DelayCancelTargets(self, activator);
+}
+
+void SP_target_delay_cancel(gentity_t *self) {
+	self->use = target_delay_cancel_use;
+	if (self->spawnflags & 128)
+	{
+		self->flags |= FL_INACTIVE;
+	}
+}
 
 //==========================================================
 

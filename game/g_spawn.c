@@ -209,6 +209,7 @@ void SP_trigger_asteroid_field(gentity_t *self);
 void SP_target_remove_powerups( gentity_t *ent );
 void SP_target_give (gentity_t *ent);
 void SP_target_delay (gentity_t *ent);
+void SP_target_delay_cancel(gentity_t *ent);
 void SP_target_speaker (gentity_t *ent);
 void SP_target_print (gentity_t *ent);
 void SP_target_laser (gentity_t *self);
@@ -496,6 +497,7 @@ spawn_t	spawns[] = {
 	{"target_give", SP_target_give},
 	{"target_remove_powerups", SP_target_remove_powerups},
 	{"target_delay", SP_target_delay},
+	{ "target_delay_cancel", SP_target_delay_cancel },
 	{"target_speaker", SP_target_speaker},
 	{"target_print", SP_target_print},
 	{"target_laser", SP_target_laser},

@@ -356,6 +356,8 @@ struct gentity_s {
 	int			genericValue16;
 	int			genericValue17;
 
+	int			canContinue;
+
 	char		*soundSet;
 
 	qboolean	isSaberEntity;
@@ -1131,6 +1133,9 @@ gentity_t *G_PickTarget (char *targetname);
 void	GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator);
 void	G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string );
 void	G_UseTargets (gentity_t *ent, gentity_t *activator);
+void	TargetDelayCancelUse(gentity_t *self, gentity_t *other, gentity_t *activator);
+void	G_DelayCancelTargets(gentity_t *ent, gentity_t *activator);
+void	G_DelayCancelTargets2(gentity_t *ent, gentity_t *activator, const char *string);
 void	G_SetMovedir ( vec3_t angles, vec3_t movedir);
 void	G_SetAngles( gentity_t *ent, vec3_t angles );
 

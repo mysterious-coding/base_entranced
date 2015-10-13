@@ -587,6 +587,20 @@ void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 	self->use(self, other, activator);
 }
 
+void TargetDelayCancelUse(gentity_t *self, gentity_t *other, gentity_t *activator)
+{
+	if (!self || (self->flags & FL_INACTIVE))
+	{
+		return;
+	}
+
+	if (!self->use)
+	{
+		return;
+	}
+	self->canContinue = 0;
+}
+
 void G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string ) {
 	gentity_t		*t;
 	
@@ -619,6 +633,41 @@ void G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string ) {
 		}
 	}
 }
+
+void G_DelayCancelTargets2(gentity_t *ent, gentity_t *activator, const char *string) {
+	gentity_t		*t;
+
+	if (!ent) {
+		return;
+	}
+
+	if (ent->targetShaderName && ent->targetShaderNewName) {
+		float f = level.time * 0.001;
+		AddRemap(ent->targetShaderName, ent->targetShaderNewName, f);
+		trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
+	}
+
+	if (!string || !string[0]) {
+		return;
+	}
+
+	t = NULL;
+	while ((t = G_Find(t, FOFS(targetname), string)) != NULL) {
+		if (t == ent) {
+			G_Printf("WARNING: Entity used itself.\n");
+		}
+		else {
+			if (t->use) {
+				TargetDelayCancelUse(t, ent, activator);
+			}
+		}
+		if (!ent->inuse) {
+			G_Printf("entity was removed while using targets\n");
+			return;
+		}
+	}
+}
+
 /*
 ==============================
 G_UseTargets
@@ -639,6 +688,25 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator )
 	G_UseTargets2(ent, activator, ent->target);
 }
 
+/*
+==============================
+G_DelayCancelTargets
+
+"activator" should be set to the entity that initiated the firing.
+
+Search for (string)targetname in all entities that
+match (string)self.target and call their .use function
+
+==============================
+*/
+void G_DelayCancelTargets(gentity_t *ent, gentity_t *activator)
+{
+	if (!ent)
+	{
+		return;
+	}
+	G_DelayCancelTargets2(ent, activator, ent->target);
+}
 
 /*
 =============
