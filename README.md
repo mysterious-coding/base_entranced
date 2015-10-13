@@ -141,7 +141,7 @@ A few important clientside bugs to be aware of:
 ####`/g_autoResetCustomTeams`
 0 = retain custom teams/classes between map change votes
 
-1 = `/g_redTeam` and `/g_blueTeam` are automatically reset to 0 when map is changed via `/callvote`
+1 = `/g_redTeam` and `/g_blueTeam` are automatically reset to normal classes when map is changed via `/callvote`
 
 ####`/g_requireMoreCustomTeamVotes`
 0 = 51% yes votes required for all votes to pass (default JK3)
