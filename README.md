@@ -14,8 +14,6 @@ These are unique features for base_entranced.
 
 1 = prints times for each objective after completion; writes all obj times at end of round. Compares times and highlights faster time in green in round 2.
 
-Note: siege_narshaddaa has a bug that causes offense to always complete final obj in stats. There is a patched version of nar available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff) this is only required serverside. Clients do not need to update to this version.
-
 ####`/g_endSiege`
 0 = no tiebreaking rules (JK3 default)
 
@@ -352,7 +350,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed `/flourish` not working with gun equipped.
 * You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
 * Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
-* Fixed a bug with attacking the stations on `siege_cargobarge` causing the server to crash.
+* Fixed a bug with attacking the stations on siege_cargobarge causing the server to crash.
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
 
 #Features that are also in base_enhanced
@@ -481,9 +479,19 @@ Prevent calling votes for some things:
 
 # Downloads
 
-###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+####Sample server.cfg: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing)
+This sample server.cfg contains recommended settings for all cvars. You should base your server's configuration on this file.
+
+####Patched siege_narshaddaa pk3: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+
+siege_narshaddaa has a bug that causes offense to always complete final obj in stats. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
+
+####Patched siege_cargobarge pk3: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+
+siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
+
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing)
 Version: base_entranced-10-19-2015-build44 (debug build) - add `g_fixEwebRecoil`, add `g_tauntWhileMoving`, allow `g_fixFallingSounds` scream to work with kills affected by `g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
 
 Old versions:
