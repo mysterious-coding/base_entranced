@@ -492,7 +492,7 @@ siege_narshaddaa has a bug that causes offense to always complete final obj acco
 siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
 
 ####Droid lame fix: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch disables knockbacking the droid.
+base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing)
 Version: base_entranced-10-19-2015-build44 (debug build) - add `g_fixEwebRecoil`, add `g_tauntWhileMoving`, allow `g_fixFallingSounds` scream to work with kills affected by `g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
