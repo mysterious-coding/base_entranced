@@ -1441,7 +1441,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		{
 			G_Damage (other, self, self, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
 		}
-		if (g_fixFallingSounds.integer == 1)
+		if (g_fixFallingSounds.integer == 1 && dmg >= 100)
 		{
 			G_EntitySound(other, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
 		}
