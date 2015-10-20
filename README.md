@@ -483,14 +483,14 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8a3ZubDBwejBpZjQ/view?usp=sharing)
-Version: base_entranced-10-19-2015-build43 (debug compile) - add `g_fixEwebRecoil`, add `g_tauntWhileMoving`, allow `g_fixFallingSounds` scream to work with kills affected by `g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing)
+Version: base_entranced-10-19-2015-build44 (debug build) - add `g_fixEwebRecoil`, add `g_tauntWhileMoving`, allow `g_fixFallingSounds` scream to work with kills affected by `g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
 
 Old versions:
 
-Version: base_entranced-10-13-2015-build41 (debug compile) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
+Version: base_entranced-10-13-2015-build41 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
 
-Version: base_entranced-10-12-2015-build40 (debug compile) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
+Version: base_entranced-10-12-2015-build40 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
 
 Version: base_entranced-10-11-2015-build39 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXgxTEFJMWlYVnc/view?usp=sharing) - add `/g_redTeam`, add `/g_blueTeam`, add `/g_forceDTechItems`, add `/g_allow_vote_customTeams`, add `/g_moreTaunts 2`, add `/serverstatus2`, announce changes to `/g_allowVote`, fix bryar pistol not having unlimited ammo
 
