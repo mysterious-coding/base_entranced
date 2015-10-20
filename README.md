@@ -39,7 +39,12 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 ####`/g_fixFallingSounds`
 0 = default JK3 sound (normal death sound)
 
-1 = falling death scream sound for all `trigger_hurt` entities (such as death pits in siege)
+1 = use falling death scream sound when damaged by a `trigger_hurt` entity for >= 100 damage (i.e., death pits). Also plays scream sound if selfkilling while affected by `/g_fixPitKills`
+
+####`/g_fixEwebRecoil`
+0 = firing eweb causes huge annoying recoil (default JK3)
+
+1 = remove eweb recoil
 
 ####`/g_hideSpecLocation`
 0 = teamchat between spectators shows location (default JK3)
@@ -69,7 +74,7 @@ Note: siege_narshaddaa has a bug that causes offense to always complete final ob
 ####`/g_fixGripKills`
 0 = normal selfkilling while gripped (default JK3)
 
-1 = selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill.
+1 = selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill (similar to `/g_fixPitKills` from base_enhanced)
 
 ####`/g_gripRefresh`
 300 = default JK3 grip refresh (your velocity is updated every 300ms while being gripped, which equals 3.33Hz refresh rate)
@@ -101,6 +106,11 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 1 = `/taunt` command will randomly use taunt, gloat, or flourish animation.
 
 2 = `/taunt` uses basejka behavior, but `/gloat`, `/flourish`, and `/bow` are enabled as separate commands
+
+####`/g_tauntWhileMoving`
+0 = no taunting while moving (default JK3)
+
+1 = enable taunting while moving
 
 ####`/g_ammoCanisterSound`
 0 = dispensing ammo cans is oddly silent (default JK3)
@@ -341,7 +351,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * Changes to `g_allowVote` are now announced to the server.
 * Fixed `/flourish` not working with gun equipped.
 * You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
-* Fixed bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
+* Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
+* Fixed a bug with attacking the stations on `siege_cargobarge` causing the server to crash.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -471,10 +482,12 @@ Prevent calling votes for some things:
 
 ###A sample server.cfg file is available here: [[link]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing)
-Version: base_entranced-10-13-2015-build41 (debug compile) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
+###[Click here to download latest version (PK3)](https://drive.google.com/file/d/0B-vLJdPP0Uo8a3ZubDBwejBpZjQ/view?usp=sharing)
+Version: base_entranced-10-19-2015-build43 (debug compile) - add `g_fixEwebRecoil`, add `g_tauntWhileMoving`, allow `g_fixFallingSounds` scream to work with kills affected by `g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
 
 Old versions:
+
+Version: base_entranced-10-13-2015-build41 (debug compile) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
 
 Version: base_entranced-10-12-2015-build40 (debug compile) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
 
