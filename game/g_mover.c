@@ -1033,12 +1033,16 @@ Blocked_Door
 void Blocked_Door(gentity_t *ent, gentity_t *other)
 {
 	vmCvar_t mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (ent->damage) {
+	if (!Q_stricmp(mapname.string, "mp/siege_hoth") && !Q_stricmp(ent->target, "droptheclip") && !Q_stricmp(ent->targetname, "bridge"))
+	{
+		G_Damage(other, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH);
+	}
+	else if (ent->damage) {
 		G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
 	}
 
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (ent->spawnflags & MOVER_CRUSHER || (!Q_stricmp(mapname.string, "mp/siege_hoth") && (!Q_stricmp(ent->target, "droptheclip") && !Q_stricmp(ent->targetname, "bridge")))) { //dirty hack to fix hoth bridge crusher
 		return;		// crushers don't reverse
