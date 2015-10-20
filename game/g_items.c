@@ -1875,7 +1875,10 @@ void EWebThink(gentity_t *self)
 				}
 				else if (self->genericValue5 < level.time && self->genericValue3)
 				{ //reset the anim back to non-firing
-					EWeb_SetBoneAnim(self, 0, 1);
+					if (!g_fixEwebRecoil.integer)
+					{
+						EWeb_SetBoneAnim(self, 0, 1);
+					}
 					self->genericValue3 = 0;
 				}
 			}
