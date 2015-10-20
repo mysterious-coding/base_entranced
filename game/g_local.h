@@ -1886,6 +1886,7 @@ extern vmCvar_t    g_antiHothHangarLiftLame;
 extern vmCvar_t    g_requireMoreCustomTeamVotes;
 extern vmCvar_t    g_antiCallvoteTakeover;
 extern vmCvar_t    g_autoResetCustomTeams;
+extern vmCvar_t    g_tauntWhileMoving;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;

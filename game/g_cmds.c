@@ -3965,6 +3965,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
 	Com_sprintf(string, 64, "g_specAfterDeath");
 	ServerCfgColor(string, g_specAfterDeath.integer, ent);
+	Com_sprintf(string, 64, "g_tauntWhileMoving");
+	ServerCfgColor(string, g_tauntWhileMoving.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 

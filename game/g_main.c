@@ -171,6 +171,7 @@ vmCvar_t    g_antiHothHangarLiftLame;
 vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
 vmCvar_t	g_autoResetCustomTeams;
+vmCvar_t    g_tauntWhileMoving;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -678,6 +679,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_tauntWhileMoving, "g_tauntWhileMoving", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
