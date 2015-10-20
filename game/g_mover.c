@@ -1689,7 +1689,7 @@ void SP_func_plat(gentity_t *ent) {
 	if (!ent->targetname)
 	{
 		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && height == 568 && ent->damage == 9999) //hacktastic
+		if (!Q_stricmp(mapname.string, "mp/siege_hoth") && height == 568 && ent->damage == 9999) //hacktastic
 		{
 			SpawnPlatTrigger(ent, qtrue);
 		}
