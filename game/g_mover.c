@@ -2910,6 +2910,10 @@ void SP_func_breakable(gentity_t *self)
 		self->mass = 1.0f;
 	}
 	self->genericValue4 = 1; //so damage sys knows it's a bbrush
+	if (!Q_stricmp(mapname.string, "siege_cargobarge") && self->wait == 5)
+	{
+		self->wait = 5000; //fix oink's derp...
+	}
 }
 
 qboolean G_EntIsBreakable(int entityNum)
