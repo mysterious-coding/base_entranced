@@ -479,19 +479,19 @@ Prevent calling votes for some things:
 
 # Downloads
 
-####Sample server.cfg: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 This sample server.cfg contains recommended settings for all cvars. You should base your server's configuration on this file.
 
-####Patched siege_narshaddaa: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+####Patched siege_narshaddaa [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 siege_narshaddaa has a bug that causes offense to always complete final obj according to `/g_siegeStats`. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
 
-####Patched siege_cargobarge: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+####Patched siege_cargobarge [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
 
-####Droid lame fix: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing)
