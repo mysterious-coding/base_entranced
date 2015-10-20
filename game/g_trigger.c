@@ -418,7 +418,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qfalse && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmp(mapname.string, "mp/siege_hoth") && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qfalse && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
 	{
 		gentity_t	*entity_list[MAX_GENTITIES], *liftLameTarget;
 		vec3_t		liftOrigin;
@@ -553,7 +553,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				return;
 			}
 		}
-		if (!Q_stricmp(self->target,"hangarplatbig1") && !Q_stricmp(mapname.string, "mp/siege_hoth") && g_antiHothHangarLiftLame.integer &&
+		if (!Q_stricmp(self->target,"hangarplatbig1") && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer &&
 			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && level.hangarCompleted == qfalse && (g_antiHothHangarLiftLame.integer == 1 || g_antiHothHangarLiftLame.integer == 3))
 		{
 			if (hangarHackTime && (level.time - hangarHackTime < 2000))

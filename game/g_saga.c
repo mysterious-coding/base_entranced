@@ -1392,7 +1392,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (objective == 5 && !Q_stricmp(mapname.string, "mp/siege_hoth"))
+	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
 		level.hangarCompleted = qtrue;
 	}

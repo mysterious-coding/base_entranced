@@ -3719,7 +3719,7 @@ void ClientSpawn(gentity_t *ent) {
 
 		if (Q_stricmp(mapname.string, "mp/siege_korriban") && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && g_forceDTechItems.integer && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == 2 &&
 			((g_forceDTechItems.integer && (g_forceDTechItems.integer == 4 || g_forceDTechItems.integer == 6) ||
-				(!Q_stricmp(mapname.string, "mp/siege_hoth") && g_forceDTechItems.integer && (g_forceDTechItems.integer == 1 || g_forceDTechItems.integer == 3 || g_forceDTechItems.integer == 7)))))
+				(!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_forceDTechItems.integer && (g_forceDTechItems.integer == 1 || g_forceDTechItems.integer == 3 || g_forceDTechItems.integer == 7)))))
 		{
 			ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_DEMP2);
 		}
@@ -3895,7 +3895,7 @@ void ClientSpawn(gentity_t *ent) {
 		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 		if (Q_stricmp(mapname.string, "mp/siege_korriban") && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && g_forceDTechItems.integer && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == 2 &&
 			((g_forceDTechItems.integer == 5 || g_forceDTechItems.integer == 6 || g_forceDTechItems.integer == 7)
-				|| (!Q_stricmp(mapname.string, "mp/siege_hoth") && (g_forceDTechItems.integer == 2 || g_forceDTechItems.integer == 3))))
+				|| (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && (g_forceDTechItems.integer == 2 || g_forceDTechItems.integer == 3))))
 		{
 			client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_SHIELD);
 		}
