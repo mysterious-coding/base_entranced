@@ -3938,6 +3938,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_fixRancorCharge.integer, ent);
 	Com_sprintf(string, 64, "g_fixSiegeScoring");
 	ServerCfgColor(string, g_fixSiegeScoring.integer, ent);
+	Com_sprintf(string, 64, "g_fixEwebRecoil");
+	ServerCfgColor(string, g_fixEwebRecoil.integer, ent);
 	Com_sprintf(string, 64, "g_floatingItems");
 	ServerCfgColor(string, g_floatingItems.integer, ent);
 	Com_sprintf(string, 64, "g_forceDTechItems");

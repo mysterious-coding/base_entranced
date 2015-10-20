@@ -1863,7 +1863,10 @@ void EWebThink(gentity_t *self)
 						EWebFire(owner, self);
 
 						//cheap firing anim
-						EWeb_SetBoneAnim(self, 2, 4);
+						if (!g_fixEwebRecoil.integer)
+						{
+							EWeb_SetBoneAnim(self, 2, 4);
+						}
 						self->genericValue3 = 1;
 
 						//set fire debounce time
