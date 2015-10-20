@@ -485,7 +485,7 @@ This sample server.cfg contains recommended settings for all cvars. You should b
 
 ####Patched siege_narshaddaa: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-siege_narshaddaa has a bug that causes offense to always complete final obj in stats. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
+siege_narshaddaa has a bug that causes offense to always complete final obj according to `/g_siegeStats`. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
 
 ####Patched siege_cargobarge: [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
