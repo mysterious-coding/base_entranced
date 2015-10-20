@@ -353,6 +353,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
 * Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
 * Fixed a bug with attacking the stations on `siege_cargobarge` causing the server to crash.
+* Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
