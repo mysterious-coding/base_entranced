@@ -1652,7 +1652,14 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 	VectorCopy( pm->ps->viewangles, fwdAngles );
 	fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
 	AngleVectors( fwdAngles, jumpFwd, NULL, NULL );
-	VectorScale( jumpFwd, 150, pm->ps->velocity );//was 50
+	if (g_jk2SaberMoves.integer)
+	{
+		VectorScale(jumpFwd, 50, pm->ps->velocity);
+	}
+	else
+	{
+		VectorScale(jumpFwd, 150, pm->ps->velocity);
+	}
 	pm->ps->velocity[2] = 400;
 
 	PM_SetForceJumpZStart(pm->ps->origin[2]);//so we don't take damage if we land at same height
@@ -1745,6 +1752,53 @@ qboolean PM_SomeoneInFront(trace_t *tr)
 
 	return qfalse;
 }
+
+saberMoveName_t PM_SaberAirLungeAttackMove(void)
+{
+	vec3_t fwdAngles, jumpFwd;
+
+	saberInfo_t *saber1 = BG_MySaber(pm->ps->clientNum, 0);
+	saberInfo_t *saber2 = BG_MySaber(pm->ps->clientNum, 1);
+	//see if we have an overridden (or cancelled) lunge move
+	if (saber1
+		&& saber1->lungeAtkMove != LS_INVALID)
+	{
+		if (saber1->lungeAtkMove != LS_NONE)
+		{
+			return (saberMoveName_t)saber1->lungeAtkMove;
+		}
+	}
+	if (saber2
+		&& saber2->lungeAtkMove != LS_INVALID)
+	{
+		if (saber2->lungeAtkMove != LS_NONE)
+		{
+			return (saberMoveName_t)saber2->lungeAtkMove;
+		}
+	}
+	//no overrides, cancelled?
+	if (saber1
+		&& saber1->lungeAtkMove == LS_NONE)
+	{
+		return LS_A_T2B;//LS_NONE;
+	}
+	if (saber2
+		&& saber2->lungeAtkMove == LS_NONE)
+	{
+		return LS_A_T2B;//LS_NONE;
+	}
+
+	VectorCopy(pm->ps->viewangles, fwdAngles);
+	fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
+	//do the lunge
+	AngleVectors(fwdAngles, jumpFwd, NULL, NULL);
+	VectorScale(jumpFwd, 150, pm->ps->velocity);
+	//pm->ps->velocity[2] = 50;
+	PM_AddEvent(EV_JUMP);
+
+	return LS_A_LUNGE;
+}
+
 
 saberMoveName_t PM_SaberLungeAttackMove( qboolean noSpecials )
 {
@@ -2308,7 +2362,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					}
 				}
 			}
-			else if (!noSpecials&&
+			else if (!g_jk2SaberMoves.integer && !noSpecials&&
 				pm->ps->fd.saberAnimLevel == SS_STRONG &&
 				pm->ps->velocity[2] > 100 &&
 				PM_GroundDistance() < 32 &&
@@ -2325,7 +2379,26 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					}
 				}
 			}
-			else if ((pm->ps->fd.saberAnimLevel == SS_FAST || pm->ps->fd.saberAnimLevel == SS_DUAL || pm->ps->fd.saberAnimLevel == SS_STAFF) &&
+			else if (	g_jk2SaberMoves.integer && !noSpecials &&
+				pm->ps->fd.saberAnimLevel == SS_STRONG &&
+				(PM_GroundDistance() < 32) &&
+				(PM_GroundDistance() > 0) &&
+				!BG_InSpecialJump(pm->ps->legsAnim) &&
+				!BG_SaberInSpecialAttack(pm->ps->torsoAnim) &&
+				BG_SaberInAttack(pm->ps->saberMove) &&
+				BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
+			{
+				float animLength = PM_AnimLength(0, (animNumber_t)pm->ps->torsoAnim);
+				if (animLength - pm->ps->torsoTimer < 500)
+				{
+					newmove = PM_SaberJumpAttackMove();
+					if (newmove != LS_A_T2B && newmove != LS_NONE)
+					{
+						BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+					}
+				}
+			}
+			else if (((!g_jk2SaberMoves.integer && pm->ps->fd.saberAnimLevel == SS_FAST ) || (pm->ps->fd.saberAnimLevel == SS_DUAL || pm->ps->fd.saberAnimLevel == SS_STAFF)) &&
 				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
 				(pm->ps->pm_flags & PMF_DUCKED) &&
 				pm->ps->weaponTime <= 0 &&
@@ -2335,6 +2408,19 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				newmove = PM_SaberLungeAttackMove( noSpecials );
 				if ( newmove != LS_A_T2B
 					&& newmove != LS_NONE )
+				{
+					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+				}
+			}
+			else if (g_jk2SaberMoves.integer && pm->ps->fd.saberAnimLevel == SS_FAST &&
+				(pm->ps->pm_flags & PMF_DUCKED) &&
+				pm->ps->weaponTime <= 0 &&
+				!BG_SaberInSpecialAttack(pm->ps->torsoAnim) &&
+				BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
+			{ //LUNGE (weak)
+				newmove = PM_SaberAirLungeAttackMove();
+				if (newmove != LS_A_T2B
+					&& newmove != LS_NONE)
 				{
 					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 				}

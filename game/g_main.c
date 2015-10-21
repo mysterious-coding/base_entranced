@@ -171,6 +171,7 @@ vmCvar_t	g_autoResetCustomTeams;
 vmCvar_t    g_tauntWhileMoving;
 vmCvar_t    g_fixEwebRecoil;
 vmCvar_t	g_korribanRedRocksReverse;
+vmCvar_t	g_jk2SaberMoves;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -678,6 +679,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_tauntWhileMoving, "g_tauntWhileMoving", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixEwebRecoil, "g_fixEwebRecoil", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_korribanRedRocksReverse, "g_korribanRedRocksReverse", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_jk2SaberMoves, "g_jk2SaberMoves", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
