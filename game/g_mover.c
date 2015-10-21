@@ -1402,6 +1402,9 @@ void SP_func_door(gentity_t *ent)
 	vec3_t	size;
 	float	lip;
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
 	G_SpawnInt("vehopen", "0", &ent->genericValue14);
 
 	ent->blocked = Blocked_Door;
@@ -1428,6 +1431,12 @@ void SP_func_door(gentity_t *ent)
 	}
 
 	G_SpawnInt("teamallow", "0", &ent->alliedTeam);
+
+	if (!Q_stricmp(mapname.string,"mp/siege_korriban") && ent->spawnflags == 3 && lip == 64 && ent->wait == -1000 && g_korribanRedRocksReverse.integer)
+	{
+		ent->wait = 1000;
+		ent->spawnflags = 11;
+	}
 
 	// first position at start
 	VectorCopy(ent->s.origin, ent->pos1);
@@ -1487,6 +1496,7 @@ void SP_func_door(gentity_t *ent)
 			ent->think = Think_SpawnNewDoorTrigger;
 		}
 	}
+
 }
 
 /*

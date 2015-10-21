@@ -1885,6 +1885,7 @@ extern vmCvar_t    g_antiCallvoteTakeover;
 extern vmCvar_t    g_autoResetCustomTeams;
 extern vmCvar_t    g_tauntWhileMoving;
 extern vmCvar_t    g_fixEwebRecoil;
+extern vmCvar_t    g_korribanRedRocksReverse;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;

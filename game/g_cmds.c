@@ -3952,6 +3952,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_infiniteCharge.integer, ent);
 	Com_sprintf(string, 64, "g_knockback");
 	ServerCfgColor(string, g_knockback.integer, ent);
+	Com_sprintf(string, 64, "g_korribanRedRocksReverse");
+	ServerCfgColor(string, g_korribanRedRocksReverse.integer, ent);
 	Com_sprintf(string, 64, "g_locationBasedDamage");
 	ServerCfgColor(string, g_locationBasedDamage.integer, ent);
 	Com_sprintf(string, 64, "g_moreTaunts");
