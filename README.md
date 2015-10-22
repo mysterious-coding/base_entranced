@@ -85,9 +85,9 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
 
 ####`/g_korribanRedRocksReverse`
-0 = Korriban red crystal room rocks can only be pushed down (default JK3)
+0 = Korriban red crystal room rocks can only be pulled up (default JK3)
 
-1 = Korriban red crystal room rocks can be pulled back up
+1 = Korriban red crystal room rocks can be pushed back down
 
 ####`/g_jk2SaberMoves`
 0 = default JK3 saber special moves
