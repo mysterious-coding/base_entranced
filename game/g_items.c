@@ -1802,7 +1802,14 @@ void EWebUpdateBoneAngles(gentity_t *owner, gentity_t *eweb)
 	}
 
 	VectorClear(yAng);
-	yAng[2] = AngleSubtract(owner->client->ps.viewangles[PITCH], eweb->s.angles[PITCH])*0.8f;
+	if (g_fixEwebRecoil.integer)
+	{
+		yAng[2] = owner->client->ps.viewangles[PITCH];
+	}
+	else
+	{
+		yAng[2] = AngleSubtract(owner->client->ps.viewangles[PITCH], eweb->s.angles[PITCH])*0.8f;
+	}
 	EWeb_SetBoneAngles(eweb, "cannon_Xrot", yAng);
 }
 
@@ -1847,7 +1854,10 @@ void EWebThink(gentity_t *self)
 			}
 			owner->client->ps.weapon = WP_EMPLACED_GUN;
 			owner->client->ps.stats[STAT_WEAPONS] = WP_EMPLACED_GUN;
-
+			if (g_fixEwebRecoil.integer)
+			{
+				EWebUpdateBoneAngles(owner, self);
+			}
 			if (self->genericValue8 < level.time)
 			{ //make sure the anim timer is done
 				EWebUpdateBoneAngles(owner, self);
@@ -2013,7 +2023,10 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	ent->genericValue11 = spawner->client->ps.stats[STAT_WEAPONS];
 
 	//start the "unfolding" anim
-	EWeb_SetBoneAnim(ent, 4, 20);
+	if (!g_fixEwebRecoil.integer)
+	{
+		EWeb_SetBoneAnim(ent, 4, 20);
+	}
 	//don't allow use until the anim is done playing (rough time estimate)
 	ent->genericValue8 = level.time + 500;
 
