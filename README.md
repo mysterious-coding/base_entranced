@@ -42,7 +42,7 @@ These are unique features for base_entranced.
 ####`/g_fixEwebRecoil`
 0 = firing eweb causes huge annoying recoil (default JK3)
 
-1 = remove eweb recoil
+1 = remove eweb recoil, remove "unfolding" animation when pulling out eweb, make eweb crosshair start closer to normal crosshair
 
 ####`/g_hideSpecLocation`
 0 = teamchat between spectators shows location (default JK3)
@@ -83,6 +83,18 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 0 = `g_floatingItems` is unaffected by map
 
 1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
+
+####`/g_korribanRedRocksReverse`
+0 = Korriban red crystal room rocks can only be pushed down (default JK3)
+
+1 = Korriban red crystal room rocks can be pulled back up
+
+####`/g_jk2SaberMoves`
+0 = default JK3 saber special moves
+
+1 = JK2-style special saber moves (yaw while doing saber moves, smaller jump height/distance for YDFA, blue lunge in mid-air)
+
+Note that the game client does not currently predict yaw for these moves, so they will only be rendered in realtime as limited by server `/sv_fps` setting
 
 ####`/g_antiCallvoteTakeover`
 0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
@@ -352,6 +364,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
 * Fixed a bug with attacking the stations on siege_cargobarge causing the server to crash.
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
+* Fixed `target_print` overflow causing server crash on debug builds.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -494,10 +507,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing)
-Version: base_entranced-10-19-2015-build44 (debug build) - add `g_fixEwebRecoil`, add `g_tauntWhileMoving`, allow `g_fixFallingSounds` scream to work with kills affected by `g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SUpoa1NfWTV6YTA/view?usp=sharing)
+Version: base_entranced-10-22-2015-build45 (debug build) - add `/g_korribanRedRocksReverse`, add `g_jk2SaberMoves`, fix crash caused by `target_print` in debug builds(e.g. on siege_teampicker and siege_cargobarge), allow `/killturrets` to work before round start, improve eweb aiming if `/g_fixEwebRecoil` is enabled
 
 Old versions:
+
+Version: base_entranced-10-19-2015-build44 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing) - add `/g_fixEwebRecoil`, add `/g_tauntWhileMoving`, allow `/g_fixFallingSounds` scream to work with kills affected by `/g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `/g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
 
 Version: base_entranced-10-13-2015-build41 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
 
