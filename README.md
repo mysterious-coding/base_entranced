@@ -92,7 +92,7 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 ####`/g_jk2SaberMoves`
 0 = default JK3 saber special moves
 
-1 = JK2-style special saber moves (yaw while doing saber moves, smaller jump height/distance for YDFA, blue lunge in mid-air)
+1 = JK2-style special saber moves (yaw while doing saber moves, smaller jump height/distance for YDFA, blue lunge in mid-air, etc)
 
 Note that the game client does not currently predict yaw for these moves, so they will only be rendered in realtime as limited by server `/sv_fps` setting
 
