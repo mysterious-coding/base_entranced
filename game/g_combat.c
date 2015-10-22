@@ -4167,9 +4167,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE &&
-		!gSiegeRoundBegun)
-	{ //nothing can be damaged til the round starts.
+	if (g_gametype.integer == GT_SIEGE && !gSiegeRoundBegun && mod != MOD_SUICIDE && damage != 6666)
+	{ //nothing can be damaged til the round starts, except killturrets command
 		return;
 	}
 

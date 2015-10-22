@@ -1236,7 +1236,7 @@ void Svcmd_KillTurrets_f()
 		{
 			if (ent->s.weapon == WP_EMPLACED_GUN)
 			{
-				G_RadiusDamage(ent->r.currentOrigin, NULL, 9999, 128, ent, NULL, MOD_SUICIDE); //kill it in style
+				G_RadiusDamage(ent->r.currentOrigin, NULL, 6666, 128, ent, NULL, MOD_SUICIDE); //kill it in style
 			}
 			else if (ent->s.weapon == WP_TURRET)
 			{
