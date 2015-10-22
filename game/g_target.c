@@ -211,6 +211,7 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 	}
 
 #ifndef FINAL_BUILD
+	/*
 	if (!ent || !ent->inuse)
 	{
 		Com_Error(ERR_DROP, "Bad ent in Use_Target_Print");
@@ -242,6 +243,7 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 		Com_Error(ERR_DROP, "target_print used in quick succession, fix it! See the console for details.");
 	}
 	ent->genericValue15 = level.time + 5000;
+	*/
 #endif
 
 	G_ActivateBehavior(ent,BSET_USE);
@@ -301,11 +303,6 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 }
 
 void SP_target_print( gentity_t *ent ) {
-
-	if (ent->wait == 0)
-	{
-		ent->wait = 1000;
-	}
 	ent->use = Use_Target_Print;
 }
 
