@@ -1860,7 +1860,10 @@ void EWebThink(gentity_t *self)
 			}
 			if (self->genericValue8 < level.time)
 			{ //make sure the anim timer is done
-				EWebUpdateBoneAngles(owner, self);
+				if (!g_fixEwebRecoil.integer) //don't double up on updates with above fix
+				{
+					EWebUpdateBoneAngles(owner, self);
+				}
 				if (!owner->client->ewebIndex)
 				{ //was removed during position function
 					return;
