@@ -295,6 +295,8 @@ void Cmd_GreenDoors_f(gentity_t *ent)
 
 void Cmd_DuoTest_f(gentity_t *ent)
 {
+	int i = 0;
+
 	if (!g_cheats.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
 		return;
@@ -303,7 +305,14 @@ void Cmd_DuoTest_f(gentity_t *ent)
 	Svcmd_KillTurrets_f();
 	Cmd_GreenDoors_f(ent);
 	trap_Cvar_Set("g_siegeRespawn", "1");
-
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+	{
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << (LAST_USEABLE_WEAPON + 1)) - (1 << WP_NONE);
+		for (i = 0; i < MAX_WEAPONS; i++)
+		{
+			ent->client->ps.ammo[i] = 999;
+		}
+	}
 }
 
 /*
