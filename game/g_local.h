@@ -1888,6 +1888,7 @@ extern vmCvar_t    g_fixEwebRecoil;
 extern vmCvar_t    g_korribanRedRocksReverse;
 extern vmCvar_t    g_jk2SaberMoves;
 extern vmCvar_t    g_teamVoiceChat;
+extern vmCvar_t    g_botJumping;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
