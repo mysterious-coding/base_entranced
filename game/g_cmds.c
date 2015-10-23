@@ -259,6 +259,53 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 	return -1;
 }
 
+extern void Svcmd_KillTurrets_f();
+
+void Cmd_KillTurrets_f(gentity_t *ent)
+{
+	if (!CheatsOk(ent))
+	{
+		return;
+	}
+	Svcmd_KillTurrets_f();
+}
+
+extern void Blocked_Door(gentity_t *ent, gentity_t *other);
+extern void UnLockDoors(gentity_t *const ent);
+
+void Cmd_GreenDoors_f(gentity_t *ent)
+{
+	gentity_t *doorent;
+	int i = 0;
+
+	if (!CheatsOk(ent))
+	{
+		return;
+	}
+
+	for (i = 0; i < MAX_GENTITIES; i++)
+	{
+		doorent = &g_entities[i];
+		if (doorent->blocked && doorent->blocked == Blocked_Door && doorent->spawnflags && doorent->spawnflags & 16)
+		{
+			UnLockDoors(doorent);
+		}
+	}
+}
+
+void Cmd_DuoTest_f(gentity_t *ent)
+{
+	if (!CheatsOk(ent))
+	{
+		return;
+	}
+
+	Svcmd_KillTurrets_f();
+	Cmd_GreenDoors_f(ent);
+	trap_Cvar_Set("g_siegeRespawn", "1");
+
+}
+
 /*
 ==================
 Cmd_Give_f
@@ -4467,6 +4514,18 @@ void ClientCommand( int clientNum ) {
 	if (Q_stricmp (cmd, "give") == 0)
 	{
 		Cmd_Give_f (ent, 0);
+	}
+	if (Q_stricmp(cmd, "greendoors") == 0)
+	{
+		Cmd_GreenDoors_f(ent);
+	}
+	if (Q_stricmp(cmd, "killturrets") == 0)
+	{
+		Cmd_KillTurrets_f(ent);
+	}
+	if (Q_stricmp(cmd, "duotest") == 0)
+	{
+		Cmd_DuoTest_f(ent);
 	}
 	else if (Q_stricmp (cmd, "giveother") == 0)
 	{ //for debugging pretty much
