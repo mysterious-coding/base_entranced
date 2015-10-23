@@ -62,6 +62,16 @@ G_PlayDoorSound
 
 void G_PlayDoorSound(gentity_t *ent, int type)
 {
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmpn(ent->team, "bunkerfront", 11) && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_fixHothDoorSounds.integer)
+	{
+		ent->s.soundSetIndex = G_SoundSetIndex("impdoor1");
+		G_AddEvent(ent, EV_PLAYDOORSOUND, type);
+		return;
+	}
+
 	if (!ent->soundSet || !ent->soundSet[0])
 	{
 		return;

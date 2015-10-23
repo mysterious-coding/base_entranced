@@ -4004,6 +4004,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_fixGripKills.integer, ent);
 	Com_sprintf(string, 64, "g_fixHothBunkerLift");
 	ServerCfgColor(string, g_fixHothBunkerLift.integer, ent);
+	Com_sprintf(string, 64, "g_fixHothDoorSounds");
+	ServerCfgColor(string, g_fixHothDoorSounds.integer, ent);
 	Com_sprintf(string, 64, "g_fitPitKills");
 	ServerCfgColor(string, g_fixPitKills.integer, ent);
 	Com_sprintf(string, 64, "g_fixRancorCharge");

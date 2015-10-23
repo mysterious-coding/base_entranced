@@ -174,6 +174,7 @@ vmCvar_t	g_korribanRedRocksReverse;
 vmCvar_t	g_jk2SaberMoves;
 vmCvar_t	g_fixVoiceChat;
 vmCvar_t	g_botJumping;
+vmCvar_t	g_fixHothDoorSounds;
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -684,6 +685,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_jk2SaberMoves, "g_jk2SaberMoves", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixVoiceChat, "g_fixVoiceChat", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botJumping, "g_botJumping", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixHothDoorSounds, "g_fixHothDoorSounds", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },

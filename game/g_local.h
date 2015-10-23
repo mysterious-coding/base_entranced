@@ -1889,6 +1889,7 @@ extern vmCvar_t    g_korribanRedRocksReverse;
 extern vmCvar_t    g_jk2SaberMoves;
 extern vmCvar_t    g_fixVoiceChat;
 extern vmCvar_t    g_botJumping;
+extern vmCvar_t    g_fixHothDoorSounds;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
