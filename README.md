@@ -24,10 +24,39 @@ These are unique features for base_entranced.
 
 1 = improved/logical scoring (100 pts per obj)
 
+####`/g_fixVoiceChat`
+0 = enemies can hear your voice chats and see icon over your head (default JK3)
+
+1 = only teammates can hear your voice chats and see icon over your head
+
 ####`/g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
 
 1 = Hoth codes bunker lift requires pressing `+use` button (prevents you from killing yourself way too easily on this dumb lift)
+
+####`/g_fixHothDoorSounds`
+0 = Hoth bunker doors at first objective are silent (bug from default JK3)
+
+1 = Hoth bunker doors at first objective use standard door sounds
+
+####`/g_antiHothHangarLiftLame`
+0 = normal behavior for Hoth hangar lift (default JK3)
+
+1 = defense tech uses a 2 second hack to call up the lift. Returns to normal behavior after the hangar objective is completed.
+
+2 = any player on defense is prevented from calling up the lift if any player on offense is nearby ("nearby" is defined as between the boxes in the middle of the hangar and the lift). Returns to normal behavior after the hangar objective is completed.
+
+3 = use both 1 and 2 methods.
+
+####`/g_autoKorribanFloatingItems`
+0 = `g_floatingItems` is unaffected by map
+
+1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
+
+####`/g_korribanRedRocksReverse`
+0 = Korriban red crystal room rocks can only be pulled up (default JK3)
+
+1 = Korriban red crystal room rocks can be pushed back down
 
 ####`/g_nextmapWarning`
 0 = no warning (default JK3)
@@ -39,8 +68,8 @@ These are unique features for base_entranced.
 
 1 = use falling death scream sound when damaged by a `trigger_hurt` entity for >= 100 damage (i.e., death pits). Also plays scream sound if selfkilling while affected by `/g_fixPitKills`
 
-####`/g_fixEwebRecoil`
-0 = firing eweb causes huge annoying recoil (default JK3)
+####`/g_fixEweb`
+0 = default JK3 eweb behavior (huge annoying recoil, etc)
 
 1 = remove eweb recoil, remove "unfolding" animation when pulling out eweb, make eweb crosshair start closer to normal crosshair
 
@@ -79,16 +108,6 @@ These are unique features for base_entranced.
 
 Set for lower values to get smoother grip without lag (maybe 50, which equals 20Hz refresh rate)
 
-####`/g_autoKorribanFloatingItems`
-0 = `g_floatingItems` is unaffected by map
-
-1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
-
-####`/g_korribanRedRocksReverse`
-0 = Korriban red crystal room rocks can only be pulled up (default JK3)
-
-1 = Korriban red crystal room rocks can be pushed back down
-
 ####`/g_jk2SaberMoves`
 0 = default JK3 saber special moves
 
@@ -100,15 +119,6 @@ Note that the game client does not currently predict yaw for these moves, so the
 0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
 
 1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least half of the server to be ingame. This prevents calling lame unpopular votes when most of the server is in spec unable to vote no.
-
-####`/g_antiHothHangarLiftLame`
-0 = normal behavior for Hoth hangar lift (default JK3)
-
-1 = defense tech uses a 2 second hack to call up the lift. Returns to normal behavior after the hangar objective is completed.
-
-2 = any player on defense is prevented from calling up the lift if any player on offense is nearby ("nearby" is defined as between the boxes in the middle of the hangar and the lift). Returns to normal behavior after the hangar objective is completed.
-
-3 = use both 1 and 2 methods.
 
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
@@ -126,6 +136,11 @@ Note that the game client does not currently predict yaw for these moves, so the
 0 = dispensing ammo cans is oddly silent (default JK3)
 
 1 = dispensing an ammo can plays a small sound
+
+####`/g_botJumping`
+0 = bots jump around like crazy on maps without botroute support (default JK3)
+
+1 = bots stay on the ground on maps without botroute support
 
 ####`/g_specAfterDeath`
 0 = no going spec after death
@@ -506,10 +521,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SUpoa1NfWTV6YTA/view?usp=sharing)
-Version: base_entranced-10-22-2015-build45 (debug build) - add `/g_korribanRedRocksReverse`, add `g_jk2SaberMoves`, fix crash caused by `target_print` in debug builds(e.g. on siege_teampicker and siege_cargobarge), allow `/killturrets` to work before round start, improve eweb aiming if `/g_fixEwebRecoil` is enabled, force Hoth bridge to do 9999 damage when blocked
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WnAwS2p2UVdENjg/view?usp=sharing)
+Version: base_entranced-10-23-2015-build46 (debug build) - add `/g_fixVoiceChat`, add `/g_fixHothDoorSounds`, add `/g_botJumping`, rename eweb fixing cvar to `/g_fixEweb` 
 
 Old versions:
+
+Version: base_entranced-10-22-2015-build45 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SUpoa1NfWTV6YTA/view?usp=sharing) - add `/g_korribanRedRocksReverse`, add `g_jk2SaberMoves`, fix crash caused by `target_print` in debug builds(e.g. on siege_teampicker and siege_cargobarge), allow `/killturrets` to work before round start, improve eweb aiming if `/g_fixEwebRecoil` is enabled, force Hoth bridge to do 9999 damage when blocked
 
 Version: base_entranced-10-19-2015-build44 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing) - add `/g_fixEwebRecoil`, add `/g_tauntWhileMoving`, allow `/g_fixFallingSounds` scream to work with kills affected by `/g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `/g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
 
