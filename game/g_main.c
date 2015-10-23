@@ -169,7 +169,7 @@ vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
 vmCvar_t	g_autoResetCustomTeams;
 vmCvar_t    g_tauntWhileMoving;
-vmCvar_t    g_fixEwebRecoil;
+vmCvar_t    g_fixEweb;
 vmCvar_t	g_korribanRedRocksReverse;
 vmCvar_t	g_jk2SaberMoves;
 vmCvar_t	g_fixVoiceChat;
@@ -679,7 +679,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_tauntWhileMoving, "g_tauntWhileMoving", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixEwebRecoil, "g_fixEwebRecoil", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixEweb, "g_fixEweb", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_korribanRedRocksReverse, "g_korribanRedRocksReverse", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_jk2SaberMoves, "g_jk2SaberMoves", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixVoiceChat, "g_fixVoiceChat", "1", CVAR_ARCHIVE, 0, qtrue },

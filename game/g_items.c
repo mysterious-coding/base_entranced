@@ -1802,7 +1802,7 @@ void EWebUpdateBoneAngles(gentity_t *owner, gentity_t *eweb)
 	}
 
 	VectorClear(yAng);
-	if (g_fixEwebRecoil.integer)
+	if (g_fixEweb.integer)
 	{
 		yAng[2] = owner->client->ps.viewangles[PITCH];
 	}
@@ -1854,13 +1854,13 @@ void EWebThink(gentity_t *self)
 			}
 			owner->client->ps.weapon = WP_EMPLACED_GUN;
 			owner->client->ps.stats[STAT_WEAPONS] = WP_EMPLACED_GUN;
-			if (g_fixEwebRecoil.integer)
+			if (g_fixEweb.integer)
 			{
 				EWebUpdateBoneAngles(owner, self);
 			}
 			if (self->genericValue8 < level.time)
 			{ //make sure the anim timer is done
-				if (!g_fixEwebRecoil.integer) //don't double up on updates with above fix
+				if (!g_fixEweb.integer) //don't double up on updates with above fix
 				{
 					EWebUpdateBoneAngles(owner, self);
 				}
@@ -1876,7 +1876,7 @@ void EWebThink(gentity_t *self)
 						EWebFire(owner, self);
 
 						//cheap firing anim
-						if (!g_fixEwebRecoil.integer)
+						if (!g_fixEweb.integer)
 						{
 							EWeb_SetBoneAnim(self, 2, 4);
 						}
@@ -1888,7 +1888,7 @@ void EWebThink(gentity_t *self)
 				}
 				else if (self->genericValue5 < level.time && self->genericValue3)
 				{ //reset the anim back to non-firing
-					if (!g_fixEwebRecoil.integer)
+					if (!g_fixEweb.integer)
 					{
 						EWeb_SetBoneAnim(self, 0, 1);
 					}
@@ -2026,7 +2026,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	ent->genericValue11 = spawner->client->ps.stats[STAT_WEAPONS];
 
 	//start the "unfolding" anim
-	if (!g_fixEwebRecoil.integer)
+	if (!g_fixEweb.integer)
 	{
 		EWeb_SetBoneAnim(ent, 4, 20);
 	}
