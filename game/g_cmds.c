@@ -1937,7 +1937,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		return;
 	}
 
-	if (g_teamVoiceChat.integer) //only send voice chats to team
+	if (g_fixVoiceChat.integer) //only send voice chats to team
 	{
 		for (n = 0; n < level.maxclients; n++)
 		{
@@ -3963,6 +3963,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_fixSiegeScoring.integer, ent);
 	Com_sprintf(string, 64, "g_fixEwebRecoil");
 	ServerCfgColor(string, g_fixEwebRecoil.integer, ent);
+	Com_sprintf(string, 64, "g_fixVoiceChat");
+	ServerCfgColor(string, g_fixVoiceChat.integer, ent);
 	Com_sprintf(string, 64, "g_floatingItems");
 	ServerCfgColor(string, g_floatingItems.integer, ent);
 	Com_sprintf(string, 64, "g_forceDTechItems");
@@ -3999,8 +4001,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	Com_sprintf(string, 64, "g_tauntWhileMoving");
 	ServerCfgColor(string, g_tauntWhileMoving.integer, ent);
-	Com_sprintf(string, 64, "g_teamVoiceChat");
-	ServerCfgColor(string, g_teamVoiceChat.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 

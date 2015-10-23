@@ -1887,7 +1887,7 @@ extern vmCvar_t    g_tauntWhileMoving;
 extern vmCvar_t    g_fixEwebRecoil;
 extern vmCvar_t    g_korribanRedRocksReverse;
 extern vmCvar_t    g_jk2SaberMoves;
-extern vmCvar_t    g_teamVoiceChat;
+extern vmCvar_t    g_fixVoiceChat;
 extern vmCvar_t    g_botJumping;
 
 extern vmCvar_t    g_siegeObjStorage;
