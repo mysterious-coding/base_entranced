@@ -1889,6 +1889,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	static char arg[MAX_TOKEN_CHARS];
 	char *s;
 	int i = 0;
+	int n = 0;
 
 	if (g_gametype.integer < GT_TEAM)
 	{
@@ -1936,10 +1937,30 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		return;
 	}
 
-	te = G_TempEntity(vec3_origin, EV_VOICECMD_SOUND);
-	te->s.groundEntityNum = ent->s.number;
-	te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
-	te->r.svFlags |= SVF_BROADCAST;
+	if (g_teamVoiceChat.integer) //only send voice chats to team
+	{
+		for (n = 0; n < level.maxclients; n++)
+		{
+			if (level.clients[n].pers.connected != CON_DISCONNECTED &&
+				!(g_entities[n].r.svFlags & SVF_BOT) &&
+				(level.clients[n].sess.sessionTeam == ent->client->sess.sessionTeam || level.clients[n].sess.sessionTeam == TEAM_SPECTATOR))
+			{
+				te = G_TempEntity(vec3_origin, EV_VOICECMD_SOUND);
+				te->s.groundEntityNum = ent->s.number;
+				te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
+				te->r.svFlags |= SVF_SINGLECLIENT;
+				te->r.svFlags |= SVF_BROADCAST;
+				te->r.singleClient = n;
+			}
+		}
+	}
+	else //send voice chats to everyone (default JK3)
+	{
+		te = G_TempEntity(vec3_origin, EV_VOICECMD_SOUND);
+		te->s.groundEntityNum = ent->s.number;
+		te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
+		te->r.svFlags |= SVF_BROADCAST;
+	}
 }
 
 
@@ -3976,6 +3997,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	Com_sprintf(string, 64, "g_tauntWhileMoving");
 	ServerCfgColor(string, g_tauntWhileMoving.integer, ent);
+	Com_sprintf(string, 64, "g_teamVoiceChat");
+	ServerCfgColor(string, g_teamVoiceChat.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 
