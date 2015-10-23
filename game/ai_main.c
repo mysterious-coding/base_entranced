@@ -6700,9 +6700,9 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	else //We can't find a waypoint, going to need a fallback routine.
 	{
 		{ //helps them get out of messy situations
-			bs->jumpTime = level.time + 1500;
-			bs->jumpHoldTime = level.time + 1500;
-			bs->jDelay = 0;
+			//bs->jumpTime = level.time + 1500;
+			//bs->jumpHoldTime = level.time + 1500;
+			//bs->jDelay = 0;
 		}
 		doingFallback = BotFallbackNavigation(bs);
 	}
