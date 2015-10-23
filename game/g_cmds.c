@@ -263,8 +263,8 @@ extern void Svcmd_KillTurrets_f();
 
 void Cmd_KillTurrets_f(gentity_t *ent)
 {
-	if (!CheatsOk(ent))
-	{
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
 		return;
 	}
 	Svcmd_KillTurrets_f();
@@ -278,8 +278,8 @@ void Cmd_GreenDoors_f(gentity_t *ent)
 	gentity_t *doorent;
 	int i = 0;
 
-	if (!CheatsOk(ent))
-	{
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
 		return;
 	}
 
@@ -295,8 +295,8 @@ void Cmd_GreenDoors_f(gentity_t *ent)
 
 void Cmd_DuoTest_f(gentity_t *ent)
 {
-	if (!CheatsOk(ent))
-	{
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
 		return;
 	}
 
