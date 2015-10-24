@@ -3779,21 +3779,6 @@ void CheckVote( void ) {
 			trap_Cvar_Set("g_wasRestarted", "1");
 		}
 
-        if (!Q_stricmpn(level.voteString, "clientkick", 10)){
-            int id = atoi(&level.voteString[11]);
-
-            if ((id < sv_privateclients.integer) && !(g_entities[id].r.svFlags & SVF_BOT))
-            {
-                if (g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
-                {       
-                    trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i s\n", id));
-                }
-
-                trap_SendServerCommand(-1, va("print \"%s^1 may not be kicked.\n\"", g_entities[id].client->pers.netname));
-                return;
-            }
-        }
-
 		trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.voteString ) );
 
 		if (level.votingGametype)
