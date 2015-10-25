@@ -154,6 +154,203 @@ static	vec3_t	muzzle;
 #define ATST_SIDE_ALT_ROCKET_SIZE			5
 #define ATST_SIDE_ALT_ROCKET_SPLASH_SCALE	0.5f	// scales splash for NPC's
 
+
+#define TRIP_MINE_SPAM_DISTANCE				875
+#define	DOOR_SPAM_DISTANCE					512
+
+qboolean OnValidMapForAntiSpam(void)
+{
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	if (!Q_stricmp(mapname.string, "siege_codes")) //we are currently on any of these maps
+	{
+		return qfalse;
+	}
+	return qtrue;
+}
+
+extern int BotMindTricked(int botClient, int enemyClient);
+extern int Get_Max_Ammo(gentity_t* ent, ammo_t ammoIndex);
+extern qboolean InFOV(gentity_t *ent, gentity_t *from, int hFOV, int vFOV);
+
+void RefundAmmo(gentity_t *ent, weapon_t weaponBeingUsed, qboolean altFire)
+{
+	if (!ent || !weaponBeingUsed)
+	{
+		return;
+	}
+
+	if (!altFire)
+	{
+		ent->client->ps.ammo[weaponData[weaponBeingUsed].ammoIndex] += weaponData[weaponBeingUsed].energyPerShot; //primary fire
+	}
+	else
+	{
+		ent->client->ps.ammo[weaponData[weaponBeingUsed].ammoIndex] += weaponData[weaponBeingUsed].altEnergyPerShot; //alt fire
+	}
+
+	if (ent->client->ps.ammo[weaponData[weaponBeingUsed].ammoIndex] > Get_Max_Ammo(ent, weaponData[weaponBeingUsed].ammoIndex))
+	{
+		ent->client->ps.ammo[weaponData[weaponBeingUsed].ammoIndex] = Get_Max_Ammo(ent, weaponData[weaponBeingUsed].ammoIndex); //paranoid check that we aren't giving you more ammo than you should legally have
+	}
+}
+
+qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboolean removeMissileIfIAmASpammer, gentity_t *missile, weapon_t weaponBeingUsed, qboolean altFire, qboolean trackDoorspamStatusOfProj)
+{
+	vec3_t		start, end;
+	trace_t		tr;
+	gentity_t	*traceEnt;
+	float		range = 1024;
+	int			ignore;
+
+	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim;
+	vec3_t		throwerOrigin, distanceToVictim, distanceBetweenMeAndDoor, distanceBetweenMeAndVictim;
+	int			possibleTargets;
+	qboolean	iAmADirtyFuckingSpammer = qfalse;
+	qboolean	thereIsAWalker = qfalse;
+	qboolean	thereIsADoor = qfalse;
+	qboolean	thereIsAnEnemyBetweenMeAndDoor = qfalse;
+	qboolean	thereIsAnEnemyBehindDoor = qfalse;
+	int			sizeOfConeOfProhibitedSpam, i;
+
+	if (iLikeToSpam.integer || ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
+	{
+		return qfalse;
+	}
+
+	if (checkDoorspam)
+	{
+		memset(&tr, 0, sizeof(tr)); //to shut the compiler up
+		VectorCopy(ent->client->ps.origin, start);
+		start[2] += ent->client->ps.viewheight;//By eyes
+		VectorMA(start, range, forward, end);
+		ignore = ent->s.number;
+		trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+		traceEnt = &g_entities[tr.entityNum];
+		if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16))
+		{
+			//we are aiming directly at a closed door
+			thereIsADoor = qtrue;
+			if (trackDoorspamStatusOfProj && missile)
+			{
+				missile->closedDoorWeWereFiredAt = tr.entityNum;
+			}
+		}
+	}
+
+	VectorCopy(ent->client->ps.origin, throwerOrigin);
+	//possibleTargets = G_RadiusList(throwerOrigin, 9999, ent, qtrue, entity_list);
+	possibleTargets = G_RadiusList(throwerOrigin, TRIP_MINE_SPAM_DISTANCE, ent, qtrue, entity_list);
+
+	for (i = 0; i < possibleTargets; i++)
+	{
+		potentialSpamVictim = entity_list[i];
+
+		if (potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+		{
+			thereIsAWalker = qtrue;//it's okay to spam if there's a walker or fighter nearby
+			continue;
+		}
+
+		if (potentialSpamVictim->client && potentialSpamVictim->client->ps.m_iVehicleNum && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+		{
+			thereIsAWalker = qtrue;//it's okay to spam if there's a walker or fighter nearby
+			continue;
+		}
+
+		if (!potentialSpamVictim->client)
+		{
+			continue;
+		}
+
+		VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToVictim);
+		if (VectorLength(distanceToVictim) < 600)
+		{
+			sizeOfConeOfProhibitedSpam = 90;
+		}
+		else
+		{
+			sizeOfConeOfProhibitedSpam = 60; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+			//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+		}
+
+		if (!InFOV(potentialSpamVictim, ent, sizeOfConeOfProhibitedSpam, 180))//make sure the potential spam victim is within our vision cone
+		{
+			continue;
+		}
+
+		if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || (potentialSpamVictim->flags & FL_NOTARGET))
+		{
+			continue;
+		}
+
+		if (potentialSpamVictim->client->sess.sessionTeam && potentialSpamVictim->client->sess.sessionTeam != TEAM_RED) //only applies to offense
+		{
+			continue;
+		}
+
+		if (BotMindTricked(ent->s.number, potentialSpamVictim->s.number)) //don't count people who have us mind tricked. this would be a dead giveaway that the MTer is nearby.
+		{
+			continue;
+		}
+
+		if (potentialSpamVictim->client->ps.fd.forcePowersActive && potentialSpamVictim->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))//it's okay to spam people using protect (I guess)
+		{
+			thereIsAWalker = qtrue;
+			continue;
+		}
+
+		//if we got to this line, there is at least one eligible enemy. we still have some more stuff to check, though...
+
+		if (checkDoorspam)
+		{
+			if (!thereIsADoor)
+			{
+				iAmADirtyFuckingSpammer = qfalse; //we are checking for doorspam and there is no door; therefore, we are not spamming.
+			}
+			else //there IS a door, so let's check if an enemy is behind it
+			{
+				VectorSubtract(start, tr.endpos, distanceBetweenMeAndDoor);
+				VectorSubtract(start, potentialSpamVictim->client->ps.origin, distanceBetweenMeAndVictim);
+				if (VectorLength(distanceBetweenMeAndVictim) > VectorLength(distanceBetweenMeAndDoor))
+				{
+					//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^2GREATER THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
+					thereIsAnEnemyBehindDoor = qtrue; //enemy is behind a door
+				}
+				else
+				{
+					//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
+					thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
+				}
+			}
+		}
+		else
+		{
+			iAmADirtyFuckingSpammer = qtrue; //prohibit the spam because there is a victim and we aren't checking for doorspam
+		}
+	}
+
+	if (thereIsAnEnemyBehindDoor)
+	//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy behind door\n\""));
+	if (thereIsAnEnemyBetweenMeAndDoor)
+	//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy between me and door\n\""));
+
+	if ((checkDoorspam && thereIsAnEnemyBehindDoor && !thereIsAnEnemyBetweenMeAndDoor) || (!checkDoorspam && iAmADirtyFuckingSpammer && !thereIsAWalker))
+	{
+		//we are a spammer confirmed. give us our ammo back, optionally remove the missile, and return qtrue so we can punish this douchebag
+		RefundAmmo(ent, weaponBeingUsed, altFire);
+		if (removeMissileIfIAmASpammer && missile)
+			G_FreeEntity(missile);
+		return qtrue;
+	}
+	else
+	{
+		return qfalse;
+	}
+	
+
+	return qfalse; //?
+}
 extern qboolean G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMins, vec3_t boundsMaxs );
 extern qboolean G_HeavyMelee( gentity_t *attacker );
 extern void Jedi_Decloak( gentity_t *self );
@@ -286,6 +483,11 @@ static void WP_FireBryarPistol( gentity_t *ent, qboolean altFire )
 	}
 	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
 
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
+
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
 }
@@ -375,6 +577,11 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean a
 	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
 	missile->methodOfDeath = MOD_BLASTER;
 	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
@@ -996,6 +1203,11 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 
 	missile->flags |= FL_BOUNCE;
 	missile->bounceCount = 3;
+
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 }
 
 //---------------------------------------------------------
@@ -1082,6 +1294,11 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 
 		// we don't want it to bounce
 		missile->bounceCount = 0;
+
+		if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+		{
+			//stuff
+		}
 	}
 }
 
@@ -1127,6 +1344,11 @@ static void WP_RepeaterMainFire( gentity_t *ent, vec3_t dir )
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
+
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 }
 
 //---------------------------------------------------------
@@ -1159,8 +1381,18 @@ static void WP_RepeaterAltFire( gentity_t *ent )
 		missile->splashRadius = REPEATER_ALT_SPLASH_RADIUS;
 	}
 
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
+
+	if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_REPEATER, qtrue, qtrue))
+	{
+		return;
+	}
+
 }
 
 //---------------------------------------------------------
@@ -1523,6 +1755,11 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 		missile->bounceCount = Q_irand(5,8);
 
 		missile->flags |= FL_BOUNCE_SHRAPNEL;
+
+		if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+		{
+			//stuff
+		}
 	}
 }
 
@@ -1656,6 +1893,11 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 	missile->splashMethodOfDeath = MOD_FLECHETTE_ALT_SPLASH;
 
 	VectorCopy( start, missile->pos2 );
+
+	if (!iLikeToSpam.integer && self->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 }
 
 //---------------------------------------------------------
@@ -1950,6 +2192,11 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;
+
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 }
 
 /*
@@ -1992,6 +2239,7 @@ void thermalDetonatorExplode( gentity_t *ent )
 	}
 	else
 	{
+		//iLikeToSpam check should go here
 		vec3_t	origin;
 		vec3_t	dir={0,0,1};
 
@@ -2112,6 +2360,11 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, qboolean altFire )
 	VectorCopy( start, bolt->pos2 );
 
 	bolt->bounceCount = -5;
+
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 
 	return bolt;
 }
@@ -2595,6 +2848,11 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 	int			lowestTimeStamp;
 	int			removeMe;
 	int			i;
+
+	if (CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse))
+	{
+		return;
+	}
 
 	foundLaserTraps[0] = ENTITYNUM_NONE;
 
@@ -3292,6 +3550,11 @@ static void WP_FireConcussion( gentity_t *ent )
 	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
 	missile->splashDamage = CONC_SPLASH_DAMAGE;
 	missile->splashRadius = CONC_SPLASH_RADIUS;
+
+	if (!iLikeToSpam.integer && ent->client->sess.sessionTeam == TEAM_BLUE && OnValidMapForAntiSpam && g_gametype.integer == GT_SIEGE)
+	{
+		//stuff
+	}
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;

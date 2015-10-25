@@ -313,6 +313,7 @@ struct gentity_s {
 	int			splashRadius;
 	int			methodOfDeath;
 	int			splashMethodOfDeath;
+	int			closedDoorWeWereFiredAt;
 
 	int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
 
@@ -1890,6 +1891,7 @@ extern vmCvar_t    g_jk2SaberMoves;
 extern vmCvar_t    g_fixVoiceChat;
 extern vmCvar_t    g_botJumping;
 extern vmCvar_t    g_fixHothDoorSounds;
+extern vmCvar_t    iLikeToSpam;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
