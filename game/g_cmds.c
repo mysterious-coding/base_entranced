@@ -312,6 +312,11 @@ void Cmd_DuoTest_f(gentity_t *ent)
 		{
 			ent->client->ps.ammo[i] = 999;
 		}
+		for (i = 0; i < NUM_FORCE_POWERS; i++)
+		{
+			ent->client->ps.fd.forcePowerLevel[i] = 3;
+			ent->client->ps.fd.forcePowersKnown |= (1 << i);
+		}
 	}
 }
 
@@ -4059,6 +4064,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	Com_sprintf(string, 64, "g_tauntWhileMoving");
 	ServerCfgColor(string, g_tauntWhileMoving.integer, ent);
+	Com_sprintf(string, 64, "iLikeToSpam");
+	ServerCfgColor(string, iLikeToSpam.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 
