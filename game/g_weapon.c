@@ -213,8 +213,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	qboolean	thereIsAnEnemyBetweenMeAndDoor = qfalse;
 	qboolean	thereIsAnEnemyBehindDoor = qfalse;
 	int			sizeOfConeOfProhibitedSpam, i;
-	int			n;
-	float		originalend2;
+	int			heightAdjustment, xAdjustment, yAdjustment;
+	float		originalend0,originalend1,originalend2;
 
 
 	if (iLikeToSpam.integer || ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
@@ -235,6 +235,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		VectorMA(start, range, forward, end);
 		ignore = ent->s.number;
+		originalend0 = end[0];
+		originalend1 = end[1];
 		originalend2 = end[2];
 		//end[0] += debug_testHeight4.integer;
 		//end[1] += debug_testHeight5.integer;
@@ -242,29 +244,40 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 		//maybe some sideways(yaw) checks, too? example use: for if you are spamming balls next to the door so they bounce off into the doorway
 		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
 
-
-		for (n = 4096; n >= -4096; n -= 64) //check many different heights to detect doorspam when aiming slightly above or below the door.
+		for (yAdjustment = 1024; yAdjustment >= -512; yAdjustment -= 512)
 		{
-			end[2] = originalend2;
-			end[2] += n;
-			//G_PlayEffectID(G_EffectIndex("disruptor/wall_impact.efx"), end, start);
-			trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
-			traceEnt = &g_entities[tr.entityNum];
-			//if (traceEnt->classname)
-				//trap_SendServerCommand(-1, va("print \"^%iDebug: classname == %s\n\"", Q_irand(1, 7), traceEnt->classname));
-			if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16))
+			end[0] = originalend0;
+			end[0] += yAdjustment;
+			for (xAdjustment = 1024; xAdjustment >= -512; xAdjustment -= 512)
 			{
-				//we are aiming directly at a closed door
-				thereIsADoor = qtrue;
-				VectorSubtract(start, tr.endpos, distanceBetweenMeAndDoor);
-				if (trackDoorspamStatusOfProj && missile)
+				end[1] = originalend1;
+				end[1] += xAdjustment;
+				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 64) //check many different heights to detect doorspam when aiming slightly above or below the door.
 				{
-					missile->closedDoorWeWereFiredAt = tr.entityNum;
+					end[2] = originalend2;
+					end[2] += heightAdjustment;
+					//G_PlayEffectID(G_EffectIndex("disruptor/wall_impact.efx"), end, start);
+					trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+					traceEnt = &g_entities[tr.entityNum];
+					//if (traceEnt->classname)
+						//trap_SendServerCommand(-1, va("print \"^%iDebug: classname == %s\n\"", Q_irand(1, 7), traceEnt->classname));
+					if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16))
+					{
+						//we are aiming directly at a closed door
+						thereIsADoor = qtrue;
+						VectorSubtract(start, tr.endpos, distanceBetweenMeAndDoor);
+						if (trackDoorspamStatusOfProj && missile)
+						{
+							missile->closedDoorWeWereFiredAt = tr.entityNum;
+						}
+						goto foundTheDoor;
+					}
 				}
-				break;
 			}
 		}
 	}
+
+	foundTheDoor:
 
 	VectorCopy(ent->client->ps.origin, throwerOrigin);
 	//possibleTargets = G_RadiusList(throwerOrigin, 9999, ent, qtrue, entity_list);
@@ -344,7 +357,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		if (BotMindTricked(ent->s.number, potentialSpamVictim->s.number)) //don't count people who have us mind tricked. this would be a dead giveaway that the MTer is nearby.
 		{
-			continue;
+			continue; //for non-doorspam checks, pretend like MTer is not there.
 		}
 
 		if (potentialSpamVictim->client->ps.fd.forcePowersActive && potentialSpamVictim->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))//it's okay to spam people using protect (I guess)
@@ -421,7 +434,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy between me and door\n\""));
 
 
-#if 1
+#if 0
 	//ALTERNATE METHOD
 	//don't check for enemies -- just never allow shooting at doors ever (unless someone is in front of us or there's a walker)
 	if (checkDoorspam && thereIsADoor && !thereIsAnEnemyBetweenMeAndDoor && !thereIsAWalkerOrProtector)
