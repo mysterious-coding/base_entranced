@@ -176,6 +176,12 @@ vmCvar_t	g_fixVoiceChat;
 vmCvar_t	g_botJumping;
 vmCvar_t	g_fixHothDoorSounds;
 vmCvar_t	iLikeToSpam;
+/*vmCvar_t	debug_testHeight1;
+vmCvar_t	debug_testHeight2;
+vmCvar_t	debug_testHeight3;
+vmCvar_t	debug_testHeight4;
+vmCvar_t	debug_testHeight5;
+vmCvar_t	debug_testHeight6;*/
 
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
@@ -688,6 +694,13 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_botJumping, "g_botJumping", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothDoorSounds, "g_fixHothDoorSounds", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &iLikeToSpam, "iLikeToSpam", "1", CVAR_ARCHIVE, 0, qtrue },
+
+	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &debug_testHeight3, "debug_testHeight3", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &debug_testHeight4, "debug_testHeight4", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &debug_testHeight5, "debug_testHeight5", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &debug_testHeight6, "debug_testHeight6", "0", CVAR_ARCHIVE, 0, qtrue },*/
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },

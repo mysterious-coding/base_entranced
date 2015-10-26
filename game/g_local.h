@@ -1892,6 +1892,12 @@ extern vmCvar_t    g_fixVoiceChat;
 extern vmCvar_t    g_botJumping;
 extern vmCvar_t    g_fixHothDoorSounds;
 extern vmCvar_t    iLikeToSpam;
+/*extern vmCvar_t    debug_testHeight1;
+extern vmCvar_t    debug_testHeight2;
+extern vmCvar_t    debug_testHeight3;
+extern vmCvar_t    debug_testHeight4;
+extern vmCvar_t    debug_testHeight5;
+extern vmCvar_t    debug_testHeight6;*/
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
