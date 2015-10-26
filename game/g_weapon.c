@@ -357,7 +357,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		if (BotMindTricked(ent->s.number, potentialSpamVictim->s.number)) //don't count people who have us mind tricked. this would be a dead giveaway that the MTer is nearby.
 		{
-			continue; //for non-doorspam checks, pretend like MTer is not there.
+			continue; //pretend like MTer is not there
 		}
 
 		if (potentialSpamVictim->client->ps.fd.forcePowersActive && potentialSpamVictim->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))//it's okay to spam people using protect (I guess)
