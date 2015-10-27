@@ -211,12 +211,12 @@ void RefundAmmo(gentity_t *ent, weapon_t weaponBeingUsed, qboolean altFire)
 qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboolean removeMissileIfIAmASpammer, gentity_t *missile, weapon_t weaponBeingUsed, qboolean altFire, qboolean trackDoorspamStatusOfProj, float range, qboolean refundMyAmmo)
 {
 	vec3_t		start, end;
-	vec3_t		distanceToDoor[8];
+	vec3_t		distanceToDoor[64];
 	trace_t		tr;
 	gentity_t	*traceEnt;
 	int			ignore;
 	int			x, z;
-	int			foundDoorsIndex[32];
+	int			foundDoorsIndex[64];
 
 	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim;
 	vec3_t		throwerOrigin, distanceToVictim, distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim;
