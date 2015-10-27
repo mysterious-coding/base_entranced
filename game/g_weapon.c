@@ -231,6 +231,9 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	float		originalend0,originalend1,originalend2;
 	int			numberOfDoorsFound = 0;
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
 	if (ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{
 		return qfalse;
@@ -304,6 +307,21 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	}
 	else
 	{
+		//check for hoth walker spawn areas
+		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+		{
+			if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
+			{
+				//trap_SendServerCommand(-1, va("print \"^%iFirst walker spawn point, ^%ispam allowed.\n\"", Q_irand(1,7), Q_irand(1, 7)));
+				return qfalse; //first obj walker spawn
+			}
+			if (ent->client->ps.origin[0] >= 2287 && ent->client->ps.origin[0] <= 4113 && ent->client->ps.origin[1] >= -1083 && ent->client->ps.origin[1] <= 549)
+			{
+				//trap_SendServerCommand(-1, va("print \"^%iSecond walker spawn point, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+				return qfalse; //second/third obj walker spawn
+			}
+		}
+
 		memset(&tr, 0, sizeof(tr)); //to shut the compiler up
 		VectorCopy(ent->client->ps.origin, start);
 		start[2] += ent->client->ps.viewheight;//By eyes
