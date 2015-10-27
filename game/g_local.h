@@ -201,6 +201,8 @@ struct gentity_s {
 	int			healingDebounce; //debounce for generic object healing shiz
 	int			healingteam;
 
+	qboolean	thisDoorWasFoundAlreadyByClient[32];
+
 	char		*ownername;
 
 	int			objective;
@@ -313,7 +315,7 @@ struct gentity_s {
 	int			splashRadius;
 	int			methodOfDeath;
 	int			splashMethodOfDeath;
-	int			closedDoorWeWereFiredAt;
+	//int			closedDoorWeWereFiredAt;
 
 	int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
 

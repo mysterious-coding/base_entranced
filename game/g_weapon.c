@@ -200,12 +200,15 @@ void RefundAmmo(gentity_t *ent, weapon_t weaponBeingUsed, qboolean altFire)
 qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboolean removeMissileIfIAmASpammer, gentity_t *missile, weapon_t weaponBeingUsed, qboolean altFire, qboolean trackDoorspamStatusOfProj, float range, qboolean refundMyAmmo)
 {
 	vec3_t		start, end;
+	vec3_t		distanceToDoor[8];
 	trace_t		tr;
 	gentity_t	*traceEnt;
 	int			ignore;
+	int			x, z;
+	int			foundDoorsIndex[32];
 
 	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim;
-	vec3_t		throwerOrigin, distanceToVictim, distanceBetweenMeAndDoor, distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim, distanceToWalker;
+	vec3_t		throwerOrigin, distanceToVictim, distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim;
 	int			possibleTargets;
 	qboolean	iAmADirtyFuckingSpammer = qfalse;
 	qboolean	thereIsAWalkerOrProtector = qfalse;
@@ -215,13 +218,12 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	int			sizeOfConeOfProhibitedSpam, i;
 	int			heightAdjustment, xAdjustment, yAdjustment;
 	float		originalend0,originalend1,originalend2;
-
+	int			numberOfDoorsFound = 0;
 
 	if (iLikeToSpam.integer || ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{
 		return qfalse;
 	}
-	//DUOFIXME: break mine and non-mine spam into two cvars: iLikeToDoorSpam and iLikeToMineSpam ???
 
 	if (checkDoorspam)
 	{
@@ -261,23 +263,35 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					traceEnt = &g_entities[tr.entityNum];
 					//if (traceEnt->classname)
 						//trap_SendServerCommand(-1, va("print \"^%iDebug: classname == %s\n\"", Q_irand(1, 7), traceEnt->classname));
-					if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16))
+					if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
 					{
 						//we are aiming directly at a closed door
 						thereIsADoor = qtrue;
-						VectorSubtract(start, tr.endpos, distanceBetweenMeAndDoor);
-						if (trackDoorspamStatusOfProj && missile)
-						{
-							missile->closedDoorWeWereFiredAt = tr.entityNum;
-						}
-						goto foundTheDoor;
+						numberOfDoorsFound++;
+						VectorSubtract(start, tr.endpos, distanceToDoor[numberOfDoorsFound]);
+						//if (trackDoorspamStatusOfProj && missile)
+						//{
+						//	missile->closedDoorWeWereFiredAt = tr.entityNum;
+						//}
+						traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] = qtrue;
+						foundDoorsIndex[numberOfDoorsFound] = tr.entityNum;
+						//goto foundTheDoor;
 					}
 				}
 			}
 		}
+
+		//foundTheDoor:
+
+		for (z = 1; z <= numberOfDoorsFound; z++)
+		{
+			if (foundDoorsIndex[z])
+			{
+				g_entities[foundDoorsIndex[z]].thisDoorWasFoundAlreadyByClient[ent->s.number] = qfalse;
+			}
+		}
 	}
 
-	foundTheDoor:
 
 	VectorCopy(ent->client->ps.origin, throwerOrigin);
 	//possibleTargets = G_RadiusList(throwerOrigin, 9999, ent, qtrue, entity_list);
@@ -289,28 +303,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 		{
-			if (checkDoorspam && thereIsADoor)
-			{
-				VectorSubtract(throwerOrigin, potentialSpamVictim->r.currentOrigin, distanceToWalker); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
-				if (VectorLength(distanceBetweenMeAndDoor) > VectorLength(distanceToWalker))
-				{
-					//for doorspam check, we will only say "there is a walker" if the walker is between us and the door
-					//this prevents being prevented from doorspamming because a walker is far away
-					//walker is between me and the door
-					thereIsAWalkerOrProtector = qtrue;
-					continue;
-				}
-				else
-				{
-					//walker is behind the door
-					continue;
-				}
-			}
-			else
-			{
-				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby
-				continue;
-			}
+			thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby
+			continue;
 		}
 
 		if (potentialSpamVictim->client && potentialSpamVictim->client->ps.m_iVehicleNum && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
@@ -362,28 +356,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		if (potentialSpamVictim->client->ps.fd.forcePowersActive && potentialSpamVictim->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))//it's okay to spam people using protect (I guess)
 		{
-			if (checkDoorspam && thereIsADoor)
-			{
-				VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToWalker); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
-				if (VectorLength(distanceBetweenMeAndDoor) > VectorLength(distanceToWalker))
-				{
-					//for doorspam check, we will only say "there is a protector" if the protector is between us and the door
-					//this prevents being prevented from doorspamming because a protector is far away
-					//protector is between me and the door
-					thereIsAWalkerOrProtector = qtrue;
-					continue;
-				}
-				else
-				{
-					//protector is behind the door
-					continue;
-				}
-			}
-			else
-			{
-				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if the enemy is using protect (I guess)
-				continue;
-			}
+			thereIsAWalkerOrProtector = qtrue;//it's okay to spam if the enemy is using protect (I guess)
+			continue;
 		}
 
 		//if we got to this line, there is at least one eligible enemy. we still have some more stuff to check, though...
@@ -398,27 +372,30 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			else //there is a door, so let's check if an enemy is behind it
 			{
 				VectorSubtract(start, potentialSpamVictim->client->ps.origin, distanceBetweenMeAndVictim);
-				VectorSubtract(distanceBetweenMeAndDoor, distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim);
-				if (VectorLength(distanceBetweenMeAndVictim) > VectorLength(distanceBetweenMeAndDoor))
+				for (x = 1; x <= numberOfDoorsFound; x++)
 				{
-					//enemy is behind door
-					//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^2GREATER THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-					if (VectorLength(distanceBetweenDoorAndVictim) < DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM)
+					if (VectorLength(distanceBetweenMeAndVictim) > VectorLength(distanceToDoor[x]))
 					{
-						//enemy is behind door, and is rather close to the door. this is doorspam.
-						thereIsAnEnemyBehindDoor = qtrue;
-						//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^2LESS THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+						//enemy is behind door
+						//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^2GREATER THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
+						VectorSubtract(distanceToDoor[x], distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim);
+						if (VectorLength(distanceBetweenDoorAndVictim) < DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM)
+						{
+							//enemy is behind door, and is rather close to the door. this is doorspam.
+							thereIsAnEnemyBehindDoor = qtrue;
+							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^2LESS THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+						}
+						else
+						{
+							//enemy is behind door, but is rather far from the door. not doorspam.
+							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^1GREATER THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+						}
 					}
 					else
 					{
-						//enemy is behind door, but is rather far from the door. not doorspam.
-						//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^1GREATER THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+						//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
+						thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
 					}
-				}
-				else
-				{
-					//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-					thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
 				}
 			}
 		}
@@ -429,9 +406,9 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	}
 
 	//if (thereIsAnEnemyBehindDoor)
-	//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy behind door\n\""));
+		//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy behind the %i doors found\n\"", numberOfDoorsFound));
 	//if (thereIsAnEnemyBetweenMeAndDoor)
-	//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy between me and door\n\""));
+		//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy between you and the %i doors found\n\"", numberOfDoorsFound));
 
 
 #if 0
