@@ -234,7 +234,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
+	if (!ent || !ent->client || ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{
 		return qfalse;
 	}
