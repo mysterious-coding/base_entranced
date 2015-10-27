@@ -1280,6 +1280,11 @@ BOWCASTER
 
 static void WP_BowcasterAltFire( gentity_t *ent )
 {
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_BOWCASTER, qtrue, qtrue, SPAM_DISTANCE_BOWCASTER, qtrue))
+	{
+		return;
+	}
+
 	int	damage	= BOWCASTER_DAMAGE;
 
 	gentity_t *missile = CreateMissile( muzzle, forward, BOWCASTER_VELOCITY, 10000, ent, qfalse);
@@ -1297,11 +1302,6 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 
 	missile->flags |= FL_BOUNCE;
 	missile->bounceCount = 3;
-
-	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_BOWCASTER, qtrue, qtrue, SPAM_DISTANCE_BOWCASTER, qtrue))
-	{
-		return;
-	}
 }
 
 //---------------------------------------------------------
@@ -1441,6 +1441,11 @@ static void WP_RepeaterMainFire( gentity_t *ent, vec3_t dir )
 static void WP_RepeaterAltFire( gentity_t *ent )
 //---------------------------------------------------------
 {
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_REPEATER, qtrue, qtrue, SPAM_DISTANCE_BLOB, qtrue))
+	{
+		return;
+	}
+
 	int	damage	= REPEATER_ALT_DAMAGE;
 
 	gentity_t *missile = CreateMissile( muzzle, forward, REPEATER_ALT_VELOCITY, 10000, ent, qtrue );
@@ -1468,11 +1473,6 @@ static void WP_RepeaterAltFire( gentity_t *ent )
 	}
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
-
-	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_REPEATER, qtrue, qtrue, SPAM_DISTANCE_BLOB, qtrue))
-	{
-		return;
-	}
 
 }
 
@@ -1934,6 +1934,7 @@ void WP_flechette_alt_blow( gentity_t *ent )
 static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *self )
 //------------------------------------------------------------------------------
 {
+
 	gentity_t	*missile = CreateMissile( start, fwd, 700 + random() * 700, 1500 + random() * 2000, self, qtrue );
 	
 	missile->think = WP_flechette_alt_blow;
@@ -1970,17 +1971,16 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 	missile->splashMethodOfDeath = MOD_FLECHETTE_ALT_SPLASH;
 
 	VectorCopy( start, missile->pos2 );
-
-	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(self, qtrue, qtrue, missile, WP_FLECHETTE, qtrue, qtrue, SPAM_DISTANCE_GOLAN, qfalse)) //don't refund ammo here or it will happen twice because 2 balls are created
-	{
-		return;
-	}
 }
 
 //---------------------------------------------------------
 static void WP_FlechetteAltFire( gentity_t *self )
 //---------------------------------------------------------
 {
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(self, qtrue, qfalse, NULL, WP_FLECHETTE, qtrue, qfalse, SPAM_DISTANCE_GOLAN, qtrue)) //this is just to refund ammo once for golan alternate
+	{
+		return;
+	}
 	vec3_t 	dir, fwd, start, angs;
 	vec3_t  mins = { -6.0f, -6.0f, -6.0f };
 	vec3_t  maxs = { 6.0f, 6.0f, 6.0f };
@@ -2000,10 +2000,6 @@ static void WP_FlechetteAltFire( gentity_t *self )
 		AngleVectors( dir, fwd, NULL, NULL );
 
 		WP_CreateFlechetteBouncyThing( start, fwd, self );
-	}
-	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(self, qtrue, qfalse, NULL, WP_FLECHETTE, qtrue, qfalse, SPAM_DISTANCE_GOLAN, qfalse)) //this is just to refund ammo once for golan alternate
-	{
-		RefundAmmo(self, WP_FLECHETTE, qtrue);
 	}
 }
 
@@ -2189,6 +2185,21 @@ void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 //---------------------------------------------------------
 {
+	if (!altFire)
+	{
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_ROCKET_LAUNCHER, qfalse, qtrue, SPAM_DISTANCE_ROCKET, qtrue))
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_ROCKET_LAUNCHER, qtrue, qtrue, SPAM_DISTANCE_ROCKET, qtrue))
+		{
+			return;
+		}
+	}
+
 	int	damage	= ROCKET_DAMAGE;
 	int	vel = ROCKET_VELOCITY;
 	int dif = 0;
@@ -2273,20 +2284,6 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;
-	if (!altFire)
-	{
-		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_ROCKET_LAUNCHER, qfalse, qtrue, SPAM_DISTANCE_ROCKET, qtrue))
-		{
-			return;
-		}
-	}
-	else
-	{
-		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_ROCKET_LAUNCHER, qtrue, qtrue, SPAM_DISTANCE_ROCKET, qtrue))
-		{
-			return;
-		}
-	}
 }
 
 /*
@@ -2368,6 +2365,21 @@ void thermalThinkStandard(gentity_t *ent)
 gentity_t *WP_FireThermalDetonator(gentity_t *ent, qboolean altFire)
 //---------------------------------------------------------
 {
+	if (!altFire)
+	{
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_THERMAL, qfalse, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_THERMAL, qtrue, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
+		{
+			return 0;
+		}
+	}
+
 	gentity_t	*bolt;
 	vec3_t		dir, start;
 	float chargeAmount = 1.0f; // default of full charge
@@ -2449,21 +2461,6 @@ gentity_t *WP_FireThermalDetonator(gentity_t *ent, qboolean altFire)
 	VectorCopy(start, bolt->pos2);
 
 	bolt->bounceCount = -5;
-
-	if (!altFire)
-	{
-		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, bolt, WP_THERMAL, qfalse, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
-		{
-			return bolt;
-		}
-	}
-	else
-	{
-		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, bolt, WP_THERMAL, qtrue, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
-		{
-			return bolt;
-		}
-	}
 
 	return bolt;
 }
@@ -3622,6 +3619,12 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 
 static void WP_FireConcussion( gentity_t *ent )
 {//a fast rocket-like projectile
+
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_CONCUSSION, qfalse, qtrue, SPAM_DISTANCE_CONC, qtrue))
+	{
+		return;
+	}
+
 	vec3_t	start;
 	int		damage	= CONC_DAMAGE;
 	float	vel = CONC_VELOCITY;
@@ -3649,11 +3652,6 @@ static void WP_FireConcussion( gentity_t *ent )
 	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
 	missile->splashDamage = CONC_SPLASH_DAMAGE;
 	missile->splashRadius = CONC_SPLASH_RADIUS;
-
-	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_CONCUSSION, qfalse, qtrue, SPAM_DISTANCE_CONC, qtrue))
-	{
-		return;
-	}
 
 	// we don't want it to ever bounce
 	missile->bounceCount = 0;
