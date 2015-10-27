@@ -470,11 +470,13 @@ void InitSiegeMode(void)
 	{
 		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
 		{
-			trap_Cvar_Set("iLikeToSpam", "1");
+			trap_Cvar_Set("iLikeToDoorSpam", "1");
+			trap_Cvar_Set("iLikeToMineSpam", "1");
 		}
 		else
 		{
-			trap_Cvar_Set("iLikeToSpam", "0");
+			trap_Cvar_Set("iLikeToDoorSpam", "0");
+			trap_Cvar_Set("iLikeToMineSpam", "0");
 		}
 	}
 

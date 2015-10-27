@@ -154,7 +154,18 @@ static	vec3_t	muzzle;
 #define ATST_SIDE_ALT_ROCKET_SIZE			5
 #define ATST_SIDE_ALT_ROCKET_SPLASH_SCALE	0.5f	// scales splash for NPC's
 
+// Spam stuff
+//---------------
+#define SPAM_DISTANCE_BOWCASTER						4096
+#define	SPAM_DISTANCE_BLOB							4096
+#define SPAM_DISTANCE_GOLAN							4096
+#define	SPAM_DISTANCE_ROCKET						4096
+#define	SPAM_DISTANCE_CONC							4096
+#define	SPAM_DISTANCE_THERMAL						4096
+#define SPAM_DISTANCE_MINES							1024
 #define	DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM	512
+
+
 
 qboolean OnValidMapForAntiSpam(void)
 {
@@ -220,7 +231,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	float		originalend0,originalend1,originalend2;
 	int			numberOfDoorsFound = 0;
 
-	if (iLikeToSpam.integer || ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
+	if (ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{
 		return qfalse;
 	}
@@ -1287,7 +1298,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 	missile->flags |= FL_BOUNCE;
 	missile->bounceCount = 3;
 
-	if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_BOWCASTER, qtrue, qtrue, 4096, qtrue))
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_BOWCASTER, qtrue, qtrue, SPAM_DISTANCE_BOWCASTER, qtrue))
 	{
 		return;
 	}
@@ -1458,7 +1469,7 @@ static void WP_RepeaterAltFire( gentity_t *ent )
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
 
-	if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_REPEATER, qtrue, qtrue, 4096, qtrue))
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_REPEATER, qtrue, qtrue, SPAM_DISTANCE_BLOB, qtrue))
 	{
 		return;
 	}
@@ -1960,7 +1971,7 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 
 	VectorCopy( start, missile->pos2 );
 
-	if (CheckIfIAmAFilthySpammer(self, qtrue, qtrue, missile, WP_FLECHETTE, qtrue, qtrue, 4096, qfalse)) //don't refund ammo here or it will happen twice because 2 balls are created
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(self, qtrue, qtrue, missile, WP_FLECHETTE, qtrue, qtrue, SPAM_DISTANCE_GOLAN, qfalse)) //don't refund ammo here or it will happen twice because 2 balls are created
 	{
 		return;
 	}
@@ -1990,7 +2001,7 @@ static void WP_FlechetteAltFire( gentity_t *self )
 
 		WP_CreateFlechetteBouncyThing( start, fwd, self );
 	}
-	if (CheckIfIAmAFilthySpammer(self, qtrue, qfalse, NULL, WP_FLECHETTE, qtrue, qfalse, 4096, qfalse)) //this is just to refund ammo once for golan alternate
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(self, qtrue, qfalse, NULL, WP_FLECHETTE, qtrue, qfalse, SPAM_DISTANCE_GOLAN, qfalse)) //this is just to refund ammo once for golan alternate
 	{
 		RefundAmmo(self, WP_FLECHETTE, qtrue);
 	}
@@ -2264,14 +2275,14 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 	missile->bounceCount = 0;
 	if (!altFire)
 	{
-		if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_ROCKET_LAUNCHER, qfalse, qtrue, 4096, qtrue))
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_ROCKET_LAUNCHER, qfalse, qtrue, SPAM_DISTANCE_ROCKET, qtrue))
 		{
 			return;
 		}
 	}
 	else
 	{
-		if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_ROCKET_LAUNCHER, qtrue, qtrue, 4096, qtrue))
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_ROCKET_LAUNCHER, qtrue, qtrue, SPAM_DISTANCE_ROCKET, qtrue))
 		{
 			return;
 		}
@@ -2318,7 +2329,6 @@ void thermalDetonatorExplode( gentity_t *ent )
 	}
 	else
 	{
-		//iLikeToSpam check should go here
 		vec3_t	origin;
 		vec3_t	dir={0,0,1};
 
@@ -2442,14 +2452,14 @@ gentity_t *WP_FireThermalDetonator(gentity_t *ent, qboolean altFire)
 
 	if (!altFire)
 	{
-		if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, bolt, WP_THERMAL, qfalse, qtrue, 4096, qtrue))
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, bolt, WP_THERMAL, qfalse, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
 		{
 			return bolt;
 		}
 	}
 	else
 	{
-		if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, bolt, WP_THERMAL, qtrue, qtrue, 4096, qtrue))
+		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, bolt, WP_THERMAL, qtrue, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
 		{
 			return bolt;
 		}
@@ -2938,7 +2948,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 	int			removeMe;
 	int			i;
 
-	if (CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse, 1024, qtrue))
+	if (!iLikeToMineSpam.integer && CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse, SPAM_DISTANCE_MINES, qtrue))
 	{
 		return;
 	}
@@ -3640,7 +3650,7 @@ static void WP_FireConcussion( gentity_t *ent )
 	missile->splashDamage = CONC_SPLASH_DAMAGE;
 	missile->splashRadius = CONC_SPLASH_RADIUS;
 
-	if (CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_CONCUSSION, qfalse, qtrue, 4096, qtrue))
+	if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qtrue, missile, WP_CONCUSSION, qfalse, qtrue, SPAM_DISTANCE_CONC, qtrue))
 	{
 		return;
 	}
