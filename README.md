@@ -537,10 +537,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WXowN2pnSEliNkE/view?usp=sharing)
-Version: base_entranced-10-27-2015-build51 (experimental) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z2FKWk9yN3BERVU/view?usp=sharing)
+Version: base_entranced-10-27-2015-build52 (experimental) - always allow minespam in walker spawn area
 
 Old versions:
+
+Version: base_entranced-10-27-2015-build51 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WXowN2pnSEliNkE/view?usp=sharing) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
 
 Version: base_entranced-10-23-2015-build46 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WnAwS2p2UVdENjg/view?usp=sharing) - add `/g_fixVoiceChat`, add `/g_fixHothDoorSounds`, add `/g_botJumping`, rename eweb fixing cvar to `/g_fixEweb` 
 
