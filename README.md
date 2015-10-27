@@ -394,7 +394,6 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
 * Fixed `target_print` overflow causing server crashes
-* Removed ability of clients with private password to be immune to votekick (added in base_enhanced by Sil)
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -537,8 +536,8 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z2FKWk9yN3BERVU/view?usp=sharing)
-Version: base_entranced-10-27-2015-build52 (experimental) - always allow minespam in walker spawn area
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cDBMaUg5dlBySjQ/view?usp=sharing)
+Version: base_entranced-10-27-2015-build53 (experimental) - always allow minespam in walker spawn area, re-allow anti-votekick for clients with private password
 
 Old versions:
 
