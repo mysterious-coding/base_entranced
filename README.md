@@ -29,6 +29,21 @@ These are unique features for base_entranced.
 
 1 = only teammates can hear your voice chats and see icon over your head
 
+####`/iLikeToDoorSpam`
+0 = door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this). Does not apply if a walker or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
+
+1 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (default JK3)
+
+####`/iLikeToMineSpam`
+0 = mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already refrain from this). Does not apply if a walker or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
+
+1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door. bonus points for "was planting, bro" excuse (default JK3)
+
+####`/g_autoKorribanSpam`
+0 = spam-related cvars are unaffected by map
+
+1 = `/iLikeToDoorSpam` and `/iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
+
 ####`/g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
 
@@ -49,7 +64,7 @@ These are unique features for base_entranced.
 3 = use both 1 and 2 methods.
 
 ####`/g_autoKorribanFloatingItems`
-0 = `g_floatingItems` is unaffected by map
+0 = `g_floatingItems` is unaffected by map change
 
 1 = `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
 
@@ -378,7 +393,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
 * Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
-* Fixed `target_print` overflow causing server crash on debug builds (crash when attacking Cargo stations, etc)
+* Fixed `target_print` overflow causing server crashes
+* Removed ability of clients with private password to be immune to votekick (added in base_enhanced by Sil)
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -521,10 +537,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WnAwS2p2UVdENjg/view?usp=sharing)
-Version: base_entranced-10-23-2015-build46 (debug build) - add `/g_fixVoiceChat`, add `/g_fixHothDoorSounds`, add `/g_botJumping`, rename eweb fixing cvar to `/g_fixEweb` 
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eTNRbTNoNVhJOTg/view?usp=sharing)
+Version: base_entranced-10-26-2015-build47 (experimental) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
 
 Old versions:
+
+Version: base_entranced-10-23-2015-build46 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WnAwS2p2UVdENjg/view?usp=sharing) - add `/g_fixVoiceChat`, add `/g_fixHothDoorSounds`, add `/g_botJumping`, rename eweb fixing cvar to `/g_fixEweb` 
 
 Version: base_entranced-10-22-2015-build45 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SUpoa1NfWTV6YTA/view?usp=sharing) - add `/g_korribanRedRocksReverse`, add `g_jk2SaberMoves`, fix crash caused by `target_print` in debug builds(e.g. on siege_teampicker and siege_cargobarge), allow `/killturrets` to work before round start, improve eweb aiming if `/g_fixEwebRecoil` is enabled, force Hoth bridge to do 9999 damage when blocked
 
