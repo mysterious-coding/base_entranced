@@ -30,12 +30,12 @@ These are unique features for base_entranced.
 1 = only teammates can hear your voice chats and see icon over your head
 
 ####`/iLikeToDoorSpam`
-0 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was holding down mouse2 before you entered the door
+0 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was holding down mouse2 before you entered the door (default JK3)
 
 1 = door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV
 
 ####`/iLikeToMineSpam`
-0 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 before you entered the door (bonus points for "was planting, bro" excuse)
+0 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 before you entered the door. bonus points for "was planting, bro" excuse (default JK3)
 
 1 = mine spam prohibited within a limited distance of enemies in your FOV
 
