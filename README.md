@@ -537,8 +537,8 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8OHR0XzVxanc1TGM/view?usp=sharing)
-Version: base_entranced-10-26-2015-build48 (experimental) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VDE1aG5WYlRoeU0/view?usp=sharing)
+Version: base_entranced-10-26-2015-build49 (experimental) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
 
 Old versions:
 
