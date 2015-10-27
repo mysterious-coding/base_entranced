@@ -466,6 +466,18 @@ void InitSiegeMode(void)
 		}
 	}
 
+	if (g_autoKorribanSpam.integer)
+	{
+		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+		{
+			trap_Cvar_Set("iLikeToSpam", "1");
+		}
+		else
+		{
+			trap_Cvar_Set("iLikeToSpam", "0");
+		}
+	}
+
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
 
 	if (/*!levelname ||*/ !levelname[0])

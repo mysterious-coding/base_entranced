@@ -1877,6 +1877,7 @@ extern vmCvar_t	   g_moreTaunts;
 extern vmCvar_t    g_fixRancorCharge;
 extern vmCvar_t    g_ammoCanisterSound;
 extern vmCvar_t    g_autoKorribanFloatingItems;
+extern vmCvar_t    g_autoKorribanSpam;
 extern vmCvar_t    g_gripRefresh;
 extern vmCvar_t    g_forceDTechItems;
 extern vmCvar_t    g_specAfterDeath;

@@ -161,6 +161,7 @@ vmCvar_t    g_moreTaunts;
 vmCvar_t    g_fixRancorCharge;
 vmCvar_t    g_ammoCanisterSound;
 vmCvar_t    g_autoKorribanFloatingItems;
+vmCvar_t    g_autoKorribanSpam;
 vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
 vmCvar_t	g_specAfterDeath;
@@ -679,6 +680,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_ammoCanisterSound, "g_ammoCanisterSound", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoKorribanSpam, "g_autoKorribanSpam", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_gripRefresh, "g_gripRefresh", "300", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
