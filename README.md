@@ -503,7 +503,7 @@ Prevent calling votes for some things:
 * Bugfix for flechette stuck in wall.
 * Bugfix for bots getting messed up when changing gametypes.
 * Bugfix for healing NPCs/vehicles in siege.
-* Bugfix for glitched shield because someone bodyblocked your placement.
+* Bugfix for invisible/super-bugged shield because someone bodyblocked your placement.
 * Bugfix for teamnodmg for NPCs
 * Bugfix for mindtricking when no enemies are around
 * Golan alternate fire properly uses "was shrapnelled by" now
