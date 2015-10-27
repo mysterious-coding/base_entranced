@@ -30,7 +30,7 @@ These are unique features for base_entranced.
 1 = only teammates can hear your voice chats and see icon over your head
 
 ####`/iLikeToDoorSpam`
-0 = door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this) Warning, turning on this setting will cause terrible players to complain.
+0 = door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this) Warning, turning on this setting will cause terrible players to complain. Does not apply if a walker or someone using protect is nearby.
 
 1 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (default JK3)
 
