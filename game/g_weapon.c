@@ -254,7 +254,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 		//end[0] += debug_testHeight4.integer;
 		//end[1] += debug_testHeight5.integer;
 		//end[2] += debug_testHeight6.integer;
-		//maybe some sideways(yaw) checks, too? example use: for if you are spamming balls next to the door so they bounce off into the doorway
+
 		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
 
 		for (yAdjustment = 1024; yAdjustment >= -512; yAdjustment -= 512)
@@ -299,6 +299,54 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			if (foundDoorsIndex[z])
 			{
 				g_entities[foundDoorsIndex[z]].thisDoorWasFoundAlreadyByClient[ent->s.number] = qfalse;
+			}
+		}
+	}
+	else
+	{
+		memset(&tr, 0, sizeof(tr)); //to shut the compiler up
+		VectorCopy(ent->client->ps.origin, start);
+		start[2] += ent->client->ps.viewheight;//By eyes
+
+		//start[0] += debug_testHeight1.integer;
+		//start[1] += debug_testHeight2.integer;
+		//start[2] += debug_testHeight3.integer;
+
+		VectorMA(start, range, forward, end);
+		ignore = ent->s.number;
+		originalend0 = end[0];
+		originalend1 = end[1];
+		originalend2 = end[2];
+		//end[0] += debug_testHeight4.integer;
+		//end[1] += debug_testHeight5.integer;
+		//end[2] += debug_testHeight6.integer;
+
+		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
+
+		for (yAdjustment = 1024; yAdjustment >= -512; yAdjustment -= 512)
+		{
+			end[0] = originalend0;
+			end[0] += yAdjustment;
+			for (xAdjustment = 1024; xAdjustment >= -512; xAdjustment -= 512)
+			{
+				end[1] = originalend1;
+				end[1] += xAdjustment;
+				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 64) //check many different heights to detect doorspam when aiming slightly above or below the door.
+				{
+					end[2] = originalend2;
+					end[2] += heightAdjustment;
+					//G_PlayEffectID(G_EffectIndex("disruptor/wall_impact.efx"), end, start);
+					trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+					traceEnt = &g_entities[tr.entityNum];
+					//if (traceEnt->classname)
+					//trap_SendServerCommand(-1, va("print \"^%iDebug: classname == %s\n\"", Q_irand(1, 7), traceEnt->classname));
+					if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "item_shield"))
+					{
+						//we are aiming at a shield
+						trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
+						return qfalse;
+					}
+				}
 			}
 		}
 	}
