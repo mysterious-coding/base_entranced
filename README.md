@@ -37,7 +37,7 @@ These are unique features for base_entranced.
 ####`/iLikeToMineSpam`
 0 = mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already refrain from this). Does not apply if a walker or someone using protect is nearby. Warning: turning on this setting will cause terrible players to complain.
 
-1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 before you entered the door. bonus points for "was planting, bro" excuse (default JK3)
+1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door. bonus points for "was planting, bro" excuse (default JK3)
 
 ####`/g_autoKorribanSpam`
 0 = spam-related cvars are unaffected by map
