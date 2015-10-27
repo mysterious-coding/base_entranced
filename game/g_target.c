@@ -303,6 +303,10 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 }
 
 void SP_target_print( gentity_t *ent ) {
+	if (ent->wait == 0)
+	{
+		ent->wait = 500;
+	}
 	ent->use = Use_Target_Print;
 }
 
