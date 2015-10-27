@@ -343,7 +343,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "item_shield"))
 					{
 						//we are aiming at a shield
-						trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
+						//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
 						return qfalse;
 					}
 				}
