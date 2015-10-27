@@ -30,14 +30,14 @@ These are unique features for base_entranced.
 1 = only teammates can hear your voice chats and see icon over your head
 
 ####`/iLikeToDoorSpam`
-0 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was holding down mouse2 before you entered the door (default JK3)
+0 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (default JK3)
 
-1 = door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this)
+1 = door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this) Warning, turning on this setting will cause terrible players to complain.
 
 ####`/iLikeToMineSpam`
 0 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 before you entered the door. bonus points for "was planting, bro" excuse (default JK3)
 
-1 = mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already do this)
+1 = mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already do this). Warning, turning on this setting will cause terrible players to complain.
 
 ####`/g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
