@@ -1737,12 +1737,15 @@ void SP_target_siege_end (gentity_t *ent)
 void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 {
 	ent->genericValue2 = 0; //Remove picked-up flag
-
 	ent->genericValue8 = ENTITYNUM_NONE; //Mark entity carrying us as none
 
 	if (carrier)
 	{
 		carrier->client->holdingObjectiveItem = 0; //The carrier is no longer carrying us
+		if (ent->genericValue15)
+		{
+			carrier->client->ps.fd.forcePowerRegenDebounceTime = level.time; //start regenerating force immediately
+		}
 		carrier->r.svFlags &= ~SVF_BROADCAST;
 	}
 }
