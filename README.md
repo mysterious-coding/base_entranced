@@ -179,7 +179,7 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 ####`/autocfg_map`
 0 = no automatic cfg execution (default JK3)
 
-1 = automatically server to execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` if it exists.
+1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` if it exists.
 
 ####`/autocfg_unknown`
 0 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, nothing will happen.
