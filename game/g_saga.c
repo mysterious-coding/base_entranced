@@ -401,16 +401,19 @@ void InitSiegeMode(void)
 {
 	vmCvar_t		mapname;
 	char			levelname[512];
+	char			autolevelname[512];
 	char			teamIcon[128];
 	char			goalreq[64];
 	char			teams[2048];
 	char			objective[MAX_SIEGE_INFO_SIZE];
 	char			objecStr[8192];
 	int				len = 0;
+	int				autolen = 0;
 	int				i = 0;
 	int				objectiveNumTeam1 = 0;
 	int				objectiveNumTeam2 = 0;
 	fileHandle_t	f;
+	fileHandle_t	autofile;
 
 	if (g_gametype.integer != GT_SIEGE)
 	{
@@ -479,6 +482,46 @@ void InitSiegeMode(void)
 			trap_Cvar_Set("iLikeToMineSpam", "0");
 		}
 	}
+
+	if (autocfg_map.integer)
+	{
+		Com_sprintf(autolevelname, sizeof(autolevelname), "mapcfgs/%s.cfg\0", mapname.string);
+
+		if (!autolevelname[0])
+		{
+			G_LogPrintf("g_saga: unknown autolevelname error!\n");
+			goto afterauto;
+		}
+
+		autolen = trap_FS_FOpenFile(autolevelname, &autofile, FS_READ);
+
+		if (autofile)
+		{
+			trap_SendConsoleCommand(EXEC_APPEND, va("exec %s\n", autolevelname));
+		}
+		else
+		{
+			if (autocfg_unknown.integer)
+			{
+				Com_sprintf(autolevelname, sizeof(autolevelname), "mapcfgs/unknown.cfg\0", mapname.string);
+				autolen = trap_FS_FOpenFile(autolevelname, &autofile, FS_READ);
+				if (autofile)
+				{
+					trap_SendConsoleCommand(EXEC_APPEND, va("exec %s\n", autolevelname));
+				}
+				else
+				{
+					G_LogPrintf("Unable to find %s.\n", autolevelname);
+				}
+			}
+			else
+			{
+				G_LogPrintf("Unable to find %s.\n", autolevelname);
+			}
+		}
+	}
+
+	afterauto:
 
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
 

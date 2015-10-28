@@ -3954,6 +3954,10 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 {
 	char string[64];
 
+	Com_sprintf(string, 64, "autocfg_map");
+	ServerCfgColor(string, autocfg_map.integer, ent);
+	Com_sprintf(string, 64, "autocfg_unknown");
+	ServerCfgColor(string, autocfg_unknown.integer, ent);
 	Com_sprintf(string, 64, "g_allow_ready");
 	ServerCfgColor(string, g_allow_ready.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_cointoss");

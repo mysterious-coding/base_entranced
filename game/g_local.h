@@ -1896,6 +1896,10 @@ extern vmCvar_t    g_botJumping;
 extern vmCvar_t    g_fixHothDoorSounds;
 extern vmCvar_t    iLikeToDoorSpam;
 extern vmCvar_t    iLikeToMineSpam;
+extern vmCvar_t    autocfg_map;
+extern vmCvar_t    autocfg_unknown;
+
+
 /*extern vmCvar_t    debug_testHeight1;
 extern vmCvar_t    debug_testHeight2;
 extern vmCvar_t    debug_testHeight3;

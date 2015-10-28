@@ -178,6 +178,10 @@ vmCvar_t	g_botJumping;
 vmCvar_t	g_fixHothDoorSounds;
 vmCvar_t	iLikeToDoorSpam;
 vmCvar_t	iLikeToMineSpam;
+vmCvar_t	autocfg_map;
+vmCvar_t	autocfg_unknown;
+
+
 /*vmCvar_t	debug_testHeight1;
 vmCvar_t	debug_testHeight2;
 vmCvar_t	debug_testHeight3;
@@ -698,6 +702,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixHothDoorSounds, "g_fixHothDoorSounds", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &iLikeToDoorSpam, "iLikeToDoorSpam", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &iLikeToMineSpam, "iLikeToMineSpam", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
