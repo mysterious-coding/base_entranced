@@ -1744,7 +1744,7 @@ void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 		carrier->client->holdingObjectiveItem = 0; //The carrier is no longer carrying us
 		if (ent->genericValue15)
 		{
-			carrier->client->ps.fd.forcePowerRegenDebounceTime = level.time; //start regenerating force immediately
+			carrier->client->ps.fd.forcePowerRegenDebounceTime = 0; //start regenerating force immediately
 		}
 		carrier->r.svFlags &= ~SVF_BROADCAST;
 	}
