@@ -176,6 +176,16 @@ Restarts current map with siege timer going down from a specified time. For exam
 ####`/killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
 
+####`/autocfg_map`
+0 = no automatic cfg execution (default JK3)
+
+1 = automatically server to execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` if it exists.
+
+####`/autocfg_unknown`
+0 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, nothing will happen.
+
+1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback.
+
 ####Custom team/class overrides
 You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
 
@@ -241,7 +251,7 @@ Note that this must contain EXACTLY 15 letters(one for each weapon). Also note t
 
 ####`/serverstatus2`
 
-Displays many cvars to the client that are not shown with basejka `/serverstatus` command.
+Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
 
 ####Reset siege to round 1 on map change vote
 No more changing maps with timer going down.
@@ -393,7 +403,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
 * Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
-* Fixed `target_print` overflow causing server crashes
+* Fixed `target_print` overflow causing server crashes.
+* Fixed bug with not regenerating force until a while after you captured an item with `forcelimit 1` (e.g. Korriban crystals)
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -536,10 +547,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cDBMaUg5dlBySjQ/view?usp=sharing)
-Version: base_entranced-10-27-2015-build53 (experimental) - always allow minespam in walker spawn area, re-allow anti-votekick for clients with private password
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8YzRSWU5SZUlUZ2M/view?usp=sharing)
+Version: base_entranced-10-28-2015-build54 (experimental) - add `/autocfg_map`, add `/autocfg_unknown`, fix force regen bug with `forcelimit 1`, fix gametype not changing on successful gametype vote, improve anti-spam code
 
 Old versions:
+
+Version: base_entranced-10-27-2015-build53 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cDBMaUg5dlBySjQ/view?usp=sharing) - always allow minespam in walker spawn area, re-allow anti-votekick for clients with private password
 
 Version: base_entranced-10-27-2015-build51 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WXowN2pnSEliNkE/view?usp=sharing) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
 
