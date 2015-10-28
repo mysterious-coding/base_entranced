@@ -3815,7 +3815,6 @@ void CheckVote( void ) {
 
 		trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.voteString ) );
 
-
 		if (level.votingGametype)
 		{
 			if (g_fraglimitVoteCorrection.integer)
@@ -3871,6 +3870,30 @@ void CheckVote( void ) {
 					trap_Cvar_Set("g_blueTeam", "none");
 				}
 			}
+			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+				if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
+				{ //If we're voting to a different game type, be sure to refresh all the map stuff
+					const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
+
+					if (level.votingGametypeTo == GT_SIEGE)
+					{ //ok, kick all the bots, cause the aren't supported!
+						G_KickAllBots();
+						//just in case, set this to 0 too... I guess...maybe?
+						//trap_Cvar_Set("bot_minplayers", "0");
+					}
+
+					if (nextMap && nextMap[0])
+					{
+						trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", nextMap));
+					}
+				}
+				else
+				{ //otherwise, just leave the map until a restart
+					G_RefreshNextMap(level.votingGametypeTo, qfalse);
+				}
+			}
             level.voteExecuteTime = level.time + 3000;
         } else {
             trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
@@ -3909,8 +3932,7 @@ void CheckVote( void ) {
 			{
 				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 				if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
-				{
-					//If we're voting to a different game type, be sure to refresh all the map stuff
+				{ //If we're voting to a different game type, be sure to refresh all the map stuff
 					const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
 
 					if (level.votingGametypeTo == GT_SIEGE)
