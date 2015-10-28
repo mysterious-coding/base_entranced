@@ -179,12 +179,12 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 ####`/autocfg_map`
 0 = no automatic cfg execution (default JK3)
 
-1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` if it exists.
+1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` (if it exists).
 
 ####`/autocfg_unknown`
 0 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, nothing will happen.
 
-1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback.
+1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback (if it exists).
 
 ####Custom team/class overrides
 You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
