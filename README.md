@@ -547,10 +547,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8YzRSWU5SZUlUZ2M/view?usp=sharing)
-Version: base_entranced-10-28-2015-build54 (experimental) - add `/autocfg_map`, add `/autocfg_unknown`, fix force regen bug with `forcelimit 1`, fix gametype not changing on successful gametype vote, improve anti-spam code
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8V0JUaGlCSzB4bFU/view?usp=sharing)
+Version: base_entranced-10-29-2015-build55 (debug build) - debug compile version of build 54
 
 Old versions:
+
+base_entranced-10-28-2015-build54 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8YzRSWU5SZUlUZ2M/view?usp=sharing) - add `/autocfg_map`, add `/autocfg_unknown`, fix force regen bug with `forcelimit 1`, fix gametype not changing on successful gametype vote, improve anti-spam code
 
 Version: base_entranced-10-27-2015-build53 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cDBMaUg5dlBySjQ/view?usp=sharing) - always allow minespam in walker spawn area, re-allow anti-votekick for clients with private password
 
