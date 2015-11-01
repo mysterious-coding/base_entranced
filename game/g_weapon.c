@@ -376,7 +376,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			{
 				end[1] = originalend1;
 				end[1] += xAdjustment;
-				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 64) //check many different heights to detect doorspam when aiming slightly above or below the door.
+				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 512) //check many different heights to detect doorspam when aiming slightly above or below the door.
 				{
 					end[2] = originalend2;
 					end[2] += heightAdjustment;
