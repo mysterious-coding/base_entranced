@@ -265,15 +265,15 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
 
-		for (yAdjustment = 1024; yAdjustment >= -512; yAdjustment -= 512)
+		for (yAdjustment = 1024; yAdjustment >= -1024; yAdjustment -= 512)
 		{
 			end[0] = originalend0;
 			end[0] += yAdjustment;
-			for (xAdjustment = 1024; xAdjustment >= -512; xAdjustment -= 512)
+			for (xAdjustment = 1024; xAdjustment >= -1024; xAdjustment -= 512)
 			{
 				end[1] = originalend1;
 				end[1] += xAdjustment;
-				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 64) //check many different heights to detect doorspam when aiming slightly above or below the door.
+				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 512) //check many different heights to detect doorspam when aiming slightly above or below the door.
 				{
 					end[2] = originalend2;
 					end[2] += heightAdjustment;
@@ -314,6 +314,11 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 		}
 
 		//foundTheDoor:
+
+		//if (thereIsADoor)
+		//{
+			//trap_SendServerCommand(-1, va("print \"^%iDebug: ^%iaiming at a door\n\"", Q_irand(1, 7), Q_irand(1,7)));
+		//}
 
 		for (z = 1; z <= numberOfDoorsFound; z++)
 		{
@@ -363,11 +368,11 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
 
-		for (yAdjustment = 1024; yAdjustment >= -512; yAdjustment -= 512)
+		for (yAdjustment = 1024; yAdjustment >= -1024; yAdjustment -= 512)
 		{
 			end[0] = originalend0;
 			end[0] += yAdjustment;
-			for (xAdjustment = 1024; xAdjustment >= -512; xAdjustment -= 512)
+			for (xAdjustment = 1024; xAdjustment >= -1024; xAdjustment -= 512)
 			{
 				end[1] = originalend1;
 				end[1] += xAdjustment;
@@ -453,10 +458,10 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 		}
 
-		if (!InFOV(potentialSpamVictim, ent, sizeOfConeOfProhibitedSpam, 180))
+		if (!InFOV(potentialSpamVictim, ent, sizeOfConeOfProhibitedSpam, 170))
 		{
 			continue; //make sure the potential spam victim is within our vision cone
-			//we'll use 180 for vertical FOV check here, then check height using ps.origin[2] later
+			//we'll use a large number for vertical FOV check here, then just check height using ps.origin[2] later
 		}
 
 		if (potentialSpamVictim->client->ps.origin[2] < heightLowerBound || potentialSpamVictim->client->ps.origin[2] > heightUpperBound)
