@@ -105,6 +105,25 @@ static qhandle_t	shieldActivateSound=0;
 static qhandle_t	shieldDeactivateSound=0;
 static qhandle_t	shieldDamageSound=0;
 
+qboolean isATurret(gentity_t *ent)
+{
+	if (!ent)
+	{
+		return qfalse;
+	}
+
+	if ((
+			(ent->s.weapon && (ent->s.weapon == WP_EMPLACED_GUN || ent->s.weapon == WP_TURRET)) ||
+			(ent->s.modelindex2 && (ent->s.modelindex2 == G_ModelIndex("models/map_objects/hoth/turret_bottom.md3") || ent->s.modelindex2 == G_ModelIndex("models/map_objects/hoth/turret_top.md3")))
+		)
+		&& ent->s.eType != ET_NPC && ent->s.eType != ET_PLAYER
+		)
+	{
+		return qtrue;
+	}
+	return qfalse;
+
+}
 
 void ShieldRemove(gentity_t *self)
 {
@@ -196,7 +215,7 @@ void ShieldGoSolid(gentity_t *self)
 	}
 
 	trap_Trace(&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY);
-	if (tr.startsolid)
+	if (tr.startsolid && !(&g_entities[tr.entityNum] && isATurret(&g_entities[tr.entityNum])))
 	{	// gah, we can't activate yet
 		self->nextthink = level.time + 200;
 		self->think = ShieldGoSolid;
@@ -382,8 +401,7 @@ void CreateShield(gentity_t *ent)
 
 	// see if we're valid
 	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY);
-
-	if (tr.startsolid)
+	if (tr.startsolid && !(&g_entities[tr.entityNum] && isATurret(&g_entities[tr.entityNum])))
 	{	// Something in the way!
 		// make the shield non-solid very briefly
 		ent->r.contents = 0;
