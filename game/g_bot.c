@@ -620,11 +620,6 @@ void G_CheckMinimumPlayers( void ) {
 	int humanplayers, botplayers;
 	static int checkminimumplayers_time;
 
-	if (g_gametype.integer == GT_SIEGE)
-	{
-		return;
-	}
-
 	if (level.intermissiontime) return;
 	//only check once each 10 seconds
 	if (checkminimumplayers_time > level.time - 10000) {
