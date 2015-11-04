@@ -4368,6 +4368,8 @@ extern int getstatus_LastReportTime;
 extern int getstatus_UniqueIPCount;
 extern int gImperialCountdown;
 extern int gRebelCountdown;
+extern int roundstarttime;
+extern int previousobjtime;
 
 void G_RunFrame( int levelTime ) {
 	int			i;
@@ -4506,6 +4508,9 @@ void G_RunFrame( int levelTime ) {
 		if (g_gametype.integer == GT_SIEGE)
 		{
 			static int accumulatedDt = 0;
+
+			roundstarttime += dt;
+			previousobjtime += dt;
 
 			// siege timer adjustment
 			accumulatedDt += dt;
