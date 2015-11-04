@@ -189,6 +189,8 @@ vmCvar_t	debug_testHeight4;
 vmCvar_t	debug_testHeight5;
 vmCvar_t	debug_testHeight6;*/
 
+vmCvar_t	debug_shieldLog;
+
 vmCvar_t	g_siegeObjStorage;
 vmCvar_t    g_heldformax_old;
 vmCvar_t    g_objscompleted_old;
@@ -711,6 +713,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &debug_testHeight4, "debug_testHeight4", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight5, "debug_testHeight5", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight6, "debug_testHeight6", "0", CVAR_ARCHIVE, 0, qtrue },*/
+
+	{ &debug_shieldLog, "debug_shieldLog", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
 	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },

@@ -155,8 +155,11 @@ void ShieldThink(gentity_t *self)
 	self->nextthink = level.time + 1000;
 	if (self->health <= 0)
 	{
-		G_LogPrintf("ShieldThink() Removing shield %i by decay\n",
-			self - g_entities);
+		if (debug_shieldLog.integer)
+		{
+			G_LogPrintf("ShieldThink() Removing shield %i by decay\n",
+				self - g_entities);
+		}
 		ShieldRemove(self);
 	}
 	return;
@@ -171,9 +174,12 @@ void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 	if (!inflictor) inflictor = self;
 	if (!attacker) attacker = self;
-	G_LogPrintf("ShieldDie() Killing shield %i by inflictor %i (%s), attacker %i (%s), dmg %i, mod %i\n",
-		self - g_entities, inflictor - g_entities, inflictor->classname,
-		attacker - g_entities, attacker->classname, damage, mod);
+	if (debug_shieldLog.integer)
+	{
+		G_LogPrintf("ShieldDie() Killing shield %i by inflictor %i (%s), attacker %i (%s), dmg %i, mod %i\n",
+			self - g_entities, inflictor - g_entities, inflictor->classname,
+			attacker - g_entities, attacker->classname, damage, mod);
+	}
 
 	ShieldRemove(self);
 }
@@ -192,8 +198,11 @@ void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 	self->s.trickedentindex = 1;
 
 	if (!attacker) attacker = self;
-	G_LogPrintf("ShieldPain() Damaging (dmg %i) shield %i by entity %i (%s)\n",
-		damage, self - g_entities, attacker - g_entities, attacker->classname);
+	if (debug_shieldLog.integer)
+	{
+		G_LogPrintf("ShieldPain() Damaging (dmg %i) shield %i by entity %i (%s)\n",
+			damage, self - g_entities, attacker - g_entities, attacker->classname);
+	}
 
 	return;
 }
@@ -208,8 +217,11 @@ void ShieldGoSolid(gentity_t *self)
 	self->health--;
 	if (self->health <= 0)
 	{
-		G_LogPrintf("ShieldGoSolid() Removing shield %i\n",
-			self - g_entities);
+		if (debug_shieldLog.integer)
+		{
+			G_LogPrintf("ShieldGoSolid() Removing shield %i\n",
+				self - g_entities);
+		}
 		ShieldRemove(self);
 		return;
 	}
@@ -225,8 +237,11 @@ void ShieldGoSolid(gentity_t *self)
 	{ // get hard... huh-huh...
 		if ((self->s.eFlags & EF_NODRAW))
 		{
-			G_LogPrintf("ShieldGoSolid() Enabling shield %i\n",
-				self - g_entities);
+			if (debug_shieldLog.integer)
+			{
+				G_LogPrintf("ShieldGoSolid() Enabling shield %i\n",
+					self - g_entities);
+			}
 		}
 
 		self->s.eFlags &= ~EF_NODRAW;
@@ -283,7 +298,10 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 			{
 				if (!(self->s.eFlags & EF_NODRAW))
 				{
-					G_LogPrintf("ShieldTouch() Disabling shield %i for ally entity %i\n", self - g_entities, other - g_entities);
+					if (debug_shieldLog.integer)
+					{
+						G_LogPrintf("ShieldTouch() Disabling shield %i for ally entity %i\n", self - g_entities, other - g_entities);
+					}
 				}
 				ShieldGoNotSolid(self);
 			}
@@ -293,8 +311,11 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{//let the person who dropped the shield through
 		if (self->parent && self->parent->s.number == other->s.number)
 		{
-			G_LogPrintf("ShieldTouch() Disabling shield %i for owner (non-team gametypes)\n",
-				self - g_entities);
+			if (debug_shieldLog.integer)
+			{
+				G_LogPrintf("ShieldTouch() Disabling shield %i for owner (non-team gametypes)\n",
+					self - g_entities);
+			}
 			ShieldGoNotSolid(self);
 		}
 	}
@@ -367,13 +388,15 @@ void CreateShield(gentity_t *ent)
 		VectorSet(ent->r.maxs, SHIELD_HALFTHICKNESS, halfWidth, height);
 	}
 	ent->clipmask = MASK_SHOT;
-
-	G_LogPrintf("CreateShield() Creating shield %i for owner %i, origin (%.3f, %.3f, %.3f), min corner (%.3f, %.3f, %.3f), max corner (%.3f, %.3f, %.3f)\n",
-		ent - g_entities,
-		ent->s.owner,
-		ent->r.currentOrigin[0], ent->r.currentOrigin[1], ent->r.currentOrigin[2],
-		ent->r.mins[0], ent->r.mins[1], ent->r.mins[2],
-		ent->r.maxs[0], ent->r.maxs[1], ent->r.maxs[2]);
+	if (debug_shieldLog.integer)
+	{
+		G_LogPrintf("CreateShield() Creating shield %i for owner %i, origin (%.3f, %.3f, %.3f), min corner (%.3f, %.3f, %.3f), max corner (%.3f, %.3f, %.3f)\n",
+			ent - g_entities,
+			ent->s.owner,
+			ent->r.currentOrigin[0], ent->r.currentOrigin[1], ent->r.currentOrigin[2],
+			ent->r.mins[0], ent->r.mins[1], ent->r.mins[2],
+			ent->r.maxs[0], ent->r.maxs[1], ent->r.maxs[2]);
+	}
 
 	// Information for shield rendering.
 
@@ -413,8 +436,11 @@ void CreateShield(gentity_t *ent)
 		trap_LinkEntity(ent);
 
 		if (tr.entityNum < 0 || tr.entityNum >= MAX_GENTITIES) tr.entityNum = ent - g_entities;
-		G_LogPrintf("CreateShield() Creating shield %i, entity %i in way (%s)\n",
-			ent - g_entities, tr.entityNum, g_entities[tr.entityNum].classname);
+		if (debug_shieldLog.integer)
+		{
+			G_LogPrintf("CreateShield() Creating shield %i, entity %i in way (%s)\n",
+				ent - g_entities, tr.entityNum, g_entities[tr.entityNum].classname);
+		}
 	}
 	else
 	{	// Get solid.
@@ -430,9 +456,11 @@ void CreateShield(gentity_t *ent)
 		G_AddEvent(ent, EV_GENERAL_SOUND, shieldActivateSound);
 		ent->s.loopSound = shieldLoopSound;
 		ent->s.loopIsSoundset = qfalse;
-
-		G_LogPrintf("CreateShield() Creating shield %i, free space\n",
-			ent - g_entities);
+		if (debug_shieldLog.integer)
+		{
+			G_LogPrintf("CreateShield() Creating shield %i, free space\n",
+				ent - g_entities);
+		}
 	}
 
 	ShieldGoSolid(ent);
