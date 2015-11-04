@@ -5113,7 +5113,7 @@ static void WP_FireEmplaced( gentity_t *ent, qboolean altFire )
 
 	AngleVectors( angs, dir, NULL, NULL );
 
-	WP_FireEmplacedMissile( gun, gunpoint, dir, altFire, ent );
+	WP_FireEmplacedMissile( ent, gunpoint, dir, altFire, gun );
 }
 
 #define EMPLACED_CANRESPAWN 1

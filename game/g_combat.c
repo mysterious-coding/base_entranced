@@ -4641,19 +4641,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					return;
 				}
 			}
-			else if (attacker && attacker->inuse &&
-				!attacker->client && attacker->activator &&
-				targ != attacker->activator &&
-				attacker->activator->inuse && attacker->activator->client)
-			{ //emplaced guns don't hurt teammates of user
-				if (OnSameTeam (targ, attacker->activator))
-				{
-					if ( !g_friendlyFire.integer )
-					{
-						return;
-					}
-				}
-			}
 			else if (targ->inuse && targ->client &&
 				g_gametype.integer >= GT_TEAM &&
 				attacker->s.number >= MAX_CLIENTS &&
