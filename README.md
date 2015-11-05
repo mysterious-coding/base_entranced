@@ -170,7 +170,7 @@ Note that the game client does not currently predict yaw for these moves, so the
 ####`/g_autoRestart`
 0 = no automatic restarts (default JK3)
 
-non-zero number = automatic restarting for public servers; allows noobs to set classes for restart. Set to some number like 20 or 30 for pubs; leave this at 0 for pug servers.
+non-zero number = automatic restarting for public servers; allows noobs to set classes for restart. Set to some number like 20 or 30 for pubs; leave this at 0 for pug servers. For example, `/g_autoRestart 30` triggers a 30-second automatic restart at the beginning of every new round.
 
 ####`/siege_restart`
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `/callvote nextmap` (lol)
