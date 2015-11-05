@@ -16,7 +16,7 @@ The biggest change from basejka made by this mod is the anti-spam cvars (`/iLike
 
 # A brief history of JA siege server mods
 
-In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it desirable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system.
+In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it desirable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system. There was also a mod called OJP, that featured some interesting enhancements such as siege bot AI. This mod was only used on Meatgrinder server, which was not a very popular server.
 
 Around 2006-2007, a server mod called GMod (not to be confused with Garry's Mod, the HL2-based game) was made by GhostBob and was used on American pug servers until Keramod was created. This was the first thing resembling a robust siege server mod. In addition to some bugfixes, IP logging, and a tiered admin system, this mod also featured some siege enhancements, such as "pug mode", anti-spec-joining, zombies mode, allowing dead/spec players to chat, and disallowing shield standing to preserve a shield(if I remember correctly, this was later removed due to extreme unpopularity).
 
@@ -28,7 +28,7 @@ In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from 
 
 Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove the unpopular "fixes" that Sil had implemented against the wishes of the siege community. I have created many new features, as well as fixed many bugs that had plagued JK3 siege for years.
 
-My mod is now the most robust, bug-free server mod in JK3 siege history, and is the mod of choice for all JK3 siege servers.
+My mod is now the most robust, bug-free server mod in JK3 siege history, and is the mod of choice for all JK3 siege servers. It is also the first open-source siege server mod.
 
 #base_entranced features
 These are unique features for base_entranced.
