@@ -223,9 +223,6 @@ vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_banIPs;
 vmCvar_t    g_getstatusbanIPs;
 vmCvar_t	g_filterBan;
-vmCvar_t	g_debugForward;
-vmCvar_t	g_debugRight;
-vmCvar_t	g_debugUp;
 vmCvar_t	g_smoothClients;
 vmCvar_t	g_defaultBanHoursDuration;
 
@@ -522,11 +519,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
-#if 0
-	{ &g_debugForward, "g_debugForward", "0", 0, 0, qfalse },
-	{ &g_debugRight, "g_debugRight", "0", 0, 0, qfalse },
-	{ &g_debugUp, "g_debugUp", "0", 0, 0, qfalse },
-#endif
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
 
 	{ &g_enableBreath, "g_enableBreath", "0", 0, 0, qtrue, qfalse },
