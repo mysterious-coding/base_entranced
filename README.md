@@ -24,7 +24,7 @@ Another mod called Gamall's Fix was created around 2007, and mainly featured som
 
 Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. Although development on Keramod was later abandoned, it was the best siege mod in existence at the time, and as a result was used on nearly all pug servers from 2009-2015.
 
-In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause`, `/whois` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular "fixes" that were unwanted by the siege community, such as infinite charging "bugfix." I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular siege "fixes" he had made, it became clear that I needed to create my own successor to Keramod.
+In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause` and `/whois` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular "fixes" that were unwanted by the siege community, such as infinite charging "fix." I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular siege "fixes" he had made, it became clear that I needed to create my own successor to Keramod.
 
 Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove the unpopular "fixes" that Sil had implemented against the wishes of the siege community. I have created many new features, as well as fixed many bugs that had plagued JK3 siege for years.
 
@@ -145,14 +145,14 @@ These are unique features for base_entranced.
 ####`/g_gripRefresh`
 300 = default JK3 grip refresh (your velocity is updated every 300ms while being gripped, which equals 3.33Hz refresh rate)
 
-Set for lower values to get smoother grip without lag (maybe 50, which equals 20Hz refresh rate)
+Set for lower values to get smoother grip without lag (maybe 50, which equals 20Hz refresh rate). Some players have said that lowering this value makes grip slamming people(inflicting fall damage) impossible, although I have not tested or verified this.
 
 ####`/g_jk2SaberMoves`
 0 = default JK3 saber special moves
 
 1 = JK2-style special saber moves (yaw while doing saber moves, smaller jump height/distance for YDFA, blue lunge in mid-air, etc). Not perfect, but a decent simulation of JK2 saber combat.
 
-Note that the game client does not currently predict yaw for these moves, so they will only be rendered in realtime as limited by server `/sv_fps` setting
+Note that the game client does not currently predict yaw for these moves, so they will only be rendered in realtime as limited by server `/sv_fps` setting.
 
 ####`/g_antiCallvoteTakeover`
 0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
@@ -567,7 +567,7 @@ Prevent calling votes for some things:
 
 ####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-This sample server.cfg contains recommended settings for all cvars. You should base your server's configuration on this file.
+This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file.
 
 ####Patched siege_narshaddaa [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
