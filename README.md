@@ -405,6 +405,9 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
 * Fixed `target_print` overflow causing server crashes.
 * Fixed bug with not regenerating force until a while after you captured an item with `forcelimit 1` (e.g. Korriban crystals)
+* Fixed `/bot_minplayers` not working in siege gametype.
+* Fixed bug with shield disappearing when placing it near a turret.
+* Fixed bug with emplaced gun teamkilling.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -547,10 +550,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8enBRcjJ2ZmRUNXc/view?usp=sharing)
-Version: base_entranced-10-31-2015-build58 (debug build) - minor tweaks to anti-spam, should prevent lag issues
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHFvZlJKa0QtOHc/view?usp=sharing)
+Version: base_entranced-11-4-2015-build59 (debug build) - fix broken `/bot_minplayers`, fix disappearing shield bug when turret is nearby, fix siege stats timer not adjusting with `/pause`, remove shield logging by default (instead use `/debug_shieldLog 1`), fix emplaced gun teamkilling bug
 
 Old versions:
+
+Version: base_entranced-10-31-2015-build58 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8enBRcjJ2ZmRUNXc/view?usp=sharing) - minor tweaks to anti-spam, should prevent lag issues
 
 Version: base_entranced-10-29-2015-build55 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8V0JUaGlCSzB4bFU/view?usp=sharing) - debug compile version of build 54
 
