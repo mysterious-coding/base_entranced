@@ -725,8 +725,6 @@ void InitSiegeMode(void)
 	G_SiegeRegisterWeaponsAndHoldables(SIEGETEAM_TEAM1);
 	G_SiegeRegisterWeaponsAndHoldables(SIEGETEAM_TEAM2);
 
-	return;
-
 failure:
 	siege_valid = 0;
 }
@@ -1308,6 +1306,48 @@ void SiegeBeginRound(int entNum)
 	objscompletedoffset = 0; //clear offset
 	heldformax = 0;
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
+
+	if (g_autoRestart.integer && g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime)
+	{
+		//round 1
+		if (!g_wasRestartedRound1.integer)
+		{
+			//we have NOT already restarted
+			trap_Cvar_Set("g_wasRestartedRound1", "1");
+			trap_Cvar_Set("g_wasRestartedRound2", "0");
+			trap_SendConsoleCommand(EXEC_APPEND, va("map_restart %i\n", g_autoRestart.integer));
+			trap_SendServerCommand(-1, va("print \"Prepare classes for automatic restart.\n\""));
+		}
+		else
+		{
+			//we have already restarted
+			//do nothing
+		}
+	}
+	else if (g_autoRestart.integer && g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime)
+	{
+		//round 2
+		if (!g_wasRestartedRound2.integer)
+		{
+			//we have NOT already restarted
+			trap_Cvar_Set("g_wasRestartedRound1", "0");
+			trap_Cvar_Set("g_wasRestartedRound2", "1");
+			trap_SendConsoleCommand(EXEC_APPEND, va("map_restart %i\n", g_autoRestart.integer));
+			trap_SendServerCommand(-1, va("print \"Prepare classes for automatic restart.\n\""));
+		}
+		else
+		{
+			//we have already restarted
+			//do nothing
+		}
+	}
+	else if (!g_autoRestart.integer && (g_wasRestartedRound1.integer || g_wasRestartedRound2.integer))
+	{
+		trap_Cvar_Set("g_wasRestartedRound1", "0");
+		trap_Cvar_Set("g_wasRestartedRound2", "0");
+
+	}
+	return;
 }
 
 void SiegeCheckTimers(void)
