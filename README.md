@@ -10,7 +10,9 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 base_entranced is a serverside-only mod for Jedi Knight 3, intended for use in the Siege gametype. It has 2 goals: fixing bugs, and providing extra features/enhancements to basejka siege.
 
-It is my goal to stay close to basejka gameplay. In other words, this is not like Movie Battles 2, which is a separate gametype. This is intended merely as an enhancement of basejka Siege gametype. Most of my changes can be toggled by cvar. Most bugfixes are hardcoded.
+It is my wish to stay close to basejka gameplay. In other words, this is not like Movie Battles 2, which is a separate gametype. This is intended merely as an improvement of basejka Siege gametype. Most of my changes can be toggled by cvar. Most bugfixes are hardcoded.
+
+The biggest change from basejka made by this mod is the anti-spam cvars (`/iLikeToDoorspam` and `/iLikeToMineSpam`). Although I wrote above that I wanted to stay close to basejka gameplay, in my opinion, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed.
 
 # A brief history of JA siege mods
 
@@ -20,9 +22,9 @@ Around 2007, a server mod called GMod (not to be confused with Garry's Mod, the 
 
 Another mod called Gamall's Fix was created around 2007, and mainly featured some security enhancements. However, unlike GMod, it was not intended for siege, and it barely fixed any bugs, and still wasn't really suitable for playing on. Regardless, it remained popular on European servers, for some reason, until Keramod was created.
 
-Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. This mod was used on nearly all pug servers from 2009-2015.
+Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. Although development on Keramod was later abandoned, it was the best siege mod in existence at the time, and as a result was used on nearly all pug servers from 2009-2015.
 
-In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause`, `/whois` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular "fixes" that were unwanted by the siege community, such as limiting HW to 10 rockets, etc.
+In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause`, `/whois` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular "fixes" that were unwanted by the siege community, such as infinite charging "bugfix." I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular siege "fixes" he had made, it became clear that I needed to create my own successor to Keramod.
 
 Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove the unpopular "fixes" that Sil had implemented against the wishes of the siege community. I have created many new features, as well as fixed many bugs that had plagued JK3 siege for years.
 
