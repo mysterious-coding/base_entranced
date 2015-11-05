@@ -265,7 +265,7 @@ void WP_InitForcePowers( gentity_t *ent )
 		if (!ent->client->sess.setForce)
 		{
 			//bring up the class selection menu
-			trap_SendServerCommand(ent-g_entities, "scl");
+			/*trap_SendServerCommand(ent-g_entities, "scl");*/
 		}
 		ent->client->sess.setForce = qtrue;
 
