@@ -16,7 +16,7 @@ The biggest change from basejka made by this mod is the anti-spam cvars (`/iLike
 
 # A brief history of JA siege mods
 
-In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it suitable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system.
+In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it desirable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system.
 
 Around 2007, a server mod called GMod (not to be confused with Garry's Mod, the HL2-based game) was made by GhostBob and was used on American pug servers until Keramod was created. This was the first thing resembling a robust siege server mod. In addition to some bugfixes, IP logging, and a tiered admin system, this mod also featured some siege enhancements, such as "pug mode", anti-spec-joining, zombies mode, allowing dead/spec players to chat, and disallowing shield standing to preserve a shield(if I remember correctly, this was later removed due to extreme unpopularity).
 
