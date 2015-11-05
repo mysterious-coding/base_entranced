@@ -24,9 +24,9 @@ Another mod called Gamall's Fix was created around 2007, and mainly featured som
 
 Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. Although development on Keramod was later abandoned, it was the best siege mod in existence at the time, and as a result was used on nearly all pug servers from 2009-2015.
 
-In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause` and `/class` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular "fixes" that were unwanted by the siege community, such as infinite charging "fix." I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular siege "fixes" he had made, it became clear that I needed to create my own successor to Keramod.
+In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause` and `/class` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular changes that were unwanted by the siege community, such as the removal of infinite charging. I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular changes he had made, it became clear that I needed to create my own successor to Keramod.
 
-Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove the unpopular "fixes" that Sil had implemented against the wishes of the siege community. I have created many new features, as well as fixed many bugs that had plagued JK3 siege for years.
+Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove Sil's unpopular changes.
 
 My mod is now the most robust, bug-free server mod in JK3 siege history, and is the mod of choice for all JK3 siege servers. It is also the first open-source siege server mod.
 
@@ -494,16 +494,16 @@ Humiliation, impressive, etc. if you use the clientside mod SMod and have `cg_dr
 Call `/cointoss` vote for random heads/tails result.
 
 ####Polls
-Ask everyone a question with `/callvote q blahblahblah`
+Ask everyone a question with `/callvote q`. For example, `/callvote q Keep same teams and restart?`
 
-####HTTTP auto downloading
+####HTTP auto downloading
 Set url with `/g_dlurl`; clients with SMod can download
 
 ####Quiet rcon
-No more leaking stuff from rcon, use `/g_quietrcon`
+Use `/g_quietrcon` to avoid publishing mis-typed commands to everyone on the server.
 
 ####Lag icon above head
-Players with 999 ping show a lag icon above their head in-game
+Players with 999 ping show a lag icon above their head in-game.
 
 ####Fixed siege chat
 * Spectator chat can be seen by people who are in-game
