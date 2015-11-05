@@ -20,7 +20,7 @@ Around 2007, a server mod called GMod (not to be confused with Garry's Mod, the 
 
 Another mod called Gamall's Fix was created around 2007, and mainly featured some security enhancements. However, unlike GMod, it was not intended for siege, and it barely fixed any bugs, and still wasn't really suitable for playing on. Regardless, it remained popular on European servers, for some reason, until Keramod was created.
 
-Around 2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. This mod was used on nearly all pug servers from 2009-2015.
+Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. This mod was used on nearly all pug servers from 2009-2015.
 
 In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause`, `/whois` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular "fixes" that were unwanted by the siege community, such as limiting HW to 10 rockets, etc.
 
