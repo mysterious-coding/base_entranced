@@ -167,6 +167,11 @@ Note that the game client does not currently predict yaw for these moves, so the
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
 
+####`/g_autoRestart`
+0 = no automatic restarts (default JK3)
+
+non-zero number = automatic restarting for public servers; allows noobs to set classes for restart. Set to some number like 10, 15, or 20 for pubs; leave this at 0 for pug servers.
+
 ####`/siege_restart`
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `/callvote nextmap` (lol)
 
@@ -408,6 +413,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed `/bot_minplayers` not working in siege gametype.
 * Fixed bug with shield disappearing when placing it near a turret.
 * Fixed bug with emplaced gun teamkilling.
+* Fixed a rare bug with everyone being forced to spec and shown class selection menu.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -550,10 +556,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHFvZlJKa0QtOHc/view?usp=sharing)
-Version: base_entranced-11-4-2015-build59 (debug build) - fix broken `/bot_minplayers`, fix disappearing shield bug when turret is nearby, fix siege stats timer not adjusting with `/pause`, remove shield logging by default (instead use `/debug_shieldLog 1`), fix emplaced gun teamkilling bug
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8OThDQllveU5NVXM/view?usp=sharing)
+Version: base_entranced-11-4-2015-build60 (debug build) - fix rare bug with everyone being forced to spec and shown class selection menu, add `/g_autoRestart` for public servers
 
 Old versions:
+
+Version: base_entranced-11-4-2015-build59 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHFvZlJKa0QtOHc/view?usp=sharing) - fix broken `/bot_minplayers`, fix disappearing shield bug when turret is nearby, fix siege stats timer not adjusting with `/pause`, remove shield logging by default (instead use `/debug_shieldLog 1`), fix emplaced gun teamkilling bug
 
 Version: base_entranced-10-31-2015-build58 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8enBRcjJ2ZmRUNXc/view?usp=sharing) - minor tweaks to anti-spam, should prevent lag issues
 
