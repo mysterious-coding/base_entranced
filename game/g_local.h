@@ -1898,11 +1898,6 @@ extern vmCvar_t    iLikeToDoorSpam;
 extern vmCvar_t    iLikeToMineSpam;
 extern vmCvar_t    autocfg_map;
 extern vmCvar_t    autocfg_unknown;
-extern vmCvar_t    g_autoRestart;
-
-
-extern vmCvar_t    g_wasRestartedRound1;
-extern vmCvar_t    g_wasRestartedRound2;
 
 
 /*extern vmCvar_t    debug_testHeight1;

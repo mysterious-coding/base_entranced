@@ -180,11 +180,6 @@ vmCvar_t	iLikeToDoorSpam;
 vmCvar_t	iLikeToMineSpam;
 vmCvar_t	autocfg_map;
 vmCvar_t	autocfg_unknown;
-vmCvar_t	g_autoRestart;
-
-
-vmCvar_t	g_wasRestartedRound1;
-vmCvar_t	g_wasRestartedRound2;
 
 
 /*vmCvar_t	debug_testHeight1;
@@ -711,10 +706,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &iLikeToMineSpam, "iLikeToMineSpam", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_autoRestart, "g_autoRestart", "0", CVAR_ARCHIVE, 0, qtrue },
-
-	{ &g_wasRestartedRound1, "g_wasRestartedRound1", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
-	{ &g_wasRestartedRound2, "g_wasRestartedRound2", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },

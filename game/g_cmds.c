@@ -4006,8 +4006,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_autoKorribanSpam.integer, ent);
 	Com_sprintf(string, 64, "g_autoResetCustomTeams");
 	ServerCfgColor(string, g_autoResetCustomTeams.integer, ent);
-	Com_sprintf(string, 64, "g_autoRestart");
-	ServerCfgColor(string, g_autoRestart.integer, ent);
 	Com_sprintf(string, 64, "g_botJumping");
 	ServerCfgColor(string, g_botJumping.integer, ent);
 	Com_sprintf(string, 64, "g_denoteDead");
