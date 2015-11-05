@@ -474,7 +474,7 @@ void WP_InitForcePowers( gentity_t *ent )
 		{
 			ent->client->sess.setForce = qtrue;
 			//bring up the class selection menu
-			trap_SendServerCommand(ent-g_entities, "scl");
+			/*trap_SendServerCommand(ent-g_entities, "scl");*/
 		}
 	}
 	else
@@ -499,12 +499,12 @@ void WP_InitForcePowers( gentity_t *ent )
 					if (!g_teamAutoJoin.integer)
 					{
 						//Make them a spectator so they can set their powerups up without being bothered.
-						ent->client->sess.sessionTeam = TEAM_SPECTATOR;
+						/*ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 						ent->client->sess.spectatorState = SPECTATOR_FREE;
 						ent->client->sess.spectatorClient = 0;
 
 						ent->client->pers.teamState.state = TEAM_BEGIN;
-						trap_SendServerCommand(ent-g_entities, "spc");	// Fire up the profile menu
+						trap_SendServerCommand(ent-g_entities, "spc");*/	// Fire up the profile menu
 					}
 				}
 
