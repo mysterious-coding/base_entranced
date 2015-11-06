@@ -2,7 +2,7 @@
 
 Siege server mod for Jedi Knight 3
 
-by Duo, with help from Exar
+by Duo
 
 a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) mod, with extra features and bugfixes for siege.
 
