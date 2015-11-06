@@ -24,7 +24,7 @@ Another mod called Gamall's Fix was created around 2007, and mainly featured som
 
 Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. Although development on Keramod was later abandoned, it was the best siege mod in existence at the time, and as a result was used on nearly all pug servers from 2009-2015.
 
-At some point, J3rk made a serverside mod called Enhanced Siege Mod(not to be confused with his clientside mod with the same name). This may have had some basic fixes, but I can't recall any servers that used it.
+There were a few other mods such as Eyenmod and Enhanced Siege Mod(not to be confused with the clientside mod with the same name). They may have had some basic fixes, but I can't recall any servers that used them.
 
 In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes and special features such as `/pause` and `/class` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular changes that were unwanted by the siege community, such as the removal of infinite charging. I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular changes he had made, it became clear that I needed to create my own successor to Keramod.
 
