@@ -2296,18 +2296,18 @@ qboolean TryingToDoCallvoteTakeover(gentity_t *ent)
 	{
 		if (level.clients[i].pers.connected != CON_DISCONNECTED && !(g_entities[i].r.svFlags & SVF_BOT)) //connected player who is not a bot
 		{
-			if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL || level.clients[i].sess.sessionTeam != TEAM_SPECTATOR)
+			if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL || level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) //everyone is eligible in duel gametypes
 			{
-				numEligible++;
+				numEligible++; //you are not a spectator, so you are eligible
 				numTotal++;
 			}
 			else
 			{
-				numTotal++;
+				numTotal++; //you are a spectator, so you are not eligible
 			}
 		}
 	}
-	if (numTotal >= 6 && (double)numEligible / numTotal < 0.5)
+	if (numTotal >= 6 && numEligible < 2)
 	{
 		return qtrue;
 	}
@@ -2506,7 +2506,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 		{
-			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 			return;
 		}
 
@@ -2539,7 +2539,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 		{
-			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 			return;
 		}
 
@@ -2589,7 +2589,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 		{
-			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 			return;
 		}
         
@@ -2639,7 +2639,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			
 		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 		{
-			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 			return;
 		}
 
@@ -2775,7 +2775,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		{
 			if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 			{
-				trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+				trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 				return;
 			}
 			Com_sprintf(level.voteString, sizeof(level.voteString), "g_redTeam %s", arg2);
@@ -2802,7 +2802,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		{
 			if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 			{
-				trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+				trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 				return;
 			}
 			Com_sprintf(level.voteString, sizeof(level.voteString), "g_blueTeam %s", arg2);
@@ -2904,7 +2904,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 		{
-			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 			return;
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "exec pug.cfg", arg1);
@@ -2920,7 +2920,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
 		{
-			trap_SendServerCommand(ent - g_entities, va("print \"At least half of the server must be in-game to call this vote.\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
 			return;
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "exec pub.cfg", arg1);
