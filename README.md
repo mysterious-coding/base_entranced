@@ -30,7 +30,7 @@ In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from 
 
 Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove Sil's unpopular changes.
 
-My mod is now the most robust, bug-free server mod in JK3 siege history, and is the mod of choice for all JK3 siege servers. It is also the first open-source siege server mod.
+My mod is now the most robust, bug-free(relatively speaking) server mod available for siege.
 
 #base_entranced features
 These are unique features for base_entranced.
@@ -159,7 +159,7 @@ Note that the game client does not currently predict yaw for these moves, so the
 ####`/g_antiCallvoteTakeover`
 0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
 
-1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least half of the server to be ingame. This prevents calling lame unpopular votes when most of the server is in spec unable to vote no.
+1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least two people to be ingame. This prevents calling lame unpopular votes when most of the server is in spec unable to vote no.
 
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
@@ -577,10 +577,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VTRLdnJRNnRiRTQ/view?usp=sharing)
-Version: base_entranced-11-5-2015-build61 (debug build) - revert `/g_autoRestart` due to bug it caused
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cG9NWlRmek1UWUU/view?usp=sharing)
+Version: base_entranced-11-6-2015-build62 (debug build) - change `/g_antiCallvoteTakeover` to simply require two people ingame to vote instead of half of the server
 
 Old versions:
+
+Version: base_entranced-11-5-2015-build61 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VTRLdnJRNnRiRTQ/view?usp=sharing) - revert `/g_autoRestart` due to bug it caused
 
 Version: base_entranced-11-5-2015-build60 (unstable) [download removed] - fix rare bug with everyone being forced to spec and shown class selection menu, add `/g_autoRestart` for public servers
 
