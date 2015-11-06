@@ -159,7 +159,7 @@ Note that the game client does not currently predict yaw for these moves, so the
 ####`/g_antiCallvoteTakeover`
 0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
 
-1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least two people to be ingame. This prevents calling lame unpopular votes when most of the server is in spec unable to vote no.
+1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
 
 ####`/g_moreTaunts`
 0 = default JK3 behavior for /taunt command
