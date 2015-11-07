@@ -4145,7 +4145,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if (mod == MOD_DEMP2 && targ->s.eType == ET_NPC && targ->NPC->stats.nodmgfrom && (targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE || targ->NPC->stats.nodmgfrom == -1))
+	if (mod == MOD_DEMP2 && targ && targ->s.eType && targ->s.eType == ET_NPC && targ->NPC && targ->NPC->stats.nodmgfrom && (targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE || targ->NPC->stats.nodmgfrom == -1))
 	{
 		return;
 	}
