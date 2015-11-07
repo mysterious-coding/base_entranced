@@ -217,10 +217,13 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	int			ignore;
 	int			x, z;
 	int			foundDoorsIndex[64];
+	int			n;
 
-	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim;
+	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim, *enemyInStationList[MAX_GENTITIES], *potentialEnemyInStation;
 	vec3_t		throwerOrigin, distanceToVictim, distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim;
 	int			possibleTargets;
+	int			possibleEnemiesInStation;
+	int			numConfirmedEnemiesInStation = 0;
 	qboolean	iAmADirtyFuckingSpammer = qfalse;
 	qboolean	thereIsAWalkerOrProtector = qfalse;
 	qboolean	thereIsADoor = qfalse;
@@ -335,7 +338,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	}
 	else
 	{
-		//check for hoth walker spawn areas
+		//you are always allowed to spam in the walker spawn areas
 		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 		{
 			if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
@@ -347,6 +350,52 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			{
 				//trap_SendServerCommand(-1, va("print \"^%iSecond walker spawn point, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
 				return qfalse; //second/third obj walker spawn
+			}
+		}
+		else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
+		{
+			if (ent->client->ps.origin[0] >= -1660 && ent->client->ps.origin[0] <= -989 && ent->client->ps.origin[1] >= 7119 && ent->client->ps.origin[1] <= 7639)
+			{
+				//trap_SendServerCommand(-1, va("print \"^%iIn station 1 obj room, ^%ichecking for enemies.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+				VectorCopy(ent->client->ps.origin, throwerOrigin);
+				possibleEnemiesInStation = G_RadiusList(throwerOrigin, 3000, ent, qtrue, enemyInStationList);
+
+				for (n = 0; n < possibleEnemiesInStation; n++)
+				{
+					potentialEnemyInStation = enemyInStationList[n];
+
+					if (!potentialEnemyInStation || !potentialEnemyInStation->client)
+					{
+						continue; //??? uhh...this should never happen, but whatever
+					}
+
+					if (potentialEnemyInStation->client->sess.sessionTeam && potentialEnemyInStation->client->sess.sessionTeam != TEAM_RED)
+					{
+						continue; //must be on offense
+					}
+
+					if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || (potentialEnemyInStation->flags & FL_NOTARGET))
+					{
+						continue; //miscellaneous checks
+					}
+
+					if (potentialEnemyInStation->client->ps.origin[0] >= -1660 && potentialEnemyInStation->client->ps.origin[0] <= -989 && potentialEnemyInStation->client->ps.origin[1] >= 7119 && potentialEnemyInStation->client->ps.origin[1] <= 8280)
+					{
+						//there is an enemy in the station
+						numConfirmedEnemiesInStation++;
+					}
+				}
+				if (!numConfirmedEnemiesInStation)
+				{
+					//there are no enemies in the station, so it's okay to place mines
+					//trap_SendServerCommand(-1, va("print \"^%iNo enemies in station, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					return qfalse;
+				}
+				else
+				{
+					//trap_SendServerCommand(-1, va("print \"^%iEnemies detected in station, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					//proceed normally
+				}
 			}
 		}
 		memset(&tr, 0, sizeof(tr)); //to shut the compiler up
@@ -3058,7 +3107,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 	int			removeMe;
 	int			i;
 
-	if (!iLikeToMineSpam.integer && CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse, SPAM_DISTANCE_MINES, qtrue))
+	if (alt_fire && !iLikeToMineSpam.integer && CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse, SPAM_DISTANCE_MINES, qtrue))
 	{
 		return;
 	}
