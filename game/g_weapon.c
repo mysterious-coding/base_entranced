@@ -163,6 +163,7 @@ static	vec3_t	muzzle;
 #define	SPAM_DISTANCE_CONC							4096
 #define	SPAM_DISTANCE_THERMAL						4096
 #define SPAM_DISTANCE_MINES							800
+#define SPAM_DISTANCE_PRIMARY_MINES					64
 #define	DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM	512
 
 
@@ -2527,19 +2528,13 @@ void thermalThinkStandard(gentity_t *ent)
 gentity_t *WP_FireThermalDetonator(gentity_t *ent, qboolean altFire)
 //---------------------------------------------------------
 {
-	if (!altFire)
+	if (altFire && !iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_THERMAL, qtrue, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
 	{
-		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_THERMAL, qfalse, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
-		{
-			return 0;
-		}
+		return 0; //alt thermals
 	}
-	else
+	if (!altFire && !iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_THERMAL, qfalse, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
 	{
-		if (!iLikeToDoorSpam.integer && CheckIfIAmAFilthySpammer(ent, qtrue, qfalse, NULL, WP_THERMAL, qtrue, qtrue, SPAM_DISTANCE_THERMAL, qtrue))
-		{
-			return 0;
-		}
+		return 0; //primary thermals
 	}
 
 	gentity_t	*bolt;
@@ -3107,9 +3102,13 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 	int			removeMe;
 	int			i;
 
-	if (alt_fire && !iLikeToMineSpam.integer && CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse, SPAM_DISTANCE_MINES, qtrue))
+	if (alt_fire && !iLikeToMineSpam.integer && CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qtrue, qfalse, SPAM_DISTANCE_MINES, qtrue))
 	{
-		return;
+		return; //alt mines
+	}
+	if (!alt_fire && !iLikeToMineSpam.integer && CheckIfIAmAFilthySpammer(ent, qfalse, qfalse, NULL, WP_TRIP_MINE, qfalse, qfalse, SPAM_DISTANCE_PRIMARY_MINES, qtrue))
+	{
+		return; //primary mines
 	}
 
 	foundLaserTraps[0] = ENTITYNUM_NONE;
