@@ -18,7 +18,7 @@ The biggest change from basejka made by this mod is the anti-spam cvars (`/iLike
 
 In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it desirable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system. There was also a mod called OJP, that featured some interesting enhancements such as siege bot AI. This mod was only used on Meatgrinder server, which was not a very popular server.
 
-Around 2006-2007, a server mod called GMod (not to be confused with Garry's Mod, the HL2-based game) was made by GhostBob and was used on American pug servers until Keramod was created. This was the first thing resembling a robust siege server mod. In addition to some bugfixes, IP logging, and a tiered admin system, this mod also featured some siege enhancements, such as "pug mode", anti-spec-joining, zombies mode, allowing dead/spec players to chat, and disallowing shield standing to preserve a shield(if I remember correctly, this was later removed due to extreme unpopularity).
+Around 2006-2007, a server mod called GMod (not to be confused with Garry's Mod, the HL2-based game) was made by GhostBob and was used on American pug servers until Keramod was created. This was the first thing resembling a robust siege server mod. In addition to some bugfixes, IP logging, and a tiered admin system, this mod also featured some siege enhancements, such as "pug mode", anti-spec-joining, zombies mode, allowing dead/spec players to chat, (DEAD) message for teamchat from dead teammates, and disallowing shield standing to preserve a shield(if I remember correctly, this was later removed due to extreme unpopularity).
 
 Another mod called Gamall's Fix was created around 2007, and mainly featured some security enhancements. However, unlike GMod, it was not intended for siege, and it barely fixed any bugs, and still wasn't really suitable for playing on. Regardless, it remained popular on European servers, for some reason, until Keramod was created.
 
@@ -578,7 +578,7 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X25UbXc3S1FIVzQ/view?usp=sharing)
-Version: base_entranced-11-9-2015-build64 (experimental) - reduced anti-spam protection for primary mines, added anti-spam for primary thermals, added special anti-spam protection for Nar station 1 obj room, add offense anti-spam for Nar stations defense spawn
+Version: base_entranced-11-9-2015-build64 (experimental) - reduced anti-spam protection for primary mines, added anti-spam for primary thermals, fixed anti-minespam for Nar station 1 obj room when offense players are outside the station, add offense anti-spam for Nar stations defense spawn
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server.
 
