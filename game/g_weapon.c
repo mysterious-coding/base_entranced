@@ -233,172 +233,415 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	qboolean	overrideDefinitelyNotSpam = qfalse;
 	int			sizeOfConeOfProhibitedSpam, i;
 	int			heightAdjustment, xAdjustment, yAdjustment;
-	float		originalend0,originalend1,originalend2;
+	float		originalend0, originalend1, originalend2;
 	float		heightLowerBound, heightUpperBound;
 	int			numberOfDoorsFound = 0;
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (!ent || !ent->client || ent->client->sess.sessionTeam != TEAM_BLUE || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
+	if (!ent || !ent->client || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{
 		return qfalse;
 	}
 
-	heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
-	heightLowerBound = (ent->client->ps.origin[2] - 116); //approximately height distance from high part of ravine to low part of ravine (outside codes delivery room)
-
-	if (checkDoorspam)
+	if (ent->client->sess.sessionTeam == TEAM_BLUE)
 	{
-		memset(&tr, 0, sizeof(tr)); //to shut the compiler up
-		VectorCopy(ent->client->ps.origin, start);
-		start[2] += ent->client->ps.viewheight;//By eyes
+		heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
+		heightLowerBound = (ent->client->ps.origin[2] - 116); //approximately height distance from high part of ravine to low part of ravine (outside codes delivery room)
 
-		//start[0] += debug_testHeight1.integer;
-		//start[1] += debug_testHeight2.integer;
-		//start[2] += debug_testHeight3.integer;
-
-		VectorMA(start, range, forward, end);
-		ignore = ent->s.number;
-		originalend0 = end[0];
-		originalend1 = end[1];
-		originalend2 = end[2];
-		//end[0] += debug_testHeight4.integer;
-		//end[1] += debug_testHeight5.integer;
-		//end[2] += debug_testHeight6.integer;
-
-		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
-
-		for (yAdjustment = 1024; yAdjustment >= -1024; yAdjustment -= 512)
+		if (checkDoorspam)
 		{
-			end[0] = originalend0;
-			end[0] += yAdjustment;
-			for (xAdjustment = 1024; xAdjustment >= -1024; xAdjustment -= 512)
+			memset(&tr, 0, sizeof(tr)); //to shut the compiler up
+			VectorCopy(ent->client->ps.origin, start);
+			start[2] += ent->client->ps.viewheight;//By eyes
+
+			//start[0] += debug_testHeight1.integer;
+			//start[1] += debug_testHeight2.integer;
+			//start[2] += debug_testHeight3.integer;
+
+			VectorMA(start, range, forward, end);
+			ignore = ent->s.number;
+			originalend0 = end[0];
+			originalend1 = end[1];
+			originalend2 = end[2];
+			//end[0] += debug_testHeight4.integer;
+			//end[1] += debug_testHeight5.integer;
+			//end[2] += debug_testHeight6.integer;
+
+			//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
+
+			for (yAdjustment = 1024; yAdjustment >= -1024; yAdjustment -= 512)
 			{
-				end[1] = originalend1;
-				end[1] += xAdjustment;
-				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 512) //check many different heights to detect doorspam when aiming slightly above or below the door.
+				end[0] = originalend0;
+				end[0] += yAdjustment;
+				for (xAdjustment = 1024; xAdjustment >= -1024; xAdjustment -= 512)
 				{
-					end[2] = originalend2;
-					end[2] += heightAdjustment;
-					//G_PlayEffectID(G_EffectIndex("disruptor/wall_impact.efx"), end, start);
-					trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
-					traceEnt = &g_entities[tr.entityNum];
-					//if (traceEnt->classname)
+					end[1] = originalend1;
+					end[1] += xAdjustment;
+					for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 512) //check many different heights to detect doorspam when aiming slightly above or below the door.
+					{
+						end[2] = originalend2;
+						end[2] += heightAdjustment;
+						//G_PlayEffectID(G_EffectIndex("disruptor/wall_impact.efx"), end, start);
+						trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+						traceEnt = &g_entities[tr.entityNum];
+						//if (traceEnt->classname)
+							//trap_SendServerCommand(-1, va("print \"^%iDebug: classname == %s\n\"", Q_irand(1, 7), traceEnt->classname));
+						if (traceEnt && traceEnt->client && traceEnt->client->sess.sessionTeam == TEAM_RED &&
+							traceEnt->health > 0 && traceEnt->takedamage && !(traceEnt->client->tempSpectate >= level.time) && !(traceEnt->flags & FL_NOTARGET))
+						{
+							//we are aiming at a player
+							//trap_SendServerCommand(-1, va("print \"We are aiming at a player, returning qfalse\n\""));
+							overrideDefinitelyNotSpam = qtrue;
+						}
+						else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "item_shield"))
+						{
+							//we are aiming at a shield
+							//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
+							overrideDefinitelyNotSpam = qtrue;
+						}
+						else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->wait && traceEnt->wait == -1) && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
+						{
+							//we are aiming directly at a closed door
+							thereIsADoor = qtrue;
+							numberOfDoorsFound++;
+							VectorSubtract(start, tr.endpos, distanceToDoor[numberOfDoorsFound]);
+							//if (trackDoorspamStatusOfProj && missile)
+							//{
+							//	missile->closedDoorWeWereFiredAt = tr.entityNum;
+							//}
+							traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] = qtrue;
+							foundDoorsIndex[numberOfDoorsFound] = tr.entityNum;
+							//goto foundTheDoor;
+						}
+					}
+				}
+			}
+
+			//foundTheDoor:
+
+			//if (thereIsADoor)
+			//{
+				//trap_SendServerCommand(-1, va("print \"^%iDebug: ^%iaiming at a door\n\"", Q_irand(1, 7), Q_irand(1,7)));
+			//}
+
+			for (z = 1; z <= numberOfDoorsFound; z++)
+			{
+				if (foundDoorsIndex[z])
+				{
+					g_entities[foundDoorsIndex[z]].thisDoorWasFoundAlreadyByClient[ent->s.number] = qfalse;
+				}
+			}
+
+			if (overrideDefinitelyNotSpam)
+			{
+				return qfalse;
+			}
+		}
+		else
+		{
+			//you are always allowed to spam in the walker spawn areas
+			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+			{
+				if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
+				{
+					//trap_SendServerCommand(-1, va("print \"^%iFirst walker spawn point, ^%ispam allowed.\n\"", Q_irand(1,7), Q_irand(1, 7)));
+					return qfalse; //first obj walker spawn
+				}
+				if (ent->client->ps.origin[0] >= 2287 && ent->client->ps.origin[0] <= 4113 && ent->client->ps.origin[1] >= -1083 && ent->client->ps.origin[1] <= 549)
+				{
+					//trap_SendServerCommand(-1, va("print \"^%iSecond walker spawn point, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					return qfalse; //second/third obj walker spawn
+				}
+			}
+			else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
+			{
+				if (ent->client->ps.origin[0] >= -1660 && ent->client->ps.origin[0] <= -989 && ent->client->ps.origin[1] >= 7119 && ent->client->ps.origin[1] <= 7639)
+				{
+					//trap_SendServerCommand(-1, va("print \"^%iIn station 1 obj room, ^%ichecking for enemies.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					VectorCopy(ent->client->ps.origin, throwerOrigin);
+					possibleEnemiesInStation = G_RadiusList(throwerOrigin, 3000, ent, qtrue, enemyInStationList);
+
+					for (n = 0; n < possibleEnemiesInStation; n++)
+					{
+						potentialEnemyInStation = enemyInStationList[n];
+
+						if (!potentialEnemyInStation || !potentialEnemyInStation->client)
+						{
+							continue; //??? uhh...this should never happen, but whatever
+						}
+
+						if (potentialEnemyInStation->client->sess.sessionTeam && potentialEnemyInStation->client->sess.sessionTeam != TEAM_RED)
+						{
+							continue; //must be on offense
+						}
+
+						if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || (potentialEnemyInStation->flags & FL_NOTARGET))
+						{
+							continue; //miscellaneous checks
+						}
+
+						if (potentialEnemyInStation->client->ps.origin[0] >= -1660 && potentialEnemyInStation->client->ps.origin[0] <= -989 && potentialEnemyInStation->client->ps.origin[1] >= 7119 && potentialEnemyInStation->client->ps.origin[1] <= 8280)
+						{
+							//there is an enemy in the station
+							numConfirmedEnemiesInStation++;
+						}
+					}
+					if (!numConfirmedEnemiesInStation)
+					{
+						//there are no enemies in the station, so it's okay to place mines
+						//trap_SendServerCommand(-1, va("print \"^%iNo enemies in station, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						return qfalse;
+					}
+					else
+					{
+						//trap_SendServerCommand(-1, va("print \"^%iEnemies detected in station, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						//proceed normally
+					}
+				}
+			}
+			memset(&tr, 0, sizeof(tr)); //to shut the compiler up
+			VectorCopy(ent->client->ps.origin, start);
+			start[2] += ent->client->ps.viewheight;//By eyes
+
+			//start[0] += debug_testHeight1.integer;
+			//start[1] += debug_testHeight2.integer;
+			//start[2] += debug_testHeight3.integer;
+
+			VectorMA(start, range, forward, end);
+			ignore = ent->s.number;
+			originalend0 = end[0];
+			originalend1 = end[1];
+			originalend2 = end[2];
+			//end[0] += debug_testHeight4.integer;
+			//end[1] += debug_testHeight5.integer;
+			//end[2] += debug_testHeight6.integer;
+
+			//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
+
+			for (yAdjustment = 1024; yAdjustment >= -1024; yAdjustment -= 512)
+			{
+				end[0] = originalend0;
+				end[0] += yAdjustment;
+				for (xAdjustment = 1024; xAdjustment >= -1024; xAdjustment -= 512)
+				{
+					end[1] = originalend1;
+					end[1] += xAdjustment;
+					for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 512) //check many different heights to detect doorspam when aiming slightly above or below the door.
+					{
+						end[2] = originalend2;
+						end[2] += heightAdjustment;
+						//G_PlayEffectID(G_EffectIndex("disruptor/wall_impact.efx"), end, start);
+						trap_G2Trace(&tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+						traceEnt = &g_entities[tr.entityNum];
+						//if (traceEnt->classname)
 						//trap_SendServerCommand(-1, va("print \"^%iDebug: classname == %s\n\"", Q_irand(1, 7), traceEnt->classname));
-					if (traceEnt && traceEnt->client && traceEnt->client->sess.sessionTeam == TEAM_RED &&
-						traceEnt->health > 0 && traceEnt->takedamage && !(traceEnt->client->tempSpectate >= level.time) && !(traceEnt->flags & FL_NOTARGET))
-					{
-						//we are aiming at a player
-						//trap_SendServerCommand(-1, va("print \"We are aiming at a player, returning qfalse\n\""));
-						overrideDefinitelyNotSpam = qtrue;
-					}
-					else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "item_shield"))
-					{
-						//we are aiming at a shield
-						//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
-						overrideDefinitelyNotSpam = qtrue;
-					}
-					else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->wait && traceEnt->wait == -1) && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
-					{
-						//we are aiming directly at a closed door
-						thereIsADoor = qtrue;
-						numberOfDoorsFound++;
-						VectorSubtract(start, tr.endpos, distanceToDoor[numberOfDoorsFound]);
-						//if (trackDoorspamStatusOfProj && missile)
-						//{
-						//	missile->closedDoorWeWereFiredAt = tr.entityNum;
-						//}
-						traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] = qtrue;
-						foundDoorsIndex[numberOfDoorsFound] = tr.entityNum;
-						//goto foundTheDoor;
+						if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "item_shield"))
+						{
+							//we are aiming at a shield
+							//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
+							return qfalse;
+						}
 					}
 				}
 			}
 		}
 
-		//foundTheDoor:
 
-		//if (thereIsADoor)
-		//{
-			//trap_SendServerCommand(-1, va("print \"^%iDebug: ^%iaiming at a door\n\"", Q_irand(1, 7), Q_irand(1,7)));
-		//}
+		VectorCopy(ent->client->ps.origin, throwerOrigin);
+		//possibleTargets = G_RadiusList(throwerOrigin, 9999, ent, qtrue, entity_list);
+		possibleTargets = G_RadiusList(throwerOrigin, range, ent, qtrue, entity_list);
 
-		for (z = 1; z <= numberOfDoorsFound; z++)
+		for (i = 0; i < possibleTargets; i++)
 		{
-			if (foundDoorsIndex[z])
+			potentialSpamVictim = entity_list[i];
+
+			if (!potentialSpamVictim)
 			{
-				g_entities[foundDoorsIndex[z]].thisDoorWasFoundAlreadyByClient[ent->s.number] = qfalse;
+				continue; //??? uhh...this should never happen, but whatever
+			}
+
+			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+			{
+				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby (regardless of angle)
+				continue;
+			}
+
+			if (potentialSpamVictim->client && potentialSpamVictim->client->ps.m_iVehicleNum && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+			{
+				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a (piloted) walker or fighter nearby (regardless of angle)
+				continue;
+			}
+
+			/*if (potentialSpamVictim && potentialSpamVictim->classname && !Q_stricmp(potentialSpamVictim->classname, "item_shield"))
+			{
+				continue; //it's okay to spam if there's a shield nearby (regardless of angle)
+			}*/
+
+			if (!potentialSpamVictim->client)
+			{
+				continue;
+			}
+
+			if (potentialSpamVictim->client->sess.sessionTeam && potentialSpamVictim->client->sess.sessionTeam != TEAM_RED)
+			{
+				continue; //spam victim must be on offense
+			}
+
+			VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToVictim); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
+			if (VectorLength(distanceToVictim) < 600)
+			{
+				sizeOfConeOfProhibitedSpam = 75;//reduced from 90
+			}
+			else if (VectorLength(distanceToVictim) >= 600 && VectorLength(distanceToVictim) < 900)
+			{
+				sizeOfConeOfProhibitedSpam = 60; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+			}
+			else if (VectorLength(distanceToVictim) >= 900 && VectorLength(distanceToVictim) < 1800)
+			{
+				sizeOfConeOfProhibitedSpam = 45; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+			}
+			else
+			{
+				sizeOfConeOfProhibitedSpam = 30; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+			}
+
+			if (!InFOV(potentialSpamVictim, ent, sizeOfConeOfProhibitedSpam, 170))
+			{
+				continue; //make sure the potential spam victim is within our vision cone
+				//we'll use a large number for vertical FOV check here, then just check height using ps.origin[2] later
+			}
+
+			if (potentialSpamVictim->client->ps.origin[2] < heightLowerBound || potentialSpamVictim->client->ps.origin[2] > heightUpperBound)
+			{
+				continue; //don't prevent people from "spamming" if the enemy in question is too far away vertically.
+			}
+
+			if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || (potentialSpamVictim->flags & FL_NOTARGET))
+			{
+				continue; //miscellaneous checks
+			}
+
+			if (BotMindTricked(ent->s.number, potentialSpamVictim->s.number)) //don't count people who have us mind tricked. this would be a dead giveaway that the MTer is nearby.
+			{
+				continue; //pretend like MTer is not there
+			}
+
+			if (potentialSpamVictim->client->ps.fd.forcePowersActive && potentialSpamVictim->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))
+			{
+				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if the enemy is using protect (I guess)
+				continue;
+			}
+
+			//if we got to this line, there is at least one eligible enemy. we still have some more stuff to check, though...
+
+			if (checkDoorspam) //we're checking for door spam and we have at least one possible enemy. let's make he's behind a door, though.
+			{
+				if (!thereIsADoor)
+				{
+					iAmADirtyFuckingSpammer = qfalse; //we are checking for doorspam and there is no door; therefore, we are not doorspamming.
+				}
+				else //there is a door, so let's check if an enemy is behind it
+				{
+					VectorSubtract(start, potentialSpamVictim->client->ps.origin, distanceBetweenMeAndVictim);
+					for (x = 1; x <= numberOfDoorsFound; x++)
+					{
+						if (VectorLength(distanceBetweenMeAndVictim) > VectorLength(distanceToDoor[x]))
+						{
+							//enemy is behind door
+							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^2GREATER THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
+							VectorSubtract(distanceToDoor[x], distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim);
+							if (VectorLength(distanceBetweenDoorAndVictim) < DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM)
+							{
+								//enemy is behind door, and is rather close to the door. this is doorspam.
+								thereIsAnEnemyBehindDoor = qtrue;
+								//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^2LESS THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+							}
+							else
+							{
+								//enemy is behind door, but is rather far from the door. not doorspam.
+								//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^1GREATER THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+							}
+						}
+						else
+						{
+							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
+							thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
+						}
+					}
+				}
+			}
+			else
+			{
+				iAmADirtyFuckingSpammer = qtrue; //there is at least one eligible enemy and we aren't checking for doorspam
 			}
 		}
 
-		if (overrideDefinitelyNotSpam)
+		//if (thereIsAnEnemyBehindDoor)
+			//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy behind the %i doors found\n\"", numberOfDoorsFound));
+		//if (thereIsAnEnemyBetweenMeAndDoor)
+			//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy between you and the %i doors found\n\"", numberOfDoorsFound));
+
+
+#if 0
+	//ALTERNATE METHOD
+	//don't check for enemies -- just never allow shooting at doors ever (unless someone is in front of us or there's a walker)
+		if (checkDoorspam && thereIsADoor && !thereIsAnEnemyBetweenMeAndDoor && !thereIsAWalkerOrProtector)
+		{
+			if (refundMyAmmo)
+				RefundAmmo(ent, weaponBeingUsed, altFire); //optionally refund your ammo
+			if (removeMissileIfIAmASpammer && missile)
+				G_FreeEntity(missile); //optionally delete the missile from the game
+			return qtrue;
+	}
+#endif
+
+
+		if ((checkDoorspam && thereIsADoor && thereIsAnEnemyBehindDoor && !thereIsAnEnemyBetweenMeAndDoor && !thereIsAWalkerOrProtector && !overrideDefinitelyNotSpam) || (!checkDoorspam && iAmADirtyFuckingSpammer && !thereIsAWalkerOrProtector && !overrideDefinitelyNotSpam))
+		{
+			//we are a spammer confirmed. return qtrue so we can punish this douchebag
+			if (refundMyAmmo)
+				RefundAmmo(ent, weaponBeingUsed, altFire); //optionally refund your ammo
+			if (removeMissileIfIAmASpammer && missile)
+				G_FreeEntity(missile); //optionally delete the missile from the game
+			return qtrue;
+		}
+		else
 		{
 			return qfalse;
 		}
+
+
+		return qfalse; //?
 	}
-	else
+
+
+
+	else if (ent->client->sess.sessionTeam == TEAM_RED)
 	{
-		//you are always allowed to spam in the walker spawn areas
-		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+		if (weaponBeingUsed != WP_TRIP_MINE)
 		{
-			if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
-			{
-				//trap_SendServerCommand(-1, va("print \"^%iFirst walker spawn point, ^%ispam allowed.\n\"", Q_irand(1,7), Q_irand(1, 7)));
-				return qfalse; //first obj walker spawn
-			}
-			if (ent->client->ps.origin[0] >= 2287 && ent->client->ps.origin[0] <= 4113 && ent->client->ps.origin[1] >= -1083 && ent->client->ps.origin[1] <= 549)
-			{
-				//trap_SendServerCommand(-1, va("print \"^%iSecond walker spawn point, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-				return qfalse; //second/third obj walker spawn
-			}
+			return qfalse; //only affecting some weapons for now
 		}
-		else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
+
+		if (Q_stricmp(mapname.string, "siege_narshaddaa"))
 		{
-			if (ent->client->ps.origin[0] >= -1660 && ent->client->ps.origin[0] <= -989 && ent->client->ps.origin[1] >= 7119 && ent->client->ps.origin[1] <= 7639)
-			{
-				//trap_SendServerCommand(-1, va("print \"^%iIn station 1 obj room, ^%ichecking for enemies.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-				VectorCopy(ent->client->ps.origin, throwerOrigin);
-				possibleEnemiesInStation = G_RadiusList(throwerOrigin, 3000, ent, qtrue, enemyInStationList);
-
-				for (n = 0; n < possibleEnemiesInStation; n++)
-				{
-					potentialEnemyInStation = enemyInStationList[n];
-
-					if (!potentialEnemyInStation || !potentialEnemyInStation->client)
-					{
-						continue; //??? uhh...this should never happen, but whatever
-					}
-
-					if (potentialEnemyInStation->client->sess.sessionTeam && potentialEnemyInStation->client->sess.sessionTeam != TEAM_RED)
-					{
-						continue; //must be on offense
-					}
-
-					if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || (potentialEnemyInStation->flags & FL_NOTARGET))
-					{
-						continue; //miscellaneous checks
-					}
-
-					if (potentialEnemyInStation->client->ps.origin[0] >= -1660 && potentialEnemyInStation->client->ps.origin[0] <= -989 && potentialEnemyInStation->client->ps.origin[1] >= 7119 && potentialEnemyInStation->client->ps.origin[1] <= 8280)
-					{
-						//there is an enemy in the station
-						numConfirmedEnemiesInStation++;
-					}
-				}
-				if (!numConfirmedEnemiesInStation)
-				{
-					//there are no enemies in the station, so it's okay to place mines
-					//trap_SendServerCommand(-1, va("print \"^%iNo enemies in station, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-					return qfalse;
-				}
-				else
-				{
-					//trap_SendServerCommand(-1, va("print \"^%iEnemies detected in station, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-					//proceed normally
-				}
-			}
+			return qfalse; //only on nar
 		}
+
+		if (!(ent->client->ps.origin[0] >= -912 && ent->client->ps.origin[0] <= -263 && ent->client->ps.origin[1] >= 7983 && ent->client->ps.origin[1] <= 8607))
+		{
+			return qfalse;
+		}
+		//trap_SendServerCommand(-1, va("print \"^%iPassed weapon, map, ^%iand origin check.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+
+		//if we got to this point, we are on offense, using mines, and in the little area outside d spawn at 3rd objective of nar.
+		//now let's check for enemies.
+
 		memset(&tr, 0, sizeof(tr)); //to shut the compiler up
 		VectorCopy(ent->client->ps.origin, start);
 		start[2] += ent->client->ps.viewheight;//By eyes
@@ -418,15 +661,15 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 		//trap_SendServerCommand(-1, va("print \"start: %f, %f, %f   end: %f, %f, %f\n\"", start[0], start[1], start[2], end[0], end[1], end[2]));
 
-		for (yAdjustment = 1024; yAdjustment >= -1024; yAdjustment -= 512)
+		for (yAdjustment = 512; yAdjustment >= -512; yAdjustment -= 512)
 		{
 			end[0] = originalend0;
 			end[0] += yAdjustment;
-			for (xAdjustment = 1024; xAdjustment >= -1024; xAdjustment -= 512)
+			for (xAdjustment = 512; xAdjustment >= -512; xAdjustment -= 512)
 			{
 				end[1] = originalend1;
 				end[1] += xAdjustment;
-				for (heightAdjustment = 4096; heightAdjustment >= -4096; heightAdjustment -= 512) //check many different heights to detect doorspam when aiming slightly above or below the door.
+				for (heightAdjustment = 2048; heightAdjustment >= -4096; heightAdjustment -= 256) //check many different heights slightly above or below.
 				{
 					end[2] = originalend2;
 					end[2] += heightAdjustment;
@@ -441,178 +684,77 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 						//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
 						return qfalse;
 					}
-				}
-			}
-		}
-	}
-
-
-	VectorCopy(ent->client->ps.origin, throwerOrigin);
-	//possibleTargets = G_RadiusList(throwerOrigin, 9999, ent, qtrue, entity_list);
-	possibleTargets = G_RadiusList(throwerOrigin, range, ent, qtrue, entity_list);
-
-	for (i = 0; i < possibleTargets; i++)
-	{
-		potentialSpamVictim = entity_list[i];
-
-		if (!potentialSpamVictim)
-		{
-			continue; //??? uhh...this should never happen, but whatever
-		}
-
-		if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
-		{
-			thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby (regardless of angle)
-			continue;
-		}
-
-		if (potentialSpamVictim->client && potentialSpamVictim->client->ps.m_iVehicleNum && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
-		{
-			thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a (piloted) walker or fighter nearby (regardless of angle)
-			continue;
-		}
-
-		/*if (potentialSpamVictim && potentialSpamVictim->classname && !Q_stricmp(potentialSpamVictim->classname, "item_shield"))
-		{
-			continue; //it's okay to spam if there's a shield nearby (regardless of angle)
-		}*/
-
-		if (!potentialSpamVictim->client)
-		{
-			continue;
-		}
-
-		if (potentialSpamVictim->client->sess.sessionTeam && potentialSpamVictim->client->sess.sessionTeam != TEAM_RED)
-		{
-			continue; //spam victim must be on offense
-		}
-
-		VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToVictim); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
-		if (VectorLength(distanceToVictim) < 600)
-		{
-			sizeOfConeOfProhibitedSpam = 75;//reduced from 90
-		}
-		else if (VectorLength(distanceToVictim) >= 600 && VectorLength(distanceToVictim) < 900)
-		{
-			sizeOfConeOfProhibitedSpam = 60; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
-			//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
-		}
-		else if (VectorLength(distanceToVictim) >= 900 && VectorLength(distanceToVictim) < 1800)
-		{
-			sizeOfConeOfProhibitedSpam = 45; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
-			//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
-		}
-		else
-		{
-			sizeOfConeOfProhibitedSpam = 30; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
-			//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
-		}
-
-		if (!InFOV(potentialSpamVictim, ent, sizeOfConeOfProhibitedSpam, 170))
-		{
-			continue; //make sure the potential spam victim is within our vision cone
-			//we'll use a large number for vertical FOV check here, then just check height using ps.origin[2] later
-		}
-
-		if (potentialSpamVictim->client->ps.origin[2] < heightLowerBound || potentialSpamVictim->client->ps.origin[2] > heightUpperBound)
-		{
-			continue; //don't prevent people from "spamming" if the enemy in question is too far away vertically.
-		}
-
-		if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || (potentialSpamVictim->flags & FL_NOTARGET))
-		{
-			continue; //miscellaneous checks
-		}
-
-		if (BotMindTricked(ent->s.number, potentialSpamVictim->s.number)) //don't count people who have us mind tricked. this would be a dead giveaway that the MTer is nearby.
-		{
-			continue; //pretend like MTer is not there
-		}
-
-		if (potentialSpamVictim->client->ps.fd.forcePowersActive && potentialSpamVictim->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))
-		{
-			thereIsAWalkerOrProtector = qtrue;//it's okay to spam if the enemy is using protect (I guess)
-			continue;
-		}
-
-		//if we got to this line, there is at least one eligible enemy. we still have some more stuff to check, though...
-
-		if (checkDoorspam) //we're checking for door spam and we have at least one possible enemy. let's make he's behind a door, though.
-		{
-			if (!thereIsADoor)
-			{
-				iAmADirtyFuckingSpammer = qfalse; //we are checking for doorspam and there is no door; therefore, we are not doorspamming.
-			}
-			else //there is a door, so let's check if an enemy is behind it
-			{
-				VectorSubtract(start, potentialSpamVictim->client->ps.origin, distanceBetweenMeAndVictim);
-				for (x = 1; x <= numberOfDoorsFound; x++)
-				{
-					if (VectorLength(distanceBetweenMeAndVictim) > VectorLength(distanceToDoor[x]))
+					else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_breakable"))
 					{
-						//enemy is behind door
-						//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^2GREATER THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-						VectorSubtract(distanceToDoor[x], distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim);
-						if (VectorLength(distanceBetweenDoorAndVictim) < DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM)
-						{
-							//enemy is behind door, and is rather close to the door. this is doorspam.
-							thereIsAnEnemyBehindDoor = qtrue;
-							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^2LESS THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
-						}
-						else
-						{
-							//enemy is behind door, but is rather far from the door. not doorspam.
-							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^1GREATER THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
-						}
-					}
-					else
-					{
-						//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-						thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
+						//we are aiming at a door lock
+						//trap_SendServerCommand(-1, va("print \"We are aiming at a func_breakable (door lock), returning qfalse\n\""));
+						return qfalse;
 					}
 				}
 			}
 		}
-		else
+
+		//if we got to this point, we are not aiming at a shield.
+		//now let's check for enemies.
+
+		VectorCopy(ent->client->ps.origin, throwerOrigin);
+		//possibleTargets = G_RadiusList(throwerOrigin, 9999, ent, qtrue, entity_list);
+		possibleTargets = G_RadiusList(throwerOrigin, range, ent, qtrue, entity_list);
+
+		for (i = 0; i < possibleTargets; i++)
 		{
-			iAmADirtyFuckingSpammer = qtrue; //there is at least one eligible enemy and we aren't checking for doorspam
+			potentialSpamVictim = entity_list[i];
+
+			if (!potentialSpamVictim)
+			{
+				continue; //??? uhh...this should never happen, but whatever
+			}
+
+			if (!potentialSpamVictim->client)
+			{
+				continue;
+			}
+
+			if (potentialSpamVictim->client->sess.sessionTeam && potentialSpamVictim->client->sess.sessionTeam != TEAM_BLUE)
+			{
+				continue; //spam victim must be on defense
+			}
+
+			if (!InFOV(potentialSpamVictim, ent, 60, 170))
+			{
+				//trap_SendServerCommand(-1, va("print \"^%iEnemy is not^%i within vision cone, continuing.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+				continue; //make sure the potential spam victim is within our vision cone
+			}
+
+			if (!(potentialSpamVictim->client->ps.origin[0] >= -1287 && potentialSpamVictim->client->ps.origin[0] <= -545 && potentialSpamVictim->client->ps.origin[1] >= 8257 && potentialSpamVictim->client->ps.origin[1] <= 8709))
+			{
+				//trap_SendServerCommand(-1, va("print \"^%iEnemy is not^%i within origin constraints, continuing.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+				continue;
+			}
+
+			if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || (potentialSpamVictim->flags & FL_NOTARGET))
+			{
+				continue; //miscellaneous checks
+			}
+
+			thereIsAnEnemyBetweenMeAndDoor = qtrue;
 		}
-	}
 
-	//if (thereIsAnEnemyBehindDoor)
-		//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy behind the %i doors found\n\"", numberOfDoorsFound));
-	//if (thereIsAnEnemyBetweenMeAndDoor)
-		//trap_SendServerCommand(-1, va("print \"There is at least 1 enemy between you and the %i doors found\n\"", numberOfDoorsFound));
-
-
-#if 0
-	//ALTERNATE METHOD
-	//don't check for enemies -- just never allow shooting at doors ever (unless someone is in front of us or there's a walker)
-	if (checkDoorspam && thereIsADoor && !thereIsAnEnemyBetweenMeAndDoor && !thereIsAWalkerOrProtector)
-	{
-		if (refundMyAmmo)
-			RefundAmmo(ent, weaponBeingUsed, altFire); //optionally refund your ammo
-		if (removeMissileIfIAmASpammer && missile)
-			G_FreeEntity(missile); //optionally delete the missile from the game
-		return qtrue;
-	}
-#endif
-
-
-	if ((checkDoorspam && thereIsADoor && thereIsAnEnemyBehindDoor && !thereIsAnEnemyBetweenMeAndDoor && !thereIsAWalkerOrProtector && !overrideDefinitelyNotSpam) || (!checkDoorspam && iAmADirtyFuckingSpammer && !thereIsAWalkerOrProtector && !overrideDefinitelyNotSpam))
-	{
-		//we are a spammer confirmed. return qtrue so we can punish this douchebag
-		if (refundMyAmmo)
-			RefundAmmo(ent, weaponBeingUsed, altFire); //optionally refund your ammo
-		if (removeMissileIfIAmASpammer && missile)
-			G_FreeEntity(missile); //optionally delete the missile from the game
-		return qtrue;
-	}
-	else
-	{
+		if (thereIsAnEnemyBetweenMeAndDoor && level.time <= level.antiSpawnSpamTime)
+		{
+			//trap_SendServerCommand(-1, va("print \"^%iSpam ^%iconfirmed, ^2returning qtrue\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+			//we are a spammer confirmed. return qtrue so we can punish this douchebag
+			if (refundMyAmmo)
+				RefundAmmo(ent, weaponBeingUsed, altFire); //optionally refund your ammo
+			if (removeMissileIfIAmASpammer && missile)
+				G_FreeEntity(missile); //optionally delete the missile from the game
+			return qtrue;
+		}
+		//trap_SendServerCommand(-1, va("print \"^%iSpam ^%idisproven, ^1returning qfalse\n\"", Q_irand(1, 7), Q_irand(1, 7)));
 		return qfalse;
 	}
-	
+
+
 
 	return qfalse; //?
 }

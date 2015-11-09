@@ -4130,6 +4130,11 @@ void ClientSpawn(gentity_t *ent) {
 	//rww - make sure client has a valid icarus instance
 	trap_ICARUS_FreeEnt( ent );
 	trap_ICARUS_InitEnt( ent );
+
+	if (!Q_stricmp(mapname.string, "siege_narshaddaa") && client->sess.sessionTeam == SIEGETEAM_TEAM2 && !iLikeToMineSpam.integer)
+	{
+		level.antiSpawnSpamTime = level.time + 6000; //disable spamming d spawn at nar 3rd obj for 6 seconds after spawn
+	}
 }
 
 

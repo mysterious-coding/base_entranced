@@ -922,6 +922,7 @@ typedef struct {
 	int			framenum;
 	int			time;					// in msec
 	int			previousTime;			// so movers can back up when blocked
+	int			antiSpawnSpamTime;
 
 	int			startTime;				// level.time the map was started
 
