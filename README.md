@@ -577,10 +577,12 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cG9NWlRmek1UWUU/view?usp=sharing)
-Version: base_entranced-11-6-2015-build62 (debug build) - change `/g_antiCallvoteTakeover` to simply require two people ingame to vote instead of half of the server
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X25UbXc3S1FIVzQ/view?usp=sharing)
+Version: base_entranced-11-9-2015-build64 (experimental) - reduced anti-spam protection for primary mines, added anti-spam for primary thermals, added special anti-spam protection for Nar station 1 obj room, add offense anti-spam for Nar stations defense spawn
 
 Old versions:
+
+Version: base_entranced-11-6-2015-build62 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cG9NWlRmek1UWUU/view?usp=sharing) - change `/g_antiCallvoteTakeover` to simply require two people ingame to vote instead of half of the server
 
 Version: base_entranced-11-5-2015-build61 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VTRLdnJRNnRiRTQ/view?usp=sharing) - revert `/g_autoRestart` due to bug it caused
 
