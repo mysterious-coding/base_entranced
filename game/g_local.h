@@ -742,6 +742,9 @@ struct gclient_s {
 	int			beingThrown;
 	int			doingThrow;
 
+	int			chatSpamTime;
+	char		lastChatMessage[MAX_SAY_TEXT];
+
 	float		hiddenDist;//How close ents have to be to pick you up as an enemy
 	vec3_t		hiddenDir;//Normalized direction in which NPCs can't see you (you are hidden)
 
@@ -1896,6 +1899,7 @@ extern vmCvar_t    iLikeToDoorSpam;
 extern vmCvar_t    iLikeToMineSpam;
 extern vmCvar_t    autocfg_map;
 extern vmCvar_t    autocfg_unknown;
+extern vmCvar_t    g_antiSpecChatSpam;
 
 
 /*extern vmCvar_t    debug_testHeight1;

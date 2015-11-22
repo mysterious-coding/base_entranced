@@ -1839,7 +1839,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	if ( target ) {
-		G_SayTo( ent, target, mode, color, name, text, locMsg );
+		G_SayTo(ent, target, mode, color, name, text, locMsg);
 		return;
 	}
 
@@ -1847,9 +1847,27 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// dont echo, it makes duplicated messages, already echoed with logprintf
 
 	// send it to all the apropriate clients
-	for (j = 0; j < level.maxclients; j++) {
+	for (j = 0; j < level.maxclients; j++)
+	{
 		other = &g_entities[j];
-		G_SayTo( ent, other, mode, color, name, text, locMsg );
+
+		if (ent && ent->client->sess.sessionTeam == TEAM_SPECTATOR && other && other->client->sess.sessionTeam != TEAM_SPECTATOR && g_antiSpecChatSpam.integer) //we are in spec and the target is not
+		{
+			if (!Q_stricmp(text, ent->client->lastChatMessage) && ent->client->chatSpamTime > level.time) //chat message matches our last message, and we said it recently
+			{
+				//do nothing
+			}
+			else //chat does not match our last message, or it does but we didn't say it recently
+			{
+				G_SayTo(ent, other, mode, color, name, text, locMsg); //go ahead and say it
+				Com_sprintf(ent->client->lastChatMessage, sizeof(ent->client->lastChatMessage), "%s", text); //store this chat message
+				ent->client->chatSpamTime = level.time + 3000; //no more chat spam for 3 seconds
+			}
+		}
+		else
+		{
+			G_SayTo(ent, other, mode, color, name, text, locMsg);
+		}
 	}
 }
 
@@ -4000,6 +4018,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_antiCallvoteTakeover.integer, ent);
 	Com_sprintf(string, 64, "g_antiHothHangarLiftLame");
 	ServerCfgColor(string, g_antiHothHangarLiftLame.integer, ent);
+	Com_sprintf(string, 64, "g_antiSpecChatSpam");
+	ServerCfgColor(string, g_antiSpecChatSpam.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanFloatingItems");
 	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanSpam");
