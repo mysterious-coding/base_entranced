@@ -1900,6 +1900,8 @@ extern vmCvar_t    iLikeToMineSpam;
 extern vmCvar_t    autocfg_map;
 extern vmCvar_t    autocfg_unknown;
 extern vmCvar_t    g_antiSpecChatSpam;
+extern vmCvar_t    g_requireJoinPassword;
+extern vmCvar_t    g_joinPassword;
 
 
 /*extern vmCvar_t    debug_testHeight1;
