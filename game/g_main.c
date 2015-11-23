@@ -50,6 +50,9 @@ vmCvar_t	g_maxForceRank;
 vmCvar_t	g_forceBasedTeams;
 vmCvar_t	g_privateDuel;
 
+vmCvar_t	g_duelLifes;
+vmCvar_t	g_duelShields;
+
 vmCvar_t	g_chatLimit;
 
 
@@ -392,6 +395,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_maxForceRank, "g_maxForceRank", "6", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
 	{ &g_forceBasedTeams, "g_forceBasedTeams", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
 	{ &g_privateDuel, "g_privateDuel", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+	
+	{ &g_duelLifes, "g_duelLifes", "100", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_duelShields, "g_duelShields", "25", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_chatLimit, "g_chatLimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 

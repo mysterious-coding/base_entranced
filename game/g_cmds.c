@@ -18,9 +18,6 @@ void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *sab
 void Cmd_NPC_f( gentity_t *ent );
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
-#define DUEL_SHIELDS 25
-#define DUEL_LIFES 100
-
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -4222,7 +4219,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 			G_AddEvent(challenged, EV_PRIVATE_DUEL, 1);
 
 			//set default duel values for life and shield
-			shields = DUEL_SHIELDS;
+			shields = g_duelShields.integer;
 
 			if (shields > 100)
 				shields = 100;
@@ -4244,7 +4241,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 				challenged->client->ps.weapon = WP_MELEE;
 			}
 
-			lifes = DUEL_LIFES;
+			lifes = g_duelLifes.integer;
 
 			if (lifes < 1)
 				lifes = 1;

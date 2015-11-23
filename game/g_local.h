@@ -1664,6 +1664,9 @@ extern	vmCvar_t	g_maxForceRank;
 extern	vmCvar_t	g_forceBasedTeams;
 extern	vmCvar_t	g_privateDuel;
 
+extern  vmCvar_t	g_duelLifes;
+extern  vmCvar_t	g_duelShields;
+
 extern	vmCvar_t	g_allowNPC;
 
 extern	vmCvar_t	g_chatLimit;
