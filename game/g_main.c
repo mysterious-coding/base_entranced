@@ -701,7 +701,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &iLikeToMineSpam, "iLikeToMineSpam", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_antiSpecChatSpam, "antiSpecChatSpam", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_antiSpecChatSpam, "g_antiSpecChatSpam", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_requireJoinPassword, "g_requireJoinPassword", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_joinPassword, "g_joinPassword", "", CVAR_ARCHIVE, 0, qfalse },
 
