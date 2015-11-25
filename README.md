@@ -188,6 +188,11 @@ Note that the game client does not currently predict yaw for these moves, so the
 
 1 = you can join spectators in the brief moment after you die (default JK3)
 
+####`/g_antiSpecChatSpam`
+0 = spectators are free to spam allchat and annoying players who are in-game
+
+1 = if a spectator sends a duplicate chat message within 3 seconds of the original one, it will not be seen by players who are in-game
+
 ####`/g_sexyDisruptor`
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
@@ -274,6 +279,9 @@ Clients can decide their own preference of which weapon they would like to be ho
 Your most-preferred weapons go at the beginning; least-preferred weapons go at the end. For example, you could enter `/setu prefer RCTIGDUEBSMKYPL`
 
 Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use default JK3 weapon priority.
+
+####`Team-joining password requirement`
+You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/g_requireJoinPassword 1` to establish the requirement, and use `/g_joinPassword "your_password_here"` to define the password. This could be useful for opening up private/pug servers to the public for spectating.
 
 ####`/serverstatus2`
 
@@ -388,6 +396,10 @@ Mapmakers can add some new extra keys to `misc_siege_item` for additional contro
 `autorespawn 1` = item will automatically respawn when return timer expires (default)
 
 `respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default). Use `respawntime -1` to make the item never return.
+
+`hideIconWhileCarried 0` = item's radar icon will be shown normally (default)
+
+`hideIconWhileCarried 1` = item's radar icon will be hidden while item is carried, and will reappear when dropped
 
 Mapmakers are advised to include the new `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
 
@@ -577,12 +589,14 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X25UbXc3S1FIVzQ/view?usp=sharing)
-Version: base_entranced-11-9-2015-build64 (experimental) - reduced anti-spam protection for primary mines, added anti-spam for primary thermals, fixed anti-minespam for Nar station 1 obj room when offense players are outside the station, add offense anti-spam for Nar stations defense spawn
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z1JneklJY2hfVG8/view?usp=sharing)
+Version: base_entranced-11-25-2015-build65 (experimental) - add `hideIconWhileCarried`, add `/g_antiSpecChatSpam`, add `g_joinPassword` and `g_requireJoinPassword`, restore some unusued duel cvars(it wasn't necessary to remove them before)
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server.
 
 Old versions:
+
+Old version: base_entranced-11-9-2015-build64 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X25UbXc3S1FIVzQ/view?usp=sharing) - reduce anti-spam protection for primary mines, add anti-spam for primary thermals, fix anti-minespam for Nar station 1 obj room when offense players are outside the station, add offense anti-spam for Nar stations defense spawn
 
 Version: base_entranced-11-6-2015-build62 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cG9NWlRmek1UWUU/view?usp=sharing) - change `/g_antiCallvoteTakeover` to simply require two people ingame to vote instead of half of the server
 
