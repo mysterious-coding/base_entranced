@@ -1847,6 +1847,10 @@ void SiegeItemThink(gentity_t *ent)
 
 		if (carrier->inuse && carrier->client)
 		{
+			if (ent->hideIconWhileCarried)
+			{
+				ent->s.eFlags &= ~EF_RADAROBJECT;
+			}
 			VectorCopy(carrier->client->ps.origin, ent->r.currentOrigin);
 			trap_LinkEntity(ent);
 		}
@@ -1877,6 +1881,10 @@ void SiegeItemThink(gentity_t *ent)
 			(carrier->client->sess.sessionTeam != SIEGETEAM_TEAM1 && carrier->client->sess.sessionTeam != SIEGETEAM_TEAM2) ||
 			(carrier->client->ps.pm_flags & PMF_FOLLOW))
 		{ //respawn on the original spot
+			if (ent->hideIconWhileCarried)
+			{
+				ent->s.eFlags |= EF_RADAROBJECT;
+			}
 			SiegeItemRespawnOnOriginalSpot(ent, NULL);
 		}
 		else if (carrier->health < 1)
@@ -1885,7 +1893,10 @@ void SiegeItemThink(gentity_t *ent)
 			{
 				G_UseTargets2(ent, ent, ent->target6);
 			}
-
+			if (ent->hideIconWhileCarried)
+			{
+				ent->s.eFlags |= EF_RADAROBJECT;
+			}
 			if ( trap_PointContents(carrier->client->ps.origin, carrier->s.number) & CONTENTS_NODROP )
 			{ //In nodrop land, go back to the original spot.
 				SiegeItemRespawnOnOriginalSpot(ent, carrier);
@@ -1914,6 +1925,10 @@ void SiegeItemThink(gentity_t *ent)
 
 	if (ent->genericValue9 && ent->genericValue9 < level.time && ent->genericValue17 != -1)
 	{ //time to respawn on the original spot then
+		if (ent->hideIconWhileCarried)
+		{
+			ent->s.eFlags |= EF_RADAROBJECT;
+		}
 		SiegeItemRespawnEffect(ent, ent->pos1);
 		G_SetOrigin(ent, ent->pos1);
 		if (!ent->genericValue16) //hacky...
@@ -1996,9 +2011,13 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		G_UseTargets2(self, self, self->target2);
 		self->genericValue5 = 1; //mark it as having been picked up
 	}	
-	
+	if (self->hideIconWhileCarried)
+	{
+		self->s.eFlags &= ~EF_RADAROBJECT;
+	}
 	// time2 set to -1 will blink the item on the radar indefinately
 	self->s.time2 = 0xFFFFFFFF;
+
 }
 
 void SiegeItemPain(gentity_t *self, gentity_t *attacker, int damage)
@@ -2171,7 +2190,7 @@ void SP_misc_siege_item (gentity_t *ent)
 
 	G_SpawnInt("teamnotouch", "0", &ent->genericValue6);
 	G_SpawnInt("teamnocomplete", "0", &ent->genericValue7);
-	
+	G_SpawnInt("hideiconwhilecarried", "0", &ent->hideIconWhileCarried);
 	//Get default physics values.
 	G_SpawnFloat("mass", "0.09", &ent->mass);
 	G_SpawnFloat("gravity", "3.0", &ent->radius);

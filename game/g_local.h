@@ -200,7 +200,7 @@ struct gentity_s {
 	int			healingrate; //set in quakeed
 	int			healingDebounce; //debounce for generic object healing shiz
 	int			healingteam;
-
+	int			hideIconWhileCarried;
 	qboolean	thisDoorWasFoundAlreadyByClient[32];
 
 	char		*ownername;
