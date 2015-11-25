@@ -189,7 +189,7 @@ Note that the game client does not currently predict yaw for these moves, so the
 1 = you can join spectators in the brief moment after you die (default JK3)
 
 ####`/g_antiSpecChatSpam`
-0 = spectators are free to spam allchat and annoying players who are in-game
+0 = spectators are free to spam allchat and annoy players who are in-game (default JK3)
 
 1 = if a spectator sends a duplicate chat message within 3 seconds of the original one, it will not be seen by players who are in-game
 
