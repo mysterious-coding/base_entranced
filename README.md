@@ -193,6 +193,8 @@ Note that the game client does not currently predict yaw for these moves, so the
 
 1 = if a spectator sends a duplicate chat message within 3 seconds of the original one, it will not be seen by players who are in-game
 
+NOTE: As of 11/28/2015, this might be bugged. Advised to set this to 0 for now.
+
 ####`/g_sexyDisruptor`
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
@@ -589,12 +591,14 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z1JneklJY2hfVG8/view?usp=sharing)
-Version: base_entranced-11-25-2015-build65 (experimental) - add `hideIconWhileCarried`, add `/g_antiSpecChatSpam`, add `g_joinPassword` and `g_requireJoinPassword`, restore some unusued duel cvars(it wasn't necessary to remove them before)
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TGZ4R2hFd2hHaTA/view?usp=sharing)
+Version: base_entranced-11-28-2015-build66 (experimental) - allow all "doorspam" at cargo/cargo2 first obj
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-11-25-2015-build65 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z1JneklJY2hfVG8/view?usp=sharing) - add `hideIconWhileCarried`, add `/g_antiSpecChatSpam`, add `g_joinPassword` and `g_requireJoinPassword`, restore some unusued duel cvars(it wasn't necessary to remove them before)
 
 Old version: base_entranced-11-9-2015-build64 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X25UbXc3S1FIVzQ/view?usp=sharing) - reduce anti-spam protection for primary mines, add anti-spam for primary thermals, fix anti-minespam for Nar station 1 obj room when offense players are outside the station, add offense anti-spam for Nar stations defense spawn
 
