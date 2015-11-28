@@ -592,7 +592,7 @@ base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack th
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z1JneklJY2hfVG8/view?usp=sharing)
 Version: base_entranced-11-25-2015-build65 (experimental) - add `hideIconWhileCarried`, add `/g_antiSpecChatSpam`, add `g_joinPassword` and `g_requireJoinPassword`, restore some unusued duel cvars(it wasn't necessary to remove them before)
 
-NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server.
+NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
 
