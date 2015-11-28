@@ -236,7 +236,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	float		originalend0, originalend1, originalend2;
 	float		heightLowerBound, heightUpperBound;
 	int			numberOfDoorsFound = 0;
-	qboolean	aimingAtCargoHallDoor = qfalse;
+	//qboolean	aimingAtCargoHallDoor = qfalse;
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -302,8 +302,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
 							overrideDefinitelyNotSpam = qtrue;
 						}
-						else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") &&traceEnt->moverState == MOVER_POS1 &&
-							!(traceEnt->wait && traceEnt->wait == -1) && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
+						else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->wait && traceEnt->wait == -1) && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
 						{
 							//we are aiming directly at a closed door
 							thereIsADoor = qtrue;
