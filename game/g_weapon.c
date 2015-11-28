@@ -236,6 +236,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	float		originalend0, originalend1, originalend2;
 	float		heightLowerBound, heightUpperBound;
 	int			numberOfDoorsFound = 0;
+	qboolean	aimingAtCargoHallDoor = qfalse;
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -301,7 +302,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							//trap_SendServerCommand(-1, va("print \"We are aiming at a shield, returning qfalse\n\""));
 							overrideDefinitelyNotSpam = qtrue;
 						}
-						else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") && traceEnt->moverState == MOVER_POS1 && !(traceEnt->wait && traceEnt->wait == -1) && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
+						else if (traceEnt && tr.entityNum < ENTITYNUM_WORLD && traceEnt->classname && !Q_stricmp(traceEnt->classname, "func_door") &&traceEnt->moverState == MOVER_POS1 &&
+							!(traceEnt->wait && traceEnt->wait == -1) && !(traceEnt->spawnflags & 4) && !(traceEnt->spawnflags & 8) && !(traceEnt->spawnflags & 16) && traceEnt->thisDoorWasFoundAlreadyByClient[ent->s.number] != qtrue)
 						{
 							//we are aiming directly at a closed door
 							thereIsADoor = qtrue;
@@ -338,10 +340,65 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			{
 				return qfalse;
 			}
+
+			if (!Q_stricmpn(mapname.string, "siege_cargobarge", 16)) //doorspam fix for first obj of cargo/cargo2
+			{
+				if (ent->client->ps.origin[0] >= 559 && ent->client->ps.origin[0] <= 3060 && ent->client->ps.origin[1] >= -2315 && ent->client->ps.origin[1] <= 332)
+				{
+					return qfalse; //for now just say it's not spam
+					/*//we are in the first obj area
+					if (!aimingAtCargoHallDoor)
+					{
+						trap_SendServerCommand(-1, va("print \"^%iIn the 1st obj but not aiming at ambush room door; ^%inot spam.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						return qfalse;
+					}
+					//we are aiming at the ambush room door
+					//trap_SendServerCommand(-1, va("print \"^%iAiming at ambush room door, ^%ichecking for enemies.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					VectorCopy(ent->client->ps.origin, throwerOrigin);
+					possibleEnemiesInStation = G_RadiusList(throwerOrigin, 3000, ent, qtrue, enemyInStationList);
+
+					for (n = 0; n < possibleEnemiesInStation; n++)
+					{
+						potentialEnemyInStation = enemyInStationList[n];
+
+						if (!potentialEnemyInStation || !potentialEnemyInStation->client)
+						{
+							continue; //??? uhh...this should never happen, but whatever
+						}
+
+						if (potentialEnemyInStation->client->sess.sessionTeam && potentialEnemyInStation->client->sess.sessionTeam != TEAM_RED)
+						{
+							continue; //must be on offense
+						}
+
+						if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || (potentialEnemyInStation->flags & FL_NOTARGET))
+						{
+							continue; //miscellaneous checks
+						}
+
+						if (potentialEnemyInStation->client->ps.origin[0] >= 2212 && potentialEnemyInStation->client->ps.origin[0] <= 2539 && potentialEnemyInStation->client->ps.origin[1] >= -2334 && potentialEnemyInStation->client->ps.origin[1] <= -2050 && potentialEnemyInStation->client->ps.origin[2] <= 258)
+						{
+							//there is an enemy in the ambush room
+							numConfirmedEnemiesInStation++;
+						}
+					}
+					if (!numConfirmedEnemiesInStation)
+					{
+						//there are no enemies in the station, so it's okay to shoot
+						trap_SendServerCommand(-1, va("print \"^%iNo enemies in ambush room, ^%ishot allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						return qfalse;
+					}
+					else
+					{
+						trap_SendServerCommand(-1, va("print \"^%iEnemies detected in ambush room, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						//proceed normally
+					}*/
+				}
+			}
 		}
 		else
 		{
-			//you are always allowed to spam in the walker spawn areas
+			//you are always allowed to minespam in the walker spawn areas
 			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 			{
 				if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
