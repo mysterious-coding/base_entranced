@@ -202,6 +202,7 @@ struct gentity_s {
 	int			healingteam;
 	int			hideIconWhileCarried;
 	qboolean	thisDoorWasFoundAlreadyByClient[32];
+	char		*uniqueName;
 
 	char		*ownername;
 
