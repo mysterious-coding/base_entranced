@@ -1887,10 +1887,26 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		else
 		{
 			//not in siege countdown
-			if ((ent->client->sess.sessionTeam == SIEGETEAM_TEAM1 || ent->client->sess.sessionTeam == SIEGETEAM_TEAM2) && (ent->client->tempSpectate > level.time || ent->health <= 0))
+			if (ent->client->sess.sessionTeam == SIEGETEAM_TEAM1 || ent->client->sess.sessionTeam == SIEGETEAM_TEAM2)
 			{
-				//ingame and dead
-				Com_sprintf(text, sizeof(text), "^0(DEAD) %c%c%s", Q_COLOR_ESCAPE, color, text);
+				if (ent->client->tempSpectate > level.time || ent->health <= 0)
+				{
+					//ingame and dead
+					Com_sprintf(text, sizeof(text), "^0(DEAD) %c%c%s", Q_COLOR_ESCAPE, color, text);
+				}
+				else if (g_improvedTeamchat.integer >= 2)
+				{
+					if (ent->client->ps.stats[STAT_ARMOR])
+					{
+						//we have armor
+						Com_sprintf(text, sizeof(text), "^5(%i/%i) %c%c%s", ent->health, ent->client->ps.stats[STAT_ARMOR], Q_COLOR_ESCAPE, color, text);
+					}
+					else
+					{
+						//no armor
+						Com_sprintf(text, sizeof(text), "^5(%i) %c%c%s", ent->health, Q_COLOR_ESCAPE, color, text);
+					}
+				}
 			}
 		}
 	}

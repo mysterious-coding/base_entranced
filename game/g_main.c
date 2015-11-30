@@ -677,7 +677,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_nextmapWarning, "g_nextmapWarning", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_floatingItems, "g_floatingItems", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rocketSurfing, "g_rocketSurfing", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_improvedTeamchat, "g_improvedTeamchat", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_improvedTeamchat, "g_improvedTeamchat", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_enableCloak, "g_enableCloak", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },
