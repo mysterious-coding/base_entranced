@@ -104,6 +104,13 @@ These are unique features for base_entranced.
 
 1 = when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
+####`/g_improvedTeamchat`
+0 = default JK3 team chat
+
+1 = show selected class as "location" during countdown, show "(DEAD)" in teamchat for dead players, hide location from teamchat between spectators, hide location from teamchat during intermission
+
+2 = all of the above, plus show HP in teamchat for alive players
+
 ####`/g_fixFallingSounds`
 0 = default JK3 sound (normal death sound)
 
@@ -113,16 +120,6 @@ These are unique features for base_entranced.
 0 = default JK3 eweb behavior (huge annoying recoil, etc)
 
 1 = remove eweb recoil, remove "unfolding" animation when pulling out eweb, make eweb crosshair start closer to normal crosshair
-
-####`/g_hideSpecLocation`
-0 = teamchat between spectators shows location (default JK3)
-
-1 = remove useless location from teamchat between spectators, meaning you can now have a nice conversation in spec without annoying text like >Wrecked AT-AT< unnecessarily taking up space on every line
-
-####`/g_denoteDead`
-0 = normal teamchat when dead (default JK3)
-
-1 = (DEAD) message in teamchats from dead teammates
 
 ####`/g_enableCloak`
 0 = remove cloak from all siege classes (eliminates need for no-cloak PK3 patches)
@@ -282,7 +279,7 @@ Your most-preferred weapons go at the beginning; least-preferred weapons go at t
 
 Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use default JK3 weapon priority.
 
-####`Team-joining password requirement`
+####Team-joining password requirement
 You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/g_requireJoinPassword 1` to establish the requirement, and use `/g_joinPassword "your_password_here"` to define the password. This could be useful for opening up private/pug servers to the public for spectating.
 
 ####`/serverstatus2`
@@ -591,12 +588,14 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TGZ4R2hFd2hHaTA/view?usp=sharing)
-Version: base_entranced-11-28-2015-build66 (experimental) - allow all "doorspam" at cargo/cargo2 first obj
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WlBEbVFhYWhOWE0/view?usp=sharing)
+Version: base_entranced-11-30-2015-build67 (experimental) - remove `/g_denoteDead`, remove `/g_antiSpecChatSpam`, remove `/g_hideSpecLocation`, add `/g_improvedTeamchat`, add some hardcoded overrides for specific obj names with `/g_siegeStats`, add `/g_swoopKillPoints`
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-11-28-2015-build66 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TGZ4R2hFd2hHaTA/view?usp=sharing) - allow all "doorspam" at cargo/cargo2 first obj
 
 Old version: base_entranced-11-25-2015-build65 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z1JneklJY2hfVG8/view?usp=sharing) - add `hideIconWhileCarried`, add `/g_antiSpecChatSpam`, add `g_joinPassword` and `g_requireJoinPassword`, restore some unusued duel cvars(it wasn't necessary to remove them before)
 
