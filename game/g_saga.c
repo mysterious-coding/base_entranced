@@ -747,11 +747,6 @@ void InitSiegeMode(void)
 
 	afterauto:
 
-	if (debug_duoTest.integer)
-	{
-		trap_Cvar_Set("g_siegeRespawn", "1");
-	}
-
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
 
 	if (/*!levelname ||*/ !levelname[0])
@@ -1652,6 +1647,10 @@ void SiegeCheckTimers(void)
 		}
 		else if (gSiegeBeginTime < level.time)
 		{ //mark the round as having begun
+			if (debug_duoTest.integer)
+			{
+				trap_Cvar_Set("g_siegeRespawn", "1");
+			}
 			gSiegeRoundBegun = qtrue;
 			level.inSiegeCountdown = qtrue;
 			SiegeBeginRound(i); //perform any round start tasks
