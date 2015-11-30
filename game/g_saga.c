@@ -747,6 +747,11 @@ void InitSiegeMode(void)
 
 	afterauto:
 
+	if (debug_duoTest.integer)
+	{
+		trap_Cvar_Set("g_siegeRespawn", "1");
+	}
+
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
 
 	if (/*!levelname ||*/ !levelname[0])
