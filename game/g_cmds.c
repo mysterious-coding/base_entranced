@@ -1890,7 +1890,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			if ((ent->client->sess.sessionTeam == SIEGETEAM_TEAM1 || ent->client->sess.sessionTeam == SIEGETEAM_TEAM2) && (ent->client->tempSpectate > level.time || ent->health <= 0))
 			{
 				//ingame and dead
-				Com_sprintf(text, sizeof(text), "^0[DEAD] %c%c%s", Q_COLOR_ESCAPE, color, text);
+				Com_sprintf(text, sizeof(text), "^0(DEAD) %c%c%s", Q_COLOR_ESCAPE, color, text);
 			}
 		}
 	}
