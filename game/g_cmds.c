@@ -4129,6 +4129,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_sexyDisruptor.integer, ent);
 	Com_sprintf(string, 64, "g_selfkillPenalty");
 	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
+	Com_sprintf(string, 64, "g_siegeStats");
+	ServerCfgColor(string, g_siegeStats.integer, ent);
 	Com_sprintf(string, 64, "g_specAfterDeath");
 	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	Com_sprintf(string, 64, "g_tauntWhileMoving");
