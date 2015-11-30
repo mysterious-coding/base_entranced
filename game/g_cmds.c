@@ -4065,8 +4065,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_antiCallvoteTakeover.integer, ent);
 	Com_sprintf(string, 64, "g_antiHothHangarLiftLame");
 	ServerCfgColor(string, g_antiHothHangarLiftLame.integer, ent);
-	Com_sprintf(string, 64, "g_antiSpecChatSpam");
-	ServerCfgColor(string, g_antiSpecChatSpam.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanFloatingItems");
 	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanSpam");
