@@ -153,8 +153,7 @@ vmCvar_t    g_fixFallingSounds;
 vmCvar_t    g_nextmapWarning;
 vmCvar_t    g_floatingItems;
 vmCvar_t    g_rocketSurfing;
-vmCvar_t    g_hideSpecLocation;
-vmCvar_t    g_denoteDead;
+vmCvar_t    g_improvedTeamchat;
 vmCvar_t    g_enableCloak;
 vmCvar_t    g_fixHothBunkerLift;
 vmCvar_t    g_infiniteCharge;
@@ -677,8 +676,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_nextmapWarning, "g_nextmapWarning", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_floatingItems, "g_floatingItems", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rocketSurfing, "g_rocketSurfing", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_hideSpecLocation, "g_hideSpecLocation", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_denoteDead, "g_denoteDead", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_improvedTeamchat, "g_improvedTeamchat", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_enableCloak, "g_enableCloak", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },

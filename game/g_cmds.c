@@ -1763,8 +1763,11 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 
 	//They've requested I take this out.
-	if (g_hideSpecLocation.integer && ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+	if ((ent->client->sess.sessionTeam == TEAM_SPECTATOR && (!level.inSiegeCountdown || (ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) || level.intermissiontime) && g_improvedTeamchat.integer)
 	{
+		//a spectator during a live game, or a spectator without a desired team during the countdown
+		//or, it's intermission (for anyone, regardless of team)
+		//remove location from message (useless for spectator teamchat)
 		trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
 			mode == SAY_TEAM ? "tchat" : "chat",
 			name, Q_COLOR_ESCAPE, color, message));
@@ -1795,6 +1798,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
 	char		*locMsg = NULL;
+	short		myClass;
+	qboolean	doNotSendLocation = qfalse;
 
 	if (g_chatLimit.integer && !chatLimitCheck(ent)){
 		return;
@@ -1844,9 +1849,50 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	Q_strncpyz( text, chatText, sizeof(text) );
-	if (g_denoteDead.integer && g_gametype.integer == GT_SIEGE && mode == SAY_TEAM && ent->client->sess.sessionTeam != TEAM_SPECTATOR && (ent->client->tempSpectate > level.time || ent->health <= 0))
+	if (g_improvedTeamchat.integer && g_gametype.integer == GT_SIEGE && mode == SAY_TEAM)
 	{
-		Com_sprintf(text, sizeof(text), "^0(DEAD) %c%c%s", Q_COLOR_ESCAPE, color, text);
+		if (level.inSiegeCountdown)
+		{
+			//in siege countdown
+			if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.siegeDesiredTeam && (ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM1 || ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM2))
+			{
+				//we are in spec (in countdown) with a desired team/class...put our class type as our "location"
+				myClass = bgSiegeClasses[ent->client->siegeClass].playerClass;
+				switch (myClass)
+				{
+				case 0:
+					Com_sprintf(locMsg, 64, "Assault");
+					break;
+				case 1:
+					Com_sprintf(locMsg, 64, "Scout");
+					break;
+				case 2:
+					Com_sprintf(locMsg, 64, "Tech");
+					break;
+				case 3:
+					Com_sprintf(locMsg, 64, "Jedi");
+					break;
+				case 4:
+					Com_sprintf(locMsg, 64, "Demolitions");
+					break;
+				case 5:
+					Com_sprintf(locMsg, 64, "Heavy Weapons");
+					break;
+				default:
+					doNotSendLocation = qtrue;
+					break;
+				}
+			}
+		}
+		else
+		{
+			//not in siege countdown
+			if ((ent->client->sess.sessionTeam == SIEGETEAM_TEAM1 || ent->client->sess.sessionTeam == SIEGETEAM_TEAM2) && (ent->client->tempSpectate > level.time || ent->health <= 0))
+			{
+				//ingame and dead
+				Com_sprintf(text, sizeof(text), "^0[DEAD] %c%c%s", Q_COLOR_ESCAPE, color, text);
+			}
+		}
 	}
 
 	if ( target ) {
@@ -1861,19 +1907,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	for (j = 0; j < level.maxclients; j++)
 	{
 		other = &g_entities[j];
-
-		if (ent && ent->client->sess.sessionTeam == TEAM_SPECTATOR && other && other->client->sess.sessionTeam != TEAM_SPECTATOR && g_antiSpecChatSpam.integer) //we are in spec and the target is not
+		if (doNotSendLocation)
 		{
-			if (!Q_stricmp(text, ent->client->lastChatMessage) && ent->client->chatSpamTime > level.time) //chat message matches our last message, and we said it recently
-			{
-				//do nothing
-			}
-			else //chat does not match our last message, or it does but we didn't say it recently
-			{
-				G_SayTo(ent, other, mode, color, name, text, locMsg); //go ahead and say it
-				Com_sprintf(ent->client->lastChatMessage, sizeof(ent->client->lastChatMessage), "%s", text); //store this chat message
-				ent->client->chatSpamTime = level.time + 3000; //no more chat spam for 3 seconds
-			}
+			G_SayTo(ent, other, mode, color, name, text, NULL);
 		}
 		else
 		{
@@ -4039,8 +4075,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_autoResetCustomTeams.integer, ent);
 	Com_sprintf(string, 64, "g_botJumping");
 	ServerCfgColor(string, g_botJumping.integer, ent);
-	Com_sprintf(string, 64, "g_denoteDead");
-	ServerCfgColor(string, g_denoteDead.integer, ent);
 	Com_sprintf(string, 64, "g_dismember");
 	ServerCfgColor(string, g_dismember.integer, ent);
 	Com_sprintf(string, 64, "g_enableCloak");
@@ -4071,8 +4105,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_forceDTechItems.integer, ent);
 	Com_sprintf(string, 64, "g_gripRefresh");
 	ServerCfgColor(string, g_gripRefresh.integer, ent);
-	Com_sprintf(string, 64, "g_hideSpecLocation");
-	ServerCfgColor(string, g_hideSpecLocation.integer, ent);
+	Com_sprintf(string, 64, "g_improvedTeamchat");
+	ServerCfgColor(string, g_improvedTeamchat.integer, ent);
 	Com_sprintf(string, 64, "g_infiniteCharge");
 	ServerCfgColor(string, g_infiniteCharge.integer, ent);
 	Com_sprintf(string, 64, "g_jk2SaberMoves");
