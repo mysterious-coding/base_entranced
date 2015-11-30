@@ -65,7 +65,7 @@ void G_PlayDoorSound(gentity_t *ent, int type)
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (!Q_stricmpn(ent->team, "bunkerfront", 11) && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_fixHothDoorSounds.integer)
+	if (!Q_stricmpn(ent->team, "bunkerfront", 11) && (!Q_stricmp(mapname.string, "mp/siege_hoth2") || !Q_stricmp(mapname.string, "mp/siege_hoth")) && g_fixHothDoorSounds.integer)
 	{
 		ent->s.soundSetIndex = G_SoundSetIndex("impdoor1");
 		G_AddEvent(ent, EV_PLAYDOORSOUND, type);
@@ -2842,7 +2842,7 @@ void SP_func_breakable(gentity_t *self)
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	//it's hackkkkkkin time
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && !Q_stricmp(self->healingclass, "Rebel Tech"))
+	if ((!Q_stricmp(mapname.string, "mp/siege_hoth2") || !Q_stricmp(mapname.string, "mp/siege_hoth")) && !Q_stricmp(self->healingclass, "Rebel Tech"))
 	{
 		self->healingteam = 2;
 	}
