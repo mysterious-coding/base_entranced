@@ -1338,8 +1338,11 @@ void SP_worldspawn( void )
 	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
 	trap_Cvar_Set("g_forceOnNPCs", text);
 
-	G_SpawnString("siegeRespawn", "20", &text); //if not defined, set to 20
-	trap_Cvar_Set("g_siegeRespawn", text);
+	if (!debug_duoTest.integer)
+	{
+		G_SpawnString("siegeRespawn", "20", &text); //if not defined, set to 20
+		trap_Cvar_Set("g_siegeRespawn", text);
+	}
 
 	G_SpawnString("siegeTeamSwitch", "1", &text); //if not defined, set to 1
 	trap_Cvar_Set("g_siegeTeamSwitch", text);
