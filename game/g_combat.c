@@ -2403,7 +2403,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 			else
 			{
-				AddScore( attacker, self->r.currentOrigin, 1 );
+				if (self->m_pVehicle && self->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER)
+				{
+					AddScore(attacker, self->r.currentOrigin, g_swoopKillPoints.integer);
+				}
+				else
+				{
+					AddScore(attacker, self->r.currentOrigin, 1);
+				}
 			}
 
 			if( meansOfDeath == MOD_STUN_BATON ) {

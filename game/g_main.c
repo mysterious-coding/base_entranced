@@ -184,6 +184,7 @@ vmCvar_t	autocfg_map;
 vmCvar_t	autocfg_unknown;
 vmCvar_t	g_requireJoinPassword;
 vmCvar_t	g_joinPassword;
+vmCvar_t	g_swoopKillPoints;
 
 
 /*vmCvar_t	debug_testHeight1;
@@ -707,6 +708,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_requireJoinPassword, "g_requireJoinPassword", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_joinPassword, "g_joinPassword", "", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
