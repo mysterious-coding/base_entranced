@@ -185,12 +185,8 @@ Note that the game client does not currently predict yaw for these moves, so the
 
 1 = you can join spectators in the brief moment after you die (default JK3)
 
-####`/g_antiSpecChatSpam`
-0 = spectators are free to spam allchat and annoy players who are in-game (default JK3)
-
-1 = if a spectator sends a duplicate chat message within 3 seconds of the original one, it will not be seen by players who are in-game
-
-NOTE: As of 11/28/2015, this might be bugged. Advised to set this to 0 for now.
+####`/g_swoopKillPoints`
+The number of points you gain from killing swoops (1 = default JK3). Set to 0 so you don't gain points from farming swoops.
 
 ####`/g_sexyDisruptor`
 0 = lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
