@@ -263,12 +263,202 @@ void SiegeOverrideRoundColors(char *round1string, char *round2string) //make sur
 	}
 }
 
+qboolean SiegeGetFancyObjName(int objective, char *string)
+{
+	vmCvar_t	mapname;
+
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "            Hill");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "          Bridge");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "Shield Generator");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "           Codes");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "          Hangar");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "  Command Center");
+			break;
+
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "            Wall");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "        Stations");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "    Rancor Arena");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "          Shield");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "           Parts");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "        Entrance");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "     Red Crystal");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "   Green Crystal");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "    Blue Crystal");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "         Scepter");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "          Coffin");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "        Entrance");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "      Checkpoint");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "       Station 1");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "       Station 2");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "          Bridge");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "Superlaser Plans");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "siege_cargobarge"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "Cargo Hold Doors");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "      Comm Array");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "    Power Node 1");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "    Power Node 2");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "  Command Center");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "           Codes");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "Cargo Hold Doors");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "      Comm Array");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "    Power Node 1");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "    Power Node 2");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "  Command Center");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "           Codes");
+			break;
+		case 7:
+			Com_sprintf(string, 32, "          Escape");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_eat_shower"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "           Water");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "             Use");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "        Consoles");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "        Top Hack");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "        Teleport");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "           Codes");
+			break;
+		}
+		return qtrue;
+	}
+	return qfalse;
+}
+
 void SiegePrintStats() //print everything
 {
 	int i;
 	char timeString[32];
 	char timeString2[32];
 	char spacing[32];
+	char specialObjectiveName[32];
+	qboolean	usingSpecialObjectiveName = qfalse;
+	vmCvar_t	mapname;
+
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
@@ -289,7 +479,24 @@ void SiegePrintStats() //print everything
 			{
 				SiegeSetSpacing(timeString,spacing);
 				SiegeSetTimeColors(objtime_old[i], objtime[i], timeString, timeString2);
-				trap_SendServerCommand(-1, va("print \"Objective %i time:   Round 1: %s%s^7Round 2: %s\n\"", i, timeString, spacing, timeString2));
+
+				if (SiegeGetFancyObjName(i, specialObjectiveName))
+				{
+					usingSpecialObjectiveName = qtrue;
+				}
+				else
+				{
+					usingSpecialObjectiveName = qfalse;
+				}
+
+				if (usingSpecialObjectiveName)
+				{
+					trap_SendServerCommand(-1, va("print \"%s:   Round 1: %s%s^7Round 2: %s\n\"", specialObjectiveName, timeString, spacing, timeString2));
+				}
+				else
+				{
+					trap_SendServerCommand(-1, va("print \"     Objective %i:   Round 1: %s%s^7Round 2: %s\n\"", i, timeString, spacing, timeString2));
+				}
 			}
 		}
 		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
@@ -306,7 +513,7 @@ void SiegePrintStats() //print everything
 		{
 			SiegeSetTimeColors(totalroundtime_old, totalroundtime, timeString, timeString2);
 		}
-		trap_SendServerCommand(-1, va("print \"Total time:         Round 1: %s%s^7Round 2: %s\n\"", timeString, spacing, timeString2));
+		trap_SendServerCommand(-1, va("print \"      Total time:   Round 1: %s%s^7Round 2: %s\n\"", timeString, spacing, timeString2));
 		if (heldformax && g_heldformax_old.integer)
 		{
 			Com_sprintf(timeString, sizeof(timeString), "0");
@@ -314,7 +521,7 @@ void SiegePrintStats() //print everything
 			if (g_objscompleted_old.integer) { Com_sprintf(timeString, sizeof(timeString), "%i", g_objscompleted_old.integer); }
 			if (objscompleted) { Com_sprintf(timeString2, sizeof(timeString2), "%i", objscompleted); }
 			SiegeSetObjColors(g_objscompleted_old.integer, objscompleted, timeString, timeString2);
-			trap_SendServerCommand(-1, va("print \"Objs completed:     Round 1: %s             ^7Round 2: %s\n\"", timeString, timeString2));
+			trap_SendServerCommand(-1, va("print \"  Objs completed:   Round 1: %s             ^7Round 2: %s\n\"", timeString, timeString2));
 			if (winningteam && winningteam == 1)
 			{
 				trap_SendServerCommand(-1, va("print \"                    ^2Winner\n\""));
@@ -338,12 +545,29 @@ void SiegePrintStats() //print everything
 			if (objtime[i])
 			{
 				SiegeParseMilliseconds(objtime[i], timeString);
-				trap_SendServerCommand(-1, va("print \"Objective %i time:    ^5%s\n\"", i, timeString));
+
+				if (SiegeGetFancyObjName(i, specialObjectiveName))
+				{
+					usingSpecialObjectiveName = qtrue;
+				}
+				else
+				{
+					usingSpecialObjectiveName = qfalse;
+				}
+
+				if (usingSpecialObjectiveName)
+				{
+					trap_SendServerCommand(-1, va("print \"%s:    ^5%s\n\"", specialObjectiveName, timeString));
+				}
+				else
+				{
+					trap_SendServerCommand(-1, va("print \"     Objective %i:    ^5%s\n\"", i, timeString));
+				}
 			}
 		}
 		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 		SiegeParseMilliseconds(totalroundtime, timeString);
-		trap_SendServerCommand(-1, va("print \"Total time:          ^5%s\n\"", timeString));
+		trap_SendServerCommand(-1, va("print \"      Total time:    ^5%s\n\"", timeString));
 	}
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
