@@ -398,7 +398,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 		else
 		{
 			//you are always allowed to minespam in the walker spawn areas
-			if (!Q_stricmp(mapname.string, "mp/siege_hoth2") || !Q_stricmp(mapname.string, "mp/siege_hoth"))
+			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 			{
 				if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
 				{
