@@ -1899,12 +1899,12 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 					if (ent->client->ps.stats[STAT_ARMOR])
 					{
 						//we have armor
-						Com_sprintf(text, sizeof(text), "^5(%i/%i) %c%c%s", ent->health, ent->client->ps.stats[STAT_ARMOR], Q_COLOR_ESCAPE, color, text);
+						Com_sprintf(text, sizeof(text), "^7(%i/%i) %c%c%s", ent->health, ent->client->ps.stats[STAT_ARMOR], Q_COLOR_ESCAPE, color, text);
 					}
 					else
 					{
 						//no armor
-						Com_sprintf(text, sizeof(text), "^5(%i) %c%c%s", ent->health, Q_COLOR_ESCAPE, color, text);
+						Com_sprintf(text, sizeof(text), "^7(%i) %c%c%s", ent->health, Q_COLOR_ESCAPE, color, text);
 					}
 				}
 			}
