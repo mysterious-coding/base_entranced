@@ -1381,7 +1381,7 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	ent->think = check_recharge;
 
 	G_SpawnInt("nodrain", "0", &ent->genericValue12);
-
+	G_SpawnInt("drawicon", "1", &ent->hideIconWhileCarried);
 	if (!ent->genericValue12)
 	{
 		ent->s.maxhealth = ent->s.health = ent->count;
@@ -1401,7 +1401,7 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	ent->genericValue7 = G_SoundIndex("sound/interface/ammocon_done");
 	G_SoundIndex("sound/interface/ammocon_empty");
 
-	if (g_gametype.integer == GT_SIEGE)
+	if (ent->hideIconWhileCarried && g_gametype.integer == GT_SIEGE)
 	{ //show on radar from everywhere
 		ent->r.svFlags |= SVF_BROADCAST;
 		ent->s.eFlags |= EF_RADAROBJECT;
@@ -1476,7 +1476,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	ent->think = check_recharge;
 
 	G_SpawnInt("nodrain", "0", &ent->genericValue12);
-
+	G_SpawnInt("drawicon", "1", &ent->hideIconWhileCarried);
     if (!ent->genericValue12)
 	{
 		ent->s.maxhealth = ent->s.health = ent->count;
@@ -1496,7 +1496,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	ent->genericValue7 = G_SoundIndex("sound/interface/shieldcon_done");
 	G_SoundIndex("sound/interface/shieldcon_empty");
 
-	if (g_gametype.integer == GT_SIEGE)
+	if (ent->hideIconWhileCarried && g_gametype.integer == GT_SIEGE)
 	{ //show on radar from everywhere
 		ent->r.svFlags |= SVF_BROADCAST;
 		ent->s.eFlags |= EF_RADAROBJECT;
