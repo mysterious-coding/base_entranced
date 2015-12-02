@@ -2147,7 +2147,7 @@ void SiegeItemThink(gentity_t *ent)
 
 		if (carrier->inuse && carrier->client)
 		{
-			if (ent->hideIconWhileCarried)
+			if (ent->specialIconTreatment)
 			{
 				ent->s.eFlags &= ~EF_RADAROBJECT;
 			}
@@ -2181,7 +2181,7 @@ void SiegeItemThink(gentity_t *ent)
 			(carrier->client->sess.sessionTeam != SIEGETEAM_TEAM1 && carrier->client->sess.sessionTeam != SIEGETEAM_TEAM2) ||
 			(carrier->client->ps.pm_flags & PMF_FOLLOW))
 		{ //respawn on the original spot
-			if (ent->hideIconWhileCarried)
+			if (ent->specialIconTreatment)
 			{
 				ent->s.eFlags |= EF_RADAROBJECT;
 			}
@@ -2193,7 +2193,7 @@ void SiegeItemThink(gentity_t *ent)
 			{
 				G_UseTargets2(ent, ent, ent->target6);
 			}
-			if (ent->hideIconWhileCarried)
+			if (ent->specialIconTreatment)
 			{
 				ent->s.eFlags |= EF_RADAROBJECT;
 			}
@@ -2225,7 +2225,7 @@ void SiegeItemThink(gentity_t *ent)
 
 	if (ent->genericValue9 && ent->genericValue9 < level.time && ent->genericValue17 != -1)
 	{ //time to respawn on the original spot then
-		if (ent->hideIconWhileCarried)
+		if (ent->specialIconTreatment)
 		{
 			ent->s.eFlags |= EF_RADAROBJECT;
 		}
@@ -2311,7 +2311,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		G_UseTargets2(self, self, self->target2);
 		self->genericValue5 = 1; //mark it as having been picked up
 	}	
-	if (self->hideIconWhileCarried)
+	if (self->specialIconTreatment)
 	{
 		self->s.eFlags &= ~EF_RADAROBJECT;
 	}
@@ -2490,7 +2490,7 @@ void SP_misc_siege_item (gentity_t *ent)
 
 	G_SpawnInt("teamnotouch", "0", &ent->genericValue6);
 	G_SpawnInt("teamnocomplete", "0", &ent->genericValue7);
-	G_SpawnInt("hideiconwhilecarried", "0", &ent->hideIconWhileCarried);
+	G_SpawnInt("hideiconwhilecarried", "0", &ent->specialIconTreatment);
 	//Get default physics values.
 	G_SpawnFloat("mass", "0.09", &ent->mass);
 	G_SpawnFloat("gravity", "3.0", &ent->radius);
