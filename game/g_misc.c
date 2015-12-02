@@ -1778,6 +1778,8 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 	ent->s.teamowner = 0;
 	ent->s.owner = ENTITYNUM_NONE;
 
+	G_SpawnInt("drawicon", "1", &ent->hideIconWhileCarried);
+
 	ent->nextthink = level.time + 200;
 
 	G_SetOrigin( ent, ent->s.origin );
@@ -1788,7 +1790,7 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 	G_SoundIndex("sound/player/pickuphealth.wav");
 	ent->genericValue7 = G_SoundIndex("sound/interface/shieldcon_done");
 
-	if (g_gametype.integer == GT_SIEGE)
+	if (ent->hideIconWhileCarried && g_gametype.integer == GT_SIEGE)
 	{ //show on radar from everywhere
 		ent->r.svFlags |= SVF_BROADCAST;
 		ent->s.eFlags |= EF_RADAROBJECT;
