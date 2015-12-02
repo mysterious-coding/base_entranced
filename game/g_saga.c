@@ -445,6 +445,78 @@ qboolean SiegeGetFancyObjName(int objective, char *string)
 		}
 		return qtrue;
 	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_taspir"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "            Door");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "       Generator");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "        2nd Door");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "     Lava Shield");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "            Bomb");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_byss"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "        Consoles");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "            Lift");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "           Doors");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "            Room");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "       Generator");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "          Escape");
+			break;
+		}
+		return qtrue;
+	}
+	else if (!Q_stricmp(mapname.string, "mp/ktr2"))
+	{
+		switch (objective)
+		{
+		case 1:
+			Com_sprintf(string, 32, "       Main Gate");
+			break;
+		case 2:
+			Com_sprintf(string, 32, "            Lift");
+			break;
+		case 3:
+			Com_sprintf(string, 32, "          Shield");
+			break;
+		case 4:
+			Com_sprintf(string, 32, "           Tanks");
+			break;
+		case 5:
+			Com_sprintf(string, 32, "         Advance");
+			break;
+		case 6:
+			Com_sprintf(string, 32, "         Crystal");
+			break;
+		}
+		return qtrue;
+	}
 	return qfalse;
 }
 
