@@ -554,7 +554,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &d_saberStanceDebug, "d_saberStanceDebug", "0", 0, 0, qfalse },
 
-	{ &g_siegeTeamSwitch, "g_siegeTeamSwitch", "1", CVAR_SERVERINFO|CVAR_ARCHIVE, qfalse },
+	{ &g_siegeTeamSwitch, "g_siegeTeamSwitch", "1", CVAR_SERVERINFO|CVAR_ARCHIVE, qtrue },
 
 	{ &bg_fighterAltControl, "bg_fighterAltControl", "0", CVAR_SERVERINFO, 0, qtrue },
 
