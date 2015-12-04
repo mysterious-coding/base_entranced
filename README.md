@@ -34,7 +34,9 @@ My mod is now the most robust, bug-free(relatively speaking) server mod availabl
 
 # What can I do to help?
 
-You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. Feel free to create a new "issue" with any question/bug report/feature request you may have. I will do my best to address your concern promptly.
+You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. You may reply to these issues with any comments/help you may have to offer. Issues that I am in particular need of help with are marked with the "help wanted" tag.
+
+Feel free to create a new "issue" with any question/bug report/feature request you may have. I will do my best to address your concern promptly.
 
 #base_entranced features
 These are unique features for base_entranced.
