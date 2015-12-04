@@ -14,10 +14,6 @@ It is my wish to stay close to basejka gameplay. In other words, this is not lik
 
 The biggest change from basejka made by this mod is the anti-spam cvars (`/iLikeToDoorspam` and `/iLikeToMineSpam`). Although I wrote above that I wanted to stay close to basejka gameplay, in my opinion, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed.
 
-# What can I do to help?
-
-You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. Feel free to create a new "issue" with any question/bug report/feature request you may have. I will do my best to address your concern promptly.
-
 # A brief history of JA siege server mods
 
 In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it desirable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system. There was also a mod called OJP, that featured some interesting enhancements such as siege bot AI. This mod was only used on Meatgrinder server, which was not a very popular server.
@@ -35,6 +31,10 @@ In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from 
 Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove Sil's unpopular changes. Over time, what started as a mere "siege edition" spin-off of base_enhanced turned into a large-scale project to create a robust siege server mod.
 
 My mod is now the most robust, bug-free(relatively speaking) server mod available for siege.
+
+# What can I do to help?
+
+You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. Feel free to create a new "issue" with any question/bug report/feature request you may have. I will do my best to address your concern promptly.
 
 #base_entranced features
 These are unique features for base_entranced.
