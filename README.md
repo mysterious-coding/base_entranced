@@ -28,7 +28,7 @@ There were a few other mods such as Eyenmod and Enhanced Siege Mod(not to be con
 
 In 2015, Sil resumed work on base_enhanced, a CTF server mod he had forked from Teh. Its new bugfixes, security enhancements, and special features such as `/pause` and `/randomteams` caught the attention of the Siege community, but it didn't have enough siege bugfixes to overtake Keramod. It also had many unpopular changes that were unwanted by the siege community, such as the removal of infinite charging. I helped Sil by pointing out many siege bugs that needed to be fixed, but after some disagreements on unpopular changes he had made, it became clear that I needed to create my own successor to Keramod.
 
-Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove Sil's unpopular changes.
+Later in 2015, with the help of Exar and Sil, I forked Sil's base_enhanced mod and created this mod, base_entranced. My intent was to build upon the great features and bugfixes of base_enhanced, but to turn it into a true Siege mod by adding more siege bugfixes and features, as well as remove Sil's unpopular changes. Over time, what started as a mere "siege edition" spin-off of base_enhanced turned into a large-scale project to create a robust siege server mod.
 
 My mod is now the most robust, bug-free(relatively speaking) server mod available for siege.
 
