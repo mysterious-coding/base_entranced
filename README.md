@@ -644,50 +644,50 @@ Version: base_entranced-9-29-2015-build32 (unstable) [download removed] - add `/
 
 Version: base_entranced-9-25-2015-build31 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZEZTeTRVN3JGNk0/view?usp=sharing) - add preliminary `/g_siegeStats`, fix bryar animations, fix players rolling/running through tripmines unharmed
 
-Version: base_entranced-9-24-2015-build30 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
+Version: base_entranced-9-24-2015-build30 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
 
 Version: base_entranced-9-21-2015-build29 (unstable) [download removed] - add `/g_infiniteCharge` by popular demand, fix bug with `idealclass` not supporting multiple classes (this introduced some new bugs, which are fixed in build 30)
 
-Version: base_entranced-9-19-2015-build28 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing) - add `/g_fixHothBunkerLift`, add `/g_enableCloak`, add `/g_allow_vote_killturrets`, fix bugged timer if `roundover_target` is missing in .siege file, patch hoth bridge lame
+Version: base_entranced-9-19-2015-build28 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing) - add `/g_fixHothBunkerLift`, add `/g_enableCloak`, add `/g_allow_vote_killturrets`, fix bugged timer if `roundover_target` is missing in .siege file, patch hoth bridge lame
 
-Version: base_entranced-9-14-2015-build27 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing) - add `/killturrets` (rcon or callvote), allow partial name for `/tell` and `/forceteam`, add notifications for `/forceteam` and `/specall`
+Version: base_entranced-9-14-2015-build27 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing) - add `/killturrets` (rcon or callvote), allow partial name for `/tell` and `/forceteam`, add notifications for `/forceteam` and `/specall`
 
-Version: base_entranced-9-12-2015-build26 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags `nodmgfrom` / `noKnockbackFrom` / `doubleKnockbackFrom` / `tripleKnockbackFrom` / `quadKnockbackFrom` / `victimOfForce`, add `/g_forceOnNpcs`, define s`iegeRespawn`/`siegeTeamSwitch`/`forceOnNpcs` in `worldspawn`)
+Version: base_entranced-9-12-2015-build26 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags `nodmgfrom` / `noKnockbackFrom` / `doubleKnockbackFrom` / `tripleKnockbackFrom` / `quadKnockbackFrom` / `victimOfForce`, add `/g_forceOnNpcs`, define s`iegeRespawn`/`siegeTeamSwitch`/`forceOnNpcs` in `worldspawn`)
 
-Version: base_entranced-9-9-2015-build25 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing) - add `/forceready`, add `/forceunready`, add `/g_allow_ready`, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
+Version: base_entranced-9-9-2015-build25 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing) - add `/forceready`, add `/forceunready`, add `/g_allow_ready`, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
 
-Version: base_entranced-9-8-2015-build24 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing) - fix jesus godmode bug from `/pause`, fix players unable to connect during `/pause`, fix sentry expiry timer bug from `/pause`, add `dempProof` and `specialKnockback`
+Version: base_entranced-9-8-2015-build24 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing) - fix jesus godmode bug from `/pause`, fix players unable to connect during `/pause`, fix sentry expiry timer bug from `/pause`, add `dempProof` and `specialKnockback`
 
-Version: base_entranced-9-5-2015-build23 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing) - fix other players bugging shield, fix healing npcs, fix `teamnodmg` for npcs, some very minor bugfixes
+Version: base_entranced-9-5-2015-build23 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing) - fix other players bugging shield, fix healing npcs, fix `teamnodmg` for npcs, some very minor bugfixes
 
-Version: base_entranced-9-3-2015-build21 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing) - additional shield debug logging, experimental random teams support for siege
+Version: base_entranced-9-3-2015-build21 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing) - additional shield debug logging, experimental random teams support for siege
 
-Version: base_entranced-9-1-2015-build20 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing) - add `/g_hideSpecLocation`, add `/g_denoteDead`
+Version: base_entranced-9-1-2015-build20 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing) - add `/g_hideSpecLocation`, add `/g_denoteDead`
 
 Version: base_entranced-8-31-2015-build19 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WC1Obm55OHFOeTQ/view?usp=sharing) - fix weird lift behavior with people not getting crushed and dets making lifts reverse and other weird things, revert sil's walker-spawning-in-shield bugfix that re-added player-spawning-in-shield bug, remove `/g_doorGreening` (it is now permanently enabled), remove `/g_fixNodropDetpacks` (it is now permanently default JK3 behavior)
 
 Version: base_entranced-8-30-2015-build18 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WEE3VDhHNUI4dkk/view?usp=sharing) - add `/class`, add `/g_fixNodropDetpacks`, add shield logging, some misc fixes
 
-Version: base_entranced-8-25-2015-build16 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing) - add `/g_allow_vote_randomteams`, add `/g_allow_vote_randomcapts`, add `/g_allow_vote_q`, `add /g_allow_vote_allready`, add `/g_allow_vote_cointoss`, some minor bug fixes
+Version: base_entranced-8-25-2015-build16 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing) - add `/g_allow_vote_randomteams`, add `/g_allow_vote_randomcapts`, add `/g_allow_vote_q`, `add /g_allow_vote_allready`, add `/g_allow_vote_cointoss`, some minor bug fixes
 
-Version: base_entranced-8-23-2015-build15 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing) - fix nextmap vote failed bug, add `/siege_restart`, add `/forceround2` (can be used from rcon or callvote), some misc. engine fixes from sil
+Version: base_entranced-8-23-2015-build15 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing) - fix nextmap vote failed bug, add `/siege_restart`, add `/forceround2` (can be used from rcon or callvote), some misc. engine fixes from sil
 
-Version: base_entranced-8-22-2015-build13 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing) - revert sil's broken shield code, add `/g_rocketSurfing`, `/g_floatingItems`, change `/g_selfkill_penalty` to `g_selfkillPenalty` (no underscores), reset siege to round 1 on map change vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
+Version: base_entranced-8-22-2015-build13 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing) - revert sil's broken shield code, add `/g_rocketSurfing`, `/g_floatingItems`, change `/g_selfkill_penalty` to `g_selfkillPenalty` (no underscores), reset siege to round 1 on map change vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
 
-Version: base_entranced-8-21-2015-build10 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ajRsbkx5TkRsaE0/view?usp=sharing) - add `/g_nextmapwarning`
+Version: base_entranced-8-21-2015-build10 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ajRsbkx5TkRsaE0/view?usp=sharing) - add `/g_nextmapwarning`
 
-Version: base_entranced-8-20-2015-build9 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aTJJM2hjbGMtbmc/view?usp=sharing) - use sil's siege `/pause` fix
+Version: base_entranced-8-20-2015-build9 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aTJJM2hjbGMtbmc/view?usp=sharing) - use sil's siege `/pause` fix
 
-Version: base_entranced-8-20-2015-build8 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing) - fix rancor bug, use sil's atst code
+Version: base_entranced-8-20-2015-build8 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing) - fix rancor bug, use sil's atst code
 
-Version: base-entranced-8-20-2015-build7 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing) - add `/g_doorgreening`
+Version: base-entranced-8-20-2015-build7 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing) - add `/g_doorgreening`
 
-Version: base-entranced-8-19-2015-build6 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing) - fix hoth first obj points
+Version: base-entranced-8-19-2015-build6 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing) - fix hoth first obj points
 
-Version: base-entranced-8-19-2015-build5 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dERzQzNSVV9LR1E/view?usp=sharing) - add `/g_fixfallingsounds`
+Version: base-entranced-8-19-2015-build5 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dERzQzNSVV9LR1E/view?usp=sharing) - add `/g_fixfallingsounds`
 
-Version: base_entranced-8-19-2015-build4 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing) - fix countdown teamchat
+Version: base_entranced-8-19-2015-build4 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing) - fix countdown teamchat
 
-Version: base_entranced-8-19-2015-build3 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - fix ATST kills
+Version: base_entranced-8-19-2015-build3 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - fix ATST kills
 
-Version:  base_entranced-8-19-2015-build2 (stable) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing) - add `/g_sexydisruptor` and `/g_fixsiegescoring`
+Version:  base_entranced-8-19-2015-build2 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing) - add `/g_sexydisruptor` and `/g_fixsiegescoring`
