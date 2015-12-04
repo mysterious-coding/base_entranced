@@ -14,6 +14,10 @@ It is my wish to stay close to basejka gameplay. In other words, this is not lik
 
 The biggest change from basejka made by this mod is the anti-spam cvars (`/iLikeToDoorspam` and `/iLikeToMineSpam`). Although I wrote above that I wanted to stay close to basejka gameplay, in my opinion, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed.
 
+# What can I do to help?
+
+You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. Feel free to create a new "issue" with any question/bug report/feature request you may have. I will do my best to address your concern promptly.
+
 # A brief history of JA siege server mods
 
 In the early days of JK3, the main server mods in use were basejka(no mods), JA+, and UJ mod. JA+ had more bugfixes than the others, but it wasn't much; however, the admin tiers system made it desirable for pub servers. UJ mod was the first mod truly intended for siege, as it featured enhancements specifically for siege, such as the automatic restart. UJ mod was used on some pub servers such as U2, but JA+ prevailed in popularity on pub servers due to its tiered admin system. There was also a mod called OJP, that featured some interesting enhancements such as siege bot AI. This mod was only used on Meatgrinder server, which was not a very popular server.
