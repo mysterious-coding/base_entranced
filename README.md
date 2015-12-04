@@ -22,7 +22,7 @@ Around 2006-2007, a server mod called GMod (not to be confused with Garry's Mod,
 
 Another mod called Gamall's Fix was created around 2007, and mainly featured some security enhancements. However, unlike GMod, it was not intended for siege, and it barely fixed any bugs, and still wasn't really suitable for playing on. Regardless, it remained popular on European servers, for some reason, until Keramod was created.
 
-Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and jihad items. It also had a few siege enhancements, such as anti-specjoin and zombies mode. Although development on Keramod was later abandoned, it was the best siege mod in existence at the time, and as a result was used on nearly all pug servers from 2009-2015.
+Around 2008-2009, a server mod called Keramod was made by Kerafym and overtook GMod as the pug server mod of choice. It featured some new important bugfixes such as slot 0 fixes, double ammo fixes, and items being used after death. It also had a few siege enhancements, such as anti-specjoin and zombies mode. Although development on Keramod was later abandoned, it was the best siege mod in existence at the time, and as a result was used on nearly all pug servers from 2009-2015.
 
 There were a few other mods such as Eyenmod and Enhanced Siege Mod(not to be confused with the clientside mod with the same name). They may have had some basic fixes, but I can't recall any servers that used them.
 
