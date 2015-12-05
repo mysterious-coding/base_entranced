@@ -1786,6 +1786,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 	}
 	if (final == 1 || goals_completed >= goals_required || (g_endSiege.integer && g_siegePersistant.beatingTime && g_siegeObjStorage.string && (Q_stricmp(g_siegeObjStorage.string, "none")) && g_siegeTeamSwitch.integer && objscompleted > g_objscompleted_old.integer))
 	{
+		SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
 		SiegeRoundComplete(team, client);
 	}
 	else
