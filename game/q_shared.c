@@ -771,15 +771,50 @@ Q_strncpyz
 Safe strncpy that ensures a trailing zero
 =============
 */
+extern void QDECL G_LogPrintf(const char *fmt, ...);
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
   // bk001129 - also NULL dest
   if ( !dest ) {
+	if (src)
+	{
+		G_LogPrintf("Q_strncpyz crash: NULL dest, src == %s\n", src);
+	}
+	else
+	{
+		G_LogPrintf("Q_strncpyz crash: NULL dest (NULL src also!)\n");
+	}
     Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
   }
 	if ( !src ) {
+		if (dest)
+		{
+			G_LogPrintf("Q_strncpyz crash: NULL src, dest == %s\n", dest);
+		}
+		else
+		{
+			G_LogPrintf("Q_strncpyz crash: NULL src (NULL dest also!)\n");
+		}
 		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
 	}
 	if ( destsize < 1 ) {
+		if (dest)
+		{
+			G_LogPrintf("Q_strncpyz crash: destsize < 1, dest == %s\n", dest);
+		}
+		else
+		{
+			G_LogPrintf("Q_strncpyz crash: destsize < 1 (NULL dest also!)\n");
+		}
+
+		if (src)
+		{
+			G_LogPrintf("Q_strncpyz crash: destsize < 1, src == %s\n", src);
+		}
+		else
+		{
+			G_LogPrintf("Q_strncpyz crash: destsize < 1 (NULL src also!)\n");
+		}
+
 		Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" ); 
 	}
 
