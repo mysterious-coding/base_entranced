@@ -390,6 +390,8 @@ Mapmakers can add some new extra flags to .scl siege class files for additional 
 
 For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
 
+Mapmakers can add the `drawicon` key to shield/health/ammo generators. Use `drawicon 0` to hide its icon from the radar display (defaults to 1).
+
 Mapmakers can add some new extra keys to `misc_siege_item` for additional control over siege items:
 
 `autorespawn 0` = item will not automatically respawn when return timer expires. Must be targeted again (e.g., by a hack) to respawn.
@@ -446,8 +448,9 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug with not regenerating force until a while after you captured an item with `forcelimit 1` (e.g. Korriban crystals)
 * Fixed `/bot_minplayers` not working in siege gametype.
 * Fixed bug with shield disappearing when placing it near a turret.
-* Fixed bug with emplaced gun teamkilling.
+* Fixed bug that made it possible to teamkill with emplaced gun even with friendly fire disabled.
 * Fixed a rare bug with everyone being forced to spec and shown class selection menu.
+* Fixed a bug with final objective sounds (e.g. "primary objective complete") not being played.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -590,12 +593,14 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZE9hNDBNblk2VEU/view?usp=sharing)
-Version: base_entranced-12-1-2015-build68 (experimental) - remove `/g_denoteDead`, remove `/g_antiSpecChatSpam`, remove `/g_hideSpecLocation`, add `/g_improvedTeamchat`, add some hardcoded overrides for specific obj names with `/g_siegeStats`, add `/g_swoopKillPoints`
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vy02Q2ZoaTdLeVk/view?usp=sharing)
+Version: base_entranced-12-4-2015-build69 (experimental) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-12-1-2015-build68 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZE9hNDBNblk2VEU/view?usp=sharing) - remove `/g_denoteDead`, remove `/g_antiSpecChatSpam`, remove `/g_hideSpecLocation`, add `/g_improvedTeamchat`, add some hardcoded overrides for specific obj names with `/g_siegeStats`, add `/g_swoopKillPoints`
 
 Old version: base_entranced-11-28-2015-build66 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TGZ4R2hFd2hHaTA/view?usp=sharing) - allow all "doorspam" at cargo/cargo2 first obj
 
