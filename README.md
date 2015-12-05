@@ -594,7 +594,7 @@ siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8U3hCQjM3VGZoREE/view?usp=sharing)
-Version: base_entranced-12-5-2015-build71 (UNSTABLE, LINK REMOVED) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`, improved crash logging
+Version: base_entranced-12-5-2015-build71 (experimental) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`, improved crash logging
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
