@@ -582,9 +582,6 @@ Prevent calling votes for some things:
 
 This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file.
 
-####Patched hoth2 [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-The original siege_hoth_v1.0 has a bug that prevents obj complete sounds for the final obj from playing, which is a bugfix in base_entranced (the bugfix doesn't work with the original hoth2_v1.0.) This patched version fixes that. Clients do not need to update to this version.
-
 ####Patched siege_narshaddaa [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
 siege_narshaddaa has a bug that causes offense to always complete final obj according to `/g_siegeStats`. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
