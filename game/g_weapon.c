@@ -236,6 +236,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	float		originalend0, originalend1, originalend2;
 	float		heightLowerBound, heightUpperBound;
 	int			numberOfDoorsFound = 0;
+	int			doorspamDistanceCheck = DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM;
 	//qboolean	aimingAtCargoHallDoor = qfalse;
 
 	vmCvar_t	mapname;
@@ -263,6 +264,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				//allow for more height fudging in the 2nd obj of cargo2 v1.1
 				heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
 				heightLowerBound = (ent->client->ps.origin[2] - 99999); //huge
+				doorspamDistanceCheck = 1024;
 			}
 
 			//start[0] += debug_testHeight1.integer;
@@ -619,7 +621,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							//enemy is behind door
 							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^2GREATER THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
 							VectorSubtract(distanceToDoor[x], distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim);
-							if (VectorLength(distanceBetweenDoorAndVictim) < DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM)
+							if (VectorLength(distanceBetweenDoorAndVictim) < doorspamDistanceCheck)
 							{
 								//enemy is behind door, and is rather close to the door. this is doorspam.
 								thereIsAnEnemyBehindDoor = qtrue;
