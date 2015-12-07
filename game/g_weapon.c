@@ -257,6 +257,14 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorCopy(ent->client->ps.origin, start);
 			start[2] += ent->client->ps.viewheight;//By eyes
 
+			if (!Q_stricmp(mapname.string, "siege_cargobarge2") &&
+				ent->client->ps.origin[0] >= 302 && ent->client->ps.origin[0] <= 1725 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+			{
+				//allow for more height fudging in the 2nd obj of cargo2 v1.1
+				heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
+				heightLowerBound = (ent->client->ps.origin[2] - 99999); //huge
+			}
+
 			//start[0] += debug_testHeight1.integer;
 			//start[1] += debug_testHeight2.integer;
 			//start[2] += debug_testHeight3.integer;
@@ -340,9 +348,9 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				return qfalse;
 			}
 
-			if (!Q_stricmpn(mapname.string, "siege_cargobarge", 16)) //doorspam fix for first obj of cargo/cargo2
+			if (!Q_stricmp(mapname.string, "siege_cargobarge2")) //doorspam fix for first obj of cargo2 v1.1
 			{
-				if (ent->client->ps.origin[0] >= 559 && ent->client->ps.origin[0] <= 3060 && ent->client->ps.origin[1] >= -2315 && ent->client->ps.origin[1] <= 332)
+				if (ent->client->ps.origin[0] >= 559 && ent->client->ps.origin[0] <= 3060 && ent->client->ps.origin[1] >= -1291 && ent->client->ps.origin[1] <= 1356)
 				{
 					return qfalse; //for now just say it's not spam
 					/*//we are in the first obj area
