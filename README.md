@@ -588,17 +588,19 @@ siege_narshaddaa has a bug that causes offense to always complete final obj acco
 
 ####Patched siege_cargobarge [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-siege_cargobarge has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
+siege_cargobarge (the original one) has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
 
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8U3hCQjM3VGZoREE/view?usp=sharing)
-Version: base_entranced-12-5-2015-build71 (experimental) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`, improved crash logging
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cEgtVWtlZ2J6eUE/view?usp=sharing)
+Version: base_entranced-12-7-2015-build72 (experimental) - support for siege_cargobarge2_v1.1
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-12-5-2015-build71 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8U3hCQjM3VGZoREE/view?usp=sharing) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`, improved crash logging
 
 Old version: base_entranced-12-1-2015-build68 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZE9hNDBNblk2VEU/view?usp=sharing) - remove `/g_denoteDead`, remove `/g_antiSpecChatSpam`, remove `/g_hideSpecLocation`, add `/g_improvedTeamchat`, add some hardcoded overrides for specific obj names with `/g_siegeStats`, add `/g_swoopKillPoints`
 
