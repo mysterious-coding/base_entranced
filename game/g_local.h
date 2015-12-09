@@ -361,6 +361,7 @@ struct gentity_s {
 
 	int			removeFromOwnerOnUse;
 	int			removeFromGameOnUse;
+	int			despawnOnUse;
 
 	int			canContinue;
 

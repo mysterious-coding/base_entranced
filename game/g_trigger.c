@@ -219,6 +219,12 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 						{
 							SiegeItemRemoveOwner(objItem, activator);
 						}
+						if (objItem->despawnOnUse)
+						{
+							ent->s.eFlags |= EF_NODRAW;
+							ent->genericValue11 = 0;
+							ent->s.eFlags &= ~EF_RADAROBJECT;
+						}
 						if (objItem->removeFromGameOnUse)
 						{
 							objItem->nextthink = 0;
