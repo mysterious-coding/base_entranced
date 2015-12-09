@@ -455,7 +455,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug with shield disappearing when placing it near a turret.
 * Fixed bug that made it possible to teamkill with emplaced gun even with friendly fire disabled.
 * Fixed a rare bug with everyone being forced to spec and shown class selection menu.
-* Fixed a bug with final objective sounds (e.g. "primary objective complete") not being played.
+* Fixed a bug with final objective sounds (e.g. "primary objective complete") not being played(note: due to a clientside bug, these sounds currently do not play for the base maps).
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
