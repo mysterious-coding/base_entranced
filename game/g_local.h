@@ -359,6 +359,9 @@ struct gentity_s {
 	int			genericValue16;
 	int			genericValue17;
 
+	int			removeFromOwnerOnUse;
+	int			removeFromGameOnUse;
+
 	int			canContinue;
 
 	char		*soundSet;

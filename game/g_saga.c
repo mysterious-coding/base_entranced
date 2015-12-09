@@ -2492,6 +2492,8 @@ void SP_misc_siege_item (gentity_t *ent)
 	G_SpawnInt("teamnotouch", "0", &ent->genericValue6);
 	G_SpawnInt("teamnocomplete", "0", &ent->genericValue7);
 	G_SpawnInt("hideiconwhilecarried", "0", &ent->specialIconTreatment);
+	G_SpawnInt("removeFromOwnerOnUse", "1", &ent->removeFromOwnerOnUse);
+	G_SpawnInt("removeFromGameOnUse", "1", &ent->removeFromGameOnUse);
 	//Get default physics values.
 	G_SpawnFloat("mass", "0.09", &ent->mass);
 	G_SpawnFloat("gravity", "3.0", &ent->radius);

@@ -215,10 +215,16 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 						}
 
 						//now that the item has been delivered, it can go away.
-						SiegeItemRemoveOwner(objItem, activator);
-						objItem->nextthink = 0;
-						objItem->neverFree = qfalse;
-						G_FreeEntity(objItem);
+						if (objItem->removeFromOwnerOnUse)
+						{
+							SiegeItemRemoveOwner(objItem, activator);
+						}
+						if (objItem->removeFromGameOnUse)
+						{
+							objItem->nextthink = 0;
+							objItem->neverFree = qfalse;
+							G_FreeEntity(objItem);
+						}
 					}
 				}
 			}
