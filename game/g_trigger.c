@@ -221,9 +221,10 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 						}
 						if (objItem->despawnOnUse)
 						{
-							ent->s.eFlags |= EF_NODRAW;
-							ent->genericValue11 = 0;
-							ent->s.eFlags &= ~EF_RADAROBJECT;
+							objItem->s.eFlags |= EF_NODRAW;
+							objItem->genericValue11 = 0;
+							objItem->s.eFlags &= ~EF_RADAROBJECT;
+							G_SetOrigin(objItem, objItem->pos1);
 						}
 						if (objItem->removeFromGameOnUse)
 						{
