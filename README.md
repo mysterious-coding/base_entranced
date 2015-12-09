@@ -12,7 +12,7 @@ base_entranced is a serverside-only mod for Jedi Knight 3, intended for use in t
 
 It is my wish to stay close to basejka gameplay. In other words, this is not like Movie Battles 2, which is a separate gametype. This is intended merely as an improvement of basejka Siege gametype. Most of my changes can be toggled by cvar. Most bugfixes are hardcoded.
 
-The biggest change from basejka made by this mod is the anti-spam cvars (`/iLikeToDoorspam` and `/iLikeToMineSpam`). Although I wrote above that I wanted to stay close to basejka gameplay, in my opinion, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed.
+The biggest change from basejka made by this mod is the anti-spam cvars (`/iLikeToDoorspam` and `/iLikeToMineSpam`). Although I wrote above that I wanted to stay close to basejka gameplay, in my opinion, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those two cvars, everything else adheres to the "stay close to base" philosophy.
 
 # A brief history of JA siege server mods
 
