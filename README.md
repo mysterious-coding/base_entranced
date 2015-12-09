@@ -8,7 +8,12 @@ a fork of sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 # What is base_entranced?
 
-base_entranced is a serverside-only mod for Jedi Knight 3, intended for use in the Siege gametype. It has 2 goals: fixing bugs, and providing extra features/enhancements to basejka siege.
+base_entranced is a serverside-only mod for Jedi Knight 3, intended for use in the Siege gametype.
+
+There are three goals:
+* Fixing bugs.
+* Adding enhancements to basejka siege.
+* Providing enhanced framework for siege mappers.
 
 It is my wish to stay close to basejka gameplay. In other words, this is not like Movie Battles 2, which is a separate gametype. This is intended merely as an improvement of basejka Siege gametype. Most of my changes can be toggled by cvar. Most bugfixes are hardcoded.
 
