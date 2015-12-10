@@ -1488,6 +1488,39 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 	}
 }
 
+void G_LocalSound(gentity_t *ent, int channel, int soundIndex) {
+	gentity_t	*te;
+
+	assert(soundIndex);
+
+	te = G_SoundTempEntity(ent->r.currentOrigin, EV_GLOBAL_SOUND, channel);
+	te->s.eventParm = soundIndex;
+	te->s.saberEntityNum = channel;
+
+	if (ent && ent->client && channel > TRACK_CHANNEL_NONE)
+	{ //let the client remember the index of the player entity so he can kill the most recent sound on request
+		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - 50]].inuse &&
+			ent->client->ps.fd.killSoundEntIndex[channel - 50] > MAX_CLIENTS)
+		{
+			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - 50], CHAN_VOICE);
+			if (ent->client->ps.fd.killSoundEntIndex[channel - 50] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel - 50]].inuse)
+			{
+				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - 50]]);
+			}
+			ent->client->ps.fd.killSoundEntIndex[channel - 50] = 0;
+		}
+
+		ent->client->ps.fd.killSoundEntIndex[channel - 50] = te->s.number;
+		te->s.trickedentindex = ent->s.number;
+		te->s.eFlags = EF_SOUNDTRACKER;
+		//broudcast this entity, so people who havent met
+		//this guy can still hear looping sound when they finally meet him
+		te->r.svFlags |= SVF_SINGLECLIENT;
+		te->r.svFlags |= SVF_BROADCAST;
+		te->r.singleClient = ent->s.number;
+	}
+}
+
 /*
 =============
 G_SoundAtLoc

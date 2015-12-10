@@ -4181,7 +4181,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 
 	if (ent->client->ps.siegeDuelInProgress)
 	{
-		//duelinprogress
+		//already dueling
 		return;
 	}
 
@@ -4208,6 +4208,12 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		return;
 	}
 
+	if (ent->client->ps.emplacedIndex || ent->client->ewebIndex)
+	{
+		//no challenging people when you're ewebing/emplaced gunning, silly.
+		return;
+	}
+
 	for (i = 0; i < level.maxclients; i++)
 	{
 		if (level.clients[i].pers.connected != CON_DISCONNECTED &&
@@ -4216,7 +4222,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		{
 			if (level.clients[i].ps.siegeDuelInProgress)
 			{
-				//someone is already dueling
+				//????????????????????
 				trap_SendServerCommand(ent - g_entities, "print \"There is already a duel in progress.\n\"");
 				return;
 			}
@@ -4243,7 +4249,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		gentity_t *challenged = &g_entities[tr.entityNum];
 
 		if (!challenged || !challenged->client || !challenged->inuse ||
-			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 || challenged->client->ps.m_iVehicleNum ||
+			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 || challenged->client->ps.m_iVehicleNum || challenged->client->ps.emplacedIndex || challenged->client->ewebIndex ||
 			challenged->client->ps.saberInFlight || challenged->client->tempSpectate >= level.time ||
 			(challenged->client->sess.sessionTeam != TEAM_RED && challenged->client->sess.sessionTeam != TEAM_BLUE))
 		{
@@ -4264,6 +4270,10 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			challenged->client->ps.siegeDuelInProgress = 1;
 			//this will define that they are dueling
 
+			ent->client->ps.siegeDuelTime = level.time + 2000;
+			challenged->client->ps.siegeDuelTime = level.time + 2000;
+			//"get ready" phase
+
 			ent->client->ps.stats[STAT_ARMOR] = 0;
 			challenged->client->ps.stats[STAT_ARMOR] = 0;
 
@@ -4274,10 +4284,11 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			ent->client->preduelWeaps = ent->client->ps.stats[STAT_WEAPONS];
 			challenged->client->preduelWeaps = challenged->client->ps.stats[STAT_WEAPONS];
 
-			ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
-			challenged->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
-			ent->client->ps.weapon = WP_BRYAR_PISTOL;
-			challenged->client->ps.weapon = WP_BRYAR_PISTOL;
+			ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_MELEE);
+			challenged->client->ps.stats[STAT_WEAPONS] = (1 << WP_MELEE);
+			ent->client->ps.weapon = WP_MELEE;
+			challenged->client->ps.weapon = WP_MELEE;
+			//give them melee; then switch to pistol after (like a quick draw thing)
 
 			//enforce 100 hp in siege
 			ent->client->ps.stats[STAT_HEALTH] = ent->health = 100;

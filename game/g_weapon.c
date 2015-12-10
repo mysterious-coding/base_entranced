@@ -5509,6 +5509,12 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
+	if (activator->client->ps.siegeDuelInProgress || activator->client->ps.duelInProgress)
+	{
+		//no using emplaced guns while dueling
+		return;
+	}
+
 	// Let's get some direction vectors for the user
 	AngleVectors( activator->client->ps.viewangles, fwd1, NULL, NULL );
 

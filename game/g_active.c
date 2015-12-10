@@ -2522,6 +2522,23 @@ void ClientThink_real( gentity_t *ent ) {
 	{
 		gentity_t *duelAgainst = &g_entities[ent->client->ps.siegeDuelIndex];
 
+		if (ent->client->ps.siegeDuelTime < level.time)
+		{
+			//pull out the pistols
+			client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
+			client->ps.weapon = WP_BRYAR_PISTOL;
+			duelAgainst->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
+			duelAgainst->client->ps.weapon = WP_BRYAR_PISTOL;
+			if (ent->client->ps.siegeDuelTime > 0 || duelAgainst->client->ps.siegeDuelTime > 0)
+			{
+				ent->client->ps.siegeDuelTime = 0;
+				duelAgainst->client->ps.siegeDuelTime = 0;
+				G_LocalSound(ent, CHAN_ANNOUNCER, G_SoundIndex("sound/chars/protocol/misc/40mom038.wav")); //simulate clientside announcer voice "you may begin"
+				G_LocalSound(duelAgainst, CHAN_ANNOUNCER, G_SoundIndex("sound/chars/protocol/misc/40mom038.wav")); //simulate clientside announcer voice "you may begin"
+			}
+		}
+
+
 		if (!duelAgainst || !duelAgainst->client || !duelAgainst->inuse ||
 			duelAgainst->client->ps.siegeDuelIndex != ent->s.number)
 		{
