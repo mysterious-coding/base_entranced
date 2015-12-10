@@ -4647,7 +4647,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->ps.siegeDuelInProgress
+	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->ps.siegeDuelInProgress &&
 		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
 	{ //this class is flagged to take less damage from physical attacks.
 		//For now I'm just decreasing against any client-based attack, this can be changed later I guess.
