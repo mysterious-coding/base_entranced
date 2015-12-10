@@ -4203,7 +4203,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.duelTime >= level.time)
+	if (ent->client->ps.siegeDuelTime >= level.time)
 	{
 		return;
 	}
