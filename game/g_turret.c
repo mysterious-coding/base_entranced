@@ -433,6 +433,11 @@ static qboolean turret_find_enemies( gentity_t *self )
 			continue;
 		}
 
+		if (target->client->ps.siegeDuelInProgress || target->client->ps.duelInProgress)
+		{
+			continue;
+		}
+
 		VectorCopy( target->r.currentOrigin, org );
 		org[2] += target->r.maxs[2]*0.5f;
 

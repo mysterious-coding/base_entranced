@@ -713,6 +713,11 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			continue;
 		}
 
+		if (target->client->ps.siegeDuelInProgress || target->client->ps.duelInProgress)
+		{
+			continue;
+		}
+
 		if ( target->client )
 		{
 			VectorCopy( target->client->renderInfo.eyePoint, org );
