@@ -2294,6 +2294,12 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
+	if (other->client->ps.siegeDuelInProgress)
+	{
+		//people in a duel can't pick us up
+		return;
+	}
+
 	if (self->noise_index)
 	{ //play the pickup noise.
 		G_Sound(other, CHAN_AUTO, self->noise_index);

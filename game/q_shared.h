@@ -2402,9 +2402,9 @@ typedef struct playerState_s {
 	//See psf_overrides.txt if you want to increase the send
 	//amount of any of these above 1 bit.
 #ifndef _XBOX
-	int			userInt1;
-	int			userInt2;
-	int			userInt3;
+	int			siegeDuelInProgress;
+	int			siegeDuelIndex;
+	int			siegeDuelTime;
 	float		userFloat1;
 	float		userFloat2;
 	float		userFloat3;
@@ -2805,9 +2805,9 @@ typedef struct entityState_s {
 	//rww - spare values specifically for use by mod authors.
 	//See netf_overrides.txt if you want to increase the send
 	//amount of any of these above 1 bit.
-	int			userInt1;
-	int			userInt2;
-	int			userInt3;
+	int			siegeDuelInProgress;
+	int			siegeDuelIndex;
+	int			siegeDuelTime;
 	float		userFloat1;
 	float		userFloat2;
 	float		userFloat3;

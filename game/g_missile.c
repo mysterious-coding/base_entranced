@@ -411,11 +411,21 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		{
 			goto killProj;
 		}
+		else if (otherOwner->takedamage && otherOwner->client && otherOwner->client->ps.siegeDuelInProgress &&
+			otherOwner->client->ps.siegeDuelIndex != ent->r.ownerNum)
+		{
+			goto killProj;
+		}
 	}
 	else if (!isKnockedSaber)
 	{
 		if (other->takedamage && other->client && other->client->ps.duelInProgress &&
 			other->client->ps.duelIndex != ent->r.ownerNum)
+		{
+			goto killProj;
+		}
+		else if (other->takedamage && other->client && other->client->ps.siegeDuelInProgress &&
+			other->client->ps.siegeDuelIndex != ent->r.ownerNum)
 		{
 			goto killProj;
 		}

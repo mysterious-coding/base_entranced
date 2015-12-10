@@ -4134,8 +4134,8 @@ int gPainMOD = 0;
 int gPainHitLoc = -1;
 vec3_t gPainPoint;
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
-			   vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
+void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
+	vec3_t dir, vec3_t point, int damage, int dflags, int mod) {
 	gclient_t	*client;
 	int			take;
 	int			asave;
@@ -4159,17 +4159,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
-		if ( targ->client->ps.electrifyTime < level.time )
+		if (targ->client->ps.electrifyTime < level.time)
 		{//electrocution effect
 			if (targ->s.eType == ET_NPC && targ->s.NPC_class == CLASS_VEHICLE &&
 				targ->m_pVehicle && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
 			{ //do some extra stuff to speeders/walkers
-				targ->client->ps.electrifyTime = level.time + Q_irand( 3000, 4000 );
+				targ->client->ps.electrifyTime = level.time + Q_irand(3000, 4000);
 			}
-			else if ( targ->s.NPC_class != CLASS_VEHICLE 
-				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
+			else if (targ->s.NPC_class != CLASS_VEHICLE
+				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER))
 			{//don't do this to fighters
-				targ->client->ps.electrifyTime = level.time + Q_irand( 300, 800 );
+				targ->client->ps.electrifyTime = level.time + Q_irand(300, 800);
 			}
 		}
 	}
@@ -4183,7 +4183,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if ( (targ->flags&FL_SHIELDED) && mod != MOD_SABER  && !targ->client)
+	if ((targ->flags&FL_SHIELDED) && mod != MOD_SABER  && !targ->client)
 	{//magnetically protected, this thing can only be damaged by lightsabers
 		return;
 	}
@@ -4193,16 +4193,16 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if ( targ->client )
+	if (targ->client)
 	{//don't take damage when in a walker, or fighter
 		//unless the walker/fighter is dead!!! -rww
-		if ( targ->client->ps.clientNum < MAX_CLIENTS && targ->client->ps.m_iVehicleNum )
+		if (targ->client->ps.clientNum < MAX_CLIENTS && targ->client->ps.m_iVehicleNum)
 		{
 			gentity_t *veh = &g_entities[targ->client->ps.m_iVehicleNum];
-			if ( veh->m_pVehicle && veh->health > 0 )
+			if (veh->m_pVehicle && veh->health > 0)
 			{
-				if ( veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER ||
-					 veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
+				if (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER ||
+					veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
 				{
 					if (!(dflags & DAMAGE_NO_PROTECTION))
 					{
@@ -4235,7 +4235,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			mod != MOD_TELEFRAG &&
 			mod != MOD_TRIGGER_HURT)
 		{
-			if ( mod != MOD_MELEE || !G_HeavyMelee( attacker ) )
+			if (mod != MOD_MELEE || !G_HeavyMelee(attacker))
 			{ //let classes with heavy melee ability damage heavy wpn dmg doors with fists
 				return;
 			}
@@ -4250,11 +4250,31 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			mod == MOD_BRYAR_PISTOL_ALT ||
 			mod == MOD_MELEE)
 		{ //these don't damage bbrushes.. ever
-			if ( mod != MOD_MELEE || !G_HeavyMelee( attacker ) )
+			if (mod != MOD_MELEE || !G_HeavyMelee(attacker))
 			{ //let classes with heavy melee ability damage breakable brushes with fists
 				return;
 			}
 		}
+	}
+
+	if (targ && targ->client && targ->client->ps.siegeDuelInProgress && attacker && attacker->client && attacker->s.number != targ->s.number &&
+		(targ->client->ps.siegeDuelIndex != attacker->s.number || !attacker->client->ps.siegeDuelInProgress))
+	{
+		//target is siegedueling, but attacker is not his duel partner (probably a troll trying to attack a duelist)
+		return;
+	}
+
+	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress && targ && targ->client && targ->s.number != attacker->s.number &&
+		(attacker->client->ps.siegeDuelIndex != targ->s.number || !targ->client->ps.siegeDuelInProgress))
+	{
+		//attacker is siegedueling, but target is not his duel partner (maybe a duelist accidentally hit a troll running around)
+		return;
+	}
+
+	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress && targ && (!targ->client || targ->s.eType == ET_NPC))
+	{
+		//a duelist hit a non-client object/NPC
+		return;
 	}
 
 	if ( targ && targ->client && targ->client->ps.duelInProgress )
@@ -4627,7 +4647,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE &&
+	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->ps.siegeDuelInProgress
 		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
 	{ //this class is flagged to take less damage from physical attacks.
 		//For now I'm just decreasing against any client-based attack, this can be changed later I guess.
@@ -4741,7 +4761,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
-	if ( client && client->ps.powerups[PW_BATTLESUIT] ) {
+	if ( client && client->ps.powerups[PW_BATTLESUIT] && !client->ps.siegeDuelInProgress) {
 		G_AddEvent( targ, EV_POWERUP_BATTLESUIT, 0 );
 		if ( ( dflags & DAMAGE_RADIUS ) || ( mod == MOD_FALLING ) ) {
 			return;
@@ -5427,6 +5447,8 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			continue;
 		if (!ent->takedamage)
 			continue;
+		if (ent && ent->client && ent->client->ps.siegeDuelInProgress)
+			continue; //prevent anyone in siege duel from taking splash damage. since we are using pistol only, this shouldn't be a problem.
 
 		// find the distance from the edge of the bounding box
 		for ( i = 0 ; i < 3 ; i++ ) {

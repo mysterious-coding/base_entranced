@@ -1815,7 +1815,7 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 		}
 	}
 
-	if (en->client->ps.duelInProgress && en->client->ps.duelIndex != bs->client)
+	if (en->client->ps.siegeDuelInProgress || (en->client->ps.duelInProgress && en->client->ps.duelIndex != bs->client))
 	{ //don't attack duelists unless you're dueling them
 		return 0;
 	}
@@ -6408,7 +6408,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				{
 					if (bs->currentEnemy->client->ps.duelIndex == bs->client &&
 						bs->currentEnemy->client->ps.duelTime > level.time &&
-						!bs->cur_ps.duelInProgress)
+						!bs->cur_ps.duelInProgress && g_gametype.integer != GT_SIEGE)
 					{
 						Cmd_EngageDuel_f(&g_entities[bs->client]);
 					}

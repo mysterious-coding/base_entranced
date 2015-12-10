@@ -859,7 +859,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		client->timeResidual -= 1000;
 
 		// count down health when over max
-		if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] ) {
+		if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] && !client->ps.siegeDuelInProgress) {
 			ent->health--;
 		}
 
@@ -2461,22 +2461,29 @@ void ClientThink_real( gentity_t *ent ) {
 	else if (!client->ps.m_iVehicleNum &&
 		(!ent->NPC || ent->s.NPC_class != CLASS_VEHICLE)) //if riding a vehicle it will manage our speed and such
 	{
-		// set speed
-		client->ps.speed = g_speed.value;
-
-		//Check for a siege class speed multiplier
-		if (g_gametype.integer == GT_SIEGE &&
-			client->siegeClass != -1)
+		if (client->ps.siegeDuelInProgress)
 		{
-			client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+			client->ps.speed = client->ps.basespeed = (g_speed.value * 1.25);
 		}
+		else
+		{
+			// set speed
+			client->ps.speed = g_speed.value;
 
-		if (client->bodyGrabIndex != ENTITYNUM_NONE)
-		{ //can't go nearly as fast when dragging a body around
-			client->ps.speed *= 0.2f;
+			//Check for a siege class speed multiplier
+			if (g_gametype.integer == GT_SIEGE &&
+				client->siegeClass != -1)
+			{
+				client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+			}
+
+			if (client->bodyGrabIndex != ENTITYNUM_NONE)
+			{ //can't go nearly as fast when dragging a body around
+				client->ps.speed *= 0.2f;
+			}
+
+			client->ps.basespeed = client->ps.speed;
 		}
-
-		client->ps.basespeed = client->ps.speed;
 	}
 
 	if ( !ent->NPC || !(ent->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY) )
@@ -2510,6 +2517,112 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 		}
 	}
+
+	if (ent->client->ps.siegeDuelInProgress)
+	{
+		gentity_t *duelAgainst = &g_entities[ent->client->ps.siegeDuelIndex];
+
+		if (!duelAgainst || !duelAgainst->client || !duelAgainst->inuse ||
+			duelAgainst->client->ps.siegeDuelIndex != ent->s.number)
+		{
+			//duelAgainst guy disconnected or something
+			ent->client->ps.siegeDuelInProgress = 0;
+			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
+			{
+				if (ent->client->siegeClass != -1)
+				{
+					//valid siege class
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = bgSiegeClasses[ent->client->siegeClass].maxhealth;
+					ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].startarmor;
+				}
+				else
+				{
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = 100;
+					ent->client->ps.stats[STAT_ARMOR] = 0;
+				}
+
+				if (g_spawnInvulnerability.integer)
+				{
+					ent->client->ps.eFlags |= EF_INVULNERABLE;
+					ent->client->invulnerableTimer = level.time + g_spawnInvulnerability.integer;
+				}
+
+				//add back weapons
+				ent->client->ps.stats[STAT_WEAPONS] = ent->client->preduelWeaps;
+
+				if (ent->client->siegeClass != -1)
+				{
+					//valid siege class
+					ent->client->ps.speed = g_speed.value;
+					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+					ent->client->ps.basespeed = client->ps.speed;
+				}
+				else
+				{
+					ent->client->ps.speed = g_speed.value;
+					ent->client->ps.basespeed = client->ps.speed;
+				}
+			}
+		}
+		else if (duelAgainst->health < 1 || duelAgainst->client->ps.stats[STAT_HEALTH] < 1 || duelAgainst->client->tempSpectate >= level.time)
+		{
+			ent->client->ps.siegeDuelInProgress = 0;
+			duelAgainst->client->ps.siegeDuelInProgress = 0;
+
+			//Winner gets full health.. providing he's still alive
+			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
+			{
+				if (ent->client->siegeClass != -1)
+				{
+					//valid siege class
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = bgSiegeClasses[ent->client->siegeClass].maxhealth;
+					ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].startarmor;
+				}
+				else
+				{
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = 100;
+					ent->client->ps.stats[STAT_ARMOR] = 0;
+				}
+
+				if (g_spawnInvulnerability.integer)
+				{
+					ent->client->ps.eFlags |= EF_INVULNERABLE;
+					ent->client->invulnerableTimer = level.time + g_spawnInvulnerability.integer;
+				}
+
+				//add back weapons
+				ent->client->ps.stats[STAT_WEAPONS] = ent->client->preduelWeaps;
+
+				if (ent->client->siegeClass != -1)
+				{
+					//valid siege class
+					ent->client->ps.speed = g_speed.value;
+					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+					ent->client->ps.basespeed = client->ps.speed;
+				}
+				else
+				{
+					ent->client->ps.speed = g_speed.value;
+					ent->client->ps.basespeed = client->ps.speed;
+				}
+
+				//Private duel announcements are now made globally because we only want one duel at a time.
+				if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
+				{
+					trap_SendServerCommand(-1, va("cp \"%s^7 %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname));
+					trap_SendServerCommand(-1, va("print \"%s^7 %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname));
+				}
+				else
+				{ //it was a draw, because we both managed to die in the same frame
+					trap_SendServerCommand(-1, va("cp \"%s (at the EXACT same time. First death announced did not actually die earlier!)\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")));
+					trap_SendServerCommand(-1, va("print \"%s (at the EXACT same time. First death announced did not actually die earlier!)\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")));
+				}
+			}
+		}
+
+
+	}
+
 
 	if (ent->client->ps.duelInProgress)
 	{
@@ -3210,7 +3323,14 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			else
 			{
-				Cmd_EngageDuel_f(ent);
+				if (g_gametype.integer == GT_SIEGE)
+				{
+					Cmd_SiegeDuel_f(ent);
+				}
+				else
+				{
+					Cmd_EngageDuel_f(ent);
+				}
 			}
 			break;
 		case GENCMD_FORCE_HEAL:
@@ -3472,8 +3592,8 @@ void ClientThink_real( gentity_t *ent ) {
 		gentity_t *faceKicked = &g_entities[client->ps.forceKickFlip-1];
 
 		if (faceKicked && faceKicked->client && (!OnSameTeam(ent, faceKicked) || g_friendlyFire.integer) &&
-			(!faceKicked->client->ps.duelInProgress || faceKicked->client->ps.duelIndex == ent->s.number) &&
-			(!ent->client->ps.duelInProgress || ent->client->ps.duelIndex == faceKicked->s.number))
+			(!faceKicked->client->ps.duelInProgress || !faceKicked->client->ps.siegeDuelInProgress || faceKicked->client->ps.duelIndex == ent->s.number) &&
+			(!ent->client->ps.duelInProgress || !ent->client->ps.siegeDuelInProgress || ent->client->ps.duelIndex == faceKicked->s.number))
 		{
 			if ( faceKicked && faceKicked->client && faceKicked->health && faceKicked->takedamage )
 			{//push them away and do pain

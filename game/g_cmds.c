@@ -3879,7 +3879,7 @@ qboolean G_OtherPlayersDueling(void)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->inuse && ent->client && ent->client->ps.duelInProgress)
+		if (ent && ent->inuse && ent->client && (ent->client->ps.duelInProgress || ent->client->ps.siegeDuelInProgress))
 		{
 			return qtrue;
 		}
@@ -4158,6 +4158,137 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	Com_sprintf(string, 64, "iLikeToMineSpam");
 	ServerCfgColor(string, iLikeToMineSpam.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
+}
+
+void Cmd_SiegeDuel_f(gentity_t *ent)
+{
+	trace_t tr;
+	vec3_t forward, fwdOrg;
+	int duelrange = 2048;
+	int i;
+	int numPlayersInGame = 0;
+
+	if (!g_privateDuel.integer)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"Private duels are not enabled on this server.\n\""));
+		return;
+	}
+
+	if (ent->client->ps.saberInFlight)
+	{
+		return;
+	}
+
+	if (ent->client->ps.siegeDuelInProgress)
+	{
+		//duelinprogress
+		return;
+	}
+
+	if (ent->health <= 0 || ent->client->tempSpectate >= level.time)
+	{
+		//no dueling while dead
+		return;
+	}
+
+	if (ent->client->ps.duelTime >= level.time)
+	{
+		return;
+	}
+
+	for (i = 0; i < level.maxclients; i++)
+	{
+		if (level.clients[i].pers.connected != CON_DISCONNECTED &&
+			(level.clients[i].sess.sessionTeam == TEAM_RED || level.clients[i].sess.sessionTeam == TEAM_BLUE) &&
+			!(g_entities[i].r.svFlags & SVF_BOT)) //connected player who is ingame and not a bot
+		{
+			if (level.clients[i].ps.siegeDuelInProgress)
+			{
+				//someone is already dueling
+				trap_SendServerCommand(ent - g_entities, "print \"There is already a duel in progress.\n\"");
+				return;
+			}
+			numPlayersInGame++;
+		}
+	}
+
+	if (numPlayersInGame != 2)
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"There must be exactly two players in-game to start a duel.\n\"");
+		return;
+	}
+
+	AngleVectors(ent->client->ps.viewangles, forward, NULL, NULL);
+
+	fwdOrg[0] = ent->client->ps.origin[0] + forward[0] * duelrange;
+	fwdOrg[1] = ent->client->ps.origin[1] + forward[1] * duelrange;
+	fwdOrg[2] = (ent->client->ps.origin[2] + ent->client->ps.viewheight) + forward[2] * duelrange;
+
+	trap_Trace(&tr, ent->client->ps.origin, NULL, NULL, fwdOrg, ent->s.number, MASK_PLAYERSOLID);
+
+	if (tr.fraction != 1 && tr.entityNum < MAX_CLIENTS)
+	{
+		gentity_t *challenged = &g_entities[tr.entityNum];
+
+		if (!challenged || !challenged->client || !challenged->inuse ||
+			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 ||
+			challenged->client->ps.saberInFlight || challenged->client->tempSpectate >= level.time)
+		{
+			return;
+		}
+
+		if (OnSameTeam(ent, challenged))
+		{
+			return;
+		}
+
+		if (challenged->client->ps.siegeDuelIndex == ent->s.number && challenged->client->ps.siegeDuelTime >= level.time)
+		{
+
+			trap_SendServerCommand(-1, va("print \"%s^7 %s %s!\n\"", challenged->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELACCEPT"), ent->client->pers.netname));
+
+			ent->client->ps.siegeDuelInProgress = 1;
+			challenged->client->ps.siegeDuelInProgress = 1;
+			//this will define that they are dueling
+
+			ent->client->ps.stats[STAT_ARMOR] = 0;
+			challenged->client->ps.stats[STAT_ARMOR] = 0;
+
+			ent->client->ps.fd.forcePower = 100;
+			challenged->client->ps.fd.forcePower = 100;
+
+			//only pistol in captain duel
+			ent->client->preduelWeaps = ent->client->ps.stats[STAT_WEAPONS];
+			challenged->client->preduelWeaps = challenged->client->ps.stats[STAT_WEAPONS];
+
+			ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
+			challenged->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
+			ent->client->ps.weapon = WP_BRYAR_PISTOL;
+			challenged->client->ps.weapon = WP_BRYAR_PISTOL;
+
+			//enforce 100 hp in siege
+			ent->client->ps.stats[STAT_HEALTH] = ent->health = 100;
+			challenged->client->ps.stats[STAT_HEALTH] = challenged->health = 100;
+
+			//automatically kill turrets for siege
+			Svcmd_KillTurrets_f();
+			//give everyone 125% speed
+			ent->client->ps.speed = ent->client->ps.basespeed = challenged->client->ps.speed = challenged->client->ps.basespeed = (g_speed.value * 1.25);
+
+		}
+		else
+		{
+			//Print the message that a player has been challenged in private, only announce the actual duel initiation in private
+			trap_SendServerCommand(challenged - g_entities, va("cp \"%s^7 %s\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELCHALLENGE")));
+			trap_SendServerCommand(ent - g_entities, va("cp \"%s %s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELCHALLENGED"), challenged->client->pers.netname));
+		}
+
+		ent->client->ps.forceHandExtend = HANDEXTEND_DUELCHALLENGE;
+		ent->client->ps.forceHandExtendTime = level.time + 1000;
+
+		ent->client->ps.siegeDuelIndex = challenged->s.number; //duelIndex
+		ent->client->ps.siegeDuelTime = level.time + 5000; //duelTime
+	}
 }
 
 void Cmd_EngageDuel_f(gentity_t *ent)

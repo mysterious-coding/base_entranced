@@ -1221,6 +1221,15 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			continue;
 		}
 
+		if (traceEnt && traceEnt->client && traceEnt->client->ps.siegeDuelInProgress &&
+			traceEnt->client->ps.siegeDuelIndex != ent->s.number)
+		{
+			VectorCopy(tr.endpos, start);
+			ignore = tr.entityNum;
+			traces++;
+			continue;
+		}
+
 		if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos) ) )
 		{//act like we didn't even hit him
 			VectorCopy( tr.endpos, start );
@@ -1441,6 +1450,14 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		if (traceEnt && traceEnt->client && traceEnt->client->ps.duelInProgress &&
 			traceEnt->client->ps.duelIndex != ent->s.number)
+		{
+			skip = tr.entityNum;
+			VectorCopy(tr.endpos, start);
+			continue;
+		}
+
+		if (traceEnt && traceEnt->client && traceEnt->client->ps.siegeDuelInProgress &&
+			traceEnt->client->ps.siegeDuelIndex != ent->s.number)
 		{
 			skip = tr.entityNum;
 			VectorCopy(tr.endpos, start);
@@ -4081,6 +4098,22 @@ void WP_FireStunBaton( gentity_t *ent, qboolean alt_fire )
 		}
 	}
 
+	if (tr_ent && tr_ent->takedamage && tr_ent->client)
+	{ //see if either party is involved in a siege duel
+		if (tr_ent->client->ps.siegeDuelInProgress &&
+			tr_ent->client->ps.siegeDuelIndex != ent->s.number)
+		{
+			return;
+		}
+
+		if (ent->client &&
+			ent->client->ps.siegeDuelInProgress &&
+			ent->client->ps.siegeDuelIndex != tr_ent->s.number)
+		{
+			return;
+		}
+	}
+
 	if ( tr_ent && tr_ent->takedamage )
 	{
 		G_PlayEffect( EFFECT_STUNHIT, tr.endpos, tr.plane.normal );
@@ -4171,6 +4204,22 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire )
 			if (ent->client &&
 				ent->client->ps.duelInProgress &&
 				ent->client->ps.duelIndex != tr_ent->s.number)
+			{
+				return;
+			}
+		}
+
+		if (tr_ent->takedamage && tr_ent->client)
+		{ //special duel checks
+			if (tr_ent->client->ps.siegeDuelInProgress &&
+				tr_ent->client->ps.siegeDuelIndex != ent->s.number)
+			{
+				return;
+			}
+
+			if (ent->client &&
+				ent->client->ps.siegeDuelInProgress &&
+				ent->client->ps.siegeDuelIndex != tr_ent->s.number)
 			{
 				return;
 			}
