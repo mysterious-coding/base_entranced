@@ -308,6 +308,9 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 ####`/g_allow_ready`
 Use to enable/disable players from using the `/ready` command.
 
+####Siege captain dueling
+You can now challenge and accept captain duels with `engage_duel` (assuming server has `g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers.
+
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
 
@@ -378,7 +381,7 @@ Note that using -1 or "demp freezing immunity" will prevent demp from damaging N
 
 Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
 
-Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - JK3 default).
+Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
 
 Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `/g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (JK3 default).
 
@@ -401,13 +404,27 @@ Mapmakers can add some new extra keys to `misc_siege_item` for additional contro
 
 `autorespawn 0` = item will not automatically respawn when return timer expires. Must be targeted again (e.g., by a hack) to respawn.
 
-`autorespawn 1` = item will automatically respawn when return timer expires (default)
+`autorespawn 1` = item will automatically respawn when return timer expires (default/basejka)
 
-`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the JK3 default). Use `respawntime -1` to make the item never return.
+`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the basejka setting). Use `respawntime -1` to make the item never return.
 
-`hideIconWhileCarried 0` = item's radar icon will be shown normally (default)
+`hideIconWhileCarried 0` = item's radar icon will be shown normally (default/basejka)
 
 `hideIconWhileCarried 1` = item's radar icon will be hidden while item is carried, and will reappear when dropped
+
+`removeFromOwnerOnUse 0` = player holding item will continue to hold item after using it
+
+`removeFromOwnerOnUse 1` = player holding item will lose posessesion of item upon using it (default/basjeka)
+
+`removeFromGameOnuse 0` = item entity will remain in existence after using it
+
+`removeFromGameOnUse 1` = item entity will be completely deleted from the game world upon using it (default/basejka)
+
+`despawnOnUse 0` = item will not undergo any special "despawning" upon use (default/basejka)
+
+`despawnOnUse 1` = item will be "despawned" (made invisible, untouchable, and hidden from radar) upon use.
+
+An example use of the "`onUse`" keys could be to allow an item to respawn and be used multiple times, using a combination of `removeFromOwnerOnUse 1`, `removeFromGameOnUse 0`, and `despawnOnUse 1`.
 
 Mapmakers are advised to include the new `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
 
@@ -598,12 +615,14 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cEgtVWtlZ2J6eUE/view?usp=sharing)
-Version: base_entranced-12-7-2015-build72 (experimental) - support for siege_cargobarge2_v1.1
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8YlBIaUhxSFdEaWc/view?usp=sharing)
+Version: base_entranced-12-10-2015-build74 (experimental) - allow duels in siege, add `removeFromOwnerOnUse`, add `removeFromGameOnUse`, add `despawnOnUse`
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-12-7-2015-build72 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cEgtVWtlZ2J6eUE/view?usp=sharing) - support for siege_cargobarge2_v1.1
 
 Old version: base_entranced-12-5-2015-build71 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8U3hCQjM3VGZoREE/view?usp=sharing) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`, improved crash logging
 
