@@ -6897,6 +6897,12 @@ static void PM_Weapon( void )
 		pm->ps->saberHolstered = 0;
 	}
 
+	if (pm->ps->duelInProgress && pm->ps->emplacedIndex)
+	{
+		pm->ps->emplacedIndex = 0;
+		pm->ps->saberHolstered = 0;
+	}
+
 	if ((pm->ps->siegeDuelInProgress && pm->ps->emplacedIndex) || (pm->ps->duelInProgress && pm->ps->emplacedIndex))
 	{
 		pm->ps->emplacedIndex = 0;
