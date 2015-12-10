@@ -4197,6 +4197,12 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		return;
 	}
 
+	if (ent->client->ps.m_iVehicleNum)
+	{
+		//no challenging duels while riding in a vehicle...
+		return;
+	}
+
 	if (ent->client->ps.duelTime >= level.time)
 	{
 		return;
@@ -4237,7 +4243,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		gentity_t *challenged = &g_entities[tr.entityNum];
 
 		if (!challenged || !challenged->client || !challenged->inuse ||
-			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 ||
+			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 || challenged->client->ps.m_iVehicleNum ||
 			challenged->client->ps.saberInFlight || challenged->client->tempSpectate >= level.time ||
 			(challenged->client->sess.sessionTeam != TEAM_RED && challenged->client->sess.sessionTeam != TEAM_BLUE))
 		{

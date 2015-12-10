@@ -489,6 +489,11 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 		return false;
 	}
 
+	if (ent && ent->client && ent->client->ps.siegeDuelInProgress)
+	{
+		return false;
+	}
+
 	if ( pVeh->m_pPilot != NULL )
 	{//already have a driver!
 		if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
