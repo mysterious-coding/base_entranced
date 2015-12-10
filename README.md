@@ -309,7 +309,7 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 Use to enable/disable players from using the `/ready` command.
 
 ####Siege captain dueling
-You can now challenge and accept captain duels with `engage_duel` (assuming server has `g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers.
+You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers.
 
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
@@ -422,9 +422,9 @@ Mapmakers can add some new extra keys to `misc_siege_item` for additional contro
 
 `despawnOnUse 0` = item will not undergo any special "despawning" upon use (default/basejka)
 
-`despawnOnUse 1` = item will be "despawned" (made invisible, untouchable, and hidden from radar) upon use.
+`despawnOnUse 1` = item will be "despawned" (made invisible, untouchable, and hidden from radar) upon use
 
-An example use of the "`onUse`" keys could be to allow an item to respawn and be used multiple times, using a combination of `removeFromOwnerOnUse 1`, `removeFromGameOnUse 0`, and `despawnOnUse 1`.
+An example use case of the "`onUse`" keys could be to allow an item to respawn and be used multiple times, using a combination of `removeFromOwnerOnUse 1`, `removeFromGameOnUse 0`, and `despawnOnUse 1`.
 
 Mapmakers are advised to include the new `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
 
