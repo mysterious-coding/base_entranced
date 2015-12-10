@@ -4191,6 +4191,12 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		return;
 	}
 
+	if (ent->client->sess.sessionTeam != TEAM_RED && ent->client->sess.sessionTeam != TEAM_BLUE)
+	{
+		//no spec dueling, lol
+		return;
+	}
+
 	if (ent->client->ps.duelTime >= level.time)
 	{
 		return;
@@ -4232,7 +4238,8 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 
 		if (!challenged || !challenged->client || !challenged->inuse ||
 			challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 ||
-			challenged->client->ps.saberInFlight || challenged->client->tempSpectate >= level.time)
+			challenged->client->ps.saberInFlight || challenged->client->tempSpectate >= level.time ||
+			(challenged->client->sess.sessionTeam != TEAM_RED && challenged->client->sess.sessionTeam != TEAM_BLUE))
 		{
 			return;
 		}
