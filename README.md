@@ -615,8 +615,8 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8UW40T3Z0Sk9zSFU/view?usp=sharing)
-Version: base_entranced-12-10-2015-build79 (experimental) - allow duels in siege, add `removeFromOwnerOnUse`, add `removeFromGameOnUse`, add `despawnOnUse`
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8S3loRENqVzUzODQ/view?usp=sharing)
+Version: base_entranced-12-11-2015-build80 (experimental) - allow duels in siege, add `removeFromOwnerOnUse`, add `removeFromGameOnUse`, add `despawnOnUse`
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
