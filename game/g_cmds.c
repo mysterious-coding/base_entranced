@@ -4789,15 +4789,15 @@ void ClientCommand( int clientNum ) {
 	{
 		Cmd_Give_f (ent, 0);
 	}
-	if (Q_stricmp(cmd, "greendoors") == 0)
+	else if (Q_stricmp(cmd, "greendoors") == 0)
 	{
 		Cmd_GreenDoors_f(ent);
 	}
-	if (Q_stricmp(cmd, "killturrets") == 0)
+	else if (Q_stricmp(cmd, "killturrets") == 0)
 	{
 		Cmd_KillTurrets_f(ent);
 	}
-	if (Q_stricmp(cmd, "duotest") == 0)
+	else if (Q_stricmp(cmd, "duotest") == 0)
 	{
 		Cmd_DuoTest_f(ent);
 	}
