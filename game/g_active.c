@@ -2531,8 +2531,6 @@ void ClientThink_real( gentity_t *ent ) {
 		if (ent->client->ps.siegeDuelTime < level.time)
 		{
 			//pull out the pistols
-			trap_SendServerCommand(ent - g_entities, va("cp \"Fight!\n\""));
-			trap_SendServerCommand(duelAgainst - g_entities, va("cp \"Fight!\n\""));
 			client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
 			client->ps.weapon = WP_BRYAR_PISTOL;
 			duelAgainst->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
@@ -2543,6 +2541,8 @@ void ClientThink_real( gentity_t *ent ) {
 				duelAgainst->client->ps.siegeDuelTime = 0;
 				G_LocalSound(ent, CHAN_ANNOUNCER, G_SoundIndex("sound/chars/protocol/misc/40mom038.wav")); //simulate clientside announcer voice "you may begin"
 				G_LocalSound(duelAgainst, CHAN_ANNOUNCER, G_SoundIndex("sound/chars/protocol/misc/40mom038.wav")); //simulate clientside announcer voice "you may begin"
+				trap_SendServerCommand(ent - g_entities, va("cp \"Fight!\n\""));
+				trap_SendServerCommand(duelAgainst - g_entities, va("cp \"Fight!\n\""));
 			}
 		}
 
