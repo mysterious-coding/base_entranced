@@ -2523,6 +2523,11 @@ void ClientThink_real( gentity_t *ent ) {
 	{
 		gentity_t *duelAgainst = &g_entities[ent->client->ps.siegeDuelIndex];
 
+		if (ent->client->sess.sessionTeam != TEAM_RED && ent->client->sess.sessionTeam != TEAM_BLUE)
+		{
+			ent->client->ps.siegeDuelInProgress = 0;
+		}
+
 		if (ent->client->ps.siegeDuelTime < level.time)
 		{
 			//pull out the pistols
@@ -2541,10 +2546,13 @@ void ClientThink_real( gentity_t *ent ) {
 
 
 		if (!duelAgainst || !duelAgainst->client || !duelAgainst->inuse ||
-			duelAgainst->client->ps.siegeDuelIndex != ent->s.number)
+			duelAgainst->client->ps.siegeDuelIndex != ent->s.number ||
+			(duelAgainst && duelAgainst->client && duelAgainst->client->sess.sessionTeam != TEAM_RED && duelAgainst->client->sess.sessionTeam != TEAM_BLUE))
 		{
 			//duelAgainst guy disconnected or something
 			ent->client->ps.siegeDuelInProgress = 0;
+			duelAgainst->client->ps.siegeDuelInProgress = 0;
+
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 			{
 				if (ent->client->siegeClass != -1)
