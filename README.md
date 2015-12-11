@@ -309,7 +309,7 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 Use to enable/disable players from using the `/ready` command.
 
 ####Siege captain dueling
-You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers.
+You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers, and turrets are automatically destroyed.
 
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
