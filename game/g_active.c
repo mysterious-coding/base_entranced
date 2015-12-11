@@ -2669,13 +2669,13 @@ void ClientThink_real( gentity_t *ent ) {
 				//Private duel announcements are now made globally because we only want one duel at a time.
 				if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 				{
-					trap_SendServerCommand(-1, va("cp \"%s^7 %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname));
-					trap_SendServerCommand(-1, va("print \"%s^7 %s %s!\n\"", ent->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELWINNER"), duelAgainst->client->pers.netname));
+					trap_SendServerCommand(-1, va("cp \"^7Duel winner: %s\n\"", ent->client->pers.netname));
+					trap_SendServerCommand(-1, va("print \"^7Duel winner: %s\n\"", ent->client->pers.netname));
 				}
 				else
 				{ //it was a draw, because we both managed to die in the same frame
-					trap_SendServerCommand(-1, va("cp \"%s (at the EXACT same time. First death announced did not actually die earlier!)\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")));
-					trap_SendServerCommand(-1, va("print \"%s (at the EXACT same time. First death announced did not actually die earlier!)\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELTIE")));
+					trap_SendServerCommand(-1, va("cp \"The duel is a draw. Both players died at the ^5exact^7 same time. First death announced was not actually earlier.\n\""));
+					trap_SendServerCommand(-1, va("print \"The duel is a draw. Both players died at the ^5exact^7 same time. First death announced was not actually earlier.\n\""));
 				}
 			}
 		}
