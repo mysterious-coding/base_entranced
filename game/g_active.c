@@ -2555,6 +2555,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 			{
+				ent->client->ps.fd.forcePower = 100;
 				//reset force powers
 				if (ent->client->siegeClass != -1)
 				{
@@ -2614,6 +2615,7 @@ void ClientThink_real( gentity_t *ent ) {
 			//Winner gets full health.. providing he's still alive
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 			{
+				ent->client->ps.fd.forcePower = 100;
 				//reset force powers
 				if (ent->client->siegeClass != -1)
 				{
