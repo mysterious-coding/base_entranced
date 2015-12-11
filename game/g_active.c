@@ -2531,6 +2531,8 @@ void ClientThink_real( gentity_t *ent ) {
 		if (ent->client->ps.siegeDuelTime < level.time)
 		{
 			//pull out the pistols
+			trap_SendServerCommand(ent - g_entities, va("cp \"Fight!\n\""));
+			trap_SendServerCommand(duelAgainst - g_entities, va("cp \"Fight!\n\""));
 			client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
 			client->ps.weapon = WP_BRYAR_PISTOL;
 			duelAgainst->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
@@ -2674,6 +2676,7 @@ void ClientThink_real( gentity_t *ent ) {
 				}
 				else
 				{ //it was a draw, because we both managed to die in the same frame
+					//uhh, will this actually get called? we already checked to see if ent was alive earlier...just copying basejka here
 					trap_SendServerCommand(-1, va("cp \"The duel is a draw. Both players died at the exact same time. First death announced was not actually earlier!\n\""));
 					trap_SendServerCommand(-1, va("print \"The duel is a draw. Both players died at the exact same time. First death announced was not actually earlier!\n\""));
 				}

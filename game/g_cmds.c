@@ -4266,7 +4266,8 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		{
 
 			trap_SendServerCommand(-1, va("print \"%s^7 %s %s!\n\"", challenged->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELACCEPT"), ent->client->pers.netname));
-
+			trap_SendServerCommand(ent - g_entities, va("cp \"Get ready...\n\""));
+			trap_SendServerCommand(challenged - g_entities, va("cp \"Get ready...\n\""));
 			ent->client->ps.siegeDuelInProgress = 1;
 			challenged->client->ps.siegeDuelInProgress = 1;
 			//this will define that they are dueling
