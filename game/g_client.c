@@ -3209,6 +3209,11 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
+	if (ent->client->ps.siegeDuelInProgress)
+	{
+		ent->client->ps.siegeDuelInProgress = 0;
+	}
+
 	//first we want the userinfo so we can see if we should update this client's saber -rww
 	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
 	while (l < MAX_SABERS)
