@@ -2652,7 +2652,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 				//add back weapons
 				ent->client->ps.stats[STAT_WEAPONS] = ent->client->preduelWeaps;
-
+				 
 				if (ent->client->siegeClass != -1)
 				{
 					//valid siege class
@@ -2674,8 +2674,8 @@ void ClientThink_real( gentity_t *ent ) {
 				}
 				else
 				{ //it was a draw, because we both managed to die in the same frame
-					trap_SendServerCommand(-1, va("cp \"The duel is a draw. Both players died at the ^5exact^7 same time. First death announced was not actually earlier.\n\""));
-					trap_SendServerCommand(-1, va("print \"The duel is a draw. Both players died at the ^5exact^7 same time. First death announced was not actually earlier.\n\""));
+					trap_SendServerCommand(-1, va("cp \"The duel is a draw. Both players died at the exact same time. First death announced was not actually earlier!\n\""));
+					trap_SendServerCommand(-1, va("print \"The duel is a draw. Both players died at the exact same time. First death announced was not actually earlier!\n\""));
 				}
 			}
 		}
