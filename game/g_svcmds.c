@@ -1225,7 +1225,7 @@ void Svcmd_MapRandom_f()
     G_Printf( "Map pool '%s' not found\n", pool );
 }
 
-void Svcmd_KillTurrets_f()
+void Svcmd_KillTurrets_f(qboolean announce)
 {
 	int i = 0;
 	gentity_t* ent;
@@ -1245,7 +1245,10 @@ void Svcmd_KillTurrets_f()
 		}
 		i++;
 	}
-	trap_SendServerCommand(-1, va("print \"Turrets destroyed.\n\""));
+	if (announce)
+	{
+		trap_SendServerCommand(-1, va("print \"Turrets destroyed.\n\""));
+	}
 }
 
 void Svcmd_SpecAll_f() {
@@ -1773,7 +1776,7 @@ qboolean	ConsoleCommand( void ) {
     }
 
 	if (!Q_stricmp(cmd, "killturrets")) {
-		Svcmd_KillTurrets_f();
+		Svcmd_KillTurrets_f(qtrue);
 		return qtrue;
 	}
 

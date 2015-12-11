@@ -256,7 +256,7 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 	return -1;
 }
 
-extern void Svcmd_KillTurrets_f();
+extern void Svcmd_KillTurrets_f(qboolean announce);
 
 void Cmd_KillTurrets_f(gentity_t *ent)
 {
@@ -264,7 +264,7 @@ void Cmd_KillTurrets_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
 		return;
 	}
-	Svcmd_KillTurrets_f();
+	Svcmd_KillTurrets_f(qtrue);
 }
 
 extern void Blocked_Door(gentity_t *ent, gentity_t *other);
@@ -299,7 +299,7 @@ void Cmd_DuoTest_f(gentity_t *ent)
 		return;
 	}
 
-	Svcmd_KillTurrets_f();
+	Svcmd_KillTurrets_f(qfalse);
 	Cmd_GreenDoors_f(ent);
 	trap_Cvar_Set("g_siegeRespawn", "1");
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
@@ -4296,7 +4296,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			challenged->client->ps.stats[STAT_HEALTH] = challenged->health = 100;
 
 			//automatically kill turrets for siege
-			Svcmd_KillTurrets_f();
+			Svcmd_KillTurrets_f(qfalse);
 			//give everyone 125% speed
 			ent->client->ps.speed = ent->client->ps.basespeed = challenged->client->ps.speed = challenged->client->ps.basespeed = (g_speed.value * 1.25);
 
