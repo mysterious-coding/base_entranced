@@ -2555,6 +2555,22 @@ void ClientThink_real( gentity_t *ent ) {
 
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 			{
+				//reset force powers
+				if (ent->client->siegeClass != -1)
+				{
+					for (forcePowerNum = 0; forcePowerNum < NUM_FORCE_POWERS; forcePowerNum++)
+					{
+						ent->client->ps.fd.forcePowerLevel[forcePowerNum] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[forcePowerNum];
+						if (!ent->client->ps.fd.forcePowerLevel[forcePowerNum])
+						{
+							ent->client->ps.fd.forcePowersKnown &= ~(1 << forcePowerNum);
+						}
+						else
+						{
+							ent->client->ps.fd.forcePowersKnown |= (1 << forcePowerNum);
+						}
+					}
+				}
 				if (ent->client->siegeClass != -1)
 				{
 					//valid siege class
