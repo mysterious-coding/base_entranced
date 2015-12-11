@@ -4166,6 +4166,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 	vec3_t forward, fwdOrg;
 	int duelrange = 2048;
 	int i;
+	int n;
 	int numPlayersInGame = 0;
 
 	if (!g_privateDuel.integer)
@@ -4298,6 +4299,14 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			Svcmd_KillTurrets_f();
 			//give everyone 125% speed
 			ent->client->ps.speed = ent->client->ps.basespeed = challenged->client->ps.speed = challenged->client->ps.basespeed = (g_speed.value * 1.25);
+
+			//need to remove all force powers for clientside prediction. it's not enough to simply disable them from being used.
+			for (n = 0; n < NUM_FORCE_POWERS; n++)
+			{
+				challenged->client->ps.fd.forcePowerLevel[n] = ent->client->ps.fd.forcePowerLevel[n] = 0;
+				ent->client->ps.fd.forcePowersKnown &= ~(1 << n);
+				challenged->client->ps.fd.forcePowersKnown &= ~(1 << n);
+			}
 
 		}
 		else
