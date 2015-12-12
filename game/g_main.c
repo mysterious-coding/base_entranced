@@ -1600,11 +1600,12 @@ void G_ShutdownGame( int restart ) {
 void QDECL Com_Error ( int level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
-
+	
+	G_LogPrintf("Com_Error (%i): %s", level, error);
 	va_start (argptr, error);
 	vsprintf (text, error, argptr);
 	va_end (argptr);
-
+	
 	G_Error( "%s", text);
 }
 
