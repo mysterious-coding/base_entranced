@@ -1039,6 +1039,12 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 		return;
 	}
 
+	if ((found->client->sess.sessionTeam == TEAM_RED || found->client->sess.sessionTeam == TEAM_BLUE) && bgSiegeClasses[found->client->siegeClass].playerClass == funnyClassNumber)
+	{
+		Com_Printf("The selected player is already playing that class.\n");
+		return;
+	}
+
 	if (level.inSiegeCountdown || found->client->sess.sessionTeam == TEAM_RED || found->client->sess.sessionTeam == TEAM_BLUE)
 	{
 		SetSiegeClass(found, siegeClass->name);
@@ -1048,7 +1054,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 	found->funnyClassNumber = funnyClassNumber;
 	
 
-	trap_SendServerCommand(-1, va("print \"%s was forceclassed to %s for 3 minutes.\n\"", found->client->pers.netname, desiredClassName));
+	trap_SendServerCommand(-1, va("print \"%s was forceclassed to ^5%s^7.\n\"", found->client->pers.netname, desiredClassName));
 }
 
 void Svcmd_ResetFlags_f(){
