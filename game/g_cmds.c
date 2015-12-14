@@ -3121,6 +3121,7 @@ Cmd_Vote_f
 */
 void Cmd_Vote_f( gentity_t *ent ) {
 	char		msg[64];
+	int			cs_offset;
 
 	if ( !level.voteTime ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")) );
@@ -3268,58 +3269,12 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 		return;
 	}
 
-	if (strchr(arg1, ';') || strchr(arg2, ';')) {
+	if (strchr(arg1, ';') || strchr(arg2, ';'))
+	{
 		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
 		return;
 	}
-#if 0
-	if (!Q_stricmp(arg1, "leader")) {
-		char netname[MAX_NETNAME], leader[MAX_NETNAME];
 
-		if (!arg2[0]) {
-			i = ent->client->ps.clientNum;
-		}
-		else {
-			// numeric values are just slot numbers
-			for (i = 0; i < 3; i++) {
-				if (!arg2[i] || arg2[i] < '0' || arg2[i] > '9')
-					break;
-			}
-			if (i >= 3 || !arg2[i]) {
-				i = atoi(arg2);
-				if (i < 0 || i >= level.maxclients) {
-					trap_SendServerCommand(ent - g_entities, va("print \"Bad client slot: %i\n\"", i));
-					return;
-				}
-
-				if (!g_entities[i].inuse) {
-					trap_SendServerCommand(ent - g_entities, va("print \"Client %i is not active\n\"", i));
-					return;
-				}
-			}
-			else {
-				Q_strncpyz(leader, arg2, sizeof(leader));
-				Q_CleanStr(leader);
-				for (i = 0; i < level.maxclients; i++) {
-					if (level.clients[i].pers.connected == CON_DISCONNECTED)
-						continue;
-					if (level.clients[i].sess.sessionTeam != team)
-						continue;
-					Q_strncpyz(netname, level.clients[i].pers.netname, sizeof(netname));
-					Q_CleanStr(netname);
-					if (!Q_stricmp(netname, leader)) {
-						break;
-					}
-				}
-				if (i >= level.maxclients) {
-					trap_SendServerCommand(ent - g_entities, va("print \"%s is not a valid player on your team.\n\"", arg2));
-					return;
-				}
-			}
-		}
-		Com_sprintf(arg2, sizeof(arg2), "%d", i);
-	}
-#endif
 	if (!Q_stricmp(arg1, "forceclass"))
 	{
 		if (g_gametype.integer != GT_SIEGE)
