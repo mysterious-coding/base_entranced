@@ -2506,6 +2506,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
     client->sess = sessOld;
 
 	client->pers.connected = CON_CONNECTING;
+	ent->forcedClass = 0;
+	ent->forcedClassTime = 0;
+	ent->funnyClassNumber = 0;
 
 	// *CHANGE 8b* added clientNum to persistant data
 	client->pers.clientNum = clientNum;

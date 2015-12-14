@@ -1358,6 +1358,15 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 
 	trap_Argv(1, className, sizeof(className));
 
+	if (ent->forcedClassTime > level.time)
+	{
+		if (bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass != ent->funnyClassNumber)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"You are currently being forced to a class.\n\"");
+			return;
+		}
+	}
+
 	SetSiegeClass(ent, className);
 }
 
@@ -1393,6 +1402,15 @@ void Cmd_Class_f(gentity_t *ent)
 	}
 
 	trap_Argv(1, className, sizeof(className));
+
+	if (ent->forcedClassTime > level.time)
+	{
+		if (bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass != ent->funnyClassNumber)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"You are currently being forced to a class.\n\"");
+			return;
+		}
+	}
 
 	if ((className[0] >= '0') && (className[0] <= '9'))
 	{
@@ -2480,7 +2498,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	if (g_gametype.integer != GT_DUEL &&
 		g_gametype.integer != GT_POWERDUEL)
 	{
-		if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+		if ( ent->client->sess.sessionTeam != TEAM_RED && ent->client->sess.sessionTeam != TEAM_BLUE ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSPECVOTE")) );
 			return;
 		}
@@ -3186,6 +3204,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	int		i, team, cs_offset;
 	static char	arg1[MAX_STRING_TOKENS];
 	static char	arg2[MAX_STRING_TOKENS];
+	char buffer[64];
+	gentity_t* found = NULL;
+	char		enteredClass[MAX_STRING_TOKENS];
+	char		desiredClassLetter[16];
+	char		desiredClassName[16];
 
 	team = ent->client->sess.sessionTeam;
 	if ( team == TEAM_RED )
@@ -3197,6 +3220,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 
 	if ( !g_allowVote.integer ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) );
+		return;
+	}
+
+	if (!g_allow_vote_forceclass.integer) {
+		trap_SendServerCommand(ent - g_entities, "print \"Forceclass vote is disabled.\n\"");
 		return;
 	}
 
@@ -3231,7 +3259,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		for(len = 0; len < (int)strlen(arg2); ++len)
 			if(arg2[len]=='\n' || arg2[len]=='\r') arg2[len] = ';';
 
-		G_HackLog("Callvote hack: Client num %d (%s) from %s tries to hack via callvote (callvote %s \"%s\").\n",
+		G_HackLog("Callvote hack: Client num %d (%s) from %s tries to hack via callteamvote (callteamvote %s \"%s\").\n",
                 ent->client->pers.clientNum, 
 				ent->client->pers.netname,
 				ent->client->sess.ipString,
@@ -3244,7 +3272,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		return;
 	}
-
+#if 0
 	if ( !Q_stricmp( arg1, "leader" ) ) {
 		char netname[MAX_NETNAME], leader[MAX_NETNAME];
 
@@ -3290,13 +3318,71 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 			}
 		}
 		Com_sprintf(arg2, sizeof(arg2), "%d", i);
-	} else {
+	} 
+#endif
+	if (!Q_stricmp(arg1, "forceclass"))
+	{
+		if (g_gametype.integer != GT_SIEGE)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Must be in siege gametype.\n\"");
+			return;
+		}
+
+		if (trap_Argc() < 3)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"usage: forceclass [id/name] [first letter of class]\n\""); //bad number of arguments
+			return;
+		}
+
+		trap_Argv(2, buffer, sizeof(buffer));
+		found = G_FindTeammateClient(buffer, ent);
+
+		if (!found || !found->client)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"", buffer));
+			return;
+		}
+		if (ent->client->sess.sessionTeam == TEAM_RED && !found->client->sess.sessionTeam == TEAM_RED)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Target player must be on your team.\n\"");
+			return;
+		}
+		else if (found->client->sess.sessionTeam == TEAM_BLUE && !found->client->sess.sessionTeam == TEAM_BLUE)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"Target player must be on your team.\n\"");
+			return;
+		}
+		trap_Argv(3, enteredClass, sizeof(enteredClass));
+		if (!Q_stricmp(enteredClass, "a") || !Q_stricmp(enteredClass, "h") || !Q_stricmp(enteredClass, "t") || !Q_stricmp(enteredClass, "d") || !Q_stricmp(enteredClass, "j") || !Q_stricmp(enteredClass, "s"))
+		{
+			strcpy(desiredClassLetter, enteredClass);
+			if (!Q_stricmp(desiredClassLetter, "a"))
+				Com_sprintf(desiredClassName, sizeof(desiredClassName), "assault");
+			else if (!Q_stricmp(desiredClassLetter, "h"))
+				Com_sprintf(desiredClassName, sizeof(desiredClassName), "HW");
+			else if (!Q_stricmp(desiredClassLetter, "t"))
+				Com_sprintf(desiredClassName, sizeof(desiredClassName), "tech");
+			else if (!Q_stricmp(desiredClassLetter, "d"))
+				Com_sprintf(desiredClassName, sizeof(desiredClassName), "demo");
+			else if (!Q_stricmp(desiredClassLetter, "j"))
+				Com_sprintf(desiredClassName, sizeof(desiredClassName), "jedi");
+			else if (!Q_stricmp(desiredClassLetter, "s"))
+				Com_sprintf(desiredClassName, sizeof(desiredClassName), "scout");
+		}
+		else
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"usage: forceclass [id/name] [first letter of class]\n\"");
+			return;
+		}
+	}
+	else
+	{
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: leader <player>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: forceclass <player>.\n\"" );
 		return;
 	}
 
-	Com_sprintf( level.teamVoteString[cs_offset], sizeof( level.teamVoteString[cs_offset] ), "%s %s", arg1, arg2 );
+	Com_sprintf( level.teamVoteString[cs_offset], sizeof( level.teamVoteString[cs_offset] ), "Force to %s: %s", desiredClassName, found->client->pers.netname );
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED )
@@ -3309,6 +3395,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	level.teamVoteTime[cs_offset] = level.time;
 	level.teamVoteYes[cs_offset] = 1;
 	level.teamVoteNo[cs_offset] = 0;
+	Com_sprintf(level.teamVoteCommand[cs_offset],sizeof(level.teamVoteCommand[cs_offset]), "forceclass %i %s", found->s.number, desiredClassLetter);
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if (level.clients[i].sess.sessionTeam == team)
@@ -4045,6 +4132,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_vote_cointoss.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_customTeams");
 	ServerCfgColor(string, g_allow_vote_customTeams.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_forceclass");
+	ServerCfgColor(string, g_allow_vote_forceclass.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_fraglimit");
 	ServerCfgColor(string, g_allow_vote_fraglimit.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_gametype");
@@ -4863,6 +4952,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_CallVote_f (ent);
 	else if (Q_stricmp (cmd, "vote") == 0)
 		Cmd_Vote_f (ent);
+	else if (Q_stricmp(cmd, "callteamvote") == 0)
+		Cmd_CallTeamVote_f(ent);
+	else if (Q_stricmp(cmd, "teamvote") == 0)
+		Cmd_TeamVote_f(ent);
 	else if (Q_stricmp(cmd, "ready") == 0)
 		Cmd_Ready_f(ent);
 	else if (Q_stricmp(cmd, "mappool") == 0)

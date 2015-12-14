@@ -202,6 +202,9 @@ struct gentity_s {
 	int			healingteam;
 	int			specialIconTreatment;
 	qboolean	thisDoorWasFoundAlreadyByClient[32];
+	int			forcedClass;
+	int			forcedClassTime;
+	int			funnyClassNumber; //terrible, I know. there seems to be a weird disparity between the numbering of classes as laid out in *classTitles[SPC_MAX] and playerClass...this should account for that.
 
 	char		*ownername;
 
@@ -977,6 +980,7 @@ typedef struct {
 	int			teamVoteTime[2];		// level.time vote was called
 	int			teamVoteYes[2];
 	int			teamVoteNo[2];
+	char		teamVoteCommand[2][MAX_STRING_CHARS];
 	int			numteamVotingClients[2];// set by CalculateRanks
 
 	// spawn variables
@@ -1132,6 +1136,7 @@ void	G_ScaleNetHealth(gentity_t *self);
 void	G_KillBox (gentity_t *ent);
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t* G_FindClient( const char* pattern );
+gentity_t* G_FindTeammateClient(const char* pattern, gentity_t *ent);
 int		G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean takeDamage, gentity_t *ent_list[MAX_GENTITIES]);
 
 void	G_Throw( gentity_t *targ, vec3_t newDir, float push );
@@ -1859,6 +1864,7 @@ extern vmCvar_t		g_allow_vote_q;
 extern vmCvar_t		g_allow_vote_killturrets;
 extern vmCvar_t     g_allow_vote_pug;
 extern vmCvar_t     g_allow_vote_pub;
+extern vmCvar_t     g_allow_vote_forceclass;
 
 extern vmCvar_t     g_allow_ready;
 

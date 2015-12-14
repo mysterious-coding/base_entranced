@@ -337,6 +337,7 @@ vmCvar_t	g_allow_vote_q;
 vmCvar_t    g_allow_vote_killturrets;
 vmCvar_t    g_allow_vote_pug;
 vmCvar_t    g_allow_vote_pub;
+vmCvar_t    g_allow_vote_forceclass;
 
 vmCvar_t    g_allow_ready;
 
@@ -647,6 +648,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_vote_randomteams, "g_allow_vote_randomteams", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_randomcapts, "g_allow_vote_randomcapts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_cointoss, "g_allow_vote_cointoss", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_allow_vote_forceclass, "g_allow_vote_forceclass", "1", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &g_allow_ready, "g_allow_ready", "1", CVAR_ARCHIVE, 0, qtrue },
 
@@ -709,6 +711,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_requireJoinPassword, "g_requireJoinPassword", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_joinPassword, "g_joinPassword", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
+
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -4184,17 +4187,22 @@ void CheckTeamVote( int team ) {
 	if ( !level.teamVoteTime[cs_offset] ) {
 		return;
 	}
-	if ( level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME ) {
+	if ( level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME )
+	{
 		trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEFAILED")) );
-	} else {
+	}
+	else
+	{
 		if ( level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset]/2 ) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEPASSED")) );
 			//
-			if ( !Q_strncmp( "leader", level.teamVoteString[cs_offset], 6) ) {
-				//set the team leader
+			if ( !Q_stricmpn( "forceclass", level.teamVoteCommand[cs_offset], 10) )
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteCommand[cs_offset]));
 			}
-			else {
+			else
+			{
 				trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset] ) );
 			}
 		} else if ( level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset]/2 ) {

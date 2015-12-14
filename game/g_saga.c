@@ -710,6 +710,7 @@ void InitSiegeMode(void)
 	int				objectiveNumTeam2 = 0;
 	fileHandle_t	f;
 	fileHandle_t	autofile;
+	int				n;
 
 	if (g_gametype.integer != GT_SIEGE)
 	{
@@ -752,6 +753,16 @@ void InitSiegeMode(void)
 	rebel_goals_completed = 0;
 
 	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+
+	for (n = 0; n < MAX_CLIENTS; n++)
+	{
+		if (&g_entities[n])
+		{
+			g_entities[n].forcedClass = 0;
+			g_entities[n].forcedClassTime = 0;
+			g_entities[n].funnyClassNumber = 0;
+		}
+	}
 
 	if (g_autoKorribanFloatingItems.integer)
 	{

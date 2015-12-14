@@ -6,6 +6,7 @@
 #include "g_local.h"
 #include "g_database_log.h"
 #include "g_database_config.h"
+#include "bg_saga.h"
 
 void Team_ResetFlags( void );
 /*
@@ -878,6 +879,140 @@ void	Svcmd_ForceTeam_f( void ) {
 	}
 }
 
+/*
+===================
+Svcmd_ForceClass_f
+
+forceclass <player> <first letter of class>
+===================
+*/
+extern void SetSiegeClass(gentity_t *ent, char* className);
+void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
+	char buffer[64];
+	gentity_t* found = NULL;
+	char		enteredClass[MAX_TOKEN_CHARS];
+	char		desiredClassLetter[16];
+	char		desiredClassName[16];
+	int			destinedClassNumber;
+	int			funnyClassNumber;
+	siegeClass_t* siegeClass = 0;
+
+	if (g_gametype.integer != GT_SIEGE)
+	{
+		Com_Printf("Must be in siege gametype.\n"); //bad number of arguments
+		return;
+	}
+
+	if ((!specifiedClassLetter || !specifiedClassLetter[0]) && trap_Argc() < 3)
+	{
+		Com_Printf("usage: forceteam [id/name] [first letter of class name]\n"); //bad number of arguments
+		return;
+	}
+
+	if (specifiedClassLetter && specifiedClassLetter[0])
+	{
+		if (&g_entities[specifiedClientNum] && g_entities[specifiedClientNum].client && level.clients[specifiedClientNum].pers.connected != CON_DISCONNECTED)
+		{
+			//he's still here
+			found = &g_entities[specifiedClientNum];
+			Com_sprintf(enteredClass, sizeof(enteredClass), "%s", specifiedClassLetter);
+		}
+		else
+		{
+			//maybe he disconnected or something
+			return;
+		}
+	}
+	else
+	{
+		trap_Argv(1, buffer, sizeof(buffer));
+		found = G_FindClient(buffer);
+
+		if (!found || !found->client)
+		{
+			Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", buffer);
+			return;
+		}
+		if (found->client->sess.sessionTeam != TEAM_RED && found->client->sess.sessionTeam != TEAM_BLUE)
+		{
+			Com_Printf("Client %s"S_COLOR_WHITE" is not in-game.\n", buffer);
+			return;
+		}
+		trap_Argv(2, enteredClass, sizeof(enteredClass));
+	}
+	if (!Q_stricmp(enteredClass, "a") || !Q_stricmp(enteredClass, "h") || !Q_stricmp(enteredClass, "t") || !Q_stricmp(enteredClass, "d") || !Q_stricmp(enteredClass, "j") || !Q_stricmp(enteredClass, "s"))
+	{
+		strcpy(desiredClassLetter, enteredClass);
+		if (!Q_stricmp(desiredClassLetter, "a"))
+		{
+			Com_sprintf(desiredClassName, sizeof(desiredClassName), "assault");
+			destinedClassNumber = 1;
+			funnyClassNumber = 0;
+		}
+		else if (!Q_stricmp(desiredClassLetter, "h"))
+		{
+			Com_sprintf(desiredClassName, sizeof(desiredClassName), "HW");
+			destinedClassNumber = 2;
+			funnyClassNumber = 5;
+		}
+		else if (!Q_stricmp(desiredClassLetter, "t"))
+		{
+			Com_sprintf(desiredClassName, sizeof(desiredClassName), "tech");
+			destinedClassNumber = 5;
+			funnyClassNumber = 2;
+		}
+		else if (!Q_stricmp(desiredClassLetter, "d"))
+		{
+			Com_sprintf(desiredClassName, sizeof(desiredClassName), "demo");
+			destinedClassNumber = 3;
+			funnyClassNumber = 4;
+		}
+		else if (!Q_stricmp(desiredClassLetter, "j"))
+		{
+			Com_sprintf(desiredClassName, sizeof(desiredClassName), "jedi");
+			destinedClassNumber = 6;
+			funnyClassNumber = 3;
+		}
+		else if (!Q_stricmp(desiredClassLetter, "s"))
+		{
+			Com_sprintf(desiredClassName, sizeof(desiredClassName), "scout");
+			destinedClassNumber = 4;
+			funnyClassNumber = 1;
+		}
+	}
+	else
+	{
+		Com_Printf("usage: forceteam [id/name] [first letter of class name]\n");
+		return;
+	}
+
+	if (level.inSiegeCountdown && found->client->sess.sessionTeam == TEAM_SPECTATOR && found->client->sess.siegeDesiredTeam && (found->client->sess.siegeDesiredTeam == TEAM_RED || found->client->sess.siegeDesiredTeam == TEAM_BLUE))
+	{
+		siegeClass = BG_SiegeGetClass(found->client->sess.siegeDesiredTeam, destinedClassNumber);
+	}
+	else
+	{
+		siegeClass = BG_SiegeGetClass(found->client->sess.sessionTeam, destinedClassNumber);
+	}
+
+	if (!siegeClass)
+	{
+		Com_Printf("usage: forceteam [id/name] [first letter of class name]\n");
+		return;
+	}
+
+	if (level.inSiegeCountdown || found->client->sess.sessionTeam == TEAM_RED || found->client->sess.sessionTeam == TEAM_BLUE)
+	{
+		SetSiegeClass(found, siegeClass->name);
+	}
+	found->forcedClass = destinedClassNumber;
+	found->forcedClassTime = level.time + 180000; //3 minutes
+	found->funnyClassNumber = funnyClassNumber;
+	
+
+	trap_SendServerCommand(-1, va("print \"%s was forceclassed to %s for 3 minutes.\n\"", found->client->pers.netname, desiredClassName));
+}
+
 void Svcmd_ResetFlags_f(){
 	gentity_t*	ent;
 	int i;
@@ -1577,6 +1712,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if ( Q_stricmp (cmd, "forceteam") == 0 ) {
 		Svcmd_ForceTeam_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "forceclass") == 0) {
+		Svcmd_ForceClass_f(0, NULL);
 		return qtrue;
 	}
 
