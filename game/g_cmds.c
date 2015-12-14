@@ -1364,7 +1364,7 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 		if (bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass != ent->funnyClassNumber)
 		{
 			timeRemaining = ((ent->forcedClassTime + 500) / 1000);
-			trap_SendServerCommand(ent - g_entities, "print \"You are currently being forced to a class. You will be able to change classes in %i seconds.\n\"", timeRemaining);
+			trap_SendServerCommand(ent - g_entities, va("print \"You are currently being forced to a class. You will be able to change classes in %i seconds.\n\"", timeRemaining));
 			return;
 		}
 	}
@@ -1411,7 +1411,7 @@ void Cmd_Class_f(gentity_t *ent)
 		if (bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass != ent->funnyClassNumber)
 		{
 			timeRemaining = ((ent->forcedClassTime + 500) / 1000);
-			trap_SendServerCommand(ent - g_entities, "print \"You are currently being forced to a class. You will be able to change classes in %i seconds.\n\"", timeRemaining);
+			trap_SendServerCommand(ent - g_entities, va("print \"You are currently being forced to a class. You will be able to change classes in %i seconds.\n\"", timeRemaining));
 			return;
 		}
 	}
