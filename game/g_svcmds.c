@@ -1039,15 +1039,15 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 		return;
 	}
 
-	if ((found->client->sess.sessionTeam == TEAM_RED || found->client->sess.sessionTeam == TEAM_BLUE) && bgSiegeClasses[found->client->siegeClass].playerClass == funnyClassNumber)
-	{
-		Com_Printf("The selected player is already playing that class.\n");
-		return;
-	}
-
 	if (level.inSiegeCountdown || found->client->sess.sessionTeam == TEAM_RED || found->client->sess.sessionTeam == TEAM_BLUE)
 	{
-		SetSiegeClass(found, siegeClass->name);
+		if ((found->client->sess.sessionTeam == TEAM_RED || found->client->sess.sessionTeam == TEAM_BLUE) && bgSiegeClasses[found->client->siegeClass].playerClass == funnyClassNumber)
+		{
+		}
+		else
+		{
+			SetSiegeClass(found, siegeClass->name);
+		}
 	}
 	found->forcedClass = destinedClassNumber;
 	found->forcedClassTime = level.time + 180000; //3 minutes
