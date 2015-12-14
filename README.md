@@ -312,7 +312,7 @@ Use to enable/disable players from using the `/ready` command.
 You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers, and turrets are automatically destroyed.
 
 ####`/forceclass` and `/unforceclass`
-You can force someone to a certain class for 60 seconds with the rcon command `/forceclass [name/id] [class]`. For example, `/forceclass pad s` will force Padawan to scout for 60 seconds. Use `/unforceclass pad` to remove this restriction. This can also be called as a special team-only vote with `/callteamvote forceclass [name/id] [class]` and `/callteamvote unforceclass [name/id]`. Vote on these teamvotes with `/teamvote yes` and `/teamvote no`. These votes only work if the server has `/g_allow_vote_forceclass` enabled.
+You can force someone to a certain class for 60 seconds with the rcon command `/forceclass [name/id] [class]`. For example, `/forceclass pad j` will force Padawan to jedi for 60 seconds. Use `/unforceclass pad` to remove this restriction. This can also be called as a special team-only vote with `/callteamvote forceclass [name/id] [class]` and `/callteamvote unforceclass [name/id]`. Vote on these teamvotes with `/teamvote yes` and `/teamvote no`. These votes only work if the server has `/g_allow_vote_forceclass` enabled.
 
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
