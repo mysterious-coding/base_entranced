@@ -1050,7 +1050,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 		}
 	}
 	found->forcedClass = destinedClassNumber;
-	found->forcedClassTime = level.time + 180000; //3 minutes
+	found->forcedClassTime = level.time + 60000;
 	found->funnyClassNumber = funnyClassNumber;
 	
 
