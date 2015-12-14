@@ -887,6 +887,39 @@ forceclass <player> <first letter of class>
 ===================
 */
 extern void SetSiegeClass(gentity_t *ent, char* className);
+
+void	Svcmd_UnForceClass_f(void)
+{
+	char buffer[64];
+	gentity_t* found = NULL;
+
+	if (g_gametype.integer != GT_SIEGE)
+	{
+		Com_Printf("Must be in siege gametype.\n");
+		return;
+	}
+
+	if (trap_Argc() < 2)
+	{
+		Com_Printf("usage: unforceclass [id/name]\n"); //bad number of arguments
+		return;
+	}
+	trap_Argv(1, buffer, sizeof(buffer));
+	found = G_FindClient(buffer);
+
+	if (!found || !found->client)
+	{
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", buffer);
+		return;
+	}
+
+	found->forcedClass = 0;
+	found->forcedClassTime = 0;
+	found->funnyClassNumber = 0;
+
+	trap_SendServerCommand(-1, va("print \"%s was ^1un^7forceclassed.\n\"", found->client->pers.netname));
+}
+
 void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 	char buffer[64];
 	gentity_t* found = NULL;
@@ -899,13 +932,13 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 
 	if (g_gametype.integer != GT_SIEGE)
 	{
-		Com_Printf("Must be in siege gametype.\n"); //bad number of arguments
+		Com_Printf("Must be in siege gametype.\n");
 		return;
 	}
 
 	if ((!specifiedClassLetter || !specifiedClassLetter[0]) && trap_Argc() < 3)
 	{
-		Com_Printf("usage: forceteam [id/name] [first letter of class name]\n"); //bad number of arguments
+		Com_Printf("usage: forceclass [id/name] [first letter of class name]\n"); //bad number of arguments
 		return;
 	}
 
@@ -1717,6 +1750,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if (Q_stricmp(cmd, "forceclass") == 0) {
 		Svcmd_ForceClass_f(0, NULL);
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "unforceclass") == 0) {
+		Svcmd_UnForceClass_f();
 		return qtrue;
 	}
 
