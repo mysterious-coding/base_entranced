@@ -3356,17 +3356,17 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		if (!Q_stricmp(enteredClass, "a") || !Q_stricmp(enteredClass, "h") || !Q_stricmp(enteredClass, "t") || !Q_stricmp(enteredClass, "d") || !Q_stricmp(enteredClass, "j") || !Q_stricmp(enteredClass, "s"))
 		{
 			strcpy(desiredClassLetter, enteredClass);
-			if (!Q_stricmp(desiredClassLetter, "a"))
+			if (!Q_stricmp(desiredClassLetter, "a") || !Q_stricmp(desiredClassLetter, "assault"))
 				Com_sprintf(desiredClassName, sizeof(desiredClassName), "assault");
-			else if (!Q_stricmp(desiredClassLetter, "h"))
+			else if (!Q_stricmp(desiredClassLetter, "h") || !Q_stricmp(desiredClassLetter, "hw"))
 				Com_sprintf(desiredClassName, sizeof(desiredClassName), "HW");
-			else if (!Q_stricmp(desiredClassLetter, "t"))
+			else if (!Q_stricmp(desiredClassLetter, "t") || !Q_stricmp(desiredClassLetter, "tech"))
 				Com_sprintf(desiredClassName, sizeof(desiredClassName), "tech");
-			else if (!Q_stricmp(desiredClassLetter, "d"))
+			else if (!Q_stricmp(desiredClassLetter, "d") || !Q_stricmp(desiredClassLetter, "demo"))
 				Com_sprintf(desiredClassName, sizeof(desiredClassName), "demo");
-			else if (!Q_stricmp(desiredClassLetter, "j"))
+			else if (!Q_stricmp(desiredClassLetter, "j") || !Q_stricmp(desiredClassLetter, "jedi"))
 				Com_sprintf(desiredClassName, sizeof(desiredClassName), "jedi");
-			else if (!Q_stricmp(desiredClassLetter, "s"))
+			else if (!Q_stricmp(desiredClassLetter, "s") || !Q_stricmp(desiredClassLetter, "scout"))
 				Com_sprintf(desiredClassName, sizeof(desiredClassName), "scout");
 		}
 		else
