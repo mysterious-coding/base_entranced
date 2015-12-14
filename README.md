@@ -311,6 +311,9 @@ Use to enable/disable players from using the `/ready` command.
 ####Siege captain dueling
 You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers, and turrets are automatically destroyed.
 
+####`/forceclass` and `/unforceclass`
+You can force someone to a certain class for 60 seconds with the rcon command `/forceclass [name/id] [class]`. For example, `/forceclass pad s` will force Padawan to scout for 60 seconds. Use `/unforceclass pad` to remove this restriction. This can also be called as a special team-only vote with `/callteamvote forceclass [name/id] [class]` and `/callteamvote unforceclass [name/id]`. Vote on these teamvotes with `/teamvote yes` and `/teamvote no`. These votes only work if the server has `/g_allow_vote_forceclass` enabled.
+
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
 
@@ -442,6 +445,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_pug`
 * `/g_allow_vote_pub`
 * `/g_allow_vote_customTeams`
+* `/g_allow_vote_forceclass`
 
 ####Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
@@ -615,12 +619,14 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXZXNjQ2S0NYRUE/view?usp=sharing)
-Version: base_entranced-12-11-2015-build81 (experimental) - allow duels in siege, add `removeFromOwnerOnUse`, add `removeFromGameOnUse`, add `despawnOnUse`
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cVVWVDVjdHl3X00/view?usp=sharing)
+Version: base_entranced-12-11-2015-build83 (experimental) - add `/forceclass` and teamvote, add `/unforceclass` and teamvote
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-12-11-2015-build81 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXZXNjQ2S0NYRUE/view?usp=sharing) - allow duels in siege, add `removeFromOwnerOnUse`, add `removeFromGameOnUse`, add `despawnOnUse`
 
 Old version: base_entranced-12-7-2015-build72 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cEgtVWtlZ2J6eUE/view?usp=sharing) - support for siege_cargobarge2_v1.1
 
