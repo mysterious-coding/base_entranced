@@ -3122,6 +3122,14 @@ Cmd_Vote_f
 void Cmd_Vote_f( gentity_t *ent ) {
 	char		msg[64];
 
+	if (!level.voteTime && ent->client->sess.sessionTeam == TEAM_RED && level.teamVoteTime[0]) {
+		trap_SendServerCommand(ent - g_entities, "print \"Use ^5/teamvote [yes/no]^7 to vote for teamvotes.\n\"");
+		return;
+	}
+	if (!level.voteTime && ent->client->sess.sessionTeam == TEAM_BLUE && level.teamVoteTime[1]) {
+		trap_SendServerCommand(ent - g_entities, "print \"Use ^5/teamvote [yes/no]^7 to vote for teamvotes.\n\"");
+		return;
+	}
 	if ( !level.voteTime ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")) );
 		return;
