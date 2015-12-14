@@ -888,7 +888,10 @@ forceclass <player> <first letter of class>
 */
 extern void SetSiegeClass(gentity_t *ent, char* className);
 
-void	Svcmd_UnForceClass_f(void)
+
+
+
+void	Svcmd_UnForceClass_f()
 {
 	char buffer[64];
 	gentity_t* found = NULL;
@@ -904,7 +907,9 @@ void	Svcmd_UnForceClass_f(void)
 		Com_Printf("usage: unforceclass [id/name]\n"); //bad number of arguments
 		return;
 	}
+
 	trap_Argv(1, buffer, sizeof(buffer));
+
 	found = G_FindClient(buffer);
 
 	if (!found || !found->client)

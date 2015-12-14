@@ -4197,13 +4197,9 @@ void CheckTeamVote( int team ) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEPASSED")) );
 			//
-			if ( !Q_stricmpn( "forceclass", level.teamVoteCommand[cs_offset], 10) )
+			if ( !Q_stricmpn( "forceclass", level.teamVoteCommand[cs_offset], 10) || !Q_stricmpn("unforceclass", level.teamVoteCommand[cs_offset], 12))
 			{
 				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteCommand[cs_offset]));
-			}
-			else
-			{
-				trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset] ) );
 			}
 		} else if ( level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset]/2 ) {
 			// same behavior as a timeout
