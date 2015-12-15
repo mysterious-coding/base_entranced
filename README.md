@@ -325,8 +325,8 @@ Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serv
 ####More custom character colors
 Some models allow you to use custom color shading (for example, trandoshan and weequay). Basejka had a lower limit of 100 for these settings(to ensure colors couldn't be too dark); this limit has been removed in base_entranced. Now you can play as a black trandoshan if you want. As in basejka, use the clientside commands `char_color_red`, `char_color_green`, and `char_color_blue` (valid values are between 0-255)
 
-####Additional tools for mapmakers
-base_entranced provides mapmakers with powerful tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
+####Enhanced mapping framework
+base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
 
 Mapmakers can add some new extra flags to .npc files for additional control over NPCs:
 
