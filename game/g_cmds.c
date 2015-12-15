@@ -4180,6 +4180,50 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	}
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
+
+void Cmd_Help_f(gentity_t *ent)
+{
+	trap_SendServerCommand(ent - g_entities, va("print \"^2base_entranced version: (insert build number here)\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \" \n\"")); //line break
+	trap_SendServerCommand(ent - g_entities, va("print \"^5WHOIS\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5/TELL\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player with ^5/tell <player> <message>. Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5/CLASS\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/class <first letter of class name^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5/SERVERSTATUS2\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5/READY^7 and ^5/UNREADY^7\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can ^5/ready^7 or ^5/unready^7 yourself to declare yourself eligible for selection by the random team generator(used with vote or rcon).\n\""));
+	if (g_privateDuel.integer)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^5/ENGAGE_DUEL\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"You can challenge another captain to a pistol duel if both of you use ^5/engage_duel^7.\n\""));
+	}
+	trap_SendServerCommand(ent - g_entities, va("print \"^5VOTES\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
+	if (g_moreTaunts.integer && g_moreTaunts.integer == 2)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^5MORE TAUNTS\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, or ^5/bow^7.\n\""));
+	}
+	trap_SendServerCommand(ent - g_entities, va("print \"^5TEAMVOTES: FORCECLASS AND UNFORCECLASS\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can call special team-only votes with ^5/callteamvote^7. You can force teammates to play a certain class.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5forceclass <name> <first letter of class name>^7 or ^5unforceclass^7. For example, ^5/callteamvote forceclass pad a\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/teamvote yes^7 and ^5/teamvote no^7 to vote on these special teamvotes.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5WEAPON SPAWN PREFERENCE\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can specify an order of preferred weapons that you would like to be holding when you spawn by using ^5/setu prefer <15 letters>\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"L=melee,S=saber,P=pistol,Y=bryar,E=E11,U=disruptor,B=bowcaster,I=repeater,D=demp,G=golan,R=rocket,C=conc,T=dets,M=mines,K=detpacks\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/setu prefer RCTIGDUEBSMKYPL\n\""));
+	if (g_cheats.integer)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^5/NPC SPAWNLIST\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/npc spawnlist^7 to show a list of possible NPC spawns.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Note that the ingame console has limited scrolling. Read your qconsole.log file (in base folder) to see more.\n\""));
+	}
+}
+
 void Cmd_ServerStatus2_f(gentity_t *ent)
 {
 	char string[64];
@@ -5034,6 +5078,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_TestCmd_f(ent);
 	else if (Q_stricmp(cmd, "serverstatus2") == 0)
 		Cmd_ServerStatus2_f(ent);
+	else if (Q_stricmp(cmd, "help") == 0)
+		Cmd_Help_f(ent);
 		
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))
