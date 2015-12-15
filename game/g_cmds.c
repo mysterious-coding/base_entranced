@@ -4190,6 +4190,8 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^5/TELL\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player with ^5/tell <player> <message>. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5/IGNORE\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/ignore <name/id>^7 to stop seeing chats from a player. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5/CLASS\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/class <first letter of class name^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5/SERVERSTATUS2\n\""));
