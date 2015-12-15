@@ -520,7 +520,7 @@ If you die 1 second before the spawn, the game now automatically "clicks" on you
 Use `/randomteams 2 2` for random 2v2, etc. and `/randomcapts` for random captains. Make sure clients use `/ready` to be eligible for selection (or use `/forceready` through rcon)
 
 ####`/specall`
-Use `/specall` to force all players to spec.
+Use the rcon command `/specall` to force all players to spec.
 
 ####Start round with one player
 No longer need two players to start running around ingame in siege mode.
@@ -531,8 +531,8 @@ Log detailed user info, rcon commands, and crash attempts. Use `g_hacklog <filen
 ####Awards/medals support
 Humiliation, impressive, etc. if you use the clientside mod SMod and have `cg_drawRewards 1` enabled in your client game.
 
-####`/cointoss`
-Call `/cointoss` vote for random heads/tails result.
+####Coin toss
+Call a `/cointoss` vote for random heads/tails result. Also works as an rcon command.
 
 ####Polls
 Ask everyone a question with `/callvote q`. For example, `/callvote q Keep same teams and restart?`
