@@ -328,6 +328,57 @@ Some models allow you to use custom color shading (for example, trandoshan and w
 ####Enhanced mapping framework
 base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
 
+Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
+
+Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
+
+Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `/g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (JK3 default).
+
+Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (JK3 default).
+
+Mapmakers can add some new extra flags to .scl siege class files for additional control over siege classes:
+* `ammoblaster <#>`
+* `ammopowercell <#>`
+* `ammometallicbolts <#>`
+* `ammorockets <#>`
+* `ammothermals <#>`
+* `ammotripmines <#>`
+* `ammodetpacks <#>`
+
+For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
+
+Mapmakers can add the new `drawicon` key to shield/health/ammo generators. Use `drawicon 0` to hide its icon from the radar display (defaults to 1). The main intent of this is to hide shield/health/ammo generators from the radar that are not yet accessible to the players. For example, hiding the Hoth infirmary ammo generators until offense has reached the infirmary objective (use an `info_siege_radaricon` with the icon of the generator and toggle it on/off).
+
+Mapmakers can add some new extra keys to `misc_siege_item` for additional control over siege items:
+
+`autorespawn 0` = item will not automatically respawn when return timer expires. Must be targeted again (e.g., by a hack) to respawn.
+
+`autorespawn 1` = item will automatically respawn when return timer expires (default/basejka)
+
+`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the basejka setting). Use `respawntime -1` to make the item never return.
+
+`hideIconWhileCarried 0` = item's radar icon will be shown normally (default/basejka)
+
+`hideIconWhileCarried 1` = item's radar icon will be hidden while item is carried, and will reappear when dropped
+
+`removeFromOwnerOnUse 0` = player holding item will continue to hold item after using it
+
+`removeFromOwnerOnUse 1` = player holding item will lose posessesion of item upon using it (default/basjeka)
+
+`removeFromGameOnuse 0` = item entity will remain in existence after using it
+
+`removeFromGameOnUse 1` = item entity will be completely deleted from the game world upon using it (default/basejka)
+
+`despawnOnUse 0` = item will not undergo any special "despawning" upon use (default/basejka)
+
+`despawnOnUse 1` = item will be "despawned" (made invisible, untouchable, and hidden from radar) upon use
+
+An example use case of the "`onUse`" keys could be to allow an item to respawn and be used multiple times, using a combination of `removeFromOwnerOnUse 1`, `removeFromGameOnUse 0`, and `despawnOnUse 1`.
+
+Mapmakers are advised to include the new `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
+
+Mapmakers can use the new entity `target_delay_cancel` to cancel the pending target-firing of a `target_delay`. This can be used to create Counter-Strike-style bomb-defusal objectives in which one team must plant a bomb, and the other team must defuse it. For example, an offense hack(planting the bomb) could trigger a `target_delay` for a 10 second delay for the bomb detonation, and a defense hack(defusing the bomb) could trigger a `target_delay_cancel` to cancel the explosion.
+
 Mapmakers can add some new extra flags to .npc files for additional control over NPCs:
 
 `specialKnockback 1` = NPC cannot be knockbacked by red team
@@ -383,57 +434,6 @@ Note that `specialKnockback` overrides any other 0x/2x/3x/4x knockback flags.
 Special note on `nodmgfrom`: you can use -1 as shortcut for complete damage immunity(godmode).
 
 Note that using -1 or "demp freezing immunity" will prevent demp from damaging NPC, knockbacking an NPC, or causing electrocution effect.
-
-Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
-
-Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
-
-Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `/g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (JK3 default).
-
-Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (JK3 default).
-
-Mapmakers can add some new extra flags to .scl siege class files for additional control over siege classes:
-* `ammoblaster <#>`
-* `ammopowercell <#>`
-* `ammometallicbolts <#>`
-* `ammorockets <#>`
-* `ammothermals <#>`
-* `ammotripmines <#>`
-* `ammodetpacks <#>`
-
-For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
-
-Mapmakers can add the new `drawicon` key to shield/health/ammo generators. Use `drawicon 0` to hide its icon from the radar display (defaults to 1). The main intent of this is to hide shield/health/ammo generators from the radar that are not yet accessible to the players. For example, hiding the Hoth infirmary ammo generators until offense has reached the infirmary objective (use an `info_siege_radaricon` with the icon of the generator and toggle it on/off).
-
-Mapmakers can add some new extra keys to `misc_siege_item` for additional control over siege items:
-
-`autorespawn 0` = item will not automatically respawn when return timer expires. Must be targeted again (e.g., by a hack) to respawn.
-
-`autorespawn 1` = item will automatically respawn when return timer expires (default/basejka)
-
-`respawntime <#>` = item will take this many milliseconds to return after dropped and untouched (defaults to 20000, which is the basejka setting). Use `respawntime -1` to make the item never return.
-
-`hideIconWhileCarried 0` = item's radar icon will be shown normally (default/basejka)
-
-`hideIconWhileCarried 1` = item's radar icon will be hidden while item is carried, and will reappear when dropped
-
-`removeFromOwnerOnUse 0` = player holding item will continue to hold item after using it
-
-`removeFromOwnerOnUse 1` = player holding item will lose posessesion of item upon using it (default/basjeka)
-
-`removeFromGameOnuse 0` = item entity will remain in existence after using it
-
-`removeFromGameOnUse 1` = item entity will be completely deleted from the game world upon using it (default/basejka)
-
-`despawnOnUse 0` = item will not undergo any special "despawning" upon use (default/basejka)
-
-`despawnOnUse 1` = item will be "despawned" (made invisible, untouchable, and hidden from radar) upon use
-
-An example use case of the "`onUse`" keys could be to allow an item to respawn and be used multiple times, using a combination of `removeFromOwnerOnUse 1`, `removeFromGameOnUse 0`, and `despawnOnUse 1`.
-
-Mapmakers are advised to include the new `healingteam` key to healable `func_breakable`s. Because this key is missing from basejka, if the server is using custom team/class overrides, both teams are able to heal `func_breakable`s. For example, `healingteam 2` ensures only defense will be able to heal it. base_entranced includes hardcoded overrides for Hoth, Desert and Nar Shaddaa, which is why this bug is not noticeable there.
-
-Mapmakers can use the new entity `target_delay_cancel` to cancel the pending target-firing of a `target_delay`. This can be used to create Counter-Strike-style bomb-defusal objectives in which one team must plant a bomb, and the other team must defuse it. For example, an offense hack(planting the bomb) could trigger a `target_delay` for a 10 second delay for the bomb detonation, and a defense hack(defusing the bomb) could trigger a `target_delay_cancel` to cancel the explosion.
 
 Note that if a map includes these new special features, and is then played on a non-base_entranced server, those features will obviously not work.
 
