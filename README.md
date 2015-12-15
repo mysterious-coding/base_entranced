@@ -230,6 +230,8 @@ To reset to base classes, use `0` or `none` as the argument.
 
 This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable this vote with `/g_allow_vote_customTeams`.
 
+Make sure to use the correct team name, which is written inside the .team file -- NOT filename of the .team file itself. The base classes leave out a final "s" in some of the filenames (`Siege1_Rebels` versus `Siege1_Rebel`).
+
 A few important clientside bugs to be aware of:
 * If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use `/team r` or `/team b` (easiest method), autojoin, or use a CFG classbind.
 * Ravensoft decided to combine force powers and items into one menu/cycle in JK3; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
