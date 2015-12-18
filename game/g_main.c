@@ -4193,7 +4193,7 @@ void CheckTeamVote( int team ) {
 	}
 	else
 	{
-		if ( level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset]/2 ) {
+		if ( level.teamVoteYes[cs_offset] >= level.numRequiredTeamVotes[cs_offset] ) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEPASSED")) );
 			//
@@ -4201,7 +4201,7 @@ void CheckTeamVote( int team ) {
 			{
 				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteCommand[cs_offset]));
 			}
-		} else if ( level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset]/2 ) {
+		} else if ( level.teamVoteNo[cs_offset] >= level.numRequiredTeamVotesNo[cs_offset] ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEFAILED")) );
 		} else {

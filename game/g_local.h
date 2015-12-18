@@ -481,6 +481,10 @@ typedef struct {
 #define	PSG_VOTED				(1<<0)		// already cast a vote
 #define PSG_TEAMVOTED			(1<<1)		// already cast a team vote
 #define PSG_CANVOTE			    (1<<2)		// this player can vote
+#define PSG_TEAMVOTEDRED		(1<<3)
+#define PSG_TEAMVOTEDBLUE		(1<<4)
+#define PSG_CANTEAMVOTERED		(1<<5)
+#define PSG_CANTEAMVOTEBLUE		(1<<6)
 
 //
 #define MAX_NETNAME			36
@@ -982,6 +986,8 @@ typedef struct {
 	int			teamVoteNo[2];
 	char		teamVoteCommand[2][MAX_STRING_CHARS];
 	int			numteamVotingClients[2];// set by CalculateRanks
+	int			numRequiredTeamVotes[2];
+	int			numRequiredTeamVotesNo[2];
 
 	// spawn variables
 	qboolean	spawning;				// the G_Spawn*() functions are valid

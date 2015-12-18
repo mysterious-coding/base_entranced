@@ -2418,6 +2418,98 @@ qboolean TryingToDoCallvoteTakeover(gentity_t *ent)
 
 }
 
+void fixTeamVoters(gentity_t *ent)
+{
+	int i;
+	int numRedTeamers = 0;
+	int numBlueTeamers = 0;
+
+	if (!ent || !ent->client)
+	{
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam == TEAM_RED)
+	{
+		level.numRequiredTeamVotes[0] = 0;
+
+		for (i = 0; i < level.maxclients; i++)
+		{
+			if (level.clients[i].sess.sessionTeam == TEAM_RED)
+			{
+				level.clients[i].mGameFlags &= ~PSG_TEAMVOTEDRED;
+				level.clients[i].mGameFlags &= ~PSG_CANTEAMVOTERED;
+			}
+		}
+
+		for (i = 0; i < level.maxclients; i++)
+		{
+			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
+				if (level.clients[i].sess.sessionTeam == TEAM_RED)
+				{
+					if (!(g_entities[i].r.svFlags & SVF_BOT))
+					{
+						level.clients[i].mGameFlags |= PSG_CANTEAMVOTERED;
+						numRedTeamers++;
+					}
+				}
+			}
+		}
+
+		ent->client->mGameFlags |= PSG_TEAMVOTEDRED;
+		if (numRedTeamers >= 3)
+		{
+			level.numRequiredTeamVotes[0] = numRedTeamers - 1; //require everyone but the troll himself to vote yes.
+			level.numRequiredTeamVotesNo[0] = 2;
+		}
+		else
+		{
+			level.numRequiredTeamVotes[0] = numRedTeamers; //require 100% yes votes in 2v2 (or 1v1...)
+			level.numRequiredTeamVotesNo[0] = 1;
+		}
+	}
+	else
+	{
+		ent->client->mGameFlags |= PSG_TEAMVOTEDBLUE;
+		level.numRequiredTeamVotes[1] = 0;
+
+		for (i = 0; i < level.maxclients; i++)
+		{
+			if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
+			{
+				level.clients[i].mGameFlags &= ~PSG_TEAMVOTEDBLUE;
+				level.clients[i].mGameFlags &= ~PSG_CANTEAMVOTEBLUE;
+			}
+		}
+
+		for (i = 0; i < level.maxclients; i++)
+		{
+			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
+				if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
+				{
+					if (!(g_entities[i].r.svFlags & SVF_BOT))
+					{
+						level.clients[i].mGameFlags |= PSG_CANTEAMVOTEBLUE;
+						numBlueTeamers++;
+					}
+				}
+			}
+		}
+
+		ent->client->mGameFlags |= PSG_TEAMVOTEDBLUE;
+		if (numBlueTeamers >= 3)
+		{
+			level.numRequiredTeamVotes[1] = numBlueTeamers - 1; //require everyone but the troll himself to vote yes.
+			level.numRequiredTeamVotesNo[1] = 2;
+		}
+		else
+		{
+			level.numRequiredTeamVotes[1] = numBlueTeamers; //require 100% yes votes in 2v2 (or 1v1...)
+			level.numRequiredTeamVotesNo[1] = 1;
+		}
+	}
+}
+
 void fixVoters(){
 	int i;
 
@@ -3459,11 +3551,7 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 		Com_sprintf(level.teamVoteCommand[cs_offset], sizeof(level.teamVoteCommand[cs_offset]), "unforceclass %i", found->s.number);
 	}
 
-	for (i = 0; i < level.maxclients; i++) {
-		if (level.clients[i].sess.sessionTeam == team)
-			level.clients[i].mGameFlags &= ~PSG_TEAMVOTED;
-	}
-	ent->client->mGameFlags |= PSG_TEAMVOTED;
+	fixTeamVoters(ent);
 
 	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, va("%i", level.teamVoteTime[cs_offset]));
 	trap_SetConfigstring(CS_TEAMVOTE_STRING + cs_offset, level.teamVoteString[cs_offset]);
@@ -3492,18 +3580,37 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOTEAMVOTEINPROG")) );
 		return;
 	}
-	if ( ent->client->mGameFlags & PSG_TEAMVOTED ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")) );
+	if (ent->client->sess.sessionTeam == TEAM_RED && !(ent->client->mGameFlags & PSG_CANTEAMVOTERED)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", "You haven't been in this team during vote call. You can't vote."));
+		return;
+	}
+	if (ent->client->sess.sessionTeam == TEAM_BLUE && !(ent->client->mGameFlags & PSG_CANTEAMVOTEBLUE)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", "You haven't been in this team during vote call. You can't vote."));
 		return;
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEASSPEC")) );
 		return;
 	}
+	if (ent->client->sess.sessionTeam == TEAM_RED && ent->client->mGameFlags & PSG_TEAMVOTEDRED) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")));
+		return;
+	}
+	if (ent->client->sess.sessionTeam == TEAM_BLUE && ent->client->mGameFlags & PSG_TEAMVOTEDBLUE) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")));
+		return;
+	}
 
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLTEAMVOTECAST")) );
 
-	ent->client->mGameFlags |= PSG_TEAMVOTED;
+	if (ent->client->sess.sessionTeam == TEAM_RED)
+	{
+		ent->client->mGameFlags |= PSG_TEAMVOTEDRED;
+	}
+	else
+	{
+		ent->client->mGameFlags |= PSG_TEAMVOTEDBLUE;
+	}
 
 	trap_Argv( 1, msg, sizeof( msg ) );
 
