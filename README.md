@@ -293,7 +293,7 @@ You can prevent people from joining red/blue team if they do not have the correc
 
 ####`/help`
 
-Client command; displays some helpful commands that clients should be aware of (how to use `/whois`, `/class`, etc.)
+Client command; displays some helpful commands that clients should be aware of (how to use /whois, /class, etc) as well as version number of currently-running server mod.
 
 ####`/serverstatus2`
 
