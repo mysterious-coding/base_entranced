@@ -11,6 +11,8 @@
 #define POWER_DUEL_START_HEALTH 150
 #define POWER_DUEL_END_HEALTH 90
 
+#define RENAME_TIME 700
+
 // g_client.c -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
@@ -1394,6 +1396,14 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 
 	out[outpos] = '\0';
 
+	// don't allow empty names
+	if (*out == '\0' || colorlessLen == 0)
+	{
+		Q_strncpyz(out, "Padawan", outSize);
+		return;
+	}
+
+	// discard trailing spaces
 	int i = outpos - 1;
 	while (out[i] == ' ')
 	{
@@ -1953,7 +1963,6 @@ void ClientUserinfoChanged( int clientNum ) {
 		ClientCleanName( s, client->pers.netname, sizeof(client->pers.netname) );
 	}
 
-
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
 			Q_strncpyz( client->pers.netname, "scoreboard", sizeof(client->pers.netname) );
@@ -1966,7 +1975,14 @@ void ClientUserinfoChanged( int clientNum ) {
 		{
 			if ( client->pers.netnameTime > level.time  )
 			{
-				trap_SendServerCommand( clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")) );
+				if (client->pers.netnameTime > RENAME_TIME)
+				{
+					trap_SendServerCommand(ent - g_entities, va("print \"You have been renamed recently; you cannot change your name yet.\n\""));
+				}
+				else
+				{
+					trap_SendServerCommand(clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")));
+				}
 				
 				Info_SetValueForKey( userinfo, "name", oldname );
 				trap_SetUserinfo( clientNum, userinfo );	
@@ -1991,7 +2007,7 @@ void ClientUserinfoChanged( int clientNum ) {
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname) );
 				G_LogPrintf("Client num %i from %s renamed from '%s' to '%s'\n", clientNum,client->sess.ipString,
 					oldname, client->pers.netname);
-				client->pers.netnameTime = level.time + 700; //change time limit from 5s to 1s
+				client->pers.netnameTime = level.time + RENAME_TIME; //change time limit from 5s to 1s
 
 				//weird rename bug fix, after we change name, we should update userinfo
 				Info_SetValueForKey( userinfo, "name", client->pers.netname );

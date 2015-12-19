@@ -461,7 +461,7 @@ typedef struct {
 	int			siegeDesiredTeam;
 
 	//we should add ip here
-	/* *CHANGE 82* i know its redudant to store both ip integer and ip string,
+	/* *CHANGE 82* i know its redundant to store both ip integer and ip string,
 	but we need both many times in code (string for logging, integer for fast comparing in protection)
 	so i think its effective ho compute both versions only once
 	*/

@@ -1445,6 +1445,51 @@ void Svcmd_SpecAll_f() {
 	trap_SendServerCommand(-1, va("print \"All players were forced to spectator.\n\""));
 }
 
+void Svcmd_Rename_f()
+{
+	char arg1[MAX_TOKEN_CHARS], arg2[MAX_TOKEN_CHARS], oldname[MAX_STRING_CHARS];
+	gentity_t *found;
+
+	char	userinfo[MAX_INFO_STRING];
+
+	if (trap_Argc() != 3)
+	{
+		G_Printf("Usage: rename <client/id> <new name>\n");
+		return;
+	}
+
+	trap_Argv(1, arg1, sizeof(arg1));
+	trap_Argv(2, arg2, sizeof(arg2));
+
+	found = G_FindClient(arg1);
+
+	if (!found || !found->client)
+	{
+		G_Printf("print \"Client not found or ambiguous. Use client number or be more specific.\n");
+		return;
+	}
+
+	G_LogPrintf("Client number %i from %s %s renamed to %s by admin.\n", found->s.number, found->client->sess.ipString, found->client->pers.netname, arg2);
+
+	strcpy(oldname, found->client->pers.netname);
+
+	trap_GetUserinfo(found->s.number, userinfo, sizeof(userinfo));
+
+	strcpy(found->client->pers.netname, arg2);
+
+	trap_SendServerCommand(-1, va("print \"%s^7 was renamed by admin to %s\n\"", oldname, found->client->pers.netname));
+	found->client->pers.netnameTime = level.time + 30000;
+
+	Info_SetValueForKey(userinfo, "name", found->client->pers.netname);
+	trap_SetUserinfo(found->s.number, userinfo);
+
+
+	G_LogDbLogNickname(found->client->sess.ip, oldname, (getGlobalTime() - found->client->sess.nameChangeTime) / 1000);
+	found->client->sess.nameChangeTime = getGlobalTime();
+
+	ClientUserinfoChanged(found->s.number);
+}
+
 void Svcmd_RandomCapts_f() {
     int ingame[32], spectator[32], i, numberOfIngamePlayers = 0, numberOfSpectators = 0, randNum1, randNum2;
 
@@ -1963,6 +2008,11 @@ qboolean	ConsoleCommand( void ) {
         Svcmd_SpecAll_f();
         return qtrue;
     }
+
+	if (!Q_stricmp(cmd, "rename")) {
+		Svcmd_Rename_f();
+		return qtrue;
+	}
 
 	if (!Q_stricmp(cmd, "killturrets")) {
 		Svcmd_KillTurrets_f(qtrue);
