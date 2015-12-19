@@ -1327,83 +1327,83 @@ static qboolean IsEmpty(const char* name){
 ClientCheckName
 ============
 */
-static qboolean ClientCleanName( const char *in, char *out, int outSize ) {
-	int		len, colorlessLen;
-	char	ch;
-	char	*p;
-	int		spaces;
+static void ClientCleanName(const char *in, char *out, int outSize)
+{
+	int outpos = 0, colorlessLen = 0, spaces = 0, ats = 0;
 
-	//save room for trailing null byte
-	outSize--;
+	// discard leading spaces
+	for (; *in == ' '; in++);
 
-	len = 0;
-	colorlessLen = 0;
-	p = out;
-	*p = 0;
-	spaces = 0;
+	// discard leading asterisk's (fail raven for using * as a skipnotify)
+	// apparently .* causes the issue too so... derp
+	//for(; *in == '*'; in++);
 
-	while( 1 ) {
-		ch = *in++;
-		if( !ch ) {
-			break;
-		}
+	for (; *in && outpos < outSize - 1; in++)
+	{
+		out[outpos] = *in;
 
-		// don't allow leading spaces
-		//TODO: check for leading spaces in visual name
-		//so something like "^1 " will be treated properly
-		if( !*p && ch == ' ' ) {
-			continue;
-		}
+		if (*in == ' ')
+		{// don't allow too many consecutive spaces
+			if (spaces > 2)
+				continue;
 
-		// check colors
-		if( ch == Q_COLOR_ESCAPE ) {
-			// solo trailing carat is not a color prefix
-			if( !*in ) {
-				break;
-			}
-
-			// make sure room in dest for both chars
-			if( len > outSize - 2 ) {
-				break;
-			}
-
-			*out++ = ch;
-			*out++ = *in++;
-			len += 2;
-			continue;
-		}
-
-		// don't allow too many consecutive spaces
-		if( ch == ' ' ) {
 			spaces++;
-			if( spaces > 3 ) {
+		}
+		else if (*in == '@')
+		{// don't allow too many consecutive at signs
+			if (++ats > 2) {
+				outpos -= 2;
+				ats = 0;
 				continue;
 			}
 		}
-		else {
-			spaces = 0;
+		else if ((byte)*in < 0x20
+			|| (byte)*in == 0x81 || (byte)*in == 0x8D || (byte)*in == 0x8F || (byte)*in == 0x90 || (byte)*in == 0x9D
+			|| (byte)*in == 0xA0 || (byte)*in == 0xAD)
+		{
+			continue;
+		}
+		else if (outpos > 0 && out[outpos - 1] == Q_COLOR_ESCAPE)
+		{
+			if (Q_IsColorStringExt(&out[outpos - 1]))
+			{
+				colorlessLen--;
+
+#if 0
+				if (ColorIndex(*in) == 0)
+				{// Disallow color black in names to prevent players from getting advantage playing in front of black backgrounds
+					outpos--;
+					continue;
+				}
+#endif
+			}
+			else
+			{
+				spaces = ats = 0;
+				colorlessLen++;
+			}
+		}
+		else
+		{
+			spaces = ats = 0;
+			colorlessLen++;
 		}
 
-		if( len > outSize - 1 ) {
-			break;
-		}
-
-		*out++ = ch;
-		++colorlessLen;
-		len++;
+		outpos++;
 	}
-	*out = 0;
 
-	//TODO: fix this, names like " ^7"
-	//are still possible
+	out[outpos] = '\0';
+
+	int i = outpos - 1;
+	while (out[i] == ' ')
+	{
+		out[i] = '\0';
+		i--;
+	}
 
 	// don't allow empty names
-	if( *p == 0 || colorlessLen == 0 ) {
-		Q_strncpyz( p, "Padawan", outSize );
-		return qtrue;
-	}
-
-	return qfalse;
+	if (*out == '\0' || colorlessLen == 0)
+		Q_strncpyz(out, "Padawan", outSize);
 }
 
 #ifdef _DEBUG
@@ -1903,6 +1903,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	*value;
 	int		maxHealth;
 	qboolean	modelChanged = qfalse;
+	int i;
 
 
 	ent = g_entities + clientNum;
@@ -1973,6 +1974,20 @@ void ClientUserinfoChanged( int clientNum ) {
 			}
 			else
 			{		
+				for (i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (i != clientNum && level.clients[i].pers.connected != CON_DISCONNECTED)
+					{
+						if (!strcmp(level.clients[i].pers.netname, client->pers.netname))
+						{
+							//we named to the exact same name as someone
+							Info_SetValueForKey(userinfo, "name", oldname);
+							trap_SetUserinfo(clientNum, userinfo);
+							strcpy(client->pers.netname, oldname);
+						}
+					}
+				}
+
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname) );
 				G_LogPrintf("Client num %i from %s renamed from '%s' to '%s'\n", clientNum,client->sess.ipString,
 					oldname, client->pers.netname);
