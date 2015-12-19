@@ -3774,6 +3774,11 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 		return 0;
 	}
 
+	if (ps->siegeDuelInProgress)
+	{
+		return 0;
+	}
+
 	switch (forcedUse)
 	{
 	case HI_MEDPAC:
