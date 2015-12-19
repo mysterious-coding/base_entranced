@@ -1914,6 +1914,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	int		maxHealth;
 	qboolean	modelChanged = qfalse;
 	int i;
+	qboolean	triedDuplicateName = qfalse;
 
 
 	ent = g_entities + clientNum;
@@ -2000,11 +2001,15 @@ void ClientUserinfoChanged( int clientNum ) {
 							Info_SetValueForKey(userinfo, "name", oldname);
 							trap_SetUserinfo(clientNum, userinfo);
 							strcpy(client->pers.netname, oldname);
+							triedDuplicateName = qtrue;
 						}
 					}
 				}
 
-				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname) );
+				if (!triedDuplicateName)
+				{
+					trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname));
+				}
 				G_LogPrintf("Client num %i from %s renamed from '%s' to '%s'\n", clientNum,client->sess.ipString,
 					oldname, client->pers.netname);
 				client->pers.netnameTime = level.time + RENAME_TIME; //change time limit from 5s to 1s
