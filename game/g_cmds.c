@@ -4531,6 +4531,12 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		//no challenging people when you're ewebing/emplaced gunning, silly.
 		return;
 	}
+	
+	if (ent->client->jetPackOn)
+	{
+		//no challenging while jetpacking
+		return;
+	}
 
 	for (i = 0; i < level.maxclients; i++)
 	{
@@ -4576,6 +4582,12 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 
 		if (OnSameTeam(ent, challenged))
 		{
+			return;
+		}
+
+		if (challenged->client->jetPackOn)
+		{
+			//no challenging while jetpacking
 			return;
 		}
 

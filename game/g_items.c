@@ -1309,7 +1309,7 @@ void ItemUse_Jetpack( gentity_t *ent )
 	{
 		Jetpack_Off(ent);
 	}
-	else
+	else if (!ent->client->ps.siegeDuelInProgress)
 	{
 		Jetpack_On(ent);
 	}
