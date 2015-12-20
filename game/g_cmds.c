@@ -2658,6 +2658,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if (!Q_stricmp(arg1, "pub")) {
 	} else if (!Q_stricmp(arg1, "g_redTeam")) {
 	} else if (!Q_stricmp(arg1, "g_blueTeam")) {
+	} else if (!Q_stricmp(arg1, "forceround2")) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
