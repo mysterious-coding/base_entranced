@@ -580,13 +580,13 @@ Prevent calling votes for some things:
 * Bugfix for bots getting messed up when changing gametypes.
 * Bugfix for healing NPCs/vehicles in siege.
 * Bugfix for invisible/super-bugged shield because someone bodyblocked your placement.
-* Bugfix for teamnodmg for NPCs
-* Bugfix for mindtricking when no enemies are around
-* Golan alternate fire properly uses "was shrapnelled by" now
-* Trip mine alternate fire properly uses "was mined by" now
+* Bugfix for teamnodmg for NPCs.
+* Bugfix for mindtricking when no enemies are around.
+* Golan alternate fire properly uses "was shrapnelled by" now.
+* Trip mine alternate fire properly uses "was mined by" now.
 * Bugfix for mines doing less splash damage when killed by player in slot 0.
-* Miscellaneous slot 0 bugfixes
-* Fixed bryar pistol animations
+* Miscellaneous slot 0 bugfixes.
+* Fixed bryar pistol animations.
 * Fixed players rolling/running through mines unharmed
 * Fixed weird bug when getting incinerated while rolling.
 * Fixed telefragging jumping players when spawning.
