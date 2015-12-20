@@ -951,6 +951,7 @@ typedef struct {
 	qboolean	inSiegeCountdown;
 
 	qboolean	hangarCompleted;
+	qboolean	ccCompleted;
 
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients

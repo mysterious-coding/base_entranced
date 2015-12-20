@@ -727,6 +727,7 @@ void InitSiegeMode(void)
 	}
 
 	level.hangarCompleted = qfalse;
+	level.ccCompleted = qfalse;
 
 	//reset
 	SiegeSetCompleteData(0);
@@ -1763,6 +1764,11 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
 		level.hangarCompleted = qtrue;
+	}
+
+	if (objective == 5 && !Q_stricmp(mapname.string, "siege_cargobarge2"))
+	{
+		level.ccCompleted = qtrue;
 	}
 
 	if (gSiegeRoundEnded)

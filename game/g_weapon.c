@@ -258,13 +258,44 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorCopy(ent->client->ps.origin, start);
 			start[2] += ent->client->ps.viewheight;//By eyes
 
-			if (!Q_stricmp(mapname.string, "siege_cargobarge2") &&
-				ent->client->ps.origin[0] >= 302 && ent->client->ps.origin[0] <= 1725 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+			if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
 			{
-				//allow for more height fudging in the 2nd obj of cargo2 v1.1
-				heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
-				heightLowerBound = (ent->client->ps.origin[2] - 99999); //huge
-				doorspamDistanceCheck = 1024;
+				if (ent->client->ps.origin[0] >= 302 && ent->client->ps.origin[0] <= 1725 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+				{
+					//allow for more height fudging in the 2nd obj of cargo2 v1.1
+					heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
+					heightLowerBound = (ent->client->ps.origin[2] - 99999); //huge
+					doorspamDistanceCheck = 1024;
+					//trap_SendServerCommand(-1, va("print \"Debug: 2nd obj\n\""));
+				}
+				else if (ent->client->ps.origin[0] >= 5134 && ent->client->ps.origin[0] <= 5733 && ent->client->ps.origin[1] >= 62 && ent->client->ps.origin[1] <= 708)
+				{
+					//cargo2 v1.1, station 1
+					heightUpperBound = (ent->client->ps.origin[2] + 99999); //huge
+					heightLowerBound = (ent->client->ps.origin[2] - 99999); //huge
+					//trap_SendServerCommand(-1, va("print \"Debug: station 1\n\""));
+				}
+				else if (ent->client->ps.origin[0] >= 5391 && ent->client->ps.origin[0] <= 6035 && ent->client->ps.origin[1] >= -1318 && ent->client->ps.origin[1] <= -588)
+				{
+					//cargo2 v1.1, station 2
+					//trap_SendServerCommand(-1, va("print \"Debug: station 2\n\""));
+				}
+				else if (ent->client->ps.origin[0] >= 4952 && ent->client->ps.origin[0] <= 5255 && ent->client->ps.origin[1] >= -1313 && ent->client->ps.origin[1] <= -877)
+				{
+					//cargo2 v1.1, vent shield room thing
+					//trap_SendServerCommand(-1, va("print \"Debug: vent shield room thing\n\""));
+				}
+				else if (ent->client->ps.origin[0] >= 4537 && ent->client->ps.origin[0] <= 5020 && ent->client->ps.origin[1] >= -299 && ent->client->ps.origin[1] <= 1047 && level.ccCompleted == qtrue)
+				{
+					//cargo2 v1.1, hallway near cc
+					//trap_SendServerCommand(-1, va("print \"Debug: hallway near cc\n\""));
+				}
+				else
+				{
+					//no other areas are considered for doorspam detection
+					//trap_SendServerCommand(-1, va("print \"^1Debug: other area, returning qfalse\n\""));
+					return qfalse;
+				}
 			}
 
 			//start[0] += debug_testHeight1.integer;
@@ -355,53 +386,6 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				if (ent->client->ps.origin[0] >= 559 && ent->client->ps.origin[0] <= 3060 && ent->client->ps.origin[1] >= -1291 && ent->client->ps.origin[1] <= 1356)
 				{
 					return qfalse; //for now just say it's not spam
-					/*//we are in the first obj area
-					if (!aimingAtCargoHallDoor)
-					{
-						trap_SendServerCommand(-1, va("print \"^%iIn the 1st obj but not aiming at ambush room door; ^%inot spam.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-						return qfalse;
-					}
-					//we are aiming at the ambush room door
-					//trap_SendServerCommand(-1, va("print \"^%iAiming at ambush room door, ^%ichecking for enemies.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-					VectorCopy(ent->client->ps.origin, throwerOrigin);
-					possibleEnemiesInStation = G_RadiusList(throwerOrigin, 3000, ent, qtrue, enemyInStationList);
-
-					for (n = 0; n < possibleEnemiesInStation; n++)
-					{
-						potentialEnemyInStation = enemyInStationList[n];
-
-						if (!potentialEnemyInStation || !potentialEnemyInStation->client)
-						{
-							continue; //??? uhh...this should never happen, but whatever
-						}
-
-						if (potentialEnemyInStation->client->sess.sessionTeam && potentialEnemyInStation->client->sess.sessionTeam != TEAM_RED)
-						{
-							continue; //must be on offense
-						}
-
-						if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || (potentialEnemyInStation->flags & FL_NOTARGET))
-						{
-							continue; //miscellaneous checks
-						}
-
-						if (potentialEnemyInStation->client->ps.origin[0] >= 2212 && potentialEnemyInStation->client->ps.origin[0] <= 2539 && potentialEnemyInStation->client->ps.origin[1] >= -2334 && potentialEnemyInStation->client->ps.origin[1] <= -2050 && potentialEnemyInStation->client->ps.origin[2] <= 258)
-						{
-							//there is an enemy in the ambush room
-							numConfirmedEnemiesInStation++;
-						}
-					}
-					if (!numConfirmedEnemiesInStation)
-					{
-						//there are no enemies in the station, so it's okay to shoot
-						trap_SendServerCommand(-1, va("print \"^%iNo enemies in ambush room, ^%ishot allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-						return qfalse;
-					}
-					else
-					{
-						trap_SendServerCommand(-1, va("print \"^%iEnemies detected in ambush room, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
-						//proceed normally
-					}*/
 				}
 			}
 		}
