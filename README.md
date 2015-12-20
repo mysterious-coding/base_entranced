@@ -320,8 +320,11 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 ####`/g_allow_ready`
 Use to enable/disable players from using the `/ready` command.
 
+####Duplicate names fix
+Players are now prevented from using the exact same name as another player.
+
 ####Siege captain dueling
-You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers, and turrets are automatically destroyed.
+You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, and no force powers, can go through defense-only doors, and turrets are automatically destroyed.
 
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
@@ -625,12 +628,14 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8N3FMYXlwTzJ4cTA/view?usp=sharing)
-Version: base_entranced-12-18-2015-build84 (experimental) - require unaninmous yes votes to pass a teamvote, fix going spec on teamvotes, fix voting on teamvotes when you weren't in the team when it was called, add `/help`
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing)
+Version: base_entranced-12-18-2015-build85 (experimental) - prevent duplicate names, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-12-18-2015-build84 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8N3FMYXlwTzJ4cTA/view?usp=sharing) - require unaninmous yes votes to pass a teamvote, fix going spec on teamvotes, fix voting on teamvotes when you weren't in the team when it was called, add `/help`
 
 Old version: base_entranced-12-14-2015-build83 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cVVWVDVjdHl3X00/view?usp=sharing) - add `/forceclass` and teamvote, add `/unforceclass` and teamvote
 
