@@ -320,6 +320,9 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 ####`/g_allow_ready`
 Use to enable/disable players from using the `/ready` command.
 
+####`/rename`
+Rcon command to forcibly rename a player.
+
 ####Duplicate names fix
 Players are now prevented from using the exact same name as another player.
 
@@ -629,7 +632,7 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing)
-Version: base_entranced-12-18-2015-build85 (experimental) - prevent duplicate names, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
+Version: base_entranced-12-18-2015-build85 (experimental) - prevent duplicate names, add `/rename`, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
