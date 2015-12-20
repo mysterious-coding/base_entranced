@@ -4602,8 +4602,8 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			challenged->client->ps.siegeDuelInProgress = 1;
 			//this will define that they are dueling
 
-			ent->client->ps.siegeDuelTime = level.time + 2000;
-			challenged->client->ps.siegeDuelTime = level.time + 2000;
+			ent->client->ps.siegeDuelTime = level.time + 3000;
+			challenged->client->ps.siegeDuelTime = level.time + 3000;
 			//"get ready" phase
 
 			ent->client->ps.stats[STAT_ARMOR] = 0;
