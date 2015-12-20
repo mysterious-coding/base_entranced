@@ -380,14 +380,6 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			{
 				return qfalse;
 			}
-
-			if (!Q_stricmp(mapname.string, "siege_cargobarge2")) //doorspam fix for first obj of cargo2 v1.1
-			{
-				if (ent->client->ps.origin[0] >= 559 && ent->client->ps.origin[0] <= 3060 && ent->client->ps.origin[1] >= -1291 && ent->client->ps.origin[1] <= 1356)
-				{
-					return qfalse; //for now just say it's not spam
-				}
-			}
 		}
 		else
 		{
