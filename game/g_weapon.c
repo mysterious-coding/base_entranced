@@ -448,6 +448,12 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					//trap_SendServerCommand(-1, va("print \"^%iSecond walker spawn point, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
 					return qfalse; //second/third obj walker spawn
 				}
+				if (ent->client->ps.origin[0] >= -1440 && ent->client->ps.origin[0] <= -1136 && ent->client->ps.origin[1] >= -230 && ent->client->ps.origin[1] <= 155 &&
+					ent->client->ps.origin[2] >= 161 && ent->client->ps.origin[2] <= 200)
+				{
+					//trap_SendServerCommand(-1, va("print \"^%iNear top of lift, ^%iincreased height detection.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					heightLowerBound = (ent->client->ps.origin[2] - 9999); //we're standing near the top of the infirmary lift, so increase lower height detection(to detect throwing mines down on people)
+				}
 			}
 			else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
 			{
@@ -2777,6 +2783,42 @@ void thermalThinkStandard(gentity_t *ent)
 	ent->nextthink = level.time;
 }
 
+void thermalThinkPrimaryAntiSpam(gentity_t *ent)
+{
+	int n;
+
+	//prevent det-spamming the lift
+	if (level.hangarCompleted)
+	{
+		if (ent->r.currentOrigin[0] >= -1216 && ent->r.currentOrigin[0] <= -996 && ent->r.currentOrigin[1] >= -128 && ent->r.currentOrigin[1] <= 142)
+		{
+			for (n = 32; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].targetname, "hangarplatbig1"))
+				{
+					if (g_entities[n].moverState == MOVER_POS1 || g_entities[n].moverState == MOVER_1TO2)
+					{
+						//lift is at the bottom or in the process of going up
+						ent->think = G_FreeEntity;
+						ent->nextthink = level.time;
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	if (ent->genericValue5 < level.time)
+	{
+		ent->think = thermalDetonatorExplode;
+		ent->nextthink = level.time;
+		return;
+	}
+
+	G_RunObject(ent);
+	ent->nextthink = level.time;
+}
+
 //---------------------------------------------------------
 gentity_t *WP_FireThermalDetonator(gentity_t *ent, qboolean altFire)
 //---------------------------------------------------------
@@ -2802,7 +2844,14 @@ gentity_t *WP_FireThermalDetonator(gentity_t *ent, qboolean altFire)
 	bolt->physicsObject = qtrue;
 
 	bolt->classname = "thermal_detonator";
-	bolt->think = thermalThinkStandard;
+	if (altFire || iLikeToDoorSpam.integer)
+	{
+		bolt->think = thermalThinkStandard; //alt fire or we like to spam
+	}
+	else
+	{
+		bolt->think = thermalThinkPrimaryAntiSpam; //primary fire
+	}
 	bolt->nextthink = level.time;
 	bolt->touch = touch_NULL;
 
@@ -3050,6 +3099,7 @@ LASER TRAP / TRIP MINE
 void laserTrapExplode( gentity_t *self )
 {
 	vec3_t v;
+
 	self->takedamage = qfalse;
 
 	if (self->activator)
