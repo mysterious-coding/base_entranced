@@ -2224,6 +2224,25 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 	if (traceEnt->classname && traceEnt->classname[0])
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"classname == %s\n\"", traceEnt->classname));
+		if (!Q_stricmp(traceEnt->classname, "func_door"))
+		{
+			if (traceEnt->moverState == MOVER_POS1)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_POS1\n\""));
+			}
+			else if (traceEnt->moverState == MOVER_POS2)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_POS2\n\""));
+			}
+			else if (traceEnt->moverState == MOVER_1TO2)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_1TO2\n\""));
+			}
+			else if (traceEnt->moverState == MOVER_2TO1)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_2TO1\n\""));
+			}
+		}
 	}
 
 	if (traceEnt->targetname && traceEnt->targetname[0])
