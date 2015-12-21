@@ -1998,6 +1998,8 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	ent->clipmask = MASK_PLAYERSOLID;
 	ent->r.contents = MASK_PLAYERSOLID;
 
+	ent->classname = "eweb"; //so we can do stuff with it
+
 	ent->physicsObject = qtrue;
 
 	//for the sake of being able to differentiate client-side between this and an emplaced gun
