@@ -1940,6 +1940,7 @@ extern vmCvar_t    g_heldformax_old;
 extern vmCvar_t    g_objscompleted_old;
 
 extern vmCvar_t    g_forceOnNpcs;
+extern vmCvar_t    mapversion;
 
 extern vmCvar_t	   g_rconpassword;
 
