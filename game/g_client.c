@@ -1978,7 +1978,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			{
 				if (client->pers.netnameTime > RENAME_TIME)
 				{
-					trap_SendServerCommand(ent - g_entities, va("print \"You have been renamed recently; you cannot change your name yet.\n\""));
+					//trap_SendServerCommand(ent - g_entities, va("print \"You have been renamed recently; you cannot change your name yet.\n\""));
 				}
 				else
 				{
