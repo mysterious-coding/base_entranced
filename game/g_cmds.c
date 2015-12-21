@@ -2178,6 +2178,145 @@ void Cmd_Where_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->client->ps.origin ) ) );
 }
 
+/*
+==================
+Cmd_TargetInfo_f
+Debug command to show information about whatever we are aiming at
+==================
+*/
+void Cmd_TargetInfo_f(gentity_t *ent)
+{
+
+	if (!ent->client)
+		return;
+
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
+		return;
+	}
+
+	trace_t tr;
+	vec3_t tfrom, tto, fwd;
+	gentity_t *traceEnt;
+
+	VectorCopy(ent->client->ps.origin, tfrom);
+	tfrom[2] += ent->client->ps.viewheight;
+	AngleVectors(ent->client->ps.viewangles, fwd, NULL, NULL);
+	tto[0] = tfrom[0] + fwd[0] * 999999;
+	tto[1] = tfrom[1] + fwd[1] * 999999;
+	tto[2] = tfrom[2] + fwd[2] * 999999;
+
+	trap_Trace(&tr, tfrom, NULL, NULL, tto, ent->s.number, MASK_PLAYERSOLID);
+
+	traceEnt = &g_entities[tr.entityNum];
+
+	trap_SendServerCommand(ent - g_entities, va("print \"^%iI^%in^%if^%io^7 for entity %i\n\"", Q_irand(1, 7), Q_irand(1, 7), Q_irand(1, 7), Q_irand(1, 7), traceEnt->s.number));
+
+	if (traceEnt->client)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^2client\n\""));
+	}
+	else
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1!client\n\""));
+	}
+
+	if (traceEnt->classname && traceEnt->classname[0])
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"classname == %s\n\"", traceEnt->classname));
+	}
+
+	if (traceEnt->targetname && traceEnt->targetname[0])
+	trap_SendServerCommand(ent - g_entities, va("print \"targetname == %s\n\"", traceEnt->targetname));
+
+	if (traceEnt->client && traceEnt->client->ewebIndex)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"ewebIndex == %i\n\"", traceEnt->client->ewebIndex));
+	}
+
+	if (traceEnt->client && traceEnt->client->ps.emplacedIndex)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"emplacedIndex == %i\n\"", traceEnt->client->ps.emplacedIndex));
+	}
+
+	if (traceEnt->s.weapon)
+	{
+		if (traceEnt->s.weapon == WP_STUN_BATON)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (stun baton)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_MELEE)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (melee)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_SABER)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (saber)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_BRYAR_PISTOL)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (pistol)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_BLASTER)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (e11)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_DISRUPTOR)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (disruptor)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_BOWCASTER)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (bowcaster)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_REPEATER)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (repeater)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_DEMP2)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (demp)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_FLECHETTE)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (golan)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_ROCKET_LAUNCHER)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (rocket launcher)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_THERMAL)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (thermals)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_TRIP_MINE)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (mines)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_DET_PACK)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (det packs)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_CONCUSSION)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (conc)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_BRYAR_OLD)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (bryar)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_EMPLACED_GUN)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (emplaced gun)\n\"", traceEnt->s.weapon));
+		}
+		else if (traceEnt->s.weapon == WP_TURRET)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (turret)\n\"", traceEnt->s.weapon));
+		}
+	}
+
+}
+
 static const char *gameNames[] = {
 	"Free For All",
 	"Holocron FFA",
@@ -5189,6 +5328,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_ForceChanged_f (ent);
 	else if (Q_stricmp (cmd, "where") == 0)
 		Cmd_Where_f (ent);
+	else if (Q_stricmp(cmd, "targetinfo") == 0)
+		Cmd_TargetInfo_f(ent);
 	else if (Q_stricmp (cmd, "callvote") == 0)
 		Cmd_CallVote_f (ent);
 	else if (Q_stricmp (cmd, "vote") == 0)
