@@ -2008,7 +2008,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	if (trap_Argc() < 3)
 	{
 		trap_SendServerCommand(ent - g_entities,
-			"print \"usage: tell [name or client number] [message] (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
+			"print \"usage: tell [name or client number] [message] (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
 		return;
 	}
 
@@ -3831,7 +3831,7 @@ void Cmd_Ignore_f( gentity_t *ent )
 	if (trap_Argc() < 2)
 	{
 		trap_SendServerCommand( ent-g_entities, 
-			"print \"usage: ignore [name or client number]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
+			"print \"usage: ignore [name or client number]  (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
 		return;
 	}
 
@@ -4401,7 +4401,7 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 	if ( trap_Argc() < 2 )
 	{
 		trap_SendServerCommand( ent - g_entities,
-			"print \"usage: whois [name or client number]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"" );
+			"print \"usage: whois [name or client number]  (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"" );
 		return;
 	}
 
