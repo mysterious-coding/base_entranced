@@ -837,7 +837,7 @@ void	Svcmd_ForceTeam_f( void ) {
 
 	if (trap_Argc() < 3)
 	{
-		Com_Printf("usage: forceteam [id/name] [team] (name can be just part of name, colors don't count)\n"); //bad number of arguments
+		Com_Printf("usage: forceteam [name or client number] [team] (name can be just part of name, colors don't count)\n"); //bad number of arguments
 		return;
 	}
 
@@ -904,7 +904,7 @@ void	Svcmd_UnForceClass_f()
 
 	if (trap_Argc() < 2)
 	{
-		Com_Printf("usage: unforceclass [id/name]\n"); //bad number of arguments
+		Com_Printf("usage: unforceclass [name or client number]\n"); //bad number of arguments
 		return;
 	}
 
@@ -943,7 +943,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 
 	if ((!specifiedClassLetter || !specifiedClassLetter[0]) && trap_Argc() < 3)
 	{
-		Com_Printf("usage: forceclass [id/name] [first letter of class name]\n"); //bad number of arguments
+		Com_Printf("usage: forceclass [name or client number] [first letter of class name]\n"); //bad number of arguments
 		return;
 	}
 
@@ -1020,7 +1020,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 	}
 	else
 	{
-		Com_Printf("usage: forceteam [id/name] [first letter of class name]\n");
+		Com_Printf("usage: forceteam [name or client number] [first letter of class name]\n");
 		return;
 	}
 
@@ -1035,7 +1035,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 
 	if (!siegeClass)
 	{
-		Com_Printf("usage: forceteam [id/name] [first letter of class name]\n");
+		Com_Printf("usage: forceteam [name or client number] [first letter of class name]\n");
 		return;
 	}
 

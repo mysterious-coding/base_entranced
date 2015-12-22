@@ -2008,7 +2008,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	if (trap_Argc() < 3)
 	{
 		trap_SendServerCommand(ent - g_entities,
-			"print \"usage: tell [id/name] [message] (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
+			"print \"usage: tell [name or client number] [message] (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
 		return;
 	}
 
@@ -3595,7 +3595,7 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 
 		if (trap_Argc() < 3)
 		{
-			trap_SendServerCommand(ent - g_entities, "print \"usage: forceclass [id/name] [first letter of class]\n\""); //bad number of arguments
+			trap_SendServerCommand(ent - g_entities, "print \"usage: forceclass [name or client number] [first letter of class]\n\""); //bad number of arguments
 			return;
 		}
 
@@ -3636,7 +3636,7 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 		}
 		else
 		{
-			trap_SendServerCommand(ent - g_entities, "print \"usage: forceclass [id/name] [first letter of class]\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"usage: forceclass [name or client number] [first letter of class]\n\"");
 			return;
 		}
 	}
@@ -3650,7 +3650,7 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 
 		if (trap_Argc() < 2)
 		{
-			trap_SendServerCommand(ent - g_entities, "print \"usage: unforceclass [id/name]\n\""); //bad number of arguments
+			trap_SendServerCommand(ent - g_entities, "print \"usage: unforceclass [name or client number]\n\""); //bad number of arguments
 			return;
 		}
 
@@ -3831,7 +3831,7 @@ void Cmd_Ignore_f( gentity_t *ent )
 	if (trap_Argc() < 2)
 	{
 		trap_SendServerCommand( ent-g_entities, 
-			"print \"usage: ignore [id/name]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
+			"print \"usage: ignore [name or client number]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
 		return;
 	}
 
@@ -4401,7 +4401,7 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 	if ( trap_Argc() < 2 )
 	{
 		trap_SendServerCommand( ent - g_entities,
-			"print \"usage: whois [id/name]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"" );
+			"print \"usage: whois [name or client number]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"" );
 		return;
 	}
 
