@@ -837,7 +837,7 @@ void	Svcmd_ForceTeam_f( void ) {
 
 	if (trap_Argc() < 3)
 	{
-		Com_Printf("usage: forceteam [id/name] [team] (name can be just part of name, colors dont count)\n"); //bad number of arguments
+		Com_Printf("usage: forceteam [id/name] [team] (name can be just part of name, colors don't count)\n"); //bad number of arguments
 		return;
 	}
 

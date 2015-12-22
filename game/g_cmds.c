@@ -2008,7 +2008,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	if (trap_Argc() < 3)
 	{
 		trap_SendServerCommand(ent - g_entities,
-			"print \"usage: tell [id/name] [message] (name can be just part of name, colors dont count)  \n\"");
+			"print \"usage: tell [id/name] [message] (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
 		return;
 	}
 
@@ -3831,7 +3831,7 @@ void Cmd_Ignore_f( gentity_t *ent )
 	if (trap_Argc() < 2)
 	{
 		trap_SendServerCommand( ent-g_entities, 
-			"print \"usage: ignore [id/name]  (name can be just part of name, colors dont count)  \n\"");
+			"print \"usage: ignore [id/name]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"");
 		return;
 	}
 
@@ -4401,7 +4401,7 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 	if ( trap_Argc() < 2 )
 	{
 		trap_SendServerCommand( ent - g_entities,
-			"print \"usage: whois [id/name]  (name can be just part of name, colors dont count)  \n\"" );
+			"print \"usage: whois [id/name]  (name can be just part of name, colors don't count. use /clientlist to see client numbers)  \n\"" );
 		return;
 	}
 
@@ -4464,6 +4464,8 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/ignore <name/id>^7 to stop seeing chats from a player. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLIENTLIST\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/clientlist^7 to see correct client numbers of all connected players. Helpful for commands like /whois.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
 	if (g_allow_ready.integer)
@@ -4502,6 +4504,32 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/NPC SPAWNLIST\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/npc spawnlist^7 to show a list of possible NPC spawns.\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"Note that the ingame console has limited scrolling. Read your qconsole.log file (in base folder) to see more.\n\""));
+	}
+}
+
+void Cmd_ClientList_f(gentity_t *ent)
+{
+	//list all clients with real client numbers (serverstatus doesn't tell you the true client numbers)
+	if (!ent->client)
+	{
+		return; //???
+	}
+
+	int i;
+
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (level.clients[i].pers.connected != CON_DISCONNECTED)
+		{
+			if (&g_entities[i] && g_entities[i].r.svFlags & SVF_BOT)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"Client %i (bot): %s\n\"", i, level.clients[i].pers.netname));
+			}
+			else
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s\n\"", i, level.clients[i].pers.netname));
+			}
+		}
 	}
 }
 
@@ -5373,6 +5401,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_TestCmd_f(ent);
 	else if (Q_stricmp(cmd, "serverstatus2") == 0)
 		Cmd_ServerStatus2_f(ent);
+	else if (Q_stricmp(cmd, "clientlist") == 0)
+		Cmd_ClientList_f(ent);
 	else if (Q_stricmp(cmd, "help") == 0)
 		Cmd_Help_f(ent);
 		

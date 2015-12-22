@@ -3082,7 +3082,7 @@ int findClient(const char* username){
 //	//example:
 //	// sil:sal:ramses:norb jax:lando:fp:rst 11 8 mp/ctf4 0
 //
-//	//report players from original roster list, dont count newly joined
+//	//report players from original roster list, don't count newly joined
 //	//red players roster report
 //
 //	dest = buffer;
