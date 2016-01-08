@@ -2484,6 +2484,20 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 
 			client->ps.basespeed = client->ps.speed;
+
+			if (client->holdingObjectiveItem && client->sess.sessionTeam == TEAM_RED && g_entities[client->holdingObjectiveItem].speedMultiplier && g_entities[client->holdingObjectiveItem].speedMultiplier != 1)
+			{
+				//speed multiplier for siege items (team red)
+				client->ps.speed *= g_entities[client->holdingObjectiveItem].speedMultiplier;
+				client->ps.basespeed = client->ps.speed;
+			}
+			else if (client->holdingObjectiveItem && client->sess.sessionTeam == TEAM_BLUE && g_entities[client->holdingObjectiveItem].speedMultiplierTeam2 &&
+				g_entities[client->holdingObjectiveItem].speedMultiplierTeam2 != 1)
+			{
+				//speed multiplier for siege items (team blue)
+				client->ps.speed *= g_entities[client->holdingObjectiveItem].speedMultiplierTeam2;
+				client->ps.basespeed = client->ps.speed;
+			}
 		}
 	}
 

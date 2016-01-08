@@ -365,6 +365,8 @@ struct gentity_s {
 	int			removeFromOwnerOnUse;
 	int			removeFromGameOnUse;
 	int			despawnOnUse;
+	float			speedMultiplier;
+	float			speedMultiplierTeam2;
 
 	int			canContinue;
 

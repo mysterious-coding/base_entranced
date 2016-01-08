@@ -2575,6 +2575,9 @@ void SP_misc_siege_item (gentity_t *ent)
 
 	G_SpawnInt("forcelimit", "0", &ent->genericValue15);
 
+	G_SpawnFloat("speedMultiplier", "1", &ent->speedMultiplier);
+	G_SpawnFloat("speedMultiplierTeam2", "1", &ent->speedMultiplierTeam2);
+
 	if (ent->health > 0)
 	{ //If it has health, it can be killed.
 		int t;
