@@ -1401,11 +1401,25 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	ent->genericValue7 = G_SoundIndex("sound/interface/ammocon_done");
 	G_SoundIndex("sound/interface/ammocon_empty");
 
-	if (ent->specialIconTreatment && g_gametype.integer == GT_SIEGE)
-	{ //show on radar from everywhere
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	ent->classname = "misc_ammo_floor_unit";
+
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
 		ent->r.svFlags |= SVF_BROADCAST;
-		ent->s.eFlags |= EF_RADAROBJECT;
+		ent->s.eFlags &= ~EF_RADAROBJECT;
 		ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/weapon_recharge");
+	}
+	else
+	{
+		if (ent->specialIconTreatment && g_gametype.integer == GT_SIEGE)
+		{ //show on radar from everywhere
+			ent->r.svFlags |= SVF_BROADCAST;
+			ent->s.eFlags |= EF_RADAROBJECT;
+			ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/weapon_recharge");
+		}
 	}
 }
 
@@ -1496,11 +1510,25 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	ent->genericValue7 = G_SoundIndex("sound/interface/shieldcon_done");
 	G_SoundIndex("sound/interface/shieldcon_empty");
 
-	if (ent->specialIconTreatment && g_gametype.integer == GT_SIEGE)
-	{ //show on radar from everywhere
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	ent->classname = "misc_shield_floor_unit";
+
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
 		ent->r.svFlags |= SVF_BROADCAST;
-		ent->s.eFlags |= EF_RADAROBJECT;
+		ent->s.eFlags &= ~EF_RADAROBJECT;
 		ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/shield_recharge");
+	}
+	else
+	{
+		if (ent->specialIconTreatment && g_gametype.integer == GT_SIEGE)
+		{ //show on radar from everywhere
+			ent->r.svFlags |= SVF_BROADCAST;
+			ent->s.eFlags |= EF_RADAROBJECT;
+			ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/shield_recharge");
+		}
 	}
 }
 

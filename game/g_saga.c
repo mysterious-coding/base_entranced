@@ -1840,16 +1840,95 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	int				clUser = ENTITYNUM_NONE;
 	int				final = 0;
 	int				i = 0;
+	int				n;
+	int				gensFound;
 
 	if (!siege_valid)
 	{
 		return;
 	}
 
-	if (!(ent->s.eFlags & EF_RADAROBJECT))
-	{ //toggle radar on and exit if it is not showing up already
-		ent->s.eFlags |= EF_RADAROBJECT;
-		return;
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
+		if (ent->objective <= 5)
+		{
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && g_entities[n].objective && g_entities[n].objective == (ent->objective + 1))
+				{
+					//upon completion of a non-final objective, find the next objective and turn on its radar icon (fix for poor mapping practice on Hoth)
+					g_entities[n].s.eFlags |= EF_RADAROBJECT;
+				}
+			}
+		}
+	}
+	else
+	{
+		if (!(ent->s.eFlags & EF_RADAROBJECT))
+		{ //toggle radar on and exit if it is not showing up already
+			ent->s.eFlags |= EF_RADAROBJECT;
+			return;
+		}
+	}
+
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
+		if (ent->objective == 1)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound >= 4)
+					{
+						//turn on ion gen and codes bunker ammo gen
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					//turn on ion gen and codes bunker shieldgen
+					g_entities[n].s.eFlags |= EF_RADAROBJECT;
+				}
+			}
+		}
+		else if (ent->objective == 4)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound >= 4)
+					{
+						//turn off ion gen and codes bunker ammo gen
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+					else if (gensFound >= 1 && gensFound <= 3)
+					{
+						//turn on side to infirmary, cc short, and cc long ammo gens
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					//turn off ion gen and codes bunker shield gen
+					g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+				}
+			}
+		}
 	}
 
 	if (activator)
@@ -1919,6 +1998,8 @@ STARTOFFRADAR - start not displaying on radar, don't display until used.
 void SP_info_siege_objective (gentity_t *ent)
 {
 	char* s;
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (!siege_valid || g_gametype.integer != GT_SIEGE)
 	{
@@ -1937,10 +2018,27 @@ void SP_info_siege_objective (gentity_t *ent)
 		return;
 	}
 
-	//Set it up to be drawn on radar
-	if (!(ent->spawnflags & SIEGEITEM_STARTOFFRADAR))
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
-		ent->s.eFlags |= EF_RADAROBJECT;
+		if (ent->objective == 1)
+		{
+			//objective 1 on hoth
+			ent->s.eFlags |= EF_RADAROBJECT;
+		}
+		else
+		{
+			//objectives 2-6 on hoth
+			ent->s.eFlags &= ~EF_RADAROBJECT;
+		}
+	}
+	else
+	{
+		//all other maps
+		//Set it up to be drawn on radar
+		if (!(ent->spawnflags & SIEGEITEM_STARTOFFRADAR))
+		{
+			ent->s.eFlags |= EF_RADAROBJECT;
+		}
 	}
 
 	//All clients want to know where it is at all times for radar
