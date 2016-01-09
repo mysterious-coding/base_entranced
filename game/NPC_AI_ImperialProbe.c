@@ -50,16 +50,16 @@ void ImperialProbe_MaintainHeight( void )
 {	
 	float	dif;
 
-	//Update our angles regardless
+	// Update our angles regardless
 	NPC_UpdateAngles( qtrue, qtrue );
 
-	//If we have an enemy, we should try to hover at about enemy eye level
+	// If we have an enemy, we should try to hover at about enemy eye level
 	if ( NPC->enemy )
 	{
-		//Find the height difference
+		// Find the height difference
 		dif = NPC->enemy->r.currentOrigin[2] - NPC->r.currentOrigin[2]; 
 
-		//cap to prevent dramatic height shifts
+		// cap to prevent dramatic height shifts
 		if ( fabs( dif ) > 8 )
 		{
 			if ( fabs( dif ) > 16 )
@@ -74,7 +74,7 @@ void ImperialProbe_MaintainHeight( void )
 	{
 		gentity_t *goal = NULL;
 
-		if ( NPCInfo->goalEntity )	//Is there a goal?
+		if ( NPCInfo->goalEntity )	// Is there a goal?
 		{
 			goal = NPCInfo->goalEntity;
 		}
@@ -103,7 +103,7 @@ void ImperialProbe_MaintainHeight( void )
 				}
 			}
 		}
-		//Apply friction
+		// Apply friction
 		else if ( NPC->client->ps.velocity[2] )
 		{
 			NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
@@ -114,10 +114,10 @@ void ImperialProbe_MaintainHeight( void )
 			}
 		}
 
-		//Stay at a given height until we take on an enemy
+		// Stay at a given height until we take on an enemy
 			}
 
-	//Apply friction
+	// Apply friction
 	if ( NPC->client->ps.velocity[0] )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;
@@ -157,22 +157,22 @@ void ImperialProbe_Strafe( void )
 
 	AngleVectors( NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
 
-	//Pick a random strafe direction, then check to see if doing a strafe would be
+	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->r.currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
 	trap_Trace( &tr, NPC->r.currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
 
-	//Close enough
+	// Close enough
 	if ( tr.fraction > 0.9f )
 	{
 		VectorMA( NPC->client->ps.velocity, HUNTER_STRAFE_VEL * dir, right, NPC->client->ps.velocity );
 
-		//Add a slight upward push
+		// Add a slight upward push
 		NPC->client->ps.velocity[2] += HUNTER_UPWARD_PUSH;
 
-		//Set the strafe start time so we can do a controlled roll
+		// Set the strafe start time so we can do a controlled roll
 		NPCInfo->standTime = level.time + 3000 + random() * 500;
 	}
 }
@@ -196,7 +196,7 @@ void ImperialProbe_Hunt( qboolean visible, qboolean advance )
 	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
 	{
-		//Only strafe when we can see the player
+		// Only strafe when we can see the player
 		if ( visible )
 		{
 			ImperialProbe_Strafe();
@@ -211,7 +211,7 @@ void ImperialProbe_Hunt( qboolean visible, qboolean advance )
 	//Only try and navigate if the player is visible
 	if ( visible == qfalse )
 	{
-		//Move towards our goal
+		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
@@ -298,7 +298,7 @@ ImperialProbe_Ranged
 */
 void ImperialProbe_Ranged( qboolean visible, qboolean advance )
 {
-	if ( TIMER_Done( NPC, "attackDelay" ) )	//Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
 		TIMER_Set( NPC, "attackDelay", Q_irand( 500, 3000 ) );
 		ImperialProbe_FireBlaster();
@@ -328,7 +328,7 @@ void ImperialProbe_AttackDecision( void )
 	qboolean	visible;
 	qboolean	advance;
 
-	//Always keep a good height off the ground
+	// Always keep a good height off the ground
 	ImperialProbe_MaintainHeight();
 
 	//randomly talk
@@ -342,7 +342,7 @@ void ImperialProbe_AttackDecision( void )
 		}
 	}
 
-	//If we don't have an enemy, just idle
+	// If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(qfalse) == qfalse )
 	{
 		ImperialProbe_Idle();
@@ -351,12 +351,12 @@ void ImperialProbe_AttackDecision( void )
 
 	NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1, SETANIM_FLAG_NORMAL);
 
-	//Rate our distance to the target, and our visibilty
+	// Rate our distance to the target, and our visibilty
 	distance	= (int) DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
 
-	//If we cannot see our target, move to see it
+	// If we cannot see our target, move to see it
 	if ( visible == qfalse )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
@@ -366,10 +366,10 @@ void ImperialProbe_AttackDecision( void )
 		}
 	}
 
-	//Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
+	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 	NPC_FaceEnemy( qtrue );
 
-	//Decide what type of attack to do
+	// Decide what type of attack to do
 	ImperialProbe_Ranged( visible, advance );
 }
 
@@ -386,7 +386,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	
 	VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 
-	if ( self->health < 30 || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT ) //demp2 always messes them up real good
+	if ( self->health < 30 || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT ) // demp2 always messes them up real good
 	{
 		vec3_t endPos;
 		trace_t	trace;
@@ -394,7 +394,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		VectorSet( endPos, self->r.currentOrigin[0], self->r.currentOrigin[1], self->r.currentOrigin[2] - 128 );
 		trap_Trace( &trace, self->r.currentOrigin, NULL, NULL, endPos, self->s.number, MASK_SOLID );
 
-		if ( trace.fraction == 1.0f || mod == MOD_DEMP2 ) //demp2 always does this
+		if ( trace.fraction == 1.0f || mod == MOD_DEMP2 ) // demp2 always does this
 		{
 			if ( (mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && other )
 			{
@@ -418,7 +418,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	{
 		pain_chance = NPC_GetPainChance( self, damage );
 
-		if ( random() < pain_chance )	//Spin around in pain?
+		if ( random() < pain_chance )	// Spin around in pain?
 		{
 			NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE);
 		}	
@@ -475,7 +475,7 @@ void ImperialProbe_Patrol( void )
 			TIMER_Set( NPC, "patrolNoise", Q_irand( 2000, 4000 ) );
 		}
 	}
-	else	//He's got an enemy. Make him angry.
+	else	// He's got an enemy. Make him angry.
 	{
 		G_SoundOnEnt( NPC, CHAN_AUTO, "sound/chars/probe/misc/anger1" );
 		TIMER_Set( NPC, "angerNoise", Q_irand( 2000, 4000 ) );

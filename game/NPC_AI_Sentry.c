@@ -118,7 +118,7 @@ void Sentry_Fire (void)
 		}
 		else
 		{
-			//can't do anything right now
+			// can't do anything right now
 			return;
 		}
 	}
@@ -133,12 +133,12 @@ void Sentry_Fire (void)
 	}
 	else if ( NPCInfo->localState != LSTATE_ATTACKING )
 	{
-		//bad because we are uninitialized
+		// bad because we are uninitialized
 		NPCInfo->localState = LSTATE_ACTIVE;
 		return;
 	}
 
-	//Which muzzle to fire from?
+	// Which muzzle to fire from?
 	which = NPCInfo->burstCount % 3;
 	switch( which )
 	{
@@ -177,7 +177,7 @@ void Sentry_Fire (void)
 	NPC->attackDebounceTime = level.time + 50;
 	missile->damage = 5;
 
-	//now scale for difficulty
+	// now scale for difficulty
 	if ( g_spskill.integer == 0 )
 	{
 		NPC->attackDebounceTime += 200;
@@ -201,16 +201,16 @@ void Sentry_MaintainHeight( void )
 
 	NPC->s.loopSound = G_SoundIndex( "sound/chars/sentry/misc/sentry_hover_1_lp" );
 
-	//Update our angles regardless
+	// Update our angles regardless
 	NPC_UpdateAngles( qtrue, qtrue );
 
-	//If we have an enemy, we should try to hover at about enemy eye level
+	// If we have an enemy, we should try to hover at about enemy eye level
 	if ( NPC->enemy )
 	{
-		//Find the height difference
+		// Find the height difference
 		dif = (NPC->enemy->r.currentOrigin[2]+NPC->enemy->r.maxs[2]) - NPC->r.currentOrigin[2]; 
 
-		//cap to prevent dramatic height shifts
+		// cap to prevent dramatic height shifts
 		if ( fabs( dif ) > 8 )
 		{
 			if ( fabs( dif ) > SENTRY_HOVER_HEIGHT )
@@ -225,7 +225,7 @@ void Sentry_MaintainHeight( void )
 	{
 		gentity_t *goal = NULL;
 
-		if ( NPCInfo->goalEntity )	//Is there a goal?
+		if ( NPCInfo->goalEntity )	// Is there a goal?
 		{
 			goal = NPCInfo->goalEntity;
 		}
@@ -255,7 +255,7 @@ void Sentry_MaintainHeight( void )
 				}
 			}
 		}
-		//Apply friction to Z
+		// Apply friction to Z
 		else if ( NPC->client->ps.velocity[2] )
 		{
 			NPC->client->ps.velocity[2] *= SENTRY_VELOCITY_DECAY;
@@ -267,7 +267,7 @@ void Sentry_MaintainHeight( void )
 		}
 	}
 
-	//Apply friction
+	// Apply friction
 	if ( NPC->client->ps.velocity[0] )
 	{
 		NPC->client->ps.velocity[0] *= SENTRY_VELOCITY_DECAY;
@@ -300,7 +300,7 @@ void Sentry_Idle( void )
 {
 	Sentry_MaintainHeight();
 
-	//Is he waking up?
+	// Is he waking up?
 	if (NPCInfo->localState == LSTATE_WAKEUP)
 	{
 		if (NPC->client->ps.torsoTimer<=0)
@@ -331,22 +331,22 @@ void Sentry_Strafe( void )
 
 	AngleVectors( NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
 
-	//Pick a random strafe direction, then check to see if doing a strafe would be
+	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->r.currentOrigin, SENTRY_STRAFE_DIS * dir, right, end );
 
 	trap_Trace( &tr, NPC->r.currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
 
-	//Close enough
+	// Close enough
 	if ( tr.fraction > 0.9f )
 	{
 		VectorMA( NPC->client->ps.velocity, SENTRY_STRAFE_VEL * dir, right, NPC->client->ps.velocity );
 
-		//Add a slight upward push
+		// Add a slight upward push
 		NPC->client->ps.velocity[2] += SENTRY_UPWARD_PUSH;
 
-		//Set the strafe start time so we can do a controlled roll
+		// Set the strafe start time so we can do a controlled roll
 		NPCInfo->standTime = level.time + 3000 + random() * 500;
 	}
 }
@@ -364,7 +364,7 @@ void Sentry_Hunt( qboolean visible, qboolean advance )
 	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
 	{
-		//Only strafe when we can see the player
+		// Only strafe when we can see the player
 		if ( visible )
 		{
 			Sentry_Strafe();
@@ -379,7 +379,7 @@ void Sentry_Hunt( qboolean visible, qboolean advance )
 	//Only try and navigate if the player is visible
 	if ( visible == qfalse )
 	{
-		//Move towards our goal
+		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
@@ -404,7 +404,7 @@ Sentry_RangedAttack
 */
 void Sentry_RangedAttack( qboolean visible, qboolean advance )
 {
-	if ( TIMER_Done( NPC, "attackDelay" ) && NPC->attackDebounceTime < level.time && visible )	//Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) && NPC->attackDebounceTime < level.time && visible )	// Attack?
 	{
 		if ( NPCInfo->burstCount > 6 )
 		{
@@ -445,7 +445,7 @@ void Sentry_AttackDecision( void )
 	qboolean	visible;
 	qboolean	advance;
 
-	//Always keep a good height off the ground
+	// Always keep a good height off the ground
 	Sentry_MaintainHeight();
 
 	NPC->s.loopSound = G_SoundIndex( "sound/chars/sentry/misc/sentry_hover_2_lp" );
@@ -461,7 +461,7 @@ void Sentry_AttackDecision( void )
 		}
 	}
 
-	//He's dead.
+	// He's dead.
 	if (NPC->enemy->health<1)
 	{
 		NPC->enemy = NULL;
@@ -469,19 +469,19 @@ void Sentry_AttackDecision( void )
 		return;
 	}
 
-	//If we don't have an enemy, just idle
+	// If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(qfalse) == qfalse )
 	{
 		Sentry_Idle();
 		return;
 	}
 
-	//Rate our distance to the target and visibilty
+	// Rate our distance to the target and visibilty
 	distance	= (int) DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
 
-	//If we cannot see our target, move to see it
+	// If we cannot see our target, move to see it
 	if ( visible == qfalse )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
@@ -549,7 +549,7 @@ void NPC_BSSentry_Default( void )
 
 	if (( NPC->enemy ) && (NPCInfo->localState != LSTATE_WAKEUP))
 	{
-		//Don't attack if waking up or if no enemy
+		// Don't attack if waking up or if no enemy
 		Sentry_AttackDecision();
 	}
 	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )

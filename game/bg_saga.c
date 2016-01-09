@@ -1,4 +1,4 @@
-//Copyright (C) 2000-2002 Raven Software, Inc.
+// Copyright (C) 2000-2002 Raven Software, Inc.
 //
 /*****************************************************************************
  * name:		bg_saga.c
@@ -74,7 +74,7 @@ stringID_table_t WPTable[] =
 {
 	{"NULL",WP_NONE},
 	ENUM2STRING(WP_NONE),
-	//Player weapons
+	// Player weapons
 	ENUM2STRING(WP_STUN_BATON),
 	ENUM2STRING(WP_MELEE),
 	ENUM2STRING(WP_SABER),
@@ -746,12 +746,12 @@ int BG_SiegeTranslateGenericTable(char *buf, stringID_table_t *table, qboolean b
 
 char *classTitles[SPC_MAX] =
 {
-"infantry",			//SPC_INFANTRY
-"vanguard",			//SPC_VANGUARD
-"support",			//SPC_SUPPORT
-"jedi_general",		//SPC_JEDI
-"demolitionist",	//SPC_DEMOLITIONIST
-"heavy_weapons",	//SPC_HEAVY_WEAPONS
+"infantry",			// SPC_INFANTRY
+"vanguard",			// SPC_VANGUARD
+"support",			// SPC_SUPPORT
+"jedi_general",		// SPC_JEDI
+"demolitionist",	// SPC_DEMOLITIONIST
+"heavy_weapons",	// SPC_HEAVY_WEAPONS
 };
 
 
@@ -1070,20 +1070,20 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		{
 			Com_Printf( "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
 		}
-		//A very hacky way to determine class . . . 
+		// A very hacky way to determine class . . . 
 		else
 #endif
 		{
-			//Find the base player class based on the icon name - very bad, I know.
+			// Find the base player class based on the icon name - very bad, I know.
 			int titleLength,i,arrayTitleLength;
 			char *holdBuf;
 
 			titleLength = strlen(parseBuf);
 			for (i=0;i<SPC_MAX;i++)
 			{
-				//Back up 
+				// Back up 
 				arrayTitleLength = strlen(classTitles[i]);
-				if (arrayTitleLength>titleLength)	//Too long
+				if (arrayTitleLength>titleLength)	// Too long
 				{
 					break;
 				}
@@ -1096,7 +1096,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 				}
 			}
 
-			//In case the icon name doesn't match up
+			// In case the icon name doesn't match up
 			if (i>=SPC_MAX)
 			{
 				bgSiegeClasses[bgNumSiegeClasses].playerClass = SPC_INFANTRY;
@@ -1132,7 +1132,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	bgNumSiegeClasses++;
 }
 
-//Count the number of like base classes
+// Count the number of like base classes
 int BG_SiegeCountBaseClass(const int team, const short classIndex)
 {
 	int count = 0,i;
@@ -1168,10 +1168,10 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 
 	}
 
-	//Loop through all the classes for this team
+	// Loop through all the classes for this team
 	for (i=0;i<stm->numClasses;i++)
 	{
-		//does it match the base class?
+		// does it match the base class?
 		if (stm->classes[i]->playerClass == classIndex)
 		{
 			if (count==cntIndex)
@@ -1197,10 +1197,10 @@ int BG_GetUIPortrait(const int team, const short classIndex, const short cntInde
 
 	}
 
-	//Loop through all the classes for this team
+	// Loop through all the classes for this team
 	for (i=0;i<stm->numClasses;i++)
 	{
-		//does it match the base class?
+		// does it match the base class?
 		if (stm->classes[i]->playerClass == classIndex)
 		{
 			if (count==cntIndex)
@@ -1214,7 +1214,7 @@ int BG_GetUIPortrait(const int team, const short classIndex, const short cntInde
 	return(0);
 }
 
-//This is really getting ugly - looking to get the base class (within a class) based on the index passed in
+// This is really getting ugly - looking to get the base class (within a class) based on the index passed in
 siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, const short cntIndex)
 {
 	int count = 0,i;
@@ -1226,10 +1226,10 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 		return(0);
 	}
 
-	//Loop through all the classes for this team
+	// Loop through all the classes for this team
 	for (i=0;i<stm->numClasses;i++)
 	{
-		//does it match the base class?
+		// does it match the base class?
 		if (stm->classes[i]->playerClass == classIndex)
 		{
 			if (count==cntIndex)
@@ -1310,7 +1310,7 @@ siegeClass_t* BG_SiegeGetClass(int team, int classNumber)
 	}
 	else
 	{
-		//spec, ignore
+		// spec, ignore
 		return 0;
 	}
 

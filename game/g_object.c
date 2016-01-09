@@ -17,7 +17,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	float	dot, bounceFactor;
 	int		hitTime;
 
-	//reflect the velocity on the trace plane
+	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
 	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
@@ -33,7 +33,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.5, ent->s.pos.trDelta );
 
-		//check for stop
+		// check for stop
 		if ( ((trace->plane.normal[2] > 0.7&&g_gravity.value>0) || (trace->plane.normal[2]<-0.7&&g_gravity.value<0)) && ((ent->s.pos.trDelta[2]<40&&g_gravity.value>0)||(ent->s.pos.trDelta[2]>-40&&g_gravity.value<0)) ) //this can happen even on very slightly sloped walls, so changed it from > 0 to > 0.7
 		{
 			ent->s.apos.trType = TR_STATIONARY;
@@ -45,7 +45,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 		}
 	}
 
-	//NEW--It would seem that we want to set our trBase to the trace endpos
+	// NEW--It would seem that we want to set our trBase to the trace endpos
 	//	and set the trTime to the actual time of impact....
 	//	FIXME: Should we still consider adding the normal though??
 	VectorCopy( trace->endpos, ent->r.currentOrigin );
@@ -87,7 +87,7 @@ void G_RunObject( gentity_t *ent )
 	ent->nextthink = level.time + FRAMETIME;
 
 	VectorCopy( ent->r.currentOrigin, oldOrg );
-	//get current position
+	// get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 	//Get current angles?
 	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
@@ -96,8 +96,8 @@ void G_RunObject( gentity_t *ent )
 	{//error - didn't move at all!
 		return;
 	}
-	//trace a line from the previous position to the current position,
-	//ignoring interactions with the missile owner
+	// trace a line from the previous position to the current position,
+	// ignoring interactions with the missile owner
 	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, 
 		ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask );
 

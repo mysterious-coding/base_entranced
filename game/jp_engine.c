@@ -1,4 +1,4 @@
-//ui_engine.c
+// ui_engine.c
 
 #include "jp_engine.h"
 #include "g_local.h"
@@ -163,11 +163,11 @@
 
 #ifdef HOOK_RCONExtensions
         //--------------------------------
-        //     Name:   RCON example hook
-        //     Desc:   Just a simple hook in SVC_RemoteCommand.
-        //                             Com_Printf the client it came from
-        //     Hook:   SVC_RemoteCommand
-        //     Retn:   SV_ExecuteClientMessage
+        //      Name:   RCON example hook
+        //      Desc:   Just a simple hook in SVC_RemoteCommand.
+        //                              Com_Printf the client it came from
+        //      Hook:   SVC_RemoteCommand
+        //      Retn:   SV_ExecuteClientMessage
         //--------------------------------
      
         #ifdef _WIN32
@@ -221,19 +221,19 @@
         {//RCON Extensions
                 __StartHook( RCONExtensions )
                 {
-                        __asm1__( pushad );                     //Secure registers
+                        __asm1__( pushad );                     // Secure registers
 #ifdef _WIN32
-						__asm1__( push 0x0052BDA0 );          //Pass ip to RconFix
-                        __asm1__( push [esi] );               //Pass command to RconFix
+						__asm1__( push 0x0052BDA0 );          // Pass ip to RconFix
+                        __asm1__( push [esi] );               // Pass command to RconFix
 #else
-						__asm1__( push 0x08202460 );          //Pass ip to RconFix
-						__asm1__( push 0x08202040 );          //Pass command to RconFix
+						__asm1__( push 0x08202460 );          // Pass ip to RconFix
+						__asm1__( push 0x08202040 );          // Pass command to RconFix
 #endif
-                        __asm1__( call RCONExtensions );        //Call
-                        __asm2__( add esp, 8 );                 //Clean up stack
-                        __asm1__( popad );                      //Restore registers
-                        __asm1__( push RCON_RETFUNC );          //Push Com_Milliseconds (In the engine)
-                        __asm1__( ret );                        //Return execution flow into Com_Milliseconds as if nothing happened
+                        __asm1__( call RCONExtensions );        // Call
+                        __asm2__( add esp, 8 );                 // Clean up stack
+                        __asm1__( popad );                      // Restore registers
+                        __asm1__( push RCON_RETFUNC );          // Push Com_Milliseconds (In the engine)
+                        __asm1__( ret );                        // Return execution flow into Com_Milliseconds as if nothing happened
                 }
                 __EndHook( RCONExtensions )
         }
@@ -397,34 +397,34 @@
 
 #ifdef HOOK_DoneDL
         //--------------------------------
-        //     Name:   DoneDL Fix
-        //     Desc:   /donedl is often abused to make flags disappear and other game-related data
-        //                     We prevent active clients from using this.
-        //     Hook:   SV_DoneDownload_f
-        //     Retn:   SV_SendClientGameState or SV_DoneDownload_f
+        //      Name:   DoneDL Fix
+        //      Desc:   /donedl is often abused to make flags disappear and other game-related data
+        //                      We prevent active clients from using this.
+        //      Hook:   SV_DoneDownload_f
+        //      Retn:   SV_SendClientGameState or SV_DoneDownload_f
         //--------------------------------
  
 #ifdef _WIN32
-        #define DDL_HOOKPOS                     0x43AEF4        //  setting CS_PRIMED in SV_SendClientGameState
-        #define DDL_RETSUCCESS					0x43AEFA        //     SV_SendClientGameState
+        #define DDL_HOOKPOS                     0x43AEF4        //   setting CS_PRIMED in SV_SendClientGameState
+        #define DDL_RETSUCCESS					0x43AEFA        //      SV_SendClientGameState
 #else
-        #define DDL_HOOKPOS                     0x804CF54       //  setting CS_PRIMED in SV_SendClientGameState
-        #define DDL_RETSUCCESS                  0x804CF5A       //     SV_SendClientGameState
+        #define DDL_HOOKPOS                     0x804CF54       //   setting CS_PRIMED in SV_SendClientGameState
+        #define DDL_RETSUCCESS                  0x804CF5A       //      SV_SendClientGameState
 #endif //_WIN32
 
 
 		typedef enum {
-			CS_FREE,		//can be reused for a new connection
-			CS_ZOMBIE,		//client has been disconnected, but don't reuse
-							//connection for a couple seconds
-			CS_CONNECTED,	//has been assigned to a client_t, but no gamestate yet
-			CS_PRIMED,		//gamestate has been sent, but client hasn't sent a usercmd
-			CS_ACTIVE		//client is fully in game
+			CS_FREE,		// can be reused for a new connection
+			CS_ZOMBIE,		// client has been disconnected, but don't reuse
+							// connection for a couple seconds
+			CS_CONNECTED,	// has been assigned to a client_t, but no gamestate yet
+			CS_PRIMED,		// gamestate has been sent, but client hasn't sent a usercmd
+			CS_ACTIVE		// client is fully in game
 		} clientState_t;
 
         static void USED DoneDL_Handler( clientState_t *state )
         {
-			//fix: set CS_PRIMED only when CS_CONNECTED is current state
+			// fix: set CS_PRIMED only when CS_CONNECTED is current state
 			if (*state == CS_CONNECTED)
 				*state = CS_PRIMED;
         }
@@ -457,24 +457,24 @@
 
 #ifdef HOOK_TIMEWARPPING_FIX
         //--------------------------------
-        //     Name:   TimeWrapping Fix
-        //     Desc:   Fix of time wrapping after 23 days not properly restarting the server.
-        //     Hook:   SV_Frame
-        //     Retn:   SV_Frame 
+        //      Name:   TimeWrapping Fix
+        //      Desc:   Fix of time wrapping after 23 days not properly restarting the server.
+        //      Hook:   SV_Frame
+        //      Retn:   SV_Frame 
         //--------------------------------
  
 #ifdef _WIN32
-        #define TW_HOOKPOS                     0x444671       //  call to SV_Shutdown() for map overflow
-        #define TW_RETSUCCESS                  0x4446AB       //  after map_restart 0
+        #define TW_HOOKPOS                     0x444671       //   call to SV_Shutdown() for map overflow
+        #define TW_RETSUCCESS                  0x4446AB       //   after map_restart 0
 
-        #define TW_HOOKPOS2                    0x44468F       //  call to SV_Shutdown() for numEntities overflow
-        #define TW_RETSUCCESS2                 0x4446AB       //  after map_restart 0
+        #define TW_HOOKPOS2                    0x44468F       //   call to SV_Shutdown() for numEntities overflow
+        #define TW_RETSUCCESS2                 0x4446AB       //   after map_restart 0
 #else
-        #define TW_HOOKPOS                     0x8057A78       //  call to SV_Shutdown() for map overflow
-        #define TW_RETSUCCESS                  0x8057A89       //  after map_restart 0
+        #define TW_HOOKPOS                     0x8057A78       //   call to SV_Shutdown() for map overflow
+        #define TW_RETSUCCESS                  0x8057A89       //   after map_restart 0
 
-        #define TW_HOOKPOS2                    0x8057A56       //  call to SV_Shutdown() for numEntities overflow
-        #define TW_RETSUCCESS2                 0x8057A67       //  after map_restart 0
+        #define TW_HOOKPOS2                    0x8057A56       //   call to SV_Shutdown() for numEntities overflow
+        #define TW_RETSUCCESS2                 0x8057A67       //   after map_restart 0
 
 #endif //_WIN32
 
@@ -490,7 +490,7 @@
         {
             static qboolean restartIssued = qfalse;
 
-            //safety condition - to prevent command overflow
+            // safety condition - to prevent command overflow
             if ( !restartIssued )
             {
                  TimeWrappingRestartMap();
@@ -570,9 +570,9 @@ static replaceEntry_t replaces[] =
 	#endif
 
 		REPLACEDEF(PILOT_NETWORK_REPLACEPOS,{ 0x8C }, 1, "pilot network bandwidth fix"),
-    //time wrap 2 mins test - LINUX
+    // time wrap 2 mins test - LINUX
     //REPLACEDEF( 0x805792C, {0xC0 SEP 0xD4 SEP 0x01 SEP 0x00}, 4, "time wrap test" ) 
-    //time wrap 2 mins test - WINDOWS
+    // time wrap 2 mins test - WINDOWS
     //REPLACEDEF( 0x44466B, {0xC0 SEP 0xD4 SEP 0x01 SEP 0x00}, 4, "time wrap test" ) 
 
 };

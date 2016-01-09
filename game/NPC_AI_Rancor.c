@@ -1,4 +1,4 @@
-//leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
+// leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
 #include "g_headers.h"
 
 	    
@@ -6,7 +6,7 @@
 
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex );
 
-//These define the working combat range for these suckers
+// These define the working combat range for these suckers
 #define MIN_DISTANCE		128
 #define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
 
@@ -125,7 +125,7 @@ void Rancor_Move( qboolean visible )
 		{
 			NPCInfo->consecutiveBlockedMoves = 0;
 		}
-		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 	}
 }
 
@@ -476,7 +476,7 @@ void Rancor_Attack( float distance, qboolean doCharge )
 		TIMER_Set( NPC, "attacking", NPC->client->ps.legsTimer + random() * 200 );
 	}
 
-	//Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
+	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
 
 	if ( TIMER_Done2( NPC, "attack_dmg", qtrue ) )
 	{
@@ -593,7 +593,7 @@ void Rancor_Attack( float distance, qboolean doCharge )
 		}
 	}
 
-	//Just using this to remove the attacking flag at the right time
+	// Just using this to remove the attacking flag at the right time
 	TIMER_Done2( NPC, "attacking", qtrue );
 }
 
@@ -613,7 +613,7 @@ void Rancor_Combat( void )
 		NPC_UpdateAngles( qtrue, qtrue );
 		return;
 	}
-	//If we cannot see our target or we have somewhere to go, then do that
+	// If we cannot see our target or we have somewhere to go, then do that
 	if ( !NPC_ClearLOS4( NPC->enemy ) )//|| UpdateGoal( ))
 	{
 		NPCInfo->combatMove = qtrue;
@@ -632,7 +632,7 @@ void Rancor_Combat( void )
 		return;
 	}
 
-	//Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
+	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 	NPC_FaceEnemy( qtrue );
 
 	{
@@ -660,7 +660,7 @@ void Rancor_Combat( void )
 			}
 		}
 
-		if (( advance /*|| NPCInfo->localState == LSTATE_WAITING*/ ) && TIMER_Done( NPC, "attacking" )) //waiting monsters can't attack
+		if (( advance /*|| NPCInfo->localState == LSTATE_WAITING*/ ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 		{
 			if ( TIMER_Done2( NPC, "takingPain", qtrue ))
 			{

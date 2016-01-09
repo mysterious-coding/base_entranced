@@ -2,8 +2,8 @@
 
 #define LOGGING_WEAPONS	
 
-//Weapon statistic logging.
-//Nothing super-fancy here, I just want to keep track of, per player:
+// Weapon statistic logging.
+// Nothing super-fancy here, I just want to keep track of, per player:
 //		--hom many times a weapon/item is picked up
 //		--how many times a weapon/item is used/fired
 //		--the total damage done by that weapon
@@ -11,7 +11,7 @@
 //		--the number of deaths while holding that weapon
 //		--the time spent with each weapon
 //
-//Additionally,
+// Additionally,
 //		--how many times each powerup or item is picked up
 
 
@@ -31,7 +31,7 @@ int	G_WeaponLogItems[MAX_CLIENTS][PW_NUM_POWERUPS];
 extern vmCvar_t	g_statLog;
 extern vmCvar_t	g_statLogFile;
 
-//MOD-weapon mapping array.
+// MOD-weapon mapping array.
 int weaponFromMOD[MOD_MAX] =
 {
 	WP_NONE,				//MOD_UNKNOWN,
@@ -134,7 +134,7 @@ void QDECL G_LogWeaponFire(int client, int weaponid)
 
 	G_WeaponLogFired[client][weaponid]++;
 	dur = level.time - G_WeaponLogLastTime[client];
-	if (dur > 5000)		//5 second max.
+	if (dur > 5000)		// 5 second max.
 		G_WeaponLogTime[client][weaponid] += 5000;
 	else
 		G_WeaponLogTime[client][weaponid] += dur;
@@ -204,24 +204,24 @@ void QDECL G_LogWeaponItem(int client, int itemid)
 }
 
 
-//Run through each player.  Print out:
+// Run through each player.  Print out:
 //	-- Most commonly picked up weapon.
-// -- Weapon with which the most time was spent.
-// -- Weapon that was most often died with.
-// -- Damage type with which the most damage was done.
-// -- Damage type with the most kills.
-// -- Weapon with which the most damage was done.
+//  -- Weapon with which the most time was spent.
+//  -- Weapon that was most often died with.
+//  -- Damage type with which the most damage was done.
+//  -- Damage type with the most kills.
+//  -- Weapon with which the most damage was done.
 //	-- Weapon with which the most damage was done per shot.
 //
-//For the whole game, print out:
-// -- Total pickups of each weapon.
-// -- Total time spent with each weapon.
-// -- Total damage done with each weapon.
-// -- Total damage done for each damage type.
-// -- Number of kills with each weapon.
-// -- Number of kills for each damage type.
-// -- Damage per shot with each weapon.
-// -- Number of deaths with each weapon.
+// For the whole game, print out:
+//  -- Total pickups of each weapon.
+//  -- Total time spent with each weapon.
+//  -- Total damage done with each weapon.
+//  -- Total damage done for each damage type.
+//  -- Number of kills with each weapon.
+//  -- Number of kills for each damage type.
+//  -- Damage per shot with each weapon.
+//  -- Number of deaths with each weapon.
 
 void G_LogWeaponOutput(void)
 {
@@ -263,7 +263,7 @@ void G_LogWeaponOutput(void)
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			for (j=0;j<WP_NUM_WEAPONS;j++)
 			{
 				totalpickups[j] += G_WeaponLogPickups[i][j];
@@ -280,7 +280,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Now total the weapon data from the MOD data.
+	// Now total the weapon data from the MOD data.
 	for (j=0; j<MOD_MAX; j++)
 	{
 		if (j <= MOD_SENTRY)
@@ -324,13 +324,13 @@ void G_LogWeaponOutput(void)
 
 
 
-	//Write the whole weapon statistic log out to a file.
+	// Write the whole weapon statistic log out to a file.
 	trap_FS_FOpenFile( g_statLogFile.string, &weaponfile, FS_APPEND );
 	if (!weaponfile) {	//failed to open file, let's not crash, shall we?
 		return;
 	}
 
-	//Write out the level name
+	// Write out the level name
 	trap_GetServerinfo(info, sizeof(info));
 	strncpy(mapname, Info_ValueForKey( info, "mapname" ), sizeof(mapname)-1);
 	mapname[sizeof(mapname)-1] = '\0';
@@ -339,9 +339,9 @@ void G_LogWeaponOutput(void)
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
 
-	//Combat data per character
+	// Combat data per character
 	
-	//Start with Pickups per character
+	// Start with Pickups per character
 	Com_sprintf(string, sizeof(string), "Weapon Pickups per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
@@ -356,11 +356,11 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			if ( g_entities[i].client ) 
 			{
 				nameptr = g_entities[i].client->pers.netname;
@@ -382,7 +382,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
@@ -396,7 +396,7 @@ void G_LogWeaponOutput(void)
 	trap_FS_Write(string, strlen(string), weaponfile);
 
 	
-	//Weapon fires per character
+	// Weapon fires per character
 	Com_sprintf(string, sizeof(string), "Weapon Shots per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
@@ -411,11 +411,11 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			if ( g_entities[i].client ) 
 			{
 				nameptr = g_entities[i].client->pers.netname;
@@ -437,7 +437,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -451,7 +451,7 @@ void G_LogWeaponOutput(void)
 	trap_FS_Write(string, strlen(string), weaponfile);
 
 
-	//Weapon time per character
+	// Weapon time per character
 	Com_sprintf(string, sizeof(string), "Weapon Use Time per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
@@ -466,11 +466,11 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			if ( g_entities[i].client ) 
 			{
 				nameptr = g_entities[i].client->pers.netname;
@@ -492,7 +492,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -507,7 +507,7 @@ void G_LogWeaponOutput(void)
 
 
 	
-	//Weapon deaths per character
+	// Weapon deaths per character
 	Com_sprintf(string, sizeof(string), "Weapon Deaths per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
@@ -522,11 +522,11 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			if ( g_entities[i].client ) 
 			{
 				nameptr = g_entities[i].client->pers.netname;
@@ -548,7 +548,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -564,7 +564,7 @@ void G_LogWeaponOutput(void)
 
 
 	
-	//Weapon damage per character
+	// Weapon damage per character
 
 	Com_sprintf(string, sizeof(string), "Weapon Damage per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
@@ -580,13 +580,13 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 
-			//We must grab the totals from the damage types for the player and map them to the weapons.
+			// We must grab the totals from the damage types for the player and map them to the weapons.
 			memset(percharacter, 0, sizeof(percharacter));
 			for (j=0; j<MOD_MAX; j++)
 			{
@@ -618,7 +618,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -633,7 +633,7 @@ void G_LogWeaponOutput(void)
 
 
 	
-	//Weapon kills per character
+	// Weapon kills per character
 
 	Com_sprintf(string, sizeof(string), "Weapon Kills per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
@@ -649,13 +649,13 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 
-			//We must grab the totals from the damage types for the player and map them to the weapons.
+			// We must grab the totals from the damage types for the player and map them to the weapons.
 			memset(percharacter, 0, sizeof(percharacter));
 			for (j=0; j<MOD_MAX; j++)
 			{
@@ -687,7 +687,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -702,7 +702,7 @@ void G_LogWeaponOutput(void)
 
 
 	
-	//Damage type damage per character
+	// Damage type damage per character
 	Com_sprintf(string, sizeof(string), "Typed Damage per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
@@ -717,11 +717,11 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			if ( g_entities[i].client ) 
 			{
 				nameptr = g_entities[i].client->pers.netname;
@@ -743,7 +743,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -758,7 +758,7 @@ void G_LogWeaponOutput(void)
 
 
 	
-	//Damage type kills per character
+	// Damage type kills per character
 	Com_sprintf(string, sizeof(string), "Damage-Typed Kills per Player:\n\n");
 	trap_FS_Write( string, strlen( string ), weaponfile);
 
@@ -773,11 +773,11 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n");
 	trap_FS_Write(string, strlen(string), weaponfile);
 
-	//Cycle through each player, give their name and the number of times they picked up each weapon.
+	// Cycle through each player, give their name and the number of times they picked up each weapon.
 	for (i=0; i<MAX_CLIENTS; i++)
 	{
 		if (G_WeaponLogClientTouch[i])
-		{	//Ignore any entity/clients we don't care about!
+		{	// Ignore any entity/clients we don't care about!
 			if ( g_entities[i].client ) 
 			{
 				nameptr = g_entities[i].client->pers.netname;
@@ -799,7 +799,7 @@ void G_LogWeaponOutput(void)
 		}
 	}
 
-	//Sum up the totals.
+	// Sum up the totals.
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap_FS_Write(string, strlen(string), weaponfile);
 	
@@ -819,7 +819,7 @@ void G_LogWeaponOutput(void)
 #endif //LOGGING_WEAPONS
 }
 
-//did this player earn the efficiency award?
+// did this player earn the efficiency award?
 qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
 {
 #ifdef LOGGING_WEAPONS
@@ -844,7 +844,7 @@ qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
 	}
 	if (-1 == nBestPlayer)
 	{
-		//huh?
+		// huh?
 		return qfalse;
 	}
 	if (nBestPlayer == ent->s.number)
@@ -857,11 +857,11 @@ qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
 		}
 		return qfalse;
 	}
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 	return qfalse;
 }
 
-//did this player earn the sharpshooter award?
+// did this player earn the sharpshooter award?
 qboolean CalculateSharpshooter(gentity_t *ent, int *frags)
 {
 #ifdef LOGGING_WEAPONS
@@ -869,7 +869,7 @@ qboolean CalculateSharpshooter(gentity_t *ent, int *frags)
 				playTime = (level.time - ent->client->pers.enterTime)/60000;
 	gentity_t	*player = NULL;
 
-	//if this guy didn't get one kill per minute, reject him right now
+	// if this guy didn't get one kill per minute, reject him right now
 	if ( ((float)(G_WeaponLogKills[ent-g_entities][MOD_DISRUPTOR_SNIPER]))/((float)(playTime)) < 1.0 )
 	{
 		return qfalse;
@@ -897,11 +897,11 @@ qboolean CalculateSharpshooter(gentity_t *ent, int *frags)
 		*frags = nMostKills;
 		return qtrue;
 	}
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 	return qfalse;
 }
 
-//did this player earn the untouchable award?
+// did this player earn the untouchable award?
 qboolean CalculateUntouchable(gentity_t *ent)
 {
 #ifdef LOGGING_WEAPONS
@@ -918,15 +918,15 @@ qboolean CalculateUntouchable(gentity_t *ent)
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
 
-	//if this guy was never killed...  Award Away!!!
+	// if this guy was never killed...  Award Away!!!
 	if (ent->client->ps.persistant[PERS_KILLED]==0)
 		return qtrue;
 
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 	return qfalse;
 }
 
-//did this player earn the logistics award?
+// did this player earn the logistics award?
 qboolean CalculateLogistics(gentity_t *ent, int *stuffUsed)
 {
 #ifdef LOGGING_WEAPONS
@@ -976,14 +976,14 @@ qboolean CalculateLogistics(gentity_t *ent, int *stuffUsed)
 		*stuffUsed = nMostDifferent;
 		return qtrue;
 	}
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 	return qfalse;
 }
 
 
 
 
-//did this player earn the tactician award?
+// did this player earn the tactician award?
 qboolean CalculateTactician(gentity_t *ent, int *kills)
 {
 #ifdef LOGGING_WEAPONS
@@ -1015,7 +1015,7 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 
 	//------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
 	for (weapon = 0; weapon<WP_NUM_WEAPONS; weapon++)
-			wasPickedUpBySomeone[weapon] = 0;				//CLEAR
+			wasPickedUpBySomeone[weapon] = 0;				// CLEAR
 
 	for (person=0; person<g_maxclients.integer; person++)
 	{
@@ -1036,33 +1036,33 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 		player = g_entities + person;
 		if (!player->inuse)			continue;
 
-		nKills = 0;											//This Persons's Kills
+		nKills = 0;											// This Persons's Kills
 		for (weapon=0; weapon<WP_NUM_WEAPONS; weapon++)
-			killsWithWeapon[weapon] = 0;					//CLEAR
+			killsWithWeapon[weapon] = 0;					// CLEAR
 
 		for (i=0; i<MOD_MAX; i++)
 		{
-			weapon = weaponFromMOD[i];									//Select Weapon
-			killsWithWeapon[weapon] += G_WeaponLogKills[person][i];		//Store Num Kills With Weapon
+			weapon = weaponFromMOD[i];									// Select Weapon
+			killsWithWeapon[weapon] += G_WeaponLogKills[person][i];		// Store Num Kills With Weapon
 		}
 
-		weapon=WP_STUN_BATON;		//Start At Stun Baton
-		//  keep looking through weapons if weapon is not on map, or if it is and we used it
+		weapon=WP_STUN_BATON;		// Start At Stun Baton
+		//   keep looking through weapons if weapon is not on map, or if it is and we used it
 		while( weapon<WP_NUM_WEAPONS && (!wasPickedUpBySomeone[weapon] || killsWithWeapon[weapon]>0) )
 		{
 			weapon++;
-			nKills+=killsWithWeapon[weapon];							// Update the number of kills
+			nKills+=killsWithWeapon[weapon];							//  Update the number of kills
 		}
 		//
-		//At this point we have either successfully gone through every weapon on the map and saw it had
-		//been used, or we found one that WAS on the map and was NOT used
+		// At this point we have either successfully gone through every weapon on the map and saw it had
+		// been used, or we found one that WAS on the map and was NOT used
 		//
-		//so we look to see if the weapon==Max (i.e. we used every one) and then we check to see
-		//if we got the most kills out of anyone else who did this.
+		// so we look to see if the weapon==Max (i.e. we used every one) and then we check to see
+		// if we got the most kills out of anyone else who did this.
 		//
 		if (weapon>=WP_NUM_WEAPONS && nKills>nMostKills)
 		{
-			//WE ARE A TACTICION CANDIDATE
+			// WE ARE A TACTICION CANDIDATE
 			nMostKills  = nKills;
 			nBestPlayer = person;
 		}
@@ -1075,14 +1075,14 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 		*kills = nMostKills;
 		return qtrue;
 	}
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 	return qfalse;
 }
 
 
 
 
-//did this player earn the demolitionist award?
+// did this player earn the demolitionist award?
 qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
 {
 #ifdef LOGGING_WEAPONS
@@ -1107,7 +1107,7 @@ qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
 		nKills += G_WeaponLogKills[i][MOD_TIMED_MINE_SPLASH];
 		nKills += G_WeaponLogKills[i][MOD_DET_PACK_SPLASH];
 
-		//if this guy didn't get two explosive kills per minute, reject him right now
+		// if this guy didn't get two explosive kills per minute, reject him right now
 		if ( ((float)nKills)/((float)(playTime)) < 2.0 )
 		{
 			continue;
@@ -1128,7 +1128,7 @@ qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
 		*kills = nMostKills;
 		return qtrue;
 	}
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 	return qfalse;
 }
 
@@ -1358,7 +1358,7 @@ qboolean CalculateTeamRedShirt(gentity_t *ent)
 		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
 			continue;
 		nScore = player->client->ps.persistant[PERS_KILLED];
-		nScore -= player->client->ps.fd.suicides; //suicides don't count, you big cheater.
+		nScore -= player->client->ps.fd.suicides; // suicides don't count, you big cheater.
 		if (nScore > nHighestScore)
 		{
 			nHighestScore = nScore;
@@ -1377,27 +1377,27 @@ qboolean CalculateTeamRedShirt(gentity_t *ent)
 }
 
 typedef enum {
-	AWARD_EFFICIENCY,		//Accuracy
-	AWARD_SHARPSHOOTER,		//Most compression rifle frags
-	AWARD_UNTOUCHABLE,		//Perfect (no deaths)
-	AWARD_LOGISTICS,		//Most pickups
-	AWARD_TACTICIAN,		//Kills with all weapons
-	AWARD_DEMOLITIONIST,	//Most explosive damage kills
-	AWARD_STREAK,			//Ace/Expert/Master/Champion
-	AWARD_TEAM,				//MVP/Defender/Warrior/Carrier/Interceptor/Bravery
-	AWARD_SECTION31,		//All-around god
+	AWARD_EFFICIENCY,		// Accuracy
+	AWARD_SHARPSHOOTER,		// Most compression rifle frags
+	AWARD_UNTOUCHABLE,		// Perfect (no deaths)
+	AWARD_LOGISTICS,		// Most pickups
+	AWARD_TACTICIAN,		// Kills with all weapons
+	AWARD_DEMOLITIONIST,	// Most explosive damage kills
+	AWARD_STREAK,			// Ace/Expert/Master/Champion
+	AWARD_TEAM,				// MVP/Defender/Warrior/Carrier/Interceptor/Bravery
+	AWARD_SECTION31,		// All-around god
 	AWARD_MAX
 } awardType_t;
 
 typedef enum
 {
-	TEAM_NONE = 0,			//ha ha! you suck!
-	TEAM_MVP,				//most overall points
-	TEAM_DEFENDER,			//killed the most baddies near your flag
-	TEAM_WARRIOR,			//most frags
-	TEAM_CARRIER,			//infected the most people with plague
-	TEAM_INTERCEPTOR,		//returned your own flag the most
-	TEAM_BRAVERY,			//Red Shirt Award (tm). you died more than anybody. 
+	TEAM_NONE = 0,			// ha ha! you suck!
+	TEAM_MVP,				// most overall points
+	TEAM_DEFENDER,			// killed the most baddies near your flag
+	TEAM_WARRIOR,			// most frags
+	TEAM_CARRIER,			// infected the most people with plague
+	TEAM_INTERCEPTOR,		// returned your own flag the most
+	TEAM_BRAVERY,			// Red Shirt Award (tm). you died more than anybody. 
 	TEAM_MAX
 } teamAward_e;
 
@@ -1529,7 +1529,7 @@ void CalculateAwards(gentity_t *ent, char *msg)
 	}
 	strcpy(buf2, msg);
 	Com_sprintf( msg, AWARDS_MSG_LENGTH, "%s %d%s", buf2, awardFlags, buf1);
-#endif //LOGGING_WEAPONS
+#endif // LOGGING_WEAPONS
 }
 
 int GetMaxDeathsForClient(int nClient)
@@ -1597,9 +1597,9 @@ int GetWorstEnemyForClient(int nClient)
 	}
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
-		//If there is a tie for most deaths, we want to choose anybody else
-		//over the client...  I.E. Most deaths should not tie with yourself and
-		//have yourself show up...
+		// If there is a tie for most deaths, we want to choose anybody else
+		// over the client...  I.E. Most deaths should not tie with yourself and
+		// have yourself show up...
 
 		if ( G_WeaponLogFrags[i][nClient] > nMostDeaths ||
 			(G_WeaponLogFrags[i][nClient]== nMostDeaths && i!=nClient && nMostDeaths!=0) )
@@ -1617,23 +1617,23 @@ int GetFavoriteWeaponForClient(int nClient)
 	int	killsWithWeapon[WP_NUM_WEAPONS];
 
 
-	//First thing we need to do is cycle through all the MOD types and convert
-	//number of kills to a single weapon.
+	// First thing we need to do is cycle through all the MOD types and convert
+	// number of kills to a single weapon.
 	//----------------------------------------------------------------
 	for (weapon=0; weapon<WP_NUM_WEAPONS; weapon++)
-		killsWithWeapon[weapon] = 0;					//CLEAR
+		killsWithWeapon[weapon] = 0;					// CLEAR
 
 	for (i=MOD_STUN_BATON; i<=MOD_FORCE_DARK; i++)
 	{
-		weapon = weaponFromMOD[i];									//Select Weapon
+		weapon = weaponFromMOD[i];									// Select Weapon
 
 		if (weapon != WP_NONE)
 		{
-			killsWithWeapon[weapon] += G_WeaponLogKills[nClient][i];	//Store Num Kills With Weapon
+			killsWithWeapon[weapon] += G_WeaponLogKills[nClient][i];	// Store Num Kills With Weapon
 		}
 	}
 
-	//now look through our list of kills per weapon and pick the biggest
+	// now look through our list of kills per weapon and pick the biggest
 	//----------------------------------------------------------------
 	nMostKills=0;
 	for (weapon=WP_STUN_BATON; weapon<WP_NUM_WEAPONS; weapon++)
@@ -1647,7 +1647,7 @@ int GetFavoriteWeaponForClient(int nClient)
 	return fav;
 }
 
-//kef -- if a client leaves the game, clear out all counters he may have set
+// kef -- if a client leaves the game, clear out all counters he may have set
 void QDECL G_ClearClientLog(int client)
 {
 	int i = 0;

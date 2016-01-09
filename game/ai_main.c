@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 
 /*****************************************************************************
@@ -562,9 +562,9 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 		ucmd->buttons |= BUTTON_USE;
 	}
 #if 0
-//Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
-//I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
-//We can always add some back in if we want though.
+// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
+// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
+// We can always add some back in if we want though.
 	if (bi->actionflags & ACTION_AFFIRMATIVE) ucmd->buttons |= BUTTON_AFFIRMATIVE;
 	if (bi->actionflags & ACTION_NEGATIVE) ucmd->buttons |= BUTTON_NEGATIVE;
 	if (bi->actionflags & ACTION_GETFLAG) ucmd->buttons |= BUTTON_GETFLAG;
@@ -7455,7 +7455,7 @@ int BotAIStartFrame(int time) {
 	if (elapsed_time > BOT_THINK_TIME) thinktime = elapsed_time;
 	else thinktime = BOT_THINK_TIME;
 
-	//execute scheduled bot AI
+	// execute scheduled bot AI
 	for( i = 0; i < MAX_CLIENTS; i++ ) {
 		if( !botstates[i] || !botstates[i]->inuse ) {
 			continue;
@@ -7472,7 +7472,7 @@ int BotAIStartFrame(int time) {
 		}
 	}
 
-	//execute bot user commands every frame
+	// execute bot user commands every frame
 	for( i = 0; i < MAX_CLIENTS; i++ ) {
 		if( !botstates[i] || !botstates[i]->inuse ) {
 			continue;

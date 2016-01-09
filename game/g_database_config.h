@@ -3,13 +3,13 @@
 
 #include "g_local.h"
 
-//main loading routines
+// main loading routines
 void G_CfgDbLoad();
 void G_CfgDbUnload();
 
 qboolean G_CfgDbIsFiltered( unsigned int ip, char* reasonBuffer, int reasonBufferSize );
 
-//whitelist stuff
+// whitelist stuff
 qboolean G_CfgDbAddToWhitelist( unsigned int ip,
     unsigned int mask,
     const char* notes );
@@ -21,7 +21,7 @@ qboolean G_CfgDbIsFilteredByWhitelist( unsigned int ip,
     char* reasonBuffer, 
     int reasonBufferSize );
 
-//blacklist stuff
+// blacklist stuff
 typedef void( *BlackListCallback )(unsigned int ip,
     unsigned int mask,
     const char* notes,
@@ -42,7 +42,7 @@ qboolean G_CfgDbRemoveFromBlacklist( unsigned int ip,
 
 qboolean G_CfgDbIsFilteredByBlacklist( unsigned int ip, char* reasonBuffer, int reasonBufferSize );
             
-//pools stuff
+// pools stuff
 typedef void( *ListPoolCallback )(void* context,
     int pool_id,
     const char* short_name,

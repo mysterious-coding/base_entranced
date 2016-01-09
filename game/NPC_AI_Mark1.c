@@ -154,7 +154,7 @@ void Mark1Dead_FireRocket (void)
 	missile->splashDamage = BOWCASTER_SPLASH_DAMAGE;
 	missile->splashRadius = BOWCASTER_SPLASH_RADIUS;
 
-	//we don't want it to bounce
+	// we don't want it to bounce
 	missile->bounceCount = 0;
 
 }
@@ -207,7 +207,7 @@ void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 {
 	G_Sound( self, CHAN_AUTO, G_SoundIndex(va("sound/chars/mark1/misc/death%d.wav",Q_irand( 1, 2))));
 
-	//Choose a death anim
+	// Choose a death anim
 	if (Q_irand( 1, 10) > 5)
 	{
 		NPC_SetAnim( self, SETANIM_BOTH, BOTH_DEATH2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -233,7 +233,7 @@ void Mark1_dying( gentity_t *self )
 		{
 			num = Q_irand( 1, 3);
 
-			//Find place to generate explosion
+			// Find place to generate explosion
 			if (num == 1)
 			{
 				num = Q_irand( 8, 10);
@@ -252,9 +252,9 @@ void Mark1_dying( gentity_t *self )
 		}
 
 
-		//See which weapons are there
-		//Randomly fire blaster
-		if (!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "l_arm" ))	//Is the blaster still on the model?
+		// See which weapons are there
+		// Randomly fire blaster
+		if (!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "l_arm" ))	// Is the blaster still on the model?
 		{
 			if (Q_irand( 1, 5) == 1)
 			{
@@ -265,8 +265,8 @@ void Mark1_dying( gentity_t *self )
 			}
 		}
 
-		//Randomly fire rocket
-		if (!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_arm" ))	//Is the rocket still on the model?
+		// Randomly fire rocket
+		if (!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_arm" ))	// Is the rocket still on the model?
 		{
 			if (Q_irand( 1, 10) == 1)
 			{
@@ -295,7 +295,7 @@ void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/chars/mark1/misc/mark1_pain"));
 
-	//Hit in the CHEST???
+	// Hit in the CHEST???
 	if (hitLoc==HL_CHEST)
 	{
 		chance = Q_irand( 1, 4);
@@ -305,10 +305,10 @@ void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
 			NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		}
 	}
-	//Hit in the left arm?
+	// Hit in the left arm?
 	else if ((hitLoc==HL_ARM_LT) && (self->locationDamage[HL_ARM_LT] > LEFT_ARM_HEALTH))
 	{
-		if (self->locationDamage[hitLoc] >= LEFT_ARM_HEALTH)	//Blow it up?
+		if (self->locationDamage[hitLoc] >= LEFT_ARM_HEALTH)	// Blow it up?
 		{
 			newBolt = trap_G2API_AddBolt( self->ghoul2, 0, "*flash3" );
 			if ( newBolt != -1 )
@@ -319,8 +319,8 @@ void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
 			NPC_SetSurfaceOnOff( self, "l_arm", TURN_OFF );
 		}
 	}
-	//Hit in the right arm?
-	else if ((hitLoc==HL_ARM_RT) && (self->locationDamage[HL_ARM_RT] > RIGHT_ARM_HEALTH))	//Blow it up?
+	// Hit in the right arm?
+	else if ((hitLoc==HL_ARM_RT) && (self->locationDamage[HL_ARM_RT] > RIGHT_ARM_HEALTH))	// Blow it up?
 	{
 		if (self->locationDamage[hitLoc] >= RIGHT_ARM_HEALTH)
 		{			
@@ -333,12 +333,12 @@ void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
 			NPC_SetSurfaceOnOff( self, "r_arm", TURN_OFF );
 		}
 	}
-	//Check ammo pods
+	// Check ammo pods
 	else
 	{
 		for (i=0;i<6;i++)
 		{
-			if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[HL_GENERIC1+i] > AMMO_POD_HEALTH))	//Blow it up?
+			if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[HL_GENERIC1+i] > AMMO_POD_HEALTH))	// Blow it up?
 			{
 				if (self->locationDamage[hitLoc] >= AMMO_POD_HEALTH)
 				{			
@@ -355,7 +355,7 @@ void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		}
 	}
 
-	//Are both guns shot off?
+	// Are both guns shot off?
 	if ((trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "l_arm" )>0) &&
 		(trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_arm" )>0))
 	{
@@ -397,7 +397,7 @@ void Mark1_FireBlaster(void)
 	mdxaBone_t	boltMatrix;
 	int			bolt;
 
-	//Which muzzle to fire from?
+	// Which muzzle to fire from?
 	if ((NPCInfo->localState <= LSTATE_FIRED0) || (NPCInfo->localState == LSTATE_FIRED4)) 
 	{
 		NPCInfo->localState = LSTATE_FIRED1;
@@ -463,32 +463,32 @@ void Mark1_BlasterAttack(qboolean advance )
 {
 	int chance;
 
-	if ( TIMER_Done( NPC, "attackDelay" ) )	//Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
 		chance = Q_irand( 1, 5);
 	
 		NPCInfo->burstCount++;
 
-		if (NPCInfo->burstCount<3)	//Too few shots this burst?
+		if (NPCInfo->burstCount<3)	// Too few shots this burst?
 		{
-			chance = 2;				//Force it to keep firing.
+			chance = 2;				// Force it to keep firing.
 		}
-		else if (NPCInfo->burstCount>12)	//Too many shots fired this burst?
+		else if (NPCInfo->burstCount>12)	// Too many shots fired this burst?
 		{
 			NPCInfo->burstCount = 0;
-			chance = 1;				//Force it to stop firing.
+			chance = 1;				// Force it to stop firing.
 		}
 
-		//Stop firing.
+		// Stop firing.
 		if (chance == 1)
 		{
 			NPCInfo->burstCount = 0;
 			TIMER_Set( NPC, "attackDelay", Q_irand( 1000, 3000) );
-			NPC->client->ps.torsoTimer=0;						//Just in case the firing anim is running.
+			NPC->client->ps.torsoTimer=0;						// Just in case the firing anim is running.
 		}
 		else
 		{
-			if (TIMER_Done( NPC, "attackDelay2" ))	//Can't be shooting every frame.
+			if (TIMER_Done( NPC, "attackDelay2" ))	// Can't be shooting every frame.
 			{
 				TIMER_Set( NPC, "attackDelay2", Q_irand( 50, 50) );
 				Mark1_FireBlaster();
@@ -501,15 +501,15 @@ void Mark1_BlasterAttack(qboolean advance )
 	{
 		if ( NPC->client->ps.torsoAnim == BOTH_ATTACK1 )
 		{
-			NPC->client->ps.torsoTimer=0;						//Just in case the firing anim is running.
+			NPC->client->ps.torsoTimer=0;						// Just in case the firing anim is running.
 		}
 		Mark1_Hunt();
 	}
-	else	//Make sure he's not firing.
+	else	// Make sure he's not firing.
 	{
 		if ( NPC->client->ps.torsoAnim == BOTH_ATTACK1 )
 		{
-			NPC->client->ps.torsoTimer=0;						//Just in case the firing anim is running.
+			NPC->client->ps.torsoTimer=0;						// Just in case the firing anim is running.
 		}
 	}
 }
@@ -558,7 +558,7 @@ void Mark1_FireRocket(void)
 	missile->splashDamage = BOWCASTER_SPLASH_DAMAGE;
 	missile->splashRadius = BOWCASTER_SPLASH_RADIUS;
 
-	//we don't want it to bounce
+	// we don't want it to bounce
 	missile->bounceCount = 0;
 
 }
@@ -570,7 +570,7 @@ Mark1_RocketAttack
 */
 void Mark1_RocketAttack( qboolean advance )
 {
-	if ( TIMER_Done( NPC, "attackDelay" ) )	//Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
 		TIMER_Set( NPC, "attackDelay", Q_irand( 1000, 3000) );
  		NPC_SetAnim( NPC, SETANIM_TORSO, BOTH_ATTACK2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -604,34 +604,34 @@ void Mark1_AttackDecision( void )
 		}
 	}
 
-	//Enemy is dead or he has no enemy.
+	// Enemy is dead or he has no enemy.
 	if ((NPC->enemy->health<1) || ( NPC_CheckEnemyExt(qfalse) == qfalse ))
 	{
 		NPC->enemy = NULL;
 		return;
 	}
 
-	//Rate our distance to the target and visibility
+	// Rate our distance to the target and visibility
 	distance	= (int) DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
 
-	//If we cannot see our target, move to see it
+	// If we cannot see our target, move to see it
 	if ((!visible) || (!NPC_FaceEnemy(qtrue)))
 	{
 		Mark1_Hunt();
 		return;
 	}
 
-	//See if the side weapons are there
+	// See if the side weapons are there
 	blasterTest = trap_G2API_GetSurfaceRenderStatus( NPC->ghoul2, 0, "l_arm" );
 	rocketTest = trap_G2API_GetSurfaceRenderStatus( NPC->ghoul2, 0, "r_arm" );
 
-	//It has both side weapons
+	// It has both side weapons
 	if (!blasterTest  && !rocketTest)
 	{
-		;	//So do nothing.
+		;	// So do nothing.
 	}
 	else if (blasterTest!=-1
 		&&blasterTest)
@@ -643,7 +643,7 @@ void Mark1_AttackDecision( void )
 	{
 		distRate = DIST_MELEE;
 	}
-	else	//It should never get here, but just in case
+	else	// It should never get here, but just in case
 	{ 
 		NPC->health = 0;
 		NPC->client->ps.stats[STAT_HEALTH] = 0;
@@ -653,7 +653,7 @@ void Mark1_AttackDecision( void )
 		}
 	}
 
-	//We can see enemy so shoot him if timers let you.
+	// We can see enemy so shoot him if timers let you.
 	NPC_FaceEnemy( qtrue );
 
 	if (distRate == DIST_MELEE)

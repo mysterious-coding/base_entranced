@@ -233,13 +233,13 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		case WP_THERMAL://grenade-throwing has a built-in delay
 			return;
 			break;
-		case WP_STUN_BATON:			//Any ol' melee attack
+		case WP_STUN_BATON:			// Any ol' melee attack
 			return;
 			break;
 		case WP_EMPLACED_GUN:
 			return;
 			break;
-		case WP_TURRET:			//turret guns 
+		case WP_TURRET:			// turret guns 
 			return;
 			break;
 	
@@ -344,7 +344,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	{
 		assert( enemy != self );
 	}
-#endif//_DEBUG
+#endif// _DEBUG
 	
 	if ( self->client && self->NPC && enemy->client && enemy->client->playerTeam == self->client->playerTeam )
 	{//Probably a damn script!
@@ -386,7 +386,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		{
 			//FIXME: Use anger when entire team has no enemy.
 			//		 Basically, you're first one to notice enemies
-			//if ( self->forcePushTime < level.time ) //not currently being pushed
+			//if ( self->forcePushTime < level.time ) // not currently being pushed
 			if (1) //rwwFIXMEFIXME: Set forcePushTime
 			{
 				if ( !G_TeamEnemy( self ) )
@@ -616,16 +616,16 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		else
 		{
 			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
-			ent->NPC->burstMin = 2; //3 shots, really
+			ent->NPC->burstMin = 2; // 3 shots, really
 			ent->NPC->burstMean = 2;
 			ent->NPC->burstMax = 2;
 
-			if ( ent->parent ) //if we have an owner, it should be the chair at this point...so query the chair for its shot debounce times, etc.
+			if ( ent->parent ) // if we have an owner, it should be the chair at this point...so query the chair for its shot debounce times, etc.
 			{
 				if ( g_spskill.integer == 0 )
 				{
 					ent->NPC->burstSpacing = ent->parent->wait + 400;//attack debounce
-					ent->NPC->burstMin = ent->NPC->burstMax = 1; //two shots
+					ent->NPC->burstMin = ent->NPC->burstMax = 1; // two shots
 				}
 				else if ( g_spskill.integer == 1 )
 				{
@@ -641,7 +641,7 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 				if ( g_spskill.integer == 0 )
 				{
 					ent->NPC->burstSpacing = 1200;//attack debounce
-					ent->NPC->burstMin = ent->NPC->burstMax = 1; //two shots
+					ent->NPC->burstMin = ent->NPC->burstMax = 1; // two shots
 				}
 				else if ( g_spskill.integer == 1 )
 				{
@@ -728,7 +728,7 @@ void ShootThink( void )
 
 	ucmd.buttons |= BUTTON_ATTACK;
 
-	NPCInfo->currentAmmo = client->ps.ammo[weaponData[client->ps.weapon].ammoIndex];	//checkme
+	NPCInfo->currentAmmo = client->ps.ammo[weaponData[client->ps.weapon].ammoIndex];	// checkme
 
 	NPC_ApplyWeaponFireDelay();
 
@@ -754,10 +754,10 @@ void ShootThink( void )
 
 		if ( !delay )
 		{
-			//HACK: dirty little emplaced bits, but is done because it would otherwise require some sort of new variable...
+			// HACK: dirty little emplaced bits, but is done because it would otherwise require some sort of new variable...
 			if ( client->ps.weapon == WP_EMPLACED_GUN )
 			{
-				if ( NPC->parent ) //try and get the debounce values from the chair if we can
+				if ( NPC->parent ) // try and get the debounce values from the chair if we can
 				{
 					if ( g_spskill.integer == 0 )
 					{
@@ -816,7 +816,7 @@ void WeaponThink( qboolean inCombat )
 
 //MCG - Begin
 	//For now, no-one runs out of ammo	
-	if(NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < 10)	//checkme	
+	if(NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < 10)	// checkme	
 	{
 		Add_Ammo( NPC, weaponData[client->ps.weapon].ammoIndex, 100 );
 	}
@@ -883,7 +883,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 	trap_Trace ( &tr, muzzle, NULL, NULL, spot, shooter->s.number, MASK_SHOT );
 	traceEnt = &g_entities[ tr.entityNum ];
 
-	//point blank, baby!
+	// point blank, baby!
 	if (tr.startsolid && (shooter->NPC) && (shooter->NPC->touchedByPlayer) ) 
 	{
 		traceEnt = shooter->NPC->touchedByPlayer;
@@ -894,7 +894,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 		traceEnt = &g_entities[ tr.entityNum ];
 	}
 
-	//shot is dead on
+	// shot is dead on
 	if ( traceEnt == ent ) 
 	{
 		return qtrue;
@@ -919,27 +919,27 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 		return qtrue;
 	}
 //MCG - End
-	//shot would hit a non-client
+	// shot would hit a non-client
 	if ( !traceEnt->client ) 
 	{
 		return qfalse;
 	}
 
-	//shot is blocked by another player
+	// shot is blocked by another player
 
-	//he's already dead, so go ahead
+	// he's already dead, so go ahead
 	if ( traceEnt->health <= 0 ) 
 	{
 		return qtrue;
 	}
 
-	//don't deliberately shoot a teammate
+	// don't deliberately shoot a teammate
 	if ( traceEnt->client && ( traceEnt->client->playerTeam == shooter->client->playerTeam ) ) 
 	{
 		return qfalse;
 	}
 
-	//he's just in the wrong place, go ahead
+	// he's just in the wrong place, go ahead
 	return qtrue;
 }
 
@@ -951,14 +951,14 @@ Added: hacks for scripted NPCs
 */
 void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis ) 
 {
-	//is he is already our enemy?
+	// is he is already our enemy?
 	if ( other == NPC->enemy ) 
 		return;
 
 	if ( other->flags & FL_NOTARGET ) 
 		return;
 
-	//we already have an enemy and this guy is in our FOV, see if this guy would be better
+	// we already have an enemy and this guy is in our FOV, see if this guy would be better
 	if ( NPC->enemy && vis == VIS_FOV ) 
 	{
 		if ( NPCInfo->enemyLastSeenTime - level.time < 2000 ) 
@@ -1485,7 +1485,7 @@ gentity_t *NPC_PickAlly ( qboolean facingEachOther, float range, qboolean ignore
 			if ( ally->health > 0 )
 			{
 				if ( ally->client && ( ally->client->playerTeam == NPC->client->playerTeam ||
-					 NPC->client->playerTeam == NPCTEAM_ENEMY ) )//&& ally->client->playerTeam == TEAM_DISGUISE ) ) )
+					 NPC->client->playerTeam == NPCTEAM_ENEMY ) )// && ally->client->playerTeam == TEAM_DISGUISE ) ) )
 				{//if on same team or if player is disguised as your team
 					if ( ignoreGroup )
 					{
@@ -1730,10 +1730,10 @@ qboolean NPC_ClearShot( gentity_t *ent )
 
 	CalcEntitySpot( NPC, SPOT_WEAPON, muzzle );
 
-	//add aim error
-	//use weapon instead of specific npc types, although you could add certain npc classes if you wanted
+	// add aim error
+	// use weapon instead of specific npc types, although you could add certain npc classes if you wanted
 //	if ( NPC->client->playerTeam == TEAM_SCAVENGERS )
-	if( NPC->s.weapon == WP_BLASTER /*|| NPC->s.weapon == WP_BLASTER_PISTOL*/ ) //any other guns to check for?
+	if( NPC->s.weapon == WP_BLASTER /*|| NPC->s.weapon == WP_BLASTER_PISTOL*/ ) // any other guns to check for?
 	{
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
@@ -1790,10 +1790,10 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 	}
 	CalcEntitySpot( ent, SPOT_CHEST, targ );
 	
-	//add aim error
-	//use weapon instead of specific npc types, although you could add certain npc classes if you wanted
+	// add aim error
+	// use weapon instead of specific npc types, although you could add certain npc classes if you wanted
 //	if ( NPC->client->playerTeam == TEAM_SCAVENGERS )
-	if( NPC->s.weapon == WP_BLASTER /*|| NPC->s.weapon == WP_BLASTER_PISTOL*/ ) //any other guns to check for?
+	if( NPC->s.weapon == WP_BLASTER /*|| NPC->s.weapon == WP_BLASTER_PISTOL*/ ) // any other guns to check for?
 	{
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };

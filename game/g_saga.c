@@ -1,4 +1,4 @@
-//Copyright (C) 2000-2002 Raven Software, Inc.
+// Copyright (C) 2000-2002 Raven Software, Inc.
 //
 /*****************************************************************************
  * name:		g_saga.c
@@ -1560,7 +1560,7 @@ void SiegeRespawn(gentity_t *ent)
 	else
 	{
 		ClientSpawn(ent);
-		//add a teleportation effect
+		// add a teleportation effect
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
 	}
@@ -1950,8 +1950,8 @@ void SP_info_siege_objective (gentity_t *ent)
 	
 	if (s && s[0])
 	{ 
-		//We have an icon, so index it now.  We are reusing the genericenemyindex
-		//variable rather than adding a new one to the entity state.
+		// We have an icon, so index it now.  We are reusing the genericenemyindex
+		// variable rather than adding a new one to the entity state.
 		ent->s.genericenemyindex = G_IconIndex(s);
 	}
 
@@ -2158,7 +2158,7 @@ static void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier)
 	G_SetOrigin(ent, ent->pos1);
 	SiegeItemRemoveOwner(ent, carrier);
 	
-	//Stop the item from flashing on the radar
+	// Stop the item from flashing on the radar
 	ent->s.time2 = 0;
 }
 
@@ -2277,7 +2277,7 @@ void SiegeItemThink(gentity_t *ent)
 		}
 		ent->genericValue9 = 0;
 		
-		//stop flashing on radar
+		// stop flashing on radar
 		ent->s.time2 = 0;
 	}
 
@@ -2378,14 +2378,14 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	{
 		self->s.eFlags &= ~EF_RADAROBJECT;
 	}
-	//time2 set to -1 will blink the item on the radar indefinately
+	// time2 set to -1 will blink the item on the radar indefinately
 	self->s.time2 = 0xFFFFFFFF;
 
 }
 
 void SiegeItemPain(gentity_t *self, gentity_t *attacker, int damage)
 {
-	//Time 2 is used to pulse the radar icon to show its under attack
+	// Time 2 is used to pulse the radar icon to show its under attack
 	self->s.time2 = level.time;
 }
 
@@ -2649,8 +2649,8 @@ void SP_misc_siege_item (gentity_t *ent)
 	
 	if (s && s[0])
 	{ 
-		//We have an icon, so index it now.  We are reusing the genericenemyindex
-		//variable rather than adding a new one to the entity state.
+		// We have an icon, so index it now.  We are reusing the genericenemyindex
+		// variable rather than adding a new one to the entity state.
 		ent->s.genericenemyindex = G_IconIndex(s);
 	}
 	

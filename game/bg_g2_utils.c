@@ -1,6 +1,6 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
-//bg_g2_utils.c -- both games misc functions, all completely stateless
+// bg_g2_utils.c -- both games misc functions, all completely stateless
 
 #include "q_shared.h"
 #include "bg_public.h"
@@ -37,7 +37,7 @@ void BG_AttachToRancor( void *ghoul2,
 	int boltIndex;
 	vec3_t rancAngles;
 	vec3_t temp_angles;
-	//Getting the bolt here
+	// Getting the bolt here
 	if ( inMouth )
 	{//in mouth
 		boltIndex = trap_G2API_AddBolt(ghoul2, 0, "jaw_bone");
@@ -50,7 +50,7 @@ void BG_AttachToRancor( void *ghoul2,
 	trap_G2API_GetBoltMatrix( ghoul2, 0, boltIndex, 
 			&boltMatrix, rancAngles, rancOrigin, time,
 			modelList, modelScale );
-	//Storing ent position, bolt position, and bolt axis
+	// Storing ent position, bolt position, and bolt axis
 	if ( out_origin )
 	{
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, out_origin );

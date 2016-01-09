@@ -1763,7 +1763,7 @@ float botGlobalNavWeaponWeights[WP_NUM_WEAPONS] =
 
 	0,//WP_STUN_BATON,
 	0,//WP_MELEE
-	0,//WP_SABER,				 //NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
+	0,//WP_SABER,				 // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
 	0,//WP_BRYAR_PISTOL,
 	3,//WP_BLASTER,
 	5,//WP_DISRUPTOR,

@@ -561,7 +561,7 @@ void NPC_BSGrenadier_Attack( void )
 		}
 		NPC_UpdateAngles( qtrue, qtrue );
 	}
-	else//if ( faceEnemy3 )
+	else// if ( faceEnemy3 )
 	{//face the enemy
 		NPC_FaceEnemy(qtrue);
 	}
@@ -576,7 +576,7 @@ void NPC_BSGrenadier_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{	
-			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) //we've already fired, no need to do it again here
+			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
 				WeaponThink( qtrue );
 				TIMER_Set( NPC, "attackDelay", NPCInfo->shotTime-level.time );

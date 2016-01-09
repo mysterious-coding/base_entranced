@@ -1,4 +1,4 @@
-//Interpreter.h
+// Interpreter.h
 
 #ifndef __INTERPRETER__
 #define __INTERPRETER__
@@ -209,10 +209,10 @@ protected:
 	variable_v	m_vars;
 	variable_m	m_varMap;
 
-	string	m_sCurrentLine;				//used in IBIze error reporting for more clarity
-	string	m_sCurrentFile;				//full-pathed name of .TXT file (needed because of above, which affects parsestreams)
-	int		m_iCurrentLine;				//also needed now because of 'm_sCurrentLine'
-	int		m_iBadCBlockNumber;			//used for final app return code (NZ = err)
+	string	m_sCurrentLine;				// used in IBIze error reporting for more clarity
+	string	m_sCurrentFile;				// full-pathed name of .TXT file (needed because of above, which affects parsestreams)
+	int		m_iCurrentLine;				// also needed now because of 'm_sCurrentLine'
+	int		m_iBadCBlockNumber;			// used for final app return code (NZ = err)
 
 	static keywordArray_t	m_symbolKeywords[];		//Symbols
 	static keywordArray_t	m_IDKeywords[];			//Identifiers

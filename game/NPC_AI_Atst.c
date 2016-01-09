@@ -110,7 +110,7 @@ ATST_Ranged
 void ATST_Ranged( qboolean visible, qboolean advance, qboolean altAttack )
 {
 
-	if ( TIMER_Done( NPC, "atkDelay" ) && visible )	//Attack?
+	if ( TIMER_Done( NPC, "atkDelay" ) && visible )	// Attack?
 	{
 		TIMER_Set( NPC, "atkDelay", Q_irand( 500, 3000 ) );
 
@@ -152,13 +152,13 @@ void ATST_Attack( void )
 
 	NPC_FaceEnemy( qtrue );
 
-	//Rate our distance to the target, and our visibilty
+	// Rate our distance to the target, and our visibilty
 	distance	= (int) DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
 
-	//If we cannot see our target, move to see it
+	// If we cannot see our target, move to see it
 	if ( visible == qfalse )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
@@ -168,7 +168,7 @@ void ATST_Attack( void )
 		}
 	}
 
-	//Decide what type of attack to do
+	// Decide what type of attack to do
 	switch ( distRate )
 	{
 	case DIST_MELEE:
@@ -178,19 +178,19 @@ void ATST_Attack( void )
 
 		//rwwFIXMEFIXME: make atst weaps work.
 
-		//See if the side weapons are there
+		// See if the side weapons are there
 		blasterTest = trap_G2API_GetSurfaceRenderStatus( NPC->ghoul2, 0, "head_light_blaster_cann" );
 		chargerTest = trap_G2API_GetSurfaceRenderStatus( NPC->ghoul2, 0, "head_concussion_charger" );
 
-		//It has both side weapons
+		// It has both side weapons
 		if ( blasterTest != -1
 			&& !(blasterTest&TURN_OFF)  
 			&& chargerTest != -1
 			&& !(chargerTest&TURN_OFF))
 		{
-			weapon = Q_irand( 0, 1);	//0 is blaster, 1 is charger (ALT SIDE)
+			weapon = Q_irand( 0, 1);	// 0 is blaster, 1 is charger (ALT SIDE)
 
-			if (weapon)				//Fire charger
+			if (weapon)				// Fire charger
 			{
 				altAttack = qtrue;
 			}
@@ -201,12 +201,12 @@ void ATST_Attack( void )
 
 		}
 		else if (blasterTest != -1
-			&& !(blasterTest & TURN_OFF))	//Blaster is on
+			&& !(blasterTest & TURN_OFF))	// Blaster is on
 		{
 			altAttack = qfalse;
 		}
 		else if (chargerTest != -1
-			&&!(chargerTest & TURN_OFF))	//Blaster is on
+			&&!(chargerTest & TURN_OFF))	// Blaster is on
 		{
 			altAttack = qtrue;
 		}

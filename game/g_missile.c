@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
 #include "w_saber.h"
@@ -69,12 +69,12 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	}
 
 	for (i = 0; i < 3; i++) {
-		bounce_dir[i] += RandFloatFlawed(-0.2f, 0.2f); //*CHANGE 10a* bigger deflect angles
+		bounce_dir[i] += RandFloatFlawed(-0.2f, 0.2f); // *CHANGE 10a* bigger deflect angles
 	}
 
 	VectorNormalize( bounce_dir );
 	VectorScale( bounce_dir, speed, missile->s.pos.trDelta );
-	missile->s.pos.trTime = level.time;		//move a bit on the very first frame
+	missile->s.pos.trTime = level.time;		// move a bit on the very first frame
 	VectorCopy( missile->r.currentOrigin, missile->s.pos.trBase );
 	if ( missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART )
 	{//you are mine, now!
@@ -113,12 +113,12 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 
 	for ( i = 0; i < 3; i++ )
 	{
-		bounce_dir[i] += RandFloatFlawed( -1.0f, 1.0f );//*CHANGE 10b* bigger deflect angles
+		bounce_dir[i] += RandFloatFlawed( -1.0f, 1.0f );// *CHANGE 10b* bigger deflect angles
 	}
 
 	VectorNormalize( bounce_dir );
 	VectorScale( bounce_dir, speed, missile->s.pos.trDelta );
-	missile->s.pos.trTime = level.time;		//move a bit on the very first frame
+	missile->s.pos.trTime = level.time;		// move a bit on the very first frame
 	VectorCopy( missile->r.currentOrigin, missile->s.pos.trBase );
 	if ( missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART )
 	{//you are mine, now!
@@ -147,7 +147,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 
 	other = &g_entities[trace->entityNum];
 
-	//reflect the velocity on the trace plane
+	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
 	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
@@ -158,7 +158,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 		VectorScale( ent->s.pos.trDelta, 0.25f, ent->s.pos.trDelta );
 		ent->s.pos.trType = TR_GRAVITY;
 
-		//check for stop
+		// check for stop
 		if ( trace->plane.normal[2] > 0.7 && ent->s.pos.trDelta[2] < 40 ) //this can happen even on very slightly sloped walls, so changed it from > 0 to > 0.7
 		{
 			G_SetOrigin( ent, trace->endpos );
@@ -169,7 +169,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	else if ( ent->flags & FL_BOUNCE_HALF ) 
 	{
 		VectorScale( ent->s.pos.trDelta, 0.65, ent->s.pos.trDelta );
-		//check for stop
+		// check for stop
 		if ( trace->plane.normal[2] > 0.2 && VectorLength( ent->s.pos.trDelta ) < 40 ) 
 		{
 			G_SetOrigin( ent, trace->endpos );
@@ -229,7 +229,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	SnapVector( origin );
 	G_SetOrigin( ent, origin );
 
-	//we don't have a valid direction, so just point straight up
+	// we don't have a valid direction, so just point straight up
 	dir[0] = dir[1] = 0;
 	dir[2] = 1;
 
@@ -239,7 +239,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	ent->freeAfterEvent = qtrue;
 
 	ent->takedamage = qfalse;
-	//splash damage
+	// splash damage
 	if ( ent->splashDamage ) {
 		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, 
 				ent, ent->splashMethodOfDeath ) ) 
@@ -274,7 +274,7 @@ void G_RunStuckMissile( gentity_t *ent )
 			}
 		}
 	}
-	//check think function
+	// check think function
 	G_RunThink( ent );
 }
 
@@ -370,7 +370,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 	other = &g_entities[trace->entityNum];
 
-	//check for bounce
+	// check for bounce
 	if ( !other->takedamage &&
 		(ent->bounceCount > 0 || ent->bounceCount == -5 ) &&
 		( ent->flags & ( FL_BOUNCE | FL_BOUNCE_HALF ) ) ) {
@@ -390,7 +390,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		isKnockedSaber = qtrue;
 	}
 
-	//I would glom onto the FL_BOUNCE code section above, but don't feel like risking breaking something else
+	// I would glom onto the FL_BOUNCE code section above, but don't feel like risking breaking something else
 	if ( (!other->takedamage && (ent->bounceCount > 0 || ent->bounceCount == -5) && ( ent->flags&(FL_BOUNCE_SHRAPNEL) ) ) || ((trace->surfaceFlags&SURF_FORCEFIELD)&&!ent->splashDamage&&!ent->splashRadius&&(ent->bounceCount > 0 || ent->bounceCount == -5)) ) 
 	{
 		G_BounceMissile( ent, trace );
@@ -638,7 +638,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	//check for sticking
+	// check for sticking
 	if ( !other->takedamage && ( ent->s.eFlags & EF_MISSILE_STICK ) ) 
 	{
 		laserTrapStick( ent, trace->endpos, trace->plane.normal );
@@ -646,9 +646,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		return;
 	}
 
-	//impact damage
+	// impact damage
 	if (other->takedamage && !isKnockedSaber) {
-		//FIXME: wrong damage direction?
+		// FIXME: wrong damage direction?
 		if ( ent->damage ) {
 			vec3_t	velocity;
 			qboolean didDmg = qfalse;
@@ -660,7 +660,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
 			if ( VectorLength( velocity ) == 0 ) {
-				velocity[2] = 1;	//stepped on a grenade
+				velocity[2] = 1;	// stepped on a grenade
 			}
 
 			if ((ent->s.weapon == WP_BOWCASTER || ent->s.weapon == WP_FLECHETTE ||
@@ -700,16 +700,16 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			{ //What I'm wondering is why this isn't in the NPC pain funcs. But this is what SP does, so whatever.
 				class_t	npc_class = other->client->NPC_class;
 
-				//If we are a robot and we aren't currently doing the full body electricity...
+				// If we are a robot and we aren't currently doing the full body electricity...
 				if ( npc_class == CLASS_SEEKER || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE ||
 					   npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 || npc_class == CLASS_REMOTE ||
 					   npc_class == CLASS_MARK1 || npc_class == CLASS_MARK2 || //npc_class == CLASS_PROTOCOL ||//no protocol, looks odd
 					   npc_class == CLASS_INTERROGATOR || npc_class == CLASS_ATST || npc_class == CLASS_SENTRY )
 				{
-					//special droid only behaviors
+					// special droid only behaviors
 					if ( other->client->ps.electrifyTime < level.time + 100 )
 					{
-						//... do the effect for a split second for some more feedback
+						// ... do the effect for a split second for some more feedback
 						other->client->ps.electrifyTime = level.time + 450;
 					}
 					//FIXME: throw some sparks off droids,too
@@ -766,8 +766,8 @@ killProj:
 		G_LogPrintf("ERROR: entity %i non-used, checkpoint 5\n",ent-g_entities);
 	}
 
-	//is it cheaper in bandwidth to just remove this ent and create a new
-	//one, rather than changing the missile into the explosion?
+	// is it cheaper in bandwidth to just remove this ent and create a new
+	// one, rather than changing the missile into the explosion?
 
 	if ( other->takedamage && other->client && !isKnockedSaber ) {
 		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
@@ -782,16 +782,16 @@ killProj:
 	{
 		ent->freeAfterEvent = qtrue;
 
-		//change over to a normal entity right at the point of impact
+		// change over to a normal entity right at the point of impact
 		ent->s.eType = ET_GENERAL;
 	}
 
-	SnapVectorTowards( trace->endpos, ent->s.pos.trBase );	//save net bandwidth
+	SnapVectorTowards( trace->endpos, ent->s.pos.trBase );	// save net bandwidth
 
 	G_SetOrigin( ent, trace->endpos );
 
 	ent->takedamage = qfalse;
-	//splash damage (doesn't apply to person directly hit)
+	// splash damage (doesn't apply to person directly hit)
 	if ( ent->splashDamage ) {
 		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
 			other, ent, ent->splashMethodOfDeath ) ) {
@@ -859,15 +859,15 @@ void G_RunMissile( gentity_t *ent ) {
 		ent->s.pos.trType = TR_GRAVITY;
 	}
 
-	//get current position
+	// get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
-	//if this missile bounced off an invulnerability sphere
+	// if this missile bounced off an invulnerability sphere
 	if ( ent->target_ent ) {
 		passent = ent->target_ent->s.number;
 	}
 	else {
-		//ignore interactions with the missile owner
+		// ignore interactions with the missile owner
 		if ( (ent->r.svFlags&SVF_OWNERNOTSHARED) 
 			&& (ent->s.eFlags&EF_JETPACK_ACTIVE) )
 		{//A vehicle missile that should be solid to its owner
@@ -879,7 +879,7 @@ void G_RunMissile( gentity_t *ent ) {
 			passent = ent->r.ownerNum;
 		}
 	}
-	//trace a line from the previous position to the current position
+	// trace a line from the previous position to the current position
 	if (d_projectileGhoul2Collision.integer)
 	{
 		trap_G2Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
@@ -906,7 +906,7 @@ void G_RunMissile( gentity_t *ent ) {
 		}
 
 	if ( tr.startsolid || tr.allsolid ) {
-		//make sure the tr.entityNum is set to the entity we're stuck in
+		// make sure the tr.entityNum is set to the entity we're stuck in
 		trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask );
 		tr.fraction = 0;
 	}
@@ -945,9 +945,9 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 
 	if ( tr.fraction != 1) {
-		//never explode or bounce on sky
+		// never explode or bounce on sky
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
-			//If grapple, reset owner
+			// If grapple, reset owner
 			if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
 				ent->parent->client->hook = NULL;
 			}
@@ -1008,7 +1008,7 @@ void G_RunMissile( gentity_t *ent ) {
 
 		if ( ent->s.eType != ET_MISSILE && ent->s.weapon != G2_MODEL_PART )
 		{
-			return;		//exploded
+			return;		// exploded
 		}
 	}
 
@@ -1041,7 +1041,7 @@ passthrough:
 		}
 	}
 
-	//check think function after bouncing
+	// check think function after bouncing
 	G_RunThink( ent );
 }
 

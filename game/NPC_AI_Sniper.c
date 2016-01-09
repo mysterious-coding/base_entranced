@@ -752,7 +752,7 @@ void NPC_BSSniper_Attack( void )
 		}
 		NPC_UpdateAngles( qtrue, qtrue );
 	}
-	else//if ( faceEnemy2 )
+	else// if ( faceEnemy2 )
 	{//face the enemy
 		Sniper_FaceEnemy();
 	}

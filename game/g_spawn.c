@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 
 #include "g_local.h"
@@ -380,7 +380,7 @@ void SP_gametype_item ( gentity_t* ent )
 
 	G_SetOrigin( ent, ent->s.origin );
 
-	//If a team filter is set then override any team settings for the spawns
+	// If a team filter is set then override any team settings for the spawns
 	if ( level.mTeamFilter[0] )
 	{
 		if ( Q_stricmp ( level.mTeamFilter, "red") == 0 )
@@ -434,8 +434,8 @@ void SP_gametype_item ( gentity_t* ent )
 void SP_emplaced_gun( gentity_t *ent );
 
 spawn_t	spawns[] = {
-	//info entities don't do anything at all, but provide positional
-	//information for things controlled by other processes
+	// info entities don't do anything at all, but provide positional
+	// information for things controlled by other processes
 	{"info_player_start", SP_info_player_start},
 	{"info_player_duel", SP_info_player_duel},
 	{"info_player_duel1", SP_info_player_duel1},
@@ -450,7 +450,7 @@ spawn_t	spawns[] = {
 	{"info_player_start_red", SP_info_player_start_red},
 	{"info_player_start_blue", SP_info_player_start_blue},
 	{"info_null", SP_info_null},
-	{"info_notnull", SP_info_notnull},		//use target_position instead
+	{"info_notnull", SP_info_notnull},		// use target_position instead
 	{"info_camp", SP_info_camp},
 
 	{"info_siege_objective", SP_info_siege_objective},
@@ -468,17 +468,17 @@ spawn_t	spawns[] = {
 	{"func_pendulum", SP_func_pendulum},
 	{"func_train", SP_func_train},
 	{"func_group", SP_info_null},
-	{"func_timer", SP_func_timer},			//rename trigger_timer?
+	{"func_timer", SP_func_timer},			// rename trigger_timer?
 	{"func_breakable", SP_func_breakable},
 	{"func_glass", SP_func_glass},
 	{"func_usable", SP_func_usable},
 	{"func_wall", SP_func_wall},
 
-	//Triggers are brush objects that cause an effect when contacted
-	//by a living player, usually involving firing targets.
-	//While almost everything could be done with
-	//a single trigger class and different targets, triggered effects
-	//could not be client side predicted (push and teleport).
+	// Triggers are brush objects that cause an effect when contacted
+	// by a living player, usually involving firing targets.
+	// While almost everything could be done with
+	// a single trigger class and different targets, triggered effects
+	// could not be client side predicted (push and teleport).
 	{"trigger_lightningstrike", SP_trigger_lightningstrike},
 
 	{"trigger_always", SP_trigger_always},
@@ -492,8 +492,8 @@ spawn_t	spawns[] = {
 	{"trigger_hyperspace", SP_trigger_hyperspace},
 	{"trigger_asteroid_field", SP_trigger_asteroid_field},
 
-	//targets perform no action by themselves, but must be triggered
-	//by another entity
+	// targets perform no action by themselves, but must be triggered
+	// by another entity
 	{"target_give", SP_target_give},
 	{"target_remove_powerups", SP_target_remove_powerups},
 	{"target_delay", SP_target_delay},
@@ -691,7 +691,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		return qfalse;
 	}
 
-	//check item spawn functions
+	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			G_SpawnItem( ent, item );
@@ -699,10 +699,10 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		}
 	}
 
-	//check normal spawn functions
+	// check normal spawn functions
 	for ( s=spawns ; s->name ; s++ ) {
 		if ( !strcmp(s->name, ent->classname) ) {
-			//found it
+			// found it
 			if (ent->healingsound && ent->healingsound[0])
 			{ //yeah...this can be used for anything, so.. precache it if it's there
 				G_SoundIndex(ent->healingsound);
@@ -733,7 +733,7 @@ char *G_NewString( const char *string ) {
 
 	new_p = newb;
 
-	//turn \n into a real linefeed
+	// turn \n into a real linefeed
 	for ( i=0 ; i< l ; i++ ) {
 		if (string[i] == '\\' && i < l-1) {
 			i++;
@@ -771,14 +771,14 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 	char		*s, *value, *gametypeName;
 	static char *gametypeNames[] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
 
-	//get the next free entity
+	// get the next free entity
 	ent = G_Spawn();
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
 		BG_ParseField( fields, level.spawnVars[i][0], level.spawnVars[i][1], (byte *)ent );
 	}
 
-	//check for "notsingle" flag
+	// check for "notsingle" flag
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		G_SpawnInt( "notsingle", "0", &i );
 		if ( i ) {
@@ -786,7 +786,7 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 			return;
 		}
 	}
-	//check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
+	// check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
 	if ( g_gametype.integer >= GT_TEAM ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
@@ -819,11 +819,11 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 		}
 	}
 
-	//move editor origin to pos
+	// move editor origin to pos
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
 
-	//if we didn't get a classname, don't bother spawning anything
+	// if we didn't get a classname, don't bother spawning anything
 	if ( !G_CallSpawn( ent ) ) {
 		G_FreeEntity( ent );
 	}
@@ -909,7 +909,7 @@ static void HandleEntityAdjustment(void)
 	newOrigin[1] = origin[0]*sin(rotation) + origin[1]*cos(rotation);
 	newOrigin[2] = origin[2];
 	VectorAdd(newOrigin, level.mOriginAdjust, newOrigin);
-	//damn VMs don't handle outputing a float that is compatible with sscanf in all cases
+	// damn VMs don't handle outputing a float that is compatible with sscanf in all cases
 	Com_sprintf(temp, MAX_QPATH, "%0.0f %0.0f %0.0f", newOrigin[0], newOrigin[1], newOrigin[2]);
 	AddSpawnField("origin", temp);
 
@@ -919,7 +919,7 @@ static void HandleEntityAdjustment(void)
 		sscanf( value, "%f %f %f", &angles[0], &angles[1], &angles[2] );
 
 		angles[1] = fmod(angles[1] + level.mRotationAdjust, 360.0f);
-		//damn VMs don't handle outputing a float that is compatible with sscanf in all cases
+		// damn VMs don't handle outputing a float that is compatible with sscanf in all cases
 		Com_sprintf(temp, MAX_QPATH, "%0.0f %0.0f %0.0f", angles[0], angles[1], angles[2]);
 		AddSpawnField("angles", temp);
 	}
@@ -939,8 +939,8 @@ static void HandleEntityAdjustment(void)
 		AddSpawnField("angle", temp);
 	}
 
-	//RJR experimental code for handling "direction" field of breakable brushes
-	//though direction is rarely ever used.
+	// RJR experimental code for handling "direction" field of breakable brushes
+	// though direction is rarely ever used.
 	G_SpawnString("direction", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
@@ -1024,18 +1024,18 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 	level.numSpawnVars = 0;
 	level.numSpawnVarChars = 0;
 
-	//parse the opening brace
+	// parse the opening brace
 	if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
-		//end of spawn string
+		// end of spawn string
 		return qfalse;
 	}
 	if ( com_token[0] != '{' ) {
 		G_Error( "G_ParseSpawnVars: found %s when expecting {",com_token );
 	}
 
-	//go through all the key / value pairs
+	// go through all the key / value pairs
 	while ( 1 ) {	
-		//parse key
+		// parse key
 		if ( !trap_GetEntityToken( keyname, sizeof( keyname ) ) ) {
 			G_Error( "G_ParseSpawnVars: EOF without closing brace" );
 		}
@@ -1044,7 +1044,7 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 			break;
 		}
 		
-		//parse value	
+		// parse value	
 		if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
 			G_Error( "G_ParseSpawnVars: EOF without closing brace" );
 		}
@@ -1071,162 +1071,162 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 
 static	char *defaultStyles[32][3] = 
 {
-	{	//0 normal
+	{	// 0 normal
 		"z",
 		"z",
 		"z"
 	},
-	{	//1 FLICKER (first variety)
+	{	// 1 FLICKER (first variety)
 		"mmnmmommommnonmmonqnmmo",
 		"mmnmmommommnonmmonqnmmo",
 		"mmnmmommommnonmmonqnmmo"
 	},
-	{	//2 SLOW STRONG PULSE
+	{	// 2 SLOW STRONG PULSE
 		"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcb",
 		"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcb",
 		"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcb"
 	},
-	{	//3 CANDLE (first variety)
+	{	// 3 CANDLE (first variety)
 		"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
 		"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
 		"mmmmmaaaaammmmmaaaaaabcdefgabcdefg"
 	},
-	{	//4 FAST STROBE
+	{	// 4 FAST STROBE
 		"mamamamamama",
 		"mamamamamama",
 		"mamamamamama"
 	},
-	{	//5 GENTLE PULSE 1
+	{	// 5 GENTLE PULSE 1
 		"jklmnopqrstuvwxyzyxwvutsrqponmlkj",
 		"jklmnopqrstuvwxyzyxwvutsrqponmlkj",
 		"jklmnopqrstuvwxyzyxwvutsrqponmlkj"
 	},
-	{	//6 FLICKER (second variety)
+	{	// 6 FLICKER (second variety)
 		"nmonqnmomnmomomno",
 		"nmonqnmomnmomomno",
 		"nmonqnmomnmomomno"
 	},
-	{	//7 CANDLE (second variety)
+	{	// 7 CANDLE (second variety)
 		"mmmaaaabcdefgmmmmaaaammmaamm",
 		"mmmaaaabcdefgmmmmaaaammmaamm",
 		"mmmaaaabcdefgmmmmaaaammmaamm"
 	},
-	{	//8 CANDLE (third variety)
+	{	// 8 CANDLE (third variety)
 		"mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa",
 		"mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa",
 		"mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa"
 	},
-	{	//9 SLOW STROBE (fourth variety)
+	{	// 9 SLOW STROBE (fourth variety)
 		"aaaaaaaazzzzzzzz",
 		"aaaaaaaazzzzzzzz",
 		"aaaaaaaazzzzzzzz"
 	},
-	{	//10 FLUORESCENT FLICKER
+	{	// 10 FLUORESCENT FLICKER
 		"mmamammmmammamamaaamammma",
 		"mmamammmmammamamaaamammma",
 		"mmamammmmammamamaaamammma"
 	},
-	{	//11 SLOW PULSE NOT FADE TO BLACK
+	{	// 11 SLOW PULSE NOT FADE TO BLACK
 		"abcdefghijklmnopqrrqponmlkjihgfedcba",
 		"abcdefghijklmnopqrrqponmlkjihgfedcba",
 		"abcdefghijklmnopqrrqponmlkjihgfedcba"
 	},
-	{	//12 FAST PULSE FOR JEREMY
+	{	// 12 FAST PULSE FOR JEREMY
 		"mkigegik",
 		"mkigegik",
 		"mkigegik"
 	},
-	{	//13 Test Blending
+	{	// 13 Test Blending
 		"abcdefghijklmqrstuvwxyz",
 		"zyxwvutsrqmlkjihgfedcba",
 		"aammbbzzccllcckkffyyggp"
 	},
-	{	//14
+	{	// 14
 		"",
 		"",
 		""
 	},
-	{	//15
+	{	// 15
 		"",
 		"",
 		""
 	},
-	{	//16
+	{	// 16
 		"",
 		"",
 		""
 	},
-	{	//17
+	{	// 17
 		"",
 		"",
 		""
 	},
-	{	//18
+	{	// 18
 		"",
 		"",
 		""
 	},
-	{	//19
+	{	// 19
 		"",
 		"",
 		""
 	},
-	{	//20
+	{	// 20
 		"",
 		"",
 		""
 	},
-	{	//21
+	{	// 21
 		"",
 		"",
 		""
 	},
-	{	//22
+	{	// 22
 		"",
 		"",
 		""
 	},
-	{	//23
+	{	// 23
 		"",
 		"",
 		""
 	},
-	{	//24
+	{	// 24
 		"",
 		"",
 		""
 	},
-	{	//25
+	{	// 25
 		"",
 		"",
 		""
 	},
-	{	//26
+	{	// 26
 		"",
 		"",
 		""
 	},
-	{	//27
+	{	// 27
 		"",
 		"",
 		""
 	},
-	{	//28
+	{	// 28
 		"",
 		"",
 		""
 	},
-	{	//29
+	{	// 29
 		"",
 		"",
 		""
 	},
-	{	//30
+	{	// 30
 		"",
 		"",
 		""
 	},
-	{	//31
+	{	// 31
 		"",
 		"",
 		""
@@ -1307,9 +1307,9 @@ void SP_worldspawn( void )
 
 		if (g2SaberInstance)
 		{
-			//indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied
+			// indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied
 			trap_G2API_SetBoltInfo(g2SaberInstance, 0, 0);
-			//now set up the gun bolt on it
+			// now set up the gun bolt on it
 			trap_G2API_AddBolt(g2SaberInstance, 0, "*blade1");
 		}
 	}
@@ -1319,7 +1319,7 @@ void SP_worldspawn( void )
 		EWebPrecache();
 	}
 
-	//make some data visible to connecting client
+	// make some data visible to connecting client
 	trap_SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
 
 	trap_SetConfigstring( CS_LEVEL_START_TIME, va("%i", level.startTime ) );
@@ -1328,9 +1328,9 @@ void SP_worldspawn( void )
 	trap_SetConfigstring( CS_MUSIC, text );
 
 	G_SpawnString( "message", "", &text );
-	trap_SetConfigstring( CS_MESSAGE, text );				//map specific message
+	trap_SetConfigstring( CS_MESSAGE, text );				// map specific message
 
-	trap_SetConfigstring( CS_MOTD, g_motd.string );		//message of the day
+	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
 	G_SpawnString( "gravity", "800", &text );
 	trap_Cvar_Set( "g_gravity", text );
@@ -1359,7 +1359,7 @@ void SP_worldspawn( void )
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
 
-	//see if we want a warmup time
+	// see if we want a warmup time
 	trap_SetConfigstring( CS_WARMUP, "" );
 	if ( g_restarted.integer ) {
 		trap_Cvar_Set( "g_restarted", "0" );
@@ -1432,13 +1432,13 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
 void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
-	//allow calls to G_Spawn*()
+	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
 
-	//the worldspawn is not an actual entity, but it still
-	//has a "spawn" function to perform any global setup
-	//needed by a level (setting configstrings or cvars, etc)
+	// the worldspawn is not an actual entity, but it still
+	// has a "spawn" function to perform any global setup
+	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars(qfalse) ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
@@ -1449,14 +1449,14 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	}
 	else
 	{
-		//Skip this guy if its worldspawn fails
+		// Skip this guy if its worldspawn fails
 		if ( !SP_bsp_worldspawn() )
 		{
 			return;
 		}
 	}
 
-	//parse ents
+	// parse ents
 	while( G_ParseSpawnVars(inSubBSP) ) {
 		G_SpawnGEntityFromSpawnVars(inSubBSP);
 	}	
@@ -1481,7 +1481,7 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 
 	if (!inSubBSP)
 	{
-		level.spawning = qfalse;			//any future calls to G_Spawn*() will be errors
+		level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
 	}
 
 	G_PrecacheSoundsets();

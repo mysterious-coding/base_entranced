@@ -22,10 +22,10 @@ extern stringID_table_t BSTable[];
 //unless we're using cpp. But we need it for the interpreter stuff.
 //In any case, DO NOT modify this enum.
 
-//Hack++
-//This code is compiled as C++ on Xbox. We could try and rig something above
-//so that we only get the C version of the includes (no full Icarus) in that
-//scenario, but I think we'll just try to leave this out instead.
+// Hack++
+// This code is compiled as C++ on Xbox. We could try and rig something above
+// so that we only get the C version of the includes (no full Icarus) in that
+// scenario, but I think we'll just try to leave this out instead.
 #ifndef _XBOX
 //#ifndef __linux__
 #if defined(__linux__) && defined(__GCC__) || !defined(__linux__)
@@ -387,7 +387,7 @@ static char *Q3_GetAnimBoth( gentity_t *ent )
 
 	if ( Q_stricmp( lowerName, upperName ) )
 	{
-#ifdef _DEBUG	//sigh, cut down on tester reports that aren't important
+#ifdef _DEBUG	// sigh, cut down on tester reports that aren't important
 		G_DebugPrint( WL_WARNING, "Q3_GetAnimBoth: legs and torso animations did not match : returning legs\n" );
 #endif
 	}
@@ -399,7 +399,7 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 {
 	gentity_t		*ent = &g_entities[entID];
 	char			finalName[MAX_QPATH];
-	soundChannel_t	voice_chan = CHAN_VOICE; //set a default so the compiler doesn't bitch
+	soundChannel_t	voice_chan = CHAN_VOICE; // set a default so the compiler doesn't bitch
 	qboolean		type_voice = qfalse;
 	int				soundHandle;
 	qboolean		bBroadcast;
@@ -417,7 +417,7 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 	}
 
 
-	//moved here from further down so I can easily check channel-type without code dup...
+	// moved here from further down so I can easily check channel-type without code dup...
 	//
 	if ( Q_stricmp( channel, "CHAN_VOICE" ) == 0 )
 	{
@@ -429,14 +429,14 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 		voice_chan = CHAN_AUTO;
 		type_voice = qtrue;
 	}
-	else if ( Q_stricmp( channel, "CHAN_VOICE_GLOBAL" ) == 0 ) //this should broadcast to everyone, put only casue animation on G_SoundOnEnt...
+	else if ( Q_stricmp( channel, "CHAN_VOICE_GLOBAL" ) == 0 ) // this should broadcast to everyone, put only casue animation on G_SoundOnEnt...
 	{
 		voice_chan = CHAN_AUTO;
 		type_voice = qtrue;
 		bBroadcast = qtrue;
 	}
 
-	//if we're in-camera, check for skipping cinematic and ifso, no subtitle print (since screen is not being
+	// if we're in-camera, check for skipping cinematic and ifso, no subtitle print (since screen is not being
 	//	updated anyway during skipping). This stops leftover subtitles being left onscreen after unskipping.
 	//
 	if ( type_voice )
@@ -491,22 +491,22 @@ void Q3_Play( int taskID, int entID, const char *type, const char *name )
 
 	if ( !Q_stricmp( type, "PLAY_ROFF" ) )
 	{
-		//Try to load the requested ROFF
+		// Try to load the requested ROFF
 		ent->roffid = trap_ROFF_Cache((char*)name);
 		if ( ent->roffid )
 		{
 			ent->roffname = G_NewString( name );
 
-			//Start the roff from the beginning
+			// Start the roff from the beginning
 
 			//Save this off for later
 			trap_ICARUS_TaskIDSet( ent, TID_MOVE_NAV, taskID );
 
-			//Let the ROFF playing start.
+			// Let the ROFF playing start.
 			//ent->next_roff_time = level.time;
 
 			//rww - Maybe use pos1 and pos2? I don't think we need to care if these values are sent across the net.
-			//These need to be initialised up front...
+			// These need to be initialised up front...
 			VectorCopy( ent->r.currentOrigin, ent->s.origin2 );
 			VectorCopy( ent->r.currentAngles, ent->s.angles2 );
 			
@@ -562,14 +562,14 @@ void moverCallback( gentity_t *ent )
 {	//complete the task
 	trap_ICARUS_TaskIDComplete( ent, TID_MOVE_NAV );
 	
-	//play sound
+	// play sound
 	ent->s.loopSound = 0;//stop looping sound
 	ent->s.loopIsSoundset = qfalse;
 	G_PlayDoorSound( ent, BMS_END );//play end sound
 
 	if ( ent->moverState == MOVER_1TO2 ) 
 	{//reached open
-		//reached pos2
+		// reached pos2
 		MatchTeam( ent, MOVER_POS2, level.time );
 	} 
 	else if ( ent->moverState == MOVER_2TO1 ) 
@@ -586,19 +586,19 @@ void moverCallback( gentity_t *ent )
 
 void Blocked_Mover( gentity_t *ent, gentity_t *other )
 {
-	//remove anything other than a client -- no longer the case
+	// remove anything other than a client -- no longer the case
 
-	//don't remove security keys or goodie keys
+	// don't remove security keys or goodie keys
 	if ( (other->s.eType == ET_ITEM) )
 	{
-		//should we be doing anything special if a key blocks it... move it somehow..?
+		// should we be doing anything special if a key blocks it... move it somehow..?
 	}
-	//if your not a client, or your a dead client remove yourself...
+	// if your not a client, or your a dead client remove yourself...
 	else if ( other->s.number >= MAX_CLIENTS && (!other->client || (other->client && other->health <= 0 && other->r.contents == CONTENTS_CORPSE && !other->message)) )
 	{
 		//if ( !other->taskManager || !other->taskManager->IsRunning() )
 		{
-			//if an item or weapon can we do a little explosion..?
+			// if an item or weapon can we do a little explosion..?
 			G_FreeEntity( other );
 			return;
 		}
@@ -665,7 +665,7 @@ void Q3_Lerp2Start( int entID, int taskID, float duration )
 	ent->s.pos.trTime = level.time;
 	
 	trap_ICARUS_TaskIDSet( ent, TID_MOVE_NAV, taskID );
-	//starting sound
+	// starting sound
 	G_PlayDoorLoopSound( ent );
 	G_PlayDoorSound( ent, BMS_START );	//??
 
@@ -713,7 +713,7 @@ void Q3_Lerp2End( int entID, int taskID, float duration )
 	ent->s.time = level.time;
 	
 	trap_ICARUS_TaskIDSet( ent, TID_MOVE_NAV, taskID );
-	//starting sound
+	// starting sound
 	G_PlayDoorLoopSound( ent );
 	G_PlayDoorSound( ent, BMS_START );	//??
 
@@ -759,7 +759,7 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 		duration = 1;
 
 	//
-	//Movement
+	// Movement
 
 	moverState = ent->moverState;
 
@@ -782,7 +782,7 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 
 	ent->s.pos.trDuration = duration;
 
-	//start it going
+	// start it going
 	MatchTeam( ent, moverState, level.time );
 	//SetMoverState( ent, moverState, level.time );
 
@@ -790,7 +790,7 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 	if ( angles != NULL )
 	{
 		//
-		//Rotation
+		// Rotation
 
 		for ( i = 0; i < 3; i++ )
 		{
@@ -827,7 +827,7 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 	}
 
 	trap_ICARUS_TaskIDSet( ent, TID_MOVE_NAV, taskID );
-	//starting sound
+	// starting sound
 	G_PlayDoorLoopSound( ent );
 	G_PlayDoorSound( ent, BMS_START );	//??
 
@@ -988,7 +988,7 @@ void Q3_Kill( int entID, const char *name )
 	{
 		victim->flags |= FL_NO_KNOCKBACK;
 	}
-	if( victim->die != NULL )	//check can be omitted
+	if( victim->die != NULL )	// check can be omitted
 	{
 		victim->die(victim, victim, victim, o_health, MOD_UNKNOWN);
 	}
@@ -1138,7 +1138,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		if (ent->parms == NULL)
 		{
 			G_DebugPrint( WL_ERROR, "GET_PARM: %s %s did not have any parms set!\n", ent->classname, ent->targetname );
-			return 0;	//would prefer qfalse, but I'm fitting in with what's here <sigh>
+			return 0;	// would prefer qfalse, but I'm fitting in with what's here <sigh>
 		}
 		*value = atof( ent->parms->parm[toGet - SET_PARM1] );
 		break;
@@ -1862,7 +1862,7 @@ static void Q3_SetOrigin( int entID, vec3_t origin )
 		ent->client->ps.origin[2] += 1;
 
 		VectorClear (ent->client->ps.velocity);
-		ent->client->ps.pm_time = 160;		//hold time
+		ent->client->ps.pm_time = 160;		// hold time
 		ent->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 		
 		ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
@@ -2007,7 +2007,7 @@ void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 
 	ent->s.pos.trDuration = duration;
 
-	//start it going
+	// start it going
 	MatchTeam( ent, moverState, level.time );
 
 	ent->reached = moverCallback;
@@ -2019,7 +2019,7 @@ void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 	{
 		trap_ICARUS_TaskIDSet( ent, TID_MOVE_NAV, taskID );
 	}
-	//starting sound
+	// starting sound
 	G_PlayDoorLoopSound( ent );//start looping sound
 	G_PlayDoorSound( ent, BMS_START );	//play start sound
 
@@ -2220,7 +2220,7 @@ static qboolean Q3_SetNavGoal( int entID, const char *name )
 	#ifdef _DEBUG
 			//this is *only* for debugging navigation
 			ent->NPC->tempGoal->target = G_NewString( name );
-	#endif//_DEBUG
+	#endif// _DEBUG
 		return qtrue;
 		}
 	}
@@ -3635,7 +3635,7 @@ static void Q3_SetFuncUsableVisible(int entID, qboolean visible )
 		return;
 	}
 	
-	//Yeah, I know that this doesn't even do half of what the func_usable use code does, but if I've got two things on top of each other...and only
+	// Yeah, I know that this doesn't even do half of what the func_usable use code does, but if I've got two things on top of each other...and only
 	//	one is visible at a time....and neither can ever be used......and finally, the shader on it has the shader_anim stuff going on....It doesn't seem
 	//	like I can easily use the other version without nasty side effects.
 	if( visible )
@@ -5679,7 +5679,7 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		break;
 
 	case SET_VIDEO_PLAY:
-		//don't do this check now, James doesn't want a scripted cinematic to also skip any Video cinematics as well,
+		// don't do this check now, James doesn't want a scripted cinematic to also skip any Video cinematics as well,
 		//	the "timescale" and "skippingCinematic" cvars will be set back to normal in the Video code, so doing a
 		//	skip will now only skip one section of a multiple-part story (eg VOY1 bridge sequence)
 		//

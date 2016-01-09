@@ -52,7 +52,7 @@ extern void Wampa_SetBolts( gentity_t *self );
 
 #define	NSF_DROP_TO_FLOOR	16
 
-//PAIN functions...
+// PAIN functions...
 //
 extern void funcBBrushPain				(gentity_t *self, gentity_t *attacker, int damage);
 extern void misc_model_breakable_pain	(gentity_t *self, gentity_t *attacker, int damage);
@@ -104,10 +104,10 @@ PAIN_FUNC *NPC_PainFunc( gentity_t *ent )
 	}
 	else
 	{
-		//team no longer indicates race/species, use NPC_class to determine different npc types
+		// team no longer indicates race/species, use NPC_class to determine different npc types
 		switch( ent->client->NPC_class )
 		{
-		//troopers get special pain
+		// troopers get special pain
 		case CLASS_STORMTROOPER:
 		case CLASS_SWAMPTROOPER:
 			func = NPC_ST_Pain;
@@ -129,7 +129,7 @@ PAIN_FUNC *NPC_PainFunc( gentity_t *ent )
 			func = NPC_Howler_Pain;
 			break;
 
-		//all other droids, did I miss any?
+		// all other droids, did I miss any?
 		case CLASS_GONK:
 		case CLASS_R2D2:
 		case CLASS_R5D2:
@@ -163,7 +163,7 @@ PAIN_FUNC *NPC_PainFunc( gentity_t *ent )
 		case CLASS_WAMPA:
 			func = NPC_Wampa_Pain;
 			break;
-		//everyone else gets the normal pain func
+		// everyone else gets the normal pain func
 		default:
 			func = NPC_Pain;
 			break;
@@ -269,7 +269,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		ent->client->ps.gravity = 0;
 		ent->NPC->aiFlags |= NPCAI_CUSTOM_GRAVITY;
 		ent->client->ps.eFlags2 |= EF2_FLYING;
-		ent->count = 30; //SEEKER shot ammo count
+		ent->count = 30; // SEEKER shot ammo count
 	}
 	//***I'm not sure whether I should leave this as a TEAM_ switch, I think NPC_class may be more appropriate - dmv
 	switch(ent->client->playerTeam)
@@ -322,7 +322,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 
 		if ( Q_stricmp( ent->NPC_type, "gonk" ) == 0 ) 
 		{
-			//I guess we generically make them player usable
+			// I guess we generically make them player usable
 			ent->r.svFlags |= SVF_PLAYER_USABLE;
 		}
 		break;
@@ -433,7 +433,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		}
 	}
 
-	if ( ent->client->NPC_class == CLASS_ATST || ent->client->NPC_class == CLASS_MARK1 ) //chris/steve/kevin requested that the mark1 be shielded also
+	if ( ent->client->NPC_class == CLASS_ATST || ent->client->NPC_class == CLASS_MARK1 ) // chris/steve/kevin requested that the mark1 be shielded also
 	{
 		ent->flags |= (FL_SHIELDED|FL_NO_KNOCKBACK);
 	}
@@ -450,7 +450,7 @@ int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type )
 	//*** not sure how to handle this, should I pass in class instead of team and go from there? - dmv
 	switch(team)
 	{
-	//no longer exists
+	// no longer exists
 	case NPCTEAM_ENEMY:
 		if ( Q_stricmp( "tavion", NPC_type ) == 0 || 
 			Q_strncmp( "reborn", NPC_type, 6 ) == 0 || 
@@ -670,20 +670,20 @@ void NPC_SetWeapons( gentity_t *ent )
 
 			if ( bestWeap == WP_SABER )
 			{
-				//still want to register other weapons -- force saber to be best weap
+				// still want to register other weapons -- force saber to be best weap
 				continue;
 			}
 
 			if ( curWeap == WP_STUN_BATON )
 			{
 				if ( bestWeap == WP_NONE )
-				{//We'll only consider giving Melee since we haven't found anything better yet.
+				{// We'll only consider giving Melee since we haven't found anything better yet.
 					bestWeap = curWeap;
 				}
 			}
 			else if ( curWeap > bestWeap || bestWeap == WP_STUN_BATON )
 			{
-				//This will never override saber as best weap.  Also will override WP_STUN_BATON if something better comes later in the list
+				// This will never override saber as best weap.  Also will override WP_STUN_BATON if something better comes later in the list
 				bestWeap = curWeap;
 			}
 		}
@@ -706,9 +706,9 @@ void NPC_SpawnEffect (gentity_t *ent)
 }
 
 //--------------------------------------------------------------
-//NPC_SetFX_SpawnStates
+// NPC_SetFX_SpawnStates
 //
-//Set up any special parms for spawn effects
+// Set up any special parms for spawn effects
 //--------------------------------------------------------------
 void NPC_SetFX_SpawnStates( gentity_t *ent )
 {
@@ -796,19 +796,19 @@ void NPC_Begin (gentity_t *ent)
 
 	client = ent->client;
 
-	//increment the spawncount so the client will detect the respawn
+	// increment the spawncount so the client will detect the respawn
 	client->ps.persistant[PERS_SPAWN_COUNT]++;
 
 	client->airOutTime = level.time + 12000;
 
 	client->ps.clientNum = ent->s.number;
-	//clear entity values
+	// clear entity values
 
-	if ( ent->health )	//Was health supplied in map
+	if ( ent->health )	// Was health supplied in map
 	{
 		client->pers.maxHealth = client->ps.stats[STAT_MAX_HEALTH] = ent->health;
 	}
-	else if ( ent->NPC->stats.health )	//Was health supplied in NPC.cfg?
+	else if ( ent->NPC->stats.health )	// Was health supplied in NPC.cfg?
 	{
 		
 		if ( ent->client->NPC_class != CLASS_REBORN
@@ -816,8 +816,8 @@ void NPC_Begin (gentity_t *ent)
 			//&& ent->client->NPC_class != CLASS_TAVION
 			//&& ent->client->NPC_class != CLASS_DESANN 
 			&& ent->client->NPC_class != CLASS_JEDI )
-		{//up everyone except jedi
-			ent->NPC->stats.health += ent->NPC->stats.health/4 * g_spskill.integer; //100% on easy, 125% on medium, 150% on hard
+		{// up everyone except jedi
+			ent->NPC->stats.health += ent->NPC->stats.health/4 * g_spskill.integer; // 100% on easy, 125% on medium, 150% on hard
 		}
 		
 		client->pers.maxHealth = client->ps.stats[STAT_MAX_HEALTH] = ent->NPC->stats.health;
@@ -936,10 +936,10 @@ void NPC_Begin (gentity_t *ent)
 
 	VectorCopy( spawn_origin, client->ps.origin );
 
-	//the respawned flag will be cleared after the attack and jump keys come up
+	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
 
-	//clear entity state values
+	// clear entity state values
 	ent->s.eType = ET_NPC;
 
 	VectorCopy (spawn_origin, ent->s.origin);
@@ -953,7 +953,7 @@ void NPC_Begin (gentity_t *ent)
 		trap_LinkEntity (ent);
 	}
 
-	//don't allow full run speed for a bit
+	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 	client->ps.pm_time = 100;
 
@@ -971,7 +971,7 @@ void NPC_Begin (gentity_t *ent)
 		ent->s.owner = ENTITYNUM_NONE;
 	}
 
-	//set default animations
+	// set default animations
 	if ( ent->client->NPC_class != CLASS_VEHICLE )
 	{
 		NPC_SetAnim( ent, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_NORMAL );
@@ -979,7 +979,7 @@ void NPC_Begin (gentity_t *ent)
 
 	if( spawnPoint )
 	{
-		//fire the targets of the spawn point
+		// fire the targets of the spawn point
 		G_UseTargets( spawnPoint, ent );
 	}
 
@@ -1045,8 +1045,8 @@ void NPC_Begin (gentity_t *ent)
 
 	VectorCopy( ent->r.currentOrigin, ent->client->renderInfo.eyePoint );
 
-	//run a client frame to drop exactly to the floor,
-	//initialize animations and other things
+	// run a client frame to drop exactly to the floor,
+	// initialize animations and other things
 	memset( &ucmd, 0, sizeof( ucmd ) );
 	VectorCopy(client->pers.cmd.angles, ucmd.angles);
 	
@@ -1155,7 +1155,7 @@ gNPC_t *New_NPC_t(int entNum)
 
 	if (ptr)
 	{
-		//clear it...
+		// clear it...
 		//
 		memset(ptr, 0, sizeof( *ptr ) );
 	}
@@ -1304,10 +1304,10 @@ gentity_t *NPC_Spawn_Do( gentity_t *client_ent, gentity_t *ent )
 		newent->flags |= FL_NO_KNOCKBACK;//don't fall off ledges
 	}
 
-	//If this is a vehicle we need to see what kind it is so we properlly allocate it.
+	// If this is a vehicle we need to see what kind it is so we properlly allocate it.
 	if ( Q_stricmp( ent->classname, "NPC_Vehicle" ) == 0 )
 	{
-		//Get the vehicle entry index.
+		// Get the vehicle entry index.
 		int iVehIndex = BG_VehicleGetIndex( ent->NPC_type );
 
  		if ( iVehIndex == VEHICLE_NONE )
@@ -1317,26 +1317,26 @@ gentity_t *NPC_Spawn_Do( gentity_t *client_ent, gentity_t *ent )
 			G_FreeEntity( ent );
 			return NULL;
 		}
-		//NOTE: If you change/add any of these, update NPC_Spawn_f for the new vehicle you
-		//want to be able to spawn in manually.
+		// NOTE: If you change/add any of these, update NPC_Spawn_f for the new vehicle you
+		// want to be able to spawn in manually.
 
-		//See what kind of vehicle this is and allocate it properly.
+		// See what kind of vehicle this is and allocate it properly.
 		switch( g_vehicleInfo[iVehIndex].type )
 		{
 			case VH_ANIMAL:
-				//Create the animal (making sure all it's data is initialized).
+				// Create the animal (making sure all it's data is initialized).
 				G_CreateAnimalNPC( &newent->m_pVehicle, ent->NPC_type );
 				break;
 			case VH_SPEEDER:
-				//Create the speeder (making sure all it's data is initialized).
+				// Create the speeder (making sure all it's data is initialized).
 				G_CreateSpeederNPC( &newent->m_pVehicle, ent->NPC_type );
 				break;
 			case VH_FIGHTER:
-				//Create the fighter (making sure all it's data is initialized).
+				// Create the fighter (making sure all it's data is initialized).
 				G_CreateFighterNPC( &newent->m_pVehicle, ent->NPC_type );
 				break;
 			case VH_WALKER:
-				//Create the walker (making sure all it's data is initialized).
+				// Create the walker (making sure all it's data is initialized).
 				G_CreateWalkerNPC( &newent->m_pVehicle, ent->NPC_type );
 				break;
 
@@ -1356,7 +1356,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *client_ent, gentity_t *ent )
 		//set up my happy prediction hack
 		newent->m_pVehicle->m_vOrientation = &newent->client->ps.vehOrientation[0];
 
-		//Setup the vehicle.
+		// Setup the vehicle.
 		newent->m_pVehicle->m_pParentEntity = (bgEntity_t *)newent;
 		newent->m_pVehicle->m_pVehicleInfo->Initialize( newent->m_pVehicle );
 
@@ -1607,7 +1607,7 @@ void NPC_ShySpawn( gentity_t *ent )
 	if ( DistanceSquared( g_entities[0].r.currentOrigin, ent->r.currentOrigin ) <= SHY_SPAWN_DISTANCE_SQR )
 		return;
 
-	if ( (InFOV( ent, &g_entities[0], 80, 64 )) ) //FIXME: hardcoded fov
+	if ( (InFOV( ent, &g_entities[0], 80, 64 )) ) // FIXME: hardcoded fov
 		if ( (NPC_ClearLOS2( &g_entities[0], ent->r.currentOrigin )) )
 			return;
 
@@ -1628,7 +1628,7 @@ void NPC_Spawn ( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	//delay before spawning NPC
 	if( ent->delay )
 	{
-		if ( ent->spawnflags & 2048 )  //SHY
+		if ( ent->spawnflags & 2048 )  // SHY
 		{
 			ent->think = NPC_ShySpawn;
 		}
@@ -1641,7 +1641,7 @@ void NPC_Spawn ( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	}
 	else
 	{
-		if ( ent->spawnflags & 2048 )  //SHY
+		if ( ent->spawnflags & 2048 )  // SHY
 		{
 			NPC_ShySpawn( ent );
 		}

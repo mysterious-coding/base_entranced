@@ -52,22 +52,22 @@ Interrogator_PartsMove
 */
 void Interrogator_PartsMove(void)
 {
-	//Syringe
+	// Syringe
 	if ( TIMER_Done(NPC,"syringeDelay") )
 	{
 		NPC->pos1[1] = AngleNormalize360( NPC->pos1[1]);
 
 		if ((NPC->pos1[1] < 60) || (NPC->pos1[1] > 300))
 		{
-			NPC->pos1[1]+=Q_irand( -20, 20 );	//Pitch	
+			NPC->pos1[1]+=Q_irand( -20, 20 );	// Pitch	
 		}
 		else if (NPC->pos1[1] > 180)
 		{
-			NPC->pos1[1]=Q_irand( 300, 360 );	//Pitch	
+			NPC->pos1[1]=Q_irand( 300, 360 );	// Pitch	
 		}
 		else 
 		{
-			NPC->pos1[1]=Q_irand( 0, 60 );	//Pitch	
+			NPC->pos1[1]=Q_irand( 0, 60 );	// Pitch	
 		}
 
 		NPC_SetBoneAngles(NPC, "left_arm", NPC->pos1);
@@ -75,26 +75,26 @@ void Interrogator_PartsMove(void)
 		TIMER_Set( NPC, "syringeDelay", Q_irand( 100, 1000 ) );
 	}
 
-	//Scalpel
+	// Scalpel
 	if ( TIMER_Done(NPC,"scalpelDelay") )
 	{
-		//Change pitch
-		if ( NPCInfo->localState == LSTATE_BLADEDOWN )	//Blade is moving down
+		// Change pitch
+		if ( NPCInfo->localState == LSTATE_BLADEDOWN )	// Blade is moving down
 		{
 			NPC->pos2[0]-= 30;
 			if (NPC->pos2[0] < 180)
 			{
 				NPC->pos2[0] = 180;
-				NPCInfo->localState = LSTATE_BLADEUP;	//Make it move up
+				NPCInfo->localState = LSTATE_BLADEUP;	// Make it move up
 			}
 		}
-		else											//Blade is coming back up
+		else											// Blade is coming back up
 		{
 			NPC->pos2[0]+= 30;
 			if (NPC->pos2[0] >= 360)
 			{
 				NPC->pos2[0] = 360;
-				NPCInfo->localState = LSTATE_BLADEDOWN;	//Make it move down
+				NPCInfo->localState = LSTATE_BLADEDOWN;	// Make it move down
 				TIMER_Set( NPC, "scalpelDelay", Q_irand( 100, 1000 ) );
 			}
 		}
@@ -104,7 +104,7 @@ void Interrogator_PartsMove(void)
 		NPC_SetBoneAngles(NPC, "right_arm", NPC->pos2);
 	}
 
-	//Claw
+	// Claw
 	NPC->pos3[1] += Q_irand( 10, 30 );
 	NPC->pos3[1] = AngleNormalize360( NPC->pos3[1]);
 
@@ -125,16 +125,16 @@ void Interrogator_MaintainHeight( void )
 	float	dif;
 
 	NPC->s.loopSound = G_SoundIndex( "sound/chars/interrogator/misc/torture_droid_lp" );
-	//Update our angles regardless
+	// Update our angles regardless
 	NPC_UpdateAngles( qtrue, qtrue );
 
-	//If we have an enemy, we should try to hover at about enemy eye level
+	// If we have an enemy, we should try to hover at about enemy eye level
 	if ( NPC->enemy )
 	{
-		//Find the height difference
+		// Find the height difference
 		dif = (NPC->enemy->r.currentOrigin[2] + NPC->enemy->r.maxs[2]) - NPC->r.currentOrigin[2]; 
 
-		//cap to prevent dramatic height shifts
+		// cap to prevent dramatic height shifts
 		if ( fabs( dif ) > 2 )
 		{
 			if ( fabs( dif ) > 16 )
@@ -149,7 +149,7 @@ void Interrogator_MaintainHeight( void )
 	{
 		gentity_t *goal = NULL;
 
-		if ( NPCInfo->goalEntity )	//Is there a goal?
+		if ( NPCInfo->goalEntity )	// Is there a goal?
 		{
 			goal = NPCInfo->goalEntity;
 		}
@@ -178,7 +178,7 @@ void Interrogator_MaintainHeight( void )
 				}
 			}
 		}
-		//Apply friction
+		// Apply friction
 		else if ( NPC->client->ps.velocity[2] )
 		{
 			NPC->client->ps.velocity[2] *= VELOCITY_DECAY;
@@ -190,7 +190,7 @@ void Interrogator_MaintainHeight( void )
 		}
 	}
 
-	//Apply friction
+	// Apply friction
 	if ( NPC->client->ps.velocity[0] )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;
@@ -228,25 +228,25 @@ void Interrogator_Strafe( void )
 
 	AngleVectors( NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
 
-	//Pick a random strafe direction, then check to see if doing a strafe would be
+	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->r.currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
 	trap_Trace( &tr, NPC->r.currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
 
-	//Close enough
+	// Close enough
 	if ( tr.fraction > 0.9f )
 	{
 		VectorMA( NPC->client->ps.velocity, HUNTER_STRAFE_VEL * dir, right, NPC->client->ps.velocity );
 
-		//Add a slight upward push
+		// Add a slight upward push
 		if ( NPC->enemy )
 		{
-			//Find the height difference
+			// Find the height difference
 			dif = (NPC->enemy->r.currentOrigin[2] + 32) - NPC->r.currentOrigin[2]; 
 
-			//cap to prevent dramatic height shifts
+			// cap to prevent dramatic height shifts
 			if ( fabs( dif ) > 8 )
 			{
 				dif = ( dif < 0 ? -HUNTER_UPWARD_PUSH : HUNTER_UPWARD_PUSH );
@@ -256,7 +256,7 @@ void Interrogator_Strafe( void )
 
 		}
 
-		//Set the strafe start time 
+		// Set the strafe start time 
 		//NPC->fx_time = level.time;
 		NPCInfo->standTime = level.time + 3000 + random() * 500;
 	}
@@ -283,7 +283,7 @@ void Interrogator_Hunt( qboolean visible, qboolean advance )
 	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
 	{
-		//Only strafe when we can see the player
+		// Only strafe when we can see the player
 		if ( visible )
 		{
 			Interrogator_Strafe();
@@ -301,7 +301,7 @@ void Interrogator_Hunt( qboolean visible, qboolean advance )
 	//Only try and navigate if the player is visible
 	if ( visible == qfalse )
 	{
-		//Move towards our goal
+		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
@@ -328,9 +328,9 @@ Interrogator_Melee
 */
 void Interrogator_Melee( qboolean visible, qboolean advance )
 {
-	if ( TIMER_Done( NPC, "attackDelay" ) )	//Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
-		//Make sure that we are within the height range before we allow any damage to happen
+		// Make sure that we are within the height range before we allow any damage to happen
 		if ( NPC->r.currentOrigin[2] >= NPC->enemy->r.currentOrigin[2]+NPC->enemy->r.mins[2] && NPC->r.currentOrigin[2]+NPC->r.mins[2]+8 < NPC->enemy->r.currentOrigin[2]+NPC->enemy->r.maxs[2] )
 		{
 
@@ -358,7 +358,7 @@ void Interrogator_Attack( void )
 	qboolean	visible;
 	qboolean	advance;
 
-	//Always keep a good height off the ground
+	// Always keep a good height off the ground
 	Interrogator_MaintainHeight();
 
 	//randomly talk
@@ -372,14 +372,14 @@ void Interrogator_Attack( void )
 		}
 	}
 
-	//If we don't have an enemy, just idle
+	// If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(qfalse) == qfalse )
 	{
 		Interrogator_Idle();
 		return;
 	}
 
-	//Rate our distance to the target, and our visibilty
+	// Rate our distance to the target, and our visibilty
 	distance	= (int) DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE*MIN_DISTANCE );

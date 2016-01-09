@@ -16,7 +16,7 @@ void VEH_TurretCheckFire( Vehicle_t *pVeh,
 						 vehWeaponInfo_t *vehWeapon, 
 						 int turretNum, int curMuzzle )
 {
-	//if it's time to fire and we have an enemy, then gun 'em down!  pushDebounce time controls next fire time
+	// if it's time to fire and we have an enemy, then gun 'em down!  pushDebounce time controls next fire time
 	if ( pVeh->m_iMuzzleTag[curMuzzle] == -1 )
 	{//invalid muzzle?
 		return;
@@ -106,8 +106,8 @@ qboolean VEH_TurretAim( Vehicle_t *pVeh,
 	if ( turretEnemy )
 	{
 		aimCorrect = qtrue;
-		//...then we'll calculate what new aim adjustments we should attempt to make this frame
-		//Aim at enemy
+		// ...then we'll calculate what new aim adjustments we should attempt to make this frame
+		// Aim at enemy
 		VEH_TurretAnglesToEnemy( pVeh, curMuzzle, vehWeapon->fSpeed, turretEnemy, turretStats->bAILead, desiredAngles ); 
 	}
 	//subtract out the vehicle's angles to get the relative desired alignment
@@ -218,7 +218,7 @@ static qboolean VEH_TurretFindEnemies( Vehicle_t *pVeh,
 			continue;
 		}
 		if ( !target->client )
-		{//only attack clients
+		{// only attack clients
 			if ( !(target->flags&FL_BBRUSH)//not a breakable brush
 				|| !target->takedamage//is a bbrush, but invincible
 				|| (target->NPC_targetname&&parent->targetname&&Q_stricmp(target->NPC_targetname,parent->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me
@@ -251,7 +251,7 @@ static qboolean VEH_TurretFindEnemies( Vehicle_t *pVeh,
 			{
 				if ( target->client->sess.sessionTeam == parent->client->sess.sessionTeam )
 				{ 
-					//A bot/client/NPC we don't want to shoot
+					// A bot/client/NPC we don't want to shoot
 					continue;
 				}
 			}
@@ -272,11 +272,11 @@ static qboolean VEH_TurretFindEnemies( Vehicle_t *pVeh,
 		if ( tr.entityNum == target->s.number
 			|| (!tr.allsolid && !tr.startsolid && tr.fraction == 1.0 ) )
 		{
-			//Only acquire if have a clear shot, Is it in range and closer than our best?
+			// Only acquire if have a clear shot, Is it in range and closer than our best?
 			VectorSubtract( target->r.currentOrigin, org2, enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
 
-			if ( enemyDist < bestDist || (target->client && !foundClient))//all things equal, keep current
+			if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current
 			{
 				bestTarget = target;
 				bestDist = enemyDist;
@@ -356,7 +356,7 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 			|| !turretEnemy->inuse
 			|| turretEnemy == ((gentity_t*)pVeh->m_pPilot)//enemy became my pilot///?
 			|| turretEnemy == parent
-			|| turretEnemy->r.ownerNum == parent->s.number //a passenger?
+			|| turretEnemy->r.ownerNum == parent->s.number // a passenger?
 			|| ( turretEnemy->client && turretEnemy->client->sess.sessionTeam == TEAM_SPECTATOR ) )
 		{//don't keep going after spectators, pilot, self, dead people, etc.
 			turretEnemy = NULL;
@@ -392,17 +392,17 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 	{
 		if ( turretEnemy->health > 0 )
 		{
-			//enemy is alive
+			// enemy is alive
 			WP_CalcVehMuzzle( parent, curMuzzle );
 			VectorSubtract( turretEnemy->r.currentOrigin, pVeh->m_vMuzzlePos[curMuzzle], enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
 
 			if ( enemyDist < rangeSq )
 			{
-				//was in valid radius
+				// was in valid radius
 				if ( trap_InPVS( pVeh->m_vMuzzlePos[curMuzzle], turretEnemy->r.currentOrigin ) )
 				{
-					//Every now and again, check to see if we can even trace to the enemy
+					// Every now and again, check to see if we can even trace to the enemy
 					trace_t tr;
 					vec3_t start, end;
 					VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], start );
@@ -413,7 +413,7 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 					if ( tr.entityNum == turretEnemy->s.number
 						|| (!tr.allsolid && !tr.startsolid ) )
 					{
-						doAim = qtrue;	//Can see our enemy
+						doAim = qtrue;	// Can see our enemy
 					}
 				}
 			}

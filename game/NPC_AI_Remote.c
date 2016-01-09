@@ -45,7 +45,7 @@ void Remote_MaintainHeight( void )
 {	
 	float	dif;
 
-	//Update our angles regardless
+	// Update our angles regardless
 	NPC_UpdateAngles( qtrue, qtrue );
 
 	if ( NPC->client->ps.velocity[2] )
@@ -57,17 +57,17 @@ void Remote_MaintainHeight( void )
 			NPC->client->ps.velocity[2] = 0;
 		}
 	}
-	//If we have an enemy, we should try to hover at or a little below enemy eye level
+	// If we have an enemy, we should try to hover at or a little below enemy eye level
 	if ( NPC->enemy )
 	{
 		if (TIMER_Done( NPC, "heightChange"))
 		{
 			TIMER_Set( NPC,"heightChange",Q_irand( 1000, 3000 ));
 
-			//Find the height difference
+			// Find the height difference
 			dif = (NPC->enemy->r.currentOrigin[2] +  Q_irand( 0, NPC->enemy->r.maxs[2]+8 )) - NPC->r.currentOrigin[2]; 
 
-			//cap to prevent dramatic height shifts
+			// cap to prevent dramatic height shifts
 			if ( fabs( dif ) > 2 )
 			{
 				if ( fabs( dif ) > 24 )
@@ -84,7 +84,7 @@ void Remote_MaintainHeight( void )
 	{
 		gentity_t *goal = NULL;
 
-		if ( NPCInfo->goalEntity )	//Is there a goal?
+		if ( NPCInfo->goalEntity )	// Is there a goal?
 		{
 			goal = NPCInfo->goalEntity;
 		}
@@ -104,7 +104,7 @@ void Remote_MaintainHeight( void )
 		}
 	}
 
-	//Apply friction
+	// Apply friction
 	if ( NPC->client->ps.velocity[0] )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;
@@ -143,24 +143,24 @@ void Remote_Strafe( void )
 
 	AngleVectors( NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
 
-	//Pick a random strafe direction, then check to see if doing a strafe would be
+	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->r.currentOrigin, REMOTE_STRAFE_DIS * dir, right, end );
 
 	trap_Trace( &tr, NPC->r.currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
 
-	//Close enough
+	// Close enough
 	if ( tr.fraction > 0.9f )
 	{
 		VectorMA( NPC->client->ps.velocity, REMOTE_STRAFE_VEL * dir, right, NPC->client->ps.velocity );
 
 		G_Sound( NPC, CHAN_AUTO, G_SoundIndex("sound/chars/remote/misc/hiss.wav"));
 
-		//Add a slight upward push
+		// Add a slight upward push
 		NPC->client->ps.velocity[2] += REMOTE_UPWARD_PUSH;
 
-		//Set the strafe start time so we can do a controlled roll
+		// Set the strafe start time so we can do a controlled roll
 		NPCInfo->standTime = level.time + 3000 + random() * 500;
 	}
 }
@@ -181,7 +181,7 @@ void Remote_Hunt( qboolean visible, qboolean advance, qboolean retreat )
 	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
 	{
-		//Only strafe when we can see the player
+		// Only strafe when we can see the player
 		if ( visible )
 		{
 			Remote_Strafe();
@@ -196,7 +196,7 @@ void Remote_Hunt( qboolean visible, qboolean advance, qboolean retreat )
 	//Only try and navigate if the player is visible
 	if ( visible == qfalse )
 	{
-		//Move towards our goal
+		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
@@ -261,7 +261,7 @@ Remote_Ranged
 void Remote_Ranged( qboolean visible, qboolean advance, qboolean retreat )
 {
 
-	if ( TIMER_Done( NPC, "attackDelay" ) )	//Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
 		TIMER_Set( NPC, "attackDelay", Q_irand( 500, 3000 ) );
 		Remote_Fire();
@@ -297,24 +297,24 @@ void Remote_Attack( void )
 		TIMER_Set( NPC, "spin", Q_irand( 250, 1500 ) );
 		NPCInfo->desiredYaw += Q_irand( -200, 200 ); 
 	}
-	//Always keep a good height off the ground
+	// Always keep a good height off the ground
 	Remote_MaintainHeight();
 
-	//If we don't have an enemy, just idle
+	// If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(qfalse) == qfalse )
 	{
 		Remote_Idle();
 		return;
 	}
 
-	//Rate our distance to the target, and our visibilty
+	// Rate our distance to the target, and our visibilty
 	distance	= (int) DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	idealDist	= MIN_DISTANCE_SQR+(MIN_DISTANCE_SQR*flrand( 0, 1 ));
 	advance		= (qboolean)(distance > idealDist*1.25);
 	retreat		= (qboolean)(distance < idealDist*0.75);
 
-	//If we cannot see our target, move to see it
+	// If we cannot see our target, move to see it
 	if ( visible == qfalse )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )

@@ -1,7 +1,7 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 //
-//g_arenas.c
+// g_arenas.c
 //
 
 #include "g_local.h"
@@ -28,7 +28,7 @@ void UpdateTournamentInfo( void ) {
 	char		buf[32];
 	char		msg[MAX_STRING_CHARS];
 
-	//find the real player
+	// find the real player
 	player = NULL;
 	for (i = 0; i < level.maxclients; i++ ) {
 		player = &g_entities[i];
@@ -39,7 +39,7 @@ void UpdateTournamentInfo( void ) {
 			break;
 		}
 	}
-	//this should never happen!
+	// this should never happen!
 	if ( !player || i == level.maxclients ) {
 		return;
 	}

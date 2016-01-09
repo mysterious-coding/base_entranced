@@ -1,5 +1,5 @@
 //
-//NPC_move.cpp
+// NPC_move.cpp
 //
 #include "b_local.h"
 #include "g_nav.h"
@@ -472,6 +472,6 @@ void NPC_ApplyRoff(void)
 	BG_PlayerStateToEntityState( &NPC->client->ps, &NPC->s, qfalse );
 	//rwwFIXMEFIXME: Any significance to this?
 
-	//use the precise origin for linking
+	// use the precise origin for linking
 	trap_LinkEntity(NPC);
 }

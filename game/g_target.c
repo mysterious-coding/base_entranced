@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
 
@@ -27,7 +27,7 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		}
 		Touch_Item( t, activator, &trace );
 
-		//make sure it isn't going to respawn or show any events
+		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
 		trap_UnlinkEntity( t );
 	}
@@ -98,7 +98,7 @@ void Use_Target_Delay( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 }
 
 void SP_target_delay( gentity_t *ent ) {
-	//check delay for backwards compatability
+	// check delay for backwards compatability
 	if ( !G_SpawnFloat( "delay", "0", &ent->wait ) ) {
 		G_SpawnFloat( "wait", "1", &ent->wait );
 	}
@@ -329,20 +329,20 @@ Multiple identical looping sounds will just increase volume without any speed co
 void Use_Target_Speaker (gentity_t *ent, gentity_t *other, gentity_t *activator) {
 	G_ActivateBehavior(ent,BSET_USE);
 
-	if (ent->spawnflags & 3) {	//looping sound toggles
+	if (ent->spawnflags & 3) {	// looping sound toggles
 		if (ent->s.loopSound)
 		{
-			ent->s.loopSound = 0;	//turn it off
+			ent->s.loopSound = 0;	// turn it off
 			ent->s.loopIsSoundset = qfalse;
 			ent->s.trickedentindex = 1;
 		}
 		else
 		{
-			ent->s.loopSound = ent->noise_index;	//start it
+			ent->s.loopSound = ent->noise_index;	// start it
 			ent->s.loopIsSoundset = qfalse;
 			ent->s.trickedentindex = 0;
 		}
-	}else {	//normal sound
+	}else {	// normal sound
 		if ( ent->spawnflags & 8 ) {
 			G_AddEvent( activator, EV_GENERAL_SOUND, ent->noise_index );
 		} else if (ent->spawnflags & 4) {
@@ -361,7 +361,7 @@ void SP_target_speaker( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( G_SpawnString ( "soundSet", "", &s ) )
-	{	//this is a sound set
+	{	// this is a sound set
 		ent->s.soundSetIndex = G_SoundSetIndex(s);
 		ent->s.eFlags = EF_PERMANENT;
 		VectorCopy( ent->s.origin, ent->s.pos.trBase );
@@ -373,8 +373,8 @@ void SP_target_speaker( gentity_t *ent ) {
 		G_Error( "target_speaker without a noise key at %s", vtos( ent->s.origin ) );
 	}
 
-	//force all client reletive sounds to be "activator" speakers that
-	//play on the entity that activates it
+	// force all client reletive sounds to be "activator" speakers that
+	// play on the entity that activates it
 	if ( s[0] == '*' ) {
 		ent->spawnflags |= 8;
 	}
@@ -383,14 +383,14 @@ void SP_target_speaker( gentity_t *ent ) {
 
 	ent->noise_index = G_SoundIndex(buffer);
 
-	//a repeating speaker can be done completely client side
+	// a repeating speaker can be done completely client side
 	ent->s.eType = ET_SPEAKER;
 	ent->s.eventParm = ent->noise_index;
 	ent->s.frame = ent->wait * 10;
 	ent->s.clientNum = ent->random * 10;
 
 
-	//check for prestarted looping sound
+	// check for prestarted looping sound
 	if ( ent->spawnflags & 1 ) {
 		ent->s.loopSound = ent->noise_index;
 		ent->s.loopIsSoundset = qfalse;
@@ -404,8 +404,8 @@ void SP_target_speaker( gentity_t *ent ) {
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 
-	//must link the entity so we get areas and clusters so
-	//the server can determine who to send updates to
+	// must link the entity so we get areas and clusters so
+	// the server can determine who to send updates to
 	trap_LinkEntity( ent );
 }
 
@@ -421,7 +421,7 @@ void target_laser_think (gentity_t *self) {
 	trace_t	tr;
 	vec3_t	point;
 
-	//if pointed at another entity, set movedir to point at it
+	// if pointed at another entity, set movedir to point at it
 	if ( self->enemy ) {
 		VectorMA (self->enemy->s.origin, 0.5, self->enemy->r.mins, point);
 		VectorMA (point, 0.5, self->enemy->r.maxs, point);
@@ -429,13 +429,13 @@ void target_laser_think (gentity_t *self) {
 		VectorNormalize (self->movedir);
 	}
 
-	//fire forward and see what we hit
+	// fire forward and see what we hit
 	VectorMA (self->s.origin, 2048, self->movedir, end);
 
 	trap_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE);
 
 	if ( tr.entityNum ) {
-		//hurt it if we can
+		// hurt it if we can
 		G_Damage ( &g_entities[tr.entityNum], self, self->activator, self->movedir, 
 			tr.endpos, self->damage, DAMAGE_NO_KNOCKBACK, MOD_TARGET_LASER);
 	}
@@ -499,7 +499,7 @@ void target_laser_start (gentity_t *self)
 
 void SP_target_laser (gentity_t *self)
 {
-	//let everything else get spawned before we start firing
+	// let everything else get spawned before we start firing
 	self->think = target_laser_start;
 	self->nextthink = level.time + FRAMETIME;
 }
@@ -635,8 +635,8 @@ static void target_location_linkup(gentity_t *ent)
 			i < level.num_entities;
 			i++, ent++) {
 		if (ent->classname && !Q_stricmp(ent->classname, "target_location")) {
-			//lets overload some variables!
-			ent->health = n; //use for location marking
+			// lets overload some variables!
+			ent->health = n; // use for location marking
 			trap_SetConfigstring( CS_LOCATIONS + n, ent->message );
 			n++;
 			ent->nextTrain = level.locationHead;
@@ -644,7 +644,7 @@ static void target_location_linkup(gentity_t *ent)
 		}
 	}
 
-	//All linked together now
+	// All linked together now
 }
 
 /*QUAKED target_location (0 0.5 0) (-8 -8 -8) (8 8 8)
@@ -657,7 +657,7 @@ in site, closest in distance
 */
 void SP_target_location( gentity_t *self ){
 	self->think = target_location_linkup;
-	self->nextthink = level.time + 200;  //Let them all spawn first
+	self->nextthink = level.time + 200;  // Let them all spawn first
 
 	G_SetOrigin( self, self->s.origin );
 }
@@ -792,7 +792,7 @@ void target_random_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 		}
 		else if(t_count == pick)
 		{
-			if (t->use != NULL)	//check can be omitted
+			if (t->use != NULL)	// check can be omitted
 			{
 				GlobalUse(t, self, activator);
 				return;
@@ -932,8 +932,8 @@ void SP_target_scriptrunner( gentity_t *self )
 		self->count = 1;//default 1 use only
 	}
 
-	//FIXME: this is a hack... because delay is read in as an int, so I'm bypassing that because it's too late in the project to change it and I want to be able to set less than a second delays
-	//no one should be setting a radius on a scriptrunner, if they are this would be bad, take this out for the next project
+	// FIXME: this is a hack... because delay is read in as an int, so I'm bypassing that because it's too late in the project to change it and I want to be able to set less than a second delays
+	// no one should be setting a radius on a scriptrunner, if they are this would be bad, take this out for the next project
 	v = 0.0f;
 	G_SpawnFloat( "delay", "0", &v );
 	self->delay = v * 1000;//sec to ms

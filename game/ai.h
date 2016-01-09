@@ -58,21 +58,21 @@ void NPC_BSJedi_Investigate( void );
 void NPC_BSJedi_Default( void );
 void NPC_BSJedi_FollowLeader( void );
 
-//AI_DROID
+// AI_DROID
 void NPC_BSDroid_Default( void );
 
-//AI_ImperialProbe
+// AI_ImperialProbe
 void NPC_BSImperialProbe_Default( void );
 
-//AI_atst
+// AI_atst
 void NPC_BSATST_Default( void );
 
 void NPC_BSInterrogator_Default( void );
 
-//AI Mark 1
+// AI Mark 1
 void NPC_BSMark1_Default( void );
 
-//AI Mark 2
+// AI Mark 2
 void NPC_BSMark2_Default( void );
 
 
@@ -83,7 +83,7 @@ void NPC_BSRancor_Default( void );
 //Utilities
 //Group AI
 #define	MAX_FRAME_GROUPS	32
-//!!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
+// !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 typedef struct AIGroupMember_s
 {
 	int	number;
@@ -93,7 +93,7 @@ typedef struct AIGroupMember_s
 } AIGroupMember_t;
 
 #define MAX_GROUP_MEMBERS 32
-//!!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
+// !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 typedef struct AIGroupInfo_s
 {
 	int			numGroup;

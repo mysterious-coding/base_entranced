@@ -1,6 +1,6 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
-//q_shared.c -- stateless support routines that are included in each code dll
+// q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
 /*
@@ -114,14 +114,14 @@ void COM_DefaultExtension (char *path, int maxSize, const char *extension ) {
 	char    *src;
 
 //
-//if path doesn't have a .EXT, append extension
-//(extension should include the .)
+// if path doesn't have a .EXT, append extension
+// (extension should include the .)
 //
 	src = path + strlen(path) - 1;
 
 	while (*src != '/' && src != path) {
 		if ( *src == '.' ) {
-			return;                 //it has an extension
+			return;                 // it has an extension
 		}
 		src--;
 	}
@@ -292,28 +292,28 @@ int COM_Compress( char *data_p ) {
 	in = out = data_p;
 	if (in) {
 		while ((c = *in) != 0) {
-			//skip double slash comments
+			// skip double slash comments
 			if ( c == '/' && in[1] == '/' ) {
 				while (*in && *in != '\n') {
 					in++;
 				}
-				//skip /* */ comments
+				// skip /* */ comments
 			} else if ( c == '/' && in[1] == '*' ) {
 				while ( *in && ( *in != '*' || in[1] != '/' ) ) 
 					in++;
 				if ( *in ) 
 					in += 2;
-				//record when we hit a newline
+				// record when we hit a newline
 			} else if ( c == '\n' || c == '\r' ) {
 				newline = qtrue;
 				in++;
-				//record when we hit whitespace
+				// record when we hit whitespace
 			} else if ( c == ' ' || c == '\t') {
 				whitespace = qtrue;
 				in++;
-				//an actual token
+				// an actual token
 			} else {
-				//if we have a pending newline, emit it (and it counts as whitespace)
+				// if we have a pending newline, emit it (and it counts as whitespace)
 				if (newline) {
 					*out++ = '\n';
 					newline = qfalse;
@@ -323,7 +323,7 @@ int COM_Compress( char *data_p ) {
 					whitespace = qfalse;
 				}
 				
-				//copy quoted strings unmolested
+				// copy quoted strings unmolested
 				if (c == '"') {
 					*out++ = c;
 					in++;
@@ -362,7 +362,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 	len = 0;
 	com_token[0] = 0;
 
-	//make sure incoming data is valid
+	// make sure incoming data is valid
 	if ( !data )
 	{
 		*data_p = NULL;
@@ -371,7 +371,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 
 	while ( 1 )
 	{
-		//skip whitespace
+		// skip whitespace
 		data = SkipWhitespace( data, &hasNewLines );
 		if ( !data )
 		{
@@ -386,7 +386,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 
 		c = *data;
 
-		//skip double slash comments
+		// skip double slash comments
 		if ( c == '/' && data[1] == '/' )
 		{
 			data += 2;
@@ -394,7 +394,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 				data++;
 			}
 		}
-		//skip /* */ comments
+		// skip /* */ comments
 		else if ( c=='/' && data[1] == '*' ) 
 		{
 			data += 2;
@@ -413,7 +413,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 		}
 	}
 
-	//handle quoted strings
+	// handle quoted strings
 	if (c == '\"')
 	{
 		data++;
@@ -434,7 +434,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 		}
 	}
 
-	//parse a regular word
+	// parse a regular word
 	do
 	{
 		if (len < MAX_TOKEN_CHARS)
@@ -460,7 +460,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 
 
 #if 0
-//no longer used
+// no longer used
 /*
 ===============
 COM_ParseInfos
@@ -773,7 +773,7 @@ Safe strncpy that ensures a trailing zero
 */
 extern void QDECL G_LogPrintf(const char *fmt, ...);
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
-  //bk001129 - also NULL dest
+  // bk001129 - also NULL dest
   if ( !dest ) {
 	if (src)
 	{
@@ -825,7 +825,7 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 int Q_stricmpn (const char *s1, const char *s2, int n) {
 	int		c1, c2;
 
-	//bk001129 - moved in 1.17 fix not in id codebase
+	// bk001129 - moved in 1.17 fix not in id codebase
     if ( s1 == NULL ) {
         if ( s2 == NULL )
             return 0;
@@ -857,7 +857,7 @@ int Q_strncmp (const char *s1, const char *s2, int n) {
 		c2 = *s2++;
 
 		if (!n--) {
-			return 0;		//strings are equal until end point
+			return 0;		// strings are equal until end point
 		}
 		
 		if (c1 != c2) {
@@ -865,7 +865,7 @@ int Q_strncmp (const char *s1, const char *s2, int n) {
 		}
 	} while (c1);
 	
-	return 0;		//strings are equal
+	return 0;		// strings are equal
 }
 
 int Q_stricmp (const char *s1, const char *s2) {
@@ -908,7 +908,7 @@ const char *Q_stristrclean(const char *haystack, const char *needle){
 		}
 
 		if ( toupper(*haystack) == toupper(*needle) ) {
-			//Matched starting char -- loop through remaining chars.
+			// Matched starting char -- loop through remaining chars.
 			const char *h, *n;
 			for ( h = haystack, n = needle; *h && *n; ++h, ++n )
 			{
@@ -923,8 +923,8 @@ const char *Q_stristrclean(const char *haystack, const char *needle){
 					break;
 				}
 			}
-			if ( !*n ) {//matched all of 'needle' to null termination 
-				return haystack; //return the start of the match 
+			if ( !*n ) {// matched all of 'needle' to null termination 
+				return haystack; // return the start of the match 
 			}
 		}
 	}
@@ -932,7 +932,7 @@ const char *Q_stristrclean(const char *haystack, const char *needle){
 }
 
 
-//never goes past bounds or leaves without a terminating 0
+// never goes past bounds or leaves without a terminating 0
 void Q_strcat( char *dest, int size, const char *src ) {
 	int		l1;
 
@@ -992,7 +992,7 @@ char *Q_CleanStr( char *string ) {
 int QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	int		len;
 	va_list		argptr;
-	char	bigbuffer[32000];	//big, but small enough to fit in PPC stack
+	char	bigbuffer[32000];	// big, but small enough to fit in PPC stack
 	int retlen;
 
 	va_start (argptr,fmt);
@@ -1023,7 +1023,7 @@ FIXME: make this buffer size safe someday
 */
 char	* QDECL va( const char *format, ... ) {
 	va_list		argptr;
-	static char		string[2][32000];	//in case va is called by nested functions
+	static char		string[2][32000];	// in case va is called by nested functions
 	static int		index = 0;
 	char	*buf;
 
@@ -1057,8 +1057,8 @@ FIXME: overflow check?
 */
 char *Info_ValueForKey( const char *s, const char *key ) {
 	char	pkey[BIG_INFO_KEY];
-	static	char value[2][BIG_INFO_VALUE];	//use two buffers so compares
-											//work without stomping on each other
+	static	char value[2][BIG_INFO_VALUE];	// use two buffers so compares
+											// work without stomping on each other
 	static	int	valueindex = 0;
 	char	*o;
 	
@@ -1192,7 +1192,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 		//OJKNOTE: static analysis pointed out pkey may not be null-terminated
 		if (!strcmp (key, pkey) )
 		{
-			memmove(start, s, strlen(s) + 1);	//remove this part
+			memmove(start, s, strlen(s) + 1);	// remove this part
 			return;
 		}
 
@@ -1247,7 +1247,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 
 		if (!strcmp (key, pkey) )
 		{
-			strcpy (start, s);	//remove this part
+			strcpy (start, s);	// remove this part
 			return;
 		}
 

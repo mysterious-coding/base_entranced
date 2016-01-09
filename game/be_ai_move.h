@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 
 /*****************************************************************************
@@ -32,7 +32,7 @@
 #define MFL_ACTIVEGRAPPLE				128		//bot is using the grapple hook
 #define MFL_GRAPPLERESET				256		//bot has reset the grapple
 #define MFL_WALK						512		//bot should walk slowly
-//move result flags
+// move result flags
 #define MOVERESULT_MOVEMENTVIEW			1		//bot uses view for movement
 #define MOVERESULT_SWIMVIEW				2		//bot uses view for swimming
 #define MOVERESULT_WAITING				4		//bot is waiting for something
@@ -45,11 +45,11 @@
 //
 #define MAX_AVOIDREACH					1
 #define MAX_AVOIDSPOTS					32
-//avoid spot types
+// avoid spot types
 #define AVOID_CLEAR						0		//clear all avoid spots
 #define AVOID_ALWAYS					1		//avoid always
 #define AVOID_DONTBLOCK					2		//never totally block
-//restult types
+// restult types
 #define RESULTTYPE_ELEVATORUP			1		//elevator is up
 #define RESULTTYPE_WAITFORFUNCBOBBING	2		//waiting for func bobbing to arrive
 #define RESULTTYPE_BADGRAPPLEPATH		4		//grapple path is obstructed
@@ -84,8 +84,8 @@ typedef struct bot_moveresult_s
 	vec3_t ideal_viewangles;	//ideal viewangles for the movement
 } bot_moveresult_t;
 
-//bk001204: from code/botlib/be_ai_move.c
-//TTimo 04/12/2001 was moved here to avoid dup defines
+// bk001204: from code/botlib/be_ai_move.c
+// TTimo 04/12/2001 was moved here to avoid dup defines
 typedef struct bot_avoidspot_s
 {
 	vec3_t origin;

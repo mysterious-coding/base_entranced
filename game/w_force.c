@@ -141,10 +141,10 @@ const int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
 
 
 /* *CHANGE 7a* anti force crash */
-//default force
-//by Gamall
+// default force
+// by Gamall
 char  *gaGENERIC_FORCE	= "7-1-033330000000000333";
-//force boundaries
+// force boundaries
 char  *gaFORCE_LOWER 	= "0-1-000000000000000000";
 char  *gaFORCE_UPPER 	= "7-2-333333333333333333";
 
@@ -504,7 +504,7 @@ void WP_InitForcePowers( gentity_t *ent )
 						ent->client->sess.spectatorClient = 0;
 
 						ent->client->pers.teamState.state = TEAM_BEGIN;
-						trap_SendServerCommand(ent-g_entities, "spc");*/	//Fire up the profile menu
+						trap_SendServerCommand(ent-g_entities, "spc");*/	// Fire up the profile menu
 					}
 				}
 
@@ -764,7 +764,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 		}
 	}
 
-	//* CHANGE 333 * - knocked down should still be push/pullable
+	// * CHANGE 333 * - knocked down should still be push/pullable
 
 	////TO DO: try removing this (why is it here?)
 	//if (other && other->client &&
@@ -981,7 +981,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 			}
 		}
 	}
-	return WP_ForcePowerAvailable( self, forcePower, 0 );	//OVERRIDEFIXME
+	return WP_ForcePowerAvailable( self, forcePower, 0 );	// OVERRIDEFIXME
 }
 
 int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, int atPower, int atPowerLevel, int atForceSpent)
@@ -1721,7 +1721,7 @@ void ForceProtect( gentity_t *self )
 		return;
 	}
 
-	//Make sure to turn off Force Rage and Force Absorb.
+	// Make sure to turn off Force Rage and Force Absorb.
 	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE) )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
@@ -1757,7 +1757,7 @@ void ForceAbsorb( gentity_t *self )
 		return;
 	}
 
-	//Make sure to turn off Force Rage and Force Protection.
+	// Make sure to turn off Force Rage and Force Protection.
 	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE) )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
@@ -1803,7 +1803,7 @@ void ForceRage( gentity_t *self )
 		return;
 	}
 
-	//Make sure to turn off Force Protection and Force Absorb.
+	// Make sure to turn off Force Protection and Force Absorb.
 	if (self->client->ps.fd.forcePowersActive & (1 << FP_PROTECT) )
 	{
 		WP_ForcePowerStop( self, FP_PROTECT );
@@ -2005,7 +2005,7 @@ void ForceShootLightning( gentity_t *self )
 			if ( !g_friendlyFire.integer && OnSameTeam(self, traceEnt))
 				continue;
 			//this is all to see if we need to start a saber attack, if it's in flight, this doesn't matter
-			//find the distance from the edge of the bounding box
+			// find the distance from the edge of the bounding box
 			for ( i = 0 ; i < 3 ; i++ ) 
 			{
 				if ( center[i] < traceEnt->r.absmin[i] ) 
@@ -2050,7 +2050,7 @@ void ForceShootLightning( gentity_t *self )
 				continue;
 			}
 
-			//ok, we are within the radius, add us to the incoming list
+			// ok, we are within the radius, add us to the incoming list
 			ForceLightningDamage( self, traceEnt, dir, ent_org );
 		}
 	}
@@ -2254,7 +2254,7 @@ int ForceShootDrain( gentity_t *self )
 			if (OnSameTeam(self, traceEnt) && !g_friendlyFire.integer)
 				continue;
 			//this is all to see if we need to start a saber attack, if it's in flight, this doesn't matter
-			//find the distance from the edge of the bounding box
+			// find the distance from the edge of the bounding box
 			for ( i = 0 ; i < 3 ; i++ ) 
 			{
 				if ( center[i] < traceEnt->r.absmin[i] ) 
@@ -2299,7 +2299,7 @@ int ForceShootDrain( gentity_t *self )
 				continue;
 			}
 
-			//ok, we are within the radius, add us to the incoming list
+			// ok, we are within the radius, add us to the incoming list
 			ForceDrainDamage( self, traceEnt, dir, ent_org );
 			gotOneOrMore = 1;
 		}
@@ -2765,7 +2765,7 @@ void ForceTelepathy(gentity_t *self)
 		return;
 	}
 
-	//*CHANGE 65* fix - release rocket lock, old bug
+	// *CHANGE 65* fix - release rocket lock, old bug
 		BG_ClearRocketLock(&self->client->ps);
 
 	if ( ForceTelepathyCheckDirectNPCTarget( self, &tr, &tookPower ) )
@@ -3121,7 +3121,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		return;
 	}
 
-	//*CHANGE 65* fix - release rocket lock, old bug
+	// *CHANGE 65* fix - release rocket lock, old bug
 		BG_ClearRocketLock(&self->client->ps);
 
 	if (!pull && self->client->ps.saberLockTime > level.time && self->client->ps.saberLockFrame)
@@ -3406,7 +3406,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		}
 
 		//this is all to see if we need to start a saber attack, if it's in flight, this doesn't matter
-		//find the distance from the edge of the bounding box
+		// find the distance from the edge of the bounding box
 		for ( i = 0 ; i < 3 ; i++ ) 
 		{
 			if ( center[i] < ent->r.absmin[i] ) 
@@ -3461,7 +3461,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 			}
 		}
 
-		//ok, we are within the radius, add us to the incoming list
+		// ok, we are within the radius, add us to the incoming list
 		push_list[ent_count] = ent;
 		ent_count++;
 	}
@@ -4308,7 +4308,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		self->health++;
 		self->client->ps.fd.forceHealAmount++;
 
-		if ( self->health > self->client->ps.stats[STAT_MAX_HEALTH])	//Past max health
+		if ( self->health > self->client->ps.stats[STAT_MAX_HEALTH])	// Past max health
 		{
 			self->health = self->client->ps.stats[STAT_MAX_HEALTH];
 			WP_ForcePowerStop( self, forcePower );
@@ -4322,7 +4322,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		break;
 	case FP_SPEED:
 #ifdef FP_SPEED_IMPROVED
-		//testing fp speed draining
+		// testing fp speed draining
 		if (self->client->ps.fd.forcePowerDebounce[FP_SPEED] < level.time)
 		{ 
 			BG_ForcePowerDrain( &self->client->ps, forcePower, 2 );
@@ -4421,7 +4421,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				self->client->ps.fd.forcePowerDuration[FP_DRAIN] = level.time + 500;
 			}
 		}
-		//OVERRIDEFIXME
+		// OVERRIDEFIXME
 		if ( !WP_ForcePowerAvailable( self, forcePower, 0 ) || self->client->ps.fd.forcePowerDuration[FP_DRAIN] < level.time ||
 			self->client->ps.fd.forcePower < 25)
 		{
@@ -4446,7 +4446,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] = level.time + 500;
 			}
 		}
-		//OVERRIDEFIXME
+		// OVERRIDEFIXME
 		if ( !WP_ForcePowerAvailable( self, forcePower, 0 ) || self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] < level.time ||
 			self->client->ps.fd.forcePower < 25)
 		{
@@ -4515,7 +4515,7 @@ int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_t forcepow
     if ( level.pause.state != PAUSE_NONE )
             return 0;
 
-	//OVERRIDEFIXME
+	// OVERRIDEFIXME
 	if ( !WP_ForcePowerAvailable( self, forcepower, 0 ) )
 	{
 		return 0;
@@ -5272,8 +5272,8 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	SeekerDroneUpdate(self);
 
-	//removed it from here and move else where, so
-	//boon will cost only half for everyone -sil
+	// removed it from here and move else where, so
+	// boon will cost only half for everyone -sil
 
 	if (self->client->ps.powerups[PW_FORCE_BOON]
 		&& !g_fixboon.integer)

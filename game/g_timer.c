@@ -10,7 +10,7 @@ typedef struct gtimer_s
 {
 	const char *name;
 	int time;
-	struct gtimer_s *next;	//In either free list or current list
+	struct gtimer_s *next;	// In either free list or current list
 } gtimer_t;
 
 gtimer_t g_timerPool[ MAX_GTIMERS ];
@@ -47,24 +47,24 @@ TIMER_Clear
 
 void TIMER_Clear2( gentity_t *ent )
 {
-	//rudimentary safety checks, might be other things to check?
+	// rudimentary safety checks, might be other things to check?
 	if ( ent && ent->s.number >= MAX_CLIENTS && ent->s.number < MAX_GENTITIES )
 	{
 		gtimer_t *p = g_timers[ent->s.number];
 
-		//No timers at all -> do nothing
+		// No timers at all -> do nothing
 		if (!p)
 		{
 			return;
 		}
 
-		//Find the end of this ents timer list
+		// Find the end of this ents timer list
 		while (p->next)
 		{
 			p = p->next;
 		}
 
-		//Splice the lists
+		// Splice the lists
 		p->next = g_timerFreeList;
 		g_timerFreeList = g_timers[ent->s.number];
 		g_timers[ent->s.number] = NULL;
@@ -79,18 +79,18 @@ gtimer_t *TIMER_GetNew(int num, const char *identifier)
 {
 	gtimer_t *p = g_timers[num];
 
-	//Search for an existing timer with this name
+	// Search for an existing timer with this name
 	while (p)
 	{
 		if (!Q_stricmp(p->name, identifier))
-		{ //Found it
+		{ // Found it
 			return p;
 		}
 
 		p = p->next;
 	}
 
-	//No existing timer with this name was found, so grab one from the free list
+	// No existing timer with this name was found, so grab one from the free list
 	if (!g_timerFreeList)
 		return NULL;
 
@@ -109,7 +109,7 @@ gtimer_t *TIMER_GetExisting(int num, const char *identifier)
 	while (p)
 	{
 		if (!Q_stricmp(p->name, identifier))
-		{ //Found it
+		{ // Found it
 			return p;
 		}
 
@@ -187,7 +187,7 @@ void TIMER_RemoveHelper( int num, gtimer_t *timer )
 {
 	gtimer_t *p = g_timers[num];
 
-	//Special case: first timer in list
+	// Special case: first timer in list
 	if (p == timer)
 	{
 		g_timers[num] = g_timers[num]->next;
@@ -196,13 +196,13 @@ void TIMER_RemoveHelper( int num, gtimer_t *timer )
 		return;
 	}
 
-	//Find the predecessor
+	// Find the predecessor
 	while (p->next != timer)
 	{
 		p = p->next;
 	}
 
-	//Rewire
+	// Rewire
 	p->next = p->next->next;
 	timer->next = g_timerFreeList;
 	g_timerFreeList = timer;
@@ -233,7 +233,7 @@ qboolean TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove )
 
 	if (res && remove)
 	{
-		//Put it back on the free list
+		// Put it back on the free list
 		TIMER_RemoveHelper(ent->s.number, timer);
 	}
 
@@ -272,7 +272,7 @@ void TIMER_Remove( gentity_t *ent, const char *identifier )
 		return;
 	}
 
-	//Put it back on the free list
+	// Put it back on the free list
 	TIMER_RemoveHelper(ent->s.number, timer);
 }
 

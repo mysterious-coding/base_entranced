@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 /*****************************************************************************
  * name:		botlib.h
@@ -116,39 +116,39 @@ typedef struct bsp_surface_s
 //a trace is returned when a box is swept through the world
 typedef struct bsp_trace_s
 {
-	qboolean		allsolid;	//if true, plane is not valid
-	qboolean		startsolid;	//if true, the initial point was in a solid area
-	float			fraction;	//time completed, 1.0 = didn't hit anything
-	vec3_t			endpos;		//final position
-	cplane_t		plane;		//surface normal at impact
-	float			exp_dist;	//expanded plane distance
-	int				sidenum;	//number of the brush side hit
-	bsp_surface_t	surface;	//the hit point surface
-	int				contents;	//contents on other side of surface hit
-	int				ent;		//number of entity hit
+	qboolean		allsolid;	// if true, plane is not valid
+	qboolean		startsolid;	// if true, the initial point was in a solid area
+	float			fraction;	// time completed, 1.0 = didn't hit anything
+	vec3_t			endpos;		// final position
+	cplane_t		plane;		// surface normal at impact
+	float			exp_dist;	// expanded plane distance
+	int				sidenum;	// number of the brush side hit
+	bsp_surface_t	surface;	// the hit point surface
+	int				contents;	// contents on other side of surface hit
+	int				ent;		// number of entity hit
 } bsp_trace_t;
 
-#endif	//BSPTRACE
+#endif	// BSPTRACE
 
 //entity state
 typedef struct bot_entitystate_s
 {
-	int		type;			//entity type
-	int		flags;			//entity flags
-	vec3_t	origin;			//origin of the entity
-	vec3_t	angles;			//angles of the model
-	vec3_t	old_origin;		//for lerping
-	vec3_t	mins;			//bounding box minimums
-	vec3_t	maxs;			//bounding box maximums
-	int		groundent;		//ground entity
-	int		solid;			//solid type
-	int		modelindex;		//model used
-	int		modelindex2;	//weapons, CTF flags, etc
-	int		frame;			//model frame number
-	int		event;			//impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;		//even parameter
-	int		powerups;		//bit flags
-	int		weapon;			//determines weapon and flash model, etc
+	int		type;			// entity type
+	int		flags;			// entity flags
+	vec3_t	origin;			// origin of the entity
+	vec3_t	angles;			// angles of the model
+	vec3_t	old_origin;		// for lerping
+	vec3_t	mins;			// bounding box minimums
+	vec3_t	maxs;			// bounding box maximums
+	int		groundent;		// ground entity
+	int		solid;			// solid type
+	int		modelindex;		// model used
+	int		modelindex2;	// weapons, CTF flags, etc
+	int		frame;			// model frame number
+	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;		// even parameter
+	int		powerups;		// bit flags
+	int		weapon;			// determines weapon and flash model, etc
 	int		legsAnim;
 	int		torsoAnim;
 } bot_entitystate_t;
@@ -173,10 +173,10 @@ typedef struct botlib_import_s
 	//send a bot client command
 	void		(*BotClientCommand)(int client, char *command);
 	//memory allocation
-	void		*(*GetMemory)(int size);		//allocate from Zone
-	void		(*FreeMemory)(void *ptr);		//free memory from Zone
-	int			(*AvailableMemory)(void);		//available Zone memory
-	void		*(*HunkAlloc)(int size);		//allocate from hunk
+	void		*(*GetMemory)(int size);		// allocate from Zone
+	void		(*FreeMemory)(void *ptr);		// free memory from Zone
+	int			(*AvailableMemory)(void);		// available Zone memory
+	void		*(*HunkAlloc)(int size);		// allocate from hunk
 	//file system access
 	int			(*FS_FOpenFile)( const char *qpath, fileHandle_t *file, fsMode_t mode );
 	int			(*FS_Read)( void *buffer, int len, fileHandle_t f );
@@ -195,17 +195,17 @@ typedef struct botlib_import_s
 typedef struct aas_export_s
 {
 	//-----------------------------------
-	//be_aas_entity.h
+	// be_aas_entity.h
 	//-----------------------------------
 	void		(*AAS_EntityInfo)(int entnum, struct aas_entityinfo_s *info);
 	//-----------------------------------
-	//be_aas_main.h
+	// be_aas_main.h
 	//-----------------------------------
 	int			(*AAS_Initialized)(void);
 	void		(*AAS_PresenceTypeBoundingBox)(int presencetype, vec3_t mins, vec3_t maxs);
 	float		(*AAS_Time)(void);
 	//--------------------------------------------
-	//be_aas_sample.c
+	// be_aas_sample.c
 	//--------------------------------------------
 	int			(*AAS_PointAreaNum)(vec3_t point);
 	int			(*AAS_PointReachabilityAreaIndex)( vec3_t point );
@@ -213,7 +213,7 @@ typedef struct aas_export_s
 	int			(*AAS_BBoxAreas)(vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas);
 	int			(*AAS_AreaInfo)( int areanum, struct aas_areainfo_s *info );
 	//--------------------------------------------
-	//be_aas_bspq3.c
+	// be_aas_bspq3.c
 	//--------------------------------------------
 	int			(*AAS_PointContents)(vec3_t point);
 	int			(*AAS_NextBSPEntity)(int ent);
@@ -222,11 +222,11 @@ typedef struct aas_export_s
 	int			(*AAS_FloatForBSPEpairKey)(int ent, char *key, float *value);
 	int			(*AAS_IntForBSPEpairKey)(int ent, char *key, int *value);
 	//--------------------------------------------
-	//be_aas_reach.c
+	// be_aas_reach.c
 	//--------------------------------------------
 	int			(*AAS_AreaReachability)(int areanum);
 	//--------------------------------------------
-	//be_aas_route.c
+	// be_aas_route.c
 	//--------------------------------------------
 	int			(*AAS_AreaTravelTimeToGoalArea)(int areanum, vec3_t origin, int goalareanum, int travelflags);
 	int			(*AAS_EnableRoutingArea)(int areanum, int enable);
@@ -234,13 +234,13 @@ typedef struct aas_export_s
 							int goalareanum, int travelflags, int maxareas, int maxtime,
 							int stopevent, int stopcontents, int stoptfl, int stopareanum);
 	//--------------------------------------------
-	//be_aas_altroute.c
+	// be_aas_altroute.c
 	//--------------------------------------------
 	int			(*AAS_AlternativeRouteGoals)(vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags,
 										struct aas_altroutegoal_s *altroutegoals, int maxaltroutegoals,
 										int type);
 	//--------------------------------------------
-	//be_aas_move.c
+	// be_aas_move.c
 	//--------------------------------------------
 	int			(*AAS_Swimming)(vec3_t origin);
 	int			(*AAS_PredictClientMovement)(struct aas_clientmove_s *move,
@@ -289,7 +289,7 @@ typedef struct ea_export_s
 typedef struct ai_export_s
 {
 	//-----------------------------------
-	//be_ai_char.h
+	// be_ai_char.h
 	//-----------------------------------
 	int		(*BotLoadCharacter)(char *charfile, float skill);
 	void	(*BotFreeCharacter)(int character);
@@ -299,7 +299,7 @@ typedef struct ai_export_s
 	int		(*Characteristic_BInteger)(int character, int index, int min, int max);
 	void	(*Characteristic_String)(int character, int index, char *buf, int size);
 	//-----------------------------------
-	//be_ai_chat.h
+	// be_ai_chat.h
 	//-----------------------------------
 	int		(*BotAllocChatState)(void);
 	void	(*BotFreeChatState)(int handle);
@@ -322,7 +322,7 @@ typedef struct ai_export_s
 	void	(*BotSetChatGender)(int chatstate, int gender);
 	void	(*BotSetChatName)(int chatstate, char *name, int client);
 	//-----------------------------------
-	//be_ai_goal.h
+	// be_ai_goal.h
 	//-----------------------------------
 	void	(*BotResetGoalState)(int goalstate);
 	void	(*BotResetAvoidGoals)(int goalstate);
@@ -355,7 +355,7 @@ typedef struct ai_export_s
 	int		(*BotAllocGoalState)(int client);
 	void	(*BotFreeGoalState)(int handle);
 	//-----------------------------------
-	//be_ai_move.h
+	// be_ai_move.h
 	//-----------------------------------
 	void	(*BotResetMoveState)(int movestate);
 	void	(*BotMoveToGoal)(struct bot_moveresult_s *result, int movestate, struct bot_goal_s *goal, int travelflags);
@@ -370,7 +370,7 @@ typedef struct ai_export_s
 	void	(*BotInitMoveState)(int handle, struct bot_initmove_s *initmove);
 	void	(*BotAddAvoidSpot)(int movestate, vec3_t origin, float radius, int type);
 	//-----------------------------------
-	//be_ai_weap.h
+	// be_ai_weap.h
 	//-----------------------------------
 	int		(*BotChooseBestFightWeapon)(int weaponstate, int *inventory);
 	void	(*BotGetWeaponInfo)(int weaponstate, int weapon, struct weaponinfo_s *weaponinfo);
@@ -379,7 +379,7 @@ typedef struct ai_export_s
 	void	(*BotFreeWeaponState)(int weaponstate);
 	void	(*BotResetWeaponState)(int weaponstate);
 	//-----------------------------------
-	//be_ai_gen.h
+	// be_ai_gen.h
 	//-----------------------------------
 	int		(*GeneticParentsAndChildSelection)(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 } ai_export_t;

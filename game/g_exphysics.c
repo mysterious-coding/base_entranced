@@ -1,4 +1,4 @@
-//Copyright (C) 2000-2002 Raven Software, Inc.
+// Copyright (C) 2000-2002 Raven Software, Inc.
 //
 /*****************************************************************************
  * name:		g_exphysics.c

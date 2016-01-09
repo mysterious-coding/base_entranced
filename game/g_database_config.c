@@ -139,10 +139,10 @@ const char* const sqlRemoveMapToPool =
 
 
 //
-// G_CfgDbLoad
-//
-// Loads the database from disk, including creating of not exists
-// or if it is corrupted
+//  G_CfgDbLoad
+// 
+//  Loads the database from disk, including creating of not exists
+//  or if it is corrupted
 //
 void G_CfgDbLoad()
 {    
@@ -153,7 +153,7 @@ void G_CfgDbLoad()
 
     if ( rc != SQLITE_OK )
     {
-        //create new database
+        // create new database
         rc = sqlite3_open_v2( cfgDbFileName, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0 );
 
         sqlite3_exec( db, sqlCreateCfgDb, 0, 0, 0 );
@@ -161,10 +161,10 @@ void G_CfgDbLoad()
 }
     
 //
-// G_CfgDbUnload
-//
-// Unloads the database from memory, includes flushing it 
-// to the file.
+//  G_CfgDbUnload
+// 
+//  Unloads the database from memory, includes flushing it 
+//  to the file.
 //
 void G_CfgDbUnload()
 {
@@ -174,10 +174,10 @@ void G_CfgDbUnload()
 }
 
 //
-// G_CfgDbIsFiltered
-//
-// Checks if given ip is forbidden to join the game based
-// on blacklist/whitelist mechanisms.
+//  G_CfgDbIsFiltered
+// 
+//  Checks if given ip is forbidden to join the game based
+//  on blacklist/whitelist mechanisms.
 //
 qboolean G_CfgDbIsFiltered( unsigned int ip,
     char* reasonBuffer, 
@@ -198,10 +198,10 @@ qboolean G_CfgDbIsFiltered( unsigned int ip,
 }
 
 //
-// G_CfgDbIsFilteredByWhitelist
-//
-// Helper method to check if given ip address is white listed
-// according to database.
+//  G_CfgDbIsFilteredByWhitelist
+// 
+//  Helper method to check if given ip address is white listed
+//  according to database.
 //
 qboolean G_CfgDbIsFilteredByWhitelist( unsigned int ip,
     char* reasonBuffer, 
@@ -209,10 +209,10 @@ qboolean G_CfgDbIsFilteredByWhitelist( unsigned int ip,
 {
     qboolean filtered = qfalse;
 
-    //check if ip is on white list
+    // check if ip is on white list
     sqlite3_stmt* statement;
 
-    //prepare whitelist check statement
+    // prepare whitelist check statement
     int rc = sqlite3_prepare( db, sqlIsIpWhitelisted, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ip );
@@ -232,10 +232,10 @@ qboolean G_CfgDbIsFilteredByWhitelist( unsigned int ip,
 }
 
 //
-// G_CfgDbIsFilteredByBlacklist
-//
-// Helper method to check if given ip address is black listed
-// according to database.
+//  G_CfgDbIsFilteredByBlacklist
+// 
+//  Helper method to check if given ip address is black listed
+//  according to database.
 //
 qboolean G_CfgDbIsFilteredByBlacklist( unsigned int ip, char* reasonBuffer, int reasonBufferSize )
 {
@@ -243,14 +243,14 @@ qboolean G_CfgDbIsFilteredByBlacklist( unsigned int ip, char* reasonBuffer, int 
 
     sqlite3_stmt* statement;
 
-    //prepare blacklist check statement
+    // prepare blacklist check statement
     int rc = sqlite3_prepare( db, sqlIsIpBlacklisted, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ip );
 
     rc = sqlite3_step( statement );
 
-    //blacklisted => we forbid it
+    // blacklisted => we forbid it
     if ( rc == SQLITE_ROW )
     {
         const char* reason = (const char*)sqlite3_column_text( statement, 0 );
@@ -268,9 +268,9 @@ qboolean G_CfgDbIsFilteredByBlacklist( unsigned int ip, char* reasonBuffer, int 
 }
 
 //
-// G_CfgDbAddToWhitelist
-//
-// Adds ip address to whitelist
+//  G_CfgDbAddToWhitelist
+// 
+//  Adds ip address to whitelist
 //
 qboolean G_CfgDbAddToWhitelist( unsigned int ip,
     unsigned int mask,
@@ -279,7 +279,7 @@ qboolean G_CfgDbAddToWhitelist( unsigned int ip,
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlAddToWhitelist, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ip );
@@ -299,14 +299,14 @@ qboolean G_CfgDbAddToWhitelist( unsigned int ip,
 }
 
 //
-// G_CfgDbListBlacklist
-//
-// Lists contents of blacklist
+//  G_CfgDbListBlacklist
+// 
+//  Lists contents of blacklist
 //
 void G_CfgDbListBlacklist( BlackListCallback  callback )
 {
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlListBlacklist, -1, &statement, 0 );
 
     rc = sqlite3_step( statement );
@@ -327,9 +327,9 @@ void G_CfgDbListBlacklist( BlackListCallback  callback )
     sqlite3_finalize( statement ); 
 }
 //
-// G_CfgDbAddToBlacklist
-//
-// Adds ip address to blacklist
+//  G_CfgDbAddToBlacklist
+// 
+//  Adds ip address to blacklist
 //
 qboolean G_CfgDbAddToBlacklist( unsigned int ip,
     unsigned int mask,
@@ -340,7 +340,7 @@ qboolean G_CfgDbAddToBlacklist( unsigned int ip,
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlAddToBlacklist, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ip );
@@ -363,9 +363,9 @@ qboolean G_CfgDbAddToBlacklist( unsigned int ip,
 }
 
 //
-// G_CfgDbRemoveFromBlacklist
-//
-// Removes ip address from blacklist
+//  G_CfgDbRemoveFromBlacklist
+// 
+//  Removes ip address from blacklist
 //
 qboolean G_CfgDbRemoveFromBlacklist( unsigned int ip,
     unsigned int mask )
@@ -373,7 +373,7 @@ qboolean G_CfgDbRemoveFromBlacklist( unsigned int ip,
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlRemoveFromBlacklist, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ip );
@@ -396,9 +396,9 @@ qboolean G_CfgDbRemoveFromBlacklist( unsigned int ip,
 }
 
 //
-// G_CfgDbRemoveFromWhitelist
-//
-// Removes ip address from whitelist
+//  G_CfgDbRemoveFromWhitelist
+// 
+//  Removes ip address from whitelist
 //
 qboolean G_CfgDbRemoveFromWhitelist( unsigned int ip,
     unsigned int mask )
@@ -406,7 +406,7 @@ qboolean G_CfgDbRemoveFromWhitelist( unsigned int ip,
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlremoveFromWhitelist, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ip );
@@ -428,14 +428,14 @@ qboolean G_CfgDbRemoveFromWhitelist( unsigned int ip,
 }
    
 //
-// G_CfgDbListPools
-//
-// List all map pools
+//  G_CfgDbListPools
+// 
+//  List all map pools
 //
 void G_CfgDbListPools( ListPoolCallback callback, void* context )
 {
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlListPools, -1, &statement, 0 );
 
     rc = sqlite3_step( statement );
@@ -454,9 +454,9 @@ void G_CfgDbListPools( ListPoolCallback callback, void* context )
 }
 
 //
-// G_CfgDbListMapsInPool
-//
-// List maps in pool
+//  G_CfgDbListMapsInPool
+// 
+//  List maps in pool
 //
 void G_CfgDbListMapsInPool( const char* short_name, 
     const char* ignore, 
@@ -464,11 +464,11 @@ void G_CfgDbListMapsInPool( const char* short_name,
     void* context )
 {
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlListMapsInPool, -1, &statement, 0 );
 
     sqlite3_bind_text( statement, 1, short_name, -1, 0 );
-    sqlite3_bind_text( statement, 2, ignore, -1, 0 ); //ignore map, we 
+    sqlite3_bind_text( statement, 2, ignore, -1, 0 ); // ignore map, we 
 
     rc = sqlite3_step( statement );
     while ( rc == SQLITE_ROW )
@@ -487,9 +487,9 @@ void G_CfgDbListMapsInPool( const char* short_name,
 }
 
 //
-// G_CfgDbFindPool
-//
-// Finds pool
+//  G_CfgDbFindPool
+// 
+//  Finds pool
 //
 qboolean G_CfgDbFindPool( const char* short_name, PoolInfo* poolInfo )
 {  
@@ -497,14 +497,14 @@ qboolean G_CfgDbFindPool( const char* short_name, PoolInfo* poolInfo )
 
     sqlite3_stmt* statement;
 
-    //prepare blacklist check statement
+    // prepare blacklist check statement
     int rc = sqlite3_prepare( db, sqlFindPool, -1, &statement, 0 );
 
     sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 
     rc = sqlite3_step( statement );
 
-    //blacklisted => we forbid it
+    // blacklisted => we forbid it
     if ( rc == SQLITE_ROW )
     {
         int pool_id = sqlite3_column_int( statement, 0 );
@@ -557,16 +557,16 @@ void selectMapCallback( void* context,
 }
 
 //
-// G_CfgDbGetPoolWeight
-//
-// Gets sum of weights of maps in pool
+//  G_CfgDbGetPoolWeight
+// 
+//  Gets sum of weights of maps in pool
 //
 int G_CfgDbGetPoolWeight( const char* short_name,
     const char* ignoreMap)
 {
     sqlite3_stmt* statement;
     int weight = 0;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlGetPoolWeight, -1, &statement, 0 );
 
     sqlite3_bind_text( statement, 1, short_name, -1, 0 );
@@ -584,15 +584,15 @@ int G_CfgDbGetPoolWeight( const char* short_name,
 }
 
 //
-// G_CfgDbSelectMapFromPool
-//
-// Selects map from pool
+//  G_CfgDbSelectMapFromPool
+// 
+//  Selects map from pool
 //
 qboolean G_CfgDbSelectMapFromPool( const char* short_name,
     const char* ignoreMap,
     MapInfo* mapInfo )
 {
-    //TBD this function should make sure that current map will not be selected
+    // TBD this function should make sure that current map will not be selected
     PoolInfo poolInfo;
     if ( G_CfgDbFindPool( short_name, &poolInfo ) )
     {
@@ -623,16 +623,16 @@ qboolean G_CfgDbSelectMapFromPool( const char* short_name,
 }
    
 //
-// G_CfgDbPoolCreate
-//
-// Creates pool
+//  G_CfgDbPoolCreate
+// 
+//  Creates pool
 //
 qboolean G_CfgDbPoolCreate( const char* short_name, const char* long_name )
 {
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlCreatePool, -1, &statement, 0 );
 
     sqlite3_bind_text( statement, 1, short_name, -1, 0 );
@@ -650,16 +650,16 @@ qboolean G_CfgDbPoolCreate( const char* short_name, const char* long_name )
 }
 
 //
-// G_CfgDbPoolDeleteAllMaps
-//
-// Deletes all maps in pool
+//  G_CfgDbPoolDeleteAllMaps
+// 
+//  Deletes all maps in pool
 //
 qboolean G_CfgDbPoolDeleteAllMaps( const char* short_name )
 {
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlDeleteAllMapsInPool, -1, &statement, 0 );
 
     sqlite3_bind_text( statement, 1, short_name, -1, 0 );
@@ -680,9 +680,9 @@ qboolean G_CfgDbPoolDeleteAllMaps( const char* short_name )
 }
 
 //
-// G_CfgDbPoolDelete
-//
-// Deletes pool
+//  G_CfgDbPoolDelete
+// 
+//  Deletes pool
 //
 qboolean G_CfgDbPoolDelete( const char* short_name )
 {         
@@ -691,7 +691,7 @@ qboolean G_CfgDbPoolDelete( const char* short_name )
     if ( G_CfgDbPoolDeleteAllMaps( short_name ) )
     {
         sqlite3_stmt* statement;
-        //prepare insert statement
+        // prepare insert statement
         int rc = sqlite3_prepare( db, sqlDeletePool, -1, &statement, 0 );
 
         sqlite3_bind_text( statement, 1, short_name, -1, 0 );
@@ -713,16 +713,16 @@ qboolean G_CfgDbPoolDelete( const char* short_name )
 }
 
 //
-// G_CfgDbPoolMapAdd
-//
-// Adds map into pool
+//  G_CfgDbPoolMapAdd
+// 
+//  Adds map into pool
 //
 qboolean G_CfgDbPoolMapAdd( const char* short_name, const char* mapname, int weight )
 {    
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlAddMapToPool, -1, &statement, 0 );
                   
     sqlite3_bind_text( statement, 1, mapname, -1, 0 );
@@ -741,16 +741,16 @@ qboolean G_CfgDbPoolMapAdd( const char* short_name, const char* mapname, int wei
 }
 
 //
-// G_CfgDbPoolMapRemove
-//
-// Removes map from pool
+//  G_CfgDbPoolMapRemove
+// 
+//  Removes map from pool
 //
 qboolean G_CfgDbPoolMapRemove( const char* short_name, const char* mapname )
 {
     qboolean success = qfalse;
 
     sqlite3_stmt* statement;
-    //prepare insert statement
+    // prepare insert statement
     int rc = sqlite3_prepare( db, sqlRemoveMapToPool, -1, &statement, 0 );
 
     sqlite3_bind_text( statement, 1, short_name, -1, 0 );

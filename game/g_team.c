@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 
 #include "g_local.h"
@@ -8,9 +8,9 @@
 typedef struct teamgame_s {
 	float			last_flag_capture;
 	int				last_capture_team;
-	flagStatus_t	redStatus;	//CTF
-	flagStatus_t	blueStatus;	//CTF
-	flagStatus_t	flagStatus;	//One Flag CTF
+	flagStatus_t	redStatus;	// CTF
+	flagStatus_t	blueStatus;	// CTF
+	flagStatus_t	flagStatus;	// One Flag CTF
 	int				redTakenTime;
 	int				blueTakenTime;
 } teamgame_t;
@@ -25,7 +25,7 @@ void Team_InitGame( void ) {
 	switch( g_gametype.integer ) {
 	case GT_CTF:
 	case GT_CTY:
-		teamgame.redStatus = teamgame.blueStatus = -1; //Invalid to force update
+		teamgame.redStatus = teamgame.blueStatus = -1; // Invalid to force update
 		Team_SetFlagStatus( TEAM_RED, FLAG_ATBASE );
 		Team_SetFlagStatus( TEAM_BLUE, FLAG_ATBASE );
 		level.redFlagStealTime = 0;
@@ -37,7 +37,7 @@ void Team_InitGame( void ) {
 }
 
 int OtherTeam(int team) {
-	//huge change
+	// huge change
 	if (team==TEAM_RED)
 		return TEAM_BLUE;
 	else if (team==TEAM_BLUE)
@@ -135,11 +135,11 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 		}
 		else if ( level.teamScores[ TEAM_RED ] <= level.teamScores[ TEAM_BLUE ] &&
 					level.teamScores[ TEAM_RED ] + score > level.teamScores[ TEAM_BLUE ]) {
-			//red took the lead sound
+			// red took the lead sound
 			te->s.eventParm = GTS_REDTEAM_TOOK_LEAD;
 		}
 		else {
-			//red scored sound
+			// red scored sound
 			te->s.eventParm = GTS_REDTEAM_SCORED;
 		}
 	}
@@ -150,11 +150,11 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 		}
 		else if ( level.teamScores[ TEAM_BLUE ] <= level.teamScores[ TEAM_RED ] &&
 					level.teamScores[ TEAM_BLUE ] + score > level.teamScores[ TEAM_RED ]) {
-			//blue took the lead sound
+			// blue took the lead sound
 			te->s.eventParm = GTS_BLUETEAM_TOOK_LEAD;
 		}
 		else {
-			//blue scored sound
+			// blue scored sound
 			te->s.eventParm = GTS_BLUETEAM_SCORED;
 		}
 	}
@@ -259,21 +259,21 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 	qboolean modified = qfalse;
 
 	switch( team ) {
-	case TEAM_RED:	//CTF
+	case TEAM_RED:	// CTF
 		if( teamgame.redStatus != status ) {
 			teamgame.redStatus = status;
 			modified = qtrue;
 		}
 		break;
 
-	case TEAM_BLUE:	//CTF
+	case TEAM_BLUE:	// CTF
 		if( teamgame.blueStatus != status ) {
 			teamgame.blueStatus = status;
 			modified = qtrue;
 		}
 		break;
 
-	case TEAM_FREE:	//One Flag CTF
+	case TEAM_FREE:	// One Flag CTF
 		if( teamgame.flagStatus != status ) {
 			teamgame.flagStatus = status;
 			modified = qtrue;
@@ -349,16 +349,16 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	vec3_t v1, v2;
 	int team;
 
-	//no bonus for fragging yourself or team mates
+	// no bonus for fragging yourself or team mates
 	if (!targ->client || !attacker->client || targ == attacker || OnSameTeam(targ, attacker))
 		return;
 
 	team = targ->client->sess.sessionTeam;
 	otherteam = OtherTeam(targ->client->sess.sessionTeam);
 	if (otherteam < 0)
-		return; //whoever died isn't on a team
+		return; // whoever died isn't on a team
 
-	//same team, if the flag at base, check to he has the enemy flag
+	// same team, if the flag at base, check to he has the enemy flag
 	if (team == TEAM_RED) {
 		flag_pw = PW_REDFLAG;
 		enemy_flag_pw = PW_BLUEFLAG;
@@ -367,7 +367,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		enemy_flag_pw = PW_REDFLAG;
 	}
 
-	//did the attacker frag the flag carrier?
+	// did the attacker frag the flag carrier?
 	tokens = 0;
 	if (targ->client->ps.powerups[enemy_flag_pw]) {
 		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
@@ -376,8 +376,8 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		attacker->client->pers.teamState.fragcarrier++;
 		PrintCTFMessage(attacker->s.number, team, CTFMESSAGE_FRAGGED_FLAG_CARRIER);
 
-		//the target had the flag, clear the hurt carrier
-		//field on the other team
+		// the target had the flag, clear the hurt carrier
+		// field on the other team
 		for (i = 0; i < g_maxclients.integer; i++) {
 			ent = g_entities + i;
 			if (ent->inuse && ent->client->sess.sessionTeam == otherteam)
@@ -386,7 +386,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		return;
 	}
 
-	//did the attacker frag a head carrier? other->client->ps.generic1
+	// did the attacker frag a head carrier? other->client->ps.generic1
 	if (tokens) {
 		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS * tokens * tokens);
@@ -396,8 +396,8 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 		attacker->client->pers.teamState.fragcarrier++;
 
-		//the target had the flag, clear the hurt carrier
-		//field on the other team
+		// the target had the flag, clear the hurt carrier
+		// field on the other team
 		for (i = 0; i < g_maxclients.integer; i++) {
 			ent = g_entities + i;
 			if (ent->inuse && ent->client->sess.sessionTeam == otherteam)
@@ -409,8 +409,8 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	if (targ->client->pers.teamState.lasthurtcarrier &&
 		level.time - targ->client->pers.teamState.lasthurtcarrier < CTF_CARRIER_DANGER_PROTECT_TIMEOUT &&
 		!attacker->client->ps.powerups[flag_pw]) {
-		//attacker is on the same team as the flag carrier and
-		//fragged a guy who hurt our flag carrier
+		// attacker is on the same team as the flag carrier and
+		// fragged a guy who hurt our flag carrier
 		AddScore(attacker, targ->r.currentOrigin, CTF_CARRIER_DANGER_PROTECT_BONUS);
 
 		attacker->client->pers.teamState.carrierdefense++;
@@ -425,7 +425,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 	if (targ->client->pers.teamState.lasthurtcarrier &&
 		level.time - targ->client->pers.teamState.lasthurtcarrier < CTF_CARRIER_DANGER_PROTECT_TIMEOUT) {
-		//attacker is on the same team as the skull carrier and
+		// attacker is on the same team as the skull carrier and
 		AddScore(attacker, targ->r.currentOrigin, CTF_CARRIER_DANGER_PROTECT_BONUS);
 
 		attacker->client->pers.teamState.carrierdefense++;
@@ -438,11 +438,11 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		return;
 	}
 
-	//flag and flag carrier area defense bonuses
+	// flag and flag carrier area defense bonuses
 
-	//we have to find the flag and carrier entities
+	// we have to find the flag and carrier entities
 
-	//find the flag
+	// find the flag
 	switch (attacker->client->sess.sessionTeam) {
 	case TEAM_RED:
 		c = "team_CTF_redflag";
@@ -453,7 +453,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	default:
 		return;
 	}
-	//find attacker's team's flag carrier
+	// find attacker's team's flag carrier
 	for (i = 0; i < g_maxclients.integer; i++) {
 		carrier = g_entities + i;
 		if (carrier->inuse && carrier->client->ps.powerups[flag_pw])
@@ -467,11 +467,11 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	}
 
 	if (!flag)
-		return; //can't find attacker's flag
+		return; // can't find attacker's flag
 
-	//ok we have the attackers flag and a pointer to the carrier
+	// ok we have the attackers flag and a pointer to the carrier
 
-	//check to see if we are defending the base's flag
+	// check to see if we are defending the base's flag
 	VectorSubtract(targ->r.currentOrigin, flag->r.currentOrigin, v1);
 	VectorSubtract(attacker->r.currentOrigin, flag->r.currentOrigin, v2);
 
@@ -481,7 +481,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		trap_InPVS(flag->r.currentOrigin, attacker->r.currentOrigin ) ) ) &&
 		attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam) {
 
-		//we defended the base flag
+		// we defended the base flag
 		AddScore(attacker, targ->r.currentOrigin, CTF_FLAG_DEFENSE_BONUS);
 		attacker->client->pers.teamState.basedefense++;
 
@@ -531,12 +531,12 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 	else
 		flag_pw = PW_REDFLAG;
 
-	//flags
+	// flags
 	if (targ->client->ps.powerups[flag_pw] &&
 		targ->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
 		attacker->client->pers.teamState.lasthurtcarrier = level.time;
 
-	//skulls
+	// skulls
 	if (targ->client->ps.generic1 &&
 		targ->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
 		attacker->client->pers.teamState.lasthurtcarrier = level.time;
@@ -614,8 +614,8 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 		return;
 	}
 
-	//only play sound when the flag was at the base
-	//or not picked up the last 10 seconds
+	// only play sound when the flag was at the base
+	// or not picked up the last 10 seconds
 	switch(team) {
 		case TEAM_RED:
 			if( teamgame.blueStatus != FLAG_ATBASE ) {
@@ -625,7 +625,7 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 			teamgame.blueTakenTime = level.time;
 			break;
 
-		case TEAM_BLUE:	//CTF
+		case TEAM_BLUE:	// CTF
 			if( teamgame.redStatus != FLAG_ATBASE ) {
 				if (teamgame.redTakenTime > level.time - 10000)
 					return;
@@ -707,7 +707,7 @@ void Team_DroppedFlagThink(gentity_t *ent) {
 
 	Team_ReturnFlagSound( Team_ResetFlag( team ), team );
 	PrintCTFMessage(-1, team, CTFMESSAGE_FLAG_RETURNED);
-	//Reset Flag will delete this entity
+	// Reset Flag will delete this entity
 }
 
 
@@ -739,7 +739,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	}
 
 	if ( ent->flags & FL_DROPPED_ITEM ) {
-		//hey, its not home.  return it by teleporting it back
+		// hey, its not home.  return it by teleporting it back
 		PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_RETURNED_FLAG);
 
 		AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
@@ -754,10 +754,10 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 		return 0;
 	}
 
-	//the flag is at home base.  if the player has the enemy
-	//flag, he's just won!
+	// the flag is at home base.  if the player has the enemy
+	// flag, he's just won!
 	if (!cl->ps.powerups[enemy_flag])
-		return 0; //We don't have the flag
+		return 0; // We don't have the flag
 
 	if (level.intermissionQueued) {
 		return 0;
@@ -785,7 +785,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 		//check if its alive
 		if (enemy->health < 1)
-			continue;		//dead people can't pickup
+			continue;		// dead people can't pickup
 
 		//ignore specs
 		if (enemy->client->sess.sessionTeam == TEAM_SPECTATOR)
@@ -814,7 +814,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	teamgame.last_flag_capture = level.time;
 	teamgame.last_capture_team = team;
 
-	//Increase the team's score
+	// Increase the team's score
 	AddTeamScore(ent->s.pos.trBase, other->client->sess.sessionTeam, 1);
 	//rww - don't really want to do this now. Mainly because performing a gesture disables your upper torso animations until it's done and you can't fire
 
@@ -822,12 +822,12 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 	other->client->ps.persistant[PERS_CAPTURES]++;
 
-	//other gets another 10 frag bonus
+	// other gets another 10 frag bonus
 	AddScore(other, ent->r.currentOrigin, CTF_CAPTURE_BONUS);
 
 	Team_CaptureFlagSound( ent, team );
 
-	//Ok, let's do the player loop, hand out the bonuses
+	// Ok, let's do the player loop, hand out the bonuses
 	for (i = 0; i < g_maxclients.integer; i++) {
 		player = &g_entities[i];
 		if (!player->inuse || player == other)
@@ -839,7 +839,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 		} else if (player->client->sess.sessionTeam ==
 			cl->sess.sessionTeam) {
 			AddScore(player, ent->r.currentOrigin, CTF_TEAM_BONUS);
-			//award extra points for capture assists
+			// award extra points for capture assists
 			if (player->client->pers.teamState.lastreturnedflag + 
 				CTF_RETURN_FLAG_ASSIST_TIMEOUT > level.time) {
 				AddScore (player, ent->r.currentOrigin, CTF_RETURN_FLAG_ASSIST_BONUS);
@@ -861,7 +861,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 	CalculateRanks();
 
-	return 0; //Do not respawn this automatically
+	return 0; // Do not respawn this automatically
 }
 
 int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
@@ -899,7 +899,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 		//check if its alive
 		if (enemy->health < 1)
-			continue;		//dead people can't pick up items
+			continue;		// dead people can't pick up items
 
 		//lets check if he has our flag
 		if (!enemy->client->ps.powerups[ourFlag])
@@ -915,9 +915,9 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 	PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_GOT_FLAG);
 
 	if (team == TEAM_RED)
-		cl->ps.powerups[PW_REDFLAG] = INT_MAX; //flags never expire
+		cl->ps.powerups[PW_REDFLAG] = INT_MAX; // flags never expire
 	else
-		cl->ps.powerups[PW_BLUEFLAG] = INT_MAX; //flags never expire
+		cl->ps.powerups[PW_BLUEFLAG] = INT_MAX; // flags never expire
 
 	if (!(ent->flags & FL_DROPPED_ITEM)){ 
 		//log initial flag steal
@@ -933,14 +933,14 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 	cl->pers.teamState.flagsince = level.time;
 	Team_TakeFlagSound( ent, team );
 
-	return -1; //Do not respawn this automatically, but do delete it if it was FL_DROPPED
+	return -1; // Do not respawn this automatically, but do delete it if it was FL_DROPPED
 }
 
 int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	int team;
 	gclient_t *cl = other->client;
 
-	//figure out what team this flag is
+	// figure out what team this flag is
 	if( strcmp(ent->classname, "team_CTF_redflag") == 0 ) {
 		team = TEAM_RED;
 	}
@@ -954,7 +954,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 //		PrintMsg ( other, "Don't know what team the flag is on.\n");
 		return 0;
 	}
-	//GT_CTF
+	// GT_CTF
 	if( team == cl->sess.sessionTeam) {
 		return Team_TouchOurFlag( ent, other, team );
 	}
@@ -1097,7 +1097,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClas
 			break;
 	}
 
-	if ( !count ) {	//no spots that won't telefrag
+	if ( !count ) {	// no spots that won't telefrag
 		return G_Find( NULL, FOFS(classname), classname);
 	}
 
@@ -1202,9 +1202,9 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	if ( ! ent->client->pers.teamInfo )
 		return;
 
-	//figure out what client should be on the display
-	//we are limited to 8, but we want to use the top eight players
-	//but in client order (so they don't keep changing position on the overlay)
+	// figure out what client should be on the display
+	// we are limited to 8, but we want to use the top eight players
+	// but in client order (so they don't keep changing position on the overlay)
 	for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
 		player = g_entities + level.sortedClients[i];
 		if (player->inuse && player->client->sess.sessionTeam == 
@@ -1213,10 +1213,10 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		}
 	}
 
-	//We have the top eight players, sort them by clientNum
+	// We have the top eight players, sort them by clientNum
 	qsort( clients, cnt, sizeof( clients[0] ), SortClients );
 
-	//send the latest information on all clients
+	// send the latest information on all clients
 	string[0] = 0;
 	stringlength = 0;
 

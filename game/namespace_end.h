@@ -10,7 +10,7 @@ using namespace cgame;
 }
 using namespace ui;
 #else
-//See comment int namespace_begin.h
+// See comment int namespace_begin.h
 //#error Including namespace_end.h, but not in UI/GAME/CGAME
 #endif
 

@@ -1,4 +1,4 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
 #include "bg_saga.h"
@@ -14,7 +14,7 @@ void InitTrigger( gentity_t *self ) {
 		G_SetMovedir (self->s.angles, self->movedir);
 
 	trap_SetBrushModel( self, self->model );
-	self->r.contents = CONTENTS_TRIGGER;		//replaces the -1 from trap_SetBrushModel
+	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 
 	if(self->spawnflags & 128)
@@ -23,16 +23,16 @@ void InitTrigger( gentity_t *self ) {
 	}
 }
 
-//the wait time has passed, so set back up for another activation
+// the wait time has passed, so set back up for another activation
 void multi_wait( gentity_t *ent ) {
 	ent->nextthink = 0;
 }
 
 void trigger_cleared_fire (gentity_t *self);
 
-//the trigger was just activated
-//ent->activator should be set to the activator so it can be held through a delay
-//so wait for the delay time before firing
+// the trigger was just activated
+// ent->activator should be set to the activator so it can be held through a delay
+// so wait for the delay time before firing
 void multi_trigger_run( gentity_t *ent ) 
 {
 	ent->think = 0;
@@ -81,15 +81,15 @@ void multi_trigger_run( gentity_t *ent )
 	} 
 	else if ( ent->wait < 0 )
 	{
-		//we can't just remove (self) here, because this is a touch function
-		//called while looping through area links...
+		// we can't just remove (self) here, because this is a touch function
+		// called while looping through area links...
 		ent->r.contents &= ~CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
 		ent->think = 0;
 		ent->use = 0;
 		//Don't remove, Icarus may barf?
 	}
 	if( ent->activator && ent->activator->client )
-	{	//mark the trigger as being touched by the player
+	{	// mark the trigger as being touched by the player
 		ent->aimDebounceTime = level.time;
 	}
 }
@@ -344,11 +344,11 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 
 	if ( ent->nextthink > level.time ) 
 	{
-		if( ent->spawnflags & 2048 ) //MULTIPLE - allow multiple entities to touch this trigger in a single frame
+		if( ent->spawnflags & 2048 ) // MULTIPLE - allow multiple entities to touch this trigger in a single frame
 		{
 			if ( ent->painDebounceTime && ent->painDebounceTime != level.time )
 			{//this should still allow subsequent ents to fire this trigger in the current frame
-				return;		//can't retrigger until the wait is over
+				return;		// can't retrigger until the wait is over
 			}
 		}
 		else
@@ -358,7 +358,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 
 	}
 
-	//if the player has already activated this trigger this frame
+	// if the player has already activated this trigger this frame
 	if( activator && G_IsPlayer(activator) && ent->aimDebounceTime == level.time )
 	{
 		return;	
@@ -689,7 +689,7 @@ void trigger_cleared_fire (gentity_t *self)
 {
 	G_UseTargets2( self, self->activator, self->target2 );
 	self->think = 0;
-	//should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
+	// should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
 	if ( self->wait > 0 ) 
 	{
 		self->nextthink = level.time + ( self->wait + self->random * crandom() ) * 1000;
@@ -1141,7 +1141,7 @@ void trigger_always_think( gentity_t *ent ) {
 This trigger will always fire.  It is activated by the world.
 */
 void SP_trigger_always (gentity_t *ent) {
-	//we must have some delay to make sure our use targets are present
+	// we must have some delay to make sure our use targets are present
 	ent->nextthink = level.time + 300;
 	ent->think = trigger_always_think;
 }
@@ -1177,16 +1177,16 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 
 	//linear
-	if( level.time < self->painDebounceTime + self->wait  ) //normal 'wait' check
+	if( level.time < self->painDebounceTime + self->wait  ) // normal 'wait' check
 	{
-		if( self->spawnflags & PUSH_MULTIPLE ) //MULTIPLE - allow multiple entities to touch this trigger in one frame
+		if( self->spawnflags & PUSH_MULTIPLE ) // MULTIPLE - allow multiple entities to touch this trigger in one frame
 		{
-			if ( self->painDebounceTime && level.time > self->painDebounceTime ) //if we haven't reached the next frame continue to let ents touch the trigger
+			if ( self->painDebounceTime && level.time > self->painDebounceTime ) // if we haven't reached the next frame continue to let ents touch the trigger
 			{
 				return;
 			}
 		}
-		else //only allowing one ent per frame to touch trigger
+		else // only allowing one ent per frame to touch trigger
 		{
 				return;
 			}
@@ -1297,7 +1297,7 @@ void AimAtTarget( gentity_t *self ) {
 		return;
 	}
 
-	//set s.origin2 to the push velocity
+	// set s.origin2 to the push velocity
 	VectorSubtract ( ent->s.origin, origin, self->s.origin2 );
 	self->s.origin2[2] = 0;
 	dist = VectorNormalize( self->s.origin2);
@@ -1324,10 +1324,10 @@ speed - when used with the LINEAR spawnflag, pushes the client toward the positi
 void SP_trigger_push( gentity_t *self ) {
 	InitTrigger (self);
 
-	//unlike other triggers, we need to send this one to the client
+	// unlike other triggers, we need to send this one to the client
 	self->r.svFlags &= ~SVF_NOCLIENT;
 
-	//make sure the client precaches this sound
+	// make sure the client precaches this sound
 	G_SoundIndex("sound/weapons/force/jump.wav");
 
 	self->s.eType = ET_PUSH_TRIGGER;
@@ -1360,7 +1360,7 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 
 	VectorCopy (self->s.origin2, activator->client->ps.velocity);
 
-	//play fly sound every 1.5 seconds
+	// play fly sound every 1.5 seconds
 	if ( activator->fly_sound_debounce_time < level.time ) {
 		activator->fly_sound_debounce_time = level.time + 1500;
 		if (self->noise_index)
@@ -1420,7 +1420,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	if ( other->client->ps.pm_type == PM_DEAD ) {
 		return;
 	}
-	//Spectators only?
+	// Spectators only?
 	if ( ( self->spawnflags & 1 ) && 
 		other->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		return;
@@ -1448,15 +1448,15 @@ automatically near doors to allow spectators to move through them
 void SP_trigger_teleport( gentity_t *self ) {
 	InitTrigger (self);
 
-	//unlike other triggers, we need to send this one to the client
-	//unless is a spectator trigger
+	// unlike other triggers, we need to send this one to the client
+	// unless is a spectator trigger
 	if ( self->spawnflags & 1 ) {
 		self->r.svFlags |= SVF_NOCLIENT;
 	} else {
 		self->r.svFlags &= ~SVF_NOCLIENT;
 	}
 
-	//make sure the client precaches this sound
+	// make sure the client precaches this sound
 	G_SoundIndex("sound/weapons/force/speed.wav");
 
 	self->s.eType = ET_TELEPORT_TRIGGER;
@@ -1634,7 +1634,7 @@ void SP_trigger_hurt( gentity_t *self ) {
 		self->use = hurt_use;
 	}
 
-	//link in to the world if starting active
+	// link in to the world if starting active
 	if ( ! (self->spawnflags & 1) ) {
 		trap_LinkEntity (self);
 	}
@@ -1934,7 +1934,7 @@ so, the basic time between firing is a random time between
 */
 void func_timer_think( gentity_t *self ) {
 	G_UseTargets (self, self->activator);
-	//set time before next firing
+	// set time before next firing
 	self->nextthink = level.time + 1000 * ( self->wait + crandom() * self->random );
 }
 
@@ -1943,13 +1943,13 @@ void func_timer_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 
 	G_ActivateBehavior(self,BSET_USE);
 
-	//if on, turn it off
+	// if on, turn it off
 	if ( self->nextthink ) {
 		self->nextthink = 0;
 		return;
 	}
 
-	//turn it on
+	// turn it on
 	func_timer_think (self);
 }
 

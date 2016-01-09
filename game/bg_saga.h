@@ -3,9 +3,9 @@
 #define		SIEGETEAM_TEAM1						1 //e.g. TEAM_RED
 #define		SIEGETEAM_TEAM2						2 //e.g. TEAM_BLUE
 
-#define		SIEGE_POINTS_OBJECTIVECOMPLETED		20 //guy who captures any objective gets this
-#define		SIEGE_POINTS_FINALOBJECTIVECOMPLETED	30 //guy who captures the last objective gets this
-#define		SIEGE_POINTS_TEAMWONROUND			10 //everyone on winning team gets this
+#define		SIEGE_POINTS_OBJECTIVECOMPLETED		20 // guy who captures any objective gets this
+#define		SIEGE_POINTS_FINALOBJECTIVECOMPLETED	30 // guy who captures the last objective gets this
+#define		SIEGE_POINTS_TEAMWONROUND			10 // everyone on winning team gets this
 
 #define     SIEGE_POINTS_OBJECTIVECOMPLETED_NEW     100
 #define     SIEGE_POINTS_FINALOBJECTIVECOMPLETED_NEW 100
@@ -20,7 +20,7 @@
 
 #define		MAX_EXDATA_ENTS_TO_SEND				MAX_CLIENTS //max number of extended data for ents to send
 
-//The basic siege player classes
+// The basic siege player classes
 typedef enum
 {
 	SPC_INFANTRY = 0,
@@ -80,7 +80,7 @@ typedef struct
 	int			uiPortraitShader;
 	char		uiPortrait[256];
 	int			classShader;
-	short		playerClass;		//SPC_INFANTRY . .. 
+	short		playerClass;		// SPC_INFANTRY . .. 
 	int			ammoblaster;
 	int			ammopowercell;
 	int			ammometallicbolts;

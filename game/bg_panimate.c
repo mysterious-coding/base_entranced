@@ -1,4 +1,4 @@
-//BG_PAnimate.c
+// BG_PAnimate.c
 
 #include "q_shared.h"
 #include "bg_public.h"
@@ -25,9 +25,9 @@ BEGIN: Animation utility functions (sequence checking)
 */
 //Called regardless of pm validity:
 
-//VVFIXME - Most of these functions are totally stateless and stupid. Don't
-//need multiple copies of this, but it's much easier (and less likely to
-//break in the future) if I keep separate namespace versions now.
+// VVFIXME - Most of these functions are totally stateless and stupid. Don't
+// need multiple copies of this, but it's much easier (and less likely to
+// break in the future) if I keep separate namespace versions now.
 #include "namespace_begin.h"
 
 qboolean BG_SaberStanceAnim( int anim )
@@ -1696,7 +1696,7 @@ int bgNumAllAnims = 2; //start off at 2, because 0 will always be assigned to hu
 void BG_InitAnimsets(void)
 {
 	memset(&bgAllAnims, 0, sizeof(bgAllAnims));
-	BGPAFtextLoaded = qfalse;	//VVFIXME - The PC doesn't seem to need this, but why?
+	BGPAFtextLoaded = qfalse;	// VVFIXME - The PC doesn't seem to need this, but why?
 }
 
 //ALWAYS call on game/cgame shutdown
@@ -1767,7 +1767,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 	animEventType_t	eventType;
 	char			stringData[MAX_QPATH];
 
-	//get past starting bracket
+	// get past starting bracket
 	while(1) 
 	{
 		token = COM_Parse( text_p );
@@ -1781,7 +1781,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 	//			this way if we have an event on an anim that already
 	//			has an event of that type, it stomps it
 
-	//read information for each frame
+	// read information for each frame
 	while ( 1 ) 
 	{
 		if ( lastAnimEvent >= MAX_ANIM_EVENTS )
@@ -1789,14 +1789,14 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			Com_Error( ERR_DROP, "ParseAnimationEvtBlock: number events in animEvent file %s > MAX_ANIM_EVENTS(%i)", aeb_filename, MAX_ANIM_EVENTS );
 			return;
 		}
-		//Get base frame of sequence
+		// Get base frame of sequence
 		token = COM_Parse( text_p );
 		if ( !token || !token[0]) 
 		{
 			break;
 		}
 
-		if ( !Q_stricmp( token, "}" ) )		//At end of block 
+		if ( !Q_stricmp( token, "}" ) )		// At end of block 
 		{
 			break;
 		}
@@ -1834,7 +1834,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 
 		//set our start frame
 		keyFrame = animations[animNum].firstFrame;
-		//Get offset to frame within sequence
+		// Get offset to frame within sequence
 		token = COM_Parse( text_p );
 		if ( !token ) 
 		{
@@ -2179,7 +2179,7 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 		}
 	}
 
-	//Load and parse animevents.cfg file
+	// Load and parse animevents.cfg file
 	Com_sprintf( sfilename, sizeof( sfilename ), "%sanimevents.cfg", as_filename );
 
 	if (bg_animParseIncluding <= 0)
@@ -2205,7 +2205,7 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 		}
 	}
 
-	//load the file
+	// load the file
 	len = trap_FS_FOpenFile( sfilename, &f, FS_READ );
 	if ( len <= 0 ) 
 	{//no file
@@ -2226,22 +2226,22 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	text[len] = 0;
 	trap_FS_FCloseFile( f );
 
-	//parse the text
+	// parse the text
 	text_p = text;
 	upper_i =0;
 	lower_i =0;
 
-	//read information for batches of sounds (UPPER or LOWER)
+	// read information for batches of sounds (UPPER or LOWER)
 	while ( 1 ) 
 	{
-		//Get base frame of sequence
+		// Get base frame of sequence
 		token = COM_Parse( &text_p );
 		if ( !token || !token[0] ) 
 		{
 			break;
 		}
 
-		if ( !Q_stricmp(token,"include") )	//grab from another animevents.cfg
+		if ( !Q_stricmp(token,"include") )	// grab from another animevents.cfg
 		{//NOTE: you REALLY should NOT do this after the main block of UPPERSOUNDS and LOWERSOUNDS
 			const char	*include_filename = COM_Parse( &text_p );
 			if ( include_filename != NULL )
@@ -2254,12 +2254,12 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 			}
 		}
 
-		if ( !Q_stricmp(token,"UPPEREVENTS") )	//A batch of upper sounds
+		if ( !Q_stricmp(token,"UPPEREVENTS") )	// A batch of upper sounds
 		{
 			ParseAnimationEvtBlock( as_filename, torsoAnimEvents, animations, &upper_i, &text_p ); 
 		}
 
-		else if ( !Q_stricmp(token,"LOWEREVENTS") )	//A batch of lower sounds
+		else if ( !Q_stricmp(token,"LOWEREVENTS") )	// A batch of lower sounds
 		{
 			ParseAnimationEvtBlock( as_filename, legsAnimEvents, animations, &lower_i, &text_p ); 
 		}
@@ -2361,7 +2361,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 	}
 #endif
 
-	//load the file
+	// load the file
 	if (!BGPAFtextLoaded || !isHumanoid)
 	{ //rww - We are always using the same animation config now. So only load it once.
 		len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -2392,7 +2392,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		return 0; //humanoid index
 	}
 
-	//parse the text
+	// parse the text
 	text_p = BGPAFtext;
 
 	//FIXME: have some way of playing anims backwards... negative numFrames?
@@ -2406,7 +2406,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		animset[i].frameLerp = 100;
 	}
 
-	//read information for each frame
+	// read information for each frame
 	while(1) 
 	{
 		token = COM_Parse( (const char **)(&text_p) );
@@ -2524,7 +2524,7 @@ static void BG_StartLegsAnim( playerState_t *ps, int anim )
 	}
 	if ( ps->legsTimer > 0 )
 	{
-		return;		//a high priority animation is running
+		return;		// a high priority animation is running
 	}
 
 	if (ps->legsAnim == anim)
@@ -2546,7 +2546,7 @@ void PM_ContinueLegsAnim( int anim ) {
 		return;
 	}
 	if ( pm->ps->legsTimer > 0 ) {
-		return;		//a high priority animation is running
+		return;		// a high priority animation is running
 	}
 
 	BG_StartLegsAnim( pm->ps, anim );
@@ -2717,7 +2717,7 @@ qboolean PM_WalkingAnim( int anim );
 
 void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 					 int setAnimParts,int anim,int setAnimFlags,
-					 int blendTime)		//default blendTime=350
+					 int blendTime)		// default blendTime=350
 {
 	float editAnimSpeed = 1;
 
@@ -2734,15 +2734,15 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs);
 
-	//Set torso anim
+	// Set torso anim
 	if (setAnimParts & SETANIM_TORSO)
 	{
-		//Don't reset if it's already running the anim
+		// Don't reset if it's already running the anim
 		if( !(setAnimFlags & SETANIM_FLAG_RESTART) && (ps->torsoAnim) == anim )
 		{
 			goto setAnimLegs;
 		}
-		//or if a more important anim is running
+		// or if a more important anim is running
 		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) )
 		{	
 			goto setAnimLegs;
@@ -2753,7 +2753,7 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 		if (setAnimFlags & SETANIM_FLAG_HOLD)
 		{
 			if (setAnimFlags & SETANIM_FLAG_HOLDLESS)
-			{	//Make sure to only wait in full 1/20 sec server frame intervals.
+			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
 				
@@ -2782,15 +2782,15 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 	}
 
 setAnimLegs:
-	//Set legs anim
+	// Set legs anim
 	if (setAnimParts & SETANIM_LEGS)
 	{
-		//Don't reset if it's already running the anim
+		// Don't reset if it's already running the anim
 		if( !(setAnimFlags & SETANIM_FLAG_RESTART) && (ps->legsAnim) == anim )
 		{
 			goto setAnimDone;
 		}
-		//or if a more important anim is running
+		// or if a more important anim is running
 		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((ps->legsTimer > 0)||(ps->legsTimer == -1)) )
 		{	
 			goto setAnimDone;
@@ -2801,7 +2801,7 @@ setAnimLegs:
 		if (setAnimFlags & SETANIM_FLAG_HOLD)
 		{
 			if (setAnimFlags & SETANIM_FLAG_HOLDLESS)
-			{	//Make sure to only wait in full 1/20 sec server frame intervals.
+			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
 				
@@ -2842,7 +2842,7 @@ setAnimDone:
 }
 
 void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
-					 int blendTime)		//default blendTime=350
+					 int blendTime)		// default blendTime=350
 {
 	BG_SetAnimFinal(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
@@ -2944,4 +2944,4 @@ void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags, int blendTime)
 	BG_SetAnim(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
-#include "namespace_end.h"		//End of animation utilities
+#include "namespace_end.h"		// End of animation utilities

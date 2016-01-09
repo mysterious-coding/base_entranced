@@ -1,6 +1,6 @@
-//Copyright (C) 1999-2000 Id Software, Inc.
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
-//g_misc.c
+// g_misc.c
 
 #include "g_local.h"
 #include "G2.h"
@@ -182,8 +182,8 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 		isNPC = qtrue;
 	}
 
-	//use temp events at source and destination to prevent the effect
-	//from getting dropped by a second player event
+	// use temp events at source and destination to prevent the effect
+	// from getting dropped by a second player event
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
 		tent->s.clientNum = player->s.clientNum;
@@ -192,37 +192,37 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 		tent->s.clientNum = player->s.clientNum;
 	}
 
-	//unlink to make sure it can't possibly interfere with G_KillBox
+	// unlink to make sure it can't possibly interfere with G_KillBox
 	trap_UnlinkEntity (player);
 
 	VectorCopy ( origin, player->client->ps.origin );
 	player->client->ps.origin[2] += 1;
 
-	//spit the player out
+	// spit the player out
 	AngleVectors( angles, player->client->ps.velocity, NULL, NULL );
 	VectorScale( player->client->ps.velocity, 400, player->client->ps.velocity );
-	player->client->ps.pm_time = 160;		//hold time
+	player->client->ps.pm_time = 160;		// hold time
 	player->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 
-	//toggle the teleport bit so the client knows to not lerp
+	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 
-	//set angles
+	// set angles
 	SetClientViewAngle( player, angles );
 
-	//kill anything at the destination
+	// kill anything at the destination
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		G_KillBox (player);
 	}
 
-	//save results of pmove
+	// save results of pmove
 	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
 	if (isNPC)
 	{
 		player->s.eType = ET_NPC;
 	}
 
-	//use the precise origin for linking
+	// use the precise origin for linking
 	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
 
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -313,28 +313,28 @@ void locateCamera( gentity_t *ent ) {
 	}
 	ent->r.ownerNum = owner->s.number;
 
-	//frame holds the rotate speed
+	// frame holds the rotate speed
 	if ( owner->spawnflags & 1 ) {
 		ent->s.frame = 25;
 	} else if ( owner->spawnflags & 2 ) {
 		ent->s.frame = 75;
 	}
 
-	//swing camera ?
+	// swing camera ?
 	if ( owner->spawnflags & 4 ) {
-		//set to 0 for no rotation at all
+		// set to 0 for no rotation at all
 		ent->s.powerups = 0;
 	}
 	else {
 		ent->s.powerups = 1;
 	}
 
-	//clientNum holds the rotate offset
+	// clientNum holds the rotate offset
 	ent->s.clientNum = owner->s.clientNum;
 
 	VectorCopy( owner->s.origin, ent->s.origin2 );
 
-	//see if the portal_camera has a target
+	// see if the portal_camera has a target
 	target = G_PickTarget( owner->target );
 	if ( target ) {
 		VectorSubtract( target->s.origin, owner->s.origin, dir );
@@ -397,7 +397,7 @@ void SP_misc_bsp(gentity_t *ent)
 	{
 		ent->s.angles[1] = newAngle;
 	}
-	//don't support rotation any other way
+	// don't support rotation any other way
 	ent->s.angles[0] = 0.0;
 	ent->s.angles[2] = 0.0;
 	
@@ -405,14 +405,14 @@ void SP_misc_bsp(gentity_t *ent)
 
 	ent->s.eFlags = EF_PERMANENT;
 
-	//Mainly for debugging
+	// Mainly for debugging
 	G_SpawnInt( "spacing", "0", &tempint);
 	ent->s.time2 = tempint;
 	G_SpawnInt( "flatten", "0", &tempint);
 	ent->s.time = tempint;
 
 	Com_sprintf(temp, MAX_QPATH, "#%s", out);
-	trap_SetBrushModel( ent, temp );  //SV_SetBrushModel -- sets mins and maxs
+	trap_SetBrushModel( ent, temp );  // SV_SetBrushModel -- sets mins and maxs
 	G_BSPIndex(temp);
 
 	level.mNumBSPInstances++;
@@ -478,7 +478,7 @@ void SP_terrain(gentity_t *ent)
 	VectorClear (ent->s.angles);
 	trap_SetBrushModel( ent, ent->model );
 
-	//Get the shader from the top of the brush
+	// Get the shader from the top of the brush
 	shaderNum = 0;
 
 	if (g_RMG.integer)
@@ -487,7 +487,7 @@ void SP_terrain(gentity_t *ent)
 		trap_Cvar_VariableStringBuffer("RMG_mission", missionType, MAX_QPATH);
 	}
 
-	//Get info required for the common init
+	// Get info required for the common init
 	temp[0] = 0;
 	G_SpawnString("heightmap", "", &value);
 	Info_SetValueForKey(temp, "heightMap", value);
@@ -528,7 +528,7 @@ void SP_terrain(gentity_t *ent)
 		}
 	}
 
-	//Set additional data required on the client only
+	// Set additional data required on the client only
 	G_SpawnString("densitymap", "", &value);
 	Info_SetValueForKey(temp, "densityMap", value);
 
@@ -536,28 +536,28 @@ void SP_terrain(gentity_t *ent)
 	G_SpawnString("texturescale", "0.005", &value);
 	Info_SetValueForKey(temp, "texturescale", va("%f", atof(value)));
 
-	//Initialise the common aspects of the terrain
+	// Initialise the common aspects of the terrain
 	terrainID = trap_CM_RegisterTerrain(temp);
 
 	Info_SetValueForKey(temp, "terrainId", va("%d", terrainID));
 
-	//Let the entity know if it is random generated or not
+	// Let the entity know if it is random generated or not
 
-	//Let the game remember everything
+	// Let the game remember everything
 
-	//Send all the data down to the client
+	// Send all the data down to the client
 	trap_SetConfigstring(CS_TERRAINS + terrainID, temp);
 
-	//Make sure the contents are properly set
+	// Make sure the contents are properly set
 	ent->r.contents = CONTENTS_TERRAIN;
 	ent->r.svFlags = SVF_NOCLIENT;
 	ent->s.eFlags = EF_PERMANENT;
 	ent->s.eType = ET_TERRAIN;
 
-	//Hook into the world so physics will work
+	// Hook into the world so physics will work
 	trap_LinkEntity(ent);
 
-	//If running RMG then initialize the terrain and handle team skins
+	// If running RMG then initialize the terrain and handle team skins
 	if ( g_RMG.integer ) 
 	{
 		trap_RMG_Init(terrainID);
@@ -631,7 +631,7 @@ void SP_misc_skyportal (gentity_t *ent)
 	vec3_t	fogv;	//----(SA)	
 	int		fogn;	//----(SA)	
 	int		fogf;	//----(SA)	
-	int		isfog = 0;	//(SA)
+	int		isfog = 0;	// (SA)
 
 	float	fov_x;
 
@@ -893,7 +893,7 @@ void SP_misc_holocron(gentity_t *ent)
 	//add the 0.1 back after the trace
 	ent->r.maxs[2] += 0.1;
 
-	//allow to ride movers
+	// allow to ride movers
 
 	G_SetOrigin( ent, tr.endpos );
 
@@ -962,7 +962,7 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	float		deg;
 	vec3_t		up, right;
 
-	//see if we have a target
+	// see if we have a target
 	if ( ent->enemy ) {
 		VectorSubtract( ent->enemy->r.currentOrigin, ent->s.origin, dir );
 		VectorNormalize( dir );
@@ -970,7 +970,7 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		VectorCopy( ent->movedir, dir );
 	}
 
-	//randomize a bit
+	// randomize a bit
 	PerpendicularVector( up, dir );
 	CrossProduct( up, dir, right );
 
@@ -1010,7 +1010,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
 		ent->random = 1.0;
 	}
 	ent->random = sin( M_PI * ent->random / 180 );
-	//target might be a moving object, so we can't set movedir for it
+	// target might be a moving object, so we can't set movedir for it
 	if ( ent->target ) {
 		ent->think = InitShooter_Finish;
 		ent->nextthink = level.time + 500;
@@ -1125,7 +1125,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		}
 		dif = maxArmor - activator->client->ps.stats[STAT_ARMOR];
 
-		if (dif > 0)					//Already at full armor?
+		if (dif > 0)					// Already at full armor?
 		{
 			if (dif >MAX_AMMO_GIVE)
 			{
@@ -1353,7 +1353,7 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	//add the 0.1 back after the trace
 	ent->r.maxs[2] += 0.1f;
 
-	//allow to ride movers
+	// allow to ride movers
 	ent->s.groundEntityNum = tr.entityNum;
 
 	G_SetOrigin( ent, tr.endpos );
@@ -1448,7 +1448,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	//add the 0.1 back after the trace
 	ent->r.maxs[2] += 0.1;
 
-	//allow to ride movers
+	// allow to ride movers
 	ent->s.groundEntityNum = tr.entityNum;
 
 	G_SetOrigin( ent, tr.endpos );
@@ -1547,7 +1547,7 @@ void SP_misc_model_shield_power_converter( gentity_t *ent )
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
 	trap_LinkEntity (ent);
 
-	ent->s.modelindex2 = G_ModelIndex("/models/items/psd_big.md3");	//Precache model
+	ent->s.modelindex2 = G_ModelIndex("/models/items/psd_big.md3");	// Precache model
 }
 
 
@@ -1585,7 +1585,7 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 
 		self->setTime = level.time + 100;
 
-		if (self->count)	//Has it got any power left?
+		if (self->count)	// Has it got any power left?
 		{
 			int i = AMMO_BLASTER;
 			while (i < AMMO_MAX)
@@ -1709,7 +1709,7 @@ void health_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 
 		dif = activator->client->ps.stats[STAT_MAX_HEALTH] - activator->health;
 
-		if (dif > 0)					//Already at full armor?
+		if (dif > 0)					// Already at full armor?
 		{
 			if (dif >5)
 			{
@@ -2038,7 +2038,7 @@ void fx_runner_think( gentity_t *ent )
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
 	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
 
-	//call the effect with the desired position and orientation
+	// call the effect with the desired position and orientation
 	if (ent->s.isPortalEnt)
 	{
 	}
@@ -2046,7 +2046,7 @@ void fx_runner_think( gentity_t *ent )
 	{
 	}
 
-	//start the fx on the client (continuous)
+	// start the fx on the client (continuous)
 	ent->s.modelindex2 = FX_STATE_CONTINUOUS;
 
 	VectorCopy(ent->r.currentAngles, ent->s.angles);
@@ -2054,18 +2054,18 @@ void fx_runner_think( gentity_t *ent )
 
 	ent->nextthink = level.time + ent->delay + random() * ent->random;
 
-	if ( ent->spawnflags & 4 ) //damage
+	if ( ent->spawnflags & 4 ) // damage
 	{
 		G_RadiusDamage( ent->r.currentOrigin, ent, ent->splashDamage, ent->splashRadius, ent, ent, MOD_UNKNOWN );
 	}
 
 	if ( ent->target2 && ent->target2[0] )
 	{
-		//let our target know that we have spawned an effect
+		// let our target know that we have spawned an effect
 		G_UseTargets2( ent, ent, ent->target2 );
 	}
 
-	if ( !(ent->spawnflags & 2 ) && !ent->s.loopSound ) //NOT ONESHOT...this is an assy thing to do
+	if ( !(ent->spawnflags & 2 ) && !ent->s.loopSound ) // NOT ONESHOT...this is an assy thing to do
 	{
 		if ( ent->soundSet && ent->soundSet[0] )
 		{
@@ -2085,15 +2085,15 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		self->r.svFlags |= SVF_BROADCAST;
 	}
 
-	if ( self->spawnflags & 2 ) //ONESHOT
+	if ( self->spawnflags & 2 ) // ONESHOT
 	{
-		//call the effect with the desired position and orientation, as a safety thing,
+		// call the effect with the desired position and orientation, as a safety thing,
 		//	make sure we aren't thinking at all.
 		int		saveState = self->s.modelindex2 + 1;
 
 		fx_runner_think( self );
 		self->nextthink = -1;
-		//one shot indicator
+		// one shot indicator
 		self->s.modelindex2 = saveState;
 		if (self->s.modelindex2 > FX_STATE_ONE_SHOT_LIMIT)
 		{
@@ -2102,7 +2102,7 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 		if ( self->target2 )
 		{
-			//let our target know that we have spawned an effect
+			// let our target know that we have spawned an effect
 			G_UseTargets2( self, self, self->target2 );
 		}
 
@@ -2114,13 +2114,13 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 	else
 	{
-		//ensure we are working with the right think function
+		// ensure we are working with the right think function
 		self->think = fx_runner_think;
 
-		//toggle our state
+		// toggle our state
 		if ( self->nextthink == -1 )
 		{
-			//NOTE: we fire the effect immediately on use, the fx_runner_think func will set
+			// NOTE: we fire the effect immediately on use, the fx_runner_think func will set
 			//	up the nextthink time.
 			fx_runner_think( self );
 
@@ -2134,10 +2134,10 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		}
 		else
 		{
-			//turn off for now
+			// turn off for now
 			self->nextthink = -1;
 
-			//turn off fx on client
+			// turn off fx on client
 			self->s.modelindex2 = FX_STATE_OFF;
 
 			if ( self->soundSet && self->soundSet[0] )
@@ -2158,27 +2158,27 @@ void fx_runner_link( gentity_t *ent )
 
 	if ( ent->target && ent->target[0] )
 	{
-		//try to use the target to override the orientation
+		// try to use the target to override the orientation
 		gentity_t	*target = NULL;
 
 		target = G_Find( target, FOFS(targetname), ent->target );
 
 		if ( !target )
 		{
-			//Bah, no good, dump a warning, but continue on and use the UP vector
+			// Bah, no good, dump a warning, but continue on and use the UP vector
 			Com_Printf( "fx_runner_link: target specified but not found: %s\n", ent->target );
 			Com_Printf( "  -assuming UP orientation.\n" );
 		}
 		else
 		{
-			//Our target is valid so let's override the default UP vector
+			// Our target is valid so let's override the default UP vector
 			VectorSubtract( target->s.origin, ent->s.origin, dir );
 			VectorNormalize( dir );
 			vectoangles( dir, ent->s.angles );
 		}
 	}
 
-	//don't really do anything with this right now other than do a check to warn the designers if the target2 is bogus
+	// don't really do anything with this right now other than do a check to warn the designers if the target2 is bogus
 	if ( ent->target2 && ent->target2[0] )
 	{
 		gentity_t	*target = NULL;
@@ -2187,16 +2187,16 @@ void fx_runner_link( gentity_t *ent )
 
 		if ( !target )
 		{
-			//Target2 is bogus, but we can still continue
+			// Target2 is bogus, but we can still continue
 			Com_Printf( "fx_runner_link: target2 was specified but is not valid: %s\n", ent->target2 );
 		}
 	}
 
 	G_SetAngles( ent, ent->s.angles );
 
-	if ( ent->spawnflags & 1 || ent->spawnflags & 2 ) //STARTOFF || ONESHOT
+	if ( ent->spawnflags & 1 || ent->spawnflags & 2 ) // STARTOFF || ONESHOT
 	{
-		//We won't even consider thinking until we are used
+		// We won't even consider thinking until we are used
 		ent->nextthink = -1;
 	}
 	else
@@ -2208,12 +2208,12 @@ void fx_runner_link( gentity_t *ent )
 			ent->s.loopIsSoundset = qtrue;
 		}
 
-		//Let's get to work right now!
+		// Let's get to work right now!
 		ent->think = fx_runner_think;
-		ent->nextthink = level.time + 200; //wait a small bit, then start working
+		ent->nextthink = level.time + 200; // wait a small bit, then start working
 	}
 
-	//make us useable if we can be targeted
+	// make us useable if we can be targeted
 	if ( ent->targetname && ent->targetname[0] )
 	{
 		ent->use = fx_runner_use;
@@ -2226,7 +2226,7 @@ void SP_fx_runner( gentity_t *ent )
 	char *fxFile;
 
 	G_SpawnString( "fxFile", "", &fxFile );
-	//Get our defaults
+	// Get our defaults
 	G_SpawnInt( "delay", "200", &ent->delay );
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnInt( "splashRadius", "16", &ent->splashRadius );
@@ -2234,7 +2234,7 @@ void SP_fx_runner( gentity_t *ent )
 
 	if (!ent->s.angles[0] && !ent->s.angles[1] && !ent->s.angles[2])
 	{
-		//didn't have angles, so give us the default of up
+		// didn't have angles, so give us the default of up
 		VectorSet( ent->s.angles, -90, 0, 0 );
 	}
 
@@ -2245,21 +2245,21 @@ void SP_fx_runner( gentity_t *ent )
 		return;
 	}
 
-	//Try and associate an effect file, unfortunately we won't know if this worked or not 
+	// Try and associate an effect file, unfortunately we won't know if this worked or not 
 	//	until the CGAME trys to register it...
 	ent->s.modelindex = G_EffectIndex( fxFile );
 
-	//important info transmitted
+	// important info transmitted
 	ent->s.eType = ET_FX;
 	ent->s.speed = ent->delay;
 	ent->s.time = ent->random;
 	ent->s.modelindex2 = FX_STATE_OFF;
 
-	//Give us a bit of time to spawn in the other entities, since we may have to target one of 'em
+	// Give us a bit of time to spawn in the other entities, since we may have to target one of 'em
 	ent->think = fx_runner_link; 
 	ent->nextthink = level.time + 400;
 
-	//Save our position and link us up!
+	// Save our position and link us up!
 	G_SetOrigin( ent, ent->s.origin );
 
 	VectorSet( ent->r.maxs, FX_ENT_RADIUS, FX_ENT_RADIUS, FX_ENT_RADIUS );
