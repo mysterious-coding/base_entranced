@@ -2266,6 +2266,7 @@ void SiegeItemThink(gentity_t *ent)
 
 void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
+	short i1;
 	if (!other || !other->inuse ||
 		!other->client || other->s.eType == ET_NPC)
 	{
@@ -2315,6 +2316,24 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	{
 		//people in a duel can't pick us up
 		return;
+	}
+
+	if (self->idealClassType && self->idealClassType >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_RED)
+	{
+		i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+		if (i1 + 10 != self->idealClassType)
+		{
+			return;
+		}
+	}
+
+	if (self->idealClassTypeTeam2 && self->idealClassTypeTeam2 >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_BLUE)
+	{
+		i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+		if (i1 + 10 != self->idealClassTypeTeam2)
+		{
+			return;
+		}
 	}
 
 	if (self->noise_index)
@@ -2522,6 +2541,68 @@ void SP_misc_siege_item (gentity_t *ent)
 	G_SpawnFloat("mass", "0.09", &ent->mass);
 	G_SpawnFloat("gravity", "3.0", &ent->radius);
 	G_SpawnFloat("bounce", "1.3", &ent->random);
+
+	if (G_SpawnString("idealclasstype", "", &s))
+	{
+		if (s && s[0])
+		{
+			if (!Q_stricmp(s, "a"))
+			{
+				ent->idealClassType = CLASSTYPE_ASSAULT;
+			}
+			else if (!Q_stricmp(s, "h"))
+			{
+				ent->idealClassType = CLASSTYPE_HW;
+			}
+			else if (!Q_stricmp(s, "d"))
+			{
+				ent->idealClassType = CLASSTYPE_DEMO;
+			}
+			else if (!Q_stricmp(s, "s"))
+			{
+				ent->idealClassType = CLASSTYPE_SCOUT;
+			}
+			else if (!Q_stricmp(s, "t"))
+			{
+				ent->idealClassType = CLASSTYPE_TECH;
+			}
+			else if (!Q_stricmp(s, "j"))
+			{
+				ent->idealClassType = CLASSTYPE_JEDI;
+			}
+		}
+	}
+
+	if (G_SpawnString("idealclasstypeteam2", "", &s))
+	{
+		if (s && s[0])
+		{
+			if (!Q_stricmp(s, "a"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_ASSAULT;
+			}
+			else if (!Q_stricmp(s, "h"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_HW;
+			}
+			else if (!Q_stricmp(s, "d"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_DEMO;
+			}
+			else if (!Q_stricmp(s, "s"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_SCOUT;
+			}
+			else if (!Q_stricmp(s, "t"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_TECH;
+			}
+			else if (!Q_stricmp(s, "j"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_JEDI;
+			}
+		}
+	}
 
 	G_SpawnString( "pickupsound", "", &s );
 

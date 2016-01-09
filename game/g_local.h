@@ -92,6 +92,14 @@ extern vec3_t gPainPoint;
 #define	MAX_G_SHARED_BUFFER_SIZE		8192
 extern char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE];
 
+//these the bgSiegeClasses[ent->client->siegeClass].playerClass values and then we add 10
+#define CLASSTYPE_ASSAULT	10
+#define CLASSTYPE_SCOUT		11
+#define CLASSTYPE_TECH		12
+#define CLASSTYPE_JEDI		13
+#define CLASSTYPE_DEMO		14
+#define CLASSTYPE_HW		15
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
@@ -367,6 +375,8 @@ struct gentity_s {
 	int			despawnOnUse;
 	float			speedMultiplier;
 	float			speedMultiplierTeam2;
+	int			idealClassType;
+	int			idealClassTypeTeam2;
 
 	int			canContinue;
 

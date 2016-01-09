@@ -131,7 +131,7 @@ void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
 void multi_trigger( gentity_t *ent, gentity_t *activator ) 
 {
 	qboolean haltTrigger = qfalse;
-
+	short i1, i2;
 	if ( ent->think == multi_trigger_run )
 	{//already triggered, just waiting to run
 		return;
@@ -163,16 +163,16 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		if (activator->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
 		{
 			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
-			short i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
-			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(ent->idealclass)].playerClass;
+			i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
+			i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(ent->idealclass)].playerClass;
 			if (i1 != i2)
 				return;
 		}
 		else if (activator->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
 		{
 			//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
-			short i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
-			short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(ent->idealclass)].playerClass;
+			i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
+			i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(ent->idealclass)].playerClass;
 			if (i1 != i2)
 				return;
 		}
@@ -181,7 +181,22 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 			return;
 		}
 	}
-
+	if (g_gametype.integer == GT_SIEGE && ent->idealClassType && ent->idealClassType >= CLASSTYPE_ASSAULT && activator->client->sess.sessionTeam == TEAM_RED)
+	{
+		i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
+		if (i1 + 10 != ent->idealClassType)
+		{
+			return;
+		}
+	}
+	if (g_gametype.integer == GT_SIEGE && ent->idealClassTypeTeam2 && ent->idealClassTypeTeam2 >= CLASSTYPE_ASSAULT && activator->client->sess.sessionTeam == TEAM_BLUE)
+	{
+		i1 = bgSiegeClasses[activator->client->siegeClass].playerClass;
+		if (i1 + 10 != ent->idealClassTypeTeam2)
+		{
+			return;
+		}
+	}
 	if (g_gametype.integer == GT_SIEGE && ent->genericValue1)
 	{
 		haltTrigger = qtrue;
@@ -378,6 +393,7 @@ qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 
 void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace ) 
 {
+	short		i1, i2;
 	if( !other->client ) 
 	{
 		return;
@@ -518,8 +534,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				if (other->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
 				{
 					//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
-					short i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
-					short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
+					i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+					i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
 					if (i1 != i2)
 					if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
 						return;
@@ -527,8 +543,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				else if (other->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
 				{
 					//get generic type of class we are currently(tech, assault, whatever) and return if the idealclass does not match
-					short i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
-					short i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
+					i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+					i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
 					if (i1 != i2)
 					if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
 						return;
@@ -538,7 +554,22 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 					return;
 				}
 			}
-
+			if (g_gametype.integer == GT_SIEGE && self->idealClassType && self->idealClassType >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_RED)
+			{
+				i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+				if (i1 + 10 != self->idealClassType)
+				{
+					return;
+				}
+			}
+			if (g_gametype.integer == GT_SIEGE && self->idealClassTypeTeam2 && self->idealClassTypeTeam2 >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_BLUE)
+			{
+				i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
+				if (i1 + 10 != self->idealClassTypeTeam2)
+				{
+					return;
+				}
+			}
 			if (!G_PointInBounds( other->client->ps.origin, self->r.absmin, self->r.absmax ))
 			{
 				return;
@@ -727,6 +758,68 @@ void SP_trigger_multiple( gentity_t *ent )
 		}
 	}
 
+	if (G_SpawnString("idealclasstype", "", &s))
+	{
+		if (s && s[0])
+		{
+			if (!Q_stricmp(s, "a"))
+			{
+				ent->idealClassType = CLASSTYPE_ASSAULT;
+			}
+			else if (!Q_stricmp(s, "h"))
+			{
+				ent->idealClassType = CLASSTYPE_HW;
+			}
+			else if (!Q_stricmp(s, "d"))
+			{
+				ent->idealClassType = CLASSTYPE_DEMO;
+			}
+			else if (!Q_stricmp(s, "s"))
+			{
+				ent->idealClassType = CLASSTYPE_SCOUT;
+			}
+			else if (!Q_stricmp(s, "t"))
+			{
+				ent->idealClassType = CLASSTYPE_TECH;
+			}
+			else if (!Q_stricmp(s, "j"))
+			{
+				ent->idealClassType = CLASSTYPE_JEDI;
+			}
+		}
+	}
+
+	if (G_SpawnString("idealclasstypeteam2", "", &s))
+	{
+		if (s && s[0])
+		{
+			if (!Q_stricmp(s, "a"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_ASSAULT;
+			}
+			else if (!Q_stricmp(s, "h"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_HW;
+			}
+			else if (!Q_stricmp(s, "d"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_DEMO;
+			}
+			else if (!Q_stricmp(s, "s"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_SCOUT;
+			}
+			else if (!Q_stricmp(s, "t"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_TECH;
+			}
+			else if (!Q_stricmp(s, "j"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_JEDI;
+			}
+		}
+	}
+
 	G_SpawnInt("usetime", "0", &ent->genericValue7);
 
 	//For siege gametype
@@ -811,6 +904,68 @@ void SP_trigger_once( gentity_t *ent )
 		else
 		{
 			ent->noise_index = 0;
+		}
+	}
+
+	if (G_SpawnString("idealclasstype", "", &s))
+	{
+		if (s && s[0])
+		{
+			if (!Q_stricmp(s, "a"))
+			{
+				ent->idealClassType = CLASSTYPE_ASSAULT;
+			}
+			else if (!Q_stricmp(s, "h"))
+			{
+				ent->idealClassType = CLASSTYPE_HW;
+			}
+			else if (!Q_stricmp(s, "d"))
+			{
+				ent->idealClassType = CLASSTYPE_DEMO;
+			}
+			else if (!Q_stricmp(s, "s"))
+			{
+				ent->idealClassType = CLASSTYPE_SCOUT;
+			}
+			else if (!Q_stricmp(s, "t"))
+			{
+				ent->idealClassType = CLASSTYPE_TECH;
+			}
+			else if (!Q_stricmp(s, "j"))
+			{
+				ent->idealClassType = CLASSTYPE_JEDI;
+			}
+		}
+	}
+
+	if (G_SpawnString("idealclasstypeteam2", "", &s))
+	{
+		if (s && s[0])
+		{
+			if (!Q_stricmp(s, "a"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_ASSAULT;
+			}
+			else if (!Q_stricmp(s, "h"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_HW;
+			}
+			else if (!Q_stricmp(s, "d"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_DEMO;
+			}
+			else if (!Q_stricmp(s, "s"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_SCOUT;
+			}
+			else if (!Q_stricmp(s, "t"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_TECH;
+			}
+			else if (!Q_stricmp(s, "j"))
+			{
+				ent->idealClassTypeTeam2 = CLASSTYPE_JEDI;
+			}
 		}
 	}
 
