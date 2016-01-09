@@ -949,6 +949,10 @@ typedef struct {
 	int			time;					// in msec
 	int			previousTime;			// so movers can back up when blocked
 	int			antiSpawnSpamTime;
+	int			siegeStatusUpdateTime;
+	int			siegeRoundStartTime;
+
+	qboolean	siegeRoundComplete;
 
 	int			startTime;				// level.time the map was started
 
@@ -965,6 +969,7 @@ typedef struct {
 	qboolean	hangarCompleted;
 	qboolean	ccCompleted;
 	qboolean	eatShower4thObj;
+	int			lastObjectiveCompleted;
 
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients
@@ -1936,6 +1941,8 @@ extern vmCvar_t    autocfg_unknown;
 extern vmCvar_t    g_requireJoinPassword;
 extern vmCvar_t    g_joinPassword;
 extern vmCvar_t    g_swoopKillPoints;
+
+extern vmCvar_t    siegeStatus;
 
 
 /*extern vmCvar_t    debug_testHeight1;

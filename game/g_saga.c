@@ -39,6 +39,7 @@ int			previousobjtime = 0;
 int         objscompleted = 0;
 int			objscompletedoffset = 0;
 int         roundstarttime = 0;
+
 int			totalroundtime = 0;
 int			heldformax = 0;
 int			winningteam = 0;
@@ -729,6 +730,8 @@ void InitSiegeMode(void)
 	level.hangarCompleted = qfalse;
 	level.ccCompleted = qfalse;
 	level.eatShower4thObj = qfalse;
+	level.lastObjectiveCompleted = 0;
+	level.siegeRoundComplete = qfalse;
 
 	//reset
 	SiegeSetCompleteData(0);
@@ -1264,6 +1267,7 @@ void SiegeClearSwitchData(void)
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
 	previousobjtime = 0; //for time calculation of first objective
 	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	level.siegeRoundStartTime = 0;
 	objscompleted = 0; //clear objs completed counter
 	objscompletedoffset = 0; //clear offset
 	totalroundtime = 0; //clear total round time
@@ -1334,6 +1338,7 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 	int originalWinningClient = winningclient;
 	int i;
 	char objStorage[256];
+	level.siegeRoundComplete = qtrue;
 
 	if (g_siegeStats.integer)
 	{
@@ -1365,6 +1370,7 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
 	previousobjtime = 0; //for time calculation of first objective
 	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	level.siegeRoundStartTime = 0;
 	objscompleted = 0; //clear objs completed counter
 	objscompletedoffset = 0; //clear offset
 	totalroundtime = 0; //clear total round time
@@ -1571,6 +1577,7 @@ void SiegeBeginRound(int entNum)
 		gentity_t *ent;
 		qboolean spawnEnt = qfalse;
 		level.inSiegeCountdown = qfalse;
+		level.siegeRoundComplete = qfalse;
 		//respawn everyone now
 		while (i < MAX_CLIENTS)
 		{
@@ -1613,6 +1620,7 @@ void SiegeBeginRound(int entNum)
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
 	previousobjtime = level.time; //for time calculation of first objective
 	roundstarttime = level.time; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	level.siegeRoundStartTime = level.time;
 	objscompleted = 0; //clear objs completed counter
 	objscompletedoffset = 0; //clear offset
 	heldformax = 0;
@@ -1738,17 +1746,20 @@ void SiegeCheckTimers(void)
 			}
 			gSiegeRoundBegun = qtrue;
 			level.inSiegeCountdown = qtrue;
+			level.siegeRoundComplete = qfalse;
 			SiegeBeginRound(i); //perform any round start tasks
 		}
 		else if (gSiegeBeginTime > (level.time + SIEGE_ROUND_BEGIN_TIME))
 		{
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			level.inSiegeCountdown = qtrue;
+			level.siegeRoundComplete = qfalse;
 		}
 		else
 		{
 			trap_SetConfigstring(CS_SIEGE_STATE, va("2|%i", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME)); //getting ready to begin
 			level.inSiegeCountdown = qtrue;
+			level.siegeRoundComplete = qfalse;
 		}
 	}
 }
@@ -1761,6 +1772,15 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (objective)
+	{
+		level.lastObjectiveCompleted = objective;
+	}
+	else
+	{
+		level.lastObjectiveCompleted = 0;
+	}
 
 	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{

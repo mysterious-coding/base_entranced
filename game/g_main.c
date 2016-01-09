@@ -186,6 +186,8 @@ vmCvar_t	g_requireJoinPassword;
 vmCvar_t	g_joinPassword;
 vmCvar_t	g_swoopKillPoints;
 
+vmCvar_t	siegeStatus;
+
 
 /*vmCvar_t	debug_testHeight1;
 vmCvar_t	debug_testHeight2;
@@ -376,7 +378,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ NULL, "gameversion", "1.0" , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
 	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-
+	{ &siegeStatus, "siegeStatus", "", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_wasRestarted, "g_wasRestarted", "0", CVAR_ROM, 0, qfalse  },
 
 	// latched vars
@@ -4386,6 +4388,119 @@ extern int gRebelCountdown;
 extern int roundstarttime;
 extern int previousobjtime;
 
+void UpdateSiegeStatus()
+{
+	//this would enable people to see what's going on in the server without connecting, similar to how you can see the current map name, etc from the serverinfo.
+	char	string[128];
+	int i, numConnectedPlayers = 0, numRedPlayers = 0, numBluePlayers = 0, numDuelingPlayers = 0;
+
+	for (i = 0; i < level.maxclients; i++)
+	{
+		if (level.clients[i].pers.connected != CON_DISCONNECTED) //connected player
+		{
+			numConnectedPlayers++;
+			if (level.clients[i].ps.siegeDuelInProgress)
+			{
+				numDuelingPlayers++;
+			}
+			if (level.clients[i].sess.sessionTeam == TEAM_RED || level.inSiegeCountdown && level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && level.clients[i].sess.siegeDesiredTeam == TEAM_RED)
+			{
+				numRedPlayers++;
+			}
+			else if (level.clients[i].sess.sessionTeam == TEAM_BLUE || level.inSiegeCountdown && level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && level.clients[i].sess.siegeDesiredTeam == TEAM_BLUE)
+			{
+				numBluePlayers++;
+			}
+		}
+	}
+
+	if (!numConnectedPlayers || (!numRedPlayers && !numBluePlayers))
+	{
+		Com_sprintf(string, 128, "Awaiting players");
+		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
+		return;
+	}
+
+	if (level.inSiegeCountdown)
+	{
+		Com_sprintf(string, 128, "Countdown (%iv%i)", numRedPlayers, numBluePlayers);
+		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
+		return;
+	}
+
+	if (level.intermissiontime || level.siegeRoundComplete)
+	{
+		//siegeRoundComplete is needed because intermissiontime isn't non-zero until a few moments after last obj is completed.
+		//for example, if siegestatus is updated IMMEDIATELY after finishing round, but before intermissiontime is set, you can get some weird time/obj values.
+		Com_sprintf(string, 128, "Intermission (%iv%i)", numRedPlayers, numBluePlayers);
+		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
+		return;
+	}
+
+	if (numDuelingPlayers && numDuelingPlayers == 2)
+	{
+		Com_sprintf(string, 128, "Captain duel in progress");
+		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
+		return;
+	}
+
+	Com_sprintf(string, 128, "%iv%i", numRedPlayers, numBluePlayers);
+
+	if (!g_siegeTeamSwitch.integer || !g_siegePersistant.beatingTime)
+	{
+		//round 1
+		Com_sprintf(string, 128, "%s: Round 1", string);
+	}
+	else
+	{
+		//round 2
+		Com_sprintf(string, 128, "%s: Round 2", string);
+	}
+
+	if (level.lastObjectiveCompleted == 0)
+	{
+		Com_sprintf(string, 128, "%s, 1st obj", string);
+	}
+	else if (level.lastObjectiveCompleted == 1)
+	{
+		Com_sprintf(string, 128, "%s, 2nd obj", string);
+	}
+	else if (level.lastObjectiveCompleted == 2)
+	{
+		Com_sprintf(string, 128, "%s, 3rd obj", string);
+	}
+	else
+	{
+		Com_sprintf(string, 128, "%s, %ith obj", string, level.lastObjectiveCompleted + 1);
+	}
+
+	int elapsedSeconds;
+	int minutes;
+	int seconds;
+
+	if (!g_siegeTeamSwitch.integer || !g_siegePersistant.beatingTime)
+	{
+		elapsedSeconds = (((level.time - level.siegeRoundStartTime) + 500) / 1000); //convert milliseconds to seconds
+	}
+	else
+	{
+		elapsedSeconds = (((g_siegePersistant.lastTime - (level.time - level.siegeRoundStartTime)) + 500) / 1000); //convert milliseconds to seconds
+	}
+	minutes = (elapsedSeconds / 60) % 60; //find minutes
+	seconds = elapsedSeconds % 60; //find seconds
+
+	if (seconds >= 10) //seconds is double-digit
+	{
+		Com_sprintf(string, 128, "%s (%i:%i)", string, minutes, seconds); //convert to string as-is
+	}
+	else //seconds is single-digit
+	{
+		Com_sprintf(string, 128, "%s (%i:0%i)", string, minutes, seconds); //convert to string, and also add a zero if seconds is single-digit
+	}
+
+	trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
+}
+
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -4402,6 +4517,25 @@ void G_RunFrame( int levelTime ) {
 	void		*timer_Queues;
 #endif
 	static int lastMsgTime = 0;
+
+	if (g_gametype.integer == GT_SIEGE)
+	{
+		if (!level.siegeStatusUpdateTime || level.siegeStatusUpdateTime <= level.time)
+		{
+			//level.siegeStatusUpdateTime = level.time + 1000; //update every second (debug)
+			level.siegeStatusUpdateTime = level.time + 15000; //update every 15 seconds
+			UpdateSiegeStatus();
+		}
+	}
+	else
+	{
+		vmCvar_t	siegeStatus;
+		trap_Cvar_Register(&siegeStatus, "siegeStatus", "", CVAR_ROM | CVAR_SERVERINFO);
+		if (Q_stricmp(siegeStatus.string, ""))
+		{
+			trap_Cvar_Set("siegeStatus", "");
+		}
+	}
 
 	if (g_gametype.integer == GT_SIEGE &&
 		g_siegeRespawn.integer &&
