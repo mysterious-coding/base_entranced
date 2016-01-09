@@ -1,17 +1,17 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
-// bg_local.h -- local definitions for the bg (both games) files
+//bg_local.h -- local definitions for the bg (both games) files
 
-#define	MIN_WALK_NORMAL	0.7f		// can't walk on very steep slopes
+#define	MIN_WALK_NORMAL	0.7f		//can't walk on very steep slopes
 
 #define	TIMER_LAND		130
 #define	TIMER_GESTURE	(34*66+50)
 
 #define	OVERCLIP		1.001f
 vmCvar_t    g_strafejump_mod;
-// all of the locals will be zeroed before each
-// pmove, just to make damn sure we don't have
-// any differences when running on client or server
+//all of the locals will be zeroed before each
+//pmove, just to make damn sure we don't have
+//any differences when running on client or server
 typedef struct 
 {
 	vec3_t		forward, right, up;
@@ -34,7 +34,7 @@ typedef struct
 
 extern	pml_t		pml;
 
-// movement parameters
+//movement parameters
 extern	float	pm_stopspeed;
 extern	float	pm_duckScale;
 extern	float	pm_swimScale;
@@ -53,7 +53,7 @@ extern	int		c_pmove;
 
 extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 
-// Had to add these here because there was no file access within the BG right now.
+//Had to add these here because there was no file access within the BG right now.
 int		trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 void	trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void	trap_FS_Write( const void *buffer, int len, fileHandle_t f );

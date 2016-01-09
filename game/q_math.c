@@ -1,6 +1,6 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
-// q_math.c -- stateless support routines that are included in each code module
+//q_math.c -- stateless support routines that are included in each code module
 #include "q_shared.h"
 
 
@@ -167,8 +167,8 @@ vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 ) {
 	return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 }
 
-// fast vector normalize routine that does not check to make sure
-// that length != 0, nor does it return length, uses rsqrt approximation
+//fast vector normalize routine that does not check to make sure
+//that length != 0, nor does it return length, uses rsqrt approximation
 void VectorNormalizeFast( vec3_t v )
 {
 	float ilength;
@@ -297,7 +297,7 @@ signed short ClampShort( int i ) {
 }
 
 
-// this isn't a real cheap function to call!
+//this isn't a real cheap function to call!
 int DirToByte( vec3_t dir ) {
 	int		i, best;
 	float	d, bestd;
@@ -465,10 +465,10 @@ RotateAroundDirection
 */
 void RotateAroundDirection( vec3_t axis[3], float yaw ) {
 
-	// create an arbitrary axis[1] 
+	//create an arbitrary axis[1] 
 	PerpendicularVector( axis[1], axis[0] );
 
-	// rotate it around axis[0] by yaw
+	//rotate it around axis[0] by yaw
 	if ( yaw ) {
 		vec3_t	temp;
 
@@ -476,7 +476,7 @@ void RotateAroundDirection( vec3_t axis[3], float yaw ) {
 		RotatePointAroundVector( axis[1], axis[0], temp, yaw );
 	}
 
-	// cross to get axis[2]
+	//cross to get axis[2]
 	CrossProduct( axis[0], axis[1], axis[2] );
 }
 
@@ -530,7 +530,7 @@ AnglesToAxis
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] ) {
 	vec3_t	right;
 
-	// angle vectors returns "right" instead of "y axis"
+	//angle vectors returns "right" instead of "y axis"
 	AngleVectors( angles, axis[0], right, axis[2] );
 	VectorSubtract( vec3_origin, right, axis[1] );
 }
@@ -561,7 +561,7 @@ void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
 
 	inv_denom =  DotProduct( normal, normal );
 #ifndef Q3_VM
-	assert( Q_fabs(inv_denom) != 0.0f ); // bk010122 - zero vectors get here
+	assert( Q_fabs(inv_denom) != 0.0f ); //bk010122 - zero vectors get here
 #endif
 	inv_denom = 1.0f / inv_denom;
 
@@ -587,8 +587,8 @@ other perpendicular vectors
 void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up) {
 	float		d;
 
-	// this rotate and negate guarantees a vector
-	// not colinear with the original
+	//this rotate and negate guarantees a vector
+	//not colinear with the original
 	right[1] = -forward[0];
 	right[2] = forward[1];
 	right[0] = forward[2];
@@ -621,14 +621,14 @@ float Q_rsqrt( float number )
 
 	x2 = number * 0.5F;
 	y  = number;
-	i  = * ( long * ) &y;						// evil floating point bit level hacking
-	i  = 0x5f3759df - ( i >> 1 );               // what the fuck?
+	i  = * ( long * ) &y;						//evil floating point bit level hacking
+	i  = 0x5f3759df - ( i >> 1 );               //what the fuck?
 	y  = * ( float * ) &i;
-	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+	y  = y * ( threehalfs - ( x2 * y * y ) );   //1st iteration
 
 #ifndef Q3_VM
 #ifdef __linux__
-	assert( !isnan(y) ); // bk010122 - FPE?
+	assert( !isnan(y) ); //bk010122 - FPE?
 #endif
 #endif
 	return y;
@@ -750,7 +750,7 @@ SetPlaneSignbits
 void SetPlaneSignbits (cplane_t *out) {
 	int	bits, j;
 
-	// for fast box on planeside test
+	//for fast box on planeside test
 	bits = 0;
 	for (j=0 ; j<3 ; j++) {
 		if (out->normal[j] < 0) {
@@ -760,7 +760,7 @@ void SetPlaneSignbits (cplane_t *out) {
 	out->signbits = bits;
 }
 
-#if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY)) // rb010123
+#if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY)) //rb010123
 
 #if defined __LCC__ || defined C_ONLY || !id386
 
@@ -769,7 +769,7 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 	float	dist1, dist2;
 	int		sides;
 
-// fast axial cases
+//fast axial cases
 	if (p->type < 3)
 	{
 		if (p->dist <= emins[p->type])
@@ -779,7 +779,7 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 		return 3;
 	}
 
-// general case
+//general case
 	switch (p->signbits)
 	{
 	case 0:
@@ -815,7 +815,7 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
 		break;
 	default:
-		dist1 = dist2 = 0;		// shut up compiler
+		dist1 = dist2 = 0;		//shut up compiler
 		break;
 	}
 
@@ -1151,14 +1151,14 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
 
 	if (length)
 	{
-#ifndef Q3_VM // bk0101022 - FPE related
+#ifndef Q3_VM //bk0101022 - FPE related
 #endif
 		ilength = 1/length;
 		out[0] = v[0]*ilength;
 		out[1] = v[1]*ilength;
 		out[2] = v[2]*ilength;
 	} else {
-#ifndef Q3_VM // bk0101022 - FPE related
+#ifndef Q3_VM //bk0101022 - FPE related
 #endif
 		VectorClear( out );
 	}
@@ -1250,7 +1250,7 @@ void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]) {
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up) {
 	float		angle;
 	static float		sr, sp, sy, cr, cp, cy;
-	// static to help MS compiler fp bugs
+	//static to help MS compiler fp bugs
 
 	angle = angles[YAW] * (M_PI*2 / 360);
 	sy = sin(angle);
@@ -1328,18 +1328,18 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
 //rwwRMG - added
 void NormalToLatLong( const vec3_t normal, byte bytes[2] )
 {
-	// check for singularities
+	//check for singularities
 	if (!normal[0] && !normal[1])
 	{
 		if ( normal[2] > 0.0f )
 		{
 			bytes[0] = 0;
-			bytes[1] = 0;		// lat = 0, long = 0
+			bytes[1] = 0;		//lat = 0, long = 0
 		}
 		else
 		{
 			bytes[0] = 128;
-			bytes[1] = 0;		// lat = 0, long = 128
+			bytes[1] = 0;		//lat = 0, long = 128
 		}
 	}
 	else
@@ -1352,17 +1352,17 @@ void NormalToLatLong( const vec3_t normal, byte bytes[2] )
 		b = (int)(RAD2DEG( (vec_t)acos( normal[2] ) ) * ( 255.0f / 360.0f ));
 		b &= 0xff;
 
-		bytes[0] = b;	// longitude
-		bytes[1] = a;	// lattitude
+		bytes[0] = b;	//longitude
+		bytes[1] = a;	//lattitude
 	}
 }
 
-// This is the VC libc version of rand() without multiple seeds per thread or 12 levels
-// of subroutine calls.
-// Both calls have been designed to minimise the inherent number of float <--> int 
-// conversions and the additional math required to get the desired value.
-// eg the typical tint = (rand() * 255) / 32768
-// becomes tint = irand(0, 255)
+//This is the VC libc version of rand() without multiple seeds per thread or 12 levels
+//of subroutine calls.
+//Both calls have been designed to minimise the inherent number of float <--> int 
+//conversions and the additional math required to get the desired value.
+//eg the typical tint = (rand() * 255) / 32768
+//becomes tint = irand(0, 255)
 
 static unsigned long	holdrand = 0x89abcdef;
 
@@ -1371,14 +1371,14 @@ void Rand_Init(int seed)
 	holdrand = seed;
 }
 
-// Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
+//Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
 
 float flrand(float min, float max)
 {
 	float	result;
 
 	holdrand = (holdrand * 214013L) + 2531011L;
-	result = (float)(holdrand >> 17);						// 0 - 32767 range
+	result = (float)(holdrand >> 17);						//0 - 32767 range
 	result = ((result * (max - min)) / 32768.0F) + min;
 
 	return(result);
@@ -1388,7 +1388,7 @@ float Q_flrand(float min, float max)
 	return flrand(min,max);
 }
 
-// Returns an integer min <= x <= max (ie inclusive)
+//Returns an integer min <= x <= max (ie inclusive)
 
 int irand(int min, int max)
 {
@@ -1432,7 +1432,7 @@ double fmod( double x, double y )
 	return x - (result * y);
 }
 
-#endif // Q3_VM
+#endif //Q3_VM
 
 /*
 -------------------------

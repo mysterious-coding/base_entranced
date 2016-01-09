@@ -1,4 +1,4 @@
-// leave this line at the top for all g_xxxx.cpp files...
+//leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
 
 //seems to be a compiler bug, it doesn't clean out the #ifdefs between dif-compiles
@@ -100,7 +100,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 #ifdef QAGAME //don't do this on client
 	int i;
 
-	// Make sure the riders are not visible or collidable.
+	//Make sure the riders are not visible or collidable.
 	pVeh->m_pVehicleInfo->Ghost( pVeh, pVeh->m_pPilot );
 	for ( i = 0; i < pVeh->m_pVehicleInfo->maxPassengers; i++ )
 	{
@@ -121,7 +121,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 		return false;
 	}
 
-	// If we have a pilot, take out gravity (it's a flying craft...).
+	//If we have a pilot, take out gravity (it's a flying craft...).
 	if ( pVeh->m_pPilot )
 	{
 		parentPS->gravity = 0;
@@ -147,7 +147,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 
 	//argh, no, I need to have a way to see when they impact the ground while damaged. -rww
 
-		// Check to see if the fighter has taken off yet (if it's a certain height above ground).
+		//Check to see if the fighter has taken off yet (if it's a certain height above ground).
 		VectorCopy( parentPS->origin, bottom );
 		bottom[2] -= pVeh->m_pVehicleInfo->landingHeight;
 
@@ -159,7 +159,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 
 #ifdef QAGAME //ONLY in SP or on server, not cgame
 
-// Like a think or move command, this updates various vehicle properties.
+//Like a think or move command, this updates various vehicle properties.
 static bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 {
 	assert(pVeh->m_pParentEntity);
@@ -183,19 +183,19 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 	return true;
 }
 
-// Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
+//Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
 static bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 {
 	if ( !g_vehicleInfo[VEHICLE_BASE].Board( pVeh, pEnt ) )
 		return false;
 
-	// Set the board wait time (they won't be able to do anything, including getting off, for this amount of time).
+	//Set the board wait time (they won't be able to do anything, including getting off, for this amount of time).
 	pVeh->m_iBoarding = level.time + 1500;
 
 	return true;
 }
 
-// Eject an entity from the vehicle.
+//Eject an entity from the vehicle.
 static bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject )
 {
 	if ( g_vehicleInfo[VEHICLE_BASE].Eject( pVeh, pEnt, forceEject ) )
@@ -340,7 +340,7 @@ extern sfxHandle_t trap_S_RegisterSound( const char *sample); //cg_syscalls.c
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessMoveCommands the Vehicle.
+//ProcessMoveCommands the Vehicle.
 #define FIGHTER_MIN_TAKEOFF_FRACTION 0.7f
 static void ProcessMoveCommands( Vehicle_t *pVeh )
 {
@@ -411,7 +411,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 	isLandingOrLaunching = (FighterIsLanding( pVeh, parentPS )||FighterIsLaunching( pVeh, parentPS ));
 
-	// If we are hitting the ground, just allow the fighter to go up and down.
+	//If we are hitting the ground, just allow the fighter to go up and down.
 	if ( isLandingOrLaunching//going slow enough to start landing
 		&& (pVeh->m_ucmd.forwardmove<=0||pVeh->m_LandTrace.fraction<=FIGHTER_MIN_TAKEOFF_FRACTION) )//not trying to accelerate away already (or: you are trying to, but not high enough off the ground yet)
 	{//FIXME: if start to move forward and fly over something low while still going relatively slow, you may try to land even though you don't mean to...
@@ -452,7 +452,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 			}
 		}
 
-		// Make sure they don't pitch as they near the ground.
+		//Make sure they don't pitch as they near the ground.
 		pVeh->m_vOrientation[PITCH] = PredictedAngularDecrement(0.7f, pVeh->m_fTimeModifier*10.0f, pVeh->m_vOrientation[PITCH]);
 
 		return;
@@ -617,7 +617,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		else
 		{//then speed up or slow down to idle speed
 			//accelerate to cruising speed only, otherwise, just coast
-			// If they've launched, apply some constant motion.
+			//If they've launched, apply some constant motion.
 			if ( (pVeh->m_LandTrace.fraction >= 1.0f //no ground
 					|| pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE )//or can't land on ground below us
 				&& speedIdle > 0 ) 
@@ -1232,7 +1232,7 @@ void FighterPitchAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *
 	}
 }
 
-#else// VEH_CONTROL_SCHEME_4
+#else//VEH_CONTROL_SCHEME_4
 
 void FighterYawAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS)
 {
@@ -1285,7 +1285,7 @@ void FighterPitchAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *
 		pVeh->m_vOrientation[PITCH] = AngleNormalize360(pVeh->m_vOrientation[PITCH] - angDif*(pVeh->m_fTimeModifier*0.2f));
 	}
 }
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 
 void FighterPitchClamp(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS, int curTime )
 {
@@ -1307,7 +1307,7 @@ void FighterPitchClamp(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *p
 	}
 }
 
-#endif// _JK2MP
+#endif//_JK2MP
 
 //MP RULE - ALL PROCESSORIENTCOMMANDS FUNCTIONS MUST BE BG-COMPATIBLE!!!
 //If you really need to violate this rule for SP, then use ifdefs.
@@ -1315,7 +1315,7 @@ void FighterPitchClamp(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *p
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessOrientCommands the Vehicle.
+//ProcessOrientCommands the Vehicle.
 static void ProcessOrientCommands( Vehicle_t *pVeh )
 {
 	/********************************************************************************/
@@ -1391,7 +1391,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		return;
 	}
 
-#else// VEH_CONTROL_SCHEME_4
+#else//VEH_CONTROL_SCHEME_4
 
 	if ( parentPS->hyperSpaceTime
 		&& (curTime - parentPS->hyperSpaceTime) < HYPERSPACE_TIME )
@@ -1400,7 +1400,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		VectorCopy( riderPS->viewangles, parentPS->viewangles );
 		return;
 	}
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 
 #endif//_JK2MP
 	
@@ -1410,7 +1410,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 #ifdef VEH_CONTROL_SCHEME_4
 		VectorClear( pVeh->m_vPrevRiderViewAngles );
 		pVeh->m_vPrevRiderViewAngles[YAW] = AngleNormalize180(riderPS->viewangles[YAW]);
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 		return;
 	}
 
@@ -1481,7 +1481,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 	curRoll = pVeh->m_vOrientation[ROLL];
 
-	// If we're landed, we shouldn't be able to do anything but take off.
+	//If we're landed, we shouldn't be able to do anything but take off.
 	if ( isLandingOrLanded //going slow enough to start landing
 		&& !pVeh->m_iRemovedSurfaces 
 		&& parentPS->electrifyTime<curTime)//not spiraling out of control
@@ -1500,7 +1500,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		if ( pVeh->m_LandTrace.fraction > 0.1f 
 			|| pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE )
 		{//off the ground, at least (or not on a valid landing surf)
-			// Dampen the turn rate based on the current height.
+			//Dampen the turn rate based on the current height.
 #ifdef _JK2MP
 			FighterYawAdjust(pVeh, riderPS, parentPS);
 #else
@@ -1513,7 +1513,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 			VectorClear( pVeh->m_vPrevRiderViewAngles );
 			pVeh->m_vPrevRiderViewAngles[YAW] = AngleNormalize180(riderPS->viewangles[YAW]);
 		}
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 	}
 	else if ( (pVeh->m_iRemovedSurfaces||parentPS->electrifyTime>=curTime)//spiralling out of control
 		&& (!(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5)) )
@@ -1523,9 +1523,9 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	{
 #ifdef VEH_CONTROL_SCHEME_4
 		if ( 0  )
-#else// VEH_CONTROL_SCHEME_4
+#else//VEH_CONTROL_SCHEME_4
 		if ( BG_UnrestrainedPitchRoll( riderPS, pVeh ) )
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 		{
 			VectorCopy( riderPS->viewangles, pVeh->m_vOrientation );
 			VectorCopy( riderPS->viewangles, parentPS->viewangles );
@@ -1546,7 +1546,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 			pVeh->m_vOrientation[YAW] = riderPS->viewangles[YAW];
 #endif
 
-			// If we are not hitting the ground, allow the fighter to pitch up and down.
+			//If we are not hitting the ground, allow the fighter to pitch up and down.
 			if ( !FighterOverValidLandingSurface( pVeh ) 
 				|| parentPS->speed > MIN_LANDING_SPEED )
 			//if ( ( pVeh->m_LandTrace.fraction >= 1.0f || pVeh->m_ucmd.forwardmove != 0 ) && pVeh->m_LandTrace.fraction >= 0.0f )
@@ -1557,14 +1557,14 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 				FighterPitchAdjust(pVeh, riderPS, parentPS);
 #ifdef VEH_CONTROL_SCHEME_4
 				FighterPitchClamp( pVeh, riderPS, parentPS, curTime );
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 #else
 				pVeh->m_vOrientation[PITCH] = riderPS->viewangles[PITCH]; 
 #endif
 
 				FighterNoseMalfunctionCheck( pVeh, parentPS );
 
-				// Adjust the roll based on the turn amount and dampen it a little.
+				//Adjust the roll based on the turn amount and dampen it a little.
 				fYawDelta = AngleSubtract(pVeh->m_vOrientation[YAW], pVeh->m_vPrevOrientation[YAW]);
 				if ( fYawDelta > 8.0f ) 
 				{
@@ -1594,7 +1594,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 						}
 					}
 				}
-#else// VEH_CONTROL_SCHEME_4
+#else//VEH_CONTROL_SCHEME_4
 				if ( pVeh->m_pVehicleInfo->rollLimit != -1 )
 				{
 					if (curRoll > pVeh->m_pVehicleInfo->rollLimit )
@@ -1606,12 +1606,12 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 						curRoll = -pVeh->m_pVehicleInfo->rollLimit;
 					}
 				}
-#endif// VEH_CONTROL_SCHEME_4
+#endif//VEH_CONTROL_SCHEME_4
 			}
 		}
 	}
 
-	// If you are directly impacting the ground, even out your pitch.
+	//If you are directly impacting the ground, even out your pitch.
 	if ( isLandingOrLanded )    
 	{//only if capable of landing
 		if ( !isDead 
@@ -1629,7 +1629,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		}
 	}
 
-	// If no one is in this vehicle and it's up in the sky, pitch it forward as it comes tumbling down.
+	//If no one is in this vehicle and it's up in the sky, pitch it forward as it comes tumbling down.
 #ifdef QAGAME //never gonna happen on client anyway, we can't be getting predicted unless the predicting client is boarded
  	if ( !pVeh->m_pVehicleInfo->Inhabited( pVeh ) 
 		&& pVeh->m_LandTrace.fraction >= groundFraction 
@@ -1705,7 +1705,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
 
-// This function makes sure that the vehicle is properly animated.
+//This function makes sure that the vehicle is properly animated.
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	int Anim = -1; 
@@ -1740,7 +1740,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		isLanding = FighterIsLanding( pVeh, parentPS );
 		isLanded = FighterIsLanded( pVeh, parentPS );
 
-		// if we're above launch height (way up in the air)... 
+		//if we're above launch height (way up in the air)... 
 		if ( !isLanding && !isLanded ) 
 		{
 			if ( !( pVeh->m_ulFlags & VEH_WINGSOPEN ) )
@@ -1750,14 +1750,14 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 				Anim = BOTH_WINGS_OPEN;
 			}
 		}
-		// otherwise we're below launch height and still taking off.
+		//otherwise we're below launch height and still taking off.
 		else
 		{
 			if ( (pVeh->m_ucmd.forwardmove < 0 || pVeh->m_ucmd.upmove < 0||isLanded)
 				&& pVeh->m_LandTrace.fraction <= 0.4f
 				&& pVeh->m_LandTrace.plane.normal[2] >= MIN_LANDING_SLOPE )
 			{//already landed or trying to land and close to ground
-				// Open gears.
+				//Open gears.
 				if ( !( pVeh->m_ulFlags & VEH_GEARSOPEN ) )
 				{
 #ifdef _JK2MP
@@ -1775,13 +1775,13 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			}
 			else
 			{//trying to take off and almost halfway off the ground
-				// Close gears (if they're open).
+				//Close gears (if they're open).
 				if ( pVeh->m_ulFlags & VEH_GEARSOPEN )
 				{
 					pVeh->m_ulFlags &= ~VEH_GEARSOPEN;
 					Anim = BOTH_GEARS_CLOSE;
 				}
-				// If gears are closed, and we are below launch height, close the wings.
+				//If gears are closed, and we are below launch height, close the wings.
 				else
 				{
 					if ( pVeh->m_ulFlags & VEH_WINGSOPEN )
@@ -1805,7 +1805,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	}
 }
 
-// This function makes sure that the rider's in this vehicle are properly animated.
+//This function makes sure that the rider's in this vehicle are properly animated.
 static void AnimateRiders( Vehicle_t *pVeh )
 {
 }
@@ -1833,7 +1833,7 @@ void G_SetFighterVehicleFunctions( vehicleInfo_t *pVehInfo )
 #endif
 }
 
-// Following is only in game, not in namespace
+//Following is only in game, not in namespace
 #ifdef _JK2MP
 #include "namespace_end.h"
 #endif
@@ -1846,10 +1846,10 @@ extern void G_AllocateVehicleObject(Vehicle_t **pVeh);
 #include "namespace_begin.h"
 #endif
 
-// Create/Allocate a new Animal Vehicle (initializing it as well).
+//Create/Allocate a new Animal Vehicle (initializing it as well).
 void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType )
 {
-	// Allocate the Vehicle.
+	//Allocate the Vehicle.
 #ifdef _JK2MP
 #ifdef QAGAME
 	//these will remain on entities on the client once allocated because the pointer is

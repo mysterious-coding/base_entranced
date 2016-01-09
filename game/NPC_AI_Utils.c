@@ -1,7 +1,7 @@
-// These utilities are meant for strictly non-player, non-team NPCs.  
-// These functions are in their own file because they are only intended
-// for use with NPCs who's logic has been overriden from the original
-// AI code, and who's code resides in files with the AI_ prefix.
+//These utilities are meant for strictly non-player, non-team NPCs.  
+//These functions are in their own file because they are only intended
+//for use with NPCs who's logic has been overriden from the original
+//AI code, and who's code resides in files with the AI_ prefix.
 
 #include "b_local.h"
 #include "g_nav.h"
@@ -379,9 +379,9 @@ qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		member->client->ps.weapon == WP_THERMAL ||
 		member->client->ps.weapon == WP_DISRUPTOR ||
 		member->client->ps.weapon == WP_EMPLACED_GUN ||
-//		member->client->ps.weapon == WP_BOT_LASER ||		// Probe droid	- Laser blast
+//		member->client->ps.weapon == WP_BOT_LASER ||		//Probe droid	- Laser blast
 		member->client->ps.weapon == WP_STUN_BATON ||
-		member->client->ps.weapon == WP_TURRET /*||			// turret guns 
+		member->client->ps.weapon == WP_TURRET /*||			//turret guns 
 		member->client->ps.weapon == WP_ATST_MAIN ||
 		member->client->ps.weapon == WP_ATST_SIDE ||
 		member->client->ps.weapon == WP_TIE_FIGHTER*/ )

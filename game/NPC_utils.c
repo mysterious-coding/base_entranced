@@ -119,7 +119,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		break;
 
 	case SPOT_GROUND:
-		// if entity is on the ground, just use it's absmin
+		//if entity is on the ground, just use it's absmin
 		if ( ent->s.groundEntityNum != -1 ) 
 		{
 			VectorCopy( ent->r.currentOrigin, point );
@@ -127,7 +127,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 			break;
 		}
 
-		// if it is reasonably close to the ground, give the point underneath of it
+		//if it is reasonably close to the ground, give the point underneath of it
 		VectorCopy( ent->r.currentOrigin, start );
 		start[2] = ent->r.absmin[2];
 		VectorCopy( start, end );
@@ -139,7 +139,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 			break;
 		}
 
-		// otherwise just use the origin
+		//otherwise just use the origin
 		VectorCopy( ent->r.currentOrigin, point );
 		break;
 
@@ -172,8 +172,8 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	float		yawSpeed;
 	qboolean	exact = qtrue;
 
-	// if angle changes are locked; just keep the current angles
-	// aimTime isn't even set anymore... so this code was never reached, but I need a way to lock NPC's yaw, so instead of making a new SCF_ flag, just use the existing render flag... - dmv
+	//if angle changes are locked; just keep the current angles
+	//aimTime isn't even set anymore... so this code was never reached, but I need a way to lock NPC's yaw, so instead of making a new SCF_ flag, just use the existing render flag... - dmv
 	if ( !NPC->enemy && ( (level.time < NPCInfo->aimTime) /*|| NPC->client->renderInfo.renderFlags & RF_LOCKEDANGLE*/) ) 
 	{
 		if(doPitch)
@@ -184,7 +184,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	}
 	else 
 	{
-		// we're changing the lockedDesired Pitch/Yaw below so it's lost it's original meaning, get rid of the lock flag
+		//we're changing the lockedDesired Pitch/Yaw below so it's lost it's original meaning, get rid of the lock flag
 	//	NPC->client->renderInfo.renderFlags &= ~RF_LOCKEDANGLE;
 
 		if(doPitch)
@@ -202,7 +202,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 
 	if ( NPC->s.weapon == WP_EMPLACED_GUN )
 	{
-		// FIXME: this seems to do nothing, actually...
+		//FIXME: this seems to do nothing, actually...
 		yawSpeed = 20;
 	}
 	else
@@ -224,7 +224,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	
 	if( doYaw )
 	{
-		// decay yaw error
+		//decay yaw error
 		error = AngleDelta ( NPC->client->ps.viewangles[YAW], targetYaw );
 		if( fabs(error) > MIN_ANGLE_ERROR )
 		{
@@ -260,7 +260,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	//FIXME: have a pitchSpeed?
 	if( doPitch )
 	{
-		// decay pitch error
+		//decay pitch error
 		error = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
 		if ( fabs(error) > MIN_ANGLE_ERROR )
 		{
@@ -311,7 +311,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	qboolean	exact = qtrue;
 	qboolean	doSound = qfalse;
 
-	// if angle changes are locked; just keep the current angles
+	//if angle changes are locked; just keep the current angles
 	if ( level.time < NPCInfo->aimTime ) 
 	{
 		if(doPitch)
@@ -336,7 +336,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 
 	if(doYaw)
 	{
-		// decay yaw error
+		//decay yaw error
 		error = AngleDelta ( NPC->client->ps.viewangles[YAW], targetYaw );
 		if( fabs(error) > MIN_ANGLE_ERROR )
 		{
@@ -371,7 +371,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	//FIXME: have a pitchSpeed?
 	if(doPitch)
 	{
-		// decay pitch error
+		//decay pitch error
 		error = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
 		if ( fabs(error) > MIN_ANGLE_ERROR )
 		{
@@ -469,7 +469,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 
 	if( doYaw )
 	{
-		// add yaw error based on NPCInfo->aim value
+		//add yaw error based on NPCInfo->aim value
 		error = ((float)(6 - NPCInfo->stats.aim)) * flrand(-1, 1);
 
 		if(Q_irand(0, 1))
@@ -485,7 +485,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 
 	if( doPitch )
 	{
-		// add pitch error based on NPCInfo->aim value
+		//add pitch error based on NPCInfo->aim value
 		error = ((float)(6 - NPCInfo->stats.aim)) * flrand(-1, 1);
 
 		diff = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
@@ -508,7 +508,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 	float		targetYaw = 0;
 	qboolean	exact = qtrue;
 
-	// if angle changes are locked; just keep the current angles
+	//if angle changes are locked; just keep the current angles
 	if ( level.time < NPCInfo->aimTime ) 
 	{
 		if(doPitch)
@@ -544,7 +544,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 
 	if(doYaw)
 	{
-		// decay yaw diff
+		//decay yaw diff
 		diff = AngleDelta ( NPC->client->ps.viewangles[YAW], targetYaw );
 		
 		if ( diff) 
@@ -571,7 +571,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 			}
 		}
 				
-		// add yaw error based on NPCInfo->aim value
+		//add yaw error based on NPCInfo->aim value
 		error = NPCInfo->lastAimErrorYaw;
 
 		ucmd.angles[YAW] = ANGLE2SHORT( targetYaw + diff + error ) - client->ps.delta_angles[YAW];
@@ -579,7 +579,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 
 	if(doPitch)
 	{
-		// decay pitch diff
+		//decay pitch diff
 		diff = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
 		if ( diff) 
 		{
@@ -640,7 +640,7 @@ void NPC_UpdateShootAngles (vec3_t angles, qboolean doPitch, qboolean doYaw )
 
 	if(doYaw)
 	{
-		// decay yaw error
+		//decay yaw error
 		error = AngleDelta ( NPCInfo->shootAngles[YAW], targetYaw );
 		if ( error ) 
 		{
@@ -668,7 +668,7 @@ void NPC_UpdateShootAngles (vec3_t angles, qboolean doPitch, qboolean doYaw )
 
 	if(doPitch)
 	{
-		// decay pitch error
+		//decay pitch error
 		error = AngleDelta ( NPCInfo->shootAngles[PITCH], targetPitch );
 		if ( error ) 
 		{
@@ -1324,7 +1324,7 @@ qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
 	qboolean	facing = qtrue;
 
 	//Get the positions
-	if ( NPC->client && (NPC->client->NPC_class == CLASS_RANCOR || NPC->client->NPC_class == CLASS_WAMPA) )// || NPC->client->NPC_class == CLASS_SAND_CREATURE) )
+	if ( NPC->client && (NPC->client->NPC_class == CLASS_RANCOR || NPC->client->NPC_class == CLASS_WAMPA) )//|| NPC->client->NPC_class == CLASS_SAND_CREATURE) )
 	{
 		CalcEntitySpot( NPC, SPOT_ORIGIN, muzzle );
 		muzzle[2] += NPC->r.maxs[2] * 0.75f;
@@ -1346,7 +1346,7 @@ qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
 
 	if ( NPC->enemy && NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_ATST )
 	{
-		// FIXME: this is kind of dumb, but it was the easiest way to get it to look sort of ok
+		//FIXME: this is kind of dumb, but it was the easiest way to get it to look sort of ok
 		NPCInfo->desiredYaw	+= flrand( -5, 5 ) + sin( level.time * 0.004f ) * 7;
 		NPCInfo->desiredPitch += flrand( -2, 2 );
 	}

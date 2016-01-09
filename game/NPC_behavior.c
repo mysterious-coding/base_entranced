@@ -630,7 +630,7 @@ void NPC_BSJump (void)
 			return;
 		}
 
-		// set s.origin2 to the push velocity
+		//set s.origin2 to the push velocity
 		VectorSubtract ( apex, NPC->r.currentOrigin, NPC->client->ps.velocity );
 		NPC->client->ps.velocity[2] = 0;
 		dist = VectorNormalize( NPC->client->ps.velocity );
@@ -1395,7 +1395,7 @@ void NPC_BSEmplaced( void )
 	}
 	if ( shoot )
 	{//try to shoot if it's time
-		if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+		if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) //we've already fired, no need to do it again here
 		{
 			WeaponThink( qtrue );
 		}

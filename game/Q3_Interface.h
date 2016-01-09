@@ -23,7 +23,7 @@ typedef enum //# setType_e
 	SET_PARM15,//## %s="" # Set entity parm15
 	SET_PARM16,//## %s="" # Set entity parm16
 
-	// NOTE!!! If you add any other SET_xxxxxxSCRIPT types, make sure you update the 'case' statements in 
+	//NOTE!!! If you add any other SET_xxxxxxSCRIPT types, make sure you update the 'case' statements in 
 	//	ICARUS_InterrogateScript() (game/g_ICARUS.cpp), or the script-precacher won't find them.
 
 	//# #sep Scripts and other file paths
@@ -256,7 +256,7 @@ typedef enum //# setType_e
 
 #ifdef __cplusplus
 
-// this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
+//this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
 //
 typedef enum //# playType_e
 {

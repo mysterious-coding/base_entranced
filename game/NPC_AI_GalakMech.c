@@ -17,7 +17,7 @@ extern qboolean BG_CrouchAnim( int anim );
 #define MELEE_DIST_SQUARED 6400//80*80
 #define MIN_LOB_DIST_SQUARED 65536//256*256
 #define MAX_LOB_DIST_SQUARED 200704//448*448
-#define REPEATER_ALT_SIZE				3	// half of bbox size
+#define REPEATER_ALT_SIZE				3	//half of bbox size
 #define	GENERATOR_HEALTH	25
 #define TURN_ON				0x00000000
 #define TURN_OFF			0x00000100
@@ -133,7 +133,7 @@ void GM_Dying( gentity_t *self )
 			int	newBolt;
 			switch ( Q_irand( 1, 14 ) )
 			{
-			// Find place to generate explosion
+			//Find place to generate explosion
 			case 1:
 				if (!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_hand" ))
 				{//r_hand still there
@@ -1070,7 +1070,7 @@ void NPC_BSGM_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) //we've already fired, no need to do it again here
 			{
 				WeaponThink( qtrue );
 			}

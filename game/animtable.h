@@ -1,9 +1,9 @@
-// special file included only by cg_players.cpp & ui_players.cpp
+//special file included only by cg_players.cpp & ui_players.cpp
 //
-// moved it from the original header file for PCH reasons...
+//moved it from the original header file for PCH reasons...
 //
 
-#if defined(_XBOX) && !defined(_JK2EXE) && !defined(_UI)	// Linker only wants one copy
+#if defined(_XBOX) && !defined(_JK2EXE) && !defined(_UI)	//Linker only wants one copy
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 #else
 stringID_table_t animTable [MAX_ANIMATIONS+1] =
@@ -1152,7 +1152,7 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 
 	ENUM2STRING(BOTH_GUNSIT1),			//# sitting on an emplaced gun.
 
-	// Swoop Vehicle animations.
+	//Swoop Vehicle animations.
 	//* #sep BOTH_ SWOOP ANIMS
 	ENUM2STRING(BOTH_VS_MOUNT_L),			//# Mount from left		
 	ENUM2STRING(BOTH_VS_DISMOUNT_L),		//# Dismount to left		
@@ -1207,7 +1207,7 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 
 	ENUM2STRING(BOTH_VS_PAIN1),				//# Pain		
 
-	// Added 12/04/02 by Aurelio.
+	//Added 12/04/02 by Aurelio.
 	//* #sep BOTH_ TAUNTAUN ANIMS
 	ENUM2STRING(BOTH_VT_MOUNT_L),			//# Mount from left	
 	ENUM2STRING(BOTH_VT_MOUNT_R),			//# Mount from right	
@@ -1252,7 +1252,7 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	ENUM2STRING(BOTH_VT_ATF_G),				//# Attack forward with gun	
 
 
-	// Added 2/26/02 by Aurelio.
+	//Added 2/26/02 by Aurelio.
 	//* #sep BOTH_ FIGHTER ANIMS
 	ENUM2STRING( BOTH_GEARS_OPEN ),
 	ENUM2STRING( BOTH_GEARS_CLOSE ),
@@ -1789,4 +1789,4 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	//must be terminated
 	{NULL,-1}
 };
-#endif	// _XBOX / _UI
+#endif	//_XBOX / _UI

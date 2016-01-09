@@ -1,7 +1,7 @@
 #include "b_local.h"
 #include "g_nav.h"
 
-// These define the working combat range for these suckers
+//These define the working combat range for these suckers
 #define MIN_DISTANCE		48
 #define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
 
@@ -145,7 +145,7 @@ void Wampa_Move( qboolean visible )
 			NPC->client->ps.eFlags2 |= EF2_USE_ALT_ANIM;
 		}
 		NPC_MoveToGoal( qtrue );
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 	}
 }
 
@@ -277,7 +277,7 @@ void Wampa_Attack( float distance, qboolean doCharge )
 		TIMER_Set( NPC, "walk", -1 );
 	}
 
-	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
+	//Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
 
 	if ( TIMER_Done2( NPC, "attack_dmg", qtrue ) )
 	{
@@ -310,7 +310,7 @@ void Wampa_Attack( float distance, qboolean doCharge )
 		}
 	}
 
-	// Just using this to remove the attacking flag at the right time
+	//Just using this to remove the attacking flag at the right time
 	TIMER_Done2( NPC, "attacking", qtrue );
 
 	if ( NPC->client->ps.legsAnim == BOTH_ATTACK1 && distance > (NPC->r.maxs[0]+MIN_DISTANCE) )
@@ -323,7 +323,7 @@ void Wampa_Attack( float distance, qboolean doCharge )
 //----------------------------------
 void Wampa_Combat( void )
 {
-	// If we cannot see our target or we have somewhere to go, then do that
+	//If we cannot see our target or we have somewhere to go, then do that
 	if ( !NPC_ClearLOS( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin ) )
 	{
 		if ( !Q_irand( 0, 10 ) )
@@ -335,7 +335,7 @@ void Wampa_Combat( void )
 		}
 		NPCInfo->combatMove = qtrue;
 		NPCInfo->goalEntity = NPC->enemy;
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 
 		Wampa_Move( 0 );
 		return;
@@ -344,7 +344,7 @@ void Wampa_Combat( void )
 	{
 		NPCInfo->combatMove = qtrue;
 		NPCInfo->goalEntity = NPC->enemy;
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 
 		Wampa_Move( 1 );
 		return;
@@ -355,7 +355,7 @@ void Wampa_Combat( void )
 		qboolean	advance = (qboolean)( distance > (NPC->r.maxs[0]+MIN_DISTANCE) ? qtrue : qfalse  );
 		qboolean	doCharge = qfalse;
 
-		// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
+		//Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 		//FIXME: always seems to face off to the left or right?!!!!
 		NPC_FaceEnemy( qtrue );
 
@@ -376,7 +376,7 @@ void Wampa_Combat( void )
 			}
 		}
 
-		if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+		if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) //waiting monsters can't attack
 		{
 			if ( TIMER_Done2( NPC, "takingPain", qtrue ))
 			{

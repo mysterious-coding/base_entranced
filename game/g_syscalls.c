@@ -1,9 +1,9 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
 
-// this file is only included when building a dll
-// g_syscalls.asm is included instead when building a qvm
+//this file is only included when building a dll
+//g_syscalls.asm is included instead when building a qvm
 
 static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
@@ -614,7 +614,7 @@ void trap_SV_RegisterSharedMemory(char *memory)
 	syscall(G_SET_SHARED_BUFFER, memory);
 }
 
-// BotLib traps start here
+//BotLib traps start here
 int trap_BotLibSetup( void ) {
 	return syscall( BOTLIB_SETUP );
 }
@@ -1192,7 +1192,7 @@ qhandle_t trap_R_RegisterSkin( const char *name )
 	return syscall( G_R_REGISTERSKIN, name );
 }
 
-// CG Specific API calls
+//CG Specific API calls
 void trap_G2_ListModelBones(void *ghlInfo, int frame)
 {
 	syscall( G_G2_LISTBONES, ghlInfo, frame);

@@ -1,22 +1,22 @@
-// jp_enginehelper.c
+//jp_enginehelper.c
 
 #include "jp_engine.h"
 
 //#if 0
 
-// ==================================================
-// UnlockMemory (WIN32 & Linux compatible)
-// --------------------------------------------------
-// Makes the memory at address writable for at least size bytes.
-// Returns 1 if successful, returns 0 on failure.
-// ==================================================
+//==================================================
+//UnlockMemory (WIN32 & Linux compatible)
+//--------------------------------------------------
+//Makes the memory at address writable for at least size bytes.
+//Returns 1 if successful, returns 0 on failure.
+//==================================================
 bool UnlockMemory( int address, int size )
 {
 #ifdef _WIN32
 	DWORD dummy;
 	return ( VirtualProtect( (LPVOID)address, size, PAGE_EXECUTE_READWRITE, &dummy ) != 0 );
 #else
-	// Linux is a bit more tricky
+	//Linux is a bit more tricky
 	int ret;
 	int page1, page2;
 	page1 = address & ~( getpagesize() - 1);
@@ -33,19 +33,19 @@ bool UnlockMemory( int address, int size )
 #endif
 }
 
-// ==================================================
-// LockMemory (WIN32 & Linux compatible)
-// --------------------------------------------------
-// Makes the memory at address read-only for at least size bytes.
-// Returns 1 if successful, returns 0 on failure.
-// ==================================================
+//==================================================
+//LockMemory (WIN32 & Linux compatible)
+//--------------------------------------------------
+//Makes the memory at address read-only for at least size bytes.
+//Returns 1 if successful, returns 0 on failure.
+//==================================================
 bool LockMemory( int address, int size )
 {
 #ifdef _WIN32
 	DWORD dummy;
 	return ( VirtualProtect( (LPVOID)address, size, PAGE_EXECUTE_READ, &dummy ) != 0 );
 #else
-	// Linux is a bit more tricky
+	//Linux is a bit more tricky
 	int ret;
 	int page1, page2;
 	page1 = address & ~( getpagesize() - 1);

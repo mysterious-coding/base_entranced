@@ -1,4 +1,4 @@
-// leave this line at the top for all g_xxxx.cpp files...
+//leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
 
 //seems to be a compiler bug, it doesn't clean out the #ifdefs between dif-compiles
@@ -105,7 +105,7 @@ bool	VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right)
 		float	speed = VectorLength(pVeh->m_pParentEntity->client->ps.velocity);
 		if (speed>400.0f)
 		{
-			// Compute Pos3
+			//Compute Pos3
 			//--------------
 			vec3_t	right;
 			AngleVectors(pVeh->m_vOrientation, 0, right, 0);
@@ -144,7 +144,7 @@ bool	VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right, int Duration)
 
 
 #ifdef QAGAME //game-only.. for now
-// Like a think or move command, this updates various vehicle properties.
+//Like a think or move command, this updates various vehicle properties.
 bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 {
 	if ( !g_vehicleInfo[VEHICLE_BASE].Update( pVeh, pUcmd ) )
@@ -152,13 +152,13 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 		return false;
 	}
 
-	// See whether this vehicle should be exploding.
+	//See whether this vehicle should be exploding.
 	if ( pVeh->m_iDieTime != 0 )
 	{
 		pVeh->m_pVehicleInfo->DeathUpdate( pVeh );
 	}
 
-	// Update move direction.
+	//Update move direction.
 #ifndef _JK2MP //this makes prediction unhappy, and rightfully so.
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 
@@ -175,22 +175,22 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 		AngleVectors( vVehAngles, parent->client->ps.moveDir, NULL, NULL );
 	}
 
-	// Check For A Strafe Ram
+	//Check For A Strafe Ram
 	//------------------------
 	if (!(pVeh->m_ulFlags&VEH_STRAFERAM) && !(pVeh->m_ulFlags&VEH_FLYING))
 	{
-		// Started A Strafe
+		//Started A Strafe
 		//------------------
 		if (pVeh->m_ucmd.rightmove && !parentPS->hackingTime)
 		{
 			parentPS->hackingTime = (pVeh->m_ucmd.rightmove>0)?(level.time):(-1*level.time);
 		}
 
-		// Ended A Strafe
+		//Ended A Strafe
 		//----------------
 		else if (!pVeh->m_ucmd.rightmove && parentPS->hackingTime)
 		{
-			// If It Was A Short Burst, Start The Strafe Ram
+			//If It Was A Short Burst, Start The Strafe Ram
 			//-----------------------------------------------
 			if ((level.time - abs(parentPS->hackingTime))<300)
 			{
@@ -200,7 +200,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 				}
 			}
 
-			// Otherwise, Clear The Timer
+			//Otherwise, Clear The Timer
 			//----------------------------
 			else
 			{
@@ -209,7 +209,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 		}
 	}
 
-	// If Currently In A StrafeRam, Check To See If It Is Done (Timed Out)
+	//If Currently In A StrafeRam, Check To See If It Is Done (Timed Out)
 	//---------------------------------------------------------------------
   	else if (!parentPS->hackingTime)
 	{
@@ -217,11 +217,11 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 	}
 
 
-	// Exhaust Effects Start And Stop When The Accelerator Is Pressed
+	//Exhaust Effects Start And Stop When The Accelerator Is Pressed
 	//----------------------------------------------------------------
 	if (pVeh->m_pVehicleInfo->iExhaustFX)
 	{
-		// Start It On Each Exhaust Bolt
+		//Start It On Each Exhaust Bolt
 		//-------------------------------
 		if (pVeh->m_ucmd.forwardmove && !(pVeh->m_ulFlags&VEH_ACCELERATORON))
 		{
@@ -232,7 +232,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 			}
 		}
 
-		// Stop It On Each Exhaust Bolt
+		//Stop It On Each Exhaust Bolt
 		//------------------------------
 		else if (!pVeh->m_ucmd.forwardmove && (pVeh->m_ulFlags&VEH_ACCELERATORON))
 		{
@@ -250,7 +250,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 
 	}
 
-	// Armor Gone Effects (Fire)
+	//Armor Gone Effects (Fire)
 	//---------------------------
 	if (pVeh->m_pVehicleInfo->iArmorGoneFX)
 	{
@@ -273,7 +273,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessMoveCommands the Vehicle.
+//ProcessMoveCommands the Vehicle.
 static void ProcessMoveCommands( Vehicle_t *pVeh )
 {
 	/************************************************************************************/
@@ -291,8 +291,8 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 #endif
 
 
-	// If we're flying, make us accelerate at 40% (about half) acceleration rate, and restore the pitch
-	// to origin (straight) position (at 5% increments). 
+	//If we're flying, make us accelerate at 40% (about half) acceleration rate, and restore the pitch
+	//to origin (straight) position (at 5% increments). 
 	if ( pVeh->m_ulFlags & VEH_FLYING ) 
 	{
 		speedInc = pVeh->m_pVehicleInfo->acceleration * pVeh->m_fTimeModifier * 0.4f;
@@ -360,12 +360,12 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 #endif
 					}
 				}
-				parentPS->speed = pVeh->m_pVehicleInfo->turboSpeed;	// Instantly Jump To Turbo Speed
+				parentPS->speed = pVeh->m_pVehicleInfo->turboSpeed;	//Instantly Jump To Turbo Speed
 			}
 		}
 	}
 
-	// Slide Breaking
+	//Slide Breaking
 	if (pVeh->m_ulFlags&VEH_SLIDEBREAKING)
 	{
 		if (pVeh->m_ucmd.forwardmove>=0 
@@ -427,7 +427,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 				parentPS->speed -= speedIdleDec;
 			}
 		}
-		// No input, so coast to stop.
+		//No input, so coast to stop.
 		else if ( parentPS->speed > 0.0f )
 		{
 			parentPS->speed -= speedIdleDec;
@@ -486,7 +486,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 //Oh, and please, use "< MAX_CLIENTS" to check for "player" and not
 //"!s.number", this is a universal check that will work for both SP
 //and MP. -rww
-// ProcessOrientCommands the Vehicle.
+//ProcessOrientCommands the Vehicle.
 #ifdef _JK2MP //temp hack til mp speeder controls are sorted -rww
 extern void AnimalProcessOri(Vehicle_t *pVeh);
 #endif
@@ -554,14 +554,14 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 		pVeh->m_vOrientation[YAW] += pVeh->m_vAngularVelocity;
 	}
 	else if (
-		(pVeh->m_ulFlags & VEH_SLIDEBREAKING) ||	// No Angles Control While Out Of Control 
-		(pVeh->m_ulFlags & VEH_OUTOFCONTROL) 		// No Angles Control While Out Of Control 
+		(pVeh->m_ulFlags & VEH_SLIDEBREAKING) ||	//No Angles Control While Out Of Control 
+		(pVeh->m_ulFlags & VEH_OUTOFCONTROL) 		//No Angles Control While Out Of Control 
 		)
 	{
-		// Any ability to change orientation?
+		//Any ability to change orientation?
 	}
 	else if (
-		(pVeh->m_ulFlags & VEH_STRAFERAM)			// No Angles Control While Strafe Ramming
+		(pVeh->m_ulFlags & VEH_STRAFERAM)			//No Angles Control While Strafe Ramming
 		)
 	{
 		if (parentPS->hackingTime>0)
@@ -591,7 +591,7 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 
-// This function makes sure that the vehicle is properly animated.
+//This function makes sure that the vehicle is properly animated.
 void AnimateVehicle( Vehicle_t *pVeh )
 {
 }
@@ -613,7 +613,7 @@ extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1
 //NOTE NOTE NOTE NOTE NOTE NOTE
 //I want to keep this function BG too, because it's fairly generic already, and it
 //would be nice to have proper prediction of animations. -rww
-// This function makes sure that the rider's in this vehicle are properly animated.
+//This function makes sure that the rider's in this vehicle are properly animated.
 void AnimateRiders( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_VS_IDLE;
@@ -622,15 +622,15 @@ void AnimateRiders( Vehicle_t *pVeh )
 	int curTime;
 
 
-	// Boarding animation.
+	//Boarding animation.
 	if ( pVeh->m_iBoarding != 0 )
 	{
-		// We've just started moarding, set the amount of time it will take to finish moarding.
+		//We've just started moarding, set the amount of time it will take to finish moarding.
 		if ( pVeh->m_iBoarding < 0 )
 		{
 			int iAnimLen;
 
-			// Boarding from left...
+			//Boarding from left...
 			if ( pVeh->m_iBoarding == -1 )
 			{
 				Anim = BOTH_VS_MOUNT_L;
@@ -654,8 +654,8 @@ void AnimateRiders( Vehicle_t *pVeh )
 				Anim = BOTH_VS_MOUNTTHROW_L;
 			}
 
-			// Set the delay time (which happens to be the time it takes for the animation to complete).
-			// NOTE: Here I made it so the delay is actually 40% (0.4f) of the animation time.
+			//Set the delay time (which happens to be the time it takes for the animation to complete).
+			//NOTE: Here I made it so the delay is actually 40% (0.4f) of the animation time.
 #ifdef _JK2MP
 			iAnimLen = BG_AnimLength( pVeh->m_pPilot->localAnimIndex, Anim ) * 0.4f;
 			pVeh->m_iBoarding = BG_GetTime() + iAnimLen;
@@ -670,8 +670,8 @@ void AnimateRiders( Vehicle_t *pVeh )
 				pVeh->m_iBoarding = level.time + iAnimLen;
 			}
 #endif
-			// Set the animation, which won't be interrupted until it's completed.
-			// TODO: But what if he's killed? Should the animation remain persistant???
+			//Set the animation, which won't be interrupted until it's completed.
+			//TODO: But what if he's killed? Should the animation remain persistant???
 			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 			
 #ifdef _JK2MP
@@ -698,21 +698,21 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 
  			gentity_t*	oldPilot = pVeh->m_pOldPilot;
-			pVeh->m_pVehicleInfo->Eject(pVeh, pVeh->m_pOldPilot, qtrue);		// will set pointer to zero
+			pVeh->m_pVehicleInfo->Eject(pVeh, pVeh->m_pOldPilot, qtrue);		//will set pointer to zero
 
-			// Kill Him
+			//Kill Him
 			//----------
-			oldPilot->client->noRagTime = -1;	// no ragdoll for you
+			oldPilot->client->noRagTime = -1;	//no ragdoll for you
 			G_Damage(oldPilot, pVeh->m_pPilot, pVeh->m_pPilot, pVeh->m_pPilot->currentAngles, pVeh->m_pPilot->currentOrigin, 1000, 0, MOD_CRUSH);
 
-			// Compute THe Throw Direction As Backwards From The Vehicle's Velocity
+			//Compute THe Throw Direction As Backwards From The Vehicle's Velocity
 			//----------------------------------------------------------------------
 			vec3_t		throwDir;
 			VectorScale(pVeh->m_pParentEntity->client->ps.velocity, -1.0f, throwDir);
 			VectorNormalize(throwDir);
-			throwDir[2] += 0.3f;	// up a little
+			throwDir[2] += 0.3f;	//up a little
 
-			// Now Throw Him Out
+			//Now Throw Him Out
 			//-------------------
 			G_Throw(oldPilot, throwDir, VectorLength(pVeh->m_pParentEntity->client->ps.velocity)/10.0f);
 			NPC_SetAnim(oldPilot, SETANIM_BOTH, BOTH_DEATHBACKWARD1, SETANIM_FLAG_OVERRIDE, iBlend );
@@ -741,9 +741,9 @@ void AnimateRiders( Vehicle_t *pVeh )
 	curTime = pm->cmd.serverTime;
 #endif
 
-	// Percentage of maximum speed relative to current speed.
+	//Percentage of maximum speed relative to current speed.
 
-	// Going in reverse...
+	//Going in reverse...
 #ifdef _JK2MP
 	if ( pVeh->m_ucmd.forwardmove < 0 && !(pVeh->m_ulFlags & VEH_SLIDEBREAKING))
 #else
@@ -770,12 +770,12 @@ void AnimateRiders( Vehicle_t *pVeh )
 		EWeaponPose	WeaponPose	= WPOSE_NONE;
 
 
-		// Remove Crashing Flag
+		//Remove Crashing Flag
 		//----------------------
 		pVeh->m_ulFlags &= ~VEH_CRASHING;
 
 
-		// Put Away Saber When It Is Not Active
+		//Put Away Saber When It Is Not Active
 		//--------------------------------------
 #ifndef _JK2MP
 		if (HasWeapon && (Turbo || (pilotPS->weapon==WP_SABER && !pilotPS->SaberActive())))
@@ -790,7 +790,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 		}
 #endif
 
-		// Don't Interrupt Attack Anims
+		//Don't Interrupt Attack Anims
 		//------------------------------
 #ifdef _JK2MP
 		if (pilotPS->weaponTime>0)
@@ -812,7 +812,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 		}
 #endif
 
-		// Compute The Weapon Pose
+		//Compute The Weapon Pose
 		//--------------------------
 		if (pilotPS->weapon==WP_BLASTER)
 		{
@@ -833,13 +833,13 @@ void AnimateRiders( Vehicle_t *pVeh )
 		
 
  		if (Attacking && WeaponPose)
-		{// Attack!
+		{//Attack!
 			iBlend	= 100;
  			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;
 	
-			// Auto Aiming
+			//Auto Aiming
 			//===============================================
-			if (!Left && !Right)		// Allow player strafe keys to override
+			if (!Left && !Right)		//Allow player strafe keys to override
 			{
 #ifndef _JK2MP
 				if (pVeh->m_pPilot->enemy)
@@ -876,7 +876,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 
 
 			if (Left)
-			{// Attack Left
+			{//Attack Left
 				switch(WeaponPose)
 				{
 				case WPOSE_BLASTER:		Anim = BOTH_VS_ATL_G;		break;
@@ -886,7 +886,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 				}
 			}
 			else if (Right)
-			{// Attack Right
+			{//Attack Right
 				switch(WeaponPose)
 				{
 				case WPOSE_BLASTER:		Anim = BOTH_VS_ATR_G;		break;
@@ -896,7 +896,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 				}
 			}
 			else
-			{// Attack Ahead
+			{//Attack Ahead
 				switch(WeaponPose)
 				{
 				case WPOSE_BLASTER:		Anim = BOTH_VS_ATF_G;		break;
@@ -906,7 +906,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 
 		}
 		else if (Left && pVeh->m_ucmd.buttons&BUTTON_USE)
-		{// Look To The Left Behind
+		{//Look To The Left Behind
 			iBlend	= 400;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 			switch(WeaponPose)
@@ -917,7 +917,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 		}
 		else if (Right && pVeh->m_ucmd.buttons&BUTTON_USE)
-		{// Look To The Right Behind
+		{//Look To The Right Behind
 			iBlend	= 400;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 			switch(WeaponPose)
@@ -928,13 +928,13 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 		}
 		else if (Turbo)
-		{// Kicked In Turbo
+		{//Kicked In Turbo
 			iBlend	= 50;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
 			Anim	= BOTH_VS_TURBO;
 		}
 		else if (Flying)
-		{// Off the ground in a jump
+		{//Off the ground in a jump
 			iBlend	= 800;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 
@@ -948,7 +948,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 		}
 		else if (Crashing)
-		{// Hit the ground!
+		{//Hit the ground!
 			iBlend	= 100;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
 
@@ -962,12 +962,12 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 		}
 		else
-		{// No Special Moves
+		{//No Special Moves
 			iBlend	= 300;
  			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
 
 			if (pVeh->m_vOrientation[ROLL] <= -20)
-			{// Lean Left
+			{//Lean Left
 				switch(WeaponPose)
 				{
 				case WPOSE_NONE:		Anim = BOTH_VS_LEANL;			break;
@@ -978,7 +978,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 				}
 			}
 			else if (pVeh->m_vOrientation[ROLL] >= 20)
-			{// Lean Right
+			{//Lean Right
 				switch(WeaponPose)
 				{
 				case WPOSE_NONE:		Anim = BOTH_VS_LEANR;			break;
@@ -989,7 +989,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 				}
 			}
 			else
-			{// No Lean
+			{//No Lean
 				switch(WeaponPose)
 				{
 				case WPOSE_NONE:		Anim = BOTH_VS_IDLE;			break;
@@ -999,8 +999,8 @@ void AnimateRiders( Vehicle_t *pVeh )
 				default:				assert(0);
 				}
 			}
-		}// No Special Moves
-	}// Going backwards?
+		}//No Special Moves
+	}//Going backwards?
 
 #ifdef _JK2MP
 	iFlags &= ~SETANIM_FLAG_OVERRIDE;
@@ -1040,7 +1040,7 @@ void G_SetSpeederVehicleFunctions( vehicleInfo_t *pVehInfo )
 #endif
 }
 
-// Following is only in game, not in namespace
+//Following is only in game, not in namespace
 #ifdef _JK2MP
 #include "namespace_end.h"
 #endif
@@ -1053,7 +1053,7 @@ extern void G_AllocateVehicleObject(Vehicle_t **pVeh);
 #include "namespace_begin.h"
 #endif
 
-// Create/Allocate a new Animal Vehicle (initializing it as well).
+//Create/Allocate a new Animal Vehicle (initializing it as well).
 void G_CreateSpeederNPC( Vehicle_t **pVeh, const char *strType )
 {
 #ifdef _JK2MP
@@ -1071,7 +1071,7 @@ void G_CreateSpeederNPC( Vehicle_t **pVeh, const char *strType )
 	memset(*pVeh, 0, sizeof(Vehicle_t));
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )];
 #else
-	// Allocate the Vehicle.
+	//Allocate the Vehicle.
 	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, qtrue );
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )];
 #endif

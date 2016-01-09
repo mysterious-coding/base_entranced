@@ -14,9 +14,9 @@
 #define	BONE_NEED_TRANSFORM			0x8000
 
 //rww - RAGDOLL_BEGIN
-#define BONE_ANGLES_RAGDOLL			0x2000  // the rag flags give more details
+#define BONE_ANGLES_RAGDOLL			0x2000  //the rag flags give more details
 //rww - RAGDOLL_END
-#define BONE_ANGLES_IK				0x4000  // the rag flags give more details
+#define BONE_ANGLES_IK				0x4000  //the rag flags give more details
 
 #define BONE_ANGLES_TOTAL			( BONE_ANGLES_PREMULT | BONE_ANGLES_POSTMULT | BONE_ANGLES_REPLACE )
 #define BONE_ANIM_OVERRIDE			0x0008
@@ -26,7 +26,7 @@
 #define BONE_ANIM_TOTAL				( BONE_ANIM_OVERRIDE | BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND)
 
 
-// defines to setup the
+//defines to setup the
 #define		ENTITY_WIDTH 12
 #define		MODEL_WIDTH	10
 #define		BOLT_WIDTH	10
@@ -40,5 +40,5 @@
 #define		ENTITY_SHIFT (MODEL_SHIFT + MODEL_WIDTH)
 
 
-#endif // G2_H_INC
+#endif //G2_H_INC
 

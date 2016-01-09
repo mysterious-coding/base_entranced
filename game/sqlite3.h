@@ -7617,9 +7617,9 @@ SQLITE_API int SQLITE_STDCALL sqlite3_vtab_on_conflict(sqlite3 *);
 ** [SQLITE_ABORT] is also a [result code].
 */
 #define SQLITE_ROLLBACK 1
-/* #define SQLITE_IGNORE 2 // Also used by sqlite3_authorizer() callback */
+/* #define SQLITE_IGNORE 2 //Also used by sqlite3_authorizer() callback */
 #define SQLITE_FAIL     3
-/* #define SQLITE_ABORT 4  // Also an error code */
+/* #define SQLITE_ABORT 4  //Also an error code */
 #define SQLITE_REPLACE  5
 
 /*

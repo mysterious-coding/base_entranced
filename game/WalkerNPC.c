@@ -1,4 +1,4 @@
-// leave this line at the top for all g_xxxx.cpp files...
+//leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
 
 //seems to be a compiler bug, it doesn't clean out the #ifdefs between dif-compiles
@@ -86,20 +86,20 @@ static void RegisterAssets( Vehicle_t *pVeh )
 #ifdef _JK2MP
 	RegisterItem(BG_FindItemForWeapon(WP_TURRET));
 #else
-	// PUT SOMETHING HERE...
+	//PUT SOMETHING HERE...
 #endif
 
 	//call the standard RegisterAssets now
 	g_vehicleInfo[VEHICLE_BASE].RegisterAssets( pVeh );
 }
 
-// Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
+//Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
 static bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 {
 	if ( !g_vehicleInfo[VEHICLE_BASE].Board( pVeh, pEnt ) )
 		return false;
 
-	// Set the board wait time (they won't be able to do anything, including getting off, for this amount of time).
+	//Set the board wait time (they won't be able to do anything, including getting off, for this amount of time).
 	pVeh->m_iBoarding = level.time + 1500;
 
 	return true;
@@ -116,7 +116,7 @@ static bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessMoveCommands the Vehicle.
+//ProcessMoveCommands the Vehicle.
 static void ProcessMoveCommands( Vehicle_t *pVeh )
 {
 	/************************************************************************************/
@@ -172,7 +172,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 				parentPS->speed -= speedIdleDec;
 			}
 		}
-		// No input, so coast to stop.
+		//No input, so coast to stop.
 		else if ( parentPS->speed > 0.0f )
 		{
 			parentPS->speed -= speedIdleDec;
@@ -269,7 +269,7 @@ void WalkerYawAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *par
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessOrientCommands the Vehicle.
+//ProcessOrientCommands the Vehicle.
 static void ProcessOrientCommands( Vehicle_t *pVeh )
 {
 	/********************************************************************************/
@@ -306,7 +306,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 #endif
 
 
-	// If the player is the rider...
+	//If the player is the rider...
 	if ( rider->s.number < MAX_CLIENTS )
 	{//FIXME: use the vehicle's turning stat in this calc
 #ifdef _JK2MP
@@ -365,7 +365,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 }
 
 #ifdef QAGAME //back to our game-only functions
-// This function makes sure that the vehicle is properly animated.
+//This function makes sure that the vehicle is properly animated.
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_STAND1; 
@@ -373,34 +373,34 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 	float fSpeedPercToMax;
 
-	// We're dead (boarding is reused here so I don't have to make another variable :-).
+	//We're dead (boarding is reused here so I don't have to make another variable :-).
 	if ( parent->health <= 0 ) 
 	{
 		return;
 	}
 
-	// Percentage of maximum speed relative to current speed.
+	//Percentage of maximum speed relative to current speed.
 	fSpeedPercToMax = parent->client->ps.speed / pVeh->m_pVehicleInfo->speedMax; 
 
-	// If we're moving...
+	//If we're moving...
 	if ( fSpeedPercToMax > 0.0f )
 	{  
 		iBlend = 300;
 		iFlags = SETANIM_FLAG_OVERRIDE;
 
-		// NOTE: Mikes suggestion for fixing the stuttering walk (left/right) is to maintain the
-		// current frame between animations. I have no clue how to do this and have to work on other
-		// stuff so good luck to him :-p AReis
+		//NOTE: Mikes suggestion for fixing the stuttering walk (left/right) is to maintain the
+		//current frame between animations. I have no clue how to do this and have to work on other
+		//stuff so good luck to him :-p AReis
 
-		// If we're walking (or our speed is less than .275%)...
+		//If we're walking (or our speed is less than .275%)...
 		if ( ( pVeh->m_ucmd.buttons & BUTTON_WALKING ) || fSpeedPercToMax < 0.275f )
 		{ 
-			// Make them lean if we're turning.
+			//Make them lean if we're turning.
 			{
 				Anim = BOTH_WALK1;
 			}
 		}
-		// otherwise we're running.
+		//otherwise we're running.
 		else
 		{
 			{
@@ -410,7 +410,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	}
 	else
 	{
-		// Going in reverse...
+		//Going in reverse...
 		if ( fSpeedPercToMax < -0.018f )
 		{
 			iFlags = SETANIM_FLAG_NORMAL;
@@ -419,7 +419,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		}
 		else
 		{
-			// Every once in a while buck or do a different idle...
+			//Every once in a while buck or do a different idle...
 			iFlags = SETANIM_FLAG_NORMAL | SETANIM_FLAG_RESTART | SETANIM_FLAG_HOLD; 
 			iBlend = 600;
 #ifdef _JK2MP
@@ -464,7 +464,7 @@ void G_SetWalkerVehicleFunctions( vehicleInfo_t *pVehInfo )
 #endif
 }
 
-// Following is only in game, not in namespace
+//Following is only in game, not in namespace
 #ifdef _JK2MP
 #include "namespace_end.h"
 #endif
@@ -477,11 +477,11 @@ extern void G_AllocateVehicleObject(Vehicle_t **pVeh);
 #include "namespace_begin.h"
 #endif
 
-// Create/Allocate a new Animal Vehicle (initializing it as well).
+//Create/Allocate a new Animal Vehicle (initializing it as well).
 //this is a BG function too in MP so don't un-bg-compatibilify it -rww
 void G_CreateWalkerNPC( Vehicle_t **pVeh, const char *strAnimalType )
 {
-	// Allocate the Vehicle.
+	//Allocate the Vehicle.
 #ifdef _JK2MP
 #ifdef QAGAME
 	//these will remain on entities on the client once allocated because the pointer is

@@ -234,13 +234,13 @@ NPC_CheckVisibility
 
 visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags ) 
 {
-	// flags should never be 0
+	//flags should never be 0
 	if ( !flags ) 
 	{
 		return VIS_NOT;
 	}
 
-	// check PVS
+	//check PVS
 	if ( flags & CHECK_PVS ) 
 	{
 		if ( !trap_InPVS ( ent->r.currentOrigin, NPC->r.currentOrigin ) ) 
@@ -253,7 +253,7 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 		return VIS_PVS;
 	}
 
-	// check within visrange
+	//check within visrange
 	if (flags & CHECK_VISRANGE)
 	{
 		if( !InVisrange ( ent ) ) 
@@ -262,7 +262,7 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 		}
 	}
 
-	// check 360 degree visibility
+	//check 360 degree visibility
 	//Meaning has to be a direct line of site
 	if ( flags & CHECK_360 ) 
 	{
@@ -276,7 +276,7 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 		return VIS_360;
 	}
 
-	// check FOV
+	//check FOV
 	if ( flags & CHECK_FOV ) 
 	{
 		if ( !InFOV ( ent, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov) ) 
@@ -290,7 +290,7 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 		return VIS_FOV;
 	}
 
-	// check shootability
+	//check shootability
 	if ( flags & CHECK_SHOOT ) 
 	{
 		if ( !CanShoot ( ent, NPC ) ) 
@@ -707,7 +707,7 @@ G_ClearLOS
 -------------------------
 */
 
-// Position to position
+//Position to position
 qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 {
 	trace_t		tr;

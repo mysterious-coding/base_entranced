@@ -103,7 +103,7 @@ qboolean NPC_StandTrackAndShoot (gentity_t *NPC, qboolean canDuck)
 void NPC_BSIdle( void ) 
 {
 	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
+	//if we're stuck, try to move around it
 	if ( UpdateGoal() )
 	{
 		NPC_MoveToGoal( qtrue );
@@ -120,7 +120,7 @@ void NPC_BSIdle( void )
 void NPC_BSRun (void)
 {
 	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
+	//if we're stuck, try to move around it
 	if ( UpdateGoal() )
 	{
 		NPC_MoveToGoal( qtrue );
@@ -531,7 +531,7 @@ void NPC_BSPatrol( void )
 
 	NPCInfo->investigateSoundDebounceTime = 0;
 	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
+	//if we're stuck, try to move around it
 	if ( UpdateGoal() )
 	{
 		NPC_MoveToGoal( qtrue );
@@ -595,7 +595,7 @@ void NPC_BSDefault( void )
 
 	if ( NPC->enemy && !(NPCInfo->scriptFlags&SCF_FORCED_MARCH) )
 	{
-		// just use the stormtrooper attack AI...
+		//just use the stormtrooper attack AI...
 		NPC_CheckGetNewWeapon();
 		if ( NPC->client->leader 
 			&& NPCInfo->goalEntity == NPC->client->leader 

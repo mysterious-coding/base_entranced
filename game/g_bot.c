@@ -1,6 +1,6 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
-// g_bot.c
+//g_bot.c
 
 #include "g_local.h"
 
@@ -222,7 +222,7 @@ void G_LoadArenas( void ) {
 
 	g_numArenas = 0;
 
-	// get all arenas from .arena files
+	//get all arenas from .arena files
 	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
@@ -649,10 +649,10 @@ void G_CheckMinimumPlayers( void ) {
 	}
 	else if ((humanplayers+botplayers) > minplayers && botplayers)
 	{
-		// try to remove spectators first
+		//try to remove spectators first
 		if (!G_RemoveRandomBot(TEAM_SPECTATOR))
 		{
-			// just remove the bot that is playing
+			//just remove the bot that is playing
 			G_RemoveRandomBot(-1);
 		}
 	}
@@ -762,21 +762,21 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	char			userinfo[MAX_INFO_STRING];
 	int				preTeam = 0;
 
-	// get the botinfo from bots.txt
+	//get the botinfo from bots.txt
 	botinfo = G_GetBotInfoByName( name );
 	if ( !botinfo ) {
 		G_Printf( S_COLOR_RED "Error: Bot '%s' not defined\n", name );
 		return;
 	}
 
-	// create the bot's userinfo
+	//create the bot's userinfo
 	userinfo[0] = '\0';
 
 	botname = Info_ValueForKey( botinfo, "funname" );
 	if( !botname[0] ) {
 		botname = Info_ValueForKey( botinfo, "name" );
 	}
-	// check for an alternative name
+	//check for an alternative name
 	if (altname && altname[0]) {
 		botname = altname;
 	}
@@ -847,14 +847,14 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		Info_SetValueForKey( userinfo, "personality", s );
 	}
 
-	// have the server allocate a client slot
+	//have the server allocate a client slot
 	clientNum = trap_BotAllocateClient();
 	if ( clientNum == -1 ) {
 		trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
 		return;
 	}
 
-	// initialize the bot settings
+	//initialize the bot settings
 	if( !team || !*team ) {
 		if( g_gametype.integer >= GT_TEAM ) {
 			if( PickTeam(clientNum) == TEAM_RED) {
@@ -875,7 +875,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	bot->r.svFlags |= SVF_BOT;
 	bot->inuse = qtrue;
 
-	// register the userinfo
+	//register the userinfo
 	trap_SetUserinfo( clientNum, userinfo );
 
 	if (g_gametype.integer >= GT_TEAM)
@@ -902,7 +902,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	preTeam = bot->client->sess.sessionTeam;
 
-	// have it connect to the game as a normal client
+	//have it connect to the game as a normal client
 	if ( ClientConnect( clientNum, qtrue, qtrue ) ) {
 		return;
 	}
@@ -994,19 +994,19 @@ void Svcmd_AddBot_f( void ) {
 	char			string[MAX_TOKEN_CHARS];
 	char			team[MAX_TOKEN_CHARS];
 
-	// are bots enabled?
+	//are bots enabled?
 	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		return;
 	}
 
-	// name
+	//name
 	trap_Argv( 1, name, sizeof( name ) );
 	if ( !name[0] ) {
 		trap_Printf( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n" );
 		return;
 	}
 
-	// skill
+	//skill
 	trap_Argv( 2, string, sizeof( string ) );
 	if ( !string[0] ) {
 		skill = 4;
@@ -1015,10 +1015,10 @@ void Svcmd_AddBot_f( void ) {
 		skill = atof( string );
 	}
 
-	// team
+	//team
 	trap_Argv( 3, team, sizeof( team ) );
 
-	// delay
+	//delay
 	trap_Argv( 4, string, sizeof( string ) );
 	if ( !string[0] ) {
 		delay = 0;
@@ -1027,16 +1027,16 @@ void Svcmd_AddBot_f( void ) {
 		delay = atoi( string );
 	}
 
-	// alternative name
+	//alternative name
 	trap_Argv( 5, altname, sizeof( altname ) );
 
 	G_AddBot( name, skill, team, delay, altname );
 
-	// if this was issued during gameplay and we are playing locally,
-	// go ahead and load the bot's media immediately
+	//if this was issued during gameplay and we are playing locally,
+	//go ahead and load the bot's media immediately
 	if ( level.time - level.startTime > 1000 &&
 		trap_Cvar_VariableIntegerValue( "cl_running" ) ) {
-		trap_SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
+		trap_SendServerCommand( -1, "loaddefered\n" );	//FIXME: spelled wrong, but not changing for demo
 	}
 }
 
@@ -1113,10 +1113,10 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 			break;
 		}
 
-		// mark start of bot name
+		//mark start of bot name
 		bot = p;
 
-		// skip until space of null
+		//skip until space of null
 		while( *p && *p != ' ' ) {
 			p++;
 		}
@@ -1124,8 +1124,8 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 			*p++ = 0;
 		}
 
-		// we must add the bot this way, calling G_AddBot directly at this stage
-		// does "Bad Things"
+		//we must add the bot this way, calling G_AddBot directly at this stage
+		//does "Bad Things"
 		trap_SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f free %i\n", bot, skill, delay) );
 
 		delay += BOT_BEGIN_DELAY_INCREMENT;
@@ -1190,7 +1190,7 @@ static void G_LoadBots( void ) {
 		G_LoadBotsFromFile("botfiles/bots.txt");
 	}
 
-	// get all bots from .bot files
+	//get all bots from .bot files
 	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {

@@ -22,7 +22,7 @@ extern int G_SoundIndex( const char *name );
 #elif defined CGAME
 #include "namespace_begin.h"
 sfxHandle_t trap_S_RegisterSound( const char *sample);
-qhandle_t	trap_R_RegisterShader( const char *name );			// returns all white if not found
+qhandle_t	trap_R_RegisterShader( const char *name );			//returns all white if not found
 int	trap_FX_RegisterEffect(const char *file);
 #include "namespace_end.h"
 #endif
@@ -63,7 +63,7 @@ stringID_table_t SaberTable[] =
 stringID_table_t SaberMoveTable[] =
 {
 	ENUM2STRING(LS_NONE),
-	// Attacks
+	//Attacks
 	ENUM2STRING(LS_A_TL2BR),
 	ENUM2STRING(LS_A_L2R),
 	ENUM2STRING(LS_A_BL2TR),
@@ -648,7 +648,7 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 	p = SaberParms;
 	COM_BeginParseSession("saberinfo");
 
-	// look for the right saber
+	//look for the right saber
 	while ( p )
 	{
 		token = COM_ParseExt( &p, qtrue );
@@ -687,7 +687,7 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 		return qfalse;
 	}
 		
-	// parse the saber info block
+	//parse the saber info block
 	while ( 1 ) 
 	{
 		token = COM_ParseExt( &p, qtrue );
@@ -800,7 +800,7 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 			continue;
 		}
 
-		// saberColor
+		//saberColor
 		if ( !Q_stricmpn( token, "saberColor", 10 ) ) 
 		{
 			if (strlen(token)==10)
@@ -2584,7 +2584,7 @@ qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *s
 	p = SaberParms;
 	COM_BeginParseSession("saberinfo");
 
-	// look for the right saber
+	//look for the right saber
 	while ( p )
 	{
 		token = COM_ParseExt( &p, qtrue );
@@ -2610,7 +2610,7 @@ qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *s
 		return qfalse;
 	}
 		
-	// parse the saber info block
+	//parse the saber info block
 	while ( 1 ) 
 	{
 		token = COM_ParseExt( &p, qtrue );
@@ -2819,14 +2819,14 @@ void BG_SI_Deactivate( saberInfo_t *saber )
 	}
 }
 
-// Description: Activate a specific Blade of this Saber.
-// Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
+//Description: Activate a specific Blade of this Saber.
+//Created: 10/03/02 by Aurelio Reis, Modified: 10/03/02 by Aurelio Reis.
 //	[in]		int iBlade		Which Blade to activate.
 //	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
 //	[return]	void
 void BG_SI_BladeActivate( saberInfo_t *saber, int iBlade, qboolean bActive )
 {
-	// Validate blade ID/Index.
+	//Validate blade ID/Index.
 	if ( iBlade < 0 || iBlade >= saber->numBlades )
 		return;
 

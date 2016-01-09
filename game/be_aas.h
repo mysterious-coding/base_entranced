@@ -1,4 +1,4 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
 
 /*****************************************************************************
@@ -58,53 +58,53 @@
 
 typedef enum
 {
-	SOLID_NOT,			// no interaction with other objects
-	SOLID_TRIGGER,		// only touch when inside, after moving
-	SOLID_BBOX,			// touch on edge
-	SOLID_BSP			// bsp clip, touch on edge
+	SOLID_NOT,			//no interaction with other objects
+	SOLID_TRIGGER,		//only touch when inside, after moving
+	SOLID_BBOX,			//touch on edge
+	SOLID_BSP			//bsp clip, touch on edge
 } solid_t;
 
 //a trace is returned when a box is swept through the AAS world
 typedef struct aas_trace_s
 {
-	qboolean	startsolid;	// if true, the initial point was in a solid area
-	float		fraction;	// time completed, 1.0 = didn't hit anything
-	vec3_t		endpos;		// final position
-	int			ent;		// entity blocking the trace
-	int			lastarea;	// last area the trace was in (zero if none)
-	int			area;		// area blocking the trace (zero if none)
-	int			planenum;	// number of the plane that was hit
+	qboolean	startsolid;	//if true, the initial point was in a solid area
+	float		fraction;	//time completed, 1.0 = didn't hit anything
+	vec3_t		endpos;		//final position
+	int			ent;		//entity blocking the trace
+	int			lastarea;	//last area the trace was in (zero if none)
+	int			area;		//area blocking the trace (zero if none)
+	int			planenum;	//number of the plane that was hit
 } aas_trace_t;
 
 //entity info
 typedef struct aas_entityinfo_s
 {
-	int		valid;			// true if updated this frame
-	int		type;			// entity type
-	int		flags;			// entity flags
-	float	ltime;			// local time
-	float	update_time;	// time between last and current update
-	int		number;			// number of the entity
-	vec3_t	origin;			// origin of the entity
-	vec3_t	angles;			// angles of the model
-	vec3_t	old_origin;		// for lerping
-	vec3_t	lastvisorigin;	// last visible origin
-	vec3_t	mins;			// bounding box minimums
-	vec3_t	maxs;			// bounding box maximums
-	int		groundent;		// ground entity
-	int		solid;			// solid type
-	int		modelindex;		// model used
-	int		modelindex2;	// weapons, CTF flags, etc
-	int		frame;			// model frame number
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;		// even parameter
-	int		powerups;		// bit flags
-	int		weapon;			// determines weapon and flash model, etc
-	int		legsAnim;		// current legs anim
-	int		torsoAnim;		// current torso anim
+	int		valid;			//true if updated this frame
+	int		type;			//entity type
+	int		flags;			//entity flags
+	float	ltime;			//local time
+	float	update_time;	//time between last and current update
+	int		number;			//number of the entity
+	vec3_t	origin;			//origin of the entity
+	vec3_t	angles;			//angles of the model
+	vec3_t	old_origin;		//for lerping
+	vec3_t	lastvisorigin;	//last visible origin
+	vec3_t	mins;			//bounding box minimums
+	vec3_t	maxs;			//bounding box maximums
+	int		groundent;		//ground entity
+	int		solid;			//solid type
+	int		modelindex;		//model used
+	int		modelindex2;	//weapons, CTF flags, etc
+	int		frame;			//model frame number
+	int		event;			//impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;		//even parameter
+	int		powerups;		//bit flags
+	int		weapon;			//determines weapon and flash model, etc
+	int		legsAnim;		//current legs anim
+	int		torsoAnim;		//current torso anim
 } aas_entityinfo_t;
 
-// area info
+//area info
 typedef struct aas_areainfo_s
 {
 	int contents;
@@ -116,21 +116,21 @@ typedef struct aas_areainfo_s
 	vec3_t center;
 } aas_areainfo_t;
 
-// client movement prediction stop events, stop as soon as:
+//client movement prediction stop events, stop as soon as:
 #define SE_NONE					0
-#define SE_HITGROUND			1		// the ground is hit
-#define SE_LEAVEGROUND			2		// there's no ground
-#define SE_ENTERWATER			4		// water is entered
-#define SE_ENTERSLIME			8		// slime is entered
-#define SE_ENTERLAVA			16		// lava is entered
-#define SE_HITGROUNDDAMAGE		32		// the ground is hit with damage
-#define SE_GAP					64		// there's a gap
-#define SE_TOUCHJUMPPAD			128		// touching a jump pad area
-#define SE_TOUCHTELEPORTER		256		// touching teleporter
-#define SE_ENTERAREA			512		// the given stoparea is entered
-#define SE_HITGROUNDAREA		1024	// a ground face in the area is hit
-#define SE_HITBOUNDINGBOX		2048	// hit the specified bounding box
-#define SE_TOUCHCLUSTERPORTAL	4096	// touching a cluster portal
+#define SE_HITGROUND			1		//the ground is hit
+#define SE_LEAVEGROUND			2		//there's no ground
+#define SE_ENTERWATER			4		//water is entered
+#define SE_ENTERSLIME			8		//slime is entered
+#define SE_ENTERLAVA			16		//lava is entered
+#define SE_HITGROUNDDAMAGE		32		//the ground is hit with damage
+#define SE_GAP					64		//there's a gap
+#define SE_TOUCHJUMPPAD			128		//touching a jump pad area
+#define SE_TOUCHTELEPORTER		256		//touching teleporter
+#define SE_ENTERAREA			512		//the given stoparea is entered
+#define SE_HITGROUNDAREA		1024	//a ground face in the area is hit
+#define SE_HITBOUNDINGBOX		2048	//hit the specified bounding box
+#define SE_TOUCHCLUSTERPORTAL	4096	//touching a cluster portal
 
 typedef struct aas_clientmove_s
 {
@@ -145,7 +145,7 @@ typedef struct aas_clientmove_s
 	int frames;				//number of frames predicted ahead
 } aas_clientmove_t;
 
-// alternate route goals
+//alternate route goals
 #define ALTROUTEGOAL_ALL				1
 #define ALTROUTEGOAL_CLUSTERPORTALS		2
 #define ALTROUTEGOAL_VIEWPORTALS		4
@@ -159,7 +159,7 @@ typedef struct aas_altroutegoal_s
 	unsigned short extratraveltime;
 } aas_altroutegoal_t;
 
-// route prediction stop events
+//route prediction stop events
 #define RSE_NONE				0
 #define RSE_NOROUTE				1	//no route to goal
 #define RSE_USETRAVELTYPE		2	//stop as soon as on of the given travel types is used

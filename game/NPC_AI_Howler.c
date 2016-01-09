@@ -1,6 +1,6 @@
 #include "b_local.h"
 
-// These define the working combat range for these suckers
+//These define the working combat range for these suckers
 #define MIN_DISTANCE		54
 #define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
 
@@ -81,7 +81,7 @@ void Howler_Move( qboolean visible )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPC_MoveToGoal( qtrue );
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 	}
 }
 
@@ -99,7 +99,7 @@ void Howler_TryDamage( gentity_t *enemy, int damage )
 	AngleVectors( NPC->client->ps.viewangles, dir, NULL, NULL );
 	VectorMA( NPC->r.currentOrigin, MIN_DISTANCE, dir, end );
 
-	// Should probably trace from the mouth, but, ah well.
+	//Should probably trace from the mouth, but, ah well.
 	trap_Trace( &tr, NPC->r.currentOrigin, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT );
 
 	if ( tr.entityNum != ENTITYNUM_WORLD )
@@ -113,20 +113,20 @@ void Howler_Attack( void )
 {
 	if ( !TIMER_Exists( NPC, "attacking" ))
 	{
-		// Going to do ATTACK1
+		//Going to do ATTACK1
 		TIMER_Set( NPC, "attacking", 1700 + random() * 200 );
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
 
-		TIMER_Set( NPC, "attack_dmg", 200 ); // level two damage
+		TIMER_Set( NPC, "attack_dmg", 200 ); //level two damage
 	}
 
-	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
+	//Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
 	if ( TIMER_Done2( NPC, "attack_dmg", qtrue ))
 	{
 		Howler_TryDamage( NPC->enemy, 5 );
 	}
 
-	// Just using this to remove the attacking flag at the right time
+	//Just using this to remove the attacking flag at the right time
 	TIMER_Done2( NPC, "attacking", qtrue );
 }
 
@@ -136,24 +136,24 @@ void Howler_Combat( void )
 	float distance;
 	qboolean advance;
 
-	// If we cannot see our target or we have somewhere to go, then do that
+	//If we cannot see our target or we have somewhere to go, then do that
 	if ( !NPC_ClearLOS4( NPC->enemy ) || UpdateGoal( ))
 	{
 		NPCInfo->combatMove = qtrue;
 		NPCInfo->goalEntity = NPC->enemy;
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 
 		NPC_MoveToGoal( qtrue );
 		return;
 	}
 
-	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
+	//Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 	NPC_FaceEnemy( qtrue );
 
 	distance	= DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	advance = (qboolean)( distance > MIN_DISTANCE_SQR ? qtrue : qfalse  );
 
-	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) //waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", qtrue ))
 		{

@@ -7,12 +7,12 @@
 #include <Windows.h>
 #include <Psapi.h>
 #include <Dbghelp.h>
-#else // linux
+#else //linux
 #include <stdlib.h>
 #include <execinfo.h>
 #include <unistd.h>
 #include <assert.h>
-#include <string.h> // memset
+#include <string.h> //memset
 #include <limits.h> 
 #define __USE_GNU
 #include <ucontext.h>
@@ -68,15 +68,15 @@ void Win_PrintCallStack(FILE *output, HANDLE thread, CONTEXT* pContext)
 	char symbolBuffer[sizeof(IMAGEHLP_SYMBOL64)+256];
 	char moduleName[128];
 
-	// redirect to standard output by default
+	//redirect to standard output by default
 	if (!output)
 		output = stdout;
 
-	// trace stack for this thread by default
+	//trace stack for this thread by default
 	if (!thread)
 		thread = GetCurrentThread();
 
-	// use current context by default
+	//use current context by default
 	if (!pContext)
 	{
 		memset( &context, 0, sizeof( context ) );
@@ -84,7 +84,7 @@ void Win_PrintCallStack(FILE *output, HANDLE thread, CONTEXT* pContext)
 		pContext = &context;
 	}
 
-	// stack info initialization
+	//stack info initialization
 	memset( &symbolBuffer, 0, sizeof( symbolBuffer ) );
 	symbol = (IMAGEHLP_SYMBOL64*)symbolBuffer;
     memset( &stack, 0, sizeof( STACKFRAME64 ) );
@@ -97,7 +97,7 @@ void Win_PrintCallStack(FILE *output, HANDLE thread, CONTEXT* pContext)
     stack.AddrFrame.Offset = pContext->Ebp;
     stack.AddrFrame.Mode   = AddrModeFlat;
 
-	// symbols inicialization (using Dbghelp.dll)
+	//symbols inicialization (using Dbghelp.dll)
 	SymInitialize( process, NULL, TRUE );
 
 	frame = 0;
@@ -109,16 +109,16 @@ void Win_PrintCallStack(FILE *output, HANDLE thread, CONTEXT* pContext)
     while( result = StackWalk64( IMAGE_FILE_MACHINE_I386, process, thread, &stack,
             NULL, NULL, NULL, SymGetModuleBase64, NULL ) )
 	{		
-		// get module name
+		//get module name
 		moduleAddress = SymGetModuleBase64(process, stack.AddrPC.Offset);
 		GetModuleBaseName(process, (HMODULE) moduleAddress,	moduleName, sizeof(moduleName));
 
-		// attempt to load symbol information (name/offset)
+		//attempt to load symbol information (name/offset)
         symbol->SizeOfStruct  = sizeof( IMAGEHLP_SYMBOL64 );
         symbol->MaxNameLength = 256;
 		SymGetSymFromAddr64( process, ( ULONG64 )stack.AddrPC.Offset, &displacement, symbol );
 
-		// with symbols
+		//with symbols
 		if ( symbol->Address && (stack.AddrPC.Offset >= symbol->Address) )
 		{
 			fprintf( output, "%s(%s+0x%llX) [0x%llX]\n", 
@@ -133,7 +133,7 @@ void Win_PrintCallStack(FILE *output, HANDLE thread, CONTEXT* pContext)
 		++frame;
 	}
 }
-#else // linux
+#else //linux
 #define MAX_CALLSTACK_BUFFER 100
 
 #define CRASH_MAX_BACKTRACE_DEPTH (25)
@@ -283,22 +283,22 @@ LONG Win_Handler(LPEXCEPTION_POINTERS p)
 	process = GetCurrentProcess();
 	thread = GetCurrentThread();
 	
-	// symbols inicialization (using Dbghelp.dll)
+	//symbols inicialization (using Dbghelp.dll)
 	SymInitialize( process, NULL, TRUE );
 
-	// get process name
+	//get process name
 	GetModuleFileName(NULL,ProcessName,sizeof(ProcessName));
 
-	// get module name
+	//get module name
 	moduleAddress = SymGetModuleBase64(process, (DWORD64)p->ExceptionRecord->ExceptionAddress);
 	GetModuleBaseName(GetCurrentProcess(), (HMODULE) moduleAddress,	ModuleName, sizeof(ModuleName));
 
-	// generate crash log file name
+	//generate crash log file name
 	time ( &rawtime );
 	timeinfo = localtime ( &rawtime );
 	strftime(CrashLogFileName, sizeof(CrashLogFileName), "crash_log_%Y-%m-%d_%H-%M-%S.log", timeinfo);
 
-	// open crash log file
+	//open crash log file
 	CrashLogFile = fopen(CrashLogFileName,"w");
 	
 	fprintf(CrashLogFile, "===================================\n");
@@ -329,10 +329,10 @@ LONG Win_Handler(LPEXCEPTION_POINTERS p)
 
 	Win_PrintCallStack(CrashLogFile, thread, p->ContextRecord);	
 
-	// print JKA Info
+	//print JKA Info
 	PrintJKAInfo(CrashLogFile);
 
-	// close crash log file
+	//close crash log file
 	fclose(CrashLogFile);
 
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -422,12 +422,12 @@ void Linux_Handler (int signo, siginfo_t * siginfo, void *context)
 	FILE* CrashLogFile;
 	ucontext_t *ucontext = (ucontext_t *)context;
 
-	// generate crash log file name
+	//generate crash log file name
 	time ( &rawtime );
 	timeinfo = localtime ( &rawtime );
 	strftime(CrashLogFileName, sizeof(CrashLogFileName), "crash_log_%Y-%m-%d_%H-%M-%S.log", timeinfo);
 
-	// open crash log file
+	//open crash log file
 	CrashLogFile = fopen(CrashLogFileName,"w");
 
 	fprintf(CrashLogFile, "===================================\n");
@@ -459,10 +459,10 @@ void Linux_Handler (int signo, siginfo_t * siginfo, void *context)
 
 	Linux_PrintCallStack(CrashLogFile, context, 100);
 
-	// print JKA Info
+	//print JKA Info
 	PrintJKAInfo(CrashLogFile);
 	
-	// close crash log file
+	//close crash log file
 	fclose(CrashLogFile);
 
 	abort();
@@ -474,7 +474,7 @@ void InitUnhandledExceptionFilter()
 #ifdef _WIN32
 	SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&Win_Handler);
 #else
-	// SIGSEGV, SIGTERM, SIGKILL 
+	//SIGSEGV, SIGTERM, SIGKILL 
 	struct sigaction act;
 	memset(&act, 0, sizeof (act));
 	act.sa_sigaction = Linux_Handler;

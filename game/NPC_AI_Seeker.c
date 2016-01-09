@@ -50,10 +50,10 @@ void Seeker_MaintainHeight( void )
 {	
 	float	dif;
 
-	// Update our angles regardless
+	//Update our angles regardless
 	NPC_UpdateAngles( qtrue, qtrue );
 
-	// If we have an enemy, we should try to hover at or a little below enemy eye level
+	//If we have an enemy, we should try to hover at or a little below enemy eye level
 	if ( NPC->enemy )
 	{
 		if (TIMER_Done( NPC, "heightChange" ))
@@ -62,7 +62,7 @@ void Seeker_MaintainHeight( void )
 
 			TIMER_Set( NPC,"heightChange",Q_irand( 1000, 3000 ));
 
-			// Find the height difference
+			//Find the height difference
 			dif = (NPC->enemy->r.currentOrigin[2] +  flrand( NPC->enemy->r.maxs[2]/2, NPC->enemy->r.maxs[2]+8 )) - NPC->r.currentOrigin[2]; 
 
 			difFactor = 1.0f;
@@ -74,7 +74,7 @@ void Seeker_MaintainHeight( void )
 				}
 			}
 
-			// cap to prevent dramatic height shifts
+			//cap to prevent dramatic height shifts
 			if ( fabs( dif ) > 2*difFactor )
 			{
 				if ( fabs( dif ) > 24*difFactor )
@@ -94,7 +94,7 @@ void Seeker_MaintainHeight( void )
 	{
 		gentity_t *goal = NULL;
 
-		if ( NPCInfo->goalEntity )	// Is there a goal?
+		if ( NPCInfo->goalEntity )	//Is there a goal?
 		{
 			goal = NPCInfo->goalEntity;
 		}
@@ -125,7 +125,7 @@ void Seeker_MaintainHeight( void )
 		}
 	}
 
-	// Apply friction
+	//Apply friction
 	if ( NPC->client->ps.velocity[0] )
 	{
 		NPC->client->ps.velocity[0] *= VELOCITY_DECAY;
@@ -156,17 +156,17 @@ void Seeker_Strafe( void )
 
 	if ( random() > 0.7f || !NPC->enemy || !NPC->enemy->client )
 	{
-		// Do a regular style strafe
+		//Do a regular style strafe
 		AngleVectors( NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
 
-		// Pick a random strafe direction, then check to see if doing a strafe would be
+		//Pick a random strafe direction, then check to see if doing a strafe would be
 		//	reasonably valid
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->r.currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
 		trap_Trace( &tr, NPC->r.currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
 
-		// Close enough
+		//Close enough
 		if ( tr.fraction > 0.9f )
 		{
 			float vel = SEEKER_STRAFE_VEL;
@@ -181,7 +181,7 @@ void Seeker_Strafe( void )
 				upPush *= 4.0f;
 			}
 			VectorMA( NPC->client->ps.velocity, vel*side, right, NPC->client->ps.velocity );
-			// Add a slight upward push
+			//Add a slight upward push
 			NPC->client->ps.velocity[2] += upPush;
 
 			NPCInfo->standTime = level.time + 1000 + random() * 500;
@@ -191,10 +191,10 @@ void Seeker_Strafe( void )
 	{
 		float stDis;
 
-		// Do a strafe to try and keep on the side of their enemy
+		//Do a strafe to try and keep on the side of their enemy
 		AngleVectors( NPC->enemy->client->renderInfo.eyeAngles, dir, right, NULL );
 
-		// Pick a random side
+		//Pick a random side
 		side = ( rand() & 1 ) ? -1 : 1;
 		stDis = SEEKER_STRAFE_DIS;
 		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
@@ -203,21 +203,21 @@ void Seeker_Strafe( void )
 		}
 		VectorMA( NPC->enemy->r.currentOrigin, stDis * side, right, end );
 
-		// then add a very small bit of random in front of/behind the player action
+		//then add a very small bit of random in front of/behind the player action
 		VectorMA( end, crandom() * 25, dir, end );
 
 		trap_Trace( &tr, NPC->r.currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
 
-		// Close enough
+		//Close enough
 		if ( tr.fraction > 0.9f )
 		{
 			float dis, upPush;
 
 			VectorSubtract( tr.endpos, NPC->r.currentOrigin, dir );
-			dir[2] *= 0.25; // do less upward change
+			dir[2] *= 0.25; //do less upward change
 			dis = VectorNormalize( dir );
 
-			// Try to move the desired enemy side
+			//Try to move the desired enemy side
 			VectorMA( NPC->client->ps.velocity, dis, dir, NPC->client->ps.velocity );
 
 			upPush = SEEKER_UPWARD_PUSH;
@@ -230,7 +230,7 @@ void Seeker_Strafe( void )
 				upPush *= 4.0f;
 			}
 
-			// Add a slight upward push
+			//Add a slight upward push
 			NPC->client->ps.velocity[2] += upPush;
 
 			NPCInfo->standTime = level.time + 2500 + random() * 500;
@@ -246,10 +246,10 @@ void Seeker_Hunt( qboolean visible, qboolean advance )
 
 	NPC_FaceEnemy( qtrue );
 
-	// If we're not supposed to stand still, pursue the player
+	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
 	{
-		// Only strafe when we can see the player
+		//Only strafe when we can see the player
 		if ( visible )
 		{
 			Seeker_Strafe();
@@ -257,20 +257,20 @@ void Seeker_Hunt( qboolean visible, qboolean advance )
 		}
 	}
 
-	// If we don't want to advance, stop here
+	//If we don't want to advance, stop here
 	if ( advance == qfalse )
 	{
 		return;
 	}
 
-	// Only try and navigate if the player is visible
+	//Only try and navigate if the player is visible
 	if ( visible == qfalse )
 	{
-		// Move towards our goal
+		//Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 24;
 
-		// Get our direction from the navigator if we can't see our target
+		//Get our direction from the navigator if we can't see our target
 		if ( NPC_GetMoveDirection( forward, &distance ) == qfalse )
 		{
 			return;
@@ -296,7 +296,7 @@ void Seeker_Fire( void )
 	VectorSubtract( enemy_org, NPC->r.currentOrigin, dir );
 	VectorNormalize( dir );
 
-	// move a bit forward in the direction we shall shoot in so that the bolt doesn't poke out the other side of the seeker
+	//move a bit forward in the direction we shall shoot in so that the bolt doesn't poke out the other side of the seeker
 	VectorMA( NPC->r.currentOrigin, 15, dir, muzzle );
 
 	missile = CreateMissile( muzzle, dir, 1000, 10000, NPC, qfalse );
@@ -323,7 +323,7 @@ void Seeker_Ranged( qboolean visible, qboolean advance )
 	{
 		if ( NPC->count > 0 )
 		{
-			if ( TIMER_Done( NPC, "attackDelay" ))	// Attack?
+			if ( TIMER_Done( NPC, "attackDelay" ))	//Attack?
 			{
 				TIMER_Set( NPC, "attackDelay", Q_irand( 250, 2500 ));
 				Seeker_Fire();
@@ -332,7 +332,7 @@ void Seeker_Ranged( qboolean visible, qboolean advance )
 		}
 		else
 		{
-			// out of ammo, so let it die...give it a push up so it can fall more and blow up on impact
+			//out of ammo, so let it die...give it a push up so it can fall more and blow up on impact
 			G_Damage( NPC, NPC, NPC, NULL, NULL, 999, 0, MOD_UNKNOWN );
 		}
 	}
@@ -350,10 +350,10 @@ void Seeker_Attack( void )
 	qboolean	visible;
 	qboolean	advance;
 
-	// Always keep a good height off the ground
+	//Always keep a good height off the ground
 	Seeker_MaintainHeight();
 
-	// Rate our distance to the target, and our visibilty
+	//Rate our distance to the target, and our visibilty
 	distance	= DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
@@ -363,7 +363,7 @@ void Seeker_Attack( void )
 		advance = (qboolean)(distance>(200.0f*200.0f));
 	}
 
-	// If we cannot see our target, move to see it
+	//If we cannot see our target, move to see it
 	if ( visible == qfalse )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
@@ -403,12 +403,12 @@ void Seeker_FindEnemy( void )
 			continue;
 		}
 
-		if ( ent->client->playerTeam == NPC->client->playerTeam || ent->client->playerTeam == NPCTEAM_NEUTRAL ) // don't attack same team or bots
+		if ( ent->client->playerTeam == NPC->client->playerTeam || ent->client->playerTeam == NPCTEAM_NEUTRAL ) //don't attack same team or bots
 		{
 			continue;
 		}
 
-		// try to find the closest visible one
+		//try to find the closest visible one
 		if ( !NPC_ClearLOS4( ent ))
 		{
 			continue;
@@ -425,8 +425,8 @@ void Seeker_FindEnemy( void )
 
 	if ( best )
 	{
-		// used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
-		NPC->random = random() * 6.3f; // roughly 2pi
+		//used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
+		NPC->random = random() * 6.3f; //roughly 2pi
 
 		NPC->enemy = best;
 	}
@@ -464,7 +464,7 @@ void Seeker_FollowOwner( void )
 
 	if ( dis < minDistSqr )
 	{
-		// generally circle the player closely till we take an enemy..this is our target point
+		//generally circle the player closely till we take an enemy..this is our target point
 		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 		{
 			pt[0] = owner->r.currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 250;
@@ -499,7 +499,7 @@ void Seeker_FollowOwner( void )
 			}
 		}
 
-		// Hey come back!
+		//Hey come back!
 		NPCInfo->goalEntity = owner;
 		NPCInfo->goalRadius = 32;
 		NPC_MoveToGoal( qtrue );
@@ -508,7 +508,7 @@ void Seeker_FollowOwner( void )
 
 	if ( NPCInfo->enemyCheckDebounceTime < level.time )
 	{
-		// check twice a second to find a new enemy
+		//check twice a second to find a new enemy
 		Seeker_FindEnemy();
 		NPCInfo->enemyCheckDebounceTime = level.time + 500;
 	}
@@ -534,8 +534,8 @@ void NPC_BSSeeker_Default( void )
 
 	if ( NPC->random == 0.0f )
 	{
-		// used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
-		NPC->random = random() * 6.3f; // roughly 2pi
+		//used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
+		NPC->random = random() * 6.3f; //roughly 2pi
 	}
 
 	if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )
@@ -556,6 +556,6 @@ void NPC_BSSeeker_Default( void )
 		}
 	}
 
-	// In all other cases, follow the player and look for enemies to take on
+	//In all other cases, follow the player and look for enemies to take on
 	Seeker_FollowOwner();
 }

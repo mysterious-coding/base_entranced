@@ -1,5 +1,5 @@
-// jp_engine.h
-// 
+//jp_engine.h
+//
 //#if 0
 
 #if defined(_WIN32) && !defined(MINGW32)
@@ -50,7 +50,7 @@ typedef unsigned int bool;
 	#define USED
 #endif //defined(__GCC__) || defined(MINGW32)
 
-// Cross-platform (Linux & Windows) Asm defines
+//Cross-platform (Linux & Windows) Asm defines
 
 #if defined(_WIN32) && !defined(MINGW32)
 
@@ -65,11 +65,11 @@ typedef unsigned int bool;
 
 #else
 
-// Linux has a few issues with defines in function defines
-// So we'll create a double define to ensure the defines are properly processed
+//Linux has a few issues with defines in function defines
+//So we'll create a double define to ensure the defines are properly processed
 	#define __asm1__i( a )		__asm__( #a "\n" );
 	#define __asm2__i( a, b )	__asm__( #a ", " #b "\n" );
-        // proxy defines
+        //proxy defines
         #define __asm1__( a )           __asm1__i( a )
         #define __asm2__( a, b )        __asm2__i( a, b )
 

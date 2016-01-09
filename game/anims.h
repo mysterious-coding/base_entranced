@@ -1,6 +1,6 @@
 #ifndef __ANIMS_H__
 #define __ANIMS_H__
-// playerAnimations
+//playerAnimations
 
 
 typedef enum //# animNumber_e
@@ -1151,7 +1151,7 @@ typedef enum //# animNumber_e
 
 	BOTH_GUNSIT1,			//# sitting on an emplaced gun.
 
-	// Swoop Vehicle animations.
+	//Swoop Vehicle animations.
 	//* #sep BOTH_ SWOOP ANIMS
 	BOTH_VS_MOUNT_L,			//# Mount from left		
 	BOTH_VS_DISMOUNT_L,			//# Dismount to left		
@@ -1206,7 +1206,7 @@ typedef enum //# animNumber_e
 
 	BOTH_VS_PAIN1,				//# Pain
 
-	// Added 12/04/02 by Aurelio.
+	//Added 12/04/02 by Aurelio.
 	//* #sep BOTH_ TAUNTAUN ANIMS
 	BOTH_VT_MOUNT_L,		//# Mount from left	
 	BOTH_VT_MOUNT_R,		//# Mount from right
@@ -1252,7 +1252,7 @@ typedef enum //# animNumber_e
 	BOTH_VT_ATF_G,			//# Attack forward with gun	
 
 
-	// Added 2/26/02 by Aurelio.
+	//Added 2/26/02 by Aurelio.
 	//* #sep BOTH_ FIGHTER ANIMS
 	BOTH_GEARS_OPEN,
 	BOTH_GEARS_CLOSE,
@@ -1793,5 +1793,5 @@ typedef enum //# animNumber_e
 #define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
 
 
-#endif// #ifndef __ANIMS_H__
+#endif//#ifndef __ANIMS_H__
 

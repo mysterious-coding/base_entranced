@@ -4,7 +4,7 @@
 
 //#define FORCEJUMP_INSTANTMETHOD 1
 
-#ifdef _XBOX	// No bot has more than 150 bytes of chat right now
+#ifdef _XBOX	//No bot has more than 150 bytes of chat right now
 #define MAX_CHAT_BUFFER_SIZE 256
 #else
 #define MAX_CHAT_BUFFER_SIZE 8192

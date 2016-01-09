@@ -85,10 +85,10 @@ const char* const sqlGetAliases =
 "LIMIT ?3                                                       ";
 
 //
-//  G_LogDbLoad
-// 
-//  Loads the database from disk, including creating of not exists
-//  or if it is corrupted
+// G_LogDbLoad
+//
+// Loads the database from disk, including creating of not exists
+// or if it is corrupted
 //
 void G_LogDbLoad()
 {    
@@ -99,7 +99,7 @@ void G_LogDbLoad()
 
     if ( rc != SQLITE_OK )
     {
-        // create new database
+        //create new database
         rc = sqlite3_open_v2( logDbFileName, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0 );
 
         sqlite3_exec( db, sqlCreateLogDb, 0, 0, 0 );
@@ -108,10 +108,10 @@ void G_LogDbLoad()
 
 
 //
-//  G_LogDbUnload
-// 
-//  Unloads the database from memory, includes flushing it 
-//  to the file.
+// G_LogDbUnload
+//
+// Unloads the database from memory, includes flushing it 
+// to the file.
 //
 void G_LogDbUnload()
 {
@@ -121,20 +121,20 @@ void G_LogDbUnload()
 }
 
 //
-//  G_LogDbLogLevelStart
-// 
-//  Logs current level (map) to the database
+// G_LogDbLogLevelStart
+//
+// Logs current level (map) to the database
 //
 int G_LogDbLogLevelStart(qboolean isRestart)
 {
     int rc = -1;
     sqlite3_stmt* statement;
 
-    // load current map name
+    //load current map name
     char mapname[128];
     trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
 
-    // prepare insert statement
+    //prepare insert statement
     rc = sqlite3_prepare( db, sqlLogLevelStart, -1, &statement, 0 );
     sqlite3_bind_text( statement, 1, mapname, -1, 0 );
     sqlite3_bind_int( statement, 2, isRestart ? 1 : 0 );
@@ -149,16 +149,16 @@ int G_LogDbLogLevelStart(qboolean isRestart)
 }
 
 //
-//  G_LogDbLogLevelEnd
-// 
-//  Logs current level (map) to the database
+// G_LogDbLogLevelEnd
+//
+// Logs current level (map) to the database
 //
 void G_LogDbLogLevelEnd( int levelId )
 {
     int rc = -1;
     sqlite3_stmt* statement;
 
-    // prepare update statement
+    //prepare update statement
     rc = sqlite3_prepare( db, sqlLogLevelEnd, -1, &statement, 0 );
     sqlite3_bind_int( statement, 1, levelId );
 
@@ -168,9 +168,9 @@ void G_LogDbLogLevelEnd( int levelId )
 }
 
 //
-//  G_LogDbLogLevelEvent
-// 
-//  Logs level event
+// G_LogDbLogLevelEvent
+//
+// Logs level event
 //
 void G_LogDbLogLevelEvent( int levelId,
     int levelTime,
@@ -182,7 +182,7 @@ void G_LogDbLogLevelEvent( int levelId,
     const char* contextText )
 {
     sqlite3_stmt* statement;
-    // prepare insert statement
+    //prepare insert statement
     int rc = sqlite3_prepare( db, sqlAddLevelEvent, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, levelId );
@@ -200,16 +200,16 @@ void G_LogDbLogLevelEvent( int levelId,
 }
  
 //
-//  G_LogDbLogSessionStart
-// 
-//  Logs players connection session start
+// G_LogDbLogSessionStart
+//
+// Logs players connection session start
 //
 int G_LogDbLogSessionStart( unsigned int ipInt,
     int ipPort,
     int id )
 {     
     sqlite3_stmt* statement;
-    // prepare insert statement
+    //prepare insert statement
     int rc = sqlite3_prepare( db, sqllogSessionStart, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ipInt );
@@ -226,14 +226,14 @@ int G_LogDbLogSessionStart( unsigned int ipInt,
 }
 
 //
-//  G_LogDbLogSessionEnd
-// 
-//  Logs players connection session end
+// G_LogDbLogSessionEnd
+//
+// Logs players connection session end
 //
 void G_LogDbLogSessionEnd( int sessionId )
 {
     sqlite3_stmt* statement;
-    // prepare insert statement
+    //prepare insert statement
     int rc = sqlite3_prepare( db, sqllogSessionEnd, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, sessionId );
@@ -244,9 +244,9 @@ void G_LogDbLogSessionEnd( int sessionId )
 }
 
 //
-//  G_LogDbLogNickname
-// 
-//  Logs players nickname
+// G_LogDbLogNickname
+//
+// Logs players nickname
 //
 void G_LogDbLogNickname( unsigned int ipInt,
     const char* name,
@@ -254,7 +254,7 @@ void G_LogDbLogNickname( unsigned int ipInt,
 {
     sqlite3_stmt* statement;
 
-    // prepare insert statement
+    //prepare insert statement
     int rc = sqlite3_prepare( db, sqlAddName, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ipInt );
@@ -274,7 +274,7 @@ void G_CfgDbListAliases( unsigned int ipInt,
     void* context )
 {
     sqlite3_stmt* statement;
-    // prepare insert statement
+    //prepare insert statement
     int rc = sqlite3_prepare( db, sqlGetAliases, -1, &statement, 0 );
 
     sqlite3_bind_int( statement, 1, ipInt );

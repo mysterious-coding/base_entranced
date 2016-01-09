@@ -46,7 +46,7 @@
 #define NUM_VISIBLE_ENEMIES			202
 #define NUM_VISIBLE_TEAMMATES		203
 
-// NOTENOTE Update this so that it is in sync.
+//NOTENOTE Update this so that it is in sync.
 //item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
 //pickups
 #define MODELINDEX_ARMOR			1

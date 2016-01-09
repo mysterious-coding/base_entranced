@@ -1,7 +1,7 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
 
-// this file holds commands that can be executed by the server console, but not remote clients
+//this file holds commands that can be executed by the server console, but not remote clients
 
 #include "g_local.h"
 #include "g_database_log.h"
@@ -44,14 +44,14 @@ typedef struct ipFilter_s
     char        comment[32];
 } ipFilter_t;
 
-// VVFIXME - We don't need this at all, but this is the quick way.
+//VVFIXME - We don't need this at all, but this is the quick way.
 #ifdef _XBOX
 #define	MAX_IPFILTERS	1
 #else
 #define	MAX_IPFILTERS	1024
 #endif
 
-// getstatus/getinfo bans
+//getstatus/getinfo bans
 static ipFilter_t	getstatusIpFilters[MAX_IPFILTERS];
 static int			getstatusNumIPFilters;
 
@@ -113,7 +113,7 @@ int validateAccount(const char* username, const char* password, int num){
 //save updated actual accounts to file
 void saveAccounts(){
 	fileHandle_t f;
-	char entry[64]; // MAX_USERNAME + MAX_PASSWORD + 2 <= 64 !!! 
+	char entry[64]; //MAX_USERNAME + MAX_PASSWORD + 2 <= 64 !!! 
 	int i;
 
 	trap_FS_FOpenFile(g_accountsFile.string, &f, FS_WRITE);
@@ -379,7 +379,7 @@ qboolean getIpFromString( const char* from, unsigned int* ip )
     qboolean success = qfalse;
     int ipA = 0, ipB = 0, ipC = 0, ipD = 0;
 
-    // parse ip address and mask
+    //parse ip address and mask
     if ( sscanf( from, "%d.%d.%d.%d", &ipA, &ipB, &ipC, &ipD ) == 4  )
     {
         *ip = ((ipA << 24) & 0xFF000000) |
@@ -403,7 +403,7 @@ qboolean getIpPortFromString( const char* from, unsigned int* ip, int* port )
     qboolean success = qfalse;
     int ipA = 0, ipB = 0, ipC = 0, ipD = 0, ipPort = 0;
 
-    // parse ip address and mask
+    //parse ip address and mask
     if ( sscanf( from, "%d.%d.%d.%d:%d", &ipA, &ipB, &ipC, &ipD, &ipPort ) == 5 )
     {
         *ip = ((ipA << 24) & 0xFF000000) |
@@ -435,7 +435,7 @@ static void GetstatusAddIP( char *str )
 
 	for (i = 0 ; i < getstatusNumIPFilters ; i++)
 		if (getstatusIpFilters[i].compare == 0xffffffff)
-			break;		// free spot
+			break;		//free spot
 	if (i == getstatusNumIPFilters)
 	{
 		if (getstatusNumIPFilters == MAX_IPFILTERS)
@@ -504,13 +504,13 @@ void Svcmd_AddIP_f (void)
         return;
     }   
 
-    // set defaults
+    //set defaults
     maskInt = 0xFFFFFFFF;
     Q_strncpyz( notes, "", sizeof( notes ) );
     Q_strncpyz( reason, "Unknown", sizeof( reason ) );
     hours = g_defaultBanHoursDuration.integer;
 
-    // set actuals
+    //set actuals
     trap_Argv( 1, ip, sizeof( ip ) );
     getIpFromString( ip, &ipInt );
 
@@ -568,7 +568,7 @@ void Svcmd_RemoveIP_f (void)
         return;
     }
 
-    // set defaults
+    //set defaults
     maskInt = 0xFFFFFFFF;
 
     trap_Argv( 1, ip, sizeof( ip ) );
@@ -614,7 +614,7 @@ void Svcmd_AddWhiteIP_f( void )
         return;
     }
 
-    // set defaults
+    //set defaults
     maskInt = 0xFFFFFFFF;
     Q_strncpyz( notes, "", sizeof( notes ) );
 
@@ -664,7 +664,7 @@ void Svcmd_RemoveWhiteIP_f( void )
         return;
     }
 
-    // set defaults
+    //set defaults
     maskInt = 0xFFFFFFFF;
 
     trap_Argv( 1, ip, sizeof( ip ) );
@@ -791,7 +791,7 @@ gclient_t	*ClientForString( const char *s ) {
 	int			i;
 	int			idnum;
 
-	// numeric values are just slot numbers
+	//numeric values are just slot numbers
 	if ( s[0] >= '0' && s[0] <= '9' ) {
 		idnum = atoi( s );
 		if ( idnum < 0 || idnum >= level.maxclients ) {
@@ -807,7 +807,7 @@ gclient_t	*ClientForString( const char *s ) {
 		return cl;
 	}
 
-	// check for a name match
+	//check for a name match
 	for ( i=0 ; i < level.maxclients ; i++ ) {
 		cl = &level.clients[i];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
@@ -1089,7 +1089,7 @@ void	Svcmd_ForceReady_f(void) {
 		return;
 	}
 
-	// find the player
+	//find the player
 	trap_Argv(1, str, sizeof(str));
 	if (!Q_stricmp(str, "-1"))
 	{
@@ -1141,7 +1141,7 @@ void	Svcmd_ForceUnReady_f(void) {
 		return;
 	}
 
-	// find the player
+	//find the player
 	trap_Argv(1, str, sizeof(str));
 	if (!Q_stricmp(str, "-1"))
 	{
@@ -1652,7 +1652,7 @@ void Svcmd_RandomTeams_f() {
         return;
     }
 
-    // fisher-yates shuffle algorithm
+    //fisher-yates shuffle algorithm
     for (i = numberOfReadyPlayers - 1; i >= 1; i--) {
         j = rand() % (i + 1);
         temp = readyPlayers[i];
@@ -1965,15 +1965,15 @@ qboolean	ConsoleCommand( void ) {
 			trap_Argv(1,durationStr,sizeof(durationStr));
 			duration = atoi(durationStr);
 				
-			if (duration == 0) // 2 minutes default
+			if (duration == 0) //2 minutes default
 				duration = 2*60;
-			else if (duration < 0) // second minimum
+			else if (duration < 0) //second minimum
 				duration = 1;
-			else if ( duration > 5*60) // 5 minutes max
+			else if ( duration > 5*60) //5 minutes max
 				duration = 5*60;
 
             level.pause.state = PAUSE_PAUSED;
-			level.pause.time = level.time + duration*1000; // 5 seconds
+			level.pause.time = level.time + duration*1000; //5 seconds
 		//}
 
         return qtrue;
@@ -2043,7 +2043,7 @@ qboolean	ConsoleCommand( void ) {
 			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
-		// everything else will also be printed as a say command
+		//everything else will also be printed as a say command
 		if (!g_quietrcon.integer){
 			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(0) ) );
 			return qtrue;

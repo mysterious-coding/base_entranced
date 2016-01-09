@@ -799,16 +799,16 @@ void NPC_Respond( gentity_t *self, int userNum )
 			}
 		}
 		break;
-	case CLASS_R2D2:				// droid
+	case CLASS_R2D2:				//droid
 		G_Sound(self, CHAN_AUTO, G_SoundIndex(va("sound/chars/r2d2/misc/r2d2talk0%d.wav",Q_irand(1, 3))));
 		break;
-	case CLASS_R5D2:				// droid
+	case CLASS_R5D2:				//droid
 		G_Sound(self, CHAN_AUTO, G_SoundIndex(va("sound/chars/r5d2/misc/r5talk%d.wav",Q_irand(1, 4))));
 		break;
-	case CLASS_MOUSE:				// droid
+	case CLASS_MOUSE:				//droid
 		G_Sound(self, CHAN_AUTO, G_SoundIndex(va("sound/chars/mouse/misc/mousego%d.wav",Q_irand(1, 3))));
 		break;
-	case CLASS_GONK:				// droid
+	case CLASS_GONK:				//droid
 		G_Sound(self, CHAN_AUTO, G_SoundIndex(va("sound/chars/gonk/misc/gonktalk%d.wav",Q_irand(1, 2))));
 		break;
 	default:
@@ -895,7 +895,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 	if(self->client && self->NPC)
 	{
-		// If this is a vehicle, let the other guy board it. Added 12/14/02 by AReis.
+		//If this is a vehicle, let the other guy board it. Added 12/14/02 by AReis.
 		if ( self->client->NPC_class == CLASS_VEHICLE )
 		{
 			Vehicle_t *pVeh = self->m_pVehicle;
@@ -907,12 +907,12 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 				{
 					pVeh->m_pVehicleInfo->EjectAll( pVeh );
 				}
-				// If other is already riding this vehicle (self), eject him.
+				//If other is already riding this vehicle (self), eject him.
 				else if ( other->s.owner == self->s.number )
 				{
 					pVeh->m_pVehicleInfo->Eject( pVeh, (bgEntity_t *)other, qfalse );
 				}
-				// Otherwise board this vehicle.
+				//Otherwise board this vehicle.
 				else
 				{
 					pVeh->m_pVehicleInfo->Board( pVeh, (bgEntity_t *)other );

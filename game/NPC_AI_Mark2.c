@@ -26,7 +26,7 @@ enum
 
 void NPC_Mark2_Precache( void )
 {
-	G_SoundIndex( "sound/chars/mark2/misc/mark2_explo" );// blows up on death
+	G_SoundIndex( "sound/chars/mark2/misc/mark2_explo" );//blows up on death
 	G_SoundIndex( "sound/chars/mark2/misc/mark2_pain" );
 	G_SoundIndex( "sound/chars/mark2/misc/mark2_fire" );
 	G_SoundIndex( "sound/chars/mark2/misc/mark2_move_lp" );
@@ -66,7 +66,7 @@ void NPC_Mark2_Part_Explode( gentity_t *self, int bolt )
 		G_PlayEffectID( G_EffectIndex("blaster/smoke_bolton"), org, dir );
 	}
 
-	self->count++;	// Count of pods blown off
+	self->count++;	//Count of pods blown off
 }
 
 /*
@@ -84,7 +84,7 @@ void NPC_Mark2_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	for (i=0;i<3;i++)
 	{
-		if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[HL_GENERIC1+i] > AMMO_POD_HEALTH))	// Blow it up?
+		if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[HL_GENERIC1+i] > AMMO_POD_HEALTH))	//Blow it up?
 		{
 			if (self->locationDamage[hitLoc] >= AMMO_POD_HEALTH)
 			{			
@@ -101,7 +101,7 @@ void NPC_Mark2_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	G_Sound( self, CHAN_AUTO, G_SoundIndex( "sound/chars/mark2/misc/mark2_pain" ));
 
-	// If any pods were blown off, kill him
+	//If any pods were blown off, kill him
 	if (self->count > 0)
 	{
 		G_Damage( self, NULL, NULL, NULL, NULL, self->health, DAMAGE_NO_PROTECTION, MOD_UNKNOWN );
@@ -120,7 +120,7 @@ void Mark2_Hunt(void)
 		NPCInfo->goalEntity = NPC->enemy;
 	}
 
-	// Turn toward him before moving towards him.
+	//Turn toward him before moving towards him.
 	NPC_FaceEnemy( qtrue );
 
 	NPCInfo->combatMove = qtrue;
@@ -182,9 +182,9 @@ Mark2_BlasterAttack
 */
 void Mark2_BlasterAttack(qboolean advance)
 {
-	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
+	if ( TIMER_Done( NPC, "attackDelay" ) )	//Attack?
 	{
-		if (NPCInfo->localState == LSTATE_NONE)	// He's up so shoot less often.
+		if (NPCInfo->localState == LSTATE_NONE)	//He's up so shoot less often.
 		{
 			TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2000) );
 		}
@@ -218,7 +218,7 @@ void Mark2_AttackDecision( void )
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
 
-	// He's been ordered to get up
+	//He's been ordered to get up
 	if (NPCInfo->localState == LSTATE_RISINGUP)
 	{
 		NPC->flags &= ~FL_SHIELDED;
@@ -226,22 +226,22 @@ void Mark2_AttackDecision( void )
 		if ((NPC->client->ps.legsTimer<=0) && 
 			NPC->client->ps.torsoAnim == BOTH_RUN1START )
 		{
-			NPCInfo->localState = LSTATE_NONE;	// He's up again.
+			NPCInfo->localState = LSTATE_NONE;	//He's up again.
 		}
 		return;
 	}
 
-	// If we cannot see our target, move to see it
+	//If we cannot see our target, move to see it
 	if ((!visible) || (!NPC_FaceEnemy(qtrue)))
 	{
-		// If he's going down or is down, make him get up
+		//If he's going down or is down, make him get up
 		if ((NPCInfo->localState == LSTATE_DOWN) || (NPCInfo->localState == LSTATE_DROPPINGDOWN))
 		{
-			if ( TIMER_Done( NPC, "downTime" ) )	// Down being down?? (The delay is so he doesn't pop up and down when the player goes in and out of range)
+			if ( TIMER_Done( NPC, "downTime" ) )	//Down being down?? (The delay is so he doesn't pop up and down when the player goes in and out of range)
 			{
 				NPCInfo->localState = LSTATE_RISINGUP;
 				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
-				TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
+				TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	//So he runs for a while before testing to see if he should drop down.
 			}
 		}
 		else
@@ -251,17 +251,17 @@ void Mark2_AttackDecision( void )
 		return;
 	}
 
-	// He's down but he could advance if he wants to.
+	//He's down but he could advance if he wants to.
 	if ((advance) && (TIMER_Done( NPC, "downTime" )) && (NPCInfo->localState == LSTATE_DOWN))
 	{
 		NPCInfo->localState = LSTATE_RISINGUP;
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
-		TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
+		TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	//So he runs for a while before testing to see if he should drop down.
 	}
 
 	NPC_FaceEnemy( qtrue );
 
-	// Dropping down to shoot
+	//Dropping down to shoot
 	if (NPCInfo->localState == LSTATE_DROPPINGDOWN)
 	{
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
@@ -273,20 +273,20 @@ void Mark2_AttackDecision( void )
 			NPCInfo->localState = LSTATE_DOWN;
 		}
 	}
-	// He's down and shooting
+	//He's down and shooting
 	else if (NPCInfo->localState == LSTATE_DOWN)
 	{
 		NPC->flags |= FL_SHIELDED;//only damagable by lightsabers and missiles
 
 		Mark2_BlasterAttack(qfalse);
 	}
-	else if (TIMER_Done( NPC, "runTime" ))	// Lowering down to attack. But only if he's done running at you.
+	else if (TIMER_Done( NPC, "runTime" ))	//Lowering down to attack. But only if he's done running at you.
 	{
 		NPCInfo->localState = LSTATE_DROPPINGDOWN;
 	}
 	else if (advance)
 	{
-		// We can see enemy so shoot him if timer lets you.
+		//We can see enemy so shoot him if timer lets you.
 		Mark2_BlasterAttack(advance);
 	}
 }

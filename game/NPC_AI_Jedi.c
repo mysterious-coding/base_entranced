@@ -357,7 +357,7 @@ void Boba_FlyStart( gentity_t *self )
 		self->s.loopSound = G_SoundIndex( "sound/boba/jethover.wav" );
 		if ( self->NPC )
 		{
-			self->count = Q3_INFINITE; // SEEKER shot ammo count
+			self->count = Q3_INFINITE; //SEEKER shot ammo count
 		}
 	}
 }
@@ -375,7 +375,7 @@ void Boba_FlyStop( gentity_t *self )
 	self->s.loopSound = 0;
 	if ( self->NPC )
 	{
-		self->count = 0; // SEEKER shot ammo count
+		self->count = 0; //SEEKER shot ammo count
 		TIMER_Set( self, "jetRecharge", Q_irand( 1000, 5000 ) );
 		TIMER_Set( self, "jumpChaseDebounce", Q_irand( 500, 2000 ) );
 	}
@@ -730,7 +730,7 @@ void Boba_FireDecide( void )
 		{//try to shoot if it's time
 			if ( TIMER_Done( NPC, "nextAttackDelay" ) )
 			{
-				if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+				if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) //we've already fired, no need to do it again here
 				{
 					WeaponThink( qtrue );
 				}
@@ -2333,7 +2333,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	VectorSubtract( hitloc, self->client->renderInfo.eyePoint, diff );
 	diff[2] = 0;
 	fwdangles[1] = self->client->ps.viewangles[1];
-	// Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
+	//Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
 	AngleVectors( fwdangles, NULL, right, NULL );
 
 	rightdot = DotProduct(right, diff);
@@ -2364,7 +2364,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 			}
 		}
 	}
-	// Figure out what quadrant the block was in.
+	//Figure out what quadrant the block was in.
 	if ( d_JediAI.integer )
 	{
 		Com_Printf( "(%d) evading attack from height %4.2f, zdiff: %4.2f, rightdot: %4.2f\n", level.time, hitloc[2]-self->r.absmin[2],zdiff,rightdot);
@@ -4895,7 +4895,7 @@ void NPC_Jedi_Pain(gentity_t *self, gentity_t *attacker, int damage)
 			Com_Printf( "(%d) PAIN: agg %d, no parry until %d\n", level.time, self->NPC->stats.aggression, level.time+500 );
 		}
 		//for testing only
-		// Figure out what quadrant the hit was in.
+		//Figure out what quadrant the hit was in.
 		if ( d_JediAI.integer )
 		{
 			vec3_t	diff, fwdangles, right;

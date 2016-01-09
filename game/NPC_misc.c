@@ -1,5 +1,5 @@
 //
-// NPC_misc.cpp
+//NPC_misc.cpp
 //
 #include "b_local.h"
 #include "q_shared.h"

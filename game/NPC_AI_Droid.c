@@ -22,12 +22,12 @@ R2D2_PartsMove
 */
 void R2D2_PartsMove(void)
 {
-	// Front 'eye' lense
+	//Front 'eye' lense
 	if ( TIMER_Done(NPC,"eyeDelay") )
 	{
 		NPC->pos1[1] = AngleNormalize360( NPC->pos1[1]);
 
-		NPC->pos1[0]+=Q_irand( -20, 20 );	// Roll	
+		NPC->pos1[0]+=Q_irand( -20, 20 );	//Roll	
 		NPC->pos1[1]=Q_irand( -20, 20 );	
 		NPC->pos1[2]=Q_irand( -20, 20 );	
 
@@ -98,7 +98,7 @@ void Droid_Patrol( void )
 	{
 		if (NPC->client->NPC_class != CLASS_R5D2)
 		{ //he doesn't have an eye.
-			R2D2_PartsMove();		// Get his eye moving.
+			R2D2_PartsMove();		//Get his eye moving.
 		}
 		R2D2_TurnAnims();
 	}
@@ -111,7 +111,7 @@ void Droid_Patrol( void )
 
 		if( NPC->client && NPC->client->NPC_class == CLASS_MOUSE )
 		{
-			NPCInfo->desiredYaw += sin(level.time*.5) * 25; // Weaves side to side a little
+			NPCInfo->desiredYaw += sin(level.time*.5) * 25; //Weaves side to side a little
 
 			if (TIMER_Done(NPC,"patrolNoise"))
 			{
@@ -167,7 +167,7 @@ void Droid_Run( void )
 		ucmd.forwardmove = -127;
 		NPCInfo->desiredYaw += 5; 
 
-		NPCInfo->localState = LSTATE_NONE;	// So he doesn't constantly backup.
+		NPCInfo->localState = LSTATE_NONE;	//So he doesn't constantly backup.
 	}
 	else 
 	{
@@ -177,7 +177,7 @@ void Droid_Run( void )
 		{
 			if (NPC_MoveToGoal( qfalse ))
 			{
-				NPCInfo->desiredYaw += sin(level.time*.5) * 5; // Weaves side to side a little
+				NPCInfo->desiredYaw += sin(level.time*.5) * 5; //Weaves side to side a little
 			}
 		}
 	}
@@ -197,11 +197,11 @@ void Droid_Spin( void )
 	R2D2_TurnAnims();
 
 						
-	// Head is gone, spin and spark
+	//Head is gone, spin and spark
 	if ( NPC->client->NPC_class == CLASS_R5D2 
 		|| NPC->client->NPC_class == CLASS_R2D2 )
 	{
-		// No head?
+		//No head?
 		if (trap_G2API_GetSurfaceRenderStatus( NPC->ghoul2, 0, "head" )>0)
 		{
 			if (TIMER_Done(NPC,"smoke") && !TIMER_Done(NPC,"droidsmoketotal"))
@@ -221,7 +221,7 @@ void Droid_Spin( void )
 			if (TIMER_Done(NPC,"roam"))
 			{	
 				TIMER_Set( NPC, "roam", Q_irand( 250, 1000 ) );
-				NPCInfo->desiredYaw = Q_irand( 0, 360 ); // Go in random directions
+				NPCInfo->desiredYaw = Q_irand( 0, 360 ); //Go in random directions
 			}
 		}
 		else
@@ -232,7 +232,7 @@ void Droid_Spin( void )
 			}
 			else
 			{
-				NPCInfo->desiredYaw = AngleNormalize360(NPCInfo->desiredYaw + 40); // Spin around
+				NPCInfo->desiredYaw = AngleNormalize360(NPCInfo->desiredYaw + 40); //Spin around
 			}
 		}
 	}
@@ -244,7 +244,7 @@ void Droid_Spin( void )
 		}
 		else
 		{
-			NPCInfo->desiredYaw = AngleNormalize360(NPCInfo->desiredYaw + 40); // Spin around
+			NPCInfo->desiredYaw = AngleNormalize360(NPCInfo->desiredYaw + 40); //Spin around
 		}
 	}
 
@@ -269,14 +269,14 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	{
 		pain_chance = NPC_GetPainChance( self, damage );
 
-		// Put it in pain
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || random() < pain_chance )	// Spin around in pain? Demp2 always does this
+		//Put it in pain
+		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || random() < pain_chance )	//Spin around in pain? Demp2 always does this
 		{
-			// Health is between 0-30 or was hit by a DEMP2 so pop his head
+			//Health is between 0-30 or was hit by a DEMP2 so pop his head
 			if ( !self->s.m_iVehicleNum
 				&& ( self->health < 30 || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT ) )
 			{
-				if (!(self->spawnflags & 2))	// Doesn't have to ALWAYSDIE
+				if (!(self->spawnflags & 2))	//Doesn't have to ALWAYSDIE
 				{
 					if ((self->NPC->localState != LSTATE_SPINNING) && 
 						(!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "head" )))
@@ -303,23 +303,23 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 					}
 				}
 			}
-			// Just give him normal pain for a little while
+			//Just give him normal pain for a little while
 			else
 			{
 				anim = self->client->ps.legsAnim;
 
-				if ( anim == BOTH_STAND2 )	// On two legs?
+				if ( anim == BOTH_STAND2 )	//On two legs?
 				{
 					anim = BOTH_PAIN1;
 				}
-				else						// On three legs
+				else						//On three legs
 				{
 					anim = BOTH_PAIN2;
 				}
 
 				NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 
-				// Spin around in pain
+				//Spin around in pain
 				self->NPC->localState = LSTATE_SPINNING;
 				TIMER_Set( self, "roam", Q_irand(1000,2000));
 			} 
@@ -344,13 +344,13 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 		pain_chance = NPC_GetPainChance( self, damage );
 
-		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || random() < pain_chance )	// Spin around in pain? Demp2 always does this
+		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || random() < pain_chance )	//Spin around in pain? Demp2 always does this
 		{
-			// Health is between 0-30 or was hit by a DEMP2 so pop his head
+			//Health is between 0-30 or was hit by a DEMP2 so pop his head
 			if ( !self->s.m_iVehicleNum
 				&& ( self->health < 30 || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT ) )
 			{
-				if (!(self->spawnflags & 2))	// Doesn't have to ALWAYSDIE
+				if (!(self->spawnflags & 2))	//Doesn't have to ALWAYSDIE
 				{
 					if ((self->NPC->localState != LSTATE_SPINNING) && 
 						(!trap_G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "head" )))
@@ -377,23 +377,23 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 					}
 				}
 			}
-			// Just give him normal pain for a little while
+			//Just give him normal pain for a little while
 			else
 			{
 				anim = self->client->ps.legsAnim;
 
-				if ( anim == BOTH_STAND2 )	// On two legs?
+				if ( anim == BOTH_STAND2 )	//On two legs?
 				{
 					anim = BOTH_PAIN1;
 				}
-				else						// On three legs
+				else						//On three legs
 				{
 					anim = BOTH_PAIN2;
 				}
 
 				NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 
-				// Spin around in pain
+				//Spin around in pain
 				self->NPC->localState = LSTATE_SPINNING;
 				TIMER_Set( self, "roam", Q_irand(1000,2000));
 			}
@@ -459,7 +459,7 @@ void NPC_R5D2_Precache(void)
 	{
 		G_SoundIndex( va( "sound/chars/r5d2/misc/r5talk%d.wav", i ) );
 	}
-	G_SoundIndex( "sound/chars/mark2/misc/mark2_explo" ); // ??
+	G_SoundIndex( "sound/chars/mark2/misc/mark2_explo" ); //??
 	G_SoundIndex( "sound/chars/r2d2/misc/r2_move_lp2.wav" );
 	G_EffectIndex( "env/med_explode");
 	G_EffectIndex( "volumetric/droid_smoke" );
@@ -481,7 +481,7 @@ void NPC_R2D2_Precache(void)
 	{
 		G_SoundIndex( va( "sound/chars/r2d2/misc/r2d2talk0%d.wav", i ) );
 	}
-	G_SoundIndex( "sound/chars/mark2/misc/mark2_explo" ); // ??
+	G_SoundIndex( "sound/chars/mark2/misc/mark2_explo" ); //??
 	G_SoundIndex( "sound/chars/r2d2/misc/r2_move_lp.wav" );
 	G_EffectIndex( "env/med_explode");
 	G_EffectIndex( "volumetric/droid_smoke" );

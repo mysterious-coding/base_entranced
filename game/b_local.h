@@ -11,7 +11,7 @@
 
 #define	AI_TIMERS 0//turn on to see print-outs of AI/nav timing
 //
-// Navigation susbsystem
+//Navigation susbsystem
 //
 
 #define NAVF_DUCK			0x00000001
@@ -30,14 +30,14 @@
 
 #define MIN_ROCKET_DIST_SQUARED 16384//128*128
 //
-// NPC.cpp
+//NPC.cpp
 //
-// ai debug cvars
+//ai debug cvars
 void SetNPCGlobals( gentity_t *ent );
 void SaveNPCGlobals(void);
 void RestoreNPCGlobals(void);
-extern vmCvar_t		debugNPCAI;			// used to print out debug info about the NPC AI
-extern vmCvar_t		debugNPCFreeze;		// set to disable NPC ai and temporarily freeze them in place
+extern vmCvar_t		debugNPCAI;			//used to print out debug info about the NPC AI
+extern vmCvar_t		debugNPCFreeze;		//set to disable NPC ai and temporarily freeze them in place
 extern vmCvar_t		debugNPCAimingBeam;
 extern vmCvar_t		debugBreak;
 extern vmCvar_t		debugNoRoam;
@@ -53,7 +53,7 @@ extern void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern float NPC_GetPainChance( gentity_t *self, int damage );
 
 //
-// NPC_misc.cpp
+//NPC_misc.cpp
 //
 extern void Debug_Printf( vmCvar_t *cv, int level, char *fmt, ... );
 extern void Debug_NPCPrintf( gentity_t *printNPC, vmCvar_t *cv, int debugLevel, char *fmt, ... );
@@ -213,11 +213,11 @@ extern qboolean G_CheckInSolid (gentity_t *self, qboolean fix);
 
 //MCG - End============================================================
 
-// NPC.cpp
+//NPC.cpp
 extern void NPC_SetAnim(gentity_t *ent, int type, int anim, int priority);
 extern qboolean NPC_EnemyTooFar(gentity_t *enemy, float dist, qboolean toShoot);
 
-// ==================================================================
+//==================================================================
 
 //rww - special system for sync'ing bone angles between client and server.
 void NPC_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles);

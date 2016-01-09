@@ -1,6 +1,6 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
-// bg_misc.c -- both games misc functions, all completely stateless
+//bg_misc.c -- both games misc functions, all completely stateless
 
 #include "q_shared.h"
 #include "bg_public.h"
@@ -149,48 +149,48 @@ const char	*bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS] =
 //Let me know if this causes problems, pat.
 char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS] = 
 {
-	"MASTERY0",	//"Uninitiated",	// FORCE_MASTERY_UNINITIATED,
-	"MASTERY1",	//"Initiate",		// FORCE_MASTERY_INITIATE,
-	"MASTERY2",	//"Padawan",		// FORCE_MASTERY_PADAWAN,
-	"MASTERY3",	//"Jedi",			// FORCE_MASTERY_JEDI,
-	"MASTERY4",	//"Jedi Adept",		// FORCE_MASTERY_JEDI_GUARDIAN,
-	"MASTERY5",	//"Jedi Guardian",	// FORCE_MASTERY_JEDI_ADEPT,
-	"MASTERY6",	//"Jedi Knight",	// FORCE_MASTERY_JEDI_KNIGHT,
-	"MASTERY7",	//"Jedi Master"		// FORCE_MASTERY_JEDI_MASTER,
+	"MASTERY0",	//"Uninitiated",	//FORCE_MASTERY_UNINITIATED,
+	"MASTERY1",	//"Initiate",		//FORCE_MASTERY_INITIATE,
+	"MASTERY2",	//"Padawan",		//FORCE_MASTERY_PADAWAN,
+	"MASTERY3",	//"Jedi",			//FORCE_MASTERY_JEDI,
+	"MASTERY4",	//"Jedi Adept",		//FORCE_MASTERY_JEDI_GUARDIAN,
+	"MASTERY5",	//"Jedi Guardian",	//FORCE_MASTERY_JEDI_ADEPT,
+	"MASTERY6",	//"Jedi Knight",	//FORCE_MASTERY_JEDI_KNIGHT,
+	"MASTERY7",	//"Jedi Master"		//FORCE_MASTERY_JEDI_MASTER,
 };
 
 int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS] =
 {
-	0,		// FORCE_MASTERY_UNINITIATED,
-	5,		// FORCE_MASTERY_INITIATE,
-	10,		// FORCE_MASTERY_PADAWAN,
-	20,		// FORCE_MASTERY_JEDI,
-	30,		// FORCE_MASTERY_JEDI_GUARDIAN,
-	50,		// FORCE_MASTERY_JEDI_ADEPT,
-	75,		// FORCE_MASTERY_JEDI_KNIGHT,
-	100		// FORCE_MASTERY_JEDI_MASTER,
+	0,		//FORCE_MASTERY_UNINITIATED,
+	5,		//FORCE_MASTERY_INITIATE,
+	10,		//FORCE_MASTERY_PADAWAN,
+	20,		//FORCE_MASTERY_JEDI,
+	30,		//FORCE_MASTERY_JEDI_GUARDIAN,
+	50,		//FORCE_MASTERY_JEDI_ADEPT,
+	75,		//FORCE_MASTERY_JEDI_KNIGHT,
+	100		//FORCE_MASTERY_JEDI_MASTER,
 };
 
 int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS] = //0 == neutral
 {
-	{	0,	2,	4,	6	},	// Heal			// FP_HEAL
-	{	0,	0,	2,	6	},	// Jump			//FP_LEVITATION,//hold/duration
-	{	0,	2,	4,	6	},	// Speed		//FP_SPEED,//duration
-	{	0,	1,	3,	6	},	// Push			//FP_PUSH,//hold/duration
-	{	0,	1,	3,	6	},	// Pull			//FP_PULL,//hold/duration
-	{	0,	4,	6,	8	},	// Mind Trick	//FP_TELEPATHY,//instant
-	{	0,	1,	3,	6	},	// Grip			//FP_GRIP,//hold/duration
-	{	0,	2,	5,	8	},	// Lightning	//FP_LIGHTNING,//hold/duration
-	{	0,	4,	6,	8	},	// Dark Rage	//FP_RAGE,//duration
-	{	0,	2,	5,	8	},	// Protection	//FP_PROTECT,//duration
-	{	0,	1,	3,	6	},	// Absorb		//FP_ABSORB,//duration
-	{	0,	1,	3,	6	},	// Team Heal	//FP_TEAM_HEAL,//instant
-	{	0,	1,	3,	6	},	// Team Force	//FP_TEAM_FORCE,//instant
-	{	0,	2,	4,	6	},	// Drain		//FP_DRAIN,//hold/duration
-	{	0,	2,	5,	8	},	// Sight		//FP_SEE,//duration
-	{	0,	1,	5,	8	},	// Saber Attack	//FP_SABER_OFFENSE,
-	{	0,	1,	5,	8	},	// Saber Defend	//FP_SABER_DEFENSE,
-	{	0,	4,	6,	8	}	// Saber Throw	//FP_SABERTHROW,
+	{	0,	2,	4,	6	},	//Heal			//FP_HEAL
+	{	0,	0,	2,	6	},	//Jump			//FP_LEVITATION,//hold/duration
+	{	0,	2,	4,	6	},	//Speed		//FP_SPEED,//duration
+	{	0,	1,	3,	6	},	//Push			//FP_PUSH,//hold/duration
+	{	0,	1,	3,	6	},	//Pull			//FP_PULL,//hold/duration
+	{	0,	4,	6,	8	},	//Mind Trick	//FP_TELEPATHY,//instant
+	{	0,	1,	3,	6	},	//Grip			//FP_GRIP,//hold/duration
+	{	0,	2,	5,	8	},	//Lightning	//FP_LIGHTNING,//hold/duration
+	{	0,	4,	6,	8	},	//Dark Rage	//FP_RAGE,//duration
+	{	0,	2,	5,	8	},	//Protection	//FP_PROTECT,//duration
+	{	0,	1,	3,	6	},	//Absorb		//FP_ABSORB,//duration
+	{	0,	1,	3,	6	},	//Team Heal	//FP_TEAM_HEAL,//instant
+	{	0,	1,	3,	6	},	//Team Force	//FP_TEAM_FORCE,//instant
+	{	0,	2,	4,	6	},	//Drain		//FP_DRAIN,//hold/duration
+	{	0,	2,	5,	8	},	//Sight		//FP_SEE,//duration
+	{	0,	1,	5,	8	},	//Saber Attack	//FP_SABER_OFFENSE,
+	{	0,	1,	5,	8	},	//Saber Defend	//FP_SABER_DEFENSE,
+	{	0,	4,	6,	8	}	//Saber Throw	//FP_SABERTHROW,
 	//NUM_FORCE_POWERS
 };
 
@@ -335,8 +335,8 @@ qboolean BG_FileExists(const char *fileName)
 
 #ifndef UI_EXPORTS //don't need this stuff in the ui
 
-// Following functions don't need to be in namespace, they're already
-// different per-module
+//Following functions don't need to be in namespace, they're already
+//different per-module
 #include "namespace_end.h"
 
 #ifdef QAGAME
@@ -365,7 +365,7 @@ void BG_ParseField( BG_field_t *l_fields, const char *key, const char *value, by
 
 	for ( f=l_fields ; f->name ; f++ ) {
 		if ( !Q_stricmp(f->name, key) ) {
-			// found it
+			//found it
 			b = (byte *)ent;
 
 			switch( f->type ) {
@@ -732,7 +732,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 }
 
 #ifdef __LCC__
-// given a boltmatrix, return in vec a normalised vector for the axis requested in flags
+//given a boltmatrix, return in vec a normalised vector for the axis requested in flags
 void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, int flags, vec3_t vec)
 {
 	switch (flags)
@@ -795,24 +795,24 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 gitem_t	bg_itemlist[] = 
 {
 	{
-		NULL,				// classname	
-		NULL,				// pickup_sound
-		{	NULL,			// world_model[0]
-			NULL,			// world_model[1]
-			0, 0} ,			// world_model[2],[3]
-		NULL,				// view_model
-/* icon */		NULL,		// icon
-/* pickup */	//NULL,		// pickup_name
-		0,					// quantity
-		0,					// giType (IT_*)
-		0,					// giTag
-/* precache */ "",			// precaches
-/* sounds */ "",			// sounds
-		""					// description
-	},	// leave index 0 alone
+		NULL,				//classname	
+		NULL,				//pickup_sound
+		{	NULL,			//world_model[0]
+			NULL,			//world_model[1]
+			0, 0} ,			//world_model[2],[3]
+		NULL,				//view_model
+/* icon */		NULL,		//icon
+/* pickup */	//NULL,		//pickup_name
+		0,					//quantity
+		0,					//giType (IT_*)
+		0,					//giTag
+/* precache */ "",			//precaches
+/* sounds */ "",			//sounds
+		""					//description
+	},	//leave index 0 alone
 
 	//
-	// Pickups
+	//Pickups
 	//
 
 /*QUAKED item_shield_sm_instant (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -831,7 +831,7 @@ Instant shield pickup, restores 25
 		1, //special for shield - max on pickup is maxhealth*tag, thus small shield goes up to 100 shield
 /* precache */ "",
 /* sounds */ ""
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_shield_lrg_instant (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -850,7 +850,7 @@ Instant shield pickup, restores 100
 		2, //special for shield - max on pickup is maxhealth*tag, thus large shield goes up to 200 shield
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_medpak_instant (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -869,12 +869,12 @@ Instant medpack pickup, heals 25
 		0,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 
 	//
-	// ITEMS
+	//ITEMS
 	//
 
 /*QUAKED item_seeker (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -893,7 +893,7 @@ Instant medpack pickup, heals 25
 		HI_SEEKER,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_AN_ATTACK_DRONE_SIMILAR"					// description
+		"@MENUS_AN_ATTACK_DRONE_SIMILAR"					//description
 	},
 
 /*QUAKED item_shield (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -912,7 +912,7 @@ Portable shield
 		HI_SHIELD,
 /* precache */ "",
 /* sounds */ "sound/weapons/detpack/stick.wav sound/movers/doors/forcefield_on.wav sound/movers/doors/forcefield_off.wav sound/movers/doors/forcefield_lp.wav sound/effects/bumpfield.wav",
-		"@MENUS_THIS_STATIONARY_ENERGY"					// description
+		"@MENUS_THIS_STATIONARY_ENERGY"					//description
 	},
 
 /*QUAKED item_medpac (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -931,7 +931,7 @@ Bacta canister pickup, heals 25 on use
 		HI_MEDPAC,
 /* precache */ "",
 /* sounds */ "",
-		"@SP_INGAME_BACTA_DESC"					// description
+		"@SP_INGAME_BACTA_DESC"					//description
 	},
 
 /*QUAKED item_medpac_big (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -950,7 +950,7 @@ Big bacta canister pickup, heals 50 on use
 		HI_MEDPAC_BIG,
 /* precache */ "",
 /* sounds */ "",
-		"@SP_INGAME_BACTA_DESC"					// description
+		"@SP_INGAME_BACTA_DESC"					//description
 	},
 
 /*QUAKED item_binoculars (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -969,7 +969,7 @@ These will be standard equipment on the player - DO NOT PLACE
 		HI_BINOCULARS,
 /* precache */ "",
 /* sounds */ "",
-		"@SP_INGAME_LA_GOGGLES_DESC"					// description
+		"@SP_INGAME_LA_GOGGLES_DESC"					//description
 	},
 
 /*QUAKED item_sentry_gun (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -988,7 +988,7 @@ Sentry gun inventory pickup.
 		HI_SENTRY_GUN,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THIS_DEADLY_WEAPON_IS"					// description
+		"@MENUS_THIS_DEADLY_WEAPON_IS"					//description
 	},
 
 /*QUAKED item_jetpack (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -1007,7 +1007,7 @@ Do not place.
 		HI_JETPACK,
 /* precache */ "effects/boba/jet.efx",
 /* sounds */ "sound/chars/boba/JETON.wav sound/chars/boba/JETHOVER.wav sound/effects/fire_lp.wav",
-		"@MENUS_JETPACK_DESC"					// description
+		"@MENUS_JETPACK_DESC"					//description
 	},
 
 /*QUAKED item_healthdisp (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -1026,7 +1026,7 @@ Do not place. For siege classes ONLY.
 		HI_HEALTHDISP,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_ammodisp (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -1045,7 +1045,7 @@ Do not place. For siege classes ONLY.
 		HI_AMMODISP,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_eweb_holdable (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -1064,7 +1064,7 @@ Do not place. For siege classes ONLY.
 		HI_EWEB,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_EWEB_DESC"					// description
+		"@MENUS_EWEB_DESC"					//description
 	},
 
 /*QUAKED item_seeker (.3 .3 1) (-8 -8 -0) (8 8 16) suspended
@@ -1083,7 +1083,7 @@ Do not place. For siege classes ONLY.
 		HI_CLOAK,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_CLOAK_DESC"					// description
+		"@MENUS_CLOAK_DESC"					//description
 	},
 
 /*QUAKED item_force_enlighten_light (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1102,7 +1102,7 @@ Adds one rank to all Force powers temporarily. Only light jedi can use.
 		PW_FORCE_ENLIGHTENED_LIGHT,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_force_enlighten_dark (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1121,7 +1121,7 @@ Adds one rank to all Force powers temporarily. Only dark jedi can use.
 		PW_FORCE_ENLIGHTENED_DARK,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_force_boon (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1140,7 +1140,7 @@ Unlimited Force Pool for a short time.
 		PW_FORCE_BOON,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED item_ysalimari (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1159,11 +1159,11 @@ A small lizard carried on the player, which prevents the possessor from using an
 		PW_YSALAMIRI,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 	//
-	// WEAPONS 
+	//WEAPONS 
 	//
 
 /*QUAKED weapon_stun_baton (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1182,7 +1182,7 @@ Don't place this
 		WP_STUN_BATON,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED weapon_melee (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1201,7 +1201,7 @@ Don't place this
 		WP_MELEE,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_MELEE_DESC"					// description
+		"@MENUS_MELEE_DESC"					//description
 	},
 
 /*QUAKED weapon_saber (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1220,7 +1220,7 @@ Don't place this
 		WP_SABER,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_AN_ELEGANT_WEAPON_FOR"				// description
+		"@MENUS_AN_ELEGANT_WEAPON_FOR"				//description
 	},
 
 /*QUAKED weapon_bryar_pistol (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1240,7 +1240,7 @@ Don't place this
 		WP_BRYAR_PISTOL,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_BLASTER_PISTOL_DESC"					// description
+		"@MENUS_BLASTER_PISTOL_DESC"					//description
 	},
 
 /*QUAKED weapon_concussion_rifle (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1258,7 +1258,7 @@ Don't place this
 		WP_CONCUSSION,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_CONC_RIFLE_DESC"					// description
+		"@MENUS_CONC_RIFLE_DESC"					//description
 	},
 
 /*QUAKED weapon_bryar_pistol_old (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1277,7 +1277,7 @@ Don't place this
 		WP_BRYAR_OLD,
 /* precache */ "",
 /* sounds */ "",
-		"@SP_INGAME_BLASTER_PISTOL"					// description
+		"@SP_INGAME_BLASTER_PISTOL"					//description
 	},
 
 /*QUAKED weapon_blaster (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1295,7 +1295,7 @@ Don't place this
 		WP_BLASTER,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THE_PRIMARY_WEAPON_OF"				// description
+		"@MENUS_THE_PRIMARY_WEAPON_OF"				//description
 	},
 
 /*QUAKED weapon_disruptor (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1313,7 +1313,7 @@ Don't place this
 		WP_DISRUPTOR,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THIS_NEFARIOUS_WEAPON"					// description
+		"@MENUS_THIS_NEFARIOUS_WEAPON"					//description
 	},
 
 /*QUAKED weapon_bowcaster (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1331,7 +1331,7 @@ Don't place this
 		WP_BOWCASTER,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THIS_ARCHAIC_LOOKING"					// description
+		"@MENUS_THIS_ARCHAIC_LOOKING"					//description
 	},
 
 /*QUAKED weapon_repeater (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1349,7 +1349,7 @@ Don't place this
 		WP_REPEATER,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THIS_DESTRUCTIVE_PROJECTILE"					// description
+		"@MENUS_THIS_DESTRUCTIVE_PROJECTILE"					//description
 	},
 
 /*QUAKED weapon_demp2 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1368,7 +1368,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_DEMP2,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_COMMONLY_REFERRED_TO"					// description
+		"@MENUS_COMMONLY_REFERRED_TO"					//description
 	},
 
 /*QUAKED weapon_flechette (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1386,7 +1386,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_FLECHETTE,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_WIDELY_USED_BY_THE_CORPORATE"					// description
+		"@MENUS_WIDELY_USED_BY_THE_CORPORATE"					//description
 	},
 
 /*QUAKED weapon_rocket_launcher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1404,7 +1404,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_ROCKET_LAUNCHER,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THE_PLX_2M_IS_AN_EXTREMELY"					// description
+		"@MENUS_THE_PLX_2M_IS_AN_EXTREMELY"					//description
 	},
 
 /*QUAKED ammo_thermal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1422,7 +1422,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		AMMO_THERMAL,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THE_THERMAL_DETONATOR"					// description
+		"@MENUS_THE_THERMAL_DETONATOR"					//description
 	},
 
 /*QUAKED ammo_tripmine (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1440,7 +1440,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		AMMO_TRIPMINE,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_TRIP_MINES_CONSIST_OF"					// description
+		"@MENUS_TRIP_MINES_CONSIST_OF"					//description
 	},
 
 /*QUAKED ammo_detpack (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1457,7 +1457,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		AMMO_DETPACK,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_A_DETONATION_PACK_IS"					// description
+		"@MENUS_A_DETONATION_PACK_IS"					//description
 	},
 
 /*QUAKED weapon_thermal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1475,7 +1475,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_THERMAL,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_THE_THERMAL_DETONATOR"					// description
+		"@MENUS_THE_THERMAL_DETONATOR"					//description
 	},
 
 /*QUAKED weapon_trip_mine (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1493,7 +1493,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_TRIP_MINE,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_TRIP_MINES_CONSIST_OF"					// description
+		"@MENUS_TRIP_MINES_CONSIST_OF"					//description
 	},
 
 /*QUAKED weapon_det_pack (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1510,7 +1510,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_DET_PACK,
 /* precache */ "",
 /* sounds */ "",
-		"@MENUS_A_DETONATION_PACK_IS"					// description
+		"@MENUS_A_DETONATION_PACK_IS"					//description
 	},
 
 /*QUAKED weapon_emplaced (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1528,7 +1528,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_EMPLACED_GUN,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 
@@ -1546,11 +1546,11 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		WP_TURRET,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 	//
-	// AMMO ITEMS
+	//AMMO ITEMS
 	//
 
 /*QUAKED ammo_force (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1569,7 +1569,7 @@ Don't place this
 		AMMO_FORCE,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED ammo_blaster (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1588,7 +1588,7 @@ Ammo for the Bryar and Blaster pistols.
 		AMMO_BLASTER,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED ammo_powercell (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1607,7 +1607,7 @@ Ammo for Tenloss Disruptor, Wookie Bowcaster, and the Destructive Electro Magnet
 		AMMO_POWERCELL,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED ammo_metallic_bolts (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1626,7 +1626,7 @@ Ammo for Imperial Heavy Repeater and the Golan Arms Flechette
 		AMMO_METAL_BOLTS,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1645,7 +1645,7 @@ Ammo for Merr-Sonn portable missile launcher
 		AMMO_ROCKETS,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED ammo_all (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1665,11 +1665,11 @@ dispensing ability
 		-1,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 	//
-	// POWERUP ITEMS
+	//POWERUP ITEMS
 	//
 /*QUAKED team_CTF_redflag (1 0 0) (-16 -16 -16) (16 16 16)
 Only in CTF games
@@ -1687,7 +1687,7 @@ Only in CTF games
 		PW_REDFLAG,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 /*QUAKED team_CTF_blueflag (0 0 1) (-16 -16 -16) (16 16 16)
@@ -1706,11 +1706,11 @@ Only in CTF games
 		PW_BLUEFLAG,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 	//
-	// PERSISTANT POWERUP ITEMS
+	//PERSISTANT POWERUP ITEMS
 	//
 
 	/*QUAKED team_CTF_neutralflag (0 0 1) (-16 -16 -16) (16 16 16)
@@ -1729,7 +1729,7 @@ Only in One Flag CTF games
 		PW_NEUTRALFLAG,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 	{
@@ -1745,7 +1745,7 @@ Only in One Flag CTF games
 		0,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
 	{
@@ -1761,10 +1761,10 @@ Only in One Flag CTF games
 		0,
 /* precache */ "",
 /* sounds */ "",
-		""					// description
+		""					//description
 	},
 
-	// end of list marker
+	//end of list marker
 	{NULL}
 };
 
@@ -1993,7 +1993,7 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 	BG_EvaluateTrajectory( &item->pos, atTime, origin );
 
-	// we are ignoring ducked differences here
+	//we are ignoring ducked differences here
 	if ( ps->origin[0] - origin[0] > 44
 		|| ps->origin[0] - origin[0] < -50
 		|| ps->origin[1] - origin[1] > 36
@@ -2265,7 +2265,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				return qfalse;
 			}
 		}
-		return qtrue;	// weapons are always picked up
+		return qtrue;	//weapons are always picked up
 
 	case IT_AMMO:
 		if (item->giTag == -1)
@@ -2273,7 +2273,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			return qtrue;
 		}
 		if ( ps->ammo[item->giTag] >= ammoData[item->giTag].max) {
-			return qfalse;		// can't hold any more
+			return qfalse;		//can't hold any more
 		}
 		return qtrue;
 
@@ -2284,8 +2284,8 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_HEALTH:
-		// small and mega healths will go over the max, otherwise
-		// don't pick up if already at max
+		//small and mega healths will go over the max, otherwise
+		//don't pick up if already at max
 		if ((ps->fd.forcePowersActive & (1 << FP_RAGE)))
 		{
 			return qfalse;
@@ -2311,13 +2311,13 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				return qfalse;
 			}
 		}
-		return qtrue;	// powerups are always picked up
+		return qtrue;	//powerups are always picked up
 
-	case IT_TEAM: // team items, such as flags
+	case IT_TEAM: //team items, such as flags
 		if( gametype == GT_CTF || gametype == GT_CTY ) {
-			// ent->modelindex2 is non-zero on items if they are dropped
-			// we need to know this because we can pick up our dropped flag (and return it)
-			// but we can't pick up our flag at base
+			//ent->modelindex2 is non-zero on items if they are dropped
+			//we need to know this because we can pick up our dropped flag (and return it)
+			//but we can't pick up our flag at base
 			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
 				if (item->giTag == PW_BLUEFLAG ||
 					(item->giTag == PW_REDFLAG && ent->modelindex2) ||
@@ -2344,7 +2344,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
             Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
         default:
 #ifndef Q3_VM
-#ifndef NDEBUG // bk0001204
+#ifndef NDEBUG //bk0001204
           Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
 #endif
 #endif
@@ -2372,7 +2372,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		VectorCopy( tr->trBase, result );
 		break;
 	case TR_LINEAR:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	//milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
 		break;
 	case TR_SINE:
@@ -2384,7 +2384,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		if ( atTime > tr->trTime + tr->trDuration ) {
 			atTime = tr->trTime + tr->trDuration;
 		}
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	//milliseconds to seconds
 		if ( deltaTime < 0 ) {
 			deltaTime = 0;
 		}
@@ -2402,7 +2402,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		}
 		else
 		{//FIXME: maybe scale this somehow?  So that it starts out faster and stops faster?
-			// *CHANGE 101* lagging elevators for longer server time duration
+			//*CHANGE 101* lagging elevators for longer server time duration
 			deltaTime = tr->trDuration*0.001f*((float)cos( DEG2RAD(90.0f - (90.0f*(float)(atTime-tr->trTime)/(float)tr->trDuration)) ));
 		}
 
@@ -2410,9 +2410,9 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 
 		break;
 	case TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	//milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;		// FIXME: local gravity...
+		result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;		//FIXME: local gravity...
 		break;
 	default:
 #ifdef QAGAME
@@ -2445,7 +2445,7 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		break;
 	case TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = cos( deltaTime * M_PI * 2 );	// derivative of sin = cos
+		phase = cos( deltaTime * M_PI * 2 );	//derivative of sin = cos
 		phase *= 0.5;
 		VectorScale( tr->trDelta, phase, result );
 		break;
@@ -2466,9 +2466,9 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		VectorScale( tr->trDelta, deltaTime, result );
 		break;
 	case TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	//milliseconds to seconds
 		VectorCopy( tr->trDelta, result );
-		result[2] -= DEFAULT_GRAVITY * deltaTime;		// FIXME: local gravity...
+		result[2] -= DEFAULT_GRAVITY * deltaTime;		//FIXME: local gravity...
 		break;
 	default:
 		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
@@ -2494,7 +2494,7 @@ char *eventnames[] = {
 
 	"EV_FALL",
 
-	"EV_JUMP_PAD",			// boing sound at origin", jump sound on player
+	"EV_JUMP_PAD",			//boing sound at origin", jump sound on player
 
 	"EV_GHOUL2_MARK",			//create a projectile impact mark on something with a client-side g2 instance.
 
@@ -2503,13 +2503,13 @@ char *eventnames[] = {
 
 	"EV_JUMP",
 	"EV_ROLL",
-	"EV_WATER_TOUCH",	// foot touches
-	"EV_WATER_LEAVE",	// foot leaves
-	"EV_WATER_UNDER",	// head touches
-	"EV_WATER_CLEAR",	// head leaves
+	"EV_WATER_TOUCH",	//foot touches
+	"EV_WATER_LEAVE",	//foot leaves
+	"EV_WATER_UNDER",	//head touches
+	"EV_WATER_CLEAR",	//head leaves
 
-	"EV_ITEM_PICKUP",			// normal item pickups are predictable
-	"EV_GLOBAL_ITEM_PICKUP",	// powerup / team sounds are broadcast to everyone
+	"EV_ITEM_PICKUP",			//normal item pickups are predictable
+	"EV_GLOBAL_ITEM_PICKUP",	//powerup / team sounds are broadcast to everyone
 
 	"EV_VEH_FIRE",
 
@@ -2537,7 +2537,7 @@ char *eventnames[] = {
 	
 	"EV_LOCALTIMER",
 
-	"EV_USE",			// +Use key
+	"EV_USE",			//+Use key
 
 	"EV_USE_ITEM0",
 	"EV_USE_ITEM1",
@@ -2563,7 +2563,7 @@ char *eventnames[] = {
 	"EV_PLAYER_TELEPORT_IN",
 	"EV_PLAYER_TELEPORT_OUT",
 
-	"EV_GRENADE_BOUNCE",		// eventParm will be the soundindex
+	"EV_GRENADE_BOUNCE",		//eventParm will be the soundindex
 	"EV_MISSILE_STICK",
 
 	"EV_PLAY_EFFECT",
@@ -2577,7 +2577,7 @@ char *eventnames[] = {
 	"EV_MUTE_SOUND",
 	"EV_VOICECMD_SOUND",
 	"EV_GENERAL_SOUND",
-	"EV_GLOBAL_SOUND",		// no attenuation
+	"EV_GLOBAL_SOUND",		//no attenuation
 	"EV_GLOBAL_TEAM_SOUND",
 	"EV_ENTITY_SOUND",
 
@@ -2592,7 +2592,7 @@ char *eventnames[] = {
 	"EV_MISSILE_HIT",
 	"EV_MISSILE_MISS",
 	"EV_MISSILE_MISS_METAL",
-	"EV_BULLET",				// otherEntity is the shooter
+	"EV_BULLET",				//otherEntity is the shooter
 
 	"EV_PAIN",
 	"EV_DEATH1",
@@ -2606,8 +2606,8 @@ char *eventnames[] = {
 
 	"EV_FORCE_DRAINED",
 
-	"EV_GIB_PLAYER",			// gib a previously living player
-	"EV_SCOREPLUM",			// score plum
+	"EV_GIB_PLAYER",			//gib a previously living player
+	"EV_SCOREPLUM",			//score plum
 
 	"EV_CTFMESSAGE",
 
@@ -2680,23 +2680,23 @@ BG_TouchJumpPad
 void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	vec3_t	angles;
 
-	// spectators don't use jump pads
+	//spectators don't use jump pads
 	if ( ps->pm_type != PM_NORMAL && ps->pm_type != PM_JETPACK && ps->pm_type != PM_FLOAT ) {
 		return;
 	}
 
-	// if we didn't hit this same jumppad the previous frame
-	// then don't play the event sound again if we are in a fat trigger
+	//if we didn't hit this same jumppad the previous frame
+	//then don't play the event sound again if we are in a fat trigger
 	if ( ps->jumppad_ent != jumppad->number ) {
 
 		vectoangles( jumppad->origin2, angles);
 	}
-	// remember hitting this jumppad this frame
+	//remember hitting this jumppad this frame
 	ps->jumppad_ent = jumppad->number;
 	ps->jumppad_frame = ps->pmove_framecount;
-	// give the player the velocity from the jumppad
+	//give the player the velocity from the jumppad
 	VectorCopy( jumppad->origin2, ps->velocity );
-	// fix - no more jump draining force
+	//fix - no more jump draining force
 	ps->fd.forcePowersActive &= ~(1<<FP_LEVITATION);
     ps->pm_flags &= ~PMF_JUMP_HELD;
 }
@@ -2910,7 +2910,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	if ( snap ) {
 		SnapVector( s->pos.trBase );
 	}
-	// set the trDelta for flag direction
+	//set the trDelta for flag direction
 	VectorCopy( ps->velocity, s->pos.trDelta );
 
 	s->apos.trType = TR_INTERPOLATE;
@@ -2941,8 +2941,8 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	s->legsFlip = ps->legsFlip;
 	s->torsoFlip = ps->torsoFlip;
 
-	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
-										// so corpses can also reference the proper config
+	s->clientNum = ps->clientNum;		//ET_PLAYER looks here instead of at number
+										//so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
 	s->eFlags2 = ps->eFlags2;
 
@@ -3060,12 +3060,12 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	if ( snap ) {
 		SnapVector( s->pos.trBase );
 	}
-	// set the trDelta for flag direction and linear prediction
+	//set the trDelta for flag direction and linear prediction
 	VectorCopy( ps->velocity, s->pos.trDelta );
-	// set the time for linear prediction
+	//set the time for linear prediction
 	s->pos.trTime = time;
-	// set maximum extra polation time
-	s->pos.trDuration = 50; // 1000 / sv_fps (default = 20)
+	//set maximum extra polation time
+	s->pos.trDuration = 50; //1000 / sv_fps (default = 20)
 
 	s->apos.trType = TR_INTERPOLATE;
 	VectorCopy( ps->viewangles, s->apos.trBase );
@@ -3095,8 +3095,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->legsFlip = ps->legsFlip;
 	s->torsoFlip = ps->torsoFlip;
 
-	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
-										// so corpses can also reference the proper config
+	s->clientNum = ps->clientNum;		//ET_PLAYER looks here instead of at number
+										//so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
 	s->eFlags2 = ps->eFlags2;
 
@@ -3231,14 +3231,14 @@ int BG_ModelCache(const char *modelName, const char *skinName)
 #endif
 }
 
-#ifdef _XBOX	// Hacky BG_Alloc replacement
+#ifdef _XBOX	//Hacky BG_Alloc replacement
 
-// This file claims to be stateless. Yeah, right. Regardless, I'm not setting
-// aside 5.5 MB of static buffers for this crap. Let's use Z_Malloc. Of course,
-// we still need to deal with the fact that any code using BG_Malloc is almost
-// certainly leaking memory like a sieve.
+//This file claims to be stateless. Yeah, right. Regardless, I'm not setting
+//aside 5.5 MB of static buffers for this crap. Let's use Z_Malloc. Of course,
+//we still need to deal with the fact that any code using BG_Malloc is almost
+//certainly leaking memory like a sieve.
 
-// Dave addendum - TAG_BG_ALLOC is entirely freed when the level starts.
+//Dave addendum - TAG_BG_ALLOC is entirely freed when the level starts.
 void *BG_Alloc ( int size )
 {
 	return Z_Malloc(size, TAG_BG_ALLOC, qfalse, 4);
@@ -3246,12 +3246,12 @@ void *BG_Alloc ( int size )
 
 void *BG_AllocUnaligned ( int size )
 {
-	// Ignore the unaligned hint, this function isn't called anyway
+	//Ignore the unaligned hint, this function isn't called anyway
 	return Z_Malloc(size, TAG_BG_ALLOC, qfalse, 4);
 }
 
-// Because the interface to BG_TempAlloc/BG_TempFree is brain-dead, we need
-// to remember our last few temporary allocations performed.
+//Because the interface to BG_TempAlloc/BG_TempFree is brain-dead, we need
+//to remember our last few temporary allocations performed.
 #define MAX_TEMP_ALLOCS	3
 static void	*tempAllocPointers[MAX_TEMP_ALLOCS] = { 0 };
 static int	tempAllocSizes[MAX_TEMP_ALLOCS] = { 0 };
@@ -3260,7 +3260,7 @@ void *BG_TempAlloc( int size )
 {
 	int i;
 
-	// Do we have a free spot?
+	//Do we have a free spot?
 	for (i = 0; i < MAX_TEMP_ALLOCS; ++i)
 		if (!tempAllocPointers[i])
 			break;
@@ -3281,7 +3281,7 @@ void BG_TempFree( int size )
 {
 	int i;
 
-	// Find the allocation
+	//Find the allocation
 	for (i = MAX_TEMP_ALLOCS - 1; i >= 0; --i)
 		if (tempAllocPointers[i] && (tempAllocSizes[i] == size))
 			break;
@@ -3310,11 +3310,11 @@ char *BG_StringAlloc ( const char *source )
 
 qboolean BG_OutOfMemory ( void )
 {
-	// Never called
+	//Never called
 	return qfalse;
 }
 
-#else // _XBOX
+#else //_XBOX
 
 #ifdef QAGAME
 #define MAX_POOL_SIZE	3000000 //1024000
@@ -3416,6 +3416,6 @@ qboolean BG_IsLegacyEngine()
     return result;
 }
 
-#endif // _XBOX && QAGAME
+#endif //_XBOX && QAGAME
 
 #include "namespace_end.h"

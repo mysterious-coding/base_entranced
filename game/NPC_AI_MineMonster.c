@@ -1,6 +1,6 @@
 #include "b_local.h"
 
-// These define the working combat range for these suckers
+//These define the working combat range for these suckers
 #define MIN_DISTANCE		54
 #define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
 
@@ -93,7 +93,7 @@ void MineMonster_Move( qboolean visible )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPC_MoveToGoal( qtrue );
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 	}
 }
 
@@ -111,7 +111,7 @@ void MineMonster_TryDamage( gentity_t *enemy, int damage )
 	AngleVectors( NPC->client->ps.viewangles, dir, NULL, NULL );
 	VectorMA( NPC->r.currentOrigin, MIN_DISTANCE, dir, end );
 
-	// Should probably trace from the mouth, but, ah well.
+	//Should probably trace from the mouth, but, ah well.
 	trap_Trace( &tr, NPC->r.currentOrigin, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT );
 
 	if ( tr.entityNum >= 0 && tr.entityNum < ENTITYNUM_NONE )
@@ -130,47 +130,47 @@ void MineMonster_Attack( void )
 {
 	if ( !TIMER_Exists( NPC, "attacking" ))
 	{
-		// usually try and play a jump attack if the player somehow got above them....or just really rarely
+		//usually try and play a jump attack if the player somehow got above them....or just really rarely
 		if ( NPC->enemy && ((NPC->enemy->r.currentOrigin[2] - NPC->r.currentOrigin[2] > 10 && random() > 0.1f ) 
 						|| random() > 0.8f ))
 		{
-			// Going to do ATTACK4
+			//Going to do ATTACK4
 			TIMER_Set( NPC, "attacking", 1750 + random() * 200 );
 			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
 
-			TIMER_Set( NPC, "attack2_dmg", 950 ); // level two damage
+			TIMER_Set( NPC, "attack2_dmg", 950 ); //level two damage
 		}
 		else if ( random() > 0.5f )
 		{
 			if ( random() > 0.8f )
 			{
-				// Going to do ATTACK3, (rare)
+				//Going to do ATTACK3, (rare)
 				TIMER_Set( NPC, "attacking", 850 );
 				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
 
-				TIMER_Set( NPC, "attack2_dmg", 400 ); // level two damage
+				TIMER_Set( NPC, "attack2_dmg", 400 ); //level two damage
 			}
 			else
 			{
-				// Going to do ATTACK1
+				//Going to do ATTACK1
 				TIMER_Set( NPC, "attacking", 850 );
 				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
 
-				TIMER_Set( NPC, "attack1_dmg", 450 ); // level one damage
+				TIMER_Set( NPC, "attack1_dmg", 450 ); //level one damage
 			}
 		}
 		else
 		{
-			// Going to do ATTACK2
+			//Going to do ATTACK2
 			TIMER_Set( NPC, "attacking", 1250 );
 			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_ATTACK2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
 
-			TIMER_Set( NPC, "attack1_dmg", 700 ); // level one damage
+			TIMER_Set( NPC, "attack1_dmg", 700 ); //level one damage
 		}
 	}
 	else
 	{
-		// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
+		//Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
 		if ( TIMER_Done2( NPC, "attack1_dmg", qtrue ))
 		{
 			MineMonster_TryDamage( NPC->enemy, 5 );
@@ -181,7 +181,7 @@ void MineMonster_Attack( void )
 		}
 	}
 
-	// Just using this to remove the attacking flag at the right time
+	//Just using this to remove the attacking flag at the right time
 	TIMER_Done2( NPC, "attacking", qtrue );
 }
 
@@ -191,25 +191,25 @@ void MineMonster_Combat( void )
 	float distance;
 	qboolean advance;
 
-	// If we cannot see our target or we have somewhere to go, then do that
+	//If we cannot see our target or we have somewhere to go, then do that
 	if ( !NPC_ClearLOS4( NPC->enemy ) || UpdateGoal( ))
 	{
 		NPCInfo->combatMove = qtrue;
 		NPCInfo->goalEntity = NPC->enemy;
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCInfo->goalRadius = MAX_DISTANCE;	//just get us within combat range
 
 		NPC_MoveToGoal( qtrue );
 		return;
 	}
 
-	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
+	//Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 	NPC_FaceEnemy( qtrue );
 
 	distance	= DistanceHorizontalSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
 
 	advance = (qboolean)( distance > MIN_DISTANCE_SQR ? qtrue : qfalse  );
 
-	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) //waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", qtrue ))
 		{

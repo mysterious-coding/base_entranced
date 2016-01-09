@@ -1,6 +1,6 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
-// g_utils.c -- misc utility functions for game module
+//g_utils.c -- misc utility functions for game module
 
 #include "g_local.h"
 #include "bg_saga.h"
@@ -22,7 +22,7 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 
 	for (i = 0; i < remapCount; i++) {
 		if (Q_stricmp(oldShader, remappedShaders[i].oldShader) == 0) {
-			// found it, just update this one
+			//found it, just update this one
 			strcpy(remappedShaders[i].newShader,newShader);
 			remappedShaders[i].timeOffset = timeOffset;
 			return;
@@ -358,7 +358,7 @@ int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean take
 		if ((ent == ignore) || !(ent->inuse) || ent->takedamage != takeDamage)
 			continue;
 
-		// find the distance from the edge of the bounding box
+		//find the distance from the edge of the bounding box
 		for ( i = 0 ; i < 3 ; i++ ) 
 		{
 			if ( origin[i] < ent->r.absmin[i] ) 
@@ -379,12 +379,12 @@ int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean take
 			continue;
 		}
 		
-		// ok, we are within the radius, add us to the incoming list
+		//ok, we are within the radius, add us to the incoming list
 		ent_list[ent_count] = ent;
 		ent_count++;
 
 	}
-	// we are done, return how many we found
+	//we are done, return how many we found
 	return(ent_count);
 }
 
@@ -426,8 +426,8 @@ void G_Throw( gentity_t *targ, vec3_t newDir, float push )
 		targ->s.pos.trTime = level.time;
 	}
 
-	// set the timer so that the other client can't cancel
-	// out the movement immediately
+	//set the timer so that the other client can't cancel
+	//out the movement immediately
 	if ( targ->client && !targ->client->ps.pm_time ) 
 	{
 		int		t;
@@ -774,8 +774,8 @@ float	*tv( float x, float y, float z ) {
 	static	vec3_t	vecs[8];
 	float	*v;
 
-	// use an array so that multiple tempvectors won't collide
-	// for a while
+	//use an array so that multiple tempvectors won't collide
+	//for a while
 	v = vecs[index];
 	index = (index + 1)&7;
 
@@ -800,7 +800,7 @@ char	*vtos( const vec3_t v ) {
 	static	char	str[8][32];
 	char	*s;
 
-	// use an array so that multiple vtos won't collide
+	//use an array so that multiple vtos won't collide
 	s = str[index];
 	index = (index + 1)&7;
 
@@ -963,11 +963,11 @@ gentity_t *G_Spawn( void ) {
 	int			i, force;
 	gentity_t	*e;
 
-	e = NULL;	// shut up warning
-	i = 0;		// shut up warning
+	e = NULL;	//shut up warning
+	i = 0;		//shut up warning
 	for ( force = 0 ; force < 2 ; force++ ) {
-		// if we go through all entities and can't find one to free,
-		// override the normal minimum times before use
+		//if we go through all entities and can't find one to free,
+		//override the normal minimum times before use
 		e = &g_entities[MAX_CLIENTS];
 		for ( i = MAX_CLIENTS ; i<level.num_entities ; i++, e++) {
 
@@ -975,14 +975,14 @@ gentity_t *G_Spawn( void ) {
 				continue;
 			}
 
-			// the first couple seconds of server time can involve a lot of
-			// freeing and allocating, so relax the replacement policy
+			//the first couple seconds of server time can involve a lot of
+			//freeing and allocating, so relax the replacement policy
 			if ( !force && e->freetime > level.startTime + 2000 && level.time - e->freetime < 1000 )
 			{
 				continue;
 			}
 
-			// reuse this slot
+			//reuse this slot
 			G_InitGentity( e );
 			return e;
 		}
@@ -1009,10 +1009,10 @@ gentity_t *G_Spawn( void ) {
 		G_Error( "G_Spawn: no free entities" );
 	}
 	
-	// open up a new slot
+	//open up a new slot
 	level.num_entities++;
 
-	// let the server system know that there are more entities
+	//let the server system know that there are more entities
 	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
@@ -1034,7 +1034,7 @@ qboolean G_EntitiesFree( void ) {
 		if ( e->inuse ) {
 			continue;
 		}
-		// slot available
+		//slot available
 		return qtrue;
 	}
 	return qfalse;
@@ -1107,7 +1107,7 @@ void G_FreeEntity( gentity_t *ed ) {
 		return;
 	}
 
-	trap_UnlinkEntity (ed);		// unlink from world
+	trap_UnlinkEntity (ed);		//unlink from world
 
 	trap_ICARUS_FreeEnt( ed );	//ICARUS information must be added after this point
 
@@ -1225,13 +1225,13 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e->freeAfterEvent = qtrue;
 
 	VectorCopy( origin, snapped );
-	SnapVector( snapped );		// save network bandwidth
+	SnapVector( snapped );		//save network bandwidth
 	G_SetOrigin( e, snapped );
 	//WTF?  Why aren't we setting the s.origin? (like below)
 	//cg_events.c code checks origin all over the place!!!
 	//Trying to save bandwidth...?
 
-	// find cluster for PVS
+	//find cluster for PVS
 	trap_LinkEntity( e );
 
 	return e;
@@ -1259,10 +1259,10 @@ gentity_t *G_SoundTempEntity( vec3_t origin, int event, int channel ) {
 	e->freeAfterEvent = qtrue;
 
 	VectorCopy( origin, snapped );
-	SnapVector( snapped );		// save network bandwidth
+	SnapVector( snapped );		//save network bandwidth
 	G_SetOrigin( e, snapped );
 
-	// find cluster for PVS
+	//find cluster for PVS
 	trap_LinkEntity( e );
 
 	return e;
@@ -1346,7 +1346,7 @@ void G_KillBox (gentity_t *ent) {
 			continue;
 		}
 
-		// nail it
+		//nail it
 		if (!g_strafejump_mod.integer)
 			G_Damage ( hit, ent, ent, NULL, NULL,
 				100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
@@ -1392,7 +1392,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 		G_LogPrintf( "ERROR: event %i set for non-used entity %i\n", event, ent->s.number );
 	}
 
-	// clients need to add the event in playerState_t instead of entityState_t
+	//clients need to add the event in playerState_t instead of entityState_t
 	if ( ent->client ) {
 		bits = ent->client->ps.externalEvent & EV_EVENT_BITS;
 		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
@@ -1618,7 +1618,7 @@ void G_EntityPosition( int i, vec3_t ret )
 {
 	if ( /*g_entities &&*/ i >= 0 && i < MAX_GENTITIES && g_entities[i].inuse)
 	{
-#if 0	// VVFIXME - Do we really care about doing this? It's slow and unnecessary
+#if 0	//VVFIXME - Do we really care about doing this? It's slow and unnecessary
 		gentity_t *ent = g_entities + i;
 
 		if (ent->bmodel)
@@ -1986,7 +1986,7 @@ void TryUse( gentity_t *ent )
 				used = pVeh->m_pVehicleInfo->Eject(pVeh, (bgEntity_t *)ent, qfalse);
 			}
 			else
-			{ // Otherwise board this vehicle.
+			{ //Otherwise board this vehicle.
 				if (g_gametype.integer < GT_TEAM ||
 					!target->alliedTeam ||
 					(target->alliedTeam == ent->client->sess.sessionTeam))
@@ -2420,25 +2420,25 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 		if ( s < 0 )
 		{
 			done = qfalse;
-			s = 0;// and see note below
+			s = 0;//and see note below
 		}
 
 		if ( s > 1 ) 
 		{
 			done = qfalse;
-			s = 1;// and see note below
+			s = 1;//and see note below
 		}
 
 		if ( t < 0 ) 
 		{
 			done = qfalse;
-			t = 0;// and see note below
+			t = 0;//and see note below
 		}
 
 		if ( t > 1 ) 
 		{
 			done = qfalse;
-			t = 1;// and see note below
+			t = 1;//and see note below
 		}
 
 		//vec close_pnt1 = start1 + s * v1

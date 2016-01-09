@@ -1,4 +1,4 @@
-// leave this line at the top for all g_xxxx.cpp files...
+//leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
 
 //seems to be a compiler bug, it doesn't clean out the #ifdefs between dif-compiles
@@ -92,24 +92,24 @@ extern void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnim
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
 extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
 
-// Update death sequence.
+//Update death sequence.
 static void DeathUpdate( Vehicle_t *pVeh )
 {
 	if ( level.time >= pVeh->m_iDieTime )
 	{
-		// If the vehicle is not empty.
+		//If the vehicle is not empty.
 		if ( pVeh->m_pVehicleInfo->Inhabited( pVeh ) )
 		{
 			pVeh->m_pVehicleInfo->EjectAll( pVeh );
 		}
 		else
 		{
-			// Waste this sucker.
+			//Waste this sucker.
 		}
 				}
 			}
 
-// Like a think or move command, this updates various vehicle properties.
+//Like a think or move command, this updates various vehicle properties.
 static bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 {
 	return g_vehicleInfo[VEHICLE_BASE].Update( pVeh, pUcmd );
@@ -126,7 +126,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessMoveCommands the Vehicle.
+//ProcessMoveCommands the Vehicle.
 static void ProcessMoveCommands( Vehicle_t *pVeh )
 {
 	/************************************************************************************/
@@ -155,7 +155,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 
 #ifndef _JK2MP //bad for prediction - fixme
-	// Bucking so we can't do anything.
+	//Bucking so we can't do anything.
 	if ( pVeh->m_ulFlags & VEH_BUCKING || pVeh->m_ulFlags & VEH_FLYING || pVeh->m_ulFlags & VEH_CRASHING )
 	{
 		parentPS->speed = 0;
@@ -182,7 +182,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 				G_SoundIndexOnEnt(pVeh->m_pParentEntity, CHAN_AUTO, pVeh->m_pVehicleInfo->soundTurbo);
 			}
 #endif
-			parentPS->speed = pVeh->m_pVehicleInfo->turboSpeed;	// Instantly Jump To Turbo Speed
+			parentPS->speed = pVeh->m_pVehicleInfo->turboSpeed;	//Instantly Jump To Turbo Speed
 		}
 	}
 
@@ -228,7 +228,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 				parentPS->speed -= speedIdleDec;
 			}
 		}
-		// No input, so coast to stop.
+		//No input, so coast to stop.
 		else if ( parentPS->speed > 0.0f )
 		{
 			parentPS->speed -= speedIdleDec;
@@ -283,7 +283,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 //stuff available in the MP bgEntity (in SP, the bgEntity is #defined
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
-// ProcessOrientCommands the Vehicle.
+//ProcessOrientCommands the Vehicle.
 static void ProcessOrientCommands( Vehicle_t *pVeh )
 {
 	/********************************************************************************/
@@ -302,7 +302,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	gentity_t *rider = parent->owner;
 #endif
 
-	// Bucking so we can't do anything.
+	//Bucking so we can't do anything.
 #ifndef _JK2MP //bad for prediction - fixme
 	if ( pVeh->m_ulFlags & VEH_BUCKING || pVeh->m_ulFlags & VEH_FLYING || pVeh->m_ulFlags & VEH_CRASHING )
 	{
@@ -374,16 +374,16 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	gentity_t *		parent = (gentity_t *)pVeh->m_pParentEntity;
 	float			fSpeedPercToMax;
 
-	// We're dead (boarding is reused here so I don't have to make another variable :-).
+	//We're dead (boarding is reused here so I don't have to make another variable :-).
 	if ( parent->health <= 0 ) 
 	{
 		return;
 	}
 
-	// If they're bucking, play the animation and leave...
+	//If they're bucking, play the animation and leave...
 	if ( parent->client->ps.legsAnim == BOTH_VT_BUCK )
 	{
-		// Done with animation? Erase the flag.
+		//Done with animation? Erase the flag.
 		if ( parent->client->ps.legsAnimTimer <= 0 )
 		{
 			pVeh->m_ulFlags &= ~VEH_BUCKING;
@@ -402,15 +402,15 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		return;
 	}
 
-	// Boarding animation.
+	//Boarding animation.
 	if ( pVeh->m_iBoarding != 0 )
 	{
-		// We've just started boarding, set the amount of time it will take to finish boarding.
+		//We've just started boarding, set the amount of time it will take to finish boarding.
 		if ( pVeh->m_iBoarding < 0 )
 		{
 			int iAnimLen;
 
-			// Boarding from left...
+			//Boarding from left...
 			if ( pVeh->m_iBoarding == -1 )
 			{
 				Anim = BOTH_VT_MOUNT_L;
@@ -424,8 +424,8 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 				Anim = BOTH_VT_MOUNT_B;
 			}
 
-			// Set the delay time (which happens to be the time it takes for the animation to complete).
-			// NOTE: Here I made it so the delay is actually 70% (0.7f) of the animation time.
+			//Set the delay time (which happens to be the time it takes for the animation to complete).
+			//NOTE: Here I made it so the delay is actually 70% (0.7f) of the animation time.
 #ifdef _JK2MP
 			iAnimLen = BG_AnimLength( parent->localAnimIndex, Anim ) * 0.7f;
 #else
@@ -433,8 +433,8 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 #endif
 			pVeh->m_iBoarding = level.time + iAnimLen;
 
-			// Set the animation, which won't be interrupted until it's completed.
-			// TODO: But what if he's killed? Should the animation remain persistant???
+			//Set the animation, which won't be interrupted until it's completed.
+			//TODO: But what if he's killed? Should the animation remain persistant???
 			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 
 			Vehicle_SetAnim( parent, SETANIM_LEGS, Anim, iFlags, iBlend );
@@ -444,18 +444,18 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			}
 			return;
 		}
-		// Otherwise we're done.
+		//Otherwise we're done.
 		else if ( pVeh->m_iBoarding <= level.time )
 		{
 			pVeh->m_iBoarding = 0;
 		}
 	}
 
-	// Percentage of maximum speed relative to current speed.
+	//Percentage of maximum speed relative to current speed.
 	fSpeedPercToMax = parent->client->ps.speed / pVeh->m_pVehicleInfo->speedMax; 
 
 
-	// Going in reverse...
+	//Going in reverse...
 	if ( fSpeedPercToMax < -0.01f )
 	{
 		Anim = BOTH_VT_WALK_REV;
@@ -468,18 +468,18 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		bool		Running		= (fSpeedPercToMax>0.275f);
 
 
-		// Remove Crashing Flag
+		//Remove Crashing Flag
 		//----------------------
 		pVeh->m_ulFlags &= ~VEH_CRASHING;
 
 		if (Turbo)
-		{// Kicked In Turbo
+		{//Kicked In Turbo
 			iBlend	= 50;
 			iFlags	= SETANIM_FLAG_OVERRIDE;
 			Anim	= BOTH_VT_TURBO;
 		}
 		else
-		{// No Special Moves
+		{//No Special Moves
 			iBlend	= 300;
  			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
 			Anim	= (Walking)?(BOTH_VT_WALK_FWD  ):((Running)?(BOTH_VT_RUN_FWD  ):(BOTH_VT_IDLE1));
@@ -490,7 +490,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 
 //rwwFIXMEFIXME: This is all going to have to be predicted I think, or it will feel awful
 //and lagged
-// This function makes sure that the rider's in this vehicle are properly animated.
+//This function makes sure that the rider's in this vehicle are properly animated.
 static void AnimateRiders( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_VT_IDLE;
@@ -506,16 +506,16 @@ static void AnimateRiders( Vehicle_t *pVeh )
 	pilotPS = &pVeh->m_pPilot->client->ps;
 #endif
 
-	// Boarding animation.
+	//Boarding animation.
 	if ( pVeh->m_iBoarding != 0 )
 	{
 		return;
 	}
 
-	// Percentage of maximum speed relative to current speed.
+	//Percentage of maximum speed relative to current speed.
 	fSpeedPercToMax = parent->client->ps.speed / pVeh->m_pVehicleInfo->speedMax;
 
-	// Going in reverse...
+	//Going in reverse...
 #ifdef _JK2MP //handled in pmove in mp
 	if (0)
 #else
@@ -537,12 +537,12 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		EWeaponPose	WeaponPose	= WPOSE_NONE;
 
 
-		// Remove Crashing Flag
+		//Remove Crashing Flag
 		//----------------------
 		pVeh->m_ulFlags &= ~VEH_CRASHING;
 
 
-		// Put Away Saber When It Is Not Active
+		//Put Away Saber When It Is Not Active
 		//--------------------------------------
 #ifndef _JK2MP
 		if (HasWeapon && (Turbo || (pilotPS->weapon==WP_SABER && !pilotPS->SaberActive())))
@@ -557,7 +557,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		}
 #endif
 
-		// Don't Interrupt Attack Anims
+		//Don't Interrupt Attack Anims
 		//------------------------------
 #ifdef _JK2MP
 		if (pilotPS->weaponTime>0)
@@ -579,7 +579,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		}
 #endif
 
-		// Compute The Weapon Pose
+		//Compute The Weapon Pose
 		//--------------------------
 		if (pilotPS->weapon==WP_BLASTER)
 		{
@@ -600,7 +600,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		
 
  		if (Attacking && WeaponPose)
-		{// Attack!
+		{//Attack!
 			iBlend	= 100;
  			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;
 
@@ -610,9 +610,9 @@ static void AnimateRiders( Vehicle_t *pVeh )
 				Left = false;
 			}
 
-			// Auto Aiming
+			//Auto Aiming
 			//===============================================
-			if (!Left && !Right)		// Allow player strafe keys to override
+			if (!Left && !Right)		//Allow player strafe keys to override
 			{
 #ifndef _JK2MP
 				if (pVeh->m_pPilot->enemy)
@@ -649,7 +649,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 
 
 			if (Left)
-			{// Attack Left
+			{//Attack Left
 				switch(WeaponPose)
 				{
 				case WPOSE_BLASTER:		Anim = BOTH_VT_ATL_G;		break;
@@ -659,7 +659,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 				}
 			}
 			else if (Right)
-			{// Attack Right
+			{//Attack Right
 				switch(WeaponPose)
 				{
 				case WPOSE_BLASTER:		Anim = BOTH_VT_ATR_G;		break;
@@ -669,7 +669,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 				}
 			}
 			else
-			{// Attack Ahead
+			{//Attack Ahead
 				switch(WeaponPose)
 				{
 				case WPOSE_BLASTER:		Anim = BOTH_VT_ATF_G;		break;
@@ -678,13 +678,13 @@ static void AnimateRiders( Vehicle_t *pVeh )
 			}
 		}
 		else if (Turbo)
-		{// Kicked In Turbo
+		{//Kicked In Turbo
 			iBlend	= 50;
 			iFlags	= SETANIM_FLAG_OVERRIDE;
 			Anim	= BOTH_VT_TURBO;
 		}
 		else
-		{// No Special Moves
+		{//No Special Moves
 			iBlend	= 300;
  			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLDLESS;
 
@@ -713,7 +713,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 				default:				assert(0);
 				}
 			}
-		}// No Special Moves
+		}//No Special Moves
 	}
 
 	Vehicle_SetAnim( pilot, SETANIM_BOTH, Anim, iFlags, iBlend );
@@ -741,7 +741,7 @@ void G_SetAnimalVehicleFunctions( vehicleInfo_t *pVehInfo )
 #endif
 }
 
-// Following is only in game, not in namespace
+//Following is only in game, not in namespace
 #ifdef _JK2MP
 #include "namespace_end.h"
 #endif
@@ -754,11 +754,11 @@ extern void G_AllocateVehicleObject(Vehicle_t **pVeh);
 #include "namespace_begin.h"
 #endif
 
-// Create/Allocate a new Animal Vehicle (initializing it as well).
+//Create/Allocate a new Animal Vehicle (initializing it as well).
 //this is a BG function too in MP so don't un-bg-compatibilify it -rww
 void G_CreateAnimalNPC( Vehicle_t **pVeh, const char *strAnimalType )
 {
-	// Allocate the Vehicle.
+	//Allocate the Vehicle.
 #ifdef _JK2MP
 #ifdef QAGAME
 	//these will remain on entities on the client once allocated because the pointer is

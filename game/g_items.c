@@ -1,4 +1,4 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
 #include "G2.h"
@@ -27,7 +27,7 @@
 #define	RESPAWN_MEGAHEALTH	120
 #define	RESPAWN_POWERUP		120
 
-// Item Spawn flags
+//Item Spawn flags
 #define ITMSF_SUSPEND		1
 #define ITMSF_NOPLAYER		2
 #define ITMSF_ALLOWNPC		4
@@ -44,7 +44,7 @@ extern gentity_t *droppedBlueFlag;
 #define MAX_MEDPACK_BIG_HEAL_AMOUNT	50
 #define MAX_SENTRY_DISTANCE			256
 
-// For more than four players, adjust the respawn times, up to 1/4.
+//For more than four players, adjust the respawn times, up to 1/4.
 int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 {
 	float respawnTime = preRespawnTime;
@@ -65,23 +65,23 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 	}
 
 	if (level.numPlayingClients > 4)
-	{	// Start scaling the respawn times.
+	{	//Start scaling the respawn times.
 		if (level.numPlayingClients > 32)
-		{	// 1/4 time minimum.
+		{	//1/4 time minimum.
 			respawnTime *= 0.25;
 		}
 		else if (level.numPlayingClients > 12)
-		{	// From 12-32, scale from 0.5 to 0.25;
+		{	//From 12-32, scale from 0.5 to 0.25;
 			respawnTime *= 20.0 / (float)(level.numPlayingClients + 8);
 		}
 		else 
-		{	// From 4-12, scale from 1.0 to 0.5;
+		{	//From 4-12, scale from 1.0 to 0.5;
 			respawnTime *= 8.0 / (float)(level.numPlayingClients + 4);
 		}
 	}
 
 	if (respawnTime < 1.0)
-	{	// No matter what, don't go lower than 1 second, or the pickups become very noisy!
+	{	//No matter what, don't go lower than 1 second, or the pickups become very noisy!
 		respawnTime = 1.0;
 	}
 
@@ -90,14 +90,14 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 
 
 #define SHIELD_HEALTH				250
-#define SHIELD_HEALTH_DEC			10		// 25 seconds	
+#define SHIELD_HEALTH_DEC			10		//25 seconds	
 #define MAX_SHIELD_HEIGHT			254
 #define MAX_SHIELD_HALFWIDTH		255
 #define SHIELD_HALFTHICKNESS		4
 #define SHIELD_PLACEDIST			64
 
 #define SHIELD_SIEGE_HEALTH			2000
-#define SHIELD_SIEGE_HEALTH_DEC		(SHIELD_SIEGE_HEALTH/25)	// still 25 seconds.
+#define SHIELD_SIEGE_HEALTH_DEC		(SHIELD_SIEGE_HEALTH/25)	//still 25 seconds.
 
 static qhandle_t	shieldLoopSound=0;
 static qhandle_t	shieldAttachSound=0;
@@ -130,7 +130,7 @@ void ShieldRemove(gentity_t *self)
 	self->think = G_FreeEntity;
 	self->nextthink = level.time + 100;
 
-	// Play kill sound...
+	//Play kill sound...
 	G_AddEvent(self, EV_GENERAL_SOUND, shieldDeactivateSound);
 	self->s.loopSound = 0;
 	self->s.loopIsSoundset = qfalse;
@@ -139,7 +139,7 @@ void ShieldRemove(gentity_t *self)
 }
 
 
-// Count down the health of the shield.
+//Count down the health of the shield.
 void ShieldThink(gentity_t *self)
 {
 	self->s.trickedentindex = 0;
@@ -166,10 +166,10 @@ void ShieldThink(gentity_t *self)
 }
 
 
-// The shield was damaged to below zero health.
+//The shield was damaged to below zero health.
 void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
-	// Play damaging sound...
+	//Play damaging sound...
 	G_AddEvent(self, EV_GENERAL_SOUND, shieldDamageSound);
 
 	if (!inflictor) inflictor = self;
@@ -185,14 +185,14 @@ void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 }
 
 
-// The shield had damage done to it.  Make it flicker.
+//The shield had damage done to it.  Make it flicker.
 void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 {
-	// Set the itemplaceholder flag to indicate the the shield drawing that the shield pain should be drawn.
+	//Set the itemplaceholder flag to indicate the the shield drawing that the shield pain should be drawn.
 	self->think = ShieldThink;
 	self->nextthink = level.time + 400;
 
-	// Play damaging sound...
+	//Play damaging sound...
 	G_AddEvent(self, EV_GENERAL_SOUND, shieldDamageSound);
 
 	self->s.trickedentindex = 1;
@@ -208,12 +208,12 @@ void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 }
 
 
-// Try to turn the shield back on after a delay.
+//Try to turn the shield back on after a delay.
 void ShieldGoSolid(gentity_t *self)
 {
 	trace_t		tr;
 
-	// see if we're valid
+	//see if we're valid
 	self->health--;
 	if (self->health <= 0)
 	{
@@ -228,13 +228,13 @@ void ShieldGoSolid(gentity_t *self)
 
 	trap_Trace(&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY);
 	if (tr.startsolid && !(&g_entities[tr.entityNum] && isATurret(&g_entities[tr.entityNum])))
-	{	// gah, we can't activate yet
+	{	//gah, we can't activate yet
 		self->nextthink = level.time + 200;
 		self->think = ShieldGoSolid;
 		trap_LinkEntity(self);
 	}
 	else
-	{ // get hard... huh-huh...
+	{ //get hard... huh-huh...
 		if ((self->s.eFlags & EF_NODRAW))
 		{
 			if (debug_shieldLog.integer)
@@ -252,7 +252,7 @@ void ShieldGoSolid(gentity_t *self)
 		self->takedamage = qtrue;
 		trap_LinkEntity(self);
 
-		// Play raising sound...
+		//Play raising sound...
 		G_AddEvent(self, EV_GENERAL_SOUND, shieldActivateSound);
 		self->s.loopSound = shieldLoopSound;
 		self->s.loopIsSoundset = qfalse;
@@ -262,15 +262,15 @@ void ShieldGoSolid(gentity_t *self)
 }
 
 
-// Turn the shield off to allow a friend to pass through.
+//Turn the shield off to allow a friend to pass through.
 void ShieldGoNotSolid(gentity_t *self)
 {
 	qboolean wasSolid = (self->r.contents & CONTENTS_SOLID);
 
-	// make the shield non-solid very briefly
+	//make the shield non-solid very briefly
 	self->r.contents = 0;
 	self->s.eFlags |= EF_NODRAW;
-	// nextthink needs to have a large enough interval to avoid excess accumulation of Activate messages
+	//nextthink needs to have a large enough interval to avoid excess accumulation of Activate messages
 	self->nextthink = level.time + 200;
 	self->think = ShieldGoSolid;
 	self->takedamage = qfalse;
@@ -278,7 +278,7 @@ void ShieldGoNotSolid(gentity_t *self)
 
 	if (wasSolid)
 	{
-		// Play kill sound...
+		//Play kill sound...
 		G_AddEvent(self, EV_GENERAL_SOUND, shieldDeactivateSound);
 		self->s.loopSound = 0;
 		self->s.loopIsSoundset = qfalse;
@@ -286,12 +286,12 @@ void ShieldGoNotSolid(gentity_t *self)
 }
 
 
-// Somebody (a player) has touched the shield.  See if it is a "friend".
+//Somebody (a player) has touched the shield.  See if it is a "friend".
 void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 {
 	if (g_gametype.integer >= GT_TEAM)
-	{ // let teammates through
-	  // compare the parent's team to the "other's" team
+	{ //let teammates through
+	  //compare the parent's team to the "other's" team
 		if (self->parent && (self->parent->client) && (other->client))
 		{
 			if (OnSameTeam(self->parent, other))
@@ -322,7 +322,7 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 }
 
 
-// After a short delay, create the shield by expanding in all directions.
+//After a short delay, create the shield by expanding in all directions.
 void CreateShield(gentity_t *ent)
 {
 	trace_t		tr;
@@ -331,40 +331,40 @@ void CreateShield(gentity_t *ent)
 	qboolean	xaxis;
 	int			paramData = 0;
 
-	// trace upward to find height of shield
+	//trace upward to find height of shield
 	VectorCopy(ent->r.currentOrigin, end);
 	end[2] += MAX_SHIELD_HEIGHT;
 	trap_Trace(&tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT & ~CONTENTS_BODY);
 	height = (int)(MAX_SHIELD_HEIGHT * tr.fraction);
 
-	// use angles to find the proper axis along which to align the shield
+	//use angles to find the proper axis along which to align the shield
 	VectorCopy(ent->r.currentOrigin, posTraceEnd);
 	VectorCopy(ent->r.currentOrigin, negTraceEnd);
 
-	if ((int)(ent->s.angles[YAW]) == 0) // shield runs along y-axis
+	if ((int)(ent->s.angles[YAW]) == 0) //shield runs along y-axis
 	{
 		posTraceEnd[1] += MAX_SHIELD_HALFWIDTH;
 		negTraceEnd[1] -= MAX_SHIELD_HALFWIDTH;
 		xaxis = qfalse;
 	}
-	else  // shield runs along x-axis
+	else  //shield runs along x-axis
 	{
 		posTraceEnd[0] += MAX_SHIELD_HALFWIDTH;
 		negTraceEnd[0] -= MAX_SHIELD_HALFWIDTH;
 		xaxis = qtrue;
 	}
 
-	// trace horizontally to find extend of shield
-	// positive trace
+	//trace horizontally to find extend of shield
+	//positive trace
 	VectorCopy(ent->r.currentOrigin, start);
 	start[2] += (height >> 1);
 	trap_Trace(&tr, start, 0, 0, posTraceEnd, ent->s.number, MASK_SHOT & ~CONTENTS_BODY);
 	posWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
-	// negative trace
+	//negative trace
 	trap_Trace(&tr, start, 0, 0, negTraceEnd, ent->s.number, MASK_SHOT & ~CONTENTS_BODY);
 	negWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 
-	// kef -- monkey with dimensions and place origin in center
+	//kef -- monkey with dimensions and place origin in center
 	halfWidth = (posWidth + negWidth) >> 1;
 	if (xaxis)
 	{
@@ -376,7 +376,7 @@ void CreateShield(gentity_t *ent)
 	}
 	ent->r.currentOrigin[2] += (height >> 1);
 
-	// set entity's mins and maxs to new values, make it solid, and link it
+	//set entity's mins and maxs to new values, make it solid, and link it
 	if (xaxis)
 	{
 		VectorSet(ent->r.mins, -halfWidth, -SHIELD_HALFTHICKNESS, -(height >> 1));
@@ -398,12 +398,12 @@ void CreateShield(gentity_t *ent)
 			ent->r.maxs[0], ent->r.maxs[1], ent->r.maxs[2]);
 	}
 
-	// Information for shield rendering.
+	//Information for shield rendering.
 
 	//	xaxis - 1 bit
 	//	height - 0-254 8 bits
 	//	posWidth - 0-255 8 bits
-	//  negWidth - 0 - 255 8 bits
+	// negWidth - 0 - 255 8 bits
 
 	paramData = (xaxis << 24) | (height << 16) | (posWidth << 8) | (negWidth);
 	ent->s.time2 = paramData;
@@ -422,14 +422,14 @@ void CreateShield(gentity_t *ent)
 	ent->die = ShieldDie;
 	ent->touch = ShieldTouch;
 
-	// see if we're valid
+	//see if we're valid
 	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY);
 	if (tr.startsolid && !(&g_entities[tr.entityNum] && isATurret(&g_entities[tr.entityNum])))
-	{	// Something in the way!
-		// make the shield non-solid very briefly
+	{	//Something in the way!
+		//make the shield non-solid very briefly
 		ent->r.contents = 0;
 		ent->s.eFlags |= EF_NODRAW;
-		// nextthink needs to have a large enough interval to avoid excess accumulation of Activate messages
+		//nextthink needs to have a large enough interval to avoid excess accumulation of Activate messages
 		ent->nextthink = level.time + 200;
 		ent->think = ShieldGoSolid;
 		ent->takedamage = qfalse;
@@ -443,7 +443,7 @@ void CreateShield(gentity_t *ent)
 		}
 	}
 	else
-	{	// Get solid.
+	{	//Get solid.
 		ent->r.contents = CONTENTS_PLAYERCLIP | CONTENTS_SHOTCLIP;//CONTENTS_SOLID;
 
 		ent->nextthink = level.time;
@@ -452,7 +452,7 @@ void CreateShield(gentity_t *ent)
 		ent->takedamage = qtrue;
 		trap_LinkEntity(ent);
 
-		// Play raising sound...
+		//Play raising sound...
 		G_AddEvent(ent, EV_GENERAL_SOUND, shieldActivateSound);
 		ent->s.loopSound = shieldLoopSound;
 		ent->s.loopIsSoundset = qfalse;
@@ -485,7 +485,7 @@ qboolean PlaceShield(gentity_t *playerent)
 		shieldItem = BG_FindItemForHoldable(HI_SHIELD);
 	}
 
-	// can we place this in front of us?
+	//can we place this in front of us?
 	AngleVectors (playerent->client->ps.viewangles, fwd, NULL, NULL);
 	fwd[2] = 0;
 	VectorMA(playerent->client->ps.origin, SHIELD_PLACEDIST, fwd, dest);
@@ -493,41 +493,41 @@ qboolean PlaceShield(gentity_t *playerent)
 	if (tr.fraction > 0.9)
 	{//room in front
 		VectorCopy(tr.endpos, pos);
-		// drop to floor
+		//drop to floor
 		VectorSet( dest, pos[0], pos[1], pos[2] - 4096 );
 		trap_Trace( &tr, pos, mins, maxs, dest, playerent->s.number, MASK_SOLID );
 		if ( !tr.startsolid && !tr.allsolid )
 		{
-			// got enough room so place the portable shield
+			//got enough room so place the portable shield
 			shield = G_Spawn();
 
-			// Figure out what direction the shield is facing.
+			//Figure out what direction the shield is facing.
 			if (fabs(fwd[0]) > fabs(fwd[1]))
-			{	// shield is north/south, facing east.
+			{	//shield is north/south, facing east.
 				shield->s.angles[YAW] = 0;
 			}
 			else
-			{	// shield is along the east/west axis, facing north
+			{	//shield is along the east/west axis, facing north
 				shield->s.angles[YAW] = 90;
 			}
 			shield->think = CreateShield;
-			shield->nextthink = level.time + 500;	// power up after .5 seconds
+			shield->nextthink = level.time + 500;	//power up after .5 seconds
 			shield->parent = playerent;
 
-			// Set team number.
+			//Set team number.
 			shield->s.otherEntityNum2 = playerent->client->sess.sessionTeam;
 
 			shield->s.eType = ET_SPECIAL;
-			shield->s.modelindex =  HI_SHIELD;	// this'll be used in CG_Useable() for rendering.
+			shield->s.modelindex =  HI_SHIELD;	//this'll be used in CG_Useable() for rendering.
 			shield->classname = shieldItem->classname;
 
 			shield->r.contents = CONTENTS_TRIGGER;
 
 			shield->touch = 0;
-			// using an item causes it to respawn
+			//using an item causes it to respawn
 			shield->use = 0; 
 
-			// allow to ride movers
+			//allow to ride movers
 			shield->s.groundEntityNum = tr.entityNum;
 
 			G_SetOrigin( shield, tr.endpos );
@@ -548,13 +548,13 @@ qboolean PlaceShield(gentity_t *playerent)
 				shield->s.teamowner = 16;
 			}
 
-			// Play placing sound...
+			//Play placing sound...
 			G_AddEvent(shield, EV_GENERAL_SOUND, shieldAttachSound);
 
 			return qtrue;
 		}
 	}
-	// no room
+	//no room
 	return qfalse;
 }
 
@@ -570,7 +570,7 @@ void ItemUse_Binoculars(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.zoomMode == 0) // not zoomed or currently zoomed with the disruptor
+	if (ent->client->ps.zoomMode == 0) //not zoomed or currently zoomed with the disruptor
 	{
 		ent->client->ps.zoomMode = 2;
 		ent->client->ps.zoomLocked = qfalse;
@@ -589,7 +589,7 @@ void ItemUse_Shield(gentity_t *ent)
 }
 
 //--------------------------
-// PERSONAL ASSAULT SENTRY
+//PERSONAL ASSAULT SENTRY
 //--------------------------
 
 #define PAS_DAMAGE	2
@@ -637,9 +637,9 @@ static qboolean pas_find_enemies( gentity_t *self )
 	gentity_t	*entity_list[MAX_GENTITIES], *target;
 	trace_t		tr;
 
-	if ( self->aimDebounceTime > level.time ) // time since we've been shut off
+	if ( self->aimDebounceTime > level.time ) //time since we've been shut off
 	{
-		// We were active and alert, i.e. had an enemy in the last 3 secs
+		//We were active and alert, i.e. had an enemy in the last 3 secs
 		if ( self->painDebounceTime < level.time )
 		{
 			G_Sound(self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/ping.wav" ));
@@ -706,18 +706,18 @@ static qboolean pas_find_enemies( gentity_t *self )
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
-			// Only acquire if have a clear shot, Is it in range and closer than our best?
+			//Only acquire if have a clear shot, Is it in range and closer than our best?
 			VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
 
-			if ( enemyDist < bestDist )// all things equal, keep current
+			if ( enemyDist < bestDist )//all things equal, keep current
 			{
 				if ( self->attackDebounceTime + 100 < level.time )
 				{
-					// We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
+					//We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
 					G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" ));
 
-					// Wind up turrets for a bit
+					//Wind up turrets for a bit
 					self->attackDebounceTime = level.time + 900 + random() * 200;
 				}
 
@@ -764,7 +764,7 @@ void pas_adjust_enemy( gentity_t *ent )
 		{
 			if (tr.entityNum != ent->enemy->s.number)
 			{
-				// trace failed
+				//trace failed
 				keep = qfalse;
 			}
 		}
@@ -773,15 +773,15 @@ void pas_adjust_enemy( gentity_t *ent )
 	if ( keep )
 	{
 	}
-	else if ( ent->bounceCount < level.time && ent->enemy ) // don't ping pong on and off
+	else if ( ent->bounceCount < level.time && ent->enemy ) //don't ping pong on and off
 	{
 		ent->enemy = NULL;
-		// shut-down sound
+		//shut-down sound
 		G_Sound( ent, CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
 	
 		ent->bounceCount = level.time + 500 + random() * 150;
 
-		// make turret play ping sound for 5 seconds
+		//make turret play ping sound for 5 seconds
 		ent->aimDebounceTime = level.time + 5000;
 	}
 }
@@ -886,7 +886,7 @@ void pas_think( gentity_t *ent )
 
 	if ( ent->enemy )
 	{
-		// make sure that the enemy is still valid
+		//make sure that the enemy is still valid
 		pas_adjust_enemy( ent );
 	}
 
@@ -928,8 +928,8 @@ void pas_think( gentity_t *ent )
 
 	if ( ent->enemy )
 	{
-		// ...then we'll calculate what new aim adjustments we should attempt to make this frame
-		// Aim at enemy
+		//...then we'll calculate what new aim adjustments we should attempt to make this frame
+		//Aim at enemy
 		if ( ent->enemy->client )
 		{
 			VectorCopy( ent->enemy->client->ps.origin, org );
@@ -947,7 +947,7 @@ void pas_think( gentity_t *ent )
 	}
 	else
 	{
-		// no enemy, so make us slowly sweep back and forth as if searching for a new one
+		//no enemy, so make us slowly sweep back and forth as if searching for a new one
 		diffYaw = sin( level.time * 0.0001f + ent->count ) * 2.0f;
 	}
 
@@ -957,12 +957,12 @@ void pas_think( gentity_t *ent )
 
 		if ( fabs(diffYaw) > 10.0f )
 		{
-			// cap max speed
+			//cap max speed
 			ent->speed += (diffYaw > 0.0f) ? -10.0f : 10.0f;
 		}
 		else
 		{
-			// small enough
+			//small enough
 			ent->speed -= diffYaw;
 		}
 	}
@@ -974,17 +974,17 @@ void pas_think( gentity_t *ent )
 
 		if ( fabs(diffPitch) > 4.0f )
 		{
-			// cap max speed
+			//cap max speed
 			ent->random += (diffPitch > 0.0f) ? -4.0f : 4.0f;
 		}
 		else
 		{
-			// small enough
+			//small enough
 			ent->random -= diffPitch;
 		}
 	}
 
-	// the bone axes are messed up, so hence some dumbness here
+	//the bone axes are messed up, so hence some dumbness here
 
 	if ( moved )
 	{
@@ -1025,7 +1025,7 @@ void pas_think( gentity_t *ent )
 void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 //------------------------------------------------------------------------------------------------------------
 {
-	// Turn off the thinking of the base & use it's targets
+	//Turn off the thinking of the base & use it's targets
 	self->think = 0;
 	self->use = 0;
 
@@ -1040,12 +1040,12 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 		return;
 	}
 
-	// clear my data
+	//clear my data
 	self->die  = 0;
 	self->takedamage = qfalse;
 	self->health = 0;
 
-	// hack the effect angle so that explode death can orient the effect properly
+	//hack the effect angle so that explode death can orient the effect properly
 	VectorSet( self->s.angles, 0, 0, 1 );
 
 	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->s.pos.trBase, self->s.angles);
@@ -1064,14 +1064,14 @@ void SP_PAS( gentity_t *base )
 {
 	if ( base->count == 0 )
 	{
-		// give ammo
+		//give ammo
 		base->count = TURRET_AMMO_COUNT;
 	}
 
 	base->s.bolt1 = 1; //This is a sort of hack to indicate that this model needs special turret things done to it
 	base->s.bolt2 = ENTITYNUM_NONE; //store our current enemy index
 
-	base->damage = 0; // start animation flag
+	base->damage = 0; //start animation flag
 
 	VectorSet( base->r.mins, -8, -8, 0 );
 	VectorSet( base->r.maxs, 8, 8, 24 );
@@ -1387,12 +1387,12 @@ void G_SpecialSpawnItem(gentity_t *ent, gitem_t *item)
 	ent->nextthink = level.time + 50;
 	ent->clipmask = MASK_SOLID;
 
-	ent->physicsBounce = 0.50;		// items are bouncy
+	ent->physicsBounce = 0.50;		//items are bouncy
 	VectorSet (ent->r.mins, -8, -8, -0);
 	VectorSet (ent->r.maxs, 8, 8, 16);
 
 	ent->s.eType = ET_ITEM;
-	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
+	ent->s.modelindex = ent->item - bg_itemlist;		//store item number in modelindex
 
 	ent->r.contents = CONTENTS_TRIGGER;
 	ent->touch = Touch_Item;
@@ -2140,8 +2140,8 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	gclient_t	*client;
 
 	if ( !other->client->ps.powerups[ent->item->giTag] ) {
-		// round timing to seconds to make multiple powerup timers
-		// count in sync
+		//round timing to seconds to make multiple powerup timers
+		//count in sync
 		other->client->ps.powerups[ent->item->giTag] = 
 			level.time - ( level.time % 1000 );
 
@@ -2163,7 +2163,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.powerups[PW_FORCE_BOON] = 0;
 	}
 
-	// give any nearby players a "denied" anti-reward
+	//give any nearby players a "denied" anti-reward
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		vec3_t		delta;
 		float		len;
@@ -2181,32 +2181,32 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 			continue;
 		}
 
-		// if same team in team game, no sound
-		// cannot use OnSameTeam as it expects to g_entities, not clients
+		//if same team in team game, no sound
+		//cannot use OnSameTeam as it expects to g_entities, not clients
   		if ( g_gametype.integer >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
 		  continue;
 		}
 
-		// if too far away, no sound
+		//if too far away, no sound
 		VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta );
 		len = VectorNormalize( delta );
 		if ( len > 192 ) {
 			continue;
 		}
 
-		// if not facing, no sound
+		//if not facing, no sound
 		AngleVectors( client->ps.viewangles, forward, NULL, NULL );
 		if ( DotProduct( delta, forward ) < 0.4 ) {
 			continue;
 		}
 
-		// if not line of sight, no sound
+		//if not line of sight, no sound
 		trap_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
 		if ( tr.fraction != 1.0 ) {
 			continue;
 		}
 
-		// anti-reward
+		//anti-reward
 		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
 	}
 	return RESPAWN_POWERUP;
@@ -2302,7 +2302,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 	if (ent->item->giTag == -1)
 	{ //an ammo_all, give them a bit of everything
-		if ( g_gametype.integer == GT_SIEGE )	// complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
+		if ( g_gametype.integer == GT_SIEGE )	//complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
 		{
 			Add_Ammo(other, AMMO_BLASTER, 100);
 			Add_Ammo(other, AMMO_POWERCELL, 100);
@@ -2344,7 +2344,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	int		quantity;
 
 	if ( ent->count < 0 ) {
-		quantity = 0; // None for you, sir!
+		quantity = 0; //None for you, sir!
 	} else {
 		if ( ent->count ) {
 			quantity = ent->count;
@@ -2352,30 +2352,30 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			quantity = ent->item->quantity;
 		}
 
-		// dropped items and teamplay weapons always have full ammo
+		//dropped items and teamplay weapons always have full ammo
 		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
-			// respawning rules
+			//respawning rules
 
-			// New method:  If the player has less than half the minimum, give them the minimum, else add 1/2 the min.
+			//New method:  If the player has less than half the minimum, give them the minimum, else add 1/2 the min.
 
-			// drop the quantity if the already have over the minimum
+			//drop the quantity if the already have over the minimum
 			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity*0.5 ) {
 				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
 			} else {
-				quantity = quantity*0.5;		// only add half the value.
+				quantity = quantity*0.5;		//only add half the value.
 			}
 
 			}
 		}
 
-	// add the weapon
+	//add the weapon
 	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
 
 	Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, quantity );
 
 	G_LogWeaponPickup(other->s.number, ent->item->giTag);
 	
-	// team deathmatch has slow weapon respawns
+	//team deathmatch has slow weapon respawns
 	if ( g_gametype.integer == GT_TEAM ) 
 	{
 		return adjustRespawnTime(RESPAWN_TEAM_WEAPON, ent->item->giType, ent->item->giTag);
@@ -2391,7 +2391,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			max;
 	int			quantity;
 
-	// small and mega healths will go over the max
+	//small and mega healths will go over the max
 	if ( ent->item->quantity != 5 && ent->item->quantity != 100 ) {
 		max = other->client->ps.stats[STAT_MAX_HEALTH];
 	} else {
@@ -2411,7 +2411,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	}
 	other->client->ps.stats[STAT_HEALTH] = other->health;
 
-	if ( ent->item->quantity == 100 ) {		// mega health respawns slow
+	if ( ent->item->quantity == 100 ) {		//mega health respawns slow
 		return RESPAWN_MEGAHEALTH;
 	}
 
@@ -2439,7 +2439,7 @@ RespawnItem
 ===============
 */
 void RespawnItem( gentity_t *ent ) {
-	// randomly select from teamed entities
+	//randomly select from teamed entities
 	if (ent->team) {
 		gentity_t	*master;
 		int	count;
@@ -2465,10 +2465,10 @@ void RespawnItem( gentity_t *ent ) {
 	trap_LinkEntity (ent);
 
 	if ( ent->item->giType == IT_POWERUP ) {
-		// play powerup spawn sound to all clients
+		//play powerup spawn sound to all clients
 		gentity_t	*te;
 
-		// if the powerup respawn sound should Not be global
+		//if the powerup respawn sound should Not be global
 		if (ent->speed) {
 			te = G_TempEntity( ent->s.pos.trBase, EV_GENERAL_SOUND );
 		}
@@ -2479,7 +2479,7 @@ void RespawnItem( gentity_t *ent ) {
 		te->r.svFlags |= SVF_BROADCAST;
 	}
 
-	// play the normal respawn sound only to nearby clients
+	//play the normal respawn sound only to nearby clients
 	G_AddEvent( ent, EV_ITEM_RESPAWN, 0 );
 
 	ent->nextthink = 0;
@@ -2543,7 +2543,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if (!other->client)
 		return;
 	if (other->health < 1)
-		return;		// dead people can't pickup
+		return;		//dead people can't pickup
 
 	if (ent->item->giType == IT_POWERUP &&
 		(ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT || ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK))
@@ -2564,7 +2564,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 	}
 
-	// the same pickup rules are used for client side and server side
+	//the same pickup rules are used for client side and server side
 	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) {
 		return;
 	}
@@ -2600,9 +2600,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 	}
 	else if ( !(ent->spawnflags &  ITMSF_ALLOWNPC) )
-	{// NPCs cannot pick it up
+	{//NPCs cannot pick it up
 		if ( other->s.eType == ET_NPC )
-		{// Not the player?
+		{//Not the player?
 			qboolean dontGo = qfalse;
 			if (ent->item->giType == IT_AMMO &&
 				ent->item->giTag == -1 &&
@@ -2634,7 +2634,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	predict = other->client->pers.predictItemPickup;
 
-	// call the item-specific pickup function
+	//call the item-specific pickup function
 	switch( ent->item->giType ) {
 	case IT_WEAPON:
 		respawn = Pickup_Weapon(ent, other);
@@ -2692,7 +2692,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	}
 
-	// play the normal pickup sound
+	//play the normal pickup sound
 	if (predict) {
 		if (other->client)
 		{
@@ -2706,9 +2706,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		G_AddEvent( other, EV_ITEM_PICKUP, ent->s.number );
 	}
 
-	// powerup pickups are global broadcasts
+	//powerup pickups are global broadcasts
 	if ( /*ent->item->giType == IT_POWERUP ||*/ ent->item->giType == IT_TEAM) {
-		// if we want the global sound to play
+		//if we want the global sound to play
 		if (!ent->speed) {
 			gentity_t	*te;
 
@@ -2720,16 +2720,16 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 			te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
 			te->s.eventParm = ent->s.modelindex;
-			// only send this temp entity to a single client
+			//only send this temp entity to a single client
 			te->r.svFlags |= SVF_SINGLECLIENT;
 			te->r.singleClient = other->s.number;
 		}
 	}
 
-	// fire item targets
+	//fire item targets
 	G_UseTargets (ent, other);
 
-	// wait of -1 will not respawn
+	//wait of -1 will not respawn
 	if ( ent->wait == -1 ) {
 		ent->r.svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
@@ -2738,12 +2738,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	}
 
-	// non zero wait overrides respawn time
+	//non zero wait overrides respawn time
 	if ( ent->wait ) {
 		respawn = ent->wait;
 	}
 
-	// random can be used to vary the respawn time
+	//random can be used to vary the respawn time
 	if ( ent->random ) {
 		respawn += crandom() * ent->random;
 		if ( respawn < 1 ) {
@@ -2751,14 +2751,14 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 	}
 
-	// dropped items will not respawn
+	//dropped items will not respawn
 	if ( ent->flags & FL_DROPPED_ITEM ) {
 		ent->freeAfterEvent = qtrue;
 	}
 
-	// picked up items still stay around, they just don't
-	// draw anything.  This allows respawnable items
-	// to be placed on movers.
+	//picked up items still stay around, they just don't
+	//draw anything.  This allows respawnable items
+	//to be placed on movers.
 	if (!(ent->flags & FL_DROPPED_ITEM) && (ent->item->giType==IT_WEAPON || ent->item->giType==IT_POWERUP))
 	{
 		ent->s.eFlags |= EF_ITEMPLACEHOLDER;
@@ -2778,10 +2778,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	}
 
-	// ZOID
-	// A negative respawn times means to never respawn this item (but don't 
-	// delete it).  This is used by items that are respawned by third party 
-	// events such as ctf flags
+	//ZOID
+	//A negative respawn times means to never respawn this item (but don't 
+	//delete it).  This is used by items that are respawned by third party 
+	//events such as ctf flags
 	if ( respawn <= 0 ) {
 		ent->nextthink = 0;
 		ent->think = 0;
@@ -2808,13 +2808,13 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	dropped = G_Spawn();
 
 	dropped->s.eType = ET_ITEM;
-	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
+	dropped->s.modelindex = item - bg_itemlist;	//store item number in modelindex
 	if (dropped->s.modelindex < 0)
 	{
 		dropped->s.modelindex = 0;
 	}
 
-	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item
+	dropped->s.modelindex2 = 1; //This is non-zero is it's a dropped item
 
 	dropped->classname = item->classname;
 	dropped->item = item;
@@ -2831,7 +2831,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	VectorCopy( velocity, dropped->s.pos.trDelta );
 
 	dropped->flags |= FL_BOUNCE_HALF;
-	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY) && item->giType == IT_TEAM) { // Special case for CTF flags
+	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY) && item->giType == IT_TEAM) { //Special case for CTF flags
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 
@@ -2844,7 +2844,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 			droppedBlueFlag = dropped;
 		}
 
-	} else { // auto-remove after 30 seconds
+	} else { //auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
 	}
@@ -2893,7 +2893,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 
 	VectorCopy( ent->s.apos.trBase, angles );
 	angles[YAW] += angle;
-	angles[PITCH] = 0;	// always forward
+	angles[PITCH] = 0;	//always forward
 
 	AngleVectors( angles, velocity, NULL, NULL );
 	VectorScale( velocity, 150, velocity );
@@ -3038,20 +3038,20 @@ void FinishSpawningItem( gentity_t *ent ) {
 	VectorSet (ent->r.maxs, 8, 8, 16);
 
 	ent->s.eType = ET_ITEM;
-	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
-	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
+	ent->s.modelindex = ent->item - bg_itemlist;		//store item number in modelindex
+	ent->s.modelindex2 = 0; //zero indicates this isn't a dropped item
 
 	ent->r.contents = CONTENTS_TRIGGER;
 	ent->touch = Touch_Item;
-	// useing an item causes it to respawn
+	//useing an item causes it to respawn
 	ent->use = Use_Item;
 
-	// create a Ghoul2 model if the world model is a glm
+	//create a Ghoul2 model if the world model is a glm
 	if ( ent->spawnflags & ITMSF_SUSPEND ) {
-		// suspended
+		//suspended
 		G_SetOrigin( ent, ent->s.origin );
 	} else {
-		// drop to floor
+		//drop to floor
 
 		//if it is directly even with the floor it will return startsolid, so raise up by 0.1
 		//and temporarily subtract 0.1 from the z maxs so that going up doesn't push into the ceiling
@@ -3069,13 +3069,13 @@ void FinishSpawningItem( gentity_t *ent ) {
 		//add the 0.1 back after the trace
 		ent->r.maxs[2] += 0.1;
 
-		// allow to ride movers
+		//allow to ride movers
 		ent->s.groundEntityNum = tr.entityNum;
 
 		G_SetOrigin( ent, tr.endpos );
 	}
 
-	// team slaves and targeted items aren't present at start
+	//team slaves and targeted items aren't present at start
 	if ( ( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;
@@ -3095,13 +3095,13 @@ G_CheckTeamItems
 */
 void G_CheckTeamItems( void ) {
 
-	// Set up team stuff
+	//Set up team stuff
 	Team_InitGame();
 
 	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY ) {
 		gitem_t	*item;
 
-		// check for the two flags
+		//check for the two flags
 		item = BG_FindItem( "team_CTF_redflag" );
 		if ( !item || !itemRegistered[ item - bg_itemlist ] ) {
 			G_Printf( S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map" );
@@ -3121,7 +3121,7 @@ ClearRegisteredItems
 void ClearRegisteredItems( void ) {
 	memset( itemRegistered, 0, sizeof( itemRegistered ) );
 
-	// players always start with the base weapon
+	//players always start with the base weapon
 	RegisterItem( BG_FindItemForWeapon( WP_BRYAR_PISTOL ) );
 	RegisterItem( BG_FindItemForWeapon( WP_STUN_BATON ) );
 	RegisterItem( BG_FindItemForWeapon( WP_MELEE ) );
@@ -3229,12 +3229,12 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 		return;
 
 	ent->item = item;
-	// some movers spawn on the second frame, so delay item
-	// spawns until the third frame so they can ride trains
+	//some movers spawn on the second frame, so delay item
+	//spawns until the third frame so they can ride trains
 	ent->nextthink = level.time + FRAMETIME * 2;
 	ent->think = FinishSpawningItem;
 
-	ent->physicsBounce = 0.50;		// items are bouncy
+	ent->physicsBounce = 0.50;		//items are bouncy
 
 	if ( item->giType == IT_POWERUP ) {
 		G_SoundIndex( "sound/items/respawn1" );
@@ -3254,13 +3254,13 @@ void G_BounceItem(gentity_t *ent, trace_t *trace) {
     float	dot;
     int		hitTime;
 
-    // reflect the velocity on the trace plane
+    //reflect the velocity on the trace plane
     hitTime = level.previousTime + (level.time - level.previousTime) * trace->fraction;
     BG_EvaluateTrajectoryDelta(&ent->s.pos, hitTime, velocity);
     dot = DotProduct(velocity, trace->plane.normal);
     VectorMA(velocity, -2 * dot, trace->plane.normal, ent->s.pos.trDelta);
 
-    // cut the velocity to keep from bouncing forever
+    //cut the velocity to keep from bouncing forever
     VectorScale(ent->s.pos.trDelta, ent->physicsBounce, ent->s.pos.trDelta);
 
     if ((ent->s.weapon == WP_DET_PACK && ent->s.eType == ET_GENERAL && ent->physicsObject))
@@ -3272,14 +3272,14 @@ void G_BounceItem(gentity_t *ent, trace_t *trace) {
         }
     }
 
-	// check for stop
+	//check for stop
     if (trace->plane.normal[2] > 0 && ent->s.pos.trDelta[2] < 40) {
-        trace->endpos[2] += 1.0;	// make sure it is off ground
+        trace->endpos[2] += 1.0;	//make sure it is off ground
         SnapVector(trace->endpos);
         G_SetOrigin(ent, trace->endpos);
         ent->s.groundEntityNum = trace->entityNum;
 
-        // check if flag is falling to death, to avoid overboarding
+        //check if flag is falling to death, to avoid overboarding
         if ( ent->item &&
              ent->item->giType == IT_TEAM &&
              !g_flags_overboarding.integer )
@@ -3326,7 +3326,7 @@ void G_RunItem( gentity_t *ent ) {
 	int			contents;
 	int			mask;
 
-	// if groundentity has been set to -1, it may have been pushed off an edge
+	//if groundentity has been set to -1, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == -1 ) {
 		if ( ent->s.pos.trType != TR_GRAVITY ) {
 			ent->s.pos.trType = TR_GRAVITY;
@@ -3335,15 +3335,15 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	if ( ent->s.pos.trType == TR_STATIONARY ) {
-		// check think function
+		//check think function
 		G_RunThink( ent );
 		return;
 	}
 
-	// get current position
+	//get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
-	// trace a line from the previous position to the current position
+	//trace a line from the previous position to the current position
 	if ( ent->clipmask ) {
 		mask = ent->clipmask;
 	} else {
@@ -3358,16 +3358,16 @@ void G_RunItem( gentity_t *ent ) {
 		tr.fraction = 0;
 	}
 
-	trap_LinkEntity( ent );	// FIXME: avoid this for stationary?
+	trap_LinkEntity( ent );	//FIXME: avoid this for stationary?
 
-	// check think function
+	//check think function
 	G_RunThink( ent );
 
 	if ( tr.fraction == 1 ) {
 		return;
 	}
 
-	// if it is in a nodrop volume, remove it
+	//if it is in a nodrop volume, remove it
 	contents = trap_PointContents(ent->r.currentOrigin, -1);
 	if (contents & CONTENTS_NODROP) {
 		if (ent->item && ent->item->giType == IT_TEAM) {

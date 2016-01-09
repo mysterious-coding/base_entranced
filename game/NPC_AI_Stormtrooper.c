@@ -1092,7 +1092,7 @@ void NPC_BSST_Patrol( void )
 			{
 				if ( (ucmd.buttons&BUTTON_WALKING) && !(NPCInfo->scriptFlags&SCF_RUNNING) )
 				{//not running, only set upper anim
-					//  No longer overrides scripted anims
+					// No longer overrides scripted anims
 					NPC_SetAnim( NPC, SETANIM_TORSO, BOTH_STAND4, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 					NPC->client->ps.torsoTimer = 200;
 				}
@@ -1100,7 +1100,7 @@ void NPC_BSST_Patrol( void )
 		}
 		else
 		{//standing still, set both torso and legs anim
-			//  No longer overrides scripted anims
+			// No longer overrides scripted anims
 			if( ( NPC->client->ps.torsoTimer <= 0 || (NPC->client->ps.torsoAnim == BOTH_STAND4) ) &&
 				( NPC->client->ps.legsTimer <= 0  || (NPC->client->ps.legsAnim == BOTH_STAND4) ) )
 			{
@@ -1716,7 +1716,7 @@ void ST_Commander( void )
 	}
 
 	if ( group->lastSeenEnemyTime > level.time - 32000 && group->lastSeenEnemyTime < level.time - 30000 )
-	{//no-one has seen the enemy for 30 seconds// and no-one is running after him
+	{//no-one has seen the enemy for 30 seconds//and no-one is running after him
 		if ( group->commander && !Q_irand( 0, 1 ) )
 		{
 			ST_Speech( group->commander, SPEECH_ESCAPING, 0.0f );
@@ -2562,7 +2562,7 @@ void NPC_BSST_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) //we've already fired, no need to do it again here
 			{
 				WeaponThink( qtrue );
 			}

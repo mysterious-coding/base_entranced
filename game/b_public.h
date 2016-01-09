@@ -89,18 +89,18 @@ typedef struct gNPCstats_e
 	int		aim;				//			"
 	float	earshot;			//			"
 	int		evasion;			//			"
-	int		hfov;				// horizontal field of view
+	int		hfov;				//horizontal field of view
 	int		intelligence;		//			"
 	int		move;				//			"
-	int		reactions;			// 1-5, higher is better
+	int		reactions;			//1-5, higher is better
 	float	shootDistance;		//Maximum range- overrides range set for weapon if nonzero
-	int		vfov;				// vertical field of view
+	int		vfov;				//vertical field of view
 	float	vigilance;			//			"
 	float	visrange;			//			"
 	//Movement
 	int		runSpeed;
 	int		walkSpeed;
-	float	yawSpeed;			// 1 - whatever, default is 50
+	float	yawSpeed;			//1 - whatever, default is 50
 	int		health;
 	int		acceleration;
 	int  	specialKnockback;
@@ -112,7 +112,7 @@ typedef struct gNPCstats_e
 	int		victimOfForce;
 } gNPCstats_t;
 
-// NOTE!!!  If you add any ptr fields into this structure could you please tell me so I can update the load/save code?
+//NOTE!!!  If you add any ptr fields into this structure could you please tell me so I can update the load/save code?
 //	so far the only things I've got to cope with are a bunch of gentity_t*'s, but tell me if any more get added -slc
 //
 
@@ -132,7 +132,7 @@ typedef struct
 	float		desiredPitch;
 	float		lockedDesiredYaw;
 	float		lockedDesiredPitch;
-	gentity_t	*aimingBeam;		// debugging aid
+	gentity_t	*aimingBeam;		//debugging aid
 
 	vec3_t		enemyLastSeenLocation;
 	int			enemyLastSeenTime;
@@ -143,7 +143,7 @@ typedef struct
 	int			eFlags;
 	int			aiFlags;
 
-	int			currentAmmo;		// this sucks, need to find a better way
+	int			currentAmmo;		//this sucks, need to find a better way
 	int			shotTime;
 	int			burstCount;
 	int			burstMin;
@@ -179,8 +179,8 @@ typedef struct
 	jumpState_t	jumpState;
 	float		followDist;
 
-	// goal, navigation & pathfinding
-	gentity_t	*tempGoal;			// used for locational goals (player's last seen/heard position)
+	//goal, navigation & pathfinding
+	gentity_t	*tempGoal;			//used for locational goals (player's last seen/heard position)
 	gentity_t	*goalEntity;
 	gentity_t	*lastGoalEntity;
 	gentity_t	*eventualGoal;

@@ -1,4 +1,4 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+//Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
 
@@ -31,12 +31,12 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 
 	client->sess.siegeDesiredTeam = TEAM_FREE;
 
-	// initial team determination
+	//initial team determination
 	if ( g_gametype.integer >= GT_TEAM ) {
 		if ( g_teamAutoJoin.integer ) {
 			sess->sessionTeam = PickTeam( -1 );
 		} else {
-			// always spawn as spectator in team games
+			//always spawn as spectator in team games
 			if (!isBot)
 			{
 				sess->sessionTeam = TEAM_SPECTATOR;	
@@ -61,7 +61,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 	} else {
 		value = Info_ValueForKey( userinfo, "team" );
 		if ( value[0] == 's' ) {
-			// a willing spectator, not a waiting-in-line
+			//a willing spectator, not a waiting-in-line
 			sess->sessionTeam = TEAM_SPECTATOR;
 		} else {
 			switch ( g_gametype.integer ) {
@@ -78,7 +78,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 				}
 				break;
 			case GT_DUEL:
-				// if the game is full, go into a waiting mode
+				//if the game is full, go into a waiting mode
 				if ( level.numNonSpectatorClients >= 2 ) {
 					sess->sessionTeam = TEAM_SPECTATOR;
 				} else {
@@ -119,7 +119,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 
     sess->nameChangeTime = getGlobalTime();
 
-	// accounts system
+	//accounts system
 	//if (isDBLoaded && !isBot){
 	//	username = Info_ValueForKey(userinfo, "password");
 	//	delimitator = strchr(username,':');
@@ -162,8 +162,8 @@ void G_InitWorldSession( void ) {
 	trap_Cvar_VariableStringBuffer( "session", s, sizeof(s) );
 	gt = atoi( s );
 	
-	// if the gametype changed since the last session, don't use any
-	// client sessions
+	//if the gametype changed since the last session, don't use any
+	//client sessions
 	if ( g_gametype.integer != gt ) {
 		level.newSession = qtrue;
 		G_Printf( "Gametype changed, clearing session data.\n" );

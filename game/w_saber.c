@@ -12,7 +12,7 @@ extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
 extern vmCvar_t		g_saberRealisticCombat;
 extern vmCvar_t		d_saberSPStyleDamage;
 extern vmCvar_t		g_debugSaberLocks;
-// nmckenzie: SABER_DAMAGE_WALLS
+//nmckenzie: SABER_DAMAGE_WALLS
 extern vmCvar_t		g_saberWallDamageScale;
 
 int saberSpinSound = 0;
@@ -36,7 +36,7 @@ qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum );
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
 void WP_SaberRemoveG2Model( gentity_t *saberent );
 
-// sil - bugging for identical behaviour on windows
+//sil - bugging for identical behaviour on windows
 float RandFloatFlawed(float min, float max) {
 	int random = rand();
 #if RAND_MAX < 2147483647
@@ -59,7 +59,7 @@ void	G_DebugBoxLines(vec3_t mins, vec3_t maxs, int duration)
 	float x = maxs[0] - mins[0];
 	float y = maxs[1] - mins[1];
 
-	// top of box
+	//top of box
 	VectorCopy(maxs, start);
 	VectorCopy(maxs, end);
 	start[0] -= x;
@@ -71,7 +71,7 @@ void	G_DebugBoxLines(vec3_t mins, vec3_t maxs, int duration)
 	start[0] += x;
 	G_TestLine(start, end, 0x00000ff, duration);
 	G_TestLine(start, maxs, 0x00000ff, duration);
-	// bottom of box
+	//bottom of box
 	VectorCopy(mins, start);
 	VectorCopy(mins, end);
 	start[0] += x;
@@ -3507,7 +3507,7 @@ void WP_SaberApplyDamage( gentity_t *self )
 
 		victim = &g_entities[victimEntityNum[i]];
 
-// nmckenzie: SABER_DAMAGE_WALLS
+//nmckenzie: SABER_DAMAGE_WALLS
 		if ( !victim->client )
 		{
 			totalDmg[i] *= g_saberWallDamageScale.value;
@@ -5271,7 +5271,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 				VectorSubtract( baseNew, baseOld, baseDiff );
 				VectorMA( baseOld, curDirFrac, baseDiff, curBase2 );
 			}
-			// Move up the blade in intervals of stepsize
+			//Move up the blade in intervals of stepsize
 			for ( step = stepsize; step <= self->client->saber[saberNum].blade[bladeNum].lengthMax /*&& step < self->client->saber[saberNum].blade[bladeNum].lengthOld*/; step += stepsize )
 			{
 				VectorMA( curBase1, step, curMD1, bladePointOld );
@@ -5584,10 +5584,10 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 							VectorScale( throwDir, 300, ent->s.pos.trDelta );
 							ent->s.pos.trDelta[2] += 150;
 							VectorMA( ent->s.pos.trDelta, 800, dir, ent->s.pos.trDelta );
-							ent->s.pos.trTime = level.time;		// move a bit on the very first frame
+							ent->s.pos.trTime = level.time;		//move a bit on the very first frame
 							VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
 							ent->r.ownerNum = self->s.number;
-							// make it explode, but with less damage
+							//make it explode, but with less damage
 							ent->splashDamage /= 3;
 							ent->splashRadius /= 3;
 							ent->nextthink = level.time + Q_irand( 500, 3000 );
@@ -6026,7 +6026,7 @@ static GAME_INLINE void saberMoveBack( gentity_t *ent, qboolean goingBack )
 	ent->s.pos.trType = TR_LINEAR;
 
 	VectorCopy( ent->r.currentOrigin, oldOrg );
-	// get current position
+	//get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 	//Get current angles?
 	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
@@ -8906,7 +8906,7 @@ void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlo
 	VectorNormalize( diff );
 
 	fwdangles[1] = self->client->ps.viewangles[1];
-	// Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
+	//Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
 	AngleVectors( fwdangles, NULL, right, NULL );
 
 	rightdot = DotProduct(right, diff);
@@ -8974,15 +8974,15 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, qboolean missileBlock )
 	VectorNormalize(diff);
 
 	fwdangles[1] = playerent->client->ps.viewangles[1];
-	// Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
+	//Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
 	AngleVectors( fwdangles, NULL, right, NULL );
 
 	rightdot = DotProduct(right, diff) + RandFloatFlawed(-0.2f,0.2f);
 	zdiff = hitloc[2] - playerent->client->ps.origin[2] + Q_irand(-8,8);
 	
-	// Figure out what quadrant the block was in.
+	//Figure out what quadrant the block was in.
 	if (zdiff > 24)
-	{	// Attack from above
+	{	//Attack from above
 		
 		if (Q_irand(0,1))
 		{
@@ -8994,9 +8994,9 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, qboolean missileBlock )
 		}
 	}
 	else if (zdiff > 13)
-	{	// The upper half has three viable blocks...
+	{	//The upper half has three viable blocks...
 		if (rightdot > 0.25)
-		{	// In the right quadrant...
+		{	//In the right quadrant...
 			if (Q_irand(0,1))
 			{
 				playerent->client->ps.saberBlocked = BLOCKED_UPPER_LEFT;
@@ -9024,7 +9024,7 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, qboolean missileBlock )
 		}
 	}
 	else
-	{	// The lower half is a bit iffy as far as block coverage.  Pick one of the "low" ones at random.
+	{	//The lower half is a bit iffy as far as block coverage.  Pick one of the "low" ones at random.
 		if (Q_irand(0,1))
 		{
 			playerent->client->ps.saberBlocked = BLOCKED_LOWER_RIGHT;

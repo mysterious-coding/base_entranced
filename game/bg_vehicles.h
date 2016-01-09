@@ -112,13 +112,13 @@ typedef struct
 typedef struct
 {
 //*** IMPORTANT!!! *** See note at top of next structure!!! ***
-	// Weapon stuff.
+	//Weapon stuff.
 	int			ID;//index into the weapon data
-	// The delay between shots for each weapon.
+	//The delay between shots for each weapon.
 	int			delay;
-	// Whether or not all the muzzles for each weapon can be linked together (linked delay = weapon delay * number of muzzles linked!)
+	//Whether or not all the muzzles for each weapon can be linked together (linked delay = weapon delay * number of muzzles linked!)
 	int			linkable;
-	// Whether or not to auto-aim the projectiles/tracelines at the thing under the crosshair when we fire
+	//Whether or not to auto-aim the projectiles/tracelines at the thing under the crosshair when we fire
 	qboolean	aimCorrect;
 	//maximum ammo
 	int			ammoMax;
@@ -159,8 +159,8 @@ typedef struct
 	float		rollLimit;		//how far it can roll to either side
 	float		pitchLimit;		//how far it can roll forward or backward
 	float		braking;		//when pressing on decelerator
-	float		mouseYaw;		// The mouse yaw override.
-	float		mousePitch;		// The mouse pitch override.
+	float		mouseYaw;		//The mouse yaw override.
+	float		mousePitch;		//The mouse pitch override.
 	float		turningSpeed;	//how quickly you can turn
 	qboolean	turnWhenStopped;//whether or not you can turn when not moving
 	float		traction;		//how much your command input affects velocity
@@ -232,14 +232,14 @@ typedef struct
 	//Weapon stats
 	vehWeaponStats_t	weapon[MAX_VEHICLE_WEAPONS];
 
-	// Which weapon a muzzle fires (has to match one of the weapons this vehicle has). So 1 would be weapon 1,
-	// 2 would be weapon 2 and so on.
+	//Which weapon a muzzle fires (has to match one of the weapons this vehicle has). So 1 would be weapon 1,
+	//2 would be weapon 2 and so on.
 	int			weapMuzzle[MAX_VEHICLE_MUZZLES];
 	
 	//turrets (if any) on the vehicle
 	turretStats_t	turret[MAX_VEHICLE_TURRETS];
 
-	// The max height before this ship (?) starts (auto)landing.
+	//The max height before this ship (?) starts (auto)landing.
 	float		landingHeight;
 
 	//other misc stats
@@ -257,8 +257,8 @@ typedef struct
 	float		explosionRadius;//range of explosion
 	int			explosionDamage;//damage of explosion
 
-	int			maxPassengers;	// The max number of passengers this vehicle may have (Default = 0).
-	qboolean	hideRider;		// rider (and passengers?) should not be drawn
+	int			maxPassengers;	//The max number of passengers this vehicle may have (Default = 0).
+	qboolean	hideRider;		//rider (and passengers?) should not be drawn
 	qboolean	killRiderOnDeath;//if rider is on vehicle when it dies, they should die
 	qboolean	flammable;		//whether or not the vehicle should catch on fire before it explodes
 	int			explosionDelay;	//how long the vehicle should be on fire/dying before it explodes
@@ -280,89 +280,89 @@ typedef struct
 //THE FOLLOWING FIELDS are not in the vehFields table because they are internal variables, not read in from the .veh file
 	int			modelIndex;		//set internally, not until this vehicle is spawned into the level
 
-	// NOTE: Please note that most of this stuff has been converted from C++ classes to generic C.
-	// This part of the structure is used to simulate inheritance for vehicles. The basic idea is that all vehicle use
-	// this vehicle interface since they declare their own functions and assign the function pointer to the
-	// corresponding function. Meanwhile, the base logic can still call the appropriate functions. In C++ talk all
-	// of these functions (pointers) are pure virtuals and this is an abstract base class (although it cannot be
-	// inherited from, only contained and reimplemented (through an object and a setup function respectively)). -AReis
+	//NOTE: Please note that most of this stuff has been converted from C++ classes to generic C.
+	//This part of the structure is used to simulate inheritance for vehicles. The basic idea is that all vehicle use
+	//this vehicle interface since they declare their own functions and assign the function pointer to the
+	//corresponding function. Meanwhile, the base logic can still call the appropriate functions. In C++ talk all
+	//of these functions (pointers) are pure virtuals and this is an abstract base class (although it cannot be
+	//inherited from, only contained and reimplemented (through an object and a setup function respectively)). -AReis
 
-	// Makes sure that the vehicle is properly animated.
+	//Makes sure that the vehicle is properly animated.
 	void (*AnimateVehicle)( Vehicle_t *pVeh );
 
-	// Makes sure that the rider's in this vehicle are properly animated.
+	//Makes sure that the rider's in this vehicle are properly animated.
 	void (*AnimateRiders)( Vehicle_t *pVeh );
 
-	// Determine whether this entity is able to board this vehicle or not.
+	//Determine whether this entity is able to board this vehicle or not.
 	qboolean (*ValidateBoard)( Vehicle_t *pVeh, bgEntity_t *pEnt );
 
-	// Set the parent entity of this Vehicle NPC.
+	//Set the parent entity of this Vehicle NPC.
 	void (*SetParent)( Vehicle_t *pVeh, bgEntity_t *pParentEntity );
 
-	// Add a pilot to the vehicle.
+	//Add a pilot to the vehicle.
 	void (*SetPilot)( Vehicle_t *pVeh, bgEntity_t *pPilot );
 
-	// Add a passenger to the vehicle (false if we're full).
+	//Add a passenger to the vehicle (false if we're full).
 	qboolean (*AddPassenger)( Vehicle_t *pVeh );
 
-	// Animate the vehicle and it's riders.
+	//Animate the vehicle and it's riders.
 	void (*Animate)( Vehicle_t *pVeh );
 
-	// Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
+	//Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
 	qboolean (*Board)( Vehicle_t *pVeh, bgEntity_t *pEnt );
 
-	// Eject an entity from the vehicle.
+	//Eject an entity from the vehicle.
 	qboolean (*Eject)( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject );
 
-	// Eject all the inhabitants of this vehicle.
+	//Eject all the inhabitants of this vehicle.
 	qboolean (*EjectAll)( Vehicle_t *pVeh );	
 
-	// Start a delay until the vehicle dies.
+	//Start a delay until the vehicle dies.
 	void (*StartDeathDelay)( Vehicle_t *pVeh, int iDelayTime );
 
-	// Update death sequence.
+	//Update death sequence.
 	void (*DeathUpdate)( Vehicle_t *pVeh );
 	
-	// Register all the assets used by this vehicle.
+	//Register all the assets used by this vehicle.
 	void (*RegisterAssets)( Vehicle_t *pVeh );
 	
-	// Initialize the vehicle (should be called by Spawn?).
+	//Initialize the vehicle (should be called by Spawn?).
 	qboolean (*Initialize)( Vehicle_t *pVeh );
 
-	// Like a think or move command, this updates various vehicle properties.
+	//Like a think or move command, this updates various vehicle properties.
 	qboolean (*Update)( Vehicle_t *pVeh, const usercmd_t *pUcmd );
 
-	// Update the properties of a Rider (that may reflect what happens to the vehicle).
+	//Update the properties of a Rider (that may reflect what happens to the vehicle).
 	//
 	//	[return]		bool			True if still in vehicle, false if otherwise.
 	qboolean (*UpdateRider)( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUcmd );
 
-	// ProcessMoveCommands the Vehicle.
+	//ProcessMoveCommands the Vehicle.
 	void (*ProcessMoveCommands)( Vehicle_t *pVeh );
 
-	// ProcessOrientCommands the Vehicle.
+	//ProcessOrientCommands the Vehicle.
 	void (*ProcessOrientCommands)( Vehicle_t *pVeh );
 	
-	// Attachs all the riders of this vehicle to their appropriate position/tag (*driver, *pass1, *pass2, whatever...).
+	//Attachs all the riders of this vehicle to their appropriate position/tag (*driver, *pass1, *pass2, whatever...).
 	void (*AttachRiders)( Vehicle_t *pVeh );
 
-	// Make someone invisible and un-collidable.
+	//Make someone invisible and un-collidable.
 	void (*Ghost)( Vehicle_t *pVeh, bgEntity_t *pEnt );
 
-	// Make someone visible and collidable.
+	//Make someone visible and collidable.
 	void (*UnGhost)( Vehicle_t *pVeh, bgEntity_t *pEnt );
 
-	// Get the pilot of this vehicle.
+	//Get the pilot of this vehicle.
 	const bgEntity_t *(*GetPilot)( Vehicle_t *pVeh );
 
-	// Whether this vehicle is currently inhabited (by anyone) or not.
+	//Whether this vehicle is currently inhabited (by anyone) or not.
 	qboolean (*Inhabited)( Vehicle_t *pVeh );
 } vehicleInfo_t;
 
 
 #define	VFOFS(x) ((int)&(((vehicleInfo_t *)0)->x))
 
-#define MAX_VEHICLES	32	// *CHANGE 1* from 16 to 32
+#define MAX_VEHICLES	32	//*CHANGE 1* from 16 to 32
 #define VEHICLE_BASE	0
 #define VEHICLE_NONE	-1
 
@@ -413,7 +413,7 @@ enum
 	VEH_EJECT_BOTTOM
 };
 
-// Vehicle flags.
+//Vehicle flags.
 typedef enum
 {
 	VEH_NONE = 0, VEH_FLYING = 0x00000001, VEH_CRASHING = 0x00000002,
@@ -472,48 +472,48 @@ typedef struct
 	//how long to hold on to our current enemy
 	int			enemyHoldTime;
 } vehTurretStatus_t;
-// This is the implementation of the vehicle interface and any of the other variables needed. This
-// is what actually represents a vehicle. -AReis.
+//This is the implementation of the vehicle interface and any of the other variables needed. This
+//is what actually represents a vehicle. -AReis.
 #ifdef __GCC__
 struct Vehicle_s
 #else
 typedef struct Vehicle_s
 #endif
 {
-	// The entity who pilots/drives this vehicle.
-	// NOTE: This is redundant (since m_pParentEntity->owner _should_ be the pilot). This makes things clearer though.
+	//The entity who pilots/drives this vehicle.
+	//NOTE: This is redundant (since m_pParentEntity->owner _should_ be the pilot). This makes things clearer though.
 	bgEntity_t *m_pPilot;
 
 	int m_iPilotTime; //if spawnflag to die without pilot and this < level.time then die.
 	int m_iPilotLastIndex; //index to last pilot
 	qboolean m_bHasHadPilot; //qtrue once the vehicle gets its first pilot
 
-	// The passengers of this vehicle.
+	//The passengers of this vehicle.
 	bgEntity_t *m_ppPassengers[VEH_MAX_PASSENGERS];
 
 	//the droid unit NPC for this vehicle, if any
 	bgEntity_t *m_pDroidUnit;
 
-	// The number of passengers currently in this vehicle.
+	//The number of passengers currently in this vehicle.
 	int m_iNumPassengers;
 
-	// The entity from which this NPC comes from.
+	//The entity from which this NPC comes from.
 	bgEntity_t *m_pParentEntity;
 
-	// If not zero, how long to wait before we can do anything with the vehicle (we're getting on still).
-	// -1 = board from left, -2 = board from right, -3 = jump/quick board.  -4 & -5 = throw off existing pilot
+	//If not zero, how long to wait before we can do anything with the vehicle (we're getting on still).
+	//-1 = board from left, -2 = board from right, -3 = jump/quick board.  -4 & -5 = throw off existing pilot
 	int		m_iBoarding;
 
-	// Used to check if we've just started the boarding process
+	//Used to check if we've just started the boarding process
 	qboolean	m_bWasBoarding;
 
-	// The speed the vehicle maintains while boarding occurs (often zero)
+	//The speed the vehicle maintains while boarding occurs (often zero)
 	vec3_t	m_vBoardingVelocity;
 
-	// Time modifier (must only be used in ProcessMoveCommands() and ProcessOrientCommands() and is updated in Update()).
+	//Time modifier (must only be used in ProcessMoveCommands() and ProcessOrientCommands() and is updated in Update()).
 	float m_fTimeModifier;
 
-	// Ghoul2 Animation info.
+	//Ghoul2 Animation info.
 	int m_iLeftExhaustTag;
 	int m_iRightExhaustTag;
 	int m_iGun1Tag;
@@ -528,68 +528,68 @@ typedef struct Vehicle_s
 
 	//this stuff is a little bit different from SP, because I am lazy -rww
 	int m_iMuzzleTime[MAX_VEHICLE_MUZZLES];
-	// These are updated every frame and represent the current position and direction for the specific muzzle.
+	//These are updated every frame and represent the current position and direction for the specific muzzle.
 	vec3_t m_vMuzzlePos[MAX_VEHICLE_MUZZLES], m_vMuzzleDir[MAX_VEHICLE_MUZZLES];
 
-	// This is how long to wait before being able to fire a specific muzzle again. This is based on the firing rate
-	// so that a firing rate of 10 rounds/sec would make this value initially 100 miliseconds. 
+	//This is how long to wait before being able to fire a specific muzzle again. This is based on the firing rate
+	//so that a firing rate of 10 rounds/sec would make this value initially 100 miliseconds. 
 	int m_iMuzzleWait[MAX_VEHICLE_MUZZLES];
 
-	// The user commands structure.
+	//The user commands structure.
 	usercmd_t m_ucmd;
 
-	// The direction an entity will eject from the vehicle towards.
+	//The direction an entity will eject from the vehicle towards.
 	int m_EjectDir;
 
-	// Flags that describe the vehicles behavior.
+	//Flags that describe the vehicles behavior.
 	unsigned long m_ulFlags;
 
-	// NOTE: Vehicle Type ID, Orientation, and Armor MUST be transmitted over the net.
+	//NOTE: Vehicle Type ID, Orientation, and Armor MUST be transmitted over the net.
 
-	// The ID of the type of vehicle this is.
+	//The ID of the type of vehicle this is.
 	int m_iVehicleTypeID;
 
-	// Current angles of this vehicle.
+	//Current angles of this vehicle.
 	float		*m_vOrientation;
 	//Yeah, since we use the SP code for vehicles, I want to use this value, but I'm going
 	//to make it a pointer to a vec3_t in the playerstate for prediction's sake. -rww
 
-	// How long you have strafed left or right (increments every frame that you strafe to right, decrements every frame you strafe left)
+	//How long you have strafed left or right (increments every frame that you strafe to right, decrements every frame you strafe left)
 	int			m_fStrafeTime;	
 
-	// Previous angles of this vehicle.
+	//Previous angles of this vehicle.
 	vec3_t		m_vPrevOrientation;
 
-	// Previous viewangles of the rider
+	//Previous viewangles of the rider
 	vec3_t		m_vPrevRiderViewAngles;
 
-	// When control is lost on a speeder, current angular velocity is stored here and applied until landing
+	//When control is lost on a speeder, current angular velocity is stored here and applied until landing
 	float		m_vAngularVelocity;
 
 	vec3_t		m_vFullAngleVelocity;
 
-	// Current armor and shields of your vehicle (explodes if armor to 0).
+	//Current armor and shields of your vehicle (explodes if armor to 0).
 	int			m_iArmor;	//hull strength - STAT_HEALTH on NPC
 	int			m_iShields;	//energy shielding - STAT_ARMOR on NPC
 
 	//mp-specific
 	int			m_iHitDebounce;
 
-	// Timer for all cgame-FX...? ex: exhaust?
+	//Timer for all cgame-FX...? ex: exhaust?
 	int			m_iLastFXTime; 
 
-	// When to die.
+	//When to die.
 	int			m_iDieTime;
 
-	// This pointer is to a valid VehicleInfo (which could be an animal, speeder, fighter, whatever). This
-	// contains the functions actually used to do things to this specific kind of vehicle as well as shared
-	// information (max speed, type, etc...).
+	//This pointer is to a valid VehicleInfo (which could be an animal, speeder, fighter, whatever). This
+	//contains the functions actually used to do things to this specific kind of vehicle as well as shared
+	//information (max speed, type, etc...).
 	vehicleInfo_t *m_pVehicleInfo;
 
-	// This trace tells us if we're within landing height.
+	//This trace tells us if we're within landing height.
 	trace_t m_LandTrace;
 
-	// TEMP: The wing angles (used to animate it).
+	//TEMP: The wing angles (used to animate it).
 	vec3_t m_vWingAngles;
 
 	//amount of damage done last impact
@@ -600,7 +600,7 @@ typedef struct Vehicle_s
 	
 	int			m_iDmgEffectTime;
 
-	// the last time this vehicle fired a turbo burst
+	//the last time this vehicle fired a turbo burst
 	int			m_iTurboTime;
 
 	//how long it should drop like a rock for after freed from SUSPEND
@@ -631,4 +631,4 @@ typedef struct Vehicle_s
 extern int BG_VehicleGetIndex( const char *vehicleName );
 #include "namespace_end.h"
 
-#endif	// __BG_VEHICLES_H
+#endif	//__BG_VEHICLES_H

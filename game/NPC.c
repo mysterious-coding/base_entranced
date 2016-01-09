@@ -1,5 +1,5 @@
 //
-// NPC.cpp - generic functions
+//NPC.cpp - generic functions
 //
 #include "b_local.h"
 #include "anims.h"
@@ -44,7 +44,7 @@ extern int eventClearTime;
 
 void CorpsePhysics( gentity_t *self )
 {
-	// run the bot through the server like it was a real client
+	//run the bot through the server like it was a real client
 	memset( &ucmd, 0, sizeof( ucmd ) );
 	ClientThink( self->s.number, &ucmd );
 	//rww - don't get why this is happening.
@@ -86,7 +86,7 @@ void CorpsePhysics( gentity_t *self )
 		{
 			self->r.contents = 0;
 		}
-		else if ((self->client->NPC_class != CLASS_MARK1) && (self->client->NPC_class != CLASS_INTERROGATOR))	// The Mark1 & Interrogator stays solid.
+		else if ((self->client->NPC_class != CLASS_MARK1) && (self->client->NPC_class != CLASS_INTERROGATOR))	//The Mark1 & Interrogator stays solid.
 		{
 			self->r.contents = CONTENTS_CORPSE;
 		}
@@ -125,14 +125,14 @@ void NPC_RemoveBody( gentity_t *self )
 		return;
 	}
 
-	// I don't consider this a hack, it's creative coding . . . 
-	// I agree, very creative... need something like this for ATST and GALAKMECH too!
+	//I don't consider this a hack, it's creative coding . . . 
+	//I agree, very creative... need something like this for ATST and GALAKMECH too!
 	if (self->client->NPC_class == CLASS_MARK1)
 	{
 		Mark1_dying( self );
 	}
 
-	// Since these blow up, remove the bounding box.
+	//Since these blow up, remove the bounding box.
 	if ( self->client->NPC_class == CLASS_REMOTE 
 		|| self->client->NPC_class == CLASS_SENTRY
 		|| self->client->NPC_class == CLASS_PROBE
@@ -165,10 +165,10 @@ void NPC_RemoveBody( gentity_t *self )
 	if ( self->NPC && self->NPC->timeOfDeath <= level.time )
 	{
 		self->NPC->timeOfDeath = level.time + 1000;
-		// Only do all of this nonsense for Scav boys ( and girls )
+		//Only do all of this nonsense for Scav boys ( and girls )
 		if( self->client->playerTeam == NPCTEAM_ENEMY || self->client->NPC_class == CLASS_PROTOCOL )
 		{
-			self->nextthink = level.time + FRAMETIME; // try back in a second
+			self->nextthink = level.time + FRAMETIME; //try back in a second
 			}
 
 		//FIXME: there are some conditions - such as heavy combat - in which we want
@@ -213,7 +213,7 @@ int BodyRemovalPadTime( gentity_t *ent )
 
 	if ( !ent || !ent->client )
 		return 0;
-	// team no longer indicates species/race, so in this case we'd use NPC_class, but
+	//team no longer indicates species/race, so in this case we'd use NPC_class, but
 	switch( ent->client->NPC_class )
 	{
 	case CLASS_MOUSE:
@@ -231,8 +231,8 @@ int BodyRemovalPadTime( gentity_t *ent )
 		time = 0;
 		break;
 	default:
-		// never go away
-		// for now I'm making default 10000
+		//never go away
+		//for now I'm making default 10000
 		time = 10000;
 		break;
 
@@ -256,9 +256,9 @@ static void NPC_RemoveBodyEffect(void)
 	if ( !NPC || !NPC->client || (NPC->s.eFlags & EF_NODRAW) )
 		return;
 
-	// team no longer indicates species/race, so in this case we'd use NPC_class, but
+	//team no longer indicates species/race, so in this case we'd use NPC_class, but
 	
-	// stub code
+	//stub code
 	switch(NPC->client->NPC_class)
 	{
 	case CLASS_PROBE:
@@ -271,7 +271,7 @@ static void NPC_RemoveBodyEffect(void)
 	case CLASS_MARK1:
 	case CLASS_MARK2:
 	case CLASS_INTERROGATOR:
-	case CLASS_ATST: // yeah, this is a little weird, but for now I'm listing all droids
+	case CLASS_ATST: //yeah, this is a little weird, but for now I'm listing all droids
 		break;
 	default:
 		break;
@@ -444,14 +444,14 @@ static void DeadThink ( void )
 			{
 				class_t	npc_class;
 
-				// Start the body effect first, then delay 400ms before ditching the corpse
+				//Start the body effect first, then delay 400ms before ditching the corpse
 				NPC_RemoveBodyEffect();
 
 				//FIXME: keep it running through physics somehow?
 				NPC->think = NPC_RemoveBody;
 				NPC->nextthink = level.time + FRAMETIME;
 				npc_class = NPC->client->NPC_class;
-				// check for droids
+				//check for droids
 				if ( npc_class == CLASS_SEEKER || npc_class == CLASS_REMOTE || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE ||
 					 npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 ||
 					 npc_class == CLASS_MARK2 || npc_class == CLASS_SENTRY )
@@ -466,10 +466,10 @@ static void DeadThink ( void )
 		}
 	}
 
-	// If the player is on the ground and the resting position contents haven't been set yet...(BounceCount tracks the contents)
+	//If the player is on the ground and the resting position contents haven't been set yet...(BounceCount tracks the contents)
 	if ( NPC->bounceCount < 0 && NPC->s.groundEntityNum >= 0 )
 	{
-		// if client is in a nodrop area, make him/her nodraw
+		//if client is in a nodrop area, make him/her nodraw
 		int contents = NPC->bounceCount = trap_PointContents( NPC->r.currentOrigin, -1 );
 
 		if ( ( contents & CONTENTS_NODROP ) ) 
@@ -664,7 +664,7 @@ void NPC_CheckAttackHold(void)
 {
 	vec3_t		vec;
 
-	// If they don't have an enemy they shouldn't hold their attack anim.
+	//If they don't have an enemy they shouldn't hold their attack anim.
 	if ( !NPC->enemy )
 	{
 		NPCInfo->attackHoldTime = 0;
@@ -1225,9 +1225,9 @@ void NPC_RunBehavior( int team, int bState )
 	//	case NPCTEAM_KLINGON:
 	//	case NPCTEAM_HIROGEN:
 	//	case NPCTEAM_MALON:
-		// not sure if TEAM_ENEMY is appropriate here, I think I should be using NPC_class to check for behavior - dmv
+		//not sure if TEAM_ENEMY is appropriate here, I think I should be using NPC_class to check for behavior - dmv
 		case NPCTEAM_ENEMY:
-			// special cases for enemy droids
+			//special cases for enemy droids
 			switch( NPC->client->NPC_class)
 			{
 			case CLASS_ATST:
@@ -1300,7 +1300,7 @@ void NPC_RunBehavior( int team, int bState )
 
 		case NPCTEAM_NEUTRAL: 
 
-			// special cases for enemy droids
+			//special cases for enemy droids
 			if ( NPC->client->NPC_class == CLASS_PROTOCOL || NPC->client->NPC_class == CLASS_UGNAUGHT ||
 				NPC->client->NPC_class == CLASS_JAWA)
 			{
@@ -1308,12 +1308,12 @@ void NPC_RunBehavior( int team, int bState )
 			}
 			else if ( NPC->client->NPC_class == CLASS_VEHICLE )
 			{
-				// TODO: Add vehicle behaviors here.
+				//TODO: Add vehicle behaviors here.
 				NPC_UpdateAngles( qtrue, qtrue );//just face our spawn angles for now
 			}
 			else
 			{
-				// Just one of the average droids
+				//Just one of the average droids
 				NPC_BehaviorSet_Droid( bState );
 			}
 			break;
@@ -1456,7 +1456,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	//cliff and wall avoidance
 	NPC_AvoidWallsAndCliffs();
 
-	// run the bot through the server like it was a real client
+	//run the bot through the server like it was a real client
 //=== Save the ucmd for the second no-think Pmove ============================
 	ucmd.serverTime = level.time - 50;
 	memcpy( &NPCInfo->last_ucmd, &ucmd, sizeof( usercmd_t ) );
@@ -1477,7 +1477,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 		NPC_ApplyRoff();
 	}
 
-	// end of thinking cleanup
+	//end of thinking cleanup
 	NPCInfo->touchedByPlayer = NULL;
 
 	NPC_CheckPlayerAim();
@@ -1514,19 +1514,19 @@ void G_DroidSounds( gentity_t *self )
 		{
 			switch( self->client->NPC_class )
 			{
-			case CLASS_R2D2:				// droid
+			case CLASS_R2D2:				//droid
 				G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/r2d2/misc/r2d2talk0%d.wav",Q_irand(1, 3)) );
 				break;
-			case CLASS_R5D2:				// droid
+			case CLASS_R5D2:				//droid
 				G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/r5d2/misc/r5talk%d.wav",Q_irand(1, 4)) );
 				break;
-			case CLASS_PROBE:				// droid
+			case CLASS_PROBE:				//droid
 				G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d.wav",Q_irand(1, 3)) );
 				break;
-			case CLASS_MOUSE:				// droid
+			case CLASS_MOUSE:				//droid
 				G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/mouse/misc/mousego%d.wav",Q_irand(1, 3)) );
 				break;
-			case CLASS_GONK:				// droid
+			case CLASS_GONK:				//droid
 				G_SoundOnEnt(self, CHAN_AUTO, va("sound/chars/gonk/misc/gonktalk%d.wav",Q_irand(1, 2)) );
 				break;
 			default:
@@ -1570,7 +1570,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		return;
 	}
 
-	// dead NPCs have a special think, don't run scripts (for now)
+	//dead NPCs have a special think, don't run scripts (for now)
 	//FIXME: this breaks deathscripts
 	if ( self->health <= 0 ) 
 	{
@@ -1583,7 +1583,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		return;
 	}
 
-	// see if NPC ai is frozen
+	//see if NPC ai is frozen
 	if ( debugNPCFreeze.value || (NPC->r.svFlags&SVF_ICARUS_FREEZE) ) 
 	{
 		NPC_UpdateAngles( qtrue, qtrue );
@@ -1711,7 +1711,7 @@ void NPC_InitGame( void )
 	}
 
 void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags)
-{	// FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
-	// rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
+{	//FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
+	//rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
 	G_SetAnim(ent, NULL, setAnimParts, anim, setAnimFlags, 0);
 }

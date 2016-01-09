@@ -3,11 +3,11 @@
 
 #include "g_local.h"
 
-// main loading routines
+//main loading routines
 void G_LogDbLoad();
 void G_LogDbUnload();
 
-// level stuff   
+//level stuff   
 int G_LogDbLogLevelStart( qboolean isRestart );
 void G_LogDbLogLevelEnd( int levelId );
 
@@ -26,7 +26,7 @@ typedef enum
     levelEventTeamChanged,
 } LevelEvent;
 
-// session stuff
+//session stuff
 int G_LogDbLogSessionStart( unsigned int ipInt,
     int ipPort,
     int id);
