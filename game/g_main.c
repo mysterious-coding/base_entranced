@@ -729,7 +729,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_objscompleted_old, "g_objscompleted_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	{ &g_forceOnNpcs, "g_forceOnNpcs", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &mapversion, "mapversion", "0", CVAR_ARCHIVE | CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
+	{ &mapversion, "mapversion", "0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
 
 	{ &g_maxstatusrequests,	"g_maxstatusrequests"	, "50"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_testdebug,	"g_testdebug"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
