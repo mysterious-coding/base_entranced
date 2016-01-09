@@ -829,7 +829,7 @@ void G_RunMissile( gentity_t *ent ) {
 	//prevent golan-spamming the lift
 	if (level.hangarCompleted && ent->s.weapon == WP_FLECHETTE && !iLikeToDoorSpam.integer)
 	{
-		if (ent->r.currentOrigin[0] >= -1216 && ent->r.currentOrigin[0] <= -996 && ent->r.currentOrigin[1] >= -128 && ent->r.currentOrigin[1] <= 142)
+		if (ent->r.currentOrigin[0] >= -1216 && ent->r.currentOrigin[0] <= -996 && ent->r.currentOrigin[1] >= -128 && ent->r.currentOrigin[1] <= 142 && ent->r.currentOrigin[2] <= 120)
 		{
 			for (n = 32; n < MAX_GENTITIES; n++)
 			{
@@ -838,9 +838,15 @@ void G_RunMissile( gentity_t *ent ) {
 					if (g_entities[n].moverState == MOVER_POS1 || g_entities[n].moverState == MOVER_1TO2)
 					{
 						//lift is at the bottom or in the process of going up
-						ent->think = G_FreeEntity;
-						ent->nextthink = level.time;
-						return;
+						if (&g_entities[ent->r.ownerNum] && g_entities[ent->r.ownerNum].r.currentOrigin[2] >= 184)
+						{
+							//this height detection will make sure the "spammer" isn't on the lift.
+							//prevents you from getting fucked by golan-spam detection when you are simply fighting someone who next to you on the lift
+							//(the idea is that you are considered spamming if you are not on the lift, firing golans into the lift)
+							ent->think = G_FreeEntity;
+							ent->nextthink = level.time;
+							return;
+						}
 					}
 				}
 			}
