@@ -729,7 +729,6 @@ void InitSiegeMode(void)
 
 	level.hangarCompleted = qfalse;
 	level.ccCompleted = qfalse;
-	level.eatShower4thObj = qfalse;
 	level.lastObjectiveCompleted = 0;
 	level.siegeRoundComplete = qfalse;
 
@@ -1785,18 +1784,6 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
 		level.hangarCompleted = qtrue;
-	}
-
-	if (!Q_stricmp(mapname.string, "mp/siege_eat_shower"))
-	{
-		if (objective == 3)
-		{
-			level.eatShower4thObj = qtrue;
-		}
-		else
-		{
-			level.eatShower4thObj = qfalse;
-		}
 	}
 
 	if (objective == 5 && !Q_stricmp(mapname.string, "siege_cargobarge2"))

@@ -351,7 +351,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			}
 			if (!Q_stricmp(mapname.string, "mp/siege_eat_shower") && weaponBeingUsed == WP_ROCKET_LAUNCHER)
 			{
-				if (level.eatShower4thObj)
+				if (level.lastObjectiveCompleted == 3)
 				{
 					//we're on the 4th obj of this map, so always allow rocket spam.
 					return qfalse;

@@ -968,7 +968,6 @@ typedef struct {
 
 	qboolean	hangarCompleted;
 	qboolean	ccCompleted;
-	qboolean	eatShower4thObj;
 	int			lastObjectiveCompleted;
 
 	int			numConnectedClients;
