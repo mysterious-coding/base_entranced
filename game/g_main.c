@@ -4423,7 +4423,7 @@ void UpdateSiegeStatus()
 
 	if (level.inSiegeCountdown)
 	{
-		Com_sprintf(string, 128, "Countdown (%iv%i)", numRedPlayers, numBluePlayers);
+		Com_sprintf(string, 128, "%iv%i: Countdown", numRedPlayers, numBluePlayers);
 		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 		return;
 	}
@@ -4432,7 +4432,7 @@ void UpdateSiegeStatus()
 	{
 		//siegeRoundComplete is needed because intermissiontime isn't non-zero until a few moments after last obj is completed.
 		//for example, if siegestatus is updated IMMEDIATELY after finishing round, but before intermissiontime is set, you can get some weird time/obj values.
-		Com_sprintf(string, 128, "Intermission (%iv%i)", numRedPlayers, numBluePlayers);
+		Com_sprintf(string, 128, "%iv%i: Intermission", numRedPlayers, numBluePlayers);
 		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 		return;
 	}
