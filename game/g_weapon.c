@@ -599,21 +599,21 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToVictim); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
 			if (VectorLength(distanceToVictim) < 600)
 			{
-				sizeOfConeOfProhibitedSpam = 75;//reduced from 90
+				sizeOfConeOfProhibitedSpam = 70;//reduced from 75
 			}
 			else if (VectorLength(distanceToVictim) >= 600 && VectorLength(distanceToVictim) < 900)
 			{
-				sizeOfConeOfProhibitedSpam = 60; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				sizeOfConeOfProhibitedSpam = 50; //reduced from 60. restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
 				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 			}
 			else if (VectorLength(distanceToVictim) >= 900 && VectorLength(distanceToVictim) < 1800)
 			{
-				sizeOfConeOfProhibitedSpam = 45; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				sizeOfConeOfProhibitedSpam = 35; //reduced from 45. restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
 				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 			}
 			else
 			{
-				sizeOfConeOfProhibitedSpam = 30; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				sizeOfConeOfProhibitedSpam = 20; //reduced from 30. restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
 				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 			}
 
