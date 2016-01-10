@@ -712,6 +712,7 @@ void InitSiegeMode(void)
 	fileHandle_t	f;
 	fileHandle_t	autofile;
 	int				n;
+	int				gensFound = 0;
 
 	if (g_gametype.integer != GT_SIEGE)
 	{
@@ -1613,6 +1614,27 @@ void SiegeBeginRound(int entNum)
 		if (targname[0])
 		{
 			G_UseTargets2(&g_entities[entNum], &g_entities[entNum], targname);
+		}
+	}
+
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	int x;
+	int gensFound = 0;
+
+	if (!Q_stricmp(mapname.string, "siege_codes"))
+	{
+		for (x = 0; x < MAX_GENTITIES; x++)
+		{
+			if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "misc_ammo_floor_unit"))
+			{
+				gensFound++;
+				if (gensFound == 2 || gensFound == 3)
+				{
+					//hacky fix to remove icons for useless ammo generators that shouldn't be in the map
+					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
+				}
+			}
 		}
 	}
 
