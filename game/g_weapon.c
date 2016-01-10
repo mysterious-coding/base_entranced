@@ -243,7 +243,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	vmCvar_t	mapversion;
-	trap_Cvar_Register(&mapversion, "mapversion", "0", CVAR_ARCHIVE | CVAR_ROM | CVAR_SERVERINFO);
+	trap_Cvar_Register(&mapversion, "mapversion", "0", CVAR_ROM | CVAR_SERVERINFO);
 
 	if (!ent || !ent->client || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{

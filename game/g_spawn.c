@@ -1338,8 +1338,20 @@ void SP_worldspawn( void )
 	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
 	trap_Cvar_Set("g_forceOnNPCs", text);
 
-	G_SpawnString("mapversion", "0", &text);
-	trap_Cvar_Set("mapversion", text);
+	G_SpawnString("mapversion", "", &text);
+
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmp(mapname.string, "siege_cargobarge2") && !text[0])
+	{
+		//hacky retcon so old cargo2 properly shows version number despite not being set in its worldspawn
+		trap_Cvar_Set("mapversion", "1.1");
+	}
+	else
+	{
+		trap_Cvar_Set("mapversion", text);
+	}
 
 	if (!debug_duoTest.integer)
 	{
