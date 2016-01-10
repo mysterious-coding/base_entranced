@@ -242,6 +242,15 @@ void WP_InitForcePowers( gentity_t *ent )
 
 	ent->client->ps.fd.forceSide = 0;
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (g_gametype.integer == GT_SIEGE && !Q_stricmp(mapname.string, "siege_codes") && (bgSiegeClasses[ent->client->siegeClass].playerClass + 10 == CLASSTYPE_JEDI))
+	{
+		//hacky fix to make sure you don't have mind trick on siege_codes
+		bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[FP_TELEPATHY] = 0;
+	}
+
 	if (g_gametype.integer == GT_SIEGE &&
 		ent->client->siegeClass != -1)
 	{ //Then use the powers for this class, and skip all this nonsense.
