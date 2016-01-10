@@ -969,6 +969,7 @@ typedef struct {
 	qboolean	hangarCompleted;
 	qboolean	ccCompleted;
 	int			lastObjectiveCompleted;
+	int			totalObjectivesCompleted;
 
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients

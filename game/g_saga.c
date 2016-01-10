@@ -731,6 +731,7 @@ void InitSiegeMode(void)
 	level.hangarCompleted = qfalse;
 	level.ccCompleted = qfalse;
 	level.lastObjectiveCompleted = 0;
+	level.totalObjectivesCompleted = 0;
 	level.siegeRoundComplete = qfalse;
 
 	//reset
@@ -1637,6 +1638,34 @@ void SiegeBeginRound(int entNum)
 			}
 		}
 	}
+	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		for (x = 0; x < MAX_GENTITIES; x++)
+		{
+			if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "misc_ammo_floor_unit"))
+			{
+				gensFound++;
+				if (gensFound == 2 || gensFound == 3)
+				{
+					//don't show these icons yet
+					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
+				}
+			}
+		}
+		gensFound = 0;
+		for (x = 0; x < MAX_GENTITIES; x++)
+		{
+			if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "misc_shield_floor_unit"))
+			{
+				gensFound++;
+				if (gensFound == 2 || gensFound == 3)
+				{
+					//don't show these icons yet
+					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
+				}
+			}
+		}
+	}
 
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
 	previousobjtime = level.time; //for time calculation of first objective
@@ -1870,6 +1899,8 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
+	level.totalObjectivesCompleted++;
+
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
@@ -1882,6 +1913,31 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 				if (&g_entities[n] && g_entities[n].objective && g_entities[n].objective == (ent->objective + 1))
 				{
 					//upon completion of a non-final objective, find the next objective and turn on its radar icon (fix for poor mapping practice on Hoth)
+					g_entities[n].s.eFlags |= EF_RADAROBJECT;
+				}
+			}
+		}
+	}
+	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		if (ent->objective == 1 || ent->objective == 4 || ent->objective == 5)
+		{
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && g_entities[n].objective && g_entities[n].objective == (ent->objective + 1))
+				{
+					//upon completion of a non-final objective, find the next objective and turn on its radar icon (fix for poor mapping practice on Nar)
+					g_entities[n].s.eFlags |= EF_RADAROBJECT;
+				}
+			}
+		}
+		else if (ent->objective == 2)
+		{
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && g_entities[n].objective && (g_entities[n].objective == 3 || g_entities[n].objective == 4))
+				{
+					//activate both station icons for nar, since these two objs can be completed in any order
 					g_entities[n].s.eFlags |= EF_RADAROBJECT;
 				}
 			}
@@ -1906,19 +1962,79 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
 				{
 					gensFound++;
-					if (gensFound >= 4)
+					if (gensFound == 5)
 					{
-						//turn on ion gen and codes bunker ammo gen
+						//turn on ion ammo gen
 						g_entities[n].s.eFlags |= EF_RADAROBJECT;
 					}
 				}
 			}
+			gensFound = 0;
 			for (n = 0; n < MAX_GENTITIES; n++)
 			{
 				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
 				{
-					//turn on ion gen and codes bunker shieldgen
-					g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					gensFound++;
+					if (gensFound == 2)
+					{
+						//turn on ion shield gen
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+		}
+		else if (ent->objective == 3)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 5)
+					{
+						//turn off ion ammo gen
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 2)
+					{
+						//turn of ion shield gen
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 4)
+					{
+						//turn on bunker ammo gen
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 1)
+					{
+						//turn on bunker shield gen
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
 				}
 			}
 		}
@@ -1935,11 +2051,6 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 						//turn off ion gen and codes bunker ammo gen
 						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
 					}
-					else if (gensFound >= 1 && gensFound <= 3)
-					{
-						//turn on side to infirmary, cc short, and cc long ammo gens
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
 				}
 			}
 			for (n = 0; n < MAX_GENTITIES; n++)
@@ -1951,8 +2062,150 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 				}
 			}
 		}
+		else if (ent->objective == 5)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound >= 1 && gensFound <= 3)
+					{
+						//turn on side to infirmary, cc short, and cc long ammo gens
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+		}
 	}
-
+	if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		if (ent->objective == 1)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 3)
+					{
+						//turn on 2nd obj ammo gen icon
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 2)
+					{
+						//turn on 2nd obj shield gen icon
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+		}
+		else if (ent->objective == 2)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 1)
+					{
+						//turn off 1st obj ammo gen icon
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 1)
+					{
+						//turn off 1st obj shield gen icon
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+				}
+			}
+		}
+		else if ((ent->objective == 3 || ent->objective == 4) && level.totalObjectivesCompleted == 4)
+		{
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 1 || gensFound == 3)
+					{
+						//turn off 1st obj and 2nd obj ammo gen icons
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 1 || gensFound == 2)
+					{
+						//turn off 1st obj and 2nd obj shield gen icons
+						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
+					}
+				}
+			}
+		}
+		else if (ent->objective == 5)
+		{
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_siege_item"))
+				{
+					//turn on the icon for the codes
+					g_entities[n].s.eFlags |= EF_RADAROBJECT;
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 2)
+					{
+						//turn on last obj ammo gen icon
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+			gensFound = 0;
+			for (n = 0; n < MAX_GENTITIES; n++)
+			{
+				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
+				{
+					gensFound++;
+					if (gensFound == 3)
+					{
+						//turn on last obj shield gen icon
+						g_entities[n].s.eFlags |= EF_RADAROBJECT;
+					}
+				}
+			}
+		}
+	}
 	if (activator)
 	{ //activator will hopefully be the person who triggered this event
 		if (activator->s.NPC_class == CLASS_VEHICLE)
@@ -2017,7 +2270,7 @@ STARTOFFRADAR - start not displaying on radar, don't display until used.
 "side" - set to 1 to specify an imperial goal, 2 to specify rebels
 "icon" - icon that represents the objective on the radar
 */
-void SP_info_siege_objective (gentity_t *ent)
+void SP_info_siege_objective(gentity_t *ent)
 {
 	char* s;
 	vmCvar_t	mapname;
@@ -2050,6 +2303,19 @@ void SP_info_siege_objective (gentity_t *ent)
 		else
 		{
 			//objectives 2-6 on hoth
+			ent->s.eFlags &= ~EF_RADAROBJECT;
+		}
+	}
+	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		if (ent->objective == 1)
+		{
+			//objective 1 on nar
+			ent->s.eFlags |= EF_RADAROBJECT;
+		}
+		else
+		{
+			//objectives 2-6 on nar
 			ent->s.eFlags &= ~EF_RADAROBJECT;
 		}
 	}
@@ -2654,16 +2920,30 @@ void SP_misc_siege_item (gentity_t *ent)
 	G_SpawnInt("autorespawn", "1", &ent->genericValue16);
 	G_SpawnInt("respawntime", "20000", &ent->genericValue17);
 
+	ent->classname = "misc_siege_item";
+
 	if (ent->genericValue1)
 	{ //if we're using physics we want lerporigin smoothing
 		ent->s.eFlags |= EF_CLIENTSMOOTH;
 	}
 
 	G_SpawnInt("noradar", "0", &noradar);
-	//Want it to always show up as a goal object on radar
-	if (!noradar && !(ent->spawnflags & SIEGEITEM_STARTOFFRADAR))
+
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
 	{
-		ent->s.eFlags |= EF_RADAROBJECT;
+		//start off with icon hidden for nar shaddaa codes
+		ent->s.eFlags &= ~EF_RADAROBJECT;
+	}
+	else
+	{
+		//Want it to always show up as a goal object on radar
+		if (!noradar && !(ent->spawnflags & SIEGEITEM_STARTOFFRADAR))
+		{
+			ent->s.eFlags |= EF_RADAROBJECT;
+		}
 	}
 
 	//All clients want to know where it is at all times for radar
