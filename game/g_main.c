@@ -4460,7 +4460,7 @@ void UpdateSiegeStatus()
 	vmCvar_t mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (Q_stricmp(mapname.string, "siege_sillyroom"))
+	if (Q_stricmp(mapname.string, "siege_sillyroom") && Q_stricmp(mapname.string, "siege_codes"))
 	{
 		if (level.lastObjectiveCompleted == 0)
 		{
