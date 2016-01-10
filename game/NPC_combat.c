@@ -339,7 +339,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		return;
 	}
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	if ( self->s.number )
 	{
 		assert( enemy != self );
@@ -2097,7 +2097,7 @@ void SP_point_combat( gentity_t *self )
 {
 	if(level.numCombatPoints >= MAX_COMBAT_POINTS)
 	{
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 		Com_Printf(S_COLOR_RED"ERROR:  Too many combat points, limit is %d\n", MAX_COMBAT_POINTS);
 #endif
 		G_FreeEntity(self);
@@ -2110,7 +2110,7 @@ void SP_point_combat( gentity_t *self )
 
 	if ( G_CheckInSolid( self, qtrue ) )
 	{
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 		Com_Printf( S_COLOR_RED"ERROR: combat point at %s in solid!\n", vtos(self->r.currentOrigin) );
 #endif
 	}
@@ -2132,7 +2132,7 @@ void CP_FindCombatPointWaypoints( void )
 	for ( i = 0; i < level.numCombatPoints; i++ )
 	{
 		level.combatPoints[i].waypoint = NAV_FindClosestWaypointForPoint2( level.combatPoints[i].origin );
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 		if ( level.combatPoints[i].waypoint == WAYPOINT_NONE )
 		{
 			Com_Printf( S_COLOR_RED"ERROR: Combat Point at %s has no waypoint!\n", vtos(level.combatPoints[i].origin) );

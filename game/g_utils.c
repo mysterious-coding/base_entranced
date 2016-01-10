@@ -106,7 +106,7 @@ Ghoul2 Insert End
 */
 
 int G_ModelIndex( const char *name ) {
-#ifdef _DEBUG_MODEL_PATH_ON_SERVER
+#if 0//#ifdef _DEBUG_MODEL_PATH_ON_SERVER
 	//debug to see if we are shoving data into configstrings for models that don't exist, and if
 	//so, where we are doing it from -rww
 	fileHandle_t fh;
@@ -1078,7 +1078,7 @@ void G_KillG2Queue(int entNum)
 {
 	if (gG2KillNum >= MAX_G2_KILL_QUEUE)
 	{ //This would be considered a Bad Thing.
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 		Com_Printf("WARNING: Exceeded the MAX_G2_KILL_QUEUE count for this frame!\n");
 #endif
 		//Since we're out of queue slots, just send it now as a seperate command (eats more bandwidth, but we have no choice)
@@ -1101,7 +1101,7 @@ void G_FreeEntity( gentity_t *ed ) {
 
 	if (ed->isSaberEntity)
 	{
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 		Com_Printf("Tried to remove JM saber!\n");
 #endif
 		return;

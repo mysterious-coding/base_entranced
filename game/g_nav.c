@@ -1582,7 +1582,7 @@ int		NAVDEBUG_curGoal			= 0;
 NAV_CalculatePaths
 -------------------------
 */
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 int fatalErrors = 0;
 char *fatalErrorPointer = NULL;
 char	fatalErrorString[4096];
@@ -1693,7 +1693,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 	int target = -1;
 	int i;
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	fatalErrors = 0;
 	memset( fatalErrorString, 0, sizeof( fatalErrorString ) );
 	fatalErrorPointer = &fatalErrorString[0];
@@ -1708,7 +1708,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 
 		if ( target != -1 )
 		{
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 //			if ( !NAV_WaypointsTooFar( ent, target ) )
 #endif
 			{
@@ -1721,7 +1721,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 
 		if ( target != -1 )
 		{
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 //			if ( !NAV_WaypointsTooFar( ent, target ) )
 #endif
 			{
@@ -1734,7 +1734,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 
 		if ( target != -1 )
 		{
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 //			if ( !NAV_WaypointsTooFar( ent, target ) )
 #endif
 			{
@@ -1747,7 +1747,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 
 		if ( target != -1 )
 		{
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 //			if ( !NAV_WaypointsTooFar( ent, target ) )
 #endif
 			{
@@ -1763,7 +1763,7 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 
 	trap_Nav_SetPathsCalculated(qfalse);
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	if ( fatalErrors )
 	{
 		Com_Printf( "%s%d FATAL NAV ERRORS\n", fatalErrorString, fatalErrors );

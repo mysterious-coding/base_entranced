@@ -3010,7 +3010,7 @@ qboolean G_BackwardAttachment(int start, int finalDestination, int insertAfter)
 }
 
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 #define PATH_TIME_DEBUG
 #endif
 

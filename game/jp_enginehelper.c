@@ -93,7 +93,7 @@ bool RestoreMemory(const replaceEntry_t *replace){
 		Com_Printf( "^1Warning: Failed to restore memory: %s\n", replace->name);
 	}
 	return success;
-//#ifdef _DEBUG
+//#if 0//#ifdef _DEBUG
 //	Com_Printf( success ? va( "  %s\n", replace->name )
 //						: va( "^1Warning: Failed to restore memory: %s\n", replace->name ) );
 //#endif
@@ -117,7 +117,7 @@ bool PlaceHook( hookEntry_t *hook )
 		Com_Printf( "^1Warning: Failed to place hook: %s\n", hook->name);
 	}
 	return success;
-//#ifdef _DEBUG
+//#if 0//#ifdef _DEBUG
 //	Com_Printf( success ? va( "  %s\n", hook->name )
 //						: va( "^1Warning: Failed to place hook: %s\n", hook->name ) );
 //#endif
@@ -137,7 +137,7 @@ bool RemoveHook( const hookEntry_t *hook )
 		Com_Printf( "^1Warning: Failed to remove hook: %s\n", hook->name);
 	}
 	return success;
-//#ifdef _DEBUG
+//#if 0//#ifdef _DEBUG
 //	Com_Printf( success ? va( "  %s\n", hook->name )
 //						: va( "^1Warning: Failed to remove hook: %s\n", hook->name ) );
 //#endif

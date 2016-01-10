@@ -387,7 +387,7 @@ static char *Q3_GetAnimBoth( gentity_t *ent )
 
 	if ( Q_stricmp( lowerName, upperName ) )
 	{
-#ifdef _DEBUG	// sigh, cut down on tester reports that aren't important
+#if 0//#ifdef _DEBUG	// sigh, cut down on tester reports that aren't important
 		G_DebugPrint( WL_WARNING, "Q3_GetAnimBoth: legs and torso animations did not match : returning legs\n" );
 #endif
 	}
@@ -2217,7 +2217,7 @@ static qboolean Q3_SetNavGoal( int entID, const char *name )
 			//We know we want to clear the lastWaypoint here
 			ent->NPC->goalEntity->lastWaypoint = WAYPOINT_NONE;
 			ent->NPC->aiFlags &= ~NPCAI_TOUCHED_GOAL;
-	#ifdef _DEBUG
+	#if 0//#ifdef _DEBUG
 			//this is *only* for debugging navigation
 			ent->NPC->tempGoal->target = G_NewString( name );
 	#endif// _DEBUG

@@ -361,7 +361,7 @@ char *ConcatArgs( int start );
 extern vmCvar_t bot_forcepowers;
 extern vmCvar_t bot_forgimmick;
 extern vmCvar_t bot_honorableduelacceptance;
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 extern vmCvar_t bot_nogoals;
 extern vmCvar_t bot_debugmessages;
 #endif

@@ -2558,7 +2558,7 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 
 		//FIXME: saber sounds (on, off, loop)
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 		Com_Printf( "WARNING: unknown keyword '%s' while parsing '%s'\n", token, useSaber );
 #endif
 		SkipRestOfLine( &p );

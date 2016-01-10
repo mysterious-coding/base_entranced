@@ -46,7 +46,7 @@
 #endif
 */
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 #define G2_PERFORMANCE_ANALYSIS
 #define _FULL_G2_LEAK_CHECKING
 extern int g_Ghoul2Allocations;

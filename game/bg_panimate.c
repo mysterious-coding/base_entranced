@@ -1946,7 +1946,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 				{
 					animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = trap_S_RegisterSound( stringData );
 				}
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 				if ( !animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] &&
 					 stringData[0] != '*')
 				{//couldn't register it - file not found
@@ -2214,7 +2214,7 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	if ( len >= sizeof( text ) - 1 ) 
 	{
 		trap_FS_FCloseFile(f);
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 		Com_Error(ERR_DROP, "File %s too long\n", sfilename );
 #else
 		Com_Printf( "File %s too long\n", sfilename );
@@ -2354,7 +2354,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 			}
 		}
 	}
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	else
 	{
 		assert(animset);
@@ -2419,8 +2419,8 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		animNum = GetIDForString(animTable, token);
 		if(animNum == -1)
 		{
-//#ifndef FINAL_BUILD
-#ifdef _DEBUG
+//#if 0//#ifndef FINAL_BUILD
+#if 0//#ifdef _DEBUG
 			Com_Printf(S_COLOR_RED"WARNING: Unknown token %s in %s\n", token, filename);
 			while (token[0])
 			{

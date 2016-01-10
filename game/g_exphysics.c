@@ -183,7 +183,7 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 
 	if (tr.startsolid || tr.allsolid)
 	{ //can't go anywhere from here
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 		Com_Printf("ExPhys object in solid (%i)\n", ent->s.number);
 #endif
 		if (autoKill)
