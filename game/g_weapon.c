@@ -599,22 +599,22 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToVictim); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
 			if (VectorLength(distanceToVictim) < 600)
 			{
-				sizeOfConeOfProhibitedSpam = 65;//reduced from 90
+				sizeOfConeOfProhibitedSpam = 75;//reduced from 90
 			}
 			else if (VectorLength(distanceToVictim) >= 600 && VectorLength(distanceToVictim) < 900)
 			{
-				sizeOfConeOfProhibitedSpam = 50; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
-				trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+				sizeOfConeOfProhibitedSpam = 60; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 			}
 			else if (VectorLength(distanceToVictim) >= 900 && VectorLength(distanceToVictim) < 1800)
 			{
-				sizeOfConeOfProhibitedSpam = 35; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
-				trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+				sizeOfConeOfProhibitedSpam = 45; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 			}
 			else
 			{
-				sizeOfConeOfProhibitedSpam = 25; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
-				trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
+				sizeOfConeOfProhibitedSpam = 30; //restrictive cone shouldn't be too draconian if we are rather far away...ease up on the restriction a little
+				//trap_SendServerCommand(-1, va("print \"Debug: using reduced cone size of %i\n\"", sizeOfConeOfProhibitedSpam));
 			}
 
 			if (!InFOV(potentialSpamVictim, ent, sizeOfConeOfProhibitedSpam, 170))
