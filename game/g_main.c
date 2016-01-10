@@ -4407,6 +4407,16 @@ void UpdateSiegeStatus()
 	char	string[128];
 	int i, numConnectedPlayers = 0, numRedPlayers = 0, numBluePlayers = 0, numDuelingPlayers = 0;
 
+	vmCvar_t mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!mapname.string || !mapname.string[0] || !level.siegeRoundStartTime)
+	{
+		Com_sprintf(string, 128, "");
+		trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
+		return;
+	}
+
 	for (i = 0; i < level.maxclients; i++)
 	{
 		if (level.clients[i].pers.connected != CON_DISCONNECTED) //connected player
@@ -4469,9 +4479,6 @@ void UpdateSiegeStatus()
 		//round 2
 		Com_sprintf(string, 128, "%s: Round 2", string);
 	}
-
-	vmCvar_t mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (Q_stricmp(mapname.string, "siege_sillyroom") && Q_stricmp(mapname.string, "siege_codes"))
 	{
