@@ -4457,21 +4457,27 @@ void UpdateSiegeStatus()
 		Com_sprintf(string, 128, "%s: Round 2", string);
 	}
 
-	if (level.lastObjectiveCompleted == 0)
+	vmCvar_t mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (Q_stricmp(mapname.string, "siege_sillyroom"))
 	{
-		Com_sprintf(string, 128, "%s, 1st obj", string);
-	}
-	else if (level.lastObjectiveCompleted == 1)
-	{
-		Com_sprintf(string, 128, "%s, 2nd obj", string);
-	}
-	else if (level.lastObjectiveCompleted == 2)
-	{
-		Com_sprintf(string, 128, "%s, 3rd obj", string);
-	}
-	else
-	{
-		Com_sprintf(string, 128, "%s, %ith obj", string, level.lastObjectiveCompleted + 1);
+		if (level.lastObjectiveCompleted == 0)
+		{
+			Com_sprintf(string, 128, "%s, 1st obj", string);
+		}
+		else if (level.lastObjectiveCompleted == 1)
+		{
+			Com_sprintf(string, 128, "%s, 2nd obj", string);
+		}
+		else if (level.lastObjectiveCompleted == 2)
+		{
+			Com_sprintf(string, 128, "%s, 3rd obj", string);
+		}
+		else
+		{
+			Com_sprintf(string, 128, "%s, %ith obj", string, level.lastObjectiveCompleted + 1);
+		}
 	}
 
 	int elapsedSeconds;
