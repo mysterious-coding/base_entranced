@@ -3921,7 +3921,10 @@ void CheckVote( void ) {
             level.voteExecuteTime = level.time + 3000;
         } else {
             trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
-
+			if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
+			}
 		// log the vote
 		G_LogPrintf("Vote timed out. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
         }
@@ -3992,6 +3995,10 @@ void CheckVote( void ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, va("print \"%s\n\"", 
 				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")) );
+			if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
+			}
 
 			// log the vote
 			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
@@ -4001,6 +4008,10 @@ void CheckVote( void ) {
 			// same behavior as a timeout
 			trap_SendServerCommand(-1, va("print \"%s\n\"",
 				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
+			if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
+			}
 
 			// log the vote
 			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
