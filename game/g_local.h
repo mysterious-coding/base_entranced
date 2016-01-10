@@ -1941,6 +1941,7 @@ extern vmCvar_t    autocfg_unknown;
 extern vmCvar_t    g_requireJoinPassword;
 extern vmCvar_t    g_joinPassword;
 extern vmCvar_t    g_swoopKillPoints;
+extern vmCvar_t    g_openJKTeamVoteFix;
 
 extern vmCvar_t    siegeStatus;
 
