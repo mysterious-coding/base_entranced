@@ -905,6 +905,12 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		}
 	}
 
+	if (!Q_stricmp(bgSiegeClasses[bgNumSiegeClasses].name, "Codes O Jedi") || !Q_stricmp(bgSiegeClasses[bgNumSiegeClasses].name, "Codes D Jedi"))
+	{
+		//hacky fix to make sure you can't use mindtrick on siege_codes
+		bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[FP_TELEPATHY] = 0;
+	}
+
 	//Parse classflags
 	if (BG_SiegeGetPairedValue(classInfo, "classflags", parseBuf))
 	{
