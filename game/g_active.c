@@ -3118,7 +3118,7 @@ void ClientThink_real( gentity_t *ent ) {
 	//rww - bgghoul2
 	pm.ghoul2 = NULL;
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	if (g_disableServerG2.integer)
 	{
 

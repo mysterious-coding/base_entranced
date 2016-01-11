@@ -3953,7 +3953,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 			// Get ready for an attempt to trace through another person
 			VectorCopy( tr.endpos, start );
 			skip = tr.entityNum;
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 			Com_Printf( "BAD! Concussion gun shot somehow traced back and hit the owner!\n" );			
 #endif
 			continue;

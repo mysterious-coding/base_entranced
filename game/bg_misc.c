@@ -2647,7 +2647,7 @@ Handles the sequence numbers
 
 void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	{
 		static vmCvar_t		showEvents;
 		static qboolean		isRegistered = qfalse;

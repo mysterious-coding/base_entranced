@@ -85,7 +85,7 @@ extern vec3_t gPainPoint;
 
 #define FL_BBRUSH					0x04000000 //I am a breakable brush
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 #define DEBUG_SABER_BOX
 #endif
 
@@ -1729,7 +1729,7 @@ extern	vmCvar_t	g_stepSlideFix;
 
 extern	vmCvar_t	g_noSpecMove;
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 extern	vmCvar_t	g_disableServerG2;
 #endif
 
@@ -1788,7 +1788,7 @@ extern	vmCvar_t	g_spectatorInactivity;
 extern	vmCvar_t	g_debugMove;
 
 extern	vmCvar_t	g_debugAlloc;
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 extern	vmCvar_t	g_debugDamage;
 #endif
 extern	vmCvar_t	g_debugServerSkel;
@@ -1824,7 +1824,7 @@ extern	vmCvar_t	g_saberDmgVelocityScale;
 extern	vmCvar_t	g_saberDmgDelay_Idle;
 extern	vmCvar_t	g_saberDmgDelay_Wound;
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 extern	vmCvar_t	g_saberDebugPrint;
 #endif
 

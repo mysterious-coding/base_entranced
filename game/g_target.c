@@ -210,7 +210,7 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 		ent->genericValue14 = level.time + ent->wait;
 	}
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	/*
 	if (!ent || !ent->inuse)
 	{

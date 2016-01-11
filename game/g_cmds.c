@@ -5082,7 +5082,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 	}
 }
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 void Cmd_DebugSetSaberMove_f(gentity_t *self)
@@ -5161,7 +5161,7 @@ void DismembermentTest(gentity_t *self);
 
 void Bot_SetForcedMovement(int bot, int forward, int right, int up);
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 extern void DismembermentByNum(gentity_t *self, int num);
 extern void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel );
 #endif
@@ -5230,7 +5230,7 @@ qboolean TryGrapple(gentity_t *ent)
 	return qfalse;
 }
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t velocity);
 #endif
 
@@ -5442,7 +5442,7 @@ void ClientCommand( int clientNum ) {
 			}
 		}
 	}
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	else if (Q_stricmp(cmd, "relax") == 0 && CheatsOk( ent ))
 	{
 		if (ent->client->ps.eFlags & EF_RAG)
@@ -5705,7 +5705,7 @@ void ClientCommand( int clientNum ) {
 		Bot_SetForcedMovement(bCl, -1, -1, arg);
 	}
 	//end bot debug cmds
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	else if (Q_stricmp(cmd, "debugSetSaberMove") == 0)
 	{
 		Cmd_DebugSetSaberMove_f(ent);
@@ -6028,7 +6028,7 @@ void ClientCommand( int clientNum ) {
 		trap_SendServerCommand( -1, "print \"Finished allocation test\n\"");
 	}
 #endif
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	else if (Q_stricmp(cmd, "debugShipDamage") == 0)
 	{
 		char	arg[MAX_STRING_CHARS];

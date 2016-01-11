@@ -276,20 +276,20 @@ void ThrowSaberToAttacker(gentity_t *self, gentity_t *attacker)
 	if (!ent || ent->enemy != self)
 	{ //something has gone very wrong (this should never happen)
 		//but in case it does.. find the saber manually
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 		Com_Printf("Lost the saber! Attempting to use global pointer..\n");
 #endif
 		ent = gJMSaberEnt;
 
 		if (!ent)
 		{
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 			Com_Printf("The global pointer was NULL. This is a bad thing.\n");
 #endif
 			return;
 		}
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 		Com_Printf("Got it (%i). Setting enemy to client %i.\n", ent->s.number, self->s.number);
 #endif
 
@@ -1416,7 +1416,7 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 		Q_strncpyz(out, "Padawan", outSize);
 }
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 void G_DebugWrite(const char *path, const char *text)
 {
 	fileHandle_t f;

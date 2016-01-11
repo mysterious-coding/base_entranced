@@ -64,11 +64,11 @@ vmCvar_t bot_forgimmick;
 vmCvar_t bot_honorableduelacceptance;
 vmCvar_t bot_pvstype;
 vmCvar_t bot_normgpath;
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 vmCvar_t bot_getinthecarrr;
 #endif
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 vmCvar_t bot_nogoals;
 vmCvar_t bot_debugmessages;
 #endif
@@ -575,7 +575,7 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 
 	if (bi->weapon == WP_NONE)
 	{
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 #endif
 		bi->weapon = WP_BRYAR_PISTOL;
 	}
@@ -690,7 +690,7 @@ int BotAI(int client, float thinktime) {
 	bot_state_t *bs;
 	char buf[1024], *args;
 	int j;
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	int start = 0;
 	int end = 0;
 #endif
@@ -740,11 +740,11 @@ int BotAI(int client, float thinktime) {
 	bs->eye[2] += bs->cur_ps.viewheight;
 	//get the area the bot is in
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	start = trap_Milliseconds();
 #endif
 	StandardBotAI(bs, thinktime);
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	end = trap_Milliseconds();
 
 	trap_Cvar_Update(&bot_debugmessages);
@@ -3600,7 +3600,7 @@ void GetIdealDestination(bot_state_t *bs)
 	vec3_t usethisvec, a;
 	gentity_t *badthing;
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	trap_Cvar_Update(&bot_nogoals);
 
 	if (bot_nogoals.integer)
@@ -5904,7 +5904,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	if (bot_getinthecarrr.integer)
 	{ //stupid vehicle debug, I tire of having to connect another client to test passengers.
 		gentity_t *botEnt = &g_entities[bs->client];
@@ -7424,7 +7424,7 @@ int BotAIStartFrame(int time) {
 		trap_Cvar_Update(&bot_attachments);
 		trap_Cvar_Update(&bot_forgimmick);
 		trap_Cvar_Update(&bot_honorableduelacceptance);
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 		trap_Cvar_Update(&bot_getinthecarrr);
 #endif
 		gUpdateVars = level.time + 1000;
@@ -7499,11 +7499,11 @@ int BotAISetup( int restart ) {
 	trap_Cvar_Register(&bot_forgimmick, "bot_forgimmick", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_honorableduelacceptance, "bot_honorableduelacceptance", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_pvstype, "bot_pvstype", "1", CVAR_CHEAT);
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	trap_Cvar_Register(&bot_getinthecarrr, "bot_getinthecarrr", "0", 0);
 #endif
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	trap_Cvar_Register(&bot_nogoals, "bot_nogoals", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_debugmessages, "bot_debugmessages", "0", CVAR_CHEAT);
 #endif

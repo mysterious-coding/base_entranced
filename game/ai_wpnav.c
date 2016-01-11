@@ -1266,7 +1266,7 @@ int ConnectTrail(int startindex, int endindex, qboolean behindTheScenes)
 
 	if (!foundit)
 	{
-#ifndef _DEBUG //if debug just always print this.
+#if 0//#ifndef _DEBUG //if debug just always print this.
 		if (!behindTheScenes)
 #endif
 		{

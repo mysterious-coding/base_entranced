@@ -80,7 +80,7 @@ vmCvar_t	g_stepSlideFix;
 
 vmCvar_t	g_noSpecMove;
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 vmCvar_t	g_disableServerG2;
 #endif
 
@@ -207,7 +207,7 @@ vmCvar_t    g_objscompleted_old;
 vmCvar_t    g_forceOnNpcs;
 vmCvar_t	mapversion;
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
 #endif
 vmCvar_t	g_debugAlloc;
@@ -426,7 +426,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &d_siegeSeekerNPC, "d_siegeSeekerNPC", "0", CVAR_CHEAT, 0, qtrue },
 
-#ifdef _DEBUG
+#if 0//#ifdef _DEBUG
 	{ &g_disableServerG2, "g_disableServerG2", "0", 0, 0, qtrue },
 #endif
 
@@ -519,7 +519,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
 
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
 #endif
 	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
@@ -549,7 +549,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_saberDmgDelay_Idle, "g_saberDmgDelay_Idle", "350", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_saberDmgDelay_Wound, "g_saberDmgDelay_Wound", "0", CVAR_ARCHIVE, 0, qtrue  },
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 	{ &g_saberDebugPrint, "g_saberDebugPrint", "0", CVAR_CHEAT, 0, qfalse  },
 #endif
 	{ &g_debugSaberLocks, "g_debugSaberLocks", "0", CVAR_CHEAT, 0, qfalse },
@@ -4349,7 +4349,7 @@ void NAV_CheckCalcPaths( void )
 		
 		trap_Nav_CalculatePaths(qfalse);
 
-#ifndef FINAL_BUILD
+#if 0//#ifndef FINAL_BUILD
 		if ( fatalErrors )
 		{
 			Com_Printf( S_COLOR_RED"Not saving .nav file due to fatal nav errors\n" );

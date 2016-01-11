@@ -870,7 +870,7 @@ static void G_SpewEntList(void)
 	char className[MAX_STRING_CHARS];
 	gentity_t *ent;
 	char *str;
-#ifdef FINAL_BUILD
+#if 1//#ifdef FINAL_BUILD
 	#define VM_OR_FINAL_BUILD
 #elif defined Q3_VM
 	#define VM_OR_FINAL_BUILD
