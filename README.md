@@ -25,6 +25,8 @@ You can help with the development of base_entranced by submitting bug reports, c
 
 Feel free to create a new "issue" with any question/bug report/feature request you may have. I will do my best to address your concern promptly.
 
+Notice to coders: I compile this mod with Debug setting, not Final. There are two crashes when compiling with Final: one occurs occasionally while changing the map and was caused by some code created between builds 85 and 100. The other crash is a random rare server crash that tends to happen on Desert 2nd objective. Due to auto-initialization, these crashes seem to go away with Debug compile. Until these can be fixed, this mod should be compiled with Debug.
+
 #base_entranced features
 These are unique features for base_entranced.
 
@@ -274,12 +276,16 @@ Note that this must contain EXACTLY 15 letters(one for each weapon). Also note t
 You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/g_requireJoinPassword 1` to establish the requirement, and use `/g_joinPassword "your_password_here"` to define the password. This could be useful for opening up private/pug servers to the public for spectating.
 
 ####`/help`
-
 Client command; displays some helpful commands that clients should be aware of (how to use /whois, /class, etc) as well as version number of currently-running server mod.
 
 ####`/serverstatus2`
-
 Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
+
+####`/clientlist`
+Client command; displays a list of everyone's true client numbers. Useful in combination with `/whois`, `/tell`, etc if you need someone's exact client number.
+
+####Broadcast `siegeStatus` in serverinfo
+base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
 
 ####Reset siege to round 1 on map change vote
 No more changing maps with timer going down.
@@ -295,6 +301,9 @@ Use partial client name with `/tell` or `/forceteam` (for example, `/tell pada h
 
 ####`/forceclass` and `/unforceclass`
 Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `/callteamvote`. For example, `/callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `/callteamvote unforceclass pad` to undo this restriction. Use `/teamvote yes` and `/teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
+
+####`/g_openJKTeamVoteFix`
+There is a bug preventing the on-screen teamvote text from displaying on clients' screens if the server is running OpenJK Engine. This workaround prints some text on your screen so you can see what the vote is for. basejka servers should leave this at 0; OpenJK servers should set it to 1. If you don't know what this means, set it to 0.
 
 ####`/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
@@ -328,6 +337,8 @@ Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the s
 
 Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (JK3 default).
 
+Mapmakers can set the new `mapversion` key in `worldspawn`, which lets everyone know in the serverinfo what version of the map is currently in use on the server.
+
 Mapmakers can add some new extra flags to .scl siege class files for additional control over siege classes:
 * `ammoblaster <#>`
 * `ammopowercell <#>`
@@ -352,6 +363,14 @@ Mapmakers can add some new extra keys to `misc_siege_item` for additional contro
 `hideIconWhileCarried 0` = item's radar icon will be shown normally (default/basejka)
 
 `hideIconWhileCarried 1` = item's radar icon will be hidden while item is carried, and will reappear when dropped
+
+`idealClassType` = this item can only be picked up by this class type on team 1. Use the first letter of the class, e.g. `idealClassType s` for scout.
+
+`idealClassTypeTeam2` = this item can only be picked up by this class type on team 2. Use the first letter of the class, e.g. `idealClassTypeTeam2 s` for scout.
+
+`speedMultiplier` = this item causes a carrier on team 1 to change their speed, e.g. `speedMultiplier 0.5` to make the carrier move at 50% speed.
+
+`speedMultiplierTeam2` = this item causes a carrier on team 2 to change their speed, e.g. `speedMultiplierTeam2 0.5` to make the carrier move at 50% speed.
 
 `removeFromOwnerOnUse 0` = player holding item will continue to hold item after using it
 
@@ -423,9 +442,9 @@ For example, to make an NPC receive double knockback from melee, stun baton, and
 
 Note that `specialKnockback` overrides any other 0x/2x/3x/4x knockback flags.
 
-Special note on `nodmgfrom`: you can use -1 as shortcut for complete damage immunity(godmode).
+Special note on `nodmgfrom`: you can use -1 as shortcut for complete damage immunity(godmode). Also note that using -1 or "demp freezing immunity" will prevent demp from damaging NPC, knockbacking an NPC, or causing electrocution effect.
 
-Note that using -1 or "demp freezing immunity" will prevent demp from damaging NPC, knockbacking an NPC, or causing electrocution effect.
+Mapmakers can use `idealClassType` for triggers activated by red team; use the first letter of the class, e.g. `idealClassType s` for scout. Similarly, use `idealClassTypeTeam2` for blue team.
 
 Note that if a map includes these new special features, and is then played on a non-base_entranced server, those features will obviously not work.
 
@@ -471,6 +490,8 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug that made it possible to teamkill with emplaced gun even with friendly fire disabled.
 * Fixed a rare bug with everyone being forced to spec and shown class selection menu.
 * Fixed a bug with final objective sounds (e.g. "primary objective complete") not being played(note: due to a clientside bug, these sounds currently do not play for the base maps).
+* Cleaned up the displaying of radar icons on Hoth, Nar Shaddaa, and siege_codes. Fixes some icons being displayed when they shouldn't (for example, the only icon you should see at Hoth 1st obj is the 1st obj; you don't need to see any of the other objs or ammo gens or anything).
+* Mind trick has been hardcoded to be removed from siege_codes, saving the need for me to release a new pk3 update for that map.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -613,12 +634,14 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing)
-Version: base_entranced-12-18-2015-build85 (experimental) - prevent duplicate names, add `/rename`, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8S0NHeGxWUWdUdG8/view?usp=sharing)
+Version: base_entranced-1-10-2016-build100 (stable) - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`
 
 NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
 
 Old versions:
+
+Old version: base_entranced-12-18-2015-build85 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing) - prevent duplicate names, add `/rename`, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
 
 Old version: base_entranced-12-18-2015-build84 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8N3FMYXlwTzJ4cTA/view?usp=sharing) - require unaninmous yes votes to pass a teamvote, fix going spec on teamvotes, fix voting on teamvotes when you weren't in the team when it was called, add `/help`
 
