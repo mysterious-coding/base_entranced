@@ -621,7 +621,7 @@ Prevent calling votes for some things:
 
 ####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
-This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file.
+This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file, and tweak settings as desired.
 
 ####Patched siege_narshaddaa [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 
@@ -632,12 +632,12 @@ siege_narshaddaa has a bug that causes offense to always complete final obj acco
 siege_cargobarge (the original one) has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
 
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-base_entranced fixes teamnodmg, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
+base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8S0NHeGxWUWdUdG8/view?usp=sharing)
 Version: base_entranced-1-10-2016-build100 (stable) - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
 
-NOTE: Due to a current bug, server admins are advised to restart their servers regularly (preferably on a daily basis) to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request.
+NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
 
