@@ -850,6 +850,7 @@ void	Svcmd_ForceTeam_f( void ) {
 		return;
 	}
 	trap_Argv( 2, str, sizeof( str ) );
+
 	if ((!Q_stricmp(str, "r") || !Q_stricmp(str, "red")) && found->client->sess.sessionTeam == TEAM_RED)
 	{
 		goto afterTeamChange;
@@ -858,7 +859,12 @@ void	Svcmd_ForceTeam_f( void ) {
 	{
 		goto afterTeamChange;
 	}
-	SetTeam(found, str, qtrue );
+	if (found->client->pers.canJoin)
+	{
+		found->client->pers.canJoin = qtrue; // Admins can force passwordless spectators on a team
+		SetTeam(found, str, qtrue);
+		found->client->pers.canJoin = qfalse;
+	}
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		if (found->client->sess.siegeDesiredTeam == TEAM_RED)
@@ -1561,6 +1567,7 @@ void Svcmd_SpecAll_f() {
 void Svcmd_RandomCapts_f() {
     int ingame[32], spectator[32], i, numberOfIngamePlayers = 0, numberOfSpectators = 0, randNum1, randNum2;
 
+	// TODO: ignore passwordless specs
     for (i = 0; i < level.maxclients; i++) {
         if (!g_entities[i].inuse || !g_entities[i].client) {
             continue;
@@ -1738,6 +1745,7 @@ void Svcmd_RandomTeams_f() {
     int team1Count, team2Count;
     char count[2];
 
+	// TODO: ignore passwordless specs
     if (trap_Argc() < 3) {
         return;
     }

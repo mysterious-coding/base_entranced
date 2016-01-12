@@ -561,6 +561,8 @@ typedef struct {
 	int			damageCaused;
 	int			damageTaken;
 
+	// Passwordless spectators
+	qboolean	canJoin;
 } clientPersistant_t;
 
 typedef struct renderInfo_s
@@ -2014,6 +2016,7 @@ extern vmCvar_t	   g_callvotedelay;
 extern vmCvar_t	   g_callvotemaplimit;
 
 extern vmCvar_t	   sv_privateclients;
+extern vmCvar_t    sv_passwordlessSpectators;
 
 extern vmCvar_t	   g_wasRestarted;
 
