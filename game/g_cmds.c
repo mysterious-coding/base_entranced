@@ -2042,27 +2042,35 @@ G_Say
 #define EC		"\x19"
 
 qboolean chatLimitCheck(gentity_t *ent){
+	qboolean result = qtrue;
 
 	if (!ent || !ent->client)
 		return qtrue;
 
 	//special chat limit check
-	if (ent->client->pers.chatSentTime 
+	if ( !ent->client->sess.canJoin ) {
+		// If the client is a passwordless spectator, apply a more strict
+		// anti spam with a permanent lock, just like sv_floodprotect
+		result = level.time - ent->client->pers.chatSentTime > 1000;
+	} else if ( g_chatLimit.integer
+		&& ent->client->pers.chatSentTime
 		&& (level.time - ent->client->pers.chatSentTime) < 1000 ){
 		//we are in tracking minute for current user, check limit
-		if (ent->client->pers.chatSentCount >= g_chatLimit.integer){
-			return qfalse;
+		result = !( ent->client->pers.chatSentCount >= g_chatLimit.integer );
+
+		if ( result ) {
+			//it is fine
+			++ent->client->pers.chatSentCount;
 		}
-
-		//it is fine
-		++ent->client->pers.chatSentCount;
-
-	} else {
-		ent->client->pers.chatSentTime = level.time;
+	} else if ( g_chatLimit.integer ) {
 		ent->client->pers.chatSentCount = 1;
 	}
 
-	return qtrue;
+	// In any case reset the timer so people have to unpress their spam binds
+	// during the lock time to be unlocked
+	ent->client->pers.chatSentTime = level.time;
+
+	return result;
 }
 
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg )
@@ -2245,7 +2253,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	short		myClass;
 	qboolean	doNotSendLocation = qfalse;
 
-	if (g_chatLimit.integer && !chatLimitCheck(ent)){
+	// Check chat limit regardless of g_chatLimit since it now encapsulates
+	// passwordless specs chat limit
+	if ( !chatLimitCheck( ent ) ){
 		return;
 	}
 
