@@ -490,6 +490,8 @@ typedef struct {
     int         sessionId;
     int         nameChangeTime;
 
+	qboolean	canJoin; // Passwordless clients
+
 	char        username[MAX_USERNAME_SIZE];
 
 	int			siegeDuelInProgress;
@@ -560,9 +562,6 @@ typedef struct {
 	//damage calculating
 	int			damageCaused;
 	int			damageTaken;
-
-	// Passwordless spectators
-	qboolean	canJoin;
 } clientPersistant_t;
 
 typedef struct renderInfo_s

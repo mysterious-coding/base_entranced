@@ -1526,7 +1526,7 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)
 	char userinfo[MAX_INFO_STRING];
 
 	// Only check one way, so you can join spec back if you were forced as a passwordless spectator
-	if (team != TEAM_SPECTATOR && !ent->client->pers.canJoin) {
+	if (team != TEAM_SPECTATOR && !ent->client->sess.canJoin) {
 		trap_SendServerCommand(ent->client->ps.clientNum,
 			va("print \"^1You cannot join the game because your password is empty or incorrect.\n^8If you know the password, just use /password\n^8If you don't, stick around until someone gives it to you!\n\""));
 
