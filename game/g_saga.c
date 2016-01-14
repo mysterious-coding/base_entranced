@@ -1269,6 +1269,7 @@ void SiegeClearSwitchData(void)
 	previousobjtime = 0; //for time calculation of first objective
 	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
 	level.siegeRoundStartTime = 0;
+	level.antiLamingTime = 0;
 	objscompleted = 0; //clear objs completed counter
 	objscompletedoffset = 0; //clear offset
 	totalroundtime = 0; //clear total round time
@@ -1371,6 +1372,7 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
 	previousobjtime = 0; //for time calculation of first objective
 	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	level.antiLamingTime = 0;
 	level.siegeRoundStartTime = 0;
 	objscompleted = 0; //clear objs completed counter
 	objscompletedoffset = 0; //clear offset
@@ -1670,6 +1672,7 @@ void SiegeBeginRound(int entNum)
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
 	previousobjtime = level.time; //for time calculation of first objective
 	roundstarttime = level.time; //save the level.time from when we started the round so we can later calculate the exact length of the round
+	level.antiLamingTime = 0;
 	level.siegeRoundStartTime = level.time;
 	objscompleted = 0; //clear objs completed counter
 	objscompletedoffset = 0; //clear offset
@@ -1899,8 +1902,6 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
-	level.totalObjectivesCompleted++;
-
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
@@ -1951,6 +1952,8 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			return;
 		}
 	}
+
+	level.totalObjectivesCompleted++;
 
 	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{

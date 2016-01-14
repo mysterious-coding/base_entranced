@@ -186,6 +186,7 @@ vmCvar_t	g_requireJoinPassword;
 vmCvar_t	g_joinPassword;
 vmCvar_t	g_swoopKillPoints;
 vmCvar_t	g_openJKTeamVoteFix;
+vmCvar_t	g_antiLaming;
 
 vmCvar_t	siegeStatus;
 
@@ -716,6 +717,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_joinPassword, "g_joinPassword", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_openJKTeamVoteFix, "g_openJKTeamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },

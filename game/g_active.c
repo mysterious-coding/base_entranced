@@ -2533,6 +2533,61 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
+	if (g_antiLaming.integer)
+	{
+		if (ent->client->holdingObjectiveItem > 0)
+		{
+			vmCvar_t	mapname;
+			trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+			qboolean	isLaming = qfalse;
+			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+			{
+				if (ent->client->ps.origin[0] >= 400 && ent->client->ps.origin[1] <= 1132)
+				{
+					isLaming = qtrue;
+				}
+			}
+			else if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+			{
+				if (ent->client->ps.origin[1] <= 1945)
+				{
+					isLaming = qtrue;
+				}
+				else if (level.totalObjectivesCompleted && level.totalObjectivesCompleted >= 4 && ent->client->ps.origin[1] <= 5650)
+				{
+					isLaming = qtrue;
+				}
+			}
+			else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+			{
+				if (ent->client->ps.origin[0] >= -3700)
+				{
+					isLaming = qtrue;
+				}
+			}
+
+			if (isLaming && (!level.antiLamingTime || level.antiLamingTime <= level.time))
+			{
+				//we are a lamer confirmed, now let's check the cvar to determine our punishment.
+				level.antiLamingTime = level.time + 3000; //give 3 seconds for people to pick up the item without being punished.
+				if (g_antiLaming.integer == 1)
+				{
+					//soft punishment, kill them
+					G_LogPrintf("Client %i (%s) from %s killed for trying to lame an item.", ent->s.number, ent->client->pers.netname, ent->client->sess.ipString);
+					trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s was automatically killed for trying to lame an item.\n", ent->client->pers.netname));
+					G_Damage(ent, ent, ent, NULL, ent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+				}
+				else
+				{
+					//hard punishment, kick them
+					G_LogPrintf("Client %i (%s) from %s kicked from server for trying to lame an item.", ent->s.number, ent->client->pers.netname, ent->client->sess.ipString);
+					trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s was automatically kicked for trying to lame an item.\n", ent->client->pers.netname));
+					trap_SendConsoleCommand(EXEC_APPEND, va("clientkick %i\n", ent->s.number));
+				}
+			}
+		}
+	}
+
 	if (ent->client->ps.siegeDuelInProgress)
 	{
 		gentity_t *duelAgainst = &g_entities[ent->client->ps.siegeDuelIndex];

@@ -951,6 +951,7 @@ typedef struct {
 	int			antiSpawnSpamTime;
 	int			siegeStatusUpdateTime;
 	int			siegeRoundStartTime;
+	int			antiLamingTime;
 
 	qboolean	siegeRoundComplete;
 
@@ -1942,6 +1943,7 @@ extern vmCvar_t    g_requireJoinPassword;
 extern vmCvar_t    g_joinPassword;
 extern vmCvar_t    g_swoopKillPoints;
 extern vmCvar_t    g_openJKTeamVoteFix;
+extern vmCvar_t    g_antiLaming;
 
 extern vmCvar_t    siegeStatus;
 

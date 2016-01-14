@@ -4600,6 +4600,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanSpam");
 	ServerCfgColor(string, g_autoKorribanSpam.integer, ent);
+	Com_sprintf(string, 64, "g_antiLaming");
+	ServerCfgColor(string, g_antiLaming.integer, ent);
 	Com_sprintf(string, 64, "g_autoResetCustomTeams");
 	ServerCfgColor(string, g_autoResetCustomTeams.integer, ent);
 	Com_sprintf(string, 64, "g_botJumping");
