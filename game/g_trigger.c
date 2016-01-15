@@ -493,6 +493,11 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qtrue && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 3)
+	{
+		return;
+	}
+
 	if ( self->spawnflags & 2 )
 	{//FACING
 		vec3_t	forward;
