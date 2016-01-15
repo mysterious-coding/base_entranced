@@ -848,6 +848,15 @@ void SP_trigger_multiple( gentity_t *ent )
 		ent->speed *= 1000;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(ent->targetname, "partdeliverzone"))
+	{
+		ent->wait = 0;
+		//bugfix for final objective getting broken when two parts are delivered within 1 second of each other
+	}
+
 	ent->touch = Touch_Multi;
 	ent->use   = Use_Multi;
 
