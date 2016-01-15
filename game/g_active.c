@@ -2630,10 +2630,8 @@ void ClientThink_real( gentity_t *ent ) {
 				trap_SendConsoleCommand(EXEC_APPEND, va("clientkick %i\n", ent->s.number));
 			}
 
-			if (lamingMethod == LAMING_METHOD_ITEM)
-			{
-				level.antiLamingTime = level.time + 5000; //give 5 seconds for people to pick up the item without being punished.
-			}
+			level.antiLamingTime = level.time + 5000; //give 5 seconds for people to pick up the item without being punished.
+			//also ensures that we don't spam the server if the troll manages to somehow trip the laming detection continuously.
 
 		}
 	}
