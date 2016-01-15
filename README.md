@@ -6,6 +6,8 @@ by Duo
 
 a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) CTF server mod
 
+base_entranced is icensed under GPLv2 as free software. You are free to use, modify and redistribute base_entranced following the terms in LICENSE.txt.
+
 # What is base_entranced?
 
 base_entranced is a serverside-only mod for Jedi Knight 3, intended for use in the Siege gametype.
