@@ -3429,6 +3429,14 @@ void Cmd_Vote_f( gentity_t *ent ) {
 
 static void Cmd_Ready_f(gentity_t *ent) {
 	const char *publicMsg = NULL;
+	char		userinfo[MAX_INFO_STRING];
+	char		*myPassword;
+
+	if (!ent || !ent->client)
+	{
+		//???
+		return;
+	}
 
 	if (!g_allow_ready.integer) {
 		trap_SendServerCommand(ent - g_entities, "print \"Ready is disabled.\n\"");
@@ -3440,6 +3448,18 @@ static void Cmd_Ready_f(gentity_t *ent) {
 
 	if (ent->client->pers.readyTime > level.time - 2000)
 		return;
+
+	if (g_requireJoinPassword.integer)
+	{
+		trap_GetUserinfo(ent->s.number, userinfo, sizeof(userinfo));
+		myPassword = Info_ValueForKey(userinfo, "password");
+		if (Q_stricmp(g_joinPassword.string, myPassword))
+		{
+			//wrong password
+			trap_SendServerCommand(ent->client->ps.clientNum, va("print \"This server requires a password to join the game. Enter correct password with ^5/password^7 command.\n\""));
+			return;
+		}
+	}
 
 	// if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
     //     return;
