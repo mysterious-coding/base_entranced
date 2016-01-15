@@ -1524,7 +1524,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 
 				vmCvar_t	mapname;
 				trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-				if (g_antiLaming.integer && !Q_stricmp(mapname.string, "mp/siege_desert") && !level.totalObjectivesCompleted)
+				if (g_gametype.integer == GT_SIEGE && g_antiLaming.integer && !Q_stricmp(mapname.string, "mp/siege_desert") && !level.totalObjectivesCompleted)
 				{
 				}
 				else

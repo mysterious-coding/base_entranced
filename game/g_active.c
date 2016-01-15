@@ -17,6 +17,10 @@ qboolean saberCheckKnockdown_DuelLoss(gentity_t *saberent, gentity_t *saberOwner
 
 extern vmCvar_t g_saberLockRandomNess;
 
+#define LAMING_METHOD_ITEM 1
+#define LAMING_METHOD_SKIP 2
+
+
 void P_SetTwitchInfo(gclient_t	*client)
 {
 	client->ps.painTime = level.time;
@@ -2533,17 +2537,19 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
-	if (g_antiLaming.integer)
+	if (g_antiLaming.integer && ent->client && !ent->NPC && ent->client->sess.sessionTeam == TEAM_RED && g_gametype.integer == GT_SIEGE)
 	{
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		qboolean	isLaming = qfalse;
+		int lamingMethod = 0;
 		if (ent->client->holdingObjectiveItem > 0)
 		{
-			vmCvar_t	mapname;
-			trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-			qboolean	isLaming = qfalse;
 			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 			{
-				if (ent->client->ps.origin[0] >= 400 && ent->client->ps.origin[1] <= 1132)
+				if (ent->client->ps.origin[0] >= 300 && ent->client->ps.origin[1] <= 1132)
 				{
+					//laming the codes
 					isLaming = qtrue;
 				}
 			}
@@ -2551,10 +2557,12 @@ void ClientThink_real( gentity_t *ent ) {
 			{
 				if (ent->client->ps.origin[1] <= 1945)
 				{
+					//laming the crystals
 					isLaming = qtrue;
 				}
 				else if (level.totalObjectivesCompleted && level.totalObjectivesCompleted >= 4 && ent->client->ps.origin[1] <= 5650)
 				{
+					//laming the scepter
 					isLaming = qtrue;
 				}
 			}
@@ -2562,29 +2570,71 @@ void ClientThink_real( gentity_t *ent ) {
 			{
 				if (ent->client->ps.origin[0] >= -3700)
 				{
+					//laming the parts
 					isLaming = qtrue;
 				}
 			}
 
-			if (isLaming && (!level.antiLamingTime || level.antiLamingTime <= level.time))
+			if (isLaming)
 			{
-				//we are a lamer confirmed, now let's check the cvar to determine our punishment.
-				level.antiLamingTime = level.time + 3000; //give 3 seconds for people to pick up the item without being punished.
-				if (g_antiLaming.integer == 1)
+				lamingMethod = LAMING_METHOD_ITEM;
+			}
+		}
+		else
+		{
+			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+			{
+				if (level.totalObjectivesCompleted <= 2 && ent->client->ps.origin[0] >= -691 && ent->client->ps.origin[0] < 157 &&
+					ent->client->ps.origin[1] >= 1592 && ent->client->ps.origin[1] <= 2457 && ent->client->ps.origin[2] >= 300)
 				{
-					//soft punishment, kill them
-					G_LogPrintf("Client %i (%s) from %s killed for trying to lame an item.", ent->s.number, ent->client->pers.netname, ent->client->sess.ipString);
-					trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s was automatically killed for trying to lame an item.\n", ent->client->pers.netname));
-					G_Damage(ent, ent, ent, NULL, ent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+					//got to codes area before gen was destroyed
+					isLaming = qtrue;
 				}
-				else
+				else if (level.totalObjectivesCompleted <= 3 && ent->client->ps.origin[0] >= -2712 && ent->client->ps.origin[0] < -1027 &&
+					ent->client->ps.origin[1] >= -1052 && ent->client->ps.origin[1] <= 569 && ent->client->ps.origin[2] >= -212)
 				{
-					//hard punishment, kick them
-					G_LogPrintf("Client %i (%s) from %s kicked from server for trying to lame an item.", ent->s.number, ent->client->pers.netname, ent->client->sess.ipString);
-					trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s was automatically kicked for trying to lame an item.\n", ent->client->pers.netname));
-					trap_SendConsoleCommand(EXEC_APPEND, va("clientkick %i\n", ent->s.number));
+					//got to hangar before codes were delivered
+					isLaming = qtrue;
 				}
 			}
+			else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+			{
+				if (level.totalObjectivesCompleted <= 2 && ent->client->ps.origin[0] >= -3470 && ent->client->ps.origin[0] <= -3336 &&
+					ent->client->ps.origin[1] >= -1124 && ent->client->ps.origin[1] <= -477 && ent->client->ps.origin[2] >= 325)
+				{
+					//butlered through D spawn doors at arena before arena obj has been completed
+					isLaming = qtrue;
+				}
+			}
+
+			if (isLaming)
+			{
+				lamingMethod = LAMING_METHOD_SKIP;
+			}
+		}
+
+		if (isLaming && (!level.antiLamingTime || level.antiLamingTime <= level.time))
+		{
+			//we are a lamer confirmed, now let's check the cvar to determine our punishment.
+			G_LogPrintf("Client %i (%s) from %s %s for %s.", ent->s.number, ent->client->pers.netname, ent->client->sess.ipString, g_antiLaming.integer == 1 ? "killed" : "kicked", lamingMethod == LAMING_METHOD_ITEM ? "laming an item" : "objective skipping");
+			trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s was automatically %s for %s.\n", ent->client->pers.netname, g_antiLaming.integer == 1 ? "killed" : "kicked", lamingMethod == LAMING_METHOD_ITEM ? "laming an item" : "objective skipping"));
+
+			if (g_antiLaming.integer == 1)
+			{
+				//soft punishment, kill them
+				G_Damage(ent, ent, ent, NULL, ent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+			}
+			else
+			{
+				//hard punishment, kick them
+				trap_SendConsoleCommand(EXEC_APPEND, va("clientkick %i\n", ent->s.number));
+			}
+
+			if (lamingMethod == LAMING_METHOD_ITEM)
+			{
+				level.antiLamingTime = level.time + 5000; //give 5 seconds for people to pick up the item without being punished.
+			}
+
 		}
 	}
 
