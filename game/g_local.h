@@ -1184,6 +1184,7 @@ void	G_SetAngles( gentity_t *ent, vec3_t angles );
 
 void	G_InitGentity( gentity_t *e );
 gentity_t	*G_Spawn (void);
+void	SetIconFromClassname(char *typeOfGen, int number, qboolean activate);
 gentity_t *G_TempEntity( vec3_t origin, int event );
 gentity_t	*G_PlayEffect(int fxID, vec3_t org, vec3_t ang);
 gentity_t	*G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang);

@@ -1406,7 +1406,7 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 
 	ent->classname = "misc_ammo_floor_unit";
 
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_gametype.integer == GT_SIEGE)
 	{
 		ent->r.svFlags |= SVF_BROADCAST;
 		ent->s.eFlags &= ~EF_RADAROBJECT;
@@ -1794,6 +1794,8 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 	ent->r.svFlags |= SVF_PLAYER_USABLE;
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
+
+	ent->classname = "misc_model_health_power_converter";
 
 	ent->use = health_power_converter_use;
 

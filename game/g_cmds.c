@@ -2336,6 +2336,52 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 
 }
 
+/*
+==================
+Cmd_KillTarget_f
+Debug command to kill whatever we are aiming at
+==================
+*/
+void Cmd_KillTarget_f(gentity_t *ent)
+{
+
+	if (!ent->client)
+		return;
+
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
+		return;
+	}
+
+	trace_t tr;
+	vec3_t tfrom, tto, fwd;
+	gentity_t *traceEnt;
+
+	VectorCopy(ent->client->ps.origin, tfrom);
+	tfrom[2] += ent->client->ps.viewheight;
+	AngleVectors(ent->client->ps.viewangles, fwd, NULL, NULL);
+	tto[0] = tfrom[0] + fwd[0] * 999999;
+	tto[1] = tfrom[1] + fwd[1] * 999999;
+	tto[2] = tfrom[2] + fwd[2] * 999999;
+
+	trap_Trace(&tr, tfrom, NULL, NULL, tto, ent->s.number, MASK_PLAYERSOLID);
+
+	if (tr.entityNum && tr.entityNum == ENTITYNUM_WORLD)
+	{
+		return;
+	}
+
+	traceEnt = &g_entities[tr.entityNum];
+
+	if (!traceEnt)
+	{
+		return;
+	}
+
+	G_Damage(traceEnt, ent, ent, NULL, NULL, 99999, 0, MOD_ROCKET);
+
+}
+
 static const char *gameNames[] = {
 	"Free For All",
 	"Holocron FFA",
@@ -5410,6 +5456,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Where_f (ent);
 	else if (Q_stricmp(cmd, "targetinfo") == 0)
 		Cmd_TargetInfo_f(ent);
+	else if (Q_stricmp(cmd, "killtarget") == 0)
+		Cmd_KillTarget_f(ent);
 	else if (Q_stricmp (cmd, "callvote") == 0)
 		Cmd_CallVote_f (ent);
 	else if (Q_stricmp (cmd, "vote") == 0)

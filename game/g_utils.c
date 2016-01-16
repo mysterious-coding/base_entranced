@@ -944,6 +944,36 @@ static void G_SpewEntList(void)
 #endif
 }
 
+void SetIconFromClassname(char *typeOfGen, int number, qboolean activate)
+{
+	//turns on or off the icon for something based on a classname (ammo/shield/health generators, siege items, etc)
+	int i, matchingEntsFound = 0;
+	for (i = 0; i < MAX_GENTITIES; i++)
+	{
+		if (&g_entities[i] && !Q_stricmp(g_entities[i].classname, typeOfGen))
+		{
+			//trap_SendServerCommand(-1, va("print \"Debug: matching ent found, ent num == %i, classname == %s\n\"", i, typeOfGen));
+			matchingEntsFound++;
+			if (matchingEntsFound == number)
+			{
+				//found it, now determine whether it's going to turn on or off.
+				if (activate == qtrue)
+				{
+					//trap_SendServerCommand(-1, va("print \"^2Debug: turning on icon for this object\n\""));
+					//turn it on
+					g_entities[i].s.eFlags |= EF_RADAROBJECT;
+				}
+				else
+				{
+					//trap_SendServerCommand(-1, va("print \"^1Debug: turning off icon for this object\n\""));
+					//turn it off
+					g_entities[i].s.eFlags &= ~EF_RADAROBJECT;
+				}
+			}
+		}
+	}
+}
+
 /*
 =================
 G_Spawn

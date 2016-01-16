@@ -712,7 +712,6 @@ void InitSiegeMode(void)
 	fileHandle_t	f;
 	fileHandle_t	autofile;
 	int				n;
-	int				gensFound = 0;
 
 	if (g_gametype.integer != GT_SIEGE)
 	{
@@ -1622,51 +1621,30 @@ void SiegeBeginRound(int entNum)
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	int x;
-	int gensFound = 0;
 
 	if (!Q_stricmp(mapname.string, "siege_codes"))
 	{
-		for (x = 0; x < MAX_GENTITIES; x++)
-		{
-			if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "misc_ammo_floor_unit"))
-			{
-				gensFound++;
-				if (gensFound == 2 || gensFound == 3)
-				{
-					//hacky fix to remove icons for useless ammo generators that shouldn't be in the map
-					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
-				}
-			}
-		}
+		//hacky fix to remove icons for useless ammo generators that shouldn't be in the map
+		SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
+		SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
 	}
 	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
 	{
-		for (x = 0; x < MAX_GENTITIES; x++)
-		{
-			if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "misc_ammo_floor_unit"))
-			{
-				gensFound++;
-				if (gensFound == 2 || gensFound == 3)
-				{
-					//don't show these icons yet
-					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
-				}
-			}
-		}
-		gensFound = 0;
-		for (x = 0; x < MAX_GENTITIES; x++)
-		{
-			if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "misc_shield_floor_unit"))
-			{
-				gensFound++;
-				if (gensFound == 2 || gensFound == 3)
-				{
-					//don't show these icons yet
-					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
-				}
-			}
-		}
+		SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
+		SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
+		SetIconFromClassname("misc_shield_floor_unit", 2, qfalse);
+		SetIconFromClassname("misc_shield_floor_unit", 3, qfalse);
+	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	{
+		SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
+		SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
+		SetIconFromClassname("misc_ammo_floor_unit", 5, qfalse);
+		SetIconFromClassname("misc_shield_floor_unit", 2, qfalse);
+		SetIconFromClassname("misc_shield_floor_unit", 3, qfalse);
+		SetIconFromClassname("misc_shield_floor_unit", 5, qfalse);
+		SetIconFromClassname("misc_model_health_power_converter", 2, qfalse);
+		SetIconFromClassname("misc_model_health_power_converter", 3, qfalse);
 	}
 
 	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
@@ -1895,7 +1873,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	int				final = 0;
 	int				i = 0;
 	int				n;
-	int				gensFound;
+	int				x;
 
 	if (!siege_valid)
 	{
@@ -1944,6 +1922,18 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			}
 		}
 	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	{
+		if (ent->objective == 1)
+		{
+		}
+		else if (!(ent->s.eFlags & EF_RADAROBJECT))
+		{	//toggle radar on and exit if it is not showing up already
+			//we still need to support the default behavior for this map (targeting inactive siege objs simply causes the icon to activate rather than completing the obj)
+			ent->s.eFlags |= EF_RADAROBJECT;
+			return;
+		}
+	}
 	else
 	{
 		if (!(ent->s.eFlags & EF_RADAROBJECT))
@@ -1959,256 +1949,93 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	{
 		if (ent->objective == 1)
 		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
+			SetIconFromClassname("misc_ammo_floor_unit", 5, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 2, qtrue);
+		}
+		else if (ent->objective == 3)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 5, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 2, qfalse);
+			SetIconFromClassname("misc_ammo_floor_unit", 4, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 1, qtrue);
+		}
+		else if (ent->objective == 4)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 4, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 1, qfalse);
+		}
+		else if (ent->objective == 5)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 1, qtrue);
+			SetIconFromClassname("misc_ammo_floor_unit", 2, qtrue);
+			SetIconFromClassname("misc_ammo_floor_unit", 3, qtrue);
+		}
+	}
+	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		if (ent->objective == 1)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 3, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 2, qtrue);
+		}
+		else if (ent->objective == 2)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 1, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 1, qfalse);
+		}
+		else if ((ent->objective == 3 || ent->objective == 4) && level.totalObjectivesCompleted == 4)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 1, qfalse);
+			SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 2, qfalse);
+		}
+		else if (ent->objective == 5)
+		{
+			SetIconFromClassname("misc_siege_icon", 1, qtrue);
+			SetIconFromClassname("misc_ammo_floor_unit", 2, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 3, qtrue);
+		}
+	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	{
+		if (ent->objective == 1)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 1, qfalse);
+			SetIconFromClassname("misc_ammo_floor_unit", 4, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 1, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 4, qfalse);
+			SetIconFromClassname("misc_model_health_power_converter", 1, qfalse);
+			SetIconFromClassname("misc_ammo_floor_unit", 2, qtrue);
+			SetIconFromClassname("misc_ammo_floor_unit", 3, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 2, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 3, qtrue);
+			SetIconFromClassname("misc_model_health_power_converter", 2, qtrue);
+		}
+		else if (ent->objective == 2)
+		{
+			SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
+			SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 2, qfalse);
+			SetIconFromClassname("misc_shield_floor_unit", 3, qfalse);
+			SetIconFromClassname("misc_model_health_power_converter", 2, qfalse);
+			for (x = 0; x < MAX_GENTITIES; x++) //get rid of the wall icons if they are still up
 			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
+				if (&g_entities[x] && !Q_stricmp(g_entities[x].classname, "info_siege_radaricon") && !Q_stricmpn(g_entities[x].targetname, "walldestroy", 11))
 				{
-					gensFound++;
-					if (gensFound == 5)
-					{
-						//turn on ion ammo gen
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 2)
-					{
-						//turn on ion shield gen
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
+					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
 				}
 			}
 		}
 		else if (ent->objective == 3)
 		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 5)
-					{
-						//turn off ion ammo gen
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 2)
-					{
-						//turn of ion shield gen
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 4)
-					{
-						//turn on bunker ammo gen
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 1)
-					{
-						//turn on bunker shield gen
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-		}
-		else if (ent->objective == 4)
-		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound >= 4)
-					{
-						//turn off ion gen and codes bunker ammo gen
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					//turn off ion gen and codes bunker shield gen
-					g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-				}
-			}
-		}
-		else if (ent->objective == 5)
-		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound >= 1 && gensFound <= 3)
-					{
-						//turn on side to infirmary, cc short, and cc long ammo gens
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
+			SetIconFromClassname("misc_ammo_floor_unit", 5, qtrue);
+			SetIconFromClassname("misc_shield_floor_unit", 5, qtrue);
+			SetIconFromClassname("misc_model_health_power_converter", 3, qtrue);
 		}
 	}
-	if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
-	{
-		if (ent->objective == 1)
-		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 3)
-					{
-						//turn on 2nd obj ammo gen icon
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 2)
-					{
-						//turn on 2nd obj shield gen icon
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-		}
-		else if (ent->objective == 2)
-		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 1)
-					{
-						//turn off 1st obj ammo gen icon
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 1)
-					{
-						//turn off 1st obj shield gen icon
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-		}
-		else if ((ent->objective == 3 || ent->objective == 4) && level.totalObjectivesCompleted == 4)
-		{
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 1 || gensFound == 3)
-					{
-						//turn off 1st obj and 2nd obj ammo gen icons
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 1 || gensFound == 2)
-					{
-						//turn off 1st obj and 2nd obj shield gen icons
-						g_entities[n].s.eFlags &= ~EF_RADAROBJECT;
-					}
-				}
-			}
-		}
-		else if (ent->objective == 5)
-		{
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_siege_item"))
-				{
-					//turn on the icon for the codes
-					g_entities[n].s.eFlags |= EF_RADAROBJECT;
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_ammo_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 2)
-					{
-						//turn on last obj ammo gen icon
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-			gensFound = 0;
-			for (n = 0; n < MAX_GENTITIES; n++)
-			{
-				if (&g_entities[n] && !Q_stricmp(g_entities[n].classname, "misc_shield_floor_unit"))
-				{
-					gensFound++;
-					if (gensFound == 3)
-					{
-						//turn on last obj shield gen icon
-						g_entities[n].s.eFlags |= EF_RADAROBJECT;
-					}
-				}
-			}
-		}
-	}
+
+
+
 	if (activator)
 	{ //activator will hopefully be the person who triggered this event
 		if (activator->s.NPC_class == CLASS_VEHICLE)
@@ -2322,6 +2149,12 @@ void SP_info_siege_objective(gentity_t *ent)
 			ent->s.eFlags &= ~EF_RADAROBJECT;
 		}
 	}
+	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	{
+		//they all start off radar
+		//(obj 1 uses separate icons for each (left/right) wall segment
+		ent->s.eFlags &= ~EF_RADAROBJECT;
+	}
 	else
 	{
 		//all other maps
@@ -2396,6 +2229,8 @@ void SP_info_siege_radaricon (gentity_t *ent)
         Com_Error(ERR_DROP, "misc_siege_radaricon without an icon");
 		return;
 	}
+
+	ent->classname = "info_siege_radaricon";
 
 	ent->use = SiegeIconUse;
 
