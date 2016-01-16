@@ -1522,19 +1522,11 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				bottom[2] += parent->mins[2] - 32;
 				G_VehicleTrace( &trace, parent->currentOrigin, lMins, lMaxs, bottom, parent->s.number, CONTENTS_SOLID );
 
-				vmCvar_t	mapname;
-				trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-				if (g_gametype.integer == GT_SIEGE && g_antiLaming.integer && !Q_stricmp(mapname.string, "mp/siege_desert") && !level.totalObjectivesCompleted)
-				{
-				}
-				else
-				{
 #ifdef _JK2MP
-					G_RadiusDamage(trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, NULL, MOD_EXPLOSIVE);//FIXME: extern damage and radius or base on fuel
+				G_RadiusDamage(trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, NULL, MOD_EXPLOSIVE);//FIXME: extern damage and radius or base on fuel
 #else
-					G_RadiusDamage(trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, MOD_EXPLOSIVE);//FIXME: extern damage and radius or base on fuel
+				G_RadiusDamage(trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, MOD_EXPLOSIVE);//FIXME: extern damage and radius or base on fuel
 #endif
-				}
 			}
 
 #ifdef _JK2MP

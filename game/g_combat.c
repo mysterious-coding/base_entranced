@@ -4183,6 +4183,15 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && !Q_stricmp(mapname.string, "mp/siege_desert") && !level.totalObjectivesCompleted)
+	{
+		//can't damage the stations until the game starts
+		return;
+	}
+
 	if ((targ->flags&FL_SHIELDED) && mod != MOD_SABER  && !targ->client)
 	{//magnetically protected, this thing can only be damaged by lightsabers
 		return;
