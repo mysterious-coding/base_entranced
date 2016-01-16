@@ -732,6 +732,7 @@ void InitSiegeMode(void)
 	level.lastObjectiveCompleted = 0;
 	level.totalObjectivesCompleted = 0;
 	level.siegeRoundComplete = qfalse;
+	level.wallCompleted = qfalse;
 
 	//reset
 	SiegeSetCompleteData(0);
@@ -1927,9 +1928,38 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		if (ent->objective == 1)
 		{
 		}
+		else if (ent->objective == 2 && !level.wallCompleted) //objective 2 is targeted to enable its icon
+		{
+			ent->s.eFlags |= EF_RADAROBJECT;
+			return;
+		}
+		else if (ent->objective == 2 && level.wallCompleted) //objective 2 is targeted because it has actually been completed
+		{
+		}
 		else if (!(ent->s.eFlags & EF_RADAROBJECT))
 		{	//toggle radar on and exit if it is not showing up already
 			//we still need to support the default behavior for this map (targeting inactive siege objs simply causes the icon to activate rather than completing the obj)
+			ent->s.eFlags |= EF_RADAROBJECT;
+			return;
+		}
+	}
+	else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+	{
+		if (ent->objective == 6)
+		{
+			for (x = 0; x < MAX_GENTITIES; x++)
+			{
+				if (&g_entities[x] && g_entities[x].classname && g_entities[x].classname[0] && !Q_stricmp(g_entities[x].classname, "info_siege_radaricon") &&
+					g_entities[x].targetname && g_entities[x].targetname[0] && Q_stricmp(g_entities[x].targetname, "wedidthenewhack") && Q_stricmp(g_entities[x].targetname, "ventcentergens"))
+				{
+					//remove all the now-useless hack icons once we reach the last obj
+					g_entities[x].s.eFlags &= ~EF_RADAROBJECT;
+					G_FreeEntity(&g_entities[x]);
+				}
+			}
+		}
+		if (!(ent->s.eFlags & EF_RADAROBJECT))
+		{ //toggle radar on and exit if it is not showing up already
 			ent->s.eFlags |= EF_RADAROBJECT;
 			return;
 		}
@@ -2090,6 +2120,13 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 			SiegeObjectiveCompleted(ent->side, ent->objective, final, clUser);
 		}
+	}
+
+	if (ent->objective == 1 && !Q_stricmp(mapname.string, "mp/siege_desert"))
+	{
+		//second obj icon should always be disabled
+		SetIconFromClassname("info_siege_objective", 2, qfalse);
+		level.wallCompleted = qtrue;
 	}
 }
 

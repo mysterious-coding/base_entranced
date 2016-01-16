@@ -950,7 +950,7 @@ void SetIconFromClassname(char *typeOfGen, int number, qboolean activate)
 	int i, matchingEntsFound = 0;
 	for (i = 0; i < MAX_GENTITIES; i++)
 	{
-		if (&g_entities[i] && !Q_stricmp(g_entities[i].classname, typeOfGen))
+		if (&g_entities[i] && g_entities[i].classname && g_entities[i].classname[0] && !Q_stricmp(g_entities[i].classname, typeOfGen))
 		{
 			//trap_SendServerCommand(-1, va("print \"Debug: matching ent found, ent num == %i, classname == %s\n\"", i, typeOfGen));
 			matchingEntsFound++;
