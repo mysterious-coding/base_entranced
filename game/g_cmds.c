@@ -2336,6 +2336,8 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 
 }
 
+extern void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+
 /*
 ==================
 Cmd_KillTarget_f
@@ -2375,6 +2377,13 @@ void Cmd_KillTarget_f(gentity_t *ent)
 
 	if (!traceEnt)
 	{
+		return;
+	}
+
+	if (traceEnt->classname && traceEnt->classname[0] && !Q_stricmp(traceEnt->classname, "func_glass"))
+	{
+		//need a special exception for glass; just damaging it seems to crash the server
+		GlassDie(traceEnt, traceEnt, traceEnt, 99999, MOD_ROCKET);
 		return;
 	}
 
