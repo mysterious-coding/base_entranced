@@ -88,7 +88,16 @@ These are unique features for base_entranced.
 
 2 = any player on defense is prevented from calling up the lift if any player on offense is nearby ("nearby" is defined as between the boxes in the middle of the hangar and the lift). Returns to normal behavior after the hangar objective is completed.
 
-3 = use both 1 and 2 methods.
+3 = use both 1 and 2 methods. (suggested setting for pug servers)
+
+4 = use both 1 and 2 methods, plus completely prevent defense from calling up the lift once the infirmary has been breached by the offense. (suggested setting for public servers)
+
+####`/g_antiLaming`
+0 = no anti-laming provisions (default JK3, suggested setting for pug servers)
+
+1 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being killed.
+
+2 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being kicked from the server.
 
 ####`/g_autoKorribanFloatingItems`
 0 = `g_floatingItems` is unaffected by map change
@@ -320,6 +329,9 @@ Use to enable/disable players from using the `/ready` command.
 ####`/rename`
 Rcon command to forcibly rename a player.
 
+####Automatic downloading for everyone
+(coded by Alpha) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as in base_enhanced.
+
 ####Duplicate names fix
 Players are now prevented from using the exact same name as another player.
 
@@ -343,7 +355,7 @@ Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the s
 
 Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (JK3 default).
 
-Mapmakers can set the new `mapversion` key in `worldspawn`, which lets everyone know in the serverinfo what version of the map is currently in use on the server.
+Mapmakers can set the new `mapversion` key in `worldspawn`, which can be used in conjunction with custom base_entranced code to alter certain things for each map version (for example, if you move the map in a new update, you can automatically adjust anti-spam or any other custom features present in the mod that depend on coordinates). If you don't know what this means, ignore it.
 
 Mapmakers can add some new extra flags to .scl siege class files for additional control over siege classes:
 * `ammoblaster <#>`
@@ -496,8 +508,9 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed bug that made it possible to teamkill with emplaced gun even with friendly fire disabled.
 * Fixed a rare bug with everyone being forced to spec and shown class selection menu.
 * Fixed a bug with final objective sounds (e.g. "primary objective complete") not being played(note: due to a clientside bug, these sounds currently do not play for the base maps).
-* Cleaned up the displaying of radar icons on Hoth, Nar Shaddaa, and siege_codes. Fixes some icons being displayed when they shouldn't (for example, the only icon you should see at Hoth 1st obj is the 1st obj; you don't need to see any of the other objs or ammo gens or anything).
+* Cleaned up the displaying of radar icons on Hoth, Nar Shaddaa, Desert, and siege_codes. Fixes some icons being displayed when they shouldn't (for example, the only icon you should see at Hoth 1st obj is the 1st obj; you don't need to see any of the other objs or ammo gens or anything).
 * Mind trick has been hardcoded to be removed from siege_codes, saving the need for me to release a new pk3 update for that map.
+* Fixed a bug on the last objective of Desert caused by delivering parts within 1 second of each other.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -640,12 +653,14 @@ siege_cargobarge (the original one) has a useless extra ammo flag for defense HW
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8S0NHeGxWUWdUdG8/view?usp=sharing)
-Version: base_entranced-1-10-2016-build100 (stable) - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing)
+Version: base_entranced-1-17-2016-build101 (stable) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
+
+Old version: base_entranced-1-10-2016-build100 (unstable) [download removed) - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
 
 Old version: base_entranced-12-18-2015-build85 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing) - prevent duplicate names, add `/rename`, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
 
