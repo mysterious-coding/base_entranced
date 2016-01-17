@@ -4544,7 +4544,7 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^2WHOIS\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player with ^5/tell <player> <message>. Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player with ^5/tell <player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/IGNORE\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/ignore <name/id>^7 to stop seeing chats from a player. Partial player names or slot numbers are okay.\n\""));
