@@ -242,8 +242,6 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	vmCvar_t	mapversion;
-	trap_Cvar_Register(&mapversion, "mapversion", "0", CVAR_ROM | CVAR_SERVERINFO);
 
 	if (!ent || !ent->client || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
 	{
@@ -263,49 +261,49 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 			if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
 			{
-				if (mapversion.string && mapversion.string[0])
+				if (level.mapVersion && level.mapVersion[0])
 				{
 					//new way of doing map version numbers
 					//enables backward and forward compatibility between server mod and map
 					//also allows me to be lazy; i don't have to manually add every coordinate each time
 					//the coordinates themselves are from v1.1. i dragged the entire map to the right by 1536 units (arbitrary noticeable amount) in v1.2.
 					//if i make any more updates, i'll drag them to the right by additional increments of 1536 units.
-					if (!Q_stricmp(mapversion.string, "1.2"))
+					if (!Q_stricmp(level.mapVersion, "1.2"))
 					{
 						versionAdjustment = 1536;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.2 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.3"))
+					else if (!Q_stricmp(level.mapVersion, "1.3"))
 					{
 						versionAdjustment = 1536 * 2;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.3 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.4"))
+					else if (!Q_stricmp(level.mapVersion, "1.4"))
 					{
 						versionAdjustment = 1536 * 3;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.4 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.5"))
+					else if (!Q_stricmp(level.mapVersion, "1.5"))
 					{
 						versionAdjustment = 1536 * 4;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.5 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.6"))
+					else if (!Q_stricmp(level.mapVersion, "1.6"))
 					{
 						versionAdjustment = 1536 * 5;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.6 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.7"))
+					else if (!Q_stricmp(level.mapVersion, "1.7"))
 					{
 						versionAdjustment = 1536 * 6;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.7 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.8"))
+					else if (!Q_stricmp(level.mapVersion, "1.8"))
 					{
 						versionAdjustment = 1536 * 7;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.8 detected!\n\""));
 					}
-					else if (!Q_stricmp(mapversion.string, "1.9"))
+					else if (!Q_stricmp(level.mapVersion, "1.9"))
 					{
 						versionAdjustment = 1536 * 8;
 						//trap_SendServerCommand(-1, va("print \"Debug: version 1.9 detected!\n\""));

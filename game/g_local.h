@@ -953,6 +953,8 @@ typedef struct {
 	int			siegeRoundStartTime;
 	int			antiLamingTime;
 
+	char		mapVersion[32];
+
 	qboolean	siegeRoundComplete;
 
 	int			startTime;				// level.time the map was started
@@ -1965,7 +1967,6 @@ extern vmCvar_t    g_heldformax_old;
 extern vmCvar_t    g_objscompleted_old;
 
 extern vmCvar_t    g_forceOnNpcs;
-extern vmCvar_t    mapversion;
 
 extern vmCvar_t	   g_rconpassword;
 
