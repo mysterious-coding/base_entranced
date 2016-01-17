@@ -330,7 +330,7 @@ Use to enable/disable players from using the `/ready` command.
 Rcon command to forcibly rename a player.
 
 ####Automatic downloading for everyone
-(coded by Alpha) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as in base_enhanced.
+(coded by Alpha) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod, or those with autodownload disabled in their client) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as in base_enhanced.
 
 ####Duplicate names fix
 Players are now prevented from using the exact same name as another player.
