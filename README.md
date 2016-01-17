@@ -29,7 +29,7 @@ Feel free to create a new "issue" with any question/bug report/feature request y
 
 # Notice to coders
 
-I compile this mod with Debug setting, not Final. There are two crashes when compiling with Final: one occurs occasionally while changing the map and was caused by some code created between builds 85 and 100. The other crash is a random rare server crash that tends to happen on Desert 2nd objective. Due to auto-initialization, these crashes seem to go away with Debug compile. Until these can be fixed, this mod should be compiled with Debug.
+I compile this mod with Debug setting, not Final. There is a random rare server crash that tends to happen on Desert 2nd objective. Due to auto-initialization, this crash seems to go away with Debug compile. Until this can be fixed, this mod should be compiled with Debug.
 
 I usually try to include all related commits inside the comments of their related issue, but sometimes I forget to add some patches. If you are cherry-picking a feature into your mod, you should double check that your code matches mine to make sure you didn't miss any commits.
 
