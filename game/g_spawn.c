@@ -1343,19 +1343,26 @@ void SP_worldspawn( void )
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (!Q_stricmp(mapname.string, "siege_cargobarge2") && !text[0])
+	if (text && text[0])
 	{
-		//hacky retcon so old cargo2 properly shows version number despite not being set in its worldspawn
-		trap_Cvar_Set("mapversion", "1.1");
-	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_hoth2") && !text[0])
-	{
-		//hacky retcon so hoth2 properly shows version number despite not being set in its worldspawn
-		trap_Cvar_Set("mapversion", "1.0");
+		trap_Cvar_Set("mapversion", text);
 	}
 	else
 	{
-		trap_Cvar_Set("mapversion", text);
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2") && Q_stricmp(mapversion.string, "1.1"))
+		{
+			//hacky retcon so old cargo2 properly shows version number despite not being set in its worldspawn
+			trap_Cvar_Set("mapversion", "1.1");
+		}
+		else if (!Q_stricmp(mapname.string, "mp/siege_hoth2") && Q_stricmp(mapversion.string, "1.0"))
+		{
+			//hacky retcon so hoth2 properly shows version number despite not being set in its worldspawn
+			trap_Cvar_Set("mapversion", "1.0");
+		}
+		else
+		{
+			trap_Cvar_Set("mapversion", "");
+		}
 	}
 
 	if (!debug_duoTest.integer)
