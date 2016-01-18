@@ -1819,6 +1819,9 @@ extern	vmCvar_t	pmove_fixed;
 extern	vmCvar_t	pmove_msec;
 #include "namespace_end.h"
 
+extern	vmCvar_t	snaps;
+extern	vmCvar_t	rate;
+
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_dismember;

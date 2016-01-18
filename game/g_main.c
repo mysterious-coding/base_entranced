@@ -242,6 +242,9 @@ vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
 #include "namespace_end.h"
 
+vmCvar_t	snaps;
+vmCvar_t	rate;
+
 vmCvar_t	g_listEntity;
 vmCvar_t	g_singlePlayer;
 vmCvar_t	g_enableBreath;
@@ -540,6 +543,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &snaps, "snaps", "40", CVAR_SYSTEMINFO, 0, qfalse },
+	{ &rate, "rate", "25000", CVAR_SYSTEMINFO, 0, qfalse },
 
 	{ &g_dismember, "g_dismember", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_forceDodge, "g_forceDodge", "1", 0, 0, qtrue  },
