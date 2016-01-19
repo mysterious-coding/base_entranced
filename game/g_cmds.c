@@ -931,7 +931,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	// Only check one way, so you can join spec back if you were forced as a passwordless spectator
 	if (team != TEAM_SPECTATOR && !client->sess.canJoin) {
 		trap_SendServerCommand( ent - g_entities,
-			"cp \"^1You cannot join the game because your password is empty or incorrect\n^1If you know the password, just use /password\n\"");
+			"cp \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"" );
 		return;
 	}
 
@@ -3752,7 +3752,7 @@ static void Cmd_Ready_f(gentity_t *ent) {
 
 	if (!ent->client->sess.canJoin) {
 		trap_SendServerCommand(ent->client->ps.clientNum,
-			va("cp \"^1You cannot join the game because your password is empty or incorrect\n^1If you know the password, just use /password\n\""));
+			va("cp \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\""));
 
 		return;
 	}
