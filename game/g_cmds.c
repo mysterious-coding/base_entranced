@@ -1916,7 +1916,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 					//ingame and dead
 					Com_sprintf(text, sizeof(text), "^0(DEAD) %c%c%s", Q_COLOR_ESCAPE, color, text);
 				}
-				else if (g_improvedTeamchat.integer >= 2)
+				else if (g_improvedTeamchat.integer >= 2 && !level.intermissiontime)
 				{
 					if (ent->client->ps.stats[STAT_ARMOR])
 					{
