@@ -1612,6 +1612,12 @@ void Svcmd_ForceRound2_f() {
 	trap_SendServerCommand(-1, va("print \"Round 2 beginning with countdown of %s.\n\"", count));
 }
 
+void Svcmd_RemovePassword_f()
+{
+	trap_Cvar_Set("g_password", "");
+	trap_Printf("g_password has been cleared. The server no longer requires a password.\n");
+}
+
 void Svcmd_RandomTeams_f() {
     int i, j, temp, numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
     int otherPlayers[32], readyPlayers[32];
@@ -1927,6 +1933,12 @@ qboolean	ConsoleCommand( void ) {
 	if (Q_stricmp(cmd, "forceRound2") == 0)
 	{
 		Svcmd_ForceRound2_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "removePassword") == 0)
+	{
+		Svcmd_RemovePassword_f();
 		return qtrue;
 	}
 
