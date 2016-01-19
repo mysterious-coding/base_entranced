@@ -1433,7 +1433,13 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 				i++;
 			}
 		}
-		G_UseTargets2(&g_entities[originalWinningClient], &g_entities[originalWinningClient], teamstr);
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (Q_stricmp(mapname.string, "siege_narshaddaa"))
+		{
+			//siege_narshaddaa has a dumb roundover_target that shouldn't be called because it breaks siege stats.
+			G_UseTargets2(&g_entities[originalWinningClient], &g_entities[originalWinningClient], teamstr);
+		}
 	}
 
 	if (g_siegeTeamSwitch.integer &&
