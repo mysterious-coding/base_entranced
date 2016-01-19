@@ -4484,19 +4484,12 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 	char buffer[64];
 	gentity_t* found = NULL;
 	AliasesContext context;
-	int i;
 
 	context.entNum = ent - g_entities;
 
 	if ( trap_Argc() < 2 )
 	{
-		for ( i = 0 ; i < level.maxclients ; ++i ) {
-			if ( level.clients[i].pers.connected != CON_DISCONNECTED && !( &g_entities[i] && g_entities[i].r.svFlags & SVF_BOT ) ) {
-				trap_SendServerCommand( ent - g_entities, va( "print \"Client %i (%s"S_COLOR_WHITE"):\"",
-					i, level.clients[i].pers.netname ) );
-				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, listAliasesCallback, &context );
-			}
-		}
+		trap_SendServerCommand(ent - g_entities,"print \"usage: whois [name or client number]  (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
 		return;
 	}
 
@@ -4603,24 +4596,32 @@ void Cmd_Help_f(gentity_t *ent)
 void Cmd_ClientList_f(gentity_t *ent)
 {
 	//list all clients with real client numbers (serverstatus doesn't tell you the true client numbers)
+	//now with whois #1 name display
+
 	if (!ent->client)
 	{
 		return; //???
 	}
 
 	int i;
+	AliasesContext context;
+	
+	context.entNum = ent - g_entities;
 
-	for (i = 0; i < MAX_CLIENTS; i++)
+	for (i = 0; i < level.maxclients; ++i)
 	{
-		if (level.clients[i].pers.connected != CON_DISCONNECTED)
+		if (level.clients[i].pers.connected != CON_DISCONNECTED && &g_entities[i])
 		{
-			if (&g_entities[i] && g_entities[i].r.svFlags & SVF_BOT)
+			if (!(g_entities[i].r.svFlags & SVF_BOT))
 			{
-				trap_SendServerCommand(ent - g_entities, va("print \"Client %i (bot): %s\n\"", i, level.clients[i].pers.netname));
+				//human
+				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s"S_COLOR_WHITE":\"", i, level.clients[i].pers.netname));
+				G_CfgDbListAliases(level.clients[i].sess.ip, (unsigned int)0xFFFFFFFF, 1, listAliasesCallback, &context);
 			}
 			else
 			{
-				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s\n\"", i, level.clients[i].pers.netname));
+				//bot
+				trap_SendServerCommand(ent - g_entities, va("print \"Client %i (bot): %s\n\"", i, level.clients[i].pers.netname));
 			}
 		}
 	}

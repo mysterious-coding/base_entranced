@@ -242,7 +242,7 @@ gentity_t* G_FindClient( const char* pattern )
 		foundid = -1;
 		for ( i = 0; i < level.maxclients; ++i )
 		{
-			if ( !g_entities[i].inuse || !g_entities[i].client )
+			if ( g_entities[i].client->pers.connected == CON_DISCONNECTED || !g_entities[i].client )
 				continue;
 
 			if ( Q_stristrclean( g_entities[i].client->pers.netname, pattern ) )
