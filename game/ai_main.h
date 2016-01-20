@@ -37,6 +37,19 @@
 #define WPFLAG_CALCULATED		0x00400000 //don't calculate it again
 #define WPFLAG_NEVERONEWAY		0x00800000 //never flag it as one-way
 
+//[TABBot]
+#define WPFLAG_DESTROY_FUNCBREAK	0x01000000 //destroy all the func_breakables in the area
+//before moving to this waypoint
+#define WPFLAG_REDONLY				0x02000000 //only bots on the red team will be able to
+//use this waypoint
+#define WPFLAG_BLUEONLY				0x04000000 //only bots on the blue team will be able to
+//use this waypoint
+#define WPFLAG_FORCEPUSH			0x08000000 //force push all the active func_doors in the
+//area before moving to this waypoint.
+#define WPFLAG_FORCEPULL			0x10000000 //force pull all the active func_doors in the
+//area before moving to this waypoint.			
+//[/TABBot]
+
 #define LEVELFLAG_NOPOINTPREDICTION			1 //don't take waypoint beyond current into account when adjusting path view angles
 #define LEVELFLAG_IGNOREINFALLBACK			2 //ignore enemies when in a fallback navigation routine
 #define LEVELFLAG_IMUSTNTRUNAWAY			4 //don't be scared
@@ -54,6 +67,27 @@
 
 #define BOT_RUN_HEALTH				40
 #define BOT_WPTOUCH_DISTANCE		32
+
+//[TABBot]
+//[BotDefines]
+//Distance at which a bot knows it touched the weapon/spawnpoint it was traveling to
+#define	BOT_WEAPTOUCH_DISTANCE		10
+
+//MiscBotFlags Defines - Used by tabbots 
+#define	BOTFLAG_REACHEDCAPTUREPOINT		0x00000001
+//indicates that the bot has visited the capture point.  This is used by the bot AI to
+//know when to engage the "waiting for flag to return" behavior.  This flag is set when the
+//bot initially reaches the capture point and it's team flag isn't there.
+
+#define BOTFLAG_KNEELINGBEFOREZOD		0x00000002
+//flag to indicate that we're kneeling for the "kneel before zod" command.
+
+#define BOTFLAG_SABERCHALLENGED			0x00000004
+//flag to indicate we're issued a saber challenge as part of the BOTORDER_SABERDUELCHALLENGE tactic.
+
+//[/BotDefines]
+//[/TABBot]
+
 #define ENEMY_FORGET_MS				10000
 //if our enemy isn't visible within 10000ms (aprx 10sec) then "forget" about him and treat him like every other threat, but still look for
 //more immediate threats while main enemy is not visible
@@ -77,6 +111,13 @@
 #define BOT_FLAG_GET_DISTANCE		256
 
 #define BOT_SABER_THROW_RANGE		800
+
+//[TABBot]
+//moved to ai_main.h so we could seperate out the tab code into ai_tab.c
+#define BOT_THINK_TIME	1000/bot_fps.integer
+
+typedef int bot_route_t[MAX_WPARRAY_SIZE];
+//[/TABBot]
 
 typedef enum
 {
@@ -191,6 +232,8 @@ typedef struct bot_state_s
 	int					squadRegroupInterval;
 	int					squadCannotLead;
 
+	int					changeStyleDebounce;//[TABBot]
+
 	int					lastDeadTime;
 
 	wpobject_t			*wpCurrent;
@@ -199,6 +242,19 @@ typedef struct bot_state_s
 	vec3_t				goalAngles;
 	vec3_t				goalMovedir;
 	vec3_t				goalPosition;
+
+	//[TABBot]
+	//viewangles of enemy when you last saw him.
+	vec3_t				lastEnemyAngles;
+
+	int					MiscBotFlags;		//misc flags used for TABBot behavior.
+	int					miscBotFlagsTimer;  //this timer is used for a variety of tactic based
+											//debouncers, it's usage is based on the currentTactic
+											//and which miscFlagsTimers set.
+											//Kneel before zod uses this for debouncing the kneel
+											//The saber duel challenge behavior uses it to
+											//debounce the saber challenges.
+	//[/TABBot]
 
 	vec3_t				lastEnemySpotted;
 	vec3_t				hereWhenSpotted;
@@ -334,6 +390,106 @@ typedef struct bot_state_s
 	int					forceMove_Right;
 	int					forceMove_Up;
 	//end rww
+
+	//[TABBot]
+	//bot's wp route path
+	bot_route_t			botRoute;
+
+	//Order level stuff
+	//bot's current order/behavior
+	int					botOrder;
+	//bot orderer's clientNum
+	int					ordererNum;
+	//order's relivent entity
+	gentity_t			*orderEntity;
+	//order siege objective
+	int					orderObjective;
+
+
+	//Tactical Level
+	int					currentTactic;
+	gentity_t			*tacticEntity;
+	//objective number
+	int					tacticObjective;
+	//objective type
+	int					objectiveType;
+
+	//Visual scan behavior
+	qboolean			doVisualScan;
+	int					VisualScanTime;
+	vec3_t				VisualScanDir;
+
+	//current bot behavior
+	int					botBehave;
+
+	//evade direction
+	qboolean			evadeTime;
+	int					evadeDir;
+
+	//Walk flag
+	qboolean			doWalk;
+
+	vec3_t				DestPosition;
+
+	//Used to prevent a whole much of destination checks when moving around
+	vec3_t				lastDestPosition;
+
+	//performing some sort of special action (destroying breakables, pushing switches, etc)
+	//Don't try to override this when this is occurring.
+	qboolean			wpSpecial;
+
+	//we've touched our final destination waypoint and am now moving towards our destposition.
+	qboolean			wpTouchedDest;
+
+	//Do Jump Flag for the TAB Bot
+	qboolean			doJump;
+
+	//do Force Pull for this amount of time
+	int					doForcePull;
+
+	//position we were at when we first decided to go to this waypoint
+	vec3_t				wpCurrentLoc;
+
+	//This debounces the push pull to prevent the bots from push/pulling stuff for navigation
+	//purposes
+	int					DontSpamPushPull;
+
+	//debouncer for button presses, since this doesn't reset with wp point changes, be 
+	//careful not to set this too high
+	int					DontSpamButton;
+
+	//have you checked for an alternate route?
+	qboolean			AltRouteCheck;
+
+	//entity number you ignore for move traces.
+	int					DestIgnore;
+
+	//hold down the Use Button.
+	int					useTime;
+
+	//Debouncer for vchats to prevent the bots from spamming the hell out of them.
+	int					vchatTime;
+	//[/TABBot]
+
+	//[BotTweaks]
+	//debouncer for the saberlock button presses.  So you can boost the bot fps without
+	//problems.
+	int					saberLockDebounce;
+	//[/BotTweaks]
+
+	//[AotCTCAI]
+	int					walkTime;		//timer for walking
+	int					full_thinktime;	//debouncer for full AI processing.
+	int					BOTjumpState;	//bot jump state
+										//[AotCTCAI]
+
+										//[TABBots]
+	int					PathFindDebounce; //debouncer for A* path finding checks.
+
+										  //debouncer for the more CPU intensive higher level thinking.  No point in checking to see if
+										  //we want more weapons/ammo every 1/20 of a second
+	int					highThinkTime;
+	//[/TABBots]
 } bot_state_t;
 
 void *B_TempAlloc(int size);
@@ -355,6 +511,11 @@ int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore
 int BotIsAChickenWuss(bot_state_t *bs);
 int GetNearestVisibleWP(vec3_t org, int ignore);
 int GetBestIdleGoal(bot_state_t *bs);
+
+//[TABBot]
+//ai_tab.c
+void TAB_StandardBotAI(bot_state_t *bs, float thinktime);
+//[/TABBot]
 
 char *ConcatArgs( int start );
 
@@ -404,3 +565,21 @@ extern int gLevelFlags;
 
 extern float floattime;
 #define FloatTime() floattime
+
+//[TABBots]
+//TAB bot Behaviors
+//[Linux]
+#ifndef __linux__
+typedef enum
+#else
+enum
+#endif
+	//[/Linux]
+{
+	BBEHAVE_NONE,  //use this if you don't want a behavior function to be run
+	BBEHAVE_STILL, //bot stands still
+	BBEHAVE_MOVETO, //Move to the current inputted goalPosition;
+	BBEHAVE_ATTACK,  //Attack given entity
+	BBEHAVE_VISUALSCAN	//visually scanning around
+};
+//[/TABBots]

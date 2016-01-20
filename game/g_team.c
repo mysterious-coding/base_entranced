@@ -4,6 +4,21 @@
 #include "g_local.h"
 #include "bg_saga.h"
 
+//[TABBots]
+//moved to g_local.h
+/*
+typedef struct teamgame_s {
+float			last_flag_capture;
+int				last_capture_team;
+flagStatus_t	redStatus;	// CTF
+flagStatus_t	blueStatus;	// CTF
+flagStatus_t	flagStatus;	// One Flag CTF
+int				redTakenTime;
+int				blueTakenTime;
+} teamgame_t;
+*/
+//[/TABBots]
+
 
 typedef struct teamgame_s {
 	float			last_flag_capture;

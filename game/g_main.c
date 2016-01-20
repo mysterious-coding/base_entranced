@@ -2797,9 +2797,14 @@ void CheckIntermissionExit( void ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
+		//[TABBot]
+		//let the bots count towards the intermission end time.
+		/*
 		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
-			continue;
+		continue;
 		}
+		*/
+		//[/TABBot]
 
 		if ( cl->readyToExit ) {
 			ready++;
@@ -3906,12 +3911,17 @@ void CheckVote( void ) {
 				{ //If we're voting to a different game type, be sure to refresh all the map stuff
 					const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
 
+					//[TABBots]
+					//don't kick the bots anymore
+					/*
 					if (level.votingGametypeTo == GT_SIEGE)
 					{ //ok, kick all the bots, cause the aren't supported!
-						G_KickAllBots();
-						//just in case, set this to 0 too... I guess...maybe?
-						//trap_Cvar_Set("bot_minplayers", "0");
+					G_KickAllBots();
+					//just in case, set this to 0 too... I guess...maybe?
+					//trap_Cvar_Set("bot_minplayers", "0");
 					}
+					*/
+					//[/TABBots]
 
 					if (nextMap && nextMap[0])
 					{

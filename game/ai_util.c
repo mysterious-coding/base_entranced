@@ -860,3 +860,48 @@ void BotUtilizePersonality(bot_state_t *bs)
 	B_TempFree(65536); //group
 	trap_FS_FCloseFile(f);
 }
+
+//[TABBots]
+//Return the closest human player to position that is on this team.
+//acts just like FindClosestPlayer
+gentity_t *FindClosestHumanPlayer(vec3_t position, int enemyTeam)
+{
+	gentity_t *player;
+	int i;
+	float dist;
+	float bestdist = 9999;
+	gentity_t *closestplayer = NULL;
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		player = &g_entities[i];
+		if (!player || !player->client || !player->inuse)
+		{//player not active
+			continue;
+		}
+
+		if (player->r.svFlags & SVF_BOT)
+		{//player bot.
+			continue;
+		}
+
+		if (player->client->playerTeam != enemyTeam)
+		{//this player isn't on the team I hate.
+			continue;
+		}
+
+		if (player->health <= 0 || player->s.eFlags & EF_DEAD)
+		{//player is dead, dont use
+			continue;
+		}
+
+		dist = Distance(player->client->ps.origin, position);
+		if (dist < bestdist)
+		{
+			closestplayer = player;
+			bestdist = dist;
+		}
+	}
+
+	return closestplayer;
+}
+//[/TABBots]

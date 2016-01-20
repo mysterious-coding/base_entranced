@@ -498,7 +498,10 @@ void G_AddRandomBot( int team ) {
 				strncpy(netname, Info_ValueForKey( g_botInfos[n], "name" ), sizeof(netname)-1);
 				netname[sizeof(netname)-1] = '\0';
 				Q_CleanStr(netname);
-				trap_SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f %s %i\n", netname, skill, teamstr, 0) );
+				//[TABBots]
+				//make random bots be TABBots.
+				trap_SendConsoleCommand(EXEC_INSERT, va("addbot \"%s\" %f \"%s\" %i \"%s\" %i\n", netname, skill, teamstr, 0, netname, BOT_TAB));
+				//[/TABBots]
 				return;
 			}
 		}
@@ -620,15 +623,29 @@ void G_CheckMinimumPlayers( void ) {
 	int humanplayers, botplayers;
 	static int checkminimumplayers_time;
 
+	//[TABBot]
+	//We want the minimum players system to work in siege.
+	/*
+	if (g_gametype.integer == GT_SIEGE)
+	{
+	return;
+	}
+	*/
+	//[/TABBot]
+
 	if (level.intermissiontime) return;
 	//only check once each 10 seconds
 	if (checkminimumplayers_time > level.time - 10000) {
 		return;
 	}
 
-	//dont do this at immediate start
-	if (level.time - level.startTime < 3000)
+	//[TABBots]
+	if(level.time - level.startTime < 10000)
+	{//don't spawn in new bots for 10 seconds.  Otherwise we're going to be adding/removing
+		//bots before the original ones spawn in.
 		return;
+	}
+	//[/TABBots]
 
 	checkminimumplayers_time = level.time;
 	trap_Cvar_Update(&bot_minplayers);
@@ -736,6 +753,9 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 	Q_strncpyz( settings.personalityfile, Info_ValueForKey( userinfo, "personality" ), sizeof(settings.personalityfile) );
 	settings.skill = atof( Info_ValueForKey( userinfo, "skill" ) );
 	Q_strncpyz( settings.team, Info_ValueForKey( userinfo, "team" ), sizeof(settings.team) );
+	//[TABBot]
+	settings.botType = atoi(Info_ValueForKey(userinfo, "bottype"));
+	//[/TABBot]
 
 	if (!BotAISetupClient( clientNum, &settings, restart )) {
 		trap_DropClient( clientNum, "BotAISetupClient failed" );
@@ -751,7 +771,11 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 G_AddBot
 ===============
 */
-static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
+//[TABBot]
+//added bot type varible
+static void G_AddBot(const char *name, float skill, const char *team, int delay, char *altname, int bottype) {
+	//static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
+	//[/TABBot]
 	int				clientNum;
 	char			*botinfo;
 	gentity_t		*bot;
@@ -870,7 +894,9 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	}
 	Info_SetValueForKey( userinfo, "skill", va( "%5.2f", skill ) );
 	Info_SetValueForKey( userinfo, "team", team );
-
+	//[TABBot]
+	Info_SetValueForKey(userinfo, "bottype", va("%i", bottype));
+	//[/TABBot]
 	bot = &g_entities[ clientNum ];
 	bot->r.svFlags |= SVF_BOT;
 	bot->inuse = qtrue;
@@ -993,6 +1019,9 @@ void Svcmd_AddBot_f( void ) {
 	char			altname[MAX_TOKEN_CHARS];
 	char			string[MAX_TOKEN_CHARS];
 	char			team[MAX_TOKEN_CHARS];
+	//[TABBot]
+	int				bottype;
+	//[/TABBot]
 
 	// are bots enabled?
 	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -1002,7 +1031,10 @@ void Svcmd_AddBot_f( void ) {
 	// name
 	trap_Argv( 1, name, sizeof( name ) );
 	if ( !name[0] ) {
-		trap_Printf( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n" );
+		//[TABBots]
+		trap_Printf("Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname] [bottype]\n");
+		//trap_Printf( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n" );
+		//[/TABBots]
 		return;
 	}
 
@@ -1030,7 +1062,19 @@ void Svcmd_AddBot_f( void ) {
 	// alternative name
 	trap_Argv( 5, altname, sizeof( altname ) );
 
-	G_AddBot( name, skill, team, delay, altname );
+	//[TABBot]
+	trap_Argv(6, string, sizeof(string));
+	if (!string[0])
+	{
+		bottype = BOT_TAB;
+	}
+	else
+	{
+		bottype = atoi(string);
+	}
+	G_AddBot(name, skill, team, delay, altname, bottype);
+	//G_AddBot( name, skill, team, delay, altname );
+	//[/TABBot]
 
 	// if this was issued during gameplay and we are playing locally,
 	// go ahead and load the bot's media immediately
