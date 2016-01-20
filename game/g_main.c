@@ -208,6 +208,8 @@ vmCvar_t    g_objscompleted_old;
 
 vmCvar_t    g_forceOnNpcs;
 
+vmCvar_t	g_enforceNetSettings;
+
 #if 0//#ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
 #endif
@@ -736,6 +738,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_objscompleted_old, "g_objscompleted_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	{ &g_forceOnNpcs, "g_forceOnNpcs", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_enforceNetSettings, "g_enforceNetSettings", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_maxstatusrequests,	"g_maxstatusrequests"	, "50"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_testdebug,	"g_testdebug"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
