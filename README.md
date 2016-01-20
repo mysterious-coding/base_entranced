@@ -297,7 +297,7 @@ Client command; displays some helpful commands that clients should be aware of (
 Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
 
 ####`/clientlist`
-Client command; displays a list of everyone's true client numbers. Useful in combination with `/whois`, `/tell`, etc if you need someone's exact client number.
+Client command; displays a list of everyone's true client numbers, as well as their most-used alias. Useful in combination with `/whois`, `/tell`, etc if you need someone's exact client number.
 
 ####Broadcast `siegeStatus` in serverinfo
 base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
@@ -329,9 +329,6 @@ Use to enable/disable players from using the `/ready` command.
 ####`/rename`
 Rcon command to forcibly rename a player.
 
-####Automatic downloading for everyone
-(coded by Alpha) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod, or those with autodownload disabled in their client) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as in base_enhanced.
-
 ####Duplicate names fix
 Players are now prevented from using the exact same name as another player.
 
@@ -340,6 +337,9 @@ You can now challenge and accept captain duels using the basejka `/engage_duel` 
 
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
+
+####`/removePassword`
+In basejka, it is impossible to remove an existing server password with rcon; the only way is by cfg. Now you can simply use the rcon command `/removePassword` to clear the value of `/g_password`.
 
 ####More custom character colors
 Some models allow you to use custom color shading (for example, trandoshan and weequay). Basejka had a lower limit of 100 for these settings(to ensure colors couldn't be too dark); this limit has been removed in base_entranced. Now you can play as a black trandoshan if you want. As in basejka, use the clientside commands `char_color_red`, `char_color_green`, and `char_color_blue` (valid values are between 0-255)
@@ -511,6 +511,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Cleaned up the displaying of radar icons on Hoth, Nar Shaddaa, Desert, and siege_codes. Fixes some icons being displayed when they shouldn't (for example, the only icon you should see at Hoth 1st obj is the 1st obj; you don't need to see any of the other objs or ammo gens or anything).
 * Mind trick has been hardcoded to be removed from siege_codes, saving the need for me to release a new pk3 update for that map.
 * Fixed a bug on the last objective of Desert caused by delivering parts within 1 second of each other.
+* Fixed poor performance of force sight causing players to randomly disappear and reappear.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -535,6 +536,16 @@ Set to 0 so you don't lose points when you SK.
 0 = normal pit kills (JK3 default)
 
 1 = if you selfkill while above a pit, it grants a kill to whoever pushed you into the pit. This prevents people from denying enemies' kills with selfkill.
+
+####Automatic downloading for everyone
+(coded by Alpha; not in Sil's base_enhanced) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod, or those with autodownload disabled in their client) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as usual.
+
+####`/g_enforceNetSettings`
+(coded by Alpha, not in Sil's base_enhanced)
+
+0 = don't change any client net settings
+
+1 = clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
@@ -642,23 +653,17 @@ Prevent calling votes for some things:
 
 This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file, and tweak settings as desired.
 
-####Patched siege_narshaddaa [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-
-siege_narshaddaa has a bug that causes offense to always complete final obj according to `/g_siegeStats`. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
-
-####Patched siege_cargobarge [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-
-siege_cargobarge (the original one) has a useless extra ammo flag for defense HW, which was ignored in basejka's buggy code. Since the ammo code is fixed in base_entranced, this results in D HW spawning with 20 rockets. This patched pk3, which fixes this bug, is only required serverside. Clients do not need to update to this version.
-
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing)
-Version: base_entranced-1-17-2016-build101 (stable) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing)
+Version: base_entranced-1-20-2016-build102 (stable) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
+
+Old version: base_entranced-1-17-2016-build101 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
 
 Old version: base_entranced-1-10-2016-build100 (unstable) [download removed) - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
 
