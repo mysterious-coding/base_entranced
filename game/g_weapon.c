@@ -355,7 +355,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					return qfalse;
 				}
 			}
-			if (!Q_stricmp(mapname.string, "siege_narshaddaa") && !level.totalObjectivesCompleted)
+			if ((!Q_stricmp(mapname.string, "siege_narshaddaa") || !Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) && !level.totalObjectivesCompleted)
 			{
 				return qfalse;
 			}
