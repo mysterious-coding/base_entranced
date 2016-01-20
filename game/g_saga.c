@@ -55,13 +55,6 @@ int			gSiegeBeginTime = Q3_INFINITE;
 
 int			g_preroundState = 0; //default to starting as spec (1 is starting ingame)
 
-//[TABBot]
-//data area for objective depandancy
-//we assume that the dependancy stuff is only for the attacking team since the defenders 
-//never seem to have attackable objectives.
-int ObjectiveDependancy[MAX_OBJECTIVES][MAX_OBJECTIVEDEPENDANCY];
-//[/TABBot]
-
 void LogExit( const char *string );
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
@@ -654,12 +647,6 @@ void SiegePrintStats() //print everything
 	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
 }
 
-//[TABBot]
-//used in ai_tab.c don't do static anymore.
-char gObjectiveCfgStr[1024];
-//static char gObjectiveCfgStr[1024];
-//[/TABBot]
-
 //go through all classes on a team and register their
 //weapons and items for precaching.
 void G_SiegeRegisterWeaponsAndHoldables(int team)
@@ -717,11 +704,6 @@ void InitSiegeMode(void)
 	char			teams[2048];
 	char			objective[MAX_SIEGE_INFO_SIZE];
 	char			objecStr[8192];
-	//[TABBot]
-	int x = 0;
-	int y = 0;
-	char dependsOn[64];
-	//[/TABBot]
 	int				len = 0;
 	int				autolen = 0;
 	int				i = 0;
@@ -735,17 +717,6 @@ void InitSiegeMode(void)
 	{
 		goto failure;
 	}
-
-	//[TABBot]
-	//reset objective dependancy data
-	for (x = 0; x < MAX_OBJECTIVES; x++)
-	{
-		for (y = 0; y < MAX_OBJECTIVEDEPENDANCY; y++)
-		{
-			ObjectiveDependancy[x][y] = 0;
-		}
-	}
-	//[/TABBot]
 
 	if (!Q_stricmp(g_redTeam.string, "0"))
 	{
@@ -1012,20 +983,6 @@ void InitSiegeMode(void)
 		strcpy(objecStr, va("Objective%i", i));
 		while (BG_SiegeGetValueGroup(gParseObjectives, objecStr, objective))
 		{
-			//[TABBots]
-			//check for objective dependancy
-			x = 0;
-			strcpy(dependsOn, "DependsOn1");
-			while (x < MAX_OBJECTIVEDEPENDANCY && imperial_attackers)
-			{
-				if (BG_SiegeGetPairedValue(objective, dependsOn, goalreq))
-				{
-					ObjectiveDependancy[i - 1][x] = atoi(goalreq);
-				}
-				x++;
-				strcpy(dependsOn, va("DependsOn%i", x + 1));
-			}
-			//[/TABBots]
 			objectiveNumTeam1++;
 			i++;
 			strcpy(objecStr, va("Objective%i", i));
@@ -1050,20 +1007,6 @@ void InitSiegeMode(void)
 		strcpy(objecStr, va("Objective%i", i));
 		while (BG_SiegeGetValueGroup(gParseObjectives, objecStr, objective))
 		{
-			//[TABBots]
-			//check for objective dependancy
-			x = 0;
-			strcpy(dependsOn, "DependsOn1");
-			while (x < MAX_OBJECTIVEDEPENDANCY && rebel_attackers)
-			{
-				if (BG_SiegeGetPairedValue(objective, dependsOn, goalreq))
-				{
-					ObjectiveDependancy[i - 1][x] = atoi(goalreq);
-				}
-				x++;
-				strcpy(dependsOn, va("DependsOn%i", x + 1));
-			}
-			//[/TABBots]
 			objectiveNumTeam2++;
 			i++;
 			strcpy(objecStr, va("Objective%i", i));
@@ -1894,18 +1837,6 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 
 	//Update the configstring status
 	G_SiegeSetObjectiveComplete(team, objective, qfalse);
-	//[TABBots]
-	//Completing an objective for one side completes the objective for both sides so the objective valid stuff works right. 
-	//(which scans to see if the objective is finished for both sides.)
-	if (team == SIEGETEAM_TEAM1)
-	{
-		G_SiegeSetObjectiveComplete(SIEGETEAM_TEAM2, objective, qfalse);
-	}
-	else
-	{
-		G_SiegeSetObjectiveComplete(SIEGETEAM_TEAM1, objective, qfalse);
-	}
-	//[/TABBots]
 
 	if (final != -1)
 	{
@@ -2370,19 +2301,6 @@ void decompTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 	//Update the configstring status
 	G_SiegeSetObjectiveComplete(ent->side, ent->objective, qtrue);
-
-	//[TABBots]
-	//Completing an objective for one side completes the objective for both sides so the objective valid stuff works right. 
-	//(which scans to see if the objective is finished for both sides.)
-	if (ent->side == SIEGETEAM_TEAM1)
-	{
-		G_SiegeSetObjectiveComplete(SIEGETEAM_TEAM2, ent->objective, qtrue);
-	}
-	else
-	{
-		G_SiegeSetObjectiveComplete(SIEGETEAM_TEAM1, ent->objective, qtrue);
-	}
-	//[/TABBots]
 
 	//Find out if this objective counts toward the final objective count
    	if (ent->side == SIEGETEAM_TEAM1)

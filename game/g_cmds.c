@@ -1811,145 +1811,6 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 }
 
-//[TABBot]
-extern void TAB_BotOrder(gentity_t *orderer, gentity_t *orderee, int order, gentity_t *objective);
-//This badboy of a function scans the say command for possible bot orders and then does them
-void BotOrderParser(gentity_t *ent, gentity_t *target, int mode, const char *chatText)
-{
-	int i;
-	//int x;
-	char tempname[36];
-	gclient_t	*cl;
-	char *ordereeloc;
-	gentity_t *orderee = NULL;
-	char *temp;
-	char text[MAX_SAY_TEXT];
-	int order;
-	gentity_t *objective = NULL;
-
-	if (ent->r.svFlags & SVF_BOT)
-	{//bots shouldn't give orders.  They were accidently giving orders to each other with some
-	 //of their taunt chats.
-		return;
-	}
-
-	Q_strncpyz(text, chatText, sizeof(text));
-	Q_CleanStr(text);
-	Q_strlwr(text);
-
-	//place marker at end of chattext
-	ordereeloc = text;
-	ordereeloc += 8 * MAX_SAY_TEXT;
-	//ordereeloc = Q_strrchr(text, "\0");
-
-	//ok, first look for a orderee
-	for (i = 0; i< g_maxclients.integer; i++)
-	{
-		cl = level.clients + i;
-		if (cl->pers.connected != CON_CONNECTED)
-		{
-			continue;
-		}
-		//[ClientNumFix]
-		if (!(g_entities[i].r.svFlags & SVF_BOT))
-			//if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) )
-			//[/ClientNumFix]
-		{
-			continue;
-		}
-		strcpy(tempname, cl->pers.netname);
-		Q_CleanStr(tempname);
-		Q_strlwr(tempname);
-
-		temp = strstr(text, tempname);
-
-		if (temp)
-		{
-			if (temp < ordereeloc)
-			{
-				ordereeloc = temp;
-				//[ClientNumFix]
-				orderee = &g_entities[i];
-				//orderee = &g_entities[cl->ps.clientNum];
-				//[/ClientNumFix]
-			}
-		}
-	}
-
-	if (!orderee)
-	{//Couldn't find a bot to order
-		return;
-	}
-
-	if (!OnSameTeam(ent, orderee))
-	{//don't take orders from a guy on the other team.
-		return;
-	}
-
-	G_Printf("%s\n", orderee->client->pers.netname);
-
-	//ok, now determine the order given
-	if (strstr(text, "kneel") || strstr(text, "bow"))
-	{//BOTORDER_KNEELBEFOREZOD
-		order = BOTORDER_KNEELBEFOREZOD;
-	}
-	else if (strstr(text, "attack") || strstr(text, "destroy"))
-	{
-		order = BOTORDER_SEARCHANDDESTROY;
-	}
-	else
-	{//no order given.
-		return;
-	}
-
-	//determine the target entity
-	if (!objective)
-	{
-		if (strstr(text, "me"))
-		{
-			objective = ent;
-		}
-		else
-		{//troll thru the player names for a possible objective entity.
-			temp = NULL;
-			for (i = 0; i< g_maxclients.integer; i++)
-			{
-				cl = level.clients + i;
-				if (cl->pers.connected != CON_CONNECTED)
-				{
-					continue;
-				}
-				//[ClientNumFix]
-				if (i == orderee - g_entities)
-					//if ( cl->ps.clientNum == orderee->client->ps.clientNum )
-					//[ClientNumFix]
-				{//Don't want the orderee to be the target
-					continue;
-				}
-				strcpy(tempname, cl->pers.netname);
-				Q_CleanStr(tempname);
-				Q_strlwr(tempname);
-
-				temp = strstr(text, tempname);
-
-				if (temp)
-				{
-					if (temp > ordereeloc)
-					{//Don't parse the orderee again
-					 //[ClientNumFix]
-						objective = &g_entities[i];
-						//objective = &g_entities[cl->ps.clientNum];
-						//[ClientNumFix]
-					}
-				}
-			}
-		}
-	}
-
-	TAB_BotOrder(ent, orderee, order, objective);
-}
-//[/TABBot]
-
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j;
 	gentity_t	*other;
@@ -1969,11 +1830,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
-
-	//[TABBot]
-	//Scan for bot orders
-	BotOrderParser(ent, target, mode, chatText);
-	//[/TABBot]
 
 	switch ( mode ) {
 	default:
@@ -5081,11 +4937,6 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 	}
 }
 
-//[TABBots]
-extern void TAB_BotSaberDuelChallenged(gentity_t *bot, gentity_t *player);
-extern int FindBotType(int clientNum);
-//[/TABBots]
-
 void Cmd_EngageDuel_f(gentity_t *ent)
 {
 	trace_t tr;
@@ -5307,13 +5158,6 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		}
 
 		challenged->client->ps.fd.privateDuelTime = 0; //reset the timer in case this player just got out of a duel. He should still be able to accept the challenge.
-
-													   //[TABBots]
-		if ((challenged->r.svFlags & SVF_BOT) && FindBotType(challenged->s.number) == BOT_TAB)
-		{//we just tried to challenge a TABBot, check to see if it's wishes to go for it.			
-			TAB_BotSaberDuelChallenged(challenged, ent);
-		}
-		//[/TABBots]
 
 		ent->client->ps.forceHandExtend = HANDEXTEND_DUELCHALLENGE;
 		ent->client->ps.forceHandExtendTime = level.time + 1000;

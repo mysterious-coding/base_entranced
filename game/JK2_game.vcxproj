@@ -71,7 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ai_main.c" />
-    <ClCompile Include="ai_tab.c" />
     <ClCompile Include="ai_util.c" />
     <ClCompile Include="ai_wpnav.c" />
     <ClCompile Include="AnimalNPC.c" />

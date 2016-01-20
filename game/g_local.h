@@ -138,65 +138,6 @@ enum
 	HL_MAX
 };
 
-//[TABBot]
-//used for objective dependancy stuff
-#define		MAX_OBJECTIVES			6
-
-//max allowed objective dependancy
-#define		MAX_OBJECTIVEDEPENDANCY	6
-
-//TAB bot orders/tactical options
-//[Linux]
-#ifndef __linux__
-typedef enum {
-#else
-enum {
-#endif
-	//[/Linux]
-	BOTORDER_NONE,  //no order
-	BOTORDER_KNEELBEFOREZOD,  //Kneel before the ordered person
-	BOTORDER_SEARCHANDDESTROY,	//Attack mode.  If given an entity the bot will search for
-								//and then attack that entity.  If NULL, the bot will just
-								//hunt around and attack enemies.
-	BOTORDER_OBJECTIVE,	//Do objective play for seige.  Bot will defend or attack objective
-						//based on who's objective it is.
-	BOTORDER_DEFEND,	//Basic defend order.  Used for CoOp Bots automatically for CoOp.
-	BOTORDER_JEDIMASTER,	//jedimaster tactics.
-	BOTORDER_SABERDUELCHALLENGE,  //enter into a saber challenge with the objective entity
-	BOTORDER_RESUPPLY,		//Go grab/use the tactic entity (used for making the bots pick up ammo).
-							/* I don't think we actually need this.
-							BOTORDER_SIEGECLASS_INFANTRY,
-							BOTORDER_SIEGECLASS_VANGUARD,
-							BOTORDER_SIEGECLASS_SUPPORT,
-							BOTORDER_SIEGECLASS_JEDI,
-							BOTORDER_SIEGECLASS_DEMOLITIONIST,
-							BOTORDER_SIEGECLASS_HEAVY_WEAPONS,
-							*/
-	BOTORDER_MAX
-};
-
-
-//Seige Objective types
-//[Linux]
-#ifndef __linux__
-typedef enum {
-#else
-enum {
-#endif
-	//[/Linux]
-	OT_NONE,	//no OT selected or bad OT
-	OT_ATTACK,	//Attack this objective, for destroyable stationary objectives
-	OT_DEFEND,  //Defend this objective, for destroyable stationary objectives 
-				//or touch objectives
-	OT_CAPTURE,  //Capture this objective
-	OT_DEFENDCAPTURE,  //prevent capture of this objective
-	OT_TOUCH,
-	OT_VEHICLE,  //get this vehicle to the related trigger_once.
-	OT_WAIT		//This is used by the bots to while they are waiting for a vehicle to respawn
-
-};
-//[/TABBot]
-
 //============================================================================
 extern void *precachedKyle;
 extern void *g2SaberInstance;
@@ -1724,38 +1665,12 @@ int		InFieldOfVision	( vec3_t viewangles, float fov, vec3_t angles);
 void B_InitAlloc(void);
 void B_CleanupAlloc(void);
 
-//[TABBot]
-//[Linux]
-#ifndef __linux__
-typedef enum {
-#else
-enum {
-#endif
-	//[/Linux]
-	//Use the JKA Default bot system.
-	BOT_DEFAULT,
-	//Use TAB bot system
-	BOT_TAB,
-	//[AotCAI]
-	//AotCTC Bot AI
-	BOT_AOTC,
-	//[/AotCAI]
-	//[Hybrid]
-	BOT_HYBRID
-	//[/Hybrid]
-};
-//[/TABBot]
-
 //bot settings
 typedef struct bot_settings_s
 {
 	char personalityfile[MAX_FILEPATH];
 	float skill;
 	char team[MAX_FILEPATH];
-	//[TABBot]
-	//Bot AI system used for bot
-	int		botType;
-	//[/TABBot]
 } bot_settings_t;
 
 int BotAISetup( int restart );
@@ -2385,19 +2300,6 @@ void trap_RMG_Init(int terrainID);
 
 void trap_Bot_UpdateWaypoints(int wpnum, wpobject_t **wps);
 void trap_Bot_CalculatePaths(int rmg);
-
-//[TABBots]
-//moved here so the TABBots can reference the teamgame info
-typedef struct teamgame_s {
-	float			last_flag_capture;
-	int				last_capture_team;
-	flagStatus_t	redStatus;	// CTF
-	flagStatus_t	blueStatus;	// CTF
-	flagStatus_t	flagStatus;	// One Flag CTF
-	int				redTakenTime;
-	int				blueTakenTime;
-} teamgame_t;
-//[/TABBots]
 
 #include "namespace_end.h"
 

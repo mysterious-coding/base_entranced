@@ -3311,9 +3311,6 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-//[TABBots]
-extern int FindBotType(int clientNum);
-//[/TABBots]
 extern qboolean WP_HasForcePowers( const playerState_t *ps );
 void ClientSpawn(gentity_t *ent) {
 	int					index;
@@ -3468,42 +3465,6 @@ void ClientSpawn(gentity_t *ent) {
 		WP_InitForcePowers( ent );
 		client->ps.fd.forceDoInit = 0;
 	}
-
-	//[TABBots]
-	if (ent->r.svFlags & SVF_BOT && FindBotType(ent->s.number) == BOT_TAB
-		&& ent->client->ps.fd.saberAnimLevel != SS_STAFF
-		&& ent->client->ps.fd.saberAnimLevel != SS_DUAL)
-	{//TABBots randomly switch styles on respawn if not using a staff or dual
-	 //[StanceSelection]
-		int newLevel = Q_irand(SS_FAST, SS_STAFF);
-
-		//new validation technique.
-		if (!G_ValidSaberStyle(ent, newLevel))
-		{//had an illegal style, revert to a valid one
-			int count;
-			for (count = SS_FAST; count < SS_STAFF; count++)
-			{
-				newLevel++;
-				if (newLevel > SS_STAFF)
-				{
-					newLevel = SS_FAST;
-				}
-
-				if (G_ValidSaberStyle(ent, newLevel))
-				{
-					break;
-				}
-			}
-		}
-
-		ent->client->ps.fd.saberAnimLevel = newLevel;
-		/*
-		ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel
-		= ent->client->sess.saberLevel = Q_irand(SS_FAST, SS_TAVION);
-		*/
-		//[/StanceSelection]
-	}
-	//[/TABBots]
 
 	if (ent->client->ps.fd.saberAnimLevel != SS_STAFF &&
 		ent->client->ps.fd.saberAnimLevel != SS_DUAL &&

@@ -96,38 +96,6 @@ char *GetFlagStr( int flags )
 		i++;
 	}
 
-	//[TABBot]
-	if (flags & WPFLAG_DESTROY_FUNCBREAK)
-	{
-		flagstr[i] = 'q';
-		i++;
-	}
-
-	if (flags & WPFLAG_REDONLY)
-	{
-		flagstr[i] = 'r';
-		i++;
-	}
-
-	if (flags & WPFLAG_BLUEONLY)
-	{
-		flagstr[i] = 'b';
-		i++;
-	}
-
-	if (flags & WPFLAG_FORCEPUSH)
-	{
-		flagstr[i] = 'p';
-		i++;
-	}
-
-	if (flags & WPFLAG_FORCEPULL)
-	{
-		flagstr[i] = 'o';
-		i++;
-	}
-	//[/TABBot]
-
 	if (flags & WPFLAG_RED_FLAG)
 	{
 		if (i)
@@ -3670,28 +3638,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 			{
 				FlagsFromArgument |= WPFLAG_NOMOVEFUNC;
 			}
-			//[TABBot]
-			else if (RequiredSArgument[i] == 'q')
-			{
-				FlagsFromArgument |= WPFLAG_DESTROY_FUNCBREAK;
-			}
-			else if (RequiredSArgument[i] == 'r')
-			{
-				FlagsFromArgument |= WPFLAG_REDONLY;
-			}
-			else if (RequiredSArgument[i] == 'b')
-			{
-				FlagsFromArgument |= WPFLAG_BLUEONLY;
-			}
-			else if (RequiredSArgument[i] == 'p')
-			{
-				FlagsFromArgument |= WPFLAG_FORCEPUSH;
-			}
-			else if (RequiredSArgument[i] == 'o')
-			{
-				FlagsFromArgument |= WPFLAG_FORCEPULL;
-			}
-			//[/TABBot]
 
 			i++;
 		}
@@ -3768,28 +3714,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 			{
 				FlagsFromArgument |= WPFLAG_NOMOVEFUNC;
 			}
-			//[TABBot]
-			else if (RequiredSArgument[i] == 'q')
-			{
-				FlagsFromArgument |= WPFLAG_DESTROY_FUNCBREAK;
-			}
-			else if (RequiredSArgument[i] == 'r')
-			{
-				FlagsFromArgument |= WPFLAG_REDONLY;
-			}
-			else if (RequiredSArgument[i] == 'b')
-			{
-				FlagsFromArgument |= WPFLAG_BLUEONLY;
-			}
-			else if (RequiredSArgument[i] == 'p')
-			{
-				FlagsFromArgument |= WPFLAG_FORCEPUSH;
-			}
-			else if (RequiredSArgument[i] == 'o')
-			{
-				FlagsFromArgument |= WPFLAG_FORCEPULL;
-			}
-			//[/TABBot]
 
 			i++;
 		}

@@ -557,11 +557,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 
 	if (bi->actionflags & ACTION_FORCEPOWER) ucmd->buttons |= BUTTON_FORCEPOWER;
 
-	//[TABBot]
-	//RAFIXME:  This is a hack to fix the hack that Raven did
-	if (bi->actionflags & ACTION_USE) ucmd->buttons |= BUTTON_USE;
-	//[/TABBot]
-
 	if (useTime < level.time && Q_irand(1, 10) < 5)
 	{ //for now just hit use randomly in case there's something useable around
 		ucmd->buttons |= BUTTON_USE;
@@ -621,32 +616,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	//crouch/movedown
 	if (bi->actionflags & ACTION_CROUCH) ucmd->upmove -= 127;
 	//
-
-	//[TABBot]
-	//Make walking work for bots.
-	if (bi->actionflags & ACTION_WALK)
-	{
-		if (ucmd->forwardmove > 46)
-		{
-			ucmd->forwardmove = 46;
-		}
-		else if (ucmd->forwardmove < -46)
-		{
-			ucmd->forwardmove = -46;
-		}
-
-		if (ucmd->rightmove > 46)
-		{
-			ucmd->rightmove = 46;
-		}
-		else if (ucmd->rightmove < -46)
-		{
-			ucmd->rightmove = -46;
-		}
-	}
-	//[/TABBot]
-
-
 }
 
 /*
@@ -663,32 +632,13 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 		bs->viewangles[j] = AngleMod(bs->viewangles[j] + SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
 	}
 	//change the bot view angles
-	//[TABBot]
-	//the current turn speed blows.
-	if (bs->settings.botType == BOT_TAB || bs->settings.botType == BOT_HYBRID)
-	{
-		BotChangeViewAngles(bs, (float)2 * elapsed_time / 1000);
-	}
-	else
-	{
-		BotChangeViewAngles(bs, (float)elapsed_time / 1000);
-	}
-	//BotChangeViewAngles(bs, (float) elapsed_time / 1000);
-	//[/TABBot]
+	BotChangeViewAngles(bs, (float) elapsed_time / 1000);
 	//retrieve the bot input
 	trap_EA_GetInput(bs->client, (float) time / 1000, &bi);
 	//respawn hack
 	if (bi.actionflags & ACTION_RESPAWN) {
 		if (bs->lastucmd.buttons & BUTTON_ATTACK) bi.actionflags &= ~(ACTION_RESPAWN|ACTION_ATTACK);
 	}
-
-	//[TABBot]
-	if (bs->doWalk)
-	{
-		bi.actionflags |= ACTION_WALK;
-	}
-	//[/TABBot]
-
 	//convert the bot input to a usercmd
 	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime);
 	//subtract the delta angles
@@ -793,39 +743,7 @@ int BotAI(int client, float thinktime) {
 #if 0//#ifdef _DEBUG
 	start = trap_Milliseconds();
 #endif
-	//[TABBot]
-	if (bs->settings.botType == BOT_TAB)
-	{
-		TAB_StandardBotAI(bs, thinktime);
-	}
-	//[/TABBot]
-	//[Hybrid]
-	else if (bs->settings.botType == BOT_HYBRID)
-	{
-		HYBRID_StandardBotAI(bs, thinktime);
-	}
-	//[/Hybrid]
-	//[AotCAI]
-	else if (bs->settings.botType == BOT_AOTC)
-	{
-		if (bs->full_thinktime < level.time
-			|| bs->BOTjumpState > JS_WAITING || bs->jumpTime > level.time || bs->cur_ps.groundEntityNum == ENTITYNUM_NONE)// In a jump/falling/etc!
-		{// Complete AI loop... Does this every 100ms or when the bot is in a jump.
-			AOTC_StandardBotAI(bs, thinktime);
-			bs->full_thinktime = level.time + (100 - bot_cpu_usage.integer);
-		}
-		else
-		{// Cut back version... for speed..
-			FastBotAI(bs, thinktime);
-		}
-	}
-	//[/AotCTC]
-	else
-	{
-		StandardBotAI(bs, thinktime);
-	}
-	//StandardBotAI(bs, thinktime);
-	//[/TABBot]
+	StandardBotAI(bs, thinktime);
 #if 0//#ifdef _DEBUG
 	end = trap_Milliseconds();
 
@@ -5243,11 +5161,7 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 
 	while (i < WP_NUM_WEAPONS)
 	{
-		//[TABBot]
-		//Fixing this so you can select zero ammo weapons (like the saber and melee weapons)
-		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
-			//if (bs->cur_ps.ammo[weaponData[i].ammoIndex] > weaponData[i].energyPerShot &&
-			//[TABBot]
+		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] > weaponData[i].energyPerShot &&
 			i == weapon &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
 		{
