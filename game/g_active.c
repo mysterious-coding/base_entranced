@@ -2599,10 +2599,18 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
 			{
-				if (level.totalObjectivesCompleted <= 2 && ent->client->ps.origin[0] >= -3470 && ent->client->ps.origin[0] <= -3336 &&
+				/*if (level.totalObjectivesCompleted <= 2 && ent->client->ps.origin[0] >= -3470 && ent->client->ps.origin[0] <= -3336 &&
 					ent->client->ps.origin[1] >= -1124 && ent->client->ps.origin[1] <= -477 && ent->client->ps.origin[2] >= 325)
 				{
 					//butlered through D spawn doors at arena before arena obj has been completed
+					isLaming = qtrue;
+				}*/
+				//removed this because the doors don't even open at that point
+				//and butlering through them after completing the arena is debatable as to whether or not it's actually laming
+				if (!level.totalObjectivesCompleted && ent->client->ps.origin[0] >= 6200 && ent->client->ps.origin[0] <= 6506 && ent->client->ps.origin[1] >= 988 &&
+					ent->client->ps.origin[1] <= 1150 && ent->client->ps.origin[2] >= -215 && ent->client->ps.origin[2] <= 127)
+				{
+					//jumped through the hole in the wall
 					isLaming = qtrue;
 				}
 			}
@@ -2617,7 +2625,7 @@ void ClientThink_real( gentity_t *ent ) {
 		{
 			//we are a lamer confirmed, now let's check the cvar to determine our punishment.
 			G_LogPrintf("Client %i (%s) from %s %s for %s.", ent->s.number, ent->client->pers.netname, ent->client->sess.ipString, g_antiLaming.integer == 1 ? "killed" : "kicked", lamingMethod == LAMING_METHOD_ITEM ? "laming an item" : "objective skipping");
-			trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s was automatically %s for %s.\n", ent->client->pers.netname, g_antiLaming.integer == 1 ? "killed" : "kicked", lamingMethod == LAMING_METHOD_ITEM ? "laming an item" : "objective skipping"));
+			trap_SendConsoleCommand(EXEC_APPEND, va("svsay %s^7 was automatically %s for %s.\n", ent->client->pers.netname, g_antiLaming.integer == 1 ? "killed" : "kicked", lamingMethod == LAMING_METHOD_ITEM ? "laming an item" : "objective skipping"));
 
 			if (g_antiLaming.integer == 1)
 			{
