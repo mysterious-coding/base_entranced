@@ -1173,8 +1173,6 @@ static void G_UpdateForceSightBroadcasts ( gentity_t *self )
 	for ( i = 0; i < level.numConnectedClients; i ++ )
 	{
 		gentity_t *ent = &g_entities[level.sortedClients[i]];
-		float	  dist;
-		vec3_t	  angles;
 	
 		if ( ent == self )
 		{
@@ -1185,22 +1183,6 @@ static void G_UpdateForceSightBroadcasts ( gentity_t *self )
 		if ( !(ent->client->ps.fd.forcePowersActive & (1<<FP_SEE) ) )
 		{
 			continue;
-		}
-
-		VectorSubtract( self->client->ps.origin, ent->client->ps.origin, angles );
-		dist = VectorLengthSquared ( angles );
-		vectoangles ( angles, angles );
-
-		// Too far away then just forget it
-		if ( dist > MAX_SIGHT_DISTANCE * MAX_SIGHT_DISTANCE )
-		{
-			continue;
-		}
-		
-		// If not within the field of view then forget it
-		if ( !InFieldOfVision ( ent->client->ps.viewangles, MAX_SIGHT_FOV, angles ) )
-		{
-			break;
 		}
 
 		// Turn on the broadcast bit for the master and since there is only one
