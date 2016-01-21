@@ -1804,7 +1804,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 
 	if (&g_entities[client] && g_entities[client].client)
 	{
-		G_LogPrintf("Objective %i completed by client %i (%s)", objective, client, g_entities[client].client->pers.netname);
+		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
 	}
 
 	vmCvar_t	mapname;
