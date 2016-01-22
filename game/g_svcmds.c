@@ -1035,7 +1035,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 
 	if (!siegeClass)
 	{
-		Com_Printf("usage: forceteam [name or client number] [first letter of class name]\n");
+		Com_Printf("usage: forceclass [name or client number] [first letter of class name]\n");
 		return;
 	}
 
