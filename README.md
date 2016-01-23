@@ -644,6 +644,7 @@ Prevent calling votes for some things:
 * Fixed NPCs attacking players in temporary dead mode.
 * Fixed sentries having retarded height detection for enemies.
 * Fixed `CFL_SINGLE_ROCKET` being able to obtain >1 rocket.
+* Fixed camera bug when speccing someone riding a swoop.
 * Security/crash fixes.
 * Probably more fixes.
 
