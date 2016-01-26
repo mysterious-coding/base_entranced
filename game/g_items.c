@@ -2259,8 +2259,19 @@ int Get_Max_Ammo( gentity_t* ent, ammo_t ammoIndex )
 		else if (ammoIndex == AMMO_ROCKETS)
 			max = 25;
 
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
 		if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO))
+		{
 			max *= 2; //double ammo
+		}
+		else if (!Q_stricmp(mapname.string, "siege_cargobarge2") && (ammoIndex == AMMO_DETPACK || ammoIndex == AMMO_THERMAL))
+		{
+			max *= 2;
+			//hacky fix to give double ammo for demos on cargo2 without me having to release an update...
+		}
+
 	}
 
 	return max;
