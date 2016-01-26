@@ -1317,8 +1317,8 @@ void G_ScaleNetHealth(gentity_t *self)
 	}
 
 	//otherwise, scale it down
-	self->s.maxhealth = (maxHealth/100);
-	self->s.health = (self->health/100);
+	self->s.maxhealth = 1000;
+	self->s.health = (int)(1000 * ((double)(self->health) / (double)(maxHealth)));
 
 	if (self->s.health < 0)
 	{ //don't let it wrap around
