@@ -2604,6 +2604,11 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
+	if (self->s.eFlags & EF_NODRAW)
+	{
+		return;
+	}
+
 	if (self->idealClassType && self->idealClassType >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_RED)
 	{
 		i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
