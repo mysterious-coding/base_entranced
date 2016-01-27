@@ -344,6 +344,9 @@ In basejka, it is impossible to remove an existing server password with rcon; th
 ####More custom character colors
 Some models allow you to use custom color shading (for example, trandoshan and weequay). Basejka had a lower limit of 100 for these settings(to ensure colors couldn't be too dark); this limit has been removed in base_entranced. Now you can play as a black trandoshan if you want. As in basejka, use the clientside commands `char_color_red`, `char_color_green`, and `char_color_blue` (valid values are between 0-255)
 
+####Map updates/improvements
+Some maps have hardcoded fixes in base_entranced in order to eliminate the need for releasing pk3 patches. For example, on siege_cargobarge2, defense demo was given double ammo via base_entranced hardcoding rather than releasing another pk3 patch.
+
 ####Enhanced mapping framework
 base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
 
@@ -657,12 +660,14 @@ This sample server.cfg contains recommended settings for all cvars, with a pug s
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing)
-Version: base_entranced-1-20-2016-build102 (stable) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cGxCOWgwQ1dhMGc/view?usp=sharing)
+Version: base_entranced-1-26-2016-build103 (stable) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
+
+Old version: base_entranced-1-20-2016-build102 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
 
 Old version: base_entranced-1-17-2016-build101 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
 
