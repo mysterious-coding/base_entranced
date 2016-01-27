@@ -3737,12 +3737,12 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 			trap_SendServerCommand(ent - g_entities, va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"", buffer));
 			return;
 		}
-		if (ent->client->sess.sessionTeam == TEAM_RED && !found->client->sess.sessionTeam == TEAM_RED)
+		if (ent->client->sess.sessionTeam == TEAM_RED && found->client->sess.sessionTeam != TEAM_RED)
 		{
 			trap_SendServerCommand(ent - g_entities, "print \"Target player must be on your team.\n\"");
 			return;
 		}
-		else if (found->client->sess.sessionTeam == TEAM_BLUE && !found->client->sess.sessionTeam == TEAM_BLUE)
+		else if (found->client->sess.sessionTeam == TEAM_BLUE && found->client->sess.sessionTeam != TEAM_BLUE)
 		{
 			trap_SendServerCommand(ent - g_entities, "print \"Target player must be on your team.\n\"");
 			return;
