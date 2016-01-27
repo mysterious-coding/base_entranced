@@ -661,8 +661,8 @@ This sample server.cfg contains recommended settings for all cvars, with a pug s
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cGxCOWgwQ1dhMGc/view?usp=sharing)
-Version: base_entranced-1-26-2016-build103 (stable) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8c2liV0x2X1I1R0k/view?usp=sharing)
+Version: base_entranced-1-26-2016-build104 (stable) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
