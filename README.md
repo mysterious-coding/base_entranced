@@ -515,6 +515,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Mind trick has been hardcoded to be removed from siege_codes, saving the need for me to release a new pk3 update for that map.
 * Fixed a bug on the last objective of Desert caused by delivering parts within 1 second of each other.
 * Fixed poor performance of force sight causing players to randomly disappear and reappear.
+* Improved health bar precision.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
