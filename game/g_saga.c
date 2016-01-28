@@ -1915,6 +1915,11 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 					g_entities[n].s.eFlags |= EF_RADAROBJECT;
 				}
 			}
+			if (ent->objective == 5)
+			{
+				//enable codes icon
+				SetIconFromClassname("misc_siege_item", 1, qtrue);
+			}
 		}
 		else if (ent->objective == 2)
 		{
