@@ -770,6 +770,7 @@ void NPC_Begin (gentity_t *ent)
 	if (!Q_stricmpn(mapname.string, "mp/p_D", 6) && ent && ent->client && ent->client->NPC_class == CLASS_IMPWORKER)
 	{
 		//fix for bugged NPCs in xeon's map
+		G_FreeEntity(ent);
 		return;
 	}
 
