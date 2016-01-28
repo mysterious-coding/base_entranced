@@ -2196,9 +2196,9 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					NPC->client->ps.weapon = weap;
 					NPC->client->ps.stats[STAT_WEAPONS] |= ( 1 << NPC->client->ps.weapon );
-					if ( weap > WP_NONE )
+					if ( weap > WP_NONE && !NPC->client->ps.ammo[weaponData[NPC->client->ps.weapon].ammoIndex])
 					{
-						NPC->client->ps.ammo[weaponData[NPC->client->ps.weapon].ammoIndex] = 100;//FIXME: max ammo!
+						NPC->client->ps.ammo[weaponData[NPC->client->ps.weapon].ammoIndex] = 100;
 					}
 				}
 				continue;
