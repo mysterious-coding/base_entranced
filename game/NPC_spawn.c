@@ -764,6 +764,15 @@ void NPC_Begin (gentity_t *ent)
 
 	memset( &ucmd, 0, sizeof( ucmd ) );
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmpn(mapname.string, "mp/p_D", 6) && ent && ent->client && ent->client->NPC_class == CLASS_IMPWORKER)
+	{
+		//fix for bugged NPCs in xeon's map
+		return;
+	}
+
 	if ( !(ent->spawnflags & SFB_NOTSOLID) )
 	{//No NPCs should telefrag
 		if (NPC_SpotWouldTelefrag(ent))
