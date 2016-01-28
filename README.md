@@ -663,7 +663,7 @@ This sample server.cfg contains recommended settings for all cvars, with a pug s
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
 ####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Q3FRWFc3WGRQZjg/view?usp=sharing)
-Version: base_entranced-1-26-2016-build104 (stable) - prevent meleeing people in siege duel, fix nar codes icon bug, fix bug with not regenerating force when force jumping into vehicle
+Version: base_entranced-1-28-2016-build105 (stable) - prevent meleeing people in siege duel, fix nar codes icon bug, fix bug with not regenerating force when force jumping into vehicle
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
