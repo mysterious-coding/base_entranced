@@ -516,6 +516,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed a bug on the last objective of Desert caused by delivering parts within 1 second of each other.
 * Fixed poor performance of force sight causing players to randomly disappear and reappear.
 * Improved health bar precision.
+* Fixed not regenerating force after force jumping into a vehicle.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -661,12 +662,14 @@ This sample server.cfg contains recommended settings for all cvars, with a pug s
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8c2liV0x2X1I1R0k/view?usp=sharing)
-Version: base_entranced-1-26-2016-build104 (stable) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Q3FRWFc3WGRQZjg/view?usp=sharing)
+Version: base_entranced-1-26-2016-build104 (stable) - prevent meleeing people in siege duel, fix nar codes icon bug, fix bug with not regenerating force when force jumping into vehicle
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
+
+Old version: base_entranced-1-26-2016-build104 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8c2liV0x2X1I1R0k/view?usp=sharing) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
 
 Old version: base_entranced-1-20-2016-build102 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
 
