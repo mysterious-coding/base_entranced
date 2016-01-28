@@ -4286,6 +4286,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress && targ && targ->client && targ->client->ps.siegeDuelInProgress && mod == MOD_MELEE)
+	{
+		return;
+	}
+
 	if ( targ && targ->client && targ->client->ps.duelInProgress )
 	{
         // make sure we are attacked by client and not from environment
