@@ -4019,7 +4019,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 		return 0;
 	}
 
-	if (ps->siegeDuelInProgress)
+	if (&g_entities[ps->clientNum] && g_entities[ps->clientNum].client->sess.siegeDuelInProgress)
 	{
 		return 0;
 	}
@@ -4385,7 +4385,7 @@ qboolean G_OtherPlayersDueling(void)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->inuse && ent->client && (ent->client->ps.duelInProgress || ent->client->ps.siegeDuelInProgress))
+		if (ent && ent->inuse && ent->client && (ent->client->ps.duelInProgress || ent->client->sess.siegeDuelInProgress))
 		{
 			return qtrue;
 		}
@@ -4780,7 +4780,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.siegeDuelInProgress)
+	if (ent->client->sess.siegeDuelInProgress)
 	{
 		//already dueling
 		return;
@@ -4804,7 +4804,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->ps.siegeDuelTime >= level.time)
+	if (ent->client->sess.siegeDuelTime >= level.time)
 	{
 		return;
 	}
@@ -4874,18 +4874,18 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			return;
 		}
 
-		if (challenged->client->ps.siegeDuelIndex == ent->s.number && challenged->client->ps.siegeDuelTime >= level.time)
+		if (challenged->client->sess.siegeDuelIndex == ent->s.number && challenged->client->sess.siegeDuelTime >= level.time)
 		{
 
 			trap_SendServerCommand(-1, va("print \"%s^7 %s %s!\n\"", challenged->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELACCEPT"), ent->client->pers.netname));
 			trap_SendServerCommand(ent - g_entities, va("cp \"Get ready...\n\""));
 			trap_SendServerCommand(challenged - g_entities, va("cp \"Get ready...\n\""));
-			ent->client->ps.siegeDuelInProgress = 1;
-			challenged->client->ps.siegeDuelInProgress = 1;
+			ent->client->sess.siegeDuelInProgress = 1;
+			challenged->client->sess.siegeDuelInProgress = 1;
 			//this will define that they are dueling
 
-			ent->client->ps.siegeDuelTime = level.time + 3000;
-			challenged->client->ps.siegeDuelTime = level.time + 3000;
+			ent->client->sess.siegeDuelTime = level.time + 3000;
+			challenged->client->sess.siegeDuelTime = level.time + 3000;
 			//"get ready" phase
 
 			ent->client->ps.stats[STAT_ARMOR] = 0;
@@ -4932,8 +4932,8 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 		ent->client->ps.forceHandExtend = HANDEXTEND_DUELCHALLENGE;
 		ent->client->ps.forceHandExtendTime = level.time + 1000;
 
-		ent->client->ps.siegeDuelIndex = challenged->s.number; //duelIndex
-		ent->client->ps.siegeDuelTime = level.time + 5000; //duelTime
+		ent->client->sess.siegeDuelIndex = challenged->s.number; //duelIndex
+		ent->client->sess.siegeDuelTime = level.time + 5000; //duelTime
 	}
 }
 

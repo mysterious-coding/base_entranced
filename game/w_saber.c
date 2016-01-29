@@ -104,12 +104,12 @@ qboolean G_CanBeEnemy(gentity_t *self, gentity_t *enemy)
 		return qfalse;
 	}
 
-	if (self->client->ps.siegeDuelInProgress && self->client->ps.siegeDuelIndex != enemy->s.number)
+	if (self->client->sess.siegeDuelInProgress && self->client->sess.siegeDuelIndex != enemy->s.number)
 	{ //siege dueling but not with this person
 		return qfalse;
 	}
 
-	if (enemy->client->ps.siegeDuelInProgress && enemy->client->ps.siegeDuelIndex != self->s.number)
+	if (enemy->client->sess.siegeDuelInProgress && enemy->client->sess.siegeDuelIndex != self->s.number)
 	{ //other guy siege dueling but not with me
 		return qfalse;
 	}
@@ -1489,10 +1489,10 @@ qboolean WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 
 	if (ent1->s.eType != ET_NPC && ent2->s.eType != ET_NPC)
 	{ //can always get into locks with NPCs
-		if (!ent1->client->ps.siegeDuelInProgress ||
-			!ent2->client->ps.siegeDuelInProgress ||
-			ent1->client->ps.siegeDuelIndex != ent2->s.number ||
-			ent2->client->ps.siegeDuelIndex != ent1->s.number)
+		if (!ent1->client->sess.siegeDuelInProgress ||
+			!ent2->client->sess.siegeDuelInProgress ||
+			ent1->client->sess.siegeDuelIndex != ent2->s.number ||
+			ent2->client->sess.siegeDuelIndex != ent1->s.number)
 		{ //only allow saber locking if two players are dueling with each other directly
 			if (g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL)
 			{
@@ -4438,15 +4438,15 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		}
 
 		if (g_entities[tr.entityNum].client &&
-			g_entities[tr.entityNum].client->ps.siegeDuelInProgress &&
-			g_entities[tr.entityNum].client->ps.siegeDuelIndex != self->s.number)
+			g_entities[tr.entityNum].client->sess.siegeDuelInProgress &&
+			g_entities[tr.entityNum].client->sess.siegeDuelIndex != self->s.number)
 		{
 			return qfalse;
 		}
 
 		if (g_entities[tr.entityNum].client &&
-			self->client->ps.siegeDuelInProgress &&
-			self->client->ps.siegeDuelIndex != g_entities[tr.entityNum].s.number)
+			self->client->sess.siegeDuelInProgress &&
+			self->client->sess.siegeDuelIndex != g_entities[tr.entityNum].s.number)
 		{
 			return qfalse;
 		}
@@ -4674,14 +4674,14 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			return qfalse;
 		}
 
-		if (otherOwner->client->ps.siegeDuelInProgress &&
-			otherOwner->client->ps.siegeDuelIndex != self->s.number)
+		if (otherOwner->client->sess.siegeDuelInProgress &&
+			otherOwner->client->sess.siegeDuelIndex != self->s.number)
 		{
 			return qfalse;
 		}
 
-		if (self->client->ps.siegeDuelInProgress &&
-			self->client->ps.siegeDuelIndex != otherOwner->s.number)
+		if (self->client->sess.siegeDuelInProgress &&
+			self->client->sess.siegeDuelIndex != otherOwner->s.number)
 		{
 			return qfalse;
 		}
@@ -5767,15 +5767,15 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 		}
 
 		if (ent->inuse && ent->client &&
-			ent->client->ps.siegeDuelInProgress &&
-			ent->client->ps.siegeDuelIndex != saberOwner->s.number)
+			ent->client->sess.siegeDuelInProgress &&
+			ent->client->sess.siegeDuelIndex != saberOwner->s.number)
 		{
 			return qfalse;
 		}
 
 		if (ent->inuse && ent->client &&
-			saberOwner->client->ps.siegeDuelInProgress &&
-			saberOwner->client->ps.siegeDuelIndex != ent->s.number)
+			saberOwner->client->sess.siegeDuelInProgress &&
+			saberOwner->client->sess.siegeDuelIndex != ent->s.number)
 		{
 			return qfalse;
 		}
@@ -8684,7 +8684,7 @@ nextStep:
 						else if (g_saberTraceSaberFirst.integer >= 2 &&
 							g_gametype.integer != GT_DUEL &&
 							g_gametype.integer != GT_POWERDUEL &&
-							!self->client->ps.duelInProgress && !self->client->ps.siegeDuelInProgress)
+							!self->client->ps.duelInProgress && !self->client->sess.siegeDuelInProgress)
 						{ //if value is >= 2, and not in a duel, skip
 							skipSaberTrace = qtrue;
 						}

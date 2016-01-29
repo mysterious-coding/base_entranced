@@ -736,7 +736,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 	}
 
 	//Dueling fighters cannot use force powers on others, with the exception of force push when locked with each other
-	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress)
+	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress)
 	{
 		return 0;
 	}
@@ -746,7 +746,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 		return 0;
 	}
 
-	if (other && other->client && other->client->ps.siegeDuelInProgress)
+	if (other && other->client && other->client->sess.siegeDuelInProgress)
 	{
 		return 0;
 	}

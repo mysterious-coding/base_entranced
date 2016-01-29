@@ -487,6 +487,10 @@ typedef struct {
     int         nameChangeTime;
 
 	char        username[MAX_USERNAME_SIZE];
+
+	int			siegeDuelInProgress;
+	int			siegeDuelIndex;
+	int			siegeDuelTime;
 } clientSession_t;
 
 // playerstate mGameFlags

@@ -1268,8 +1268,8 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			continue;
 		}
 
-		if (traceEnt && traceEnt->client && traceEnt->client->ps.siegeDuelInProgress &&
-			traceEnt->client->ps.siegeDuelIndex != ent->s.number)
+		if (traceEnt && traceEnt->client && traceEnt->client->sess.siegeDuelInProgress &&
+			traceEnt->client->sess.siegeDuelIndex != ent->s.number)
 		{
 			VectorCopy(tr.endpos, start);
 			ignore = tr.entityNum;
@@ -1503,8 +1503,8 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			continue;
 		}
 
-		if (traceEnt && traceEnt->client && traceEnt->client->ps.siegeDuelInProgress &&
-			traceEnt->client->ps.siegeDuelIndex != ent->s.number)
+		if (traceEnt && traceEnt->client && traceEnt->client->sess.siegeDuelInProgress &&
+			traceEnt->client->sess.siegeDuelIndex != ent->s.number)
 		{
 			skip = tr.entityNum;
 			VectorCopy(tr.endpos, start);
@@ -4197,15 +4197,15 @@ void WP_FireStunBaton( gentity_t *ent, qboolean alt_fire )
 
 	if (tr_ent && tr_ent->takedamage && tr_ent->client)
 	{ //see if either party is involved in a siege duel
-		if (tr_ent->client->ps.siegeDuelInProgress &&
-			tr_ent->client->ps.siegeDuelIndex != ent->s.number)
+		if (tr_ent->client->sess.siegeDuelInProgress &&
+			tr_ent->client->sess.siegeDuelIndex != ent->s.number)
 		{
 			return;
 		}
 
 		if (ent->client &&
-			ent->client->ps.siegeDuelInProgress &&
-			ent->client->ps.siegeDuelIndex != tr_ent->s.number)
+			ent->client->sess.siegeDuelInProgress &&
+			ent->client->sess.siegeDuelIndex != tr_ent->s.number)
 		{
 			return;
 		}
@@ -4308,15 +4308,15 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire )
 
 		if (tr_ent->takedamage && tr_ent->client)
 		{ //special duel checks
-			if (tr_ent->client->ps.siegeDuelInProgress &&
-				tr_ent->client->ps.siegeDuelIndex != ent->s.number)
+			if (tr_ent->client->sess.siegeDuelInProgress &&
+				tr_ent->client->sess.siegeDuelIndex != ent->s.number)
 			{
 				return;
 			}
 
 			if (ent->client &&
-				ent->client->ps.siegeDuelInProgress &&
-				ent->client->ps.siegeDuelIndex != tr_ent->s.number)
+				ent->client->sess.siegeDuelInProgress &&
+				ent->client->sess.siegeDuelIndex != tr_ent->s.number)
 			{
 				return;
 			}
@@ -5606,7 +5606,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (activator->client->ps.siegeDuelInProgress || activator->client->ps.duelInProgress)
+	if (activator->client->sess.siegeDuelInProgress || activator->client->ps.duelInProgress)
 	{
 		//no using emplaced guns while dueling
 		return;

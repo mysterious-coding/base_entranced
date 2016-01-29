@@ -1815,7 +1815,7 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 		}
 	}
 
-	if (en->client->ps.siegeDuelInProgress || (en->client->ps.duelInProgress && en->client->ps.duelIndex != bs->client))
+	if (en->client->sess.siegeDuelInProgress || (en->client->ps.duelInProgress && en->client->ps.duelIndex != bs->client))
 	{ //don't attack duelists unless you're dueling them
 		return 0;
 	}

@@ -489,7 +489,7 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 		return false;
 	}
 
-	if (ent && ent->client && ent->client->ps.siegeDuelInProgress)
+	if (ent && ent->client && ent->client->sess.siegeDuelInProgress)
 	{
 		return false;
 	}

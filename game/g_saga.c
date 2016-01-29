@@ -2603,7 +2603,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (other->client->ps.siegeDuelInProgress)
+	if (other->client->sess.siegeDuelInProgress)
 	{
 		//people in a duel can't pick us up
 		return;

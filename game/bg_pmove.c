@@ -5992,7 +5992,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 		return 0;
 	}
 
-	if (ps->duelInProgress || ps->siegeDuelInProgress)
+	if (ps->duelInProgress || &g_entities[ps->clientNum] && g_entities[ps->clientNum].client->sess.siegeDuelInProgress)
 	{ //not allowed to use holdables while in a private duel.
 		return 0;
 	}
@@ -6903,7 +6903,7 @@ static void PM_Weapon( void )
 		pm->ps->saberHolstered = 0;
 	}
 
-	if ((pm->ps->siegeDuelInProgress && pm->ps->emplacedIndex) || (pm->ps->duelInProgress && pm->ps->emplacedIndex))
+	if ((&g_entities[pm->ps->clientNum] && g_entities[pm->ps->clientNum].client->sess.siegeDuelInProgress && pm->ps->emplacedIndex) || (pm->ps->duelInProgress && pm->ps->emplacedIndex))
 	{
 		pm->ps->emplacedIndex = 0;
 		pm->cmd.weapon = WP_BRYAR_PISTOL;

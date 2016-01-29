@@ -1150,7 +1150,7 @@ void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 	{//don't even try to use the door if it's locked 
 		if (!ent->parent->alliedTeam //we don't have a "teamallow" team
 			|| !other->client //we do have a "teamallow" team, but this isn't a client
-			||( other->client->sess.sessionTeam != ent->parent->alliedTeam && !other->client->ps.siegeDuelInProgress))//it is a client, but it's not on the right team
+			||( other->client->sess.sessionTeam != ent->parent->alliedTeam && !other->client->sess.siegeDuelInProgress))//it is a client, but it's not on the right team
 		{
 			return;
 		}

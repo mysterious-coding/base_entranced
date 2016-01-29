@@ -3346,9 +3346,9 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
-	if (ent->client->ps.siegeDuelInProgress)
+	if (ent->client->sess.siegeDuelInProgress)
 	{
-		ent->client->ps.siegeDuelInProgress = 0;
+		ent->client->sess.siegeDuelInProgress = 0;
 	}
 
 	//first we want the userinfo so we can see if we should update this client's saber -rww

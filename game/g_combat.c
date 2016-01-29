@@ -4266,27 +4266,27 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (targ && targ->client && targ->client->ps.siegeDuelInProgress && attacker && attacker->client && attacker->s.number != targ->s.number &&
-		(targ->client->ps.siegeDuelIndex != attacker->s.number || !attacker->client->ps.siegeDuelInProgress))
+	if (targ && targ->client && targ->client->sess.siegeDuelInProgress && attacker && attacker->client && attacker->s.number != targ->s.number &&
+		(targ->client->sess.siegeDuelIndex != attacker->s.number || !attacker->client->sess.siegeDuelInProgress))
 	{
 		//target is siegedueling, but attacker is not his duel partner (probably a troll trying to attack a duelist)
 		return;
 	}
 
-	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress && targ && targ->client && targ->s.number != attacker->s.number &&
-		(attacker->client->ps.siegeDuelIndex != targ->s.number || !targ->client->ps.siegeDuelInProgress))
+	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && targ->client && targ->s.number != attacker->s.number &&
+		(attacker->client->sess.siegeDuelIndex != targ->s.number || !targ->client->sess.siegeDuelInProgress))
 	{
 		//attacker is siegedueling, but target is not his duel partner (maybe a duelist accidentally hit a troll running around)
 		return;
 	}
 
-	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress && targ && (!targ->client || targ->s.eType == ET_NPC))
+	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && (!targ->client || targ->s.eType == ET_NPC))
 	{
 		//a duelist hit a non-client object/NPC
 		return;
 	}
 
-	if (attacker && attacker->client && attacker->client->ps.siegeDuelInProgress && targ && targ->client && targ->client->ps.siegeDuelInProgress && mod == MOD_MELEE)
+	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && targ->client && targ->client->sess.siegeDuelInProgress && mod == MOD_MELEE)
 	{
 		return;
 	}
@@ -4661,7 +4661,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->ps.siegeDuelInProgress &&
+	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->sess.siegeDuelInProgress &&
 		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
 	{ //this class is flagged to take less damage from physical attacks.
 		//For now I'm just decreasing against any client-based attack, this can be changed later I guess.
@@ -4775,7 +4775,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
-	if ( client && client->ps.powerups[PW_BATTLESUIT] && !client->ps.siegeDuelInProgress) {
+	if ( client && client->ps.powerups[PW_BATTLESUIT] && !client->sess.siegeDuelInProgress) {
 		G_AddEvent( targ, EV_POWERUP_BATTLESUIT, 0 );
 		if ( ( dflags & DAMAGE_RADIUS ) || ( mod == MOD_FALLING ) ) {
 			return;
@@ -5461,7 +5461,7 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			continue;
 		if (!ent->takedamage)
 			continue;
-		if (ent && ent->client && ent->client->ps.siegeDuelInProgress)
+		if (ent && ent->client && ent->client->sess.siegeDuelInProgress)
 			continue; //prevent anyone in siege duel from taking splash damage. since we are using pistol only, this shouldn't be a problem.
 
 		// find the distance from the edge of the bounding box

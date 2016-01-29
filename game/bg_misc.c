@@ -1829,7 +1829,7 @@ qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t
 		return qfalse;
 	}
 
-	if (ps->siegeDuelInProgress)
+	if (&g_entities[ps->clientNum] && g_entities[ps->clientNum].client->sess.siegeDuelInProgress)
 	{
 		//siege duel in progress
 		return qfalse;
@@ -2236,7 +2236,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		{//jedi master cannot pick up weapons
 			return qfalse;
 		}
-		if ( ps->duelInProgress || ps->siegeDuelInProgress )
+		if ( ps->duelInProgress || &g_entities[ps->clientNum] && g_entities[ps->clientNum].client->sess.siegeDuelInProgress)
 		{ //no picking stuff up while in a duel, no matter what the type is
 			return qfalse;
 		}

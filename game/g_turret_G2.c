@@ -713,7 +713,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			continue;
 		}
 
-		if (target->client->ps.siegeDuelInProgress || target->client->ps.duelInProgress)
+		if (target->client->sess.siegeDuelInProgress || target->client->ps.duelInProgress)
 		{
 			continue;
 		}

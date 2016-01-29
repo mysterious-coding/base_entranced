@@ -4589,6 +4589,7 @@ void G_RunFrame( int levelTime ) {
 		}
 
 		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
+
 	}
 
 	if (gDoSlowMoDuel)

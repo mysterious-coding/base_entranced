@@ -411,8 +411,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		{
 			goto killProj;
 		}
-		else if (otherOwner->takedamage && otherOwner->client && otherOwner->client->ps.siegeDuelInProgress &&
-			otherOwner->client->ps.siegeDuelIndex != ent->r.ownerNum)
+		else if (otherOwner->takedamage && otherOwner->client && otherOwner->client->sess.siegeDuelInProgress &&
+			otherOwner->client->sess.siegeDuelIndex != ent->r.ownerNum)
 		{
 			goto killProj;
 		}
@@ -424,8 +424,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		{
 			goto killProj;
 		}
-		else if (other->takedamage && other->client && other->client->ps.siegeDuelInProgress &&
-			other->client->ps.siegeDuelIndex != ent->r.ownerNum)
+		else if (other->takedamage && other->client && other->client->sess.siegeDuelInProgress &&
+			other->client->sess.siegeDuelIndex != ent->r.ownerNum)
 		{
 			goto killProj;
 		}

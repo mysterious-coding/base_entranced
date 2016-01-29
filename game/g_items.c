@@ -676,7 +676,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue;
 		}
 
-		if (target->client->ps.siegeDuelInProgress || target->client->ps.duelInProgress)
+		if (target->client->sess.siegeDuelInProgress || target->client->ps.duelInProgress)
 		{
 			continue;
 		}
@@ -1309,7 +1309,7 @@ void ItemUse_Jetpack( gentity_t *ent )
 	{
 		Jetpack_Off(ent);
 	}
-	else if (!ent->client->ps.siegeDuelInProgress)
+	else if (!ent->client->sess.siegeDuelInProgress)
 	{
 		Jetpack_On(ent);
 	}

@@ -863,7 +863,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		client->timeResidual -= 1000;
 
 		// count down health when over max
-		if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] && !client->ps.siegeDuelInProgress) {
+		if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] && !client->sess.siegeDuelInProgress) {
 			ent->health--;
 		}
 
@@ -2448,7 +2448,7 @@ void ClientThink_real( gentity_t *ent ) {
 	else if (!client->ps.m_iVehicleNum &&
 		(!ent->NPC || ent->s.NPC_class != CLASS_VEHICLE)) //if riding a vehicle it will manage our speed and such
 	{
-		if (client->ps.siegeDuelInProgress)
+		if (client->sess.siegeDuelInProgress)
 		{
 			client->ps.speed = client->ps.basespeed = (g_speed.value * 1.25);
 		}
@@ -2626,26 +2626,26 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
-	if (ent->client->ps.siegeDuelInProgress)
+	if (ent->client->sess.siegeDuelInProgress)
 	{
-		gentity_t *duelAgainst = &g_entities[ent->client->ps.siegeDuelIndex];
+		gentity_t *duelAgainst = &g_entities[ent->client->sess.siegeDuelIndex];
 
 		if (ent->client->sess.sessionTeam != TEAM_RED && ent->client->sess.sessionTeam != TEAM_BLUE)
 		{
-			ent->client->ps.siegeDuelInProgress = 0;
+			ent->client->sess.siegeDuelInProgress = 0;
 		}
 
-		if (ent->client->ps.siegeDuelTime < level.time)
+		if (ent->client->sess.siegeDuelTime < level.time)
 		{
 			//pull out the pistols
 			client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
 			client->ps.weapon = WP_BRYAR_PISTOL;
 			duelAgainst->client->ps.stats[STAT_WEAPONS] = (1 << WP_BRYAR_PISTOL);
 			duelAgainst->client->ps.weapon = WP_BRYAR_PISTOL;
-			if (ent->client->ps.siegeDuelTime > 0 || duelAgainst->client->ps.siegeDuelTime > 0)
+			if (ent->client->sess.siegeDuelTime > 0 || duelAgainst->client->sess.siegeDuelTime > 0)
 			{
-				ent->client->ps.siegeDuelTime = 0;
-				duelAgainst->client->ps.siegeDuelTime = 0;
+				ent->client->sess.siegeDuelTime = 0;
+				duelAgainst->client->sess.siegeDuelTime = 0;
 				G_LocalSound(ent, CHAN_ANNOUNCER, G_SoundIndex("sound/chars/protocol/misc/40mom038.wav")); //simulate clientside announcer voice "you may begin"
 				G_LocalSound(duelAgainst, CHAN_ANNOUNCER, G_SoundIndex("sound/chars/protocol/misc/40mom038.wav")); //simulate clientside announcer voice "you may begin"
 				trap_SendServerCommand(ent - g_entities, va("cp \"Fight!\n\""));
@@ -2655,12 +2655,12 @@ void ClientThink_real( gentity_t *ent ) {
 
 
 		if (!duelAgainst || !duelAgainst->client || !duelAgainst->inuse ||
-			duelAgainst->client->ps.siegeDuelIndex != ent->s.number ||
+			duelAgainst->client->sess.siegeDuelIndex != ent->s.number ||
 			(duelAgainst && duelAgainst->client && duelAgainst->client->sess.sessionTeam != TEAM_RED && duelAgainst->client->sess.sessionTeam != TEAM_BLUE))
 		{
 			//duelAgainst guy disconnected or something
-			ent->client->ps.siegeDuelInProgress = 0;
-			duelAgainst->client->ps.siegeDuelInProgress = 0;
+			ent->client->sess.siegeDuelInProgress = 0;
+			duelAgainst->client->sess.siegeDuelInProgress = 0;
 
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
 			{
@@ -2718,8 +2718,8 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 		else if (duelAgainst->health < 1 || duelAgainst->client->ps.stats[STAT_HEALTH] < 1 || duelAgainst->client->tempSpectate >= level.time)
 		{
-			ent->client->ps.siegeDuelInProgress = 0;
-			duelAgainst->client->ps.siegeDuelInProgress = 0;
+			ent->client->sess.siegeDuelInProgress = 0;
+			duelAgainst->client->sess.siegeDuelInProgress = 0;
 
 			//Winner gets full health.. providing he's still alive
 			if (ent->health > 0 && ent->client->ps.stats[STAT_HEALTH] > 0)
@@ -3762,8 +3762,8 @@ void ClientThink_real( gentity_t *ent ) {
 		gentity_t *faceKicked = &g_entities[client->ps.forceKickFlip-1];
 
 		if (faceKicked && faceKicked->client && (!OnSameTeam(ent, faceKicked) || g_friendlyFire.integer) &&
-			(!faceKicked->client->ps.duelInProgress || !faceKicked->client->ps.siegeDuelInProgress || faceKicked->client->ps.duelIndex == ent->s.number) &&
-			(!ent->client->ps.duelInProgress || !ent->client->ps.siegeDuelInProgress || ent->client->ps.duelIndex == faceKicked->s.number))
+			(!faceKicked->client->ps.duelInProgress || !faceKicked->client->sess.siegeDuelInProgress || faceKicked->client->ps.duelIndex == ent->s.number) &&
+			(!ent->client->ps.duelInProgress || !ent->client->sess.siegeDuelInProgress || ent->client->ps.duelIndex == faceKicked->s.number))
 		{
 			if ( faceKicked && faceKicked->client && faceKicked->health && faceKicked->takedamage )
 			{//push them away and do pain
