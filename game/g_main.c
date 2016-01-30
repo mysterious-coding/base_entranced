@@ -4427,7 +4427,7 @@ void UpdateSiegeStatus()
 		if (level.clients[i].pers.connected != CON_DISCONNECTED) //connected player
 		{
 			numConnectedPlayers++;
-			if (level.clients[i].ps.siegeDuelInProgress)
+			if (level.clients[i].sess.siegeDuelInProgress)
 			{
 				numDuelingPlayers++;
 			}

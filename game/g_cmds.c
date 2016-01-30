@@ -4827,7 +4827,7 @@ void Cmd_SiegeDuel_f(gentity_t *ent)
 			(level.clients[i].sess.sessionTeam == TEAM_RED || level.clients[i].sess.sessionTeam == TEAM_BLUE) &&
 			!(g_entities[i].r.svFlags & SVF_BOT)) //connected player who is ingame and not a bot
 		{
-			if (level.clients[i].ps.siegeDuelInProgress)
+			if (level.clients[i].sess.siegeDuelInProgress)
 			{
 				//????????????????????
 				trap_SendServerCommand(ent - g_entities, "print \"There is already a duel in progress.\n\"");
