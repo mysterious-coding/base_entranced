@@ -1185,7 +1185,6 @@ void respawn( gentity_t *ent ) {
 				ent->client->ps.saberMove = LS_NONE;
 				ent->takedamage = qfalse;
 				trap_LinkEntity(ent);
-
 				// Respawn time.
 				if ( ent->s.number < MAX_CLIENTS )
 				{
@@ -1193,6 +1192,8 @@ void respawn( gentity_t *ent ) {
 					te->s.time = g_siegeRespawnCheck;
 					te->s.owner = ent->s.number;
 				}
+
+				UpdateNewModSiegeTimers(ent->s.number);
 
 				return;
 			}
@@ -2758,6 +2759,8 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	char		userinfo[MAX_INFO_VALUE], *modelname;
 
 	ent = g_entities + clientNum;
+
+	UpdateNewModSiegeTimers(-1);
 
 	if ((ent->r.svFlags & SVF_BOT) && g_gametype.integer >= GT_TEAM)
 	{

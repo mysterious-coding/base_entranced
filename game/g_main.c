@@ -4590,6 +4590,8 @@ void G_RunFrame( int levelTime ) {
 
 		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
 
+		UpdateNewModSiegeTimers(-1);
+
 	}
 
 	if (gDoSlowMoDuel)
@@ -4709,6 +4711,8 @@ void G_RunFrame( int levelTime ) {
 			}
 
 			g_siegeRespawnCheck += dt;
+
+			UpdateNewModSiegeTimers(-1);
 
 			// siege objectives timers adjustments
 			if (gImperialCountdown)

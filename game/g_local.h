@@ -1638,6 +1638,7 @@ int getGlobalTime();
 // g_siege.c
 void InitSiegeMode(void);
 void G_SiegeClientExData(gentity_t *msgTarg);
+void UpdateNewModSiegeTimers(int ignoreThisClient);
 
 // g_timer
 //Timing information
