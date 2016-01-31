@@ -1607,7 +1607,6 @@ void SiegeBeginRound(int entNum)
 	if (!g_preroundState)
 	{ //if players are not ingame on round start then respawn them now
 		int i = 0;
-		int n;
 		gentity_t *ent;
 		qboolean spawnEnt = qfalse;
 		level.inSiegeCountdown = qfalse;
