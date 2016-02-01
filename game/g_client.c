@@ -1917,7 +1917,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	int i;
 	qboolean	triedDuplicateName = qfalse;
 	int		netflags;
-
+	int		siegeModelIndex;
 
 	ent = g_entities + clientNum;
 	client = ent->client;
@@ -2256,6 +2256,15 @@ void ClientUserinfoChanged( int clientNum ) {
 	strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
 	strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
 
+	if (g_gametype.integer == GT_SIEGE && client->holdingObjectiveItem && &g_entities[client->holdingObjectiveItem])
+	{
+		siegeModelIndex = g_entities[client->holdingObjectiveItem].s.modelindex;
+	}
+	else
+	{
+		siegeModelIndex = 0;
+	}
+
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
@@ -2333,10 +2342,10 @@ void ClientUserinfoChanged( int clientNum ) {
 		Com_Printf( "Client %d (%s) has unique id %llu\n", clientNum, client->pers.netname, totalHash );
 		if (g_gametype.integer == GT_SIEGE)
 		{ //more crap to send
-			s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\id\\%llu",
+			s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\smi\\%i\\id\\%llu",
 				client->pers.netname, client->sess.sessionTeam, model, c1, c2, 
 				client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, className, saberName, saber2Name, client->sess.duelTeam,
-				client->sess.siegeDesiredTeam, totalHash);
+				client->sess.siegeDesiredTeam, siegeModelIndex, totalHash);
 		}
 		else
 		{
