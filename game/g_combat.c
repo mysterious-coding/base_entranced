@@ -2240,7 +2240,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	{
 		attacker = &g_entities[self->client->ps.otherKiller];
 		meansOfDeath == MOD_FALLING;
-		if (g_fixFallingSounds.integer == 1)
+		if (g_fixFallingSounds.integer = 1)
 		{
 			G_EntitySound(self, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
 		}
