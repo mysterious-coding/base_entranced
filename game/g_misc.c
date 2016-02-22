@@ -1090,6 +1090,11 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		return;
 	}
 
+	if (activator->client->sess.siegeDuelInProgress)
+	{
+		return; //no getting armor while in a siege duel
+	}
+
 	if ( g_gametype.integer == GT_SIEGE 
 		&& other 
 		&& other->client 
@@ -1604,6 +1609,11 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 		return;
 	}
 
+	if (activator->client->sess.siegeDuelInProgress)
+	{
+		return; //no getting ammo while in a siege duel
+	}
+
 	if (self->setTime < level.time)
 	{
 		if (!self->s.loopSound)
@@ -1725,6 +1735,11 @@ void health_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 	if (!activator || !activator->client)
 	{
 		return;
+	}
+
+	if (activator->client->sess.siegeDuelInProgress)
+	{
+		return; //no getting health while in a siege duel
 	}
 
 	if (self->setTime < level.time)
