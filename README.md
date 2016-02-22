@@ -662,22 +662,24 @@ This sample server.cfg contains recommended settings for all cvars, with a pug s
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SzRMX2N1LW9nY2c/view?usp=sharing)
-Version: base_entranced-1-28-2016-build106 (stable) - fix crash on xeon's map p_D
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bjk2NmlDOW03NVU/view?usp=sharing)
+Version: base_entranced-2-21-2016-build107 (stable) - fix desert/swoop crash
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
 
-Old version: base_entranced-1-28-2016-build105 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Q3FRWFc3WGRQZjg/view?usp=sharing) - prevent meleeing people in siege duel, fix nar codes icon bug, fix bug with not regenerating force when force jumping into vehicle
+Old version: base_entranced-1-28-2016-build106 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SzRMX2N1LW9nY2c/view?usp=sharing) - fix crash on xeon's map p_D
 
-Old version: base_entranced-1-26-2016-build104 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8c2liV0x2X1I1R0k/view?usp=sharing) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
+Old version: base_entranced-1-28-2016-build105 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Q3FRWFc3WGRQZjg/view?usp=sharing) - prevent meleeing people in siege duel, fix nar codes icon bug, fix bug with not regenerating force when force jumping into vehicle
 
-Old version: base_entranced-1-20-2016-build102 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
+Old version: base_entranced-1-26-2016-build104 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8c2liV0x2X1I1R0k/view?usp=sharing) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
 
-Old version: base_entranced-1-17-2016-build101 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
+Old version: base_entranced-1-20-2016-build102 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
 
-Old version: base_entranced-1-10-2016-build100 (unstable) [download removed) - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
+Old version: base_entranced-1-17-2016-build101 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
+
+Old version: base_entranced-1-10-2016-build100 (unstable) [download removed] - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
 
 Old version: base_entranced-12-18-2015-build85 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing) - prevent duplicate names, add `/rename`, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
 
