@@ -290,8 +290,11 @@ Note that this must contain EXACTLY 15 letters(one for each weapon). Also note t
 ####Team-joining password requirement
 You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/g_requireJoinPassword 1` to establish the requirement, and use `/g_joinPassword "your_password_here"` to define the password. This could be useful for opening up private/pug servers to the public for spectating.
 
+####`/join`
+Clientside command. Use to join a specific class and team, e.g. `/join rj` for red jedi.
+
 ####`/help`
-Client command; displays some helpful commands that clients should be aware of (how to use /whois, /class, etc) as well as version number of currently-running server mod.
+Client command; displays some helpful commands that clients should be aware of (how to use `/whois`, `/class`, etc) as well as version number of currently-running server mod.
 
 ####`/serverstatus2`
 Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
@@ -662,12 +665,14 @@ This sample server.cfg contains recommended settings for all cvars, with a pug s
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bjk2NmlDOW03NVU/view?usp=sharing)
-Version: base_entranced-2-21-2016-build107 (stable) - fix desert/swoop crash
+####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VEQtSEFZSkVGVlE/view?usp=sharing)
+Version: base_entranced-2-23-2016-build108 (stable) - add `/join`, fix siege duelists getting armor/health, add support for extra gloat/flourish sounds
 
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 Old versions:
+
+Old version: base_entranced-2-21-2016-build107 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bjk2NmlDOW03NVU/view?usp=sharing) - fix desert/swoop crash
 
 Old version: base_entranced-1-28-2016-build106 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SzRMX2N1LW9nY2c/view?usp=sharing) - fix crash on xeon's map p_D
 
