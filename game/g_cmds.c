@@ -4706,8 +4706,7 @@ void Cmd_Help_f(gentity_t *ent)
 	if (g_cheats.integer)
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/NPC SPAWNLIST\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/npc spawnlist^7 to show a list of possible NPC spawns.\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"Note that the ingame console has limited scrolling. Read your qconsole.log file (in base folder) to see more.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/npc spawnlist^7 to show a list of possible NPC spawns. Ingame console has limited scrolling; read /base/qconsole.log to see more.\n\""));
 	}
 }
 
