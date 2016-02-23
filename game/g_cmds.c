@@ -1372,6 +1372,119 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 	SetSiegeClass(ent, className);
 }
 
+void Cmd_Join_f(gentity_t *ent)
+{
+	char className[8];
+	char input[8];
+	char desiredTeam[8];
+	int desiredTeamNumber;
+	int classNumber = 0;
+	siegeClass_t* siegeClass = 0;
+	int	timeRemaining = 0;
+
+	if (!ent || !ent->client)
+	{
+		return;
+	}
+
+	if (trap_Argc() != 2)
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+		return;
+	}
+
+	trap_Argv(1, input, sizeof(input));
+	if (!input || !input[0] || !input[1] || input[2])
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+		return;
+	}
+
+	desiredTeam[0] = input[0];
+	className[0] = input[1];
+
+	if (desiredTeam[0] == 'r' || desiredTeam[0] == 'R' || desiredTeam[0] == 'o' || desiredTeam[0] == 'O')
+	{
+		desiredTeamNumber = 1;
+	}
+	else if(desiredTeam[0] == 'b' || desiredTeam[0] == 'B' || desiredTeam[0] == 'd' || desiredTeam[0] == 'D')
+	{
+		desiredTeamNumber = 2;
+	}
+	else
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+		return;
+	}
+
+	if (ent->client->switchClassTime > level.time && level.inSiegeCountdown != qtrue)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")));
+		return;
+	}
+
+	if (ent->forcedClassTime > level.time)
+	{
+		if (bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass != ent->funnyClassNumber)
+		{
+			timeRemaining = ((ent->forcedClassTime - level.time + 500) / 1000);
+			trap_SendServerCommand(ent - g_entities, va("print \"You are currently being forced to a class. You will be able to change classes in %i seconds.\n\"", timeRemaining));
+			return;
+		}
+	}
+
+	if ((className[0] >= '0') && (className[0] <= '9'))
+	{
+		classNumber = atoi(className);
+		trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sclass %i^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4", classNumber));
+	}
+	else
+	{
+		// funny way for pro siegers
+		switch (tolower(className[0]))
+		{
+		case 'a':
+			classNumber = 1;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sAssault^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
+			break;
+		case 'h':
+			classNumber = 2;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sHeavy Weapons^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
+			break;
+		case 'd':
+			classNumber = 3;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sDemolitions^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
+			break;
+		case 's':
+			classNumber = 4;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sScout^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
+			break;
+		case 't':
+			classNumber = 5;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sTech^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
+			break;
+		case 'j':
+			classNumber = 6;
+			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sJedi^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
+			break;
+		default:
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+			return;
+		}
+
+	}
+
+	siegeClass = BG_SiegeGetClass(desiredTeamNumber, classNumber);
+
+	if (!siegeClass)
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
+		return;
+	}
+
+	SetSiegeClass(ent, siegeClass->name);
+}
+
 void Cmd_Class_f(gentity_t *ent)
 {
 	char className[16];
@@ -5467,6 +5580,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_SiegeClass_f (ent);
 	else if (Q_stricmp(cmd, "class") == 0)
 		Cmd_Class_f(ent);
+	else if (Q_stricmp(cmd, "join") == 0)
+		Cmd_Join_f(ent);
 	else if (Q_stricmp (cmd, "forcechanged") == 0)
 		Cmd_ForceChanged_f (ent);
 	else if (Q_stricmp (cmd, "where") == 0)
