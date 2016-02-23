@@ -1389,14 +1389,14 @@ void Cmd_Join_f(gentity_t *ent)
 
 	if (trap_Argc() != 2)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
 		return;
 	}
 
 	trap_Argv(1, input, sizeof(input));
 	if (!input || !input[0] || !input[1] || input[2])
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
 		return;
 	}
 
@@ -1413,7 +1413,7 @@ void Cmd_Join_f(gentity_t *ent)
 	}
 	else
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
 		return;
 	}
 
@@ -1468,7 +1468,7 @@ void Cmd_Join_f(gentity_t *ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to %sJedi^7\n\"", desiredTeamNumber == 1 ? "^1" : "^4"));
 			break;
 		default:
-			trap_SendServerCommand(ent - g_entities, "print \"Usage: <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
 			return;
 		}
 
@@ -1478,7 +1478,7 @@ void Cmd_Join_f(gentity_t *ent)
 
 	if (!siegeClass)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
 		return;
 	}
 
@@ -4653,7 +4653,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 
 void Cmd_Help_f(gentity_t *ent)
 {
-	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build 102\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build 108\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2WHOIS\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL\n\""));
@@ -4661,8 +4661,13 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/IGNORE\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/ignore <name/id>^7 to stop seeing chats from a player. Partial player names or slot numbers are okay.\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
+	if (g_gametype.integer == GT_SIEGE)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/JOIN\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/join <team letter><first letter of class name>^7 (no spaces) to join as a specific team and class. For example, '^5join rj^7' for red jedi)\n\""));
+	}
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLIENTLIST\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/clientlist^7 to see correct client numbers of all connected players. Helpful for commands like /whois.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2\n\""));
