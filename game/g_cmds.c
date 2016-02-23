@@ -1478,7 +1478,7 @@ void Cmd_Join_f(gentity_t *ent)
 
 	if (!siegeClass)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
 		return;
 	}
 
@@ -1507,7 +1507,7 @@ void Cmd_Class_f(gentity_t *ent)
 
 	if (trap_Argc() < 1)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
 		return;
 	}
 
@@ -1564,7 +1564,7 @@ void Cmd_Class_f(gentity_t *ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Jedi\n\""));
 			break;
 		default:
-			trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
 			return;
 		}
 
@@ -1581,7 +1581,7 @@ void Cmd_Class_f(gentity_t *ent)
 	
 	if (!siegeClass)
 	{
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. 'class a' for assault)\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
 		return;
 	}
 
