@@ -1911,7 +1911,6 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		}
 	}
 
-	//They've requested I take this out.
 	if ((ent->client->sess.sessionTeam == TEAM_SPECTATOR && (!level.inSiegeCountdown || (ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) || level.intermissiontime) && g_improvedTeamchat.integer)
 	{
 		//a spectator during a live game, or a spectator without a desired team during the countdown
