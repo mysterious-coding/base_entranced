@@ -1206,6 +1206,8 @@ void	G_SendG2KillQueue(void);
 void	G_KillG2Queue(int entNum);
 void	G_FreeEntity( gentity_t *e );
 qboolean	G_EntitiesFree( void );
+void Blocked_Door(gentity_t *ent, gentity_t *other);
+void UnLockDoors(gentity_t *const ent);
 
 qboolean G_ActivateBehavior (gentity_t *self, int bset );
 

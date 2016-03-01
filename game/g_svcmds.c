@@ -1430,6 +1430,22 @@ void Svcmd_KillTurrets_f(qboolean announce)
 	}
 }
 
+void Svcmd_GreenDoors_f(void)
+{
+	gentity_t *doorent;
+	int i = 0;
+
+	for (i = 0; i < MAX_GENTITIES; i++)
+	{
+		doorent = &g_entities[i];
+		if (doorent->blocked && doorent->blocked == Blocked_Door && doorent->spawnflags && doorent->spawnflags & 16)
+		{
+			UnLockDoors(doorent);
+		}
+	}
+	trap_SendServerCommand(-1, va("print \"Doors greened.\n\""));
+}
+
 void Svcmd_SpecAll_f() {
     int i;
 
@@ -2040,6 +2056,11 @@ qboolean	ConsoleCommand( void ) {
         Svcmd_RandomTeams_f();
         return qtrue;
     }
+
+	if (!Q_stricmp(cmd, "greendoors")) {
+		Svcmd_GreenDoors_f();
+		return qtrue;
+	}
 	
 
 
