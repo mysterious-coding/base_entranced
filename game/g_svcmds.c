@@ -1613,9 +1613,9 @@ void Svcmd_ForceRound2_f() {
 		trap_Printf("Invalid time.\n");
 		return;
 	}
-	if (time >= 1801)
+	if (time > 3600)
 	{
-		trap_Printf("Time must be under 30 minutes.\n");
+		trap_Printf("Time must be under 60 minutes.\n");
 		return;
 	}
 	trap_Cvar_Set("g_siegeObjStorage", "none");

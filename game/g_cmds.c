@@ -3411,9 +3411,9 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Invalid time.\n\"");
 			return;
 		}
-		if (time >= 1801)
+		if (time > 3600)
 		{
-			trap_SendServerCommand(ent - g_entities, "print \"Time must be under 30 minutes.\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Time must be under 60 minutes.\n\"");
 			return;
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
