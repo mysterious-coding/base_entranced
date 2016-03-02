@@ -4700,7 +4700,7 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^2VOTES\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
 	}
-	if (g_moreTaunts.integer && g_moreTaunts.integer == 2)
+	if (g_moreTaunts.integer)
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"^2MORE TAUNTS\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, or ^5/bow^7.\n\""));
@@ -4881,8 +4881,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	Com_sprintf(string, 64, "g_swoopKillPoints");
 	ServerCfgColor(string, g_swoopKillPoints.integer, ent);
-	Com_sprintf(string, 64, "g_tauntWhileMoving");
-	ServerCfgColor(string, g_tauntWhileMoving.integer, ent);
 	Com_sprintf(string, 64, "iLikeToDoorSpam");
 	ServerCfgColor(string, iLikeToDoorSpam.integer, ent);
 	Com_sprintf(string, 64, "iLikeToMineSpam");

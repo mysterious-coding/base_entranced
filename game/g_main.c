@@ -172,7 +172,6 @@ vmCvar_t    g_antiHothHangarLiftLame;
 vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
 vmCvar_t	g_autoResetCustomTeams;
-vmCvar_t    g_tauntWhileMoving;
 vmCvar_t    g_fixEweb;
 vmCvar_t	g_korribanRedRocksReverse;
 vmCvar_t	g_jk2SaberMoves;
@@ -693,7 +692,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeStats, "g_siegeStats", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_endSiege, "g_endSiege", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_moreTaunts, "g_moreTaunts", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_moreTaunts, "g_moreTaunts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_ammoCanisterSound, "g_ammoCanisterSound", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -705,7 +704,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_tauntWhileMoving, "g_tauntWhileMoving", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixEweb, "g_fixEweb", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_korribanRedRocksReverse, "g_korribanRedRocksReverse", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_jk2SaberMoves, "g_jk2SaberMoves", "0", CVAR_ARCHIVE, 0, qtrue },

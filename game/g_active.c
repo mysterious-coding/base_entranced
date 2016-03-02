@@ -1680,7 +1680,7 @@ enum
 
 void G_SetTauntAnim( gentity_t *ent, int taunt )
 {
-	if ((!g_tauntWhileMoving.integer || taunt == TAUNT_MEDITATE || ent->client->ps.m_iVehicleNum) && //taunting while moving in a vehicle seems to bug weapons
+	if (taunt == TAUNT_MEDITATE &&
 		(ent->client->pers.cmd.upmove ||
 		ent->client->pers.cmd.forwardmove ||
 		ent->client->pers.cmd.rightmove))
@@ -1688,23 +1688,12 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 		//just apply this annoying restriction to meditate
 		return;
 	}
-	if ( taunt != TAUNT_TAUNT && !(g_moreTaunts.integer && g_moreTaunts.integer == 2))
+	if ( taunt != TAUNT_TAUNT && !g_moreTaunts.integer)
 	{//normal taunt always allowed
 		if ( g_gametype.integer != GT_DUEL
 			&& g_gametype.integer != GT_POWERDUEL )
 		{//no taunts unless in Duel
 			return;
-		}
-	}
-	if (g_moreTaunts.integer && g_moreTaunts.integer == 1 && taunt == TAUNT_TAUNT && g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL)
-	{
-		if (!Q_irand(0,2))
-		{
-			taunt = TAUNT_GLOAT;
-		}
-		else if (!Q_irand(0, 1))
-		{
-			taunt = TAUNT_FLOURISH;
 		}
 	}
 	if (g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL && taunt == TAUNT_MEDITATE)
@@ -1946,7 +1935,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 		}
 		if ( anim != -1 )
 		{
-			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE ) 
+			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE && !(ent->client->ps.m_iVehicleNum)) //taunt anim inside a vehicle can bug weapons
 			{
 				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
 				ent->client->ps.forceDodgeAnim = anim;
