@@ -1269,6 +1269,12 @@ void SetSiegeClass(gentity_t *ent, char* className)
 		return;
 	}
 
+	if (level.zombies && team == TEAM_BLUE && bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass == SPC_JEDI)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"You cannot play as defense jedi in zombies.\n\""));
+		return;
+	}
+
 	if (ent->client->sess.sessionTeam != team)
 	{ //try changing it then
 		g_preventTeamBegin = qtrue;
@@ -2993,6 +2999,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
     } else if ( !Q_stricmp( arg1, "randomcapts")) {
     } else if ( !Q_stricmp( arg1, "randomteams")) {
 	} else if ( !Q_stricmp( arg1, "killturrets")) {
+	} else if ( !Q_stricmp( arg1, "zombies")) {
 	} else if (!Q_stricmp(arg1, "pug")) {
 	} else if (!Q_stricmp(arg1, "pub")) {
 	} else if (!Q_stricmp(arg1, "g_redTeam")) {
@@ -3002,7 +3009,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
 			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, "
-			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam\n\"" );
+			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam, zombies\n\"" );
 		return;
 	}
 
@@ -3428,6 +3435,22 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Kill Turrets");
+
+	}
+	else if (!Q_stricmp(arg1, "zombies"))
+	{
+		//disable this vote
+		if (!g_allow_vote_zombies.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Zombies is disabled.\n\"");
+			return;
+		}
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
+			return;
+		}
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), level.zombies ? "Disable Zombies Mode" : "Enable Zombies Mode");
 
 	}
 	else if (!Q_stricmp(arg1, "pug"))
@@ -4803,6 +4826,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_vote_timelimit.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_warmup");
 	ServerCfgColor(string, g_allow_vote_warmup.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_zombies");
+	ServerCfgColor(string, g_allow_vote_zombies.integer, ent);
 	Com_sprintf(string, 64, "g_ammoCanisterSound");
 	ServerCfgColor(string, g_ammoCanisterSound.integer, ent);
 	Com_sprintf(string, 64, "g_antiCallvoteTakeover");

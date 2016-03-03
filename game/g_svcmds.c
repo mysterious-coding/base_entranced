@@ -1430,7 +1430,7 @@ void Svcmd_KillTurrets_f(qboolean announce)
 	}
 }
 
-void Svcmd_GreenDoors_f(void)
+void Svcmd_GreenDoors_f(qboolean announce)
 {
 	gentity_t *doorent;
 	int i = 0;
@@ -1443,7 +1443,10 @@ void Svcmd_GreenDoors_f(void)
 			UnLockDoors(doorent);
 		}
 	}
-	trap_SendServerCommand(-1, va("print \"Doors greened.\n\""));
+	if (announce)
+	{
+		trap_SendServerCommand(-1, va("print \"Doors greened.\n\""));
+	}
 }
 
 void Svcmd_SpecAll_f() {
@@ -1632,6 +1635,52 @@ void Svcmd_RemovePassword_f()
 {
 	trap_Cvar_Set("g_password", "");
 	trap_Printf("g_password has been cleared. The server no longer requires a password.\n");
+}
+
+void Svcmd_Zombies_f()
+{
+	if (level.zombies)
+	{
+		level.zombies = qfalse;
+		trap_Cvar_Set("g_siegeRespawn", "20");
+	}
+	else
+	{
+		level.zombies = qtrue;
+		Svcmd_GreenDoors_f(qfalse);
+		trap_Cvar_Set("g_siegeRespawn", "5");
+		Svcmd_KillTurrets_f(qfalse);
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+		{
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
+			{
+				gentity_t *ent = &g_entities[i];
+				if (ent && ent->classname && ent->classname[0] && !Q_stricmp(ent->classname, "func_usable") && ent->targetname && ent->targetname[0] && !Q_stricmp(ent->targetname, "ccshield"))
+				{
+					//disable cc shields on cargo2
+					G_FreeEntity(ent);
+				}
+			}
+		}
+		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+		{
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
+			{
+				gentity_t *ent = &g_entities[i];
+				if (ent && ent->classname && ent->classname[0] && !Q_stricmp(ent->classname, "func_usable") && ent->targetname && ent->targetname[0] && (!Q_stricmp(ent->targetname, "fieldtobridge") || !Q_stricmp(ent->targetname, "obj1delayfield")))
+				{
+					//disable breach prints and anti-rush shields on nar shaddaa
+					G_FreeEntity(ent);
+				}
+			}
+		}
+	}
+
+	trap_SendServerCommand(-1, va("print \"Zombies mode has been %s^7\n\"", level.zombies ? "^2enabled^7. Zombies will automatically be disabled again on map restart." : "^1disabled^7. Please restart the map to fully disable zombies."));
 }
 
 void Svcmd_RandomTeams_f() {
@@ -1958,6 +2007,12 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	if (Q_stricmp(cmd, "zombies") == 0)
+	{
+		Svcmd_Zombies_f();
+		return qtrue;
+	}
+
 	//if (Q_stricmp (cmd, "accountadd") == 0) {
 	//	Svcmd_AddAccount_f();
 	//	return qtrue;
@@ -2058,7 +2113,7 @@ qboolean	ConsoleCommand( void ) {
     }
 
 	if (!Q_stricmp(cmd, "greendoors")) {
-		Svcmd_GreenDoors_f();
+		Svcmd_GreenDoors_f(qtrue);
 		return qtrue;
 	}
 	

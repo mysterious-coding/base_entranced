@@ -1233,7 +1233,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 			Com_sprintf (entry, sizeof(entry),
 				" %i %i %i %i %i %i", 
 //				level.sortedClients[i], player->client->pers.teamState.location, h, a, 
-				i, player->client->pers.teamState.location, h, a, 
+				i, level.zombies && player->client->sess.sessionTeam == TEAM_BLUE ? 0 : player->client->pers.teamState.location, h, a, 
 				player->client->ps.weapon, player->s.powerups);
 			j = strlen(entry);
 			if (stringlength + j > sizeof(string))

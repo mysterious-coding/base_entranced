@@ -369,6 +369,14 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2") && (!Q_stricmp(ent->target, "commandcenterdooractual") || !Q_stricmp(ent->target, "ccturrets")))
+	{
+		return;
+	}
+
 	ent->activator = activator;
 
 	if(ent->delay && ent->painDebounceTime < (level.time + ent->delay) )
@@ -447,6 +455,11 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2") && self->target && self->target[0] && (!Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
+	{
+		return;
+	}
+
 	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qfalse && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
 	{
 		gentity_t	*entity_list[MAX_GENTITIES], *liftLameTarget;

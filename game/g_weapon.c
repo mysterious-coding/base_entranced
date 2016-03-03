@@ -3601,7 +3601,14 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 	{
 		self->touch = 0;
 		self->think = DetPackBlow;
-		self->nextthink = level.time + 30000;
+		if (!level.zombies)
+		{
+			self->nextthink = level.time + 30000;
+		}
+		else
+		{
+			self->nextthink = level.time + 3600000;
+		}
 	}
 
 	

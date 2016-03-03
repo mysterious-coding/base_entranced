@@ -2646,6 +2646,16 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
+	if (level.zombies)
+	{
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+		{
+			return;
+		}
+	}
+
 	if (self->idealClassType && self->idealClassType >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_RED)
 	{
 		i1 = bgSiegeClasses[other->client->siegeClass].playerClass;

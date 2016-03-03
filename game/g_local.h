@@ -978,6 +978,7 @@ typedef struct {
 	int			lastObjectiveCompleted;
 	int			totalObjectivesCompleted;
 	qboolean	wallCompleted;
+	qboolean	zombies;
 
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients
@@ -1921,6 +1922,7 @@ extern vmCvar_t		g_allow_vote_killturrets;
 extern vmCvar_t     g_allow_vote_pug;
 extern vmCvar_t     g_allow_vote_pub;
 extern vmCvar_t     g_allow_vote_forceclass;
+extern vmCvar_t     g_allow_vote_zombies;
 
 extern vmCvar_t     g_allow_ready;
 
