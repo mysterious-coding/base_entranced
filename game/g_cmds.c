@@ -1974,6 +1974,25 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 }
 
+static char* GetPrefixId( gentity_t *ent ) {
+	int i;
+	gentity_t *other;
+
+	for ( i = 0; i < level.maxclients; i++ ) {
+		other = &g_entities[i];
+
+		if ( !other || other == ent || !other->inuse || !other->client || other->client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+
+		if ( !strcmp( ent->client->pers.netname, other->client->pers.netname ) ) {
+			return va( "(%i) ", ent - g_entities );
+		}
+	}
+
+	return "";
+}
+
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j;
 	gentity_t	*other;
@@ -2097,7 +2116,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	if ( target ) {
-		G_SayTo(ent, target, mode, color, name, text, locMsg);
+		G_SayTo( ent, target, mode, color, va( "%s%s", GetPrefixId( ent ), name ), text, locMsg );
 		return;
 	}
 
@@ -2110,12 +2129,13 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		other = &g_entities[j];
 		if (doNotSendLocation)
 		{
-			G_SayTo(ent, other, mode, color, name, text, NULL);
+			G_SayTo(ent, other, mode, color, va("%s%s", GetPrefixId(ent), name), text, NULL);
 		}
 		else
 		{
-			G_SayTo(ent, other, mode, color, name, text, locMsg);
+			G_SayTo(ent, other, mode, color, va("%s%s", GetPrefixId(ent), name), text, locMsg);
 		}
+		G_SayTo( ent, other, mode, color, va( "%s%s", GetPrefixId( ent ), name ), text, locMsg );
 	}
 }
 
