@@ -1901,7 +1901,7 @@ qboolean chatLimitCheck(gentity_t *ent){
 
 	return qtrue;
 }
-
+#define SPECCHAT_APPEND	"^8^7"
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg )
 {
 	if (!other) {
@@ -1924,6 +1924,17 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 
+	//note allchat/tell messages from specs for clients that can detect them
+	char adjustedName[MAX_NETNAME];
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && mode != SAY_TEAM)
+	{
+		Com_sprintf(adjustedName, sizeof(adjustedName), "%s"SPECCHAT_APPEND, name);
+	}
+	else
+	{
+		Q_strncpyz(adjustedName, name, sizeof(adjustedName));
+	}
+
 	if (((ent->client->sess.sessionTeam == TEAM_SPECTATOR && (!level.inSiegeCountdown || (ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) || level.intermissiontime) && g_improvedTeamchat.integer) || level.zombies && ent->client->sess.sessionTeam == TEAM_BLUE)
 	{
 		//a spectator during a live game, or a spectator without a desired team during the countdown
@@ -1931,7 +1942,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		//remove location from message (useless for spectator teamchat)
 		trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
 			mode == SAY_TEAM ? "tchat" : "chat",
-			name, Q_COLOR_ESCAPE, color, message));
+			adjustedName, Q_COLOR_ESCAPE, color, message));
 	}
 	else
 	{
@@ -1939,13 +1950,13 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		{
 			trap_SendServerCommand(other - g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\"",
 				mode == SAY_TEAM ? "ltchat" : "lchat",
-				name, locMsg, color, message));
+				adjustedName, locMsg, color, message));
 		}
 		else
 		{
 			trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
 				mode == SAY_TEAM ? "tchat" : "chat",
-				name, Q_COLOR_ESCAPE, color, message));
+				adjustedName, Q_COLOR_ESCAPE, color, message));
 		}
 	}
 }
