@@ -854,6 +854,12 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 			return;
 		}
 
+		if (level.zombies && forceteamed == qfalse && team == TEAM_SPECTATOR && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+		{
+			trap_SendServerCommand(ent - g_entities, "print \"You cannot join the spectators during zombies.\n\"");
+			return;
+		}
+
 		if (client->sess.siegeDesiredTeam != team)
 		{
 			teamChanged = qtrue;
@@ -1269,10 +1275,18 @@ void SetSiegeClass(gentity_t *ent, char* className)
 		return;
 	}
 
-	if (level.zombies && team == TEAM_BLUE && bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass == SPC_JEDI)
+	if (level.zombies)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"You cannot play as defense jedi in zombies.\n\""));
-		return;
+		if (team == TEAM_BLUE && bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass == SPC_JEDI)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"You cannot play as defense jedi in zombies.\n\""));
+			return;
+		}
+		if (team == TEAM_RED && bgSiegeClasses[BG_SiegeFindClassIndexByName(className)].playerClass != SPC_JEDI)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"You cannot play as offense gunners in zombies.\n\""));
+			return;
+		}
 	}
 
 	if (ent->client->sess.sessionTeam != team)
@@ -1280,7 +1294,14 @@ void SetSiegeClass(gentity_t *ent, char* className)
 		g_preventTeamBegin = qtrue;
 		if (team == TEAM_RED)
 		{
-			SetTeam(ent, "red", qfalse);
+			if (level.zombies && ent->client->sess.sessionTeam == TEAM_BLUE)
+			{
+				SetTeam(ent, "red", qtrue);
+			}
+			else
+			{
+				SetTeam(ent, "red", qfalse);
+			}
 		}
 		else if (team == TEAM_BLUE)
 		{

@@ -1922,6 +1922,7 @@ extern void Rancor_DropVictim( gentity_t *self );
 extern qboolean g_dontFrickinCheck;
 extern qboolean g_endPDuel;
 extern qboolean g_noPDuelCheck;
+extern void SetSiegeClass(gentity_t *ent, char* className);
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
 	int			anim;
@@ -2243,6 +2244,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if (g_fixFallingSounds.integer == 1)
 		{
 			G_EntitySound(self, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
+		}
+	}
+
+	if (level.zombies && meansOfDeath != MOD_SUICIDE && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE)
+	{	
+		siegeClass_t *siegeClass = BG_SiegeGetClass(TEAM_RED, SPC_JEDI + 3);
+
+		if (siegeClass)
+		{
+			self->client->switchClassTime = 0;
+			SetSiegeClass(self, siegeClass->name);
 		}
 	}
 

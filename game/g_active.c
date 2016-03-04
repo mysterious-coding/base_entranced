@@ -2249,6 +2249,56 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.eFlags &= ~EF_JETPACK_FLAMING;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (level.zombies && ent->client->jetPackOn)
+	{
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+		{
+			int versionAdjustment = 0;
+			if (level.mapVersion && level.mapVersion[0])
+			{
+				if (!Q_stricmp(level.mapVersion, "1.2"))
+				{
+					versionAdjustment = 1536;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.3"))
+				{
+					versionAdjustment = 1536 * 2;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.4"))
+				{
+					versionAdjustment = 1536 * 3;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.5"))
+				{
+					versionAdjustment = 1536 * 4;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.6"))
+				{
+					versionAdjustment = 1536 * 5;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.7"))
+				{
+					versionAdjustment = 1536 * 6;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.8"))
+				{
+					versionAdjustment = 1536 * 7;
+				}
+				else if (!Q_stricmp(level.mapVersion, "1.9"))
+				{
+					versionAdjustment = 1536 * 8;
+				}
+			}
+			if (ent->client->ps.origin[0] >= (302 + versionAdjustment) && ent->client->ps.origin[0] <= (1725 + versionAdjustment) && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+			{
+				ent->client->jetPackOn = qfalse;
+			}
+		}
+	}
+
 #define	SLOWDOWN_DIST	128.0f
 #define	MIN_NPC_SPEED	16.0f
 
@@ -2528,8 +2578,6 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if (g_antiLaming.integer && ent->client && !ent->NPC && ent->client->sess.sessionTeam == TEAM_RED && g_gametype.integer == GT_SIEGE)
 	{
-		vmCvar_t	mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 		qboolean	isLaming = qfalse;
 		int lamingMethod = 0;
 		if (ent->client->holdingObjectiveItem > 0)
