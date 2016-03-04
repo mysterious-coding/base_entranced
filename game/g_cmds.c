@@ -1938,10 +1938,10 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		}
 	}
 
-	if ((ent->client->sess.sessionTeam == TEAM_SPECTATOR && (!level.inSiegeCountdown || (ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) || level.intermissiontime) && g_improvedTeamchat.integer)
+	if (((ent->client->sess.sessionTeam == TEAM_SPECTATOR && (!level.inSiegeCountdown || (ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) || level.intermissiontime) && g_improvedTeamchat.integer) || level.zombies && ent->client->sess.sessionTeam == TEAM_BLUE)
 	{
 		//a spectator during a live game, or a spectator without a desired team during the countdown
-		//or, it's intermission (for anyone, regardless of team)
+		//or, it's intermission (for anyone, regardless of team) or zombies mode on blue team
 		//remove location from message (useless for spectator teamchat)
 		trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
 			mode == SAY_TEAM ? "tchat" : denoteSpecChat ? "schat" : "chat",
