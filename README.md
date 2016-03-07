@@ -486,6 +486,7 @@ In addition to the base_enhanced vote controls, you can use these:
 
 Zombies receives some much-needed help in base_entranced. To activate the zombies features, use `/zombies` (rcon command) or `/callvote zombies` (assuming you enabled `/g_allow_vote_zombies`). Zombies features include:
 * All doors are automatically greened
+* All turrets are automatically destroyed
 * `/g_siegeRespawn` is automatically set to 5
 * No changing to defense jedi
 * No changing to offense gunners
