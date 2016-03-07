@@ -62,31 +62,18 @@ static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 static char gObjectiveCfgStr[1024];
 
 extern int g_siegeRespawnCheck;
-
-void UpdateNewModSiegeTimers(int ignoreThisClient)
+#define SIEGETIMER_FAKEOWNER 1023
+void UpdateFancyClientModSiegeTimers(void)
 {
-	//base_entranced: send this to newmod clients only
-	//(sending to all causes siege timer to permanently show regardless of settings)
-
-	if (ignoreThisClient == NULL)
-	{
-		ignoreThisClient = -1;
-	}
-
 	int n;
 	for (n = 0; n < MAX_CLIENTS; n++)
 	{
-		if (n != ignoreThisClient && &g_entities[n] && g_entities[n].inuse && g_entities[n].client)
+		if (&g_entities[n] && g_entities[n].inuse && g_entities[n].client)
 		{
-			char userinfo[MAX_INFO_STRING];
-			trap_GetUserinfo(n, userinfo, sizeof(userinfo));
-			qboolean hasNewmod = Info_ValueForKey(userinfo, "nm_ver")[0] != '\0';
-			if (hasNewmod)
-			{
-				gentity_t *te = G_TempEntity(g_entities[n].client->ps.origin, EV_SIEGESPEC);
-				te->s.time = g_siegeRespawnCheck;
-				te->s.owner = n;
-			}
+			gentity_t *te = G_TempEntity(g_entities[n].client->ps.origin, EV_SIEGESPEC);
+			te->s.time = g_siegeRespawnCheck;
+			te->s.owner = SIEGETIMER_FAKEOWNER;
+			te->s.saberInFlight = qtrue;
 		}
 	}
 }
@@ -1613,7 +1600,7 @@ void SiegeBeginRound(int entNum)
 		level.siegeRoundComplete = qfalse;
 		//respawn everyone now
 		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000 - SIEGE_ROUND_BEGIN_TIME - 200;
-		UpdateNewModSiegeTimers(-1);
+		UpdateFancyClientModSiegeTimers();
 		while (i < MAX_CLIENTS)
 		{
 			ent = &g_entities[i];

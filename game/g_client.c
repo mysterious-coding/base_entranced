@@ -1193,7 +1193,7 @@ void respawn( gentity_t *ent ) {
 					te->s.owner = ent->s.number;
 				}
 
-				UpdateNewModSiegeTimers(ent->s.number);
+				UpdateFancyClientModSiegeTimers();
 
 				return;
 			}
@@ -2769,7 +2769,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 	ent = g_entities + clientNum;
 
-	UpdateNewModSiegeTimers(-1);
+	UpdateFancyClientModSiegeTimers();
 
 	if ((ent->r.svFlags & SVF_BOT) && g_gametype.integer >= GT_TEAM)
 	{
