@@ -29,7 +29,7 @@ Feel free to create a new "issue" with any question/bug report/feature request y
 
 # Notice to coders
 
-I compile this mod with Debug setting, not Final. There is a random rare server crash that tends to happen on Desert 2nd objective. Due to auto-initialization, this crash seems to go away with Debug compile. Until this can be fixed, this mod should be compiled with Debug.
+I compile this mod with Debug setting, not Final. There is a random rare server crash that tends to happen when changing maps. Due to auto-initialization, this crash seems to go away with Debug compile. Until this can be fixed, this mod should be compiled with Debug.
 
 I usually try to include all related commits inside the comments of their related issue, but sometimes I forget to add some patches. If you are cherry-picking a feature into your mod, you should double check that your code matches mine to make sure you didn't miss any commits.
 
@@ -169,16 +169,9 @@ Note that the game client does not currently predict yaw for these moves, so the
 1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
 
 ####`/g_moreTaunts`
-0 = default JK3 behavior for /taunt command
+0 = default JK3 behavior (only allow `/taunt` in non-duel gametypes)
 
-1 = `/taunt` command will randomly use taunt, gloat, or flourish animation.
-
-2 = `/taunt` uses basejka behavior, but `/gloat`, `/flourish`, and `/bow` are enabled as separate commands
-
-####`/g_tauntWhileMoving`
-0 = no taunting while moving (default JK3)
-
-1 = enable taunting while moving
+1 = enable `/gloat`, `/flourish`, and `/bow` in non-duel gametypes)
 
 ####`/g_ammoCanisterSound`
 0 = dispensing ammo cans is oddly silent (default JK3)
@@ -211,6 +204,9 @@ Restarts current map with siege timer going down from a specified time. For exam
 
 ####`/killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
+
+####`/greenDoors`
+"Greens" (unlocks) all doors on the map. For testing purposes only; should not be used in live games.
 
 ####`/autocfg_map`
 0 = no automatic cfg execution (default JK3)
@@ -483,6 +479,25 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_pub`
 * `/g_allow_vote_customTeams`
 * `/g_allow_vote_forceclass`
+* `/g_allow_vote_zombies`
+
+####Zombies
+"Zombies" is an unnoficial quasi-gametype that has been played by the siege community to kill time over years. It is a hide-and-seek game that involves one offense jedi hunting down defense gunners after some initial setup time. Gunners who die join offense jedi and hunt until there is only one gunner left.
+
+Zombies receives some much-needed help in base_entranced. To activate the zombies features, use `/zombies` (rcon command) or `/callvote zombies` (assuming you enabled `/g_allow_vote_zombies`). Zombies features include:
+* All doors are automatically greened
+* `/g_siegeRespawn` is automatically set to 5
+* No changing to defense jedi
+* No changing to offense gunners
+* Non-selfkill deaths by blue gunners cause them to instantly switch to red jedi
+* No joining the spectators(so you can't spec a gunner and then know where he is after you join red)
+* Silences several "was breached" messages on some maps
+* Removes forcefields blocking player movement on some maps (e.g. cargo2 command center door)
+* Prevents some objectives from being completed (e.g.cargo 2 command center)
+* Hides locations in blue team teamoverlay(so you can't instantly track them down after you join red)
+* Hides locations in blue team teamchat(so you can't instantly track them down after you join red)
+* No using jetpack on cargo2 2nd obj
+* Removes auto-detonation timer for detpacks
 
 ####Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
@@ -520,6 +535,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * Fixed poor performance of force sight causing players to randomly disappear and reappear.
 * Improved health bar precision.
 * Fixed not regenerating force after force jumping into a vehicle.
+* You can now taunt while moving.
 
 #Features that are also in base_enhanced
 These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
@@ -658,145 +674,13 @@ Prevent calling votes for some things:
 
 # Downloads
 
-####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+####DOWNLOAD BASE_ENTRANCED
+To download base_entranced, please find the "releases" button on the Github Repo, or simply go to [https://github.com/deathsythe47/base_entranced/releases](https://github.com/deathsythe47/base_entranced/releases)
 
+####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file, and tweak settings as desired.
 
 ####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-####base_entranced pk3 [[download newest version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VEQtSEFZSkVGVlE/view?usp=sharing)
-Version: base_entranced-2-23-2016-build108 (stable) - add `/join`, fix siege duelists getting armor/health, add support for extra gloat/flourish sounds
-
 NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
-
-Old versions:
-
-Old version: base_entranced-2-21-2016-build107 (stable) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bjk2NmlDOW03NVU/view?usp=sharing) - fix desert/swoop crash
-
-Old version: base_entranced-1-28-2016-build106 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SzRMX2N1LW9nY2c/view?usp=sharing) - fix crash on xeon's map p_D
-
-Old version: base_entranced-1-28-2016-build105 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Q3FRWFc3WGRQZjg/view?usp=sharing) - prevent meleeing people in siege duel, fix nar codes icon bug, fix bug with not regenerating force when force jumping into vehicle
-
-Old version: base_entranced-1-26-2016-build104 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8c2liV0x2X1I1R0k/view?usp=sharing) - give double ammo to cargo2 defense demo(serverside change eliminates need for pk3 update), improve health bar precision, fix bug with picking up despawned items, fix being able to teamvote people not on your team
-
-Old version: base_entranced-1-20-2016-build102 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TDVLQ2xKbUUtZ0U/view?usp=sharing) - fix poor performance of force sight, add `/g_enforceNetSettings`, add `/removePassword`, fix bug with not being able to use `/whois` on connecting clients, show most-used alias for everyone in `/clientlist`, fix bug with HP showing in teamchat during intermission, remove need for serverside "fixed" versions of siege_narshaddaa and siege_cargobarge(the original cargobarge)
-
-Old version: base_entranced-1-17-2016-build101 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8alRNc3ZRLW5ZaHc/view?usp=sharing) - add `/g_antiLaming`, add `/g_fixHothHangarLiftLame 4`, fix map change crash bug
-
-Old version: base_entranced-1-10-2016-build100 (unstable) [download removed] - support for siege_cargobarge2 v1.2, clean up radar icons in Hoth, Nar, and siege_codes, remove mindtrick from siege_codes(saves need for bsp update), add `/g_openJKTeamVoteFix`, add notice for failed polls in serverchat, add `siegeStatus`, add `/clientlist`, slightly reduce size of anti-minespam cone, improve liftspam detection, add `mapversion`, add `speedMultiplier` and `speedMultiplierTeam2`, add `idealClassType` and `idealClassTypeTeam2`, clean up some debug-related things to allow mod to be smoothly compiled with Debug setting (thereby fixing some crashes including Desert crash)
-
-Old version: base_entranced-12-18-2015-build85 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NXJzRVZNYjNVZE0/view?usp=sharing) - prevent duplicate names, add `/rename`, fix bug with using items during duel, allow defense-only doors to open for offense during duel, fix bug with calling a vote for `/forceround2`, improve anti-doorspam for cargo2 v1.1
-
-Old version: base_entranced-12-18-2015-build84 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8N3FMYXlwTzJ4cTA/view?usp=sharing) - require unaninmous yes votes to pass a teamvote, fix going spec on teamvotes, fix voting on teamvotes when you weren't in the team when it was called, add `/help`
-
-Old version: base_entranced-12-14-2015-build83 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cVVWVDVjdHl3X00/view?usp=sharing) - add `/forceclass` and teamvote, add `/unforceclass` and teamvote
-
-Old version: base_entranced-12-11-2015-build81 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXZXNjQ2S0NYRUE/view?usp=sharing) - allow duels in siege, add `removeFromOwnerOnUse`, add `removeFromGameOnUse`, add `despawnOnUse`
-
-Old version: base_entranced-12-7-2015-build72 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cEgtVWtlZ2J6eUE/view?usp=sharing) - support for siege_cargobarge2_v1.1
-
-Old version: base_entranced-12-5-2015-build71 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8U3hCQjM3VGZoREE/view?usp=sharing) - fix broken "primary objective complete" sound, add `drawicon` for shield/ammo/health generators, broadcast changes to `/g_siegeTeamSwitch`, improved crash logging
-
-Old version: base_entranced-12-1-2015-build68 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZE9hNDBNblk2VEU/view?usp=sharing) - remove `/g_denoteDead`, remove `/g_antiSpecChatSpam`, remove `/g_hideSpecLocation`, add `/g_improvedTeamchat`, add some hardcoded overrides for specific obj names with `/g_siegeStats`, add `/g_swoopKillPoints`
-
-Old version: base_entranced-11-28-2015-build66 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TGZ4R2hFd2hHaTA/view?usp=sharing) - allow all "doorspam" at cargo/cargo2 first obj
-
-Old version: base_entranced-11-25-2015-build65 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Z1JneklJY2hfVG8/view?usp=sharing) - add `hideIconWhileCarried`, add `/g_antiSpecChatSpam`, add `g_joinPassword` and `g_requireJoinPassword`, restore some unusued duel cvars(it wasn't necessary to remove them before)
-
-Old version: base_entranced-11-9-2015-build64 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X25UbXc3S1FIVzQ/view?usp=sharing) - reduce anti-spam protection for primary mines, add anti-spam for primary thermals, fix anti-minespam for Nar station 1 obj room when offense players are outside the station, add offense anti-spam for Nar stations defense spawn
-
-Version: base_entranced-11-6-2015-build62 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cG9NWlRmek1UWUU/view?usp=sharing) - change `/g_antiCallvoteTakeover` to simply require two people ingame to vote instead of half of the server
-
-Version: base_entranced-11-5-2015-build61 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VTRLdnJRNnRiRTQ/view?usp=sharing) - revert `/g_autoRestart` due to bug it caused
-
-Version: base_entranced-11-5-2015-build60 (unstable) [download removed] - fix rare bug with everyone being forced to spec and shown class selection menu, add `/g_autoRestart` for public servers
-
-Version: base_entranced-11-4-2015-build59 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHFvZlJKa0QtOHc/view?usp=sharing) - fix broken `/bot_minplayers`, fix disappearing shield bug when turret is nearby, fix siege stats timer not adjusting with `/pause`, remove shield logging by default (instead use `/debug_shieldLog 1`), fix emplaced gun teamkilling bug
-
-Version: base_entranced-10-31-2015-build58 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8enBRcjJ2ZmRUNXc/view?usp=sharing) - minor tweaks to anti-spam, should prevent lag issues
-
-Version: base_entranced-10-29-2015-build55 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8V0JUaGlCSzB4bFU/view?usp=sharing) - debug compile version of build 54
-
-base_entranced-10-28-2015-build54 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8YzRSWU5SZUlUZ2M/view?usp=sharing) - add `/autocfg_map`, add `/autocfg_unknown`, fix force regen bug with `forcelimit 1`, fix gametype not changing on successful gametype vote, improve anti-spam code
-
-Version: base_entranced-10-27-2015-build53 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8cDBMaUg5dlBySjQ/view?usp=sharing) - always allow minespam in walker spawn area, re-allow anti-votekick for clients with private password
-
-Version: base_entranced-10-27-2015-build51 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WXowN2pnSEliNkE/view?usp=sharing) - add `/iLikeToDoorspam`, add `/iLikeToMineSpam`, add `/g_autoKorribanSpam`, remove anti-votekick for private clients, additional fixes for `target_print` server crash, reverted to release compile settings
-
-Version: base_entranced-10-23-2015-build46 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WnAwS2p2UVdENjg/view?usp=sharing) - add `/g_fixVoiceChat`, add `/g_fixHothDoorSounds`, add `/g_botJumping`, rename eweb fixing cvar to `/g_fixEweb` 
-
-Version: base_entranced-10-22-2015-build45 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SUpoa1NfWTV6YTA/view?usp=sharing) - add `/g_korribanRedRocksReverse`, add `g_jk2SaberMoves`, fix crash caused by `target_print` in debug builds(e.g. on siege_teampicker and siege_cargobarge), allow `/killturrets` to work before round start, improve eweb aiming if `/g_fixEwebRecoil` is enabled, force Hoth bridge to do 9999 damage when blocked
-
-Version: base_entranced-10-19-2015-build44 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TUs3djhfYlJXeGM/view?usp=sharing) - add `/g_fixEwebRecoil`, add `/g_tauntWhileMoving`, allow `/g_fixFallingSounds` scream to work with kills affected by `/g_fixPitKills`, require >= 100 damage from a `trigger_hurt` to cause scream with `/g_fixFallingSounds`, fix bug with cargo stations crashing server, remove some unused duel cvars
-
-Version: base_entranced-10-13-2015-build41 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8eXRhMFdiRTNnalE/view?usp=sharing) - add `/g_autoResetCustomTeams`, add `target_delay_cancel`
-
-Version: base_entranced-10-12-2015-build40 (debug build) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8d2VDQXFYZUFNZ3M/view?usp=sharing) - add `/g_specAfterDeath`, add `/g_requireMoreCustomTeamVotes`, add `/g_antiCallvoteTakeover`, add `/g_antiHothHangarLiftLame`, prevent being `/forceteam`ed to same team(forced selfkill), fix bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players,  allow -1 `respawntime` for custom siege items
-
-Version: base_entranced-10-11-2015-build39 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXgxTEFJMWlYVnc/view?usp=sharing) - add `/g_redTeam`, add `/g_blueTeam`, add `/g_forceDTechItems`, add `/g_allow_vote_customTeams`, add `/g_moreTaunts 2`, add `/serverstatus2`, announce changes to `/g_allowVote`, fix bryar pistol not having unlimited ammo
-
-Version: base_entranced-10-10-2015-build38 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VXcxdkZiQmVPdk0/view?usp=sharing) - add pug server and public server votes, add `/g_gripRefresh`
-
-Version: base_entranced-10-5-2015-build37 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZnVDQ0JrNng2QXc/view?usp=sharing) - fix bug with some people not seeing spectator chat, allow unlimited class-changing during countdown(remove 5-second delay), fix `/class` not working during countdown, add confirmation for class change
-
-Version: base_entranced-10-3-2015-build36 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NHRRdjlfRlo0aEE/view?usp=sharing) - add `/g_autoKorribanFloatingItems`, fix thermals bugging lifts, fix +use ammo dispensing not checking for custom max ammo amounts, fix bug with `/g_fixGripKills` causing kills from unknown clients
-
-Version: base_entranced-10-1-2015-build35 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8UWt2R1lNT2dIbzg/view?usp=sharing) - fix bug with g_fixHothBunkerLift getting stuck if you held down +use, increase grip refresh rate, allow spaces in poll, announce poll
-
-Version: base_entranced-10-1-2015-build34 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SVd0SFRzbE9GM1U/view?usp=sharing) - add `prefer`, remove lower limit on custom character colors, add `/g_fixGripKills`, revert Sil's frametime fix code which caused knockback launches to have high height and low distance, fix sentries attacking things they shouldn't attack (rancors, wampas, walkers, fighters), remove some unused powerduel cvars
-
-Version: base_entranced-9-29-2015-build33 (unstable) [download removed] - add `/g_fixRancorCharge`, add `/g_ammoCanisterSound`, fix problem with base_enhanced ammo code preventing HWs from getting >10 ammo from ammo canisters, add additional mapmaker tools for siege item spawning, add additional mapmaker tools for siege class ammo
-
-
-Version: base_entranced-9-29-2015-build32 (unstable) [download removed] - add `/g_endSiege`, add `/g_moreTaunts`, fix repeatedly calling lift bug with `/g_fixHothBunkerLift`, add objective counter for tied timers in `/g_siegeStats`, fix `CFL_SINGLE_ROCKET` being able to obtain >1 rocket, fix nextmap changing on failed gametype vote, fix sentries having retarded height detection for enemies, fix rancor charging through `BLOCKNPC` areas (e.g. desert arena door), fix camera bug from getting disintegrated while rolling, add `/npc spawnlist`, fix npcs attacking players in tempdeath, frametime bugfixes from sil
-
-Version: base_entranced-9-25-2015-build31 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZEZTeTRVN3JGNk0/view?usp=sharing) - add preliminary `/g_siegeStats`, fix bryar animations, fix players rolling/running through tripmines unharmed
-
-Version: base_entranced-9-24-2015-build30 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X1BNa1pjdHdtMWs/view?usp=sharing) - revert bugged multiple idealclasses, fix spawn telefragging, fix RDFA camera bug, fix some minor slot 0 things
-
-Version: base_entranced-9-21-2015-build29 (unstable) [download removed] - add `/g_infiniteCharge` by popular demand, fix bug with `idealclass` not supporting multiple classes (this introduced some new bugs, which are fixed in build 30)
-
-Version: base_entranced-9-19-2015-build28 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8a1R4MmNnODRJeVk/view?usp=sharing) - add `/g_fixHothBunkerLift`, add `/g_enableCloak`, add `/g_allow_vote_killturrets`, fix bugged timer if `roundover_target` is missing in .siege file, patch hoth bridge lame
-
-Version: base_entranced-9-14-2015-build27 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8Vkc0Tm00VG5rQVE/view?usp=sharing) - add `/killturrets` (rcon or callvote), allow partial name for `/tell` and `/forceteam`, add notifications for `/forceteam` and `/specall`
-
-Version: base_entranced-9-12-2015-build26 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHY0RVJvby03Q2M/view?usp=sharing) - fix untouchable siege items, a bunch of mapmaking stuff(add .npc file flags `nodmgfrom` / `noKnockbackFrom` / `doubleKnockbackFrom` / `tripleKnockbackFrom` / `quadKnockbackFrom` / `victimOfForce`, add `/g_forceOnNpcs`, define s`iegeRespawn`/`siegeTeamSwitch`/`forceOnNpcs` in `worldspawn`)
-
-Version: base_entranced-9-9-2015-build25 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8X0R0cjB6RjRiXzQ/view?usp=sharing) - add `/forceready`, add `/forceunready`, add `/g_allow_ready`, fix "was shrapnelled by" message for golan alternate fire, fix "was mined by" message for tripmine alternate fire, fix mindtricking when no enemies are nearby, fix team joined message on class change during countdown
-
-Version: base_entranced-9-8-2015-build24 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ckRNQWYyZ1A4V0E/view?usp=sharing) - fix jesus godmode bug from `/pause`, fix players unable to connect during `/pause`, fix sentry expiry timer bug from `/pause`, add `dempProof` and `specialKnockback`
-
-Version: base_entranced-9-5-2015-build23 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8NV9JbDU4am1ia3M/view?usp=sharing) - fix other players bugging shield, fix healing npcs, fix `teamnodmg` for npcs, some very minor bugfixes
-
-Version: base_entranced-9-3-2015-build21 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bklMRVFWUndoMXc/view?usp=sharing) - additional shield debug logging, experimental random teams support for siege
-
-Version: base_entranced-9-1-2015-build20 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VFVkYk1IeVppb2M/view?usp=sharing) - add `/g_hideSpecLocation`, add `/g_denoteDead`
-
-Version: base_entranced-8-31-2015-build19 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WC1Obm55OHFOeTQ/view?usp=sharing) - fix weird lift behavior with people not getting crushed and dets making lifts reverse and other weird things, revert sil's walker-spawning-in-shield bugfix that re-added player-spawning-in-shield bug, remove `/g_doorGreening` (it is now permanently enabled), remove `/g_fixNodropDetpacks` (it is now permanently default JK3 behavior)
-
-Version: base_entranced-8-30-2015-build18 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8WEE3VDhHNUI4dkk/view?usp=sharing) - add `/class`, add `/g_fixNodropDetpacks`, add shield logging, some misc fixes
-
-Version: base_entranced-8-25-2015-build16 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SjVLV2pueUt1T00/view?usp=sharing) - add `/g_allow_vote_randomteams`, add `/g_allow_vote_randomcapts`, add `/g_allow_vote_q`, `add /g_allow_vote_allready`, add `/g_allow_vote_cointoss`, some minor bug fixes
-
-Version: base_entranced-8-23-2015-build15 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8SG1RdlRQVkJmY0k/view?usp=sharing) - fix nextmap vote failed bug, add `/siege_restart`, add `/forceround2` (can be used from rcon or callvote), some misc. engine fixes from sil
-
-Version: base_entranced-8-22-2015-build13 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8VUxRdTlOcEt2Rkk/view?usp=sharing) - revert sil's broken shield code, add `/g_rocketSurfing`, `/g_floatingItems`, change `/g_selfkill_penalty` to `g_selfkillPenalty` (no underscores), reset siege to round 1 on map change vote, fix seeker attacking walker, fix seeker/sentry attacking disconnected clients, fix turret splash kill message, fix sniper shot incineration camera bug, cvar overhaul
-
-Version: base_entranced-8-21-2015-build10 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ajRsbkx5TkRsaE0/view?usp=sharing) - add `/g_nextmapwarning`
-
-Version: base_entranced-8-20-2015-build9 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aTJJM2hjbGMtbmc/view?usp=sharing) - use sil's siege `/pause` fix
-
-Version: base_entranced-8-20-2015-build8 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dHVMZHZQOHZjZ3M/view?usp=sharing) - fix rancor bug, use sil's atst code
-
-Version: base-entranced-8-20-2015-build7 (experimental) [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bzMtYXExcVh5QnM/view?usp=sharing) - add `/g_doorgreening`
-
-Version: base-entranced-8-19-2015-build6 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8TU1zTFpmX2p4LTA/view?usp=sharing) - fix hoth first obj points
-
-Version: base-entranced-8-19-2015-build5 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8dERzQzNSVV9LR1E/view?usp=sharing) - add `/g_fixfallingsounds`
-
-Version: base_entranced-8-19-2015-build4 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8aGwtRzhNSXZzaUU/view?usp=sharing) - fix countdown teamchat
-
-Version: base_entranced-8-19-2015-build3 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8ZlBTc3dDcy1lajA/view?usp=sharing) - fix ATST kills
-
-Version:  base_entranced-8-19-2015-build2 (experimental) - [[download old version]](https://drive.google.com/file/d/0B-vLJdPP0Uo8bUhfR3dBcWtOWXc/view?usp=sharing) - add `/g_sexydisruptor` and `/g_fixsiegescoring`
