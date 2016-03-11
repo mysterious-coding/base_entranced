@@ -2892,6 +2892,11 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 		if (g_gametype.integer == GT_SIEGE && (!gSiegeRoundBegun || gSiegeRoundEnded))
 		{
 			SetTeamQuick(ent, TEAM_SPECTATOR, qfalse);
+			if (client->siegeClass == -1)
+			{
+				//duo: bugfix for being in spec with siegeDesiredTeam defaulting to 0 (TEAM_RED)
+				client->sess.siegeDesiredTeam = TEAM_SPECTATOR;
+			}
 		}
         
 		if ((ent->r.svFlags & SVF_BOT) &&
