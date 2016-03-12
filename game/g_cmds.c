@@ -1901,7 +1901,7 @@ qboolean chatLimitCheck(gentity_t *ent){
 
 	return qtrue;
 }
-#define SPECCHAT_APPEND	"^8^7"
+#define SPECCHAT_APPEND	"^4^7"
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg )
 {
 	if (!other) {
