@@ -4532,6 +4532,27 @@ void UpdateSiegeStatus()
 	trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 }
 
+void UpdateFancyClientModLaggers(void)
+{
+	int i;
+	unsigned long lagStatusNumber = 0;
+
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->ps.eFlags & EF_CONNECTION)
+		{
+			lagStatusNumber |= i;
+		}
+	}
+
+	if (lagStatusNumber != level.lagStatusNumber)
+	{
+		//it has changed, so let's send the new one out
+		level.lagStatusNumber = lagStatusNumber;
+		trap_SendServerCommand(-1, va("lchat \"^8^7lsn\" \"%lu\"", lagStatusNumber));
+	}
+}
+
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -5229,6 +5250,8 @@ void G_RunFrame( int levelTime ) {
 		iTimer_GameChecks,
 		iTimer_Queues);
 #endif
+
+	UpdateFancyClientModLaggers();
 
 	g_LastFrameTime = level.time;
 }

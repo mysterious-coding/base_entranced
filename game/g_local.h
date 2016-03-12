@@ -994,6 +994,8 @@ typedef struct {
 
 	int			warmupModificationCount;	// for detecting if g_warmup is changed
 
+	unsigned long	lagStatusNumber;
+
 	// voting state
 	char		voteString[MAX_STRING_CHARS];
 	char		voteDisplayString[MAX_STRING_CHARS];
