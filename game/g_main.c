@@ -4541,7 +4541,7 @@ void UpdateFancyClientModLaggers(void)
 	{
 		if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->ps.eFlags & EF_CONNECTION)
 		{
-			lagStatusNumber |= i;
+			lagStatusNumber |= (1 << i);
 		}
 	}
 
