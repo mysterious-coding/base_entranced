@@ -2139,7 +2139,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		{
 			G_SayTo(ent, other, mode, color, va("%s%s", GetPrefixId(ent), name), text, locMsg);
 		}
-		G_SayTo( ent, other, mode, color, va( "%s%s", GetPrefixId( ent ), name ), text, locMsg );
 	}
 }
 
