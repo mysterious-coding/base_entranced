@@ -1186,17 +1186,26 @@ void Svcmd_Cointoss_f(void)
 }
 
 void Svcmd_ForceName_f(void) {
+	gentity_t	*found = NULL;
 	gclient_t	*cl;
 	char		str[MAX_TOKEN_CHARS];
 	char		durationStr[4];
 	int			duration = 700;
 
-	// find the player
-	trap_Argv( 1, str, sizeof( str ) );
-	cl = ClientForString( str );
-	if ( !cl ) {
+	if (trap_Argc() <= 2)
+	{
 		return;
 	}
+
+	// find the player
+	trap_Argv(1, str, sizeof(str));
+	found = G_FindClient(str);
+	if (!found || !found->client)
+	{
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
+		return;
+	}
+	cl = found->client;
 
 	trap_Argv( 2, str, sizeof( str ) );
 
@@ -2065,7 +2074,7 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-	if (!Q_stricmp(cmd, "forcename"))
+	if (!Q_stricmp(cmd, "rename"))
 	{
 		Svcmd_ForceName_f();
 		return qtrue;
