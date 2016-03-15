@@ -1194,6 +1194,7 @@ void Svcmd_ForceName_f(void) {
 
 	if (trap_Argc() <= 2)
 	{
+		Com_Printf("Usage:  rename [name or client number] [forced name] <optional duration in seconds>\nExample:  rename pad lamer 60\n");
 		return;
 	}
 
@@ -1203,6 +1204,7 @@ void Svcmd_ForceName_f(void) {
 	if (!found || !found->client)
 	{
 		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
+		Com_Printf("Usage:  rename [name or client number] [forced name] <optional duration in seconds>\nExample:  rename pad lamer 60\n");
 		return;
 	}
 	cl = found->client;
