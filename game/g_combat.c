@@ -5191,6 +5191,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
+	if (level.zombies && targ && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && attacker && attacker->client && targ != attacker && !g_friendlyFire.integer &&
+		mod >= MOD_BRYAR_PISTOL && mod <= MOD_CONC_ALT && mod != MOD_TURBLAST && mod != MOD_VEHICLE)
+	{
+		//prevent team-switch from allowing projectiles to kill (former) teammates on blue team in zombies mode
+		take = 0;
+	}
+
 	// do the damage
 	if (take) 
 	{
