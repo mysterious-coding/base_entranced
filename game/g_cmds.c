@@ -5134,6 +5134,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
 	Com_sprintf(string, 64, "g_autoKorribanSpam");
 	ServerCfgColor(string, g_autoKorribanSpam.integer, ent);
+	Com_sprintf(string, 64, "g_autoStats");
+	ServerCfgColor(string, g_autoStats.integer, ent);
 	Com_sprintf(string, 64, "g_antiLaming");
 	ServerCfgColor(string, g_antiLaming.integer, ent);
 	Com_sprintf(string, 64, "g_autoResetCustomTeams");
@@ -5940,6 +5942,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_MapPool_f(ent);
     else if ( Q_stricmp( cmd, "whois" ) == 0 )
         Cmd_WhoIs_f( ent );
+	else if (Q_stricmp(cmd, "ctfstats") == 0)
+		Cmd_PrintStats_f(ent);
 	else if (Q_stricmp (cmd, "gc") == 0)
 		Cmd_GameCommand_f( ent );
 	else if (Q_stricmp (cmd, "setviewpos") == 0)

@@ -1119,7 +1119,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse);
 void Cmd_ToggleSaber_f(gentity_t *ent);
 void Cmd_SiegeDuel_f(gentity_t *ent);
 void Cmd_EngageDuel_f(gentity_t *ent);
-
+void Cmd_PrintStats_f(gentity_t *ent);
 gentity_t *G_GetDuelWinner(gclient_t *client);
 
 //
@@ -1989,7 +1989,7 @@ extern vmCvar_t    g_openJKTeamVoteFix;
 extern vmCvar_t    g_antiLaming;
 
 extern vmCvar_t    siegeStatus;
-
+extern	vmCvar_t	g_autoStats;
 
 /*extern vmCvar_t    debug_testHeight1;
 extern vmCvar_t    debug_testHeight2;

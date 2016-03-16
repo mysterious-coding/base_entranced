@@ -190,6 +190,7 @@ vmCvar_t	g_antiLaming;
 
 vmCvar_t	siegeStatus;
 
+vmCvar_t	g_autoStats;
 
 /*vmCvar_t	debug_testHeight1;
 vmCvar_t	debug_testHeight2;
@@ -401,6 +402,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ff_objectives, "g_ff_objectives", "0", /*CVAR_SERVERINFO |*/ CVAR_CHEAT | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_autoMapCycle, "g_autoMapCycle", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_autoStats, "g_autoStats", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_maxForceRank, "g_maxForceRank", "6", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
@@ -2489,6 +2491,9 @@ void BeginIntermission( void ) {
 
 	// send the current scoring to all clients
 	SendScoreboardMessageToAllClients();
+
+	if (g_autoStats.integer)
+		Cmd_PrintStats_f(NULL);
 
 }
 
