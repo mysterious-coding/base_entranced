@@ -1212,7 +1212,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
 		player = g_entities + level.sortedClients[i];
 		if (player->inuse && player->client->sess.sessionTeam == 
-			ent->client->sess.sessionTeam ) {
+			ent->client->ps.persistant[PERS_TEAM] ) {
 			clients[cnt++] = level.sortedClients[i];
 		}
 	}
@@ -1227,7 +1227,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
 		player = g_entities + i;
 		if (player->inuse && player->client->sess.sessionTeam == 
-			ent->client->sess.sessionTeam ) {
+			ent->client->ps.persistant[PERS_TEAM] ) {
 
 			h = player->client->ps.stats[STAT_HEALTH];
 			a = player->client->ps.stats[STAT_ARMOR];
@@ -1291,7 +1291,7 @@ void CheckTeamStatus(void) {
 				continue;
 			}
 
-			if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
+			if (ent->inuse && (ent->client->ps.persistant[PERS_TEAM] == TEAM_RED ||	ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)) {
 				TeamplayInfoMessage( ent );
 			}
 		}
