@@ -1370,7 +1370,12 @@ void SP_worldspawn( void )
 		G_SpawnString("siegeRespawn", "20", &text); //if not defined, set to 20
 		trap_Cvar_Set("g_siegeRespawn", text);
 	}
-
+	level.voteTime = 0;
+	trap_SetConfigstring(CS_VOTE_TIME, "");
+	level.teamVoteTime[0] = 0;
+	level.teamVoteTime[1] = 0;
+	trap_SetConfigstring(CS_TEAMVOTE_TIME + 0, "");
+	trap_SetConfigstring(CS_TEAMVOTE_TIME + 1, "");
 	G_SpawnString("siegeTeamSwitch", "1", &text); //if not defined, set to 1
 	trap_Cvar_Set("g_siegeTeamSwitch", text);
 
