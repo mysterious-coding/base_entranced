@@ -3592,7 +3592,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	{
 		// hacky param whitelist but we aren't going to do any parsing anyway
 		if ( argc >= 3 && ( !Q_stricmp( arg2, "0" ) || !Q_stricmpn( arg2, "r", 1 )
-			|| !Q_stricmp( arg2, "4s" ) || !Q_stricmp( arg2, "5s" ) ) ) {
+			|| !Q_stricmp(arg2, "2s") || !Q_stricmp(arg2, "3s") || !Q_stricmp( arg2, "4s" ) || !Q_stricmp( arg2, "5s" ) || !Q_stricmp(arg2, "6s") || !Q_stricmp(arg2, "7s")) ) { //i'm lazy, fuck off.
 			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
 			
 			if ( !Q_stricmp( arg2, "0" ) || !Q_stricmpn( arg2, "r", 1 ) ) {
@@ -3601,7 +3601,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 				Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Lock Teams - %s", arg2 );
 			}
 		} else {
-			trap_SendServerCommand( ent - g_entities, "print \"usage: /callvote lockteams 4s/5s/reset\n\"" );
+			trap_SendServerCommand( ent - g_entities, "print \"usage: /callvote lockteams 2s/3s/4s/5s/6s/7s/reset\n\"" );
 			return;
 		}
 	}
