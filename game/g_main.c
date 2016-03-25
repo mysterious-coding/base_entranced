@@ -5267,6 +5267,24 @@ void G_RunFrame( int levelTime ) {
 
 	UpdateFancyClientModLaggers();
 
+	if (g_maxGameClients.integer)
+	{
+		//automatically unlock the teams if they are locked while 0 people are ingame
+		int playersInGame = 0;
+		for (i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (level.clients[i].pers.connected != CON_DISCONNECTED && (level.clients[i].sess.sessionTeam != TEAM_SPECTATOR || (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && level.clients[i].sess.siegeDesiredTeam != TEAM_SPECTATOR)))
+			{
+				playersInGame++;
+			}
+		}
+		if (!playersInGame)
+		{
+			trap_Cvar_Set("g_maxGameClients", "0");
+			trap_SendServerCommand(-1, va("print \"Teams automatically unlocked due to lack of in-game players.\n\""));
+		}
+	}
+
 	g_LastFrameTime = level.time;
 }
 
