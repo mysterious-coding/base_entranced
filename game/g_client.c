@@ -2054,7 +2054,7 @@ void ClientUserinfoChanged( int clientNum ) {
 		{
 			if ( client->pers.netnameTime > level.time  )
 			{
-				trap_SendServerCommand( clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")) );
+				trap_SendServerCommand( clientNum, va("print \"You must wait %i seconds before changing your name again.\n\"", ((client->pers.netnameTime - level.time) / 1000)) );
 				
 				Info_SetValueForKey( userinfo, "name", oldname );
 				trap_SetUserinfo( clientNum, userinfo );	

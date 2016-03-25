@@ -1248,10 +1248,13 @@ void Svcmd_ForceName_f(void) {
 		Com_Printf("Usage:  rename [name or client number] [forced name] <optional duration in seconds>\nExample:  rename pad lamer 60\n");
 		return;
 	}
+
 	cl = found->client;
 
 	trap_Argv( 2, str, sizeof( str ) );
 
+	G_LogPrintf("Client number %i from %s %s renamed to %s by admin.\n", found->s.number, found->client->sess.ipString, found->client->pers.netname, str);
+	trap_SendServerCommand(-1, va("print \"%s^7 was renamed by admin to %s\n\"", found->client->pers.netname, str));
 	if ( trap_Argc() > 2 ) {
 		trap_Argv( 3, durationStr, sizeof( durationStr ) );
 		duration = atoi( durationStr ) * 1000;
