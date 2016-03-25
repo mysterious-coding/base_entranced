@@ -3590,6 +3590,16 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	}
 	else if ( !Q_stricmp( arg1, "lockteams" ) )
 	{
+		//disable this vote
+		if (!g_allow_vote_lockteams.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Lock teams vote is disabled.\n\"");
+			return;
+		}
+		if (g_antiCallvoteTakeover.integer && TryingToDoCallvoteTakeover(ent) == qtrue)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
+			return;
+		}
 		// hacky param whitelist but we aren't going to do any parsing anyway
 		if ( argc >= 3 && ( !Q_stricmp( arg2, "0" ) || !Q_stricmpn( arg2, "r", 1 )
 			|| !Q_stricmp(arg2, "2s") || !Q_stricmp(arg2, "3s") || !Q_stricmp( arg2, "4s" ) || !Q_stricmp( arg2, "5s" ) || !Q_stricmp(arg2, "6s") || !Q_stricmp(arg2, "7s")) ) { //i'm lazy, fuck off.
@@ -5126,6 +5136,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_vote_kick.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_killturrets");
 	ServerCfgColor(string, g_allow_vote_killturrets.integer, ent);
+	Com_sprintf(string, 64, "g_allow_vote_lockteams");
+	ServerCfgColor(string, g_allow_vote_lockteams.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_map");
 	ServerCfgColor(string, g_allow_vote_map.integer, ent);
 	Com_sprintf(string, 64, "g_allow_vote_maprandom");

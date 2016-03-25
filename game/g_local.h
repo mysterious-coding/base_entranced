@@ -1935,6 +1935,7 @@ extern vmCvar_t     g_allow_vote_pug;
 extern vmCvar_t     g_allow_vote_pub;
 extern vmCvar_t     g_allow_vote_forceclass;
 extern vmCvar_t     g_allow_vote_zombies;
+extern vmCvar_t     g_allow_vote_lockteams;
 
 extern vmCvar_t     g_allow_ready;
 
