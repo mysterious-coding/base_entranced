@@ -833,7 +833,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		return;
 	}
 
-	if ((team == TEAM_RED || team == TEAM_BLUE) && g_requireJoinPassword.integer)
+	if ((team == TEAM_RED || team == TEAM_BLUE || team == TEAM_FREE) && g_requireJoinPassword.integer)
 	{
 		trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 		myPassword = Info_ValueForKey(userinfo, "password");
