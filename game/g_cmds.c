@@ -1400,7 +1400,7 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 
 	if (ent->client->switchClassTime > level.time && level.inSiegeCountdown != qtrue)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")));
+		trap_SendServerCommand(ent - g_entities, va("print \"Please wait %i seconds before switching classes.\n\"", (ent->client->switchClassTime - level.time + 500) / 1000));
 		return;
 	}
 
@@ -1466,7 +1466,7 @@ void Cmd_Join_f(gentity_t *ent)
 
 	if (ent->client->switchClassTime > level.time && level.inSiegeCountdown != qtrue)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")));
+		trap_SendServerCommand(ent - g_entities, va("print \"Please wait %i seconds before switching classes.\n\"", (ent->client->switchClassTime - level.time + 500) / 1000));
 		return;
 	}
 
@@ -1560,7 +1560,7 @@ void Cmd_Class_f(gentity_t *ent)
 
 	if (ent->client->switchClassTime > level.time && level.inSiegeCountdown != qtrue)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")));
+		trap_SendServerCommand(ent - g_entities, va("print \"Please wait %i seconds before switching classes.\n\"", (ent->client->switchClassTime - level.time + 500) / 1000));
 		return;
 	}
 
