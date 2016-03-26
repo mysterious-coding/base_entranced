@@ -5048,7 +5048,7 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build 110\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2WHOIS\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/SIMPLIFIED PRIVATE MESSAGING\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2SIMPLIFIED PRIVATE MESSAGING\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player simply by pressing your chat bind and typing ^5@<player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player with ^5/tell <player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
