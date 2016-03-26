@@ -25,7 +25,7 @@ The only sizable change to gameplay is the anti-spam cvars. Although base_entran
 
 You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. Feel free to reply to these issues with any comments/help/thoughts you have. Issues that I am in particular need of help with are marked with the "help wanted" tag. Feel free to create a new "issue" with any question/bug report/feature request you may have.
 
-You can discuss base_entranced on the **base_entranced forum at [www.jkasiege.com](https://www.jkasiege.com) **
+You can discuss base_entranced on the **base_entranced forum** at [www.jkasiege.com](https://www.jkasiege.com)
 
 # Notice to coders
 
