@@ -845,6 +845,13 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		}
 	}
 
+	if (ent->forcedTeamTime > level.time && !forceteamed)
+	{
+		//raped
+		trap_SendServerCommand(ent - g_entities, va("print \"You have been forceteamed recently. Please wait %i seconds before changing teams again.\n\"", (ent->forcedTeamTime - level.time + 500) / 1000));
+		return;
+	}
+
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		qboolean teamChanged = qfalse;

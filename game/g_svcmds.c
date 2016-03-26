@@ -837,7 +837,7 @@ void	Svcmd_ForceTeam_f( void ) {
 
 	if (trap_Argc() < 3)
 	{
-		Com_Printf("usage: forceteam [name or client number] [team] (name can be just part of name, colors don't count)\n"); //bad number of arguments
+		Com_Printf("usage: forceteam [name or client number] [team] <seconds> (name can be just part of name, colors don't count)\n"); //bad number of arguments
 		return;
 	}
 
@@ -877,6 +877,20 @@ void	Svcmd_ForceTeam_f( void ) {
 		else
 			trap_SendServerCommand(-1, va("print \"%s was forceteamed to spectator.\n\"", found->client->pers.netname));
 	}
+
+	if (trap_Argc() < 4)
+	{
+		return;
+	}
+
+	trap_Argv(3, str, sizeof(str));
+	if (!str || !str[0] || !atoi(str))
+	{
+		return;
+	}
+
+	//specify the time
+	found->forcedTeamTime = level.time + (atoi(str) * 1000);
 }
 
 /*

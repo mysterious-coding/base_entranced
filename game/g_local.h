@@ -215,7 +215,7 @@ struct gentity_s {
 	int			forcedClass;
 	int			forcedClassTime;
 	int			funnyClassNumber; //terrible, I know. there seems to be a weird disparity between the numbering of classes as laid out in *classTitles[SPC_MAX] and playerClass...this should account for that.
-
+	int			forcedTeamTime;
 	char		*ownername;
 
 	int			objective;
@@ -495,6 +495,7 @@ typedef struct {
 	int			siegeDuelInProgress;
 	int			siegeDuelIndex;
 	int			siegeDuelTime;
+
 } clientSession_t;
 
 // playerstate mGameFlags
