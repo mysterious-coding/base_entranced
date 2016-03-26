@@ -1902,7 +1902,6 @@ extern vmCvar_t		g_enforceEvenVotersCount;
 extern vmCvar_t		g_minVotersForEvenVotersCount;
 
 extern vmCvar_t		g_maxNameLength;
-extern vmCvar_t		g_duplicateNamesId;
 
 extern vmCvar_t     g_strafejump_mod;
 
