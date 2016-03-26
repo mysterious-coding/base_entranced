@@ -10,7 +10,7 @@ a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive gameplay**, not as a general-purpose "hangout server" mod.
 
-base_entranced is regarded among the siege community (www.jkasiege.com) as **the only acceptable serverside mod that Siege should ever be played on**. Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
+base_entranced is regarded among the siege community [(www.jkasiege.com)](https://www.jkasiege.com) as **the only acceptable serverside mod that Siege should ever be played on**. Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
 base_entranced has three goals:
 * Fixing bugs.
@@ -25,7 +25,7 @@ The only sizable change to gameplay is the anti-spam cvars. Although base_entran
 
 You can help with the development of base_entranced by submitting bug reports, comments, feature requests, etc. Click the "Issues" button for this repository to view the current list of known bugs, proposed enhancements, etc. Feel free to reply to these issues with any comments/help/thoughts you have. Issues that I am in particular need of help with are marked with the "help wanted" tag. Feel free to create a new "issue" with any question/bug report/feature request you may have.
 
-You can discuss base_entranced on the **base_entranced forum at jkasiege.com** ([http://www.jkasiege.com/phpBB3/viewforum.php?f=77]([link]))
+You can discuss base_entranced on the **base_entranced forum at [www.jkasiege.com](https://www.jkasiege.com) **
 
 # Notice to coders
 
