@@ -31,6 +31,19 @@ I usually try to include all related commits inside the comments of their relate
 
 base_entranced is icensed under GPLv2 as free software. You are free to use, modify and redistribute base_entranced following the terms in LICENSE.txt.
 
+# Downloads
+
+####Download base_entranced
+To download base_entranced, please find the "releases" button on the Github Repo, or simply go to [https://github.com/deathsythe47/base_entranced/releases](https://github.com/deathsythe47/base_entranced/releases)
+
+####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file, and tweak settings as desired.
+
+####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
+
+NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
+
 #base_entranced features
 These are unique features for base_entranced.
 
@@ -699,16 +712,3 @@ Prevent calling votes for some things:
 * Fixed camera bug when speccing someone riding a swoop.
 * Security/crash fixes.
 * Probably more fixes.
-
-# Downloads
-
-####DOWNLOAD BASE_ENTRANCED
-To download base_entranced, please find the "releases" button on the Github Repo, or simply go to [https://github.com/deathsythe47/base_entranced/releases](https://github.com/deathsythe47/base_entranced/releases)
-
-####Sample server.cfg [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-This sample server.cfg contains recommended settings for all cvars, with a pug server in mind. You should base your server's configuration on this file, and tweak settings as desired.
-
-####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
-
-NOTE: Although all crashes seem to be fixed, it still advisable to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
