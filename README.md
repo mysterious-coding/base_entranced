@@ -563,7 +563,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 These are features in base_entranced that are also available in Alpha's base_enhanced. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features.
 
 ####`/lockteams`
-Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` sets `g_maxGameClients` to 8.
+Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` is the same as setting `/g_maxGameClients` to 8.
 
 Teams are automatically unlocked at intermission, or if there are 0 players in-game.
 
