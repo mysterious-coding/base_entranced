@@ -8,7 +8,7 @@ a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 # What is base_entranced?
 
-base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **competitive gameplay**, not as a general-purpose "hangout server" mod.
+base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive gameplay**, not as a general-purpose "hangout server" mod.
 
 base_entranced is regarded among the siege community (www.jkasiege.com) as **the only acceptable serverside mod that Siege should ever be played on**. Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
