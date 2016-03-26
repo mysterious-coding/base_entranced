@@ -852,11 +852,11 @@ void	Svcmd_ForceTeam_f( void ) {
 	trap_Argv( 2, str, sizeof( str ) );
 	if ((!Q_stricmp(str, "r") || !Q_stricmp(str, "red")) && found->client->sess.sessionTeam == TEAM_RED)
 	{
-		return;
+		goto afterTeamChange;
 	}
 	else if ((!Q_stricmp(str, "b") || !Q_stricmp(str, "blue")) && found->client->sess.sessionTeam == TEAM_BLUE)
 	{
-		return;
+		goto afterTeamChange;
 	}
 	SetTeam(found, str, qtrue );
 	if (g_gametype.integer == GT_SIEGE)
@@ -877,6 +877,8 @@ void	Svcmd_ForceTeam_f( void ) {
 		else
 			trap_SendServerCommand(-1, va("print \"%s was forceteamed to spectator.\n\"", found->client->pers.netname));
 	}
+
+	afterTeamChange:
 
 	if (trap_Argc() < 4)
 	{
