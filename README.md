@@ -164,9 +164,9 @@ Set for lower values to get smoother grip without lag (maybe 50, which equals 20
 Note that the game client does not currently predict yaw for these moves, so they will only be rendered in realtime as limited by server `/sv_fps` setting.
 
 ####`/g_antiCallvoteTakeover`
-0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, and `/kick`/`/clientkick` votes (default JK3)
+0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, and `lockteams` votes (default JK3)
 
-1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, or `/kick`/`/clientkick` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
+1 = calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, or `lockteams` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
 
 ####`/g_moreTaunts`
 0 = default JK3 behavior (only allow `/taunt` in non-duel gametypes)
@@ -310,8 +310,14 @@ base_enhanced supports random teams/capts, but it doesn't work for siege mode. I
 ####Unlimited class-changing during countdown
 Removed the 5-second delay for class-changing during the countdown.
 
-####Improved `/tell` and `/forceteam`
-Use partial client name with `/tell` or `/forceteam` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
+####Simple private messaging
+You can send private messages to other players by simply pressing your chat bind and typing `@` followed by a partial client name (for example, pressing your chat bind and typing `@pad how's it going` will send a message to Padawan saying "how's it going").
+
+####Improved `/tell`
+In case for some reason you don't want to use the "@" method described above, you can still use partial client name with `/tell` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
+
+####Improved `/forceteam`
+Use partial client name with `/forceteam`. Optionally, you can include an additional argument for the number of seconds until they can change teams again (defaults to 0); for example, `/rcon forceteam douchebag r 60`
 
 ####`/forceclass` and `/unforceclass`
 Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `/callteamvote`. For example, `/callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `/callteamvote unforceclass pad` to undo this restriction. Use `/teamvote yes` and `/teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
@@ -326,10 +332,10 @@ Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a p
 Use to enable/disable players from using the `/ready` command.
 
 ####`/rename`
-Rcon command to forcibly rename a player.
+Rcon command to forcibly rename a player. Use partial client name or client number. Optionally, you can include an additional argument for the number of seconds until they can rename again (defaults to 0); for example, `/rcon rename douchebag padawan 60`
 
 ####Duplicate names fix
-Players are now prevented from using the exact same name as another player.
+Players now gain a JA+-style client number appended to their name if they try to copy someone else's name.
 
 ####Siege captain dueling
 You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, no force powers, offense can go through defense-only doors, and turrets are automatically destroyed.
@@ -480,6 +486,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_customTeams`
 * `/g_allow_vote_forceclass`
 * `/g_allow_vote_zombies`
+* `/g_allow_vote_lockteams`
 
 ####Zombies
 "Zombies" is an unnoficial quasi-gametype that has been played by the siege community to kill time over years. It is a hide-and-seek game that involves one offense jedi hunting down defense gunners after some initial setup time. Gunners who die join offense jedi and hunt until there is only one gunner left.
@@ -537,9 +544,26 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Improved health bar precision.
 * Fixed not regenerating force after force jumping into a vehicle.
 * You can now taunt while moving.
+* Teamoverlay data is now broadcast to spectators who are following other players.
+* Fixed improper initialization of votes causing improper vote counts and improper display of teamvotes.
+* Generic "you can only change classes once every 5 seconds" message has been replaced with a message containing the remaining number of seconds until you can change classes.
 
-#Features that are also in base_enhanced
-These are features in base_entranced that are also available in base_enhanced. Since base_entranced was originally based on base_enhanced, and they are both open source, they share a number of features. Many of these features were coded and/or conceived by us first, and then were added to base_enhanced by Sil later.
+#Features that are also in Alpha's base_enhanced
+These are features in base_entranced that are also available in Alpha's base_enhanced. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features.
+
+####`/lockteams`
+Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` sets `g_maxGameClients` to 8.
+
+Teams are automatically unlocked at intermission, or if there are 0 players in-game.
+
+####`/g_maxNameLength`
+Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
+
+####Bugfixes and other changes
+* Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
+
+#Features that are also in Sil's base_enhanced
+These are features in base_entranced that are also available in Sil's base_enhanced. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features.
 
 ####`/class`
 Clientside command. Use first letter of class to change, like `/class a` for assault, `/class s` for scout, etc. For maps with more than 6 classes, you can use `/class 7`, `/class 8`, etc.
@@ -561,6 +585,11 @@ Set to 0 so you don't lose points when you SK.
 0 = normal pit kills (JK3 default)
 
 1 = if you selfkill while above a pit, it grants a kill to whoever pushed you into the pit. This prevents people from denying enemies' kills with selfkill.
+
+####`/g_maxGameClients`
+0 = people can freely join the game
+
+other number = only this many players may join the game; the reset must stay in spectators
 
 ####Automatic downloading for everyone
 (coded by Alpha; not in Sil's base_enhanced) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod, or those with autodownload disabled in their client) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as usual.
@@ -612,7 +641,7 @@ Set url with `/g_dlurl`; clients with SMod can download
 Use `/g_quietrcon` to avoid publishing mis-typed commands to everyone on the server.
 
 ####Lag icon above head
-Players with 999 ping show a lag icon above their head in-game.
+Players with 999 ping show a lag icon above their head in-game. 
 
 ####Fixed siege chat
 * Spectator chat can be seen by people who are in-game
@@ -633,7 +662,7 @@ Prevent calling votes for some things:
 * `/g_allow_vote_maprandom`
 * `/g_allow_vote_warmup`
 
-####Bug fixes and other changes:
+####Bugfixes and other changes:
 * When you run someone over in the ATST, you get a kill.
 * No more spying on the enemy teamchat during siege countdown.
 * Bugfix for not scoring points on Hoth first obj.
