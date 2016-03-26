@@ -567,6 +567,11 @@ Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use argument
 
 Teams are automatically unlocked at intermission, or if there are 0 players in-game.
 
+####`/g_enforceNetSettings`
+0 = don't change any client net settings
+
+1 = clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
+
 ####`/g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
 
@@ -601,16 +606,6 @@ Set to 0 so you don't lose points when you SK.
 0 = people can freely join the game
 
 other number = only this many players may join the game; the reset must stay in spectators
-
-####Automatic downloading for everyone
-(coded by Alpha; not in Sil's base_enhanced) You can set `/sv_allowDownload 2` to allow all JA players (even those without special client mods such as SMod, or those with autodownload disabled in their client) to utilize autodownloading. Make sure `/g_dlUrl` is specified, as usual.
-
-####`/g_enforceNetSettings`
-(coded by Alpha, not in Sil's base_enhanced)
-
-0 = don't change any client net settings
-
-1 = clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
