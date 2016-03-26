@@ -1,25 +1,25 @@
 # base_entranced
 
-a Siege server mod for Jedi Knight 3
+a multiplayer server mod for Jedi Knight 3's Siege gametype
 
 by Duo
 
 a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) CTF server mod
 
-base_entranced is icensed under GPLv2 as free software. You are free to use, modify and redistribute base_entranced following the terms in LICENSE.txt.
-
 # What is base_entranced?
 
-base_entranced is a serverside-only mod for Jedi Knight 3, intended for use in the Siege gametype.
+base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **competitive gameplay**, not as a general-purpose "hangout server" mod.
 
-There are three goals:
+base_entranced is regarded among the siege community (www.jkasiege.com) as **the only acceptable serverside mod that Siege should ever be played on**. Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
+
+base_entranced has three goals:
 * Fixing bugs.
 * Adding enhancements to basejka siege.
 * Providing enhanced framework for siege mappers.
 
-It is my wish to stay close to basejka gameplay. In other words, this is not like Movie Battles 2, which is a separate gametype. This is intended merely as an improvement of basejka Siege gametype. Most of my changes can be toggled by cvar. Most bugfixes are hardcoded.
+base_entranced strives to remain close to basejka gameplay. It is not bloated with emotes and grappling hooks like JA+, nor does it contain wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind.
 
-The biggest change from basejka made by this mod is the anti-spam cvars (`/iLikeToDoorspam` and `/iLikeToMineSpam`). Although I wrote above that I wanted to stay close to basejka gameplay, in my opinion, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those two cvars, everything else adheres to the "stay close to base" philosophy.
+The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka gameplay, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else adheres to the "stay-close-to-basejka" philosophy.
 
 # What can I do to help?
 
@@ -29,9 +29,11 @@ Feel free to create a new "issue" with any question/bug report/feature request y
 
 # Notice to coders
 
-I compile this mod with Debug setting, not Final. There is a random rare server crash that tends to happen when changing maps. Due to auto-initialization, this crash seems to go away with Debug compile. Until this can be fixed, this mod should be compiled with Debug.
+I compile this mod with Debug setting, not Final. There is a random rare server crash that tends to happen when changing maps. Due to auto-initialization, this crash seems to go away with Debug compile. Until this can be fixed, this mod should be compiled with Debug. It's not really a huge deal, as the mod works perfectly fine under those conditions.
 
 I usually try to include all related commits inside the comments of their related issue, but sometimes I forget to add some patches. If you are cherry-picking a feature into your mod, you should double check that your code matches mine to make sure you didn't miss any commits.
+
+base_entranced is icensed under GPLv2 as free software. You are free to use, modify and redistribute base_entranced following the terms in LICENSE.txt.
 
 #base_entranced features
 These are unique features for base_entranced.
