@@ -4546,6 +4546,7 @@ void UpdateSiegeStatus()
 	trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 }
 
+#define LAGSTATUS_UPDATE_INTERVAL	2000
 void UpdateFancyClientModLaggers(void)
 {
 	int i;
@@ -4559,10 +4560,10 @@ void UpdateFancyClientModLaggers(void)
 		}
 	}
 
-	if (lagStatusNumber != level.lagStatusNumber)
+	//send it out
+	if (!level.lagStatusSendTime || level.lagStatusSendTime <= level.time)
 	{
-		//it has changed, so let's send the new one out
-		level.lagStatusNumber = lagStatusNumber;
+		level.lagStatusSendTime = level.time + LAGSTATUS_UPDATE_INTERVAL;
 		trap_SendServerCommand(-1, va("lchat \"^8^7lsn\" \"%lu\"", lagStatusNumber));
 	}
 }

@@ -965,6 +965,7 @@ typedef struct {
 	int			siegeStatusUpdateTime;
 	int			siegeRoundStartTime;
 	int			antiLamingTime;
+	int			lagStatusSendTime;
 
 	char		mapVersion[32];
 
@@ -1002,8 +1003,6 @@ typedef struct {
 	int			snd_medSupplied;		//being supplied by supply class
 
 	int			warmupModificationCount;	// for detecting if g_warmup is changed
-
-	unsigned long	lagStatusNumber;
 
 	// voting state
 	char		voteString[MAX_STRING_CHARS];
