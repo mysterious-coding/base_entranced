@@ -751,8 +751,6 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	spectatorState_t	specState;
 	int					specClient;
 	int					teamLeader;
-	char				userinfo[MAX_INFO_STRING];
-	char				*myPassword;
 
 	//base enhanced fix, sometimes we come here with invalid 
 	//entity sloty and this procedure then creates fake player
@@ -831,18 +829,6 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	//client is no longer valid, lets check it for it here and few other places
 	if (!ent->inuse){
 		return;
-	}
-
-	if ((team == TEAM_RED || team == TEAM_BLUE || team == TEAM_FREE) && g_requireJoinPassword.integer)
-	{
-		trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
-		myPassword = Info_ValueForKey(userinfo, "password");
-		if (Q_stricmp(g_joinPassword.string, myPassword))
-		{
-			//wrong password; you may not join a team
-			trap_SendServerCommand(ent->client->ps.clientNum, va("print \"This server requires a password to join the game. Enter correct password with ^5/password^7 command.\n\""));
-			return;
-		}
 	}
 
 	if (ent->forcedTeamTime > level.time && !forceteamed)
@@ -3758,18 +3744,6 @@ static void Cmd_Ready_f(gentity_t *ent) {
 
 	if (ent->client->pers.readyTime > level.time - 2000)
 		return;
-
-	if (g_requireJoinPassword.integer)
-	{
-		trap_GetUserinfo(ent->s.number, userinfo, sizeof(userinfo));
-		myPassword = Info_ValueForKey(userinfo, "password");
-		if (Q_stricmp(g_joinPassword.string, myPassword))
-		{
-			//wrong password
-			trap_SendServerCommand(ent->client->ps.clientNum, va("print \"This server requires a password to join the game. Enter correct password with ^5/password^7 command.\n\""));
-			return;
-		}
-	}
 
 	// if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
     //     return;

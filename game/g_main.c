@@ -181,8 +181,6 @@ vmCvar_t	iLikeToDoorSpam;
 vmCvar_t	iLikeToMineSpam;
 vmCvar_t	autocfg_map;
 vmCvar_t	autocfg_unknown;
-vmCvar_t	g_requireJoinPassword;
-vmCvar_t	g_joinPassword;
 vmCvar_t	g_swoopKillPoints;
 vmCvar_t	g_openJKTeamVoteFix;
 vmCvar_t	g_antiLaming;
@@ -722,8 +720,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &iLikeToMineSpam, "iLikeToMineSpam", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_requireJoinPassword, "g_requireJoinPassword", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_joinPassword, "g_joinPassword", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_openJKTeamVoteFix, "g_openJKTeamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
