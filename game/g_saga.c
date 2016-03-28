@@ -1529,7 +1529,8 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)
 	if (team != TEAM_SPECTATOR && !ent->client->sess.canJoin) {
 		trap_SendServerCommand( ent - g_entities,
 			"cp \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"" );
-
+		trap_SendServerCommand(ent - g_entities,
+			"print \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"");
 		return;
 	}
 
