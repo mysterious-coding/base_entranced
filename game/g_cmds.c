@@ -3733,8 +3733,6 @@ void Cmd_Vote_f( gentity_t *ent ) {
 
 static void Cmd_Ready_f(gentity_t *ent) {
 	const char *publicMsg = NULL;
-	char		userinfo[MAX_INFO_STRING];
-	char		*myPassword;
 
 	if (!ent || !ent->client)
 	{
@@ -3752,6 +3750,13 @@ static void Cmd_Ready_f(gentity_t *ent) {
 
 	if (ent->client->pers.readyTime > level.time - 2000)
 		return;
+
+	if (!ent->client->sess.canJoin) {
+		trap_SendServerCommand(ent->client->ps.clientNum,
+			va("print \"^1You cannot use /ready or join the game because your password is empty or incorrect.\n^8If you know the password, just use /password\n^8If you don't, stick around until someone gives it to you!\n\""));
+
+		return;
+	}
 
 	// if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
     //     return;
