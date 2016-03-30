@@ -1985,6 +1985,21 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 }
 
+static char* NM_SerializeUIntToColor( const unsigned int n ) {
+	static char result[32] = { 0 };
+	char buf[32] = { 0 };
+	int i;
+
+	Com_sprintf( buf, sizeof( buf ), "%o", n );
+	result[0] = '\0';
+
+	for ( i = 0; buf[i] != '\0'; ++i ) {
+		Q_strcat( result, sizeof( result ), va( "%c%c", Q_COLOR_ESCAPE, buf[i] ) );
+	}
+
+	return &result[0];
+}
+
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j;
 	gentity_t	*other;
@@ -2009,7 +2024,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	default:
 	case SAY_ALL:
 		G_LogPrintf( "say: %i %s: %s\n", ent-g_entities, ent->client->pers.netname, chatText );
-		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		Com_sprintf (name, sizeof(name), "%s%s%c%c"EC": ", NM_SerializeUIntToColor(ent-g_entities), ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
 		break;
 	case SAY_TEAM:
