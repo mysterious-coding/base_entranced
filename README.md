@@ -294,9 +294,6 @@ Your most-preferred weapons go at the beginning; least-preferred weapons go at t
 
 Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use default JK3 weapon priority.
 
-####Team-joining password requirement
-You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/g_requireJoinPassword 1` to establish the requirement, and use `/g_joinPassword "your_password_here"` to define the password. This could be useful for opening up private/pug servers to the public for spectating.
-
 ####`/join`
 Clientside command. Use to join a specific class and team, e.g. `/join rj` for red jedi.
 
@@ -561,6 +558,9 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 
 #Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features.
+
+####Team-joining password requirement
+You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/sv_passwordlessSpectators 1`. The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
 
 ####`/lockteams`
 Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` is the same as setting `/g_maxGameClients` to 8.
