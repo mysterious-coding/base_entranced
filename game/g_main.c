@@ -4546,25 +4546,25 @@ void UpdateSiegeStatus()
 	trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 }
 
-#define LAGSTATUS_UPDATE_INTERVAL	2000
+#define LAGINDEX_UPDATE_INTERVAL	2000
 void UpdateFancyClientModLaggers(void)
 {
 	int i;
-	unsigned long lagStatusNumber = 0;
+	unsigned long lagIndex = 0;
 
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->ps.eFlags & EF_CONNECTION)
 		{
-			lagStatusNumber |= (1 << i);
+			lagIndex |= (1 << i);
 		}
 	}
 
 	//send it out
-	if (!level.lagStatusSendTime || level.lagStatusSendTime <= level.time)
+	if (!level.lagIndexSendTime || level.lagIndexSendTime <= level.time)
 	{
-		level.lagStatusSendTime = level.time + LAGSTATUS_UPDATE_INTERVAL;
-		trap_SendServerCommand(-1, va("lchat \"^8^7lsn\" \"%lu\"", lagStatusNumber));
+		level.lagIndexSendTime = level.time + LAGINDEX_UPDATE_INTERVAL;
+		trap_SendServerCommand(-1, va("lchat \"li\" \"%lu\"", lagIndex));
 	}
 }
 

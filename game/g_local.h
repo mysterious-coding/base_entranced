@@ -974,7 +974,7 @@ typedef struct {
 	int			siegeStatusUpdateTime;
 	int			siegeRoundStartTime;
 	int			antiLamingTime;
-	int			lagStatusSendTime;
+	int			lagIndexSendTime;
 
 	char		mapVersion[32];
 
