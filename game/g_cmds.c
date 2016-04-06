@@ -2303,7 +2303,7 @@ Cmd_Tell_f
 ==================
 */
 static void Cmd_Tell_f(gentity_t *ent, char *override) {
-	char buffer[64] = { 0 };
+	char buffer[MAX_TOKEN_CHARS] = { 0 };
 	char firstArg[MAX_STRING_CHARS] = { 0 };
 	char *space;
 	gentity_t* found = NULL;
@@ -2313,7 +2313,7 @@ static void Cmd_Tell_f(gentity_t *ent, char *override) {
 	if (!override && trap_Argc() < 3)
 	{
 		trap_SendServerCommand(ent - g_entities,
-			"print \"usage: tell [name or client number] [message] (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
+			"print \"usage: tell <name or client number> <message> (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
 		return;
 	}
 
