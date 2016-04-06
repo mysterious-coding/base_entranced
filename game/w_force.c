@@ -1447,6 +1447,11 @@ void ForceTeamHeal( gentity_t *self )
 		if (g_entities[pl[i]].client->ps.stats[STAT_HEALTH] > 0 &&
 			g_entities[pl[i]].health > 0)
 		{
+			// using TH on this ally
+			if ( self && self->client ) {
+				self->client->pers.healed += ( ( g_entities[pl[i]].client->ps.stats[STAT_HEALTH] + healthadd > g_entities[pl[i]].client->ps.stats[STAT_MAX_HEALTH] ) ? ( g_entities[pl[i]].client->ps.stats[STAT_MAX_HEALTH] - g_entities[pl[i]].client->ps.stats[STAT_HEALTH] ) : healthadd );
+			}
+
 			g_entities[pl[i]].client->ps.stats[STAT_HEALTH] += healthadd;
 			if (g_entities[pl[i]].client->ps.stats[STAT_HEALTH] > g_entities[pl[i]].client->ps.stats[STAT_MAX_HEALTH])
 			{
@@ -1558,7 +1563,7 @@ void ForceTeamForceReplenish( gentity_t *self )
 	{
 		// using TE on this ally
 		if ( self && self->client ) {
-			self->client->pers.energized += g_entities[pl[i]].client->ps.fd.forcePower + poweradd > 100 ? 100 - g_entities[pl[i]].client->ps.fd.forcePower : poweradd;
+			self->client->pers.energized += ( ( g_entities[pl[i]].client->ps.fd.forcePower + poweradd > 100 ) ? ( 100 - g_entities[pl[i]].client->ps.fd.forcePower ) : poweradd );
 		}
 
 		g_entities[pl[i]].client->ps.fd.forcePower += poweradd;
