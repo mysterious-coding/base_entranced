@@ -1536,6 +1536,7 @@ void ItemUse_UseDisp(gentity_t *ent, int type)
 		te->s.time = level.time;
 		te->s.time2 = TOSS_DEBOUNCE_TIME;
 		te->s.owner = ent->client->ps.clientNum;
+		te->s.saberInFlight = qtrue;
 	}
 }
 
