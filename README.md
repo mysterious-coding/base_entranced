@@ -17,7 +17,7 @@ base_entranced has three goals:
 * Adding enhancements to basejka siege.
 * Providing enhanced framework for siege mappers.
 
-base_entranced strives to remain close to basejka gameplay. It is not bloated with emotes and grappling hooks like JA+, nor does it contain wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind.
+base_entranced strives to remain close to basejka gameplay. It is not bloated with emotes and grappling hooks like JA+, nor is it wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind.
 
 The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka gameplay, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else adheres to the "stay-close-to-basejka" philosophy.
 
