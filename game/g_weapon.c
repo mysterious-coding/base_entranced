@@ -220,11 +220,13 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	int			foundDoorsIndex[64];
 	int			n;
 
-	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim, *enemyInStationList[MAX_GENTITIES], *potentialEnemyInStation;
+	gentity_t	*entity_list[MAX_GENTITIES], *potentialSpamVictim, *enemyInStationList[MAX_GENTITIES], *enemyInStation1List[MAX_GENTITIES], *potentialEnemyInStation, *potentialEnemyInStation1;
 	vec3_t		throwerOrigin, distanceToVictim, distanceBetweenMeAndVictim, distanceBetweenDoorAndVictim;
 	int			possibleTargets;
 	int			possibleEnemiesInStation;
+	int			possibleEnemiesInStation1;
 	int			numConfirmedEnemiesInStation = 0;
+	int			numConfirmedEnemiesInStation1 = 0;
 	qboolean	iAmADirtyFuckingSpammer = qfalse;
 	qboolean	thereIsAWalkerOrProtector = qfalse;
 	qboolean	thereIsADoor = qfalse;
@@ -324,6 +326,46 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					heightUpperBound = (ent->client->ps.origin[2] + 99999); //huge
 					heightLowerBound = (ent->client->ps.origin[2] - 99999); //huge
 					//trap_SendServerCommand(-1, va("print \"Debug: station 1\n\""));
+					//trap_SendServerCommand(-1, va("print \"^%iIn station 1 obj room, ^%ichecking for enemies.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+					VectorCopy(ent->client->ps.origin, throwerOrigin);
+					possibleEnemiesInStation1 = G_RadiusList(throwerOrigin, 3000, ent, qtrue, enemyInStation1List);
+
+					for (n = 0; n < possibleEnemiesInStation1; n++)
+					{
+						potentialEnemyInStation1 = enemyInStation1List[n];
+
+						if (!potentialEnemyInStation1 || !potentialEnemyInStation1->client)
+						{
+							continue; //??? uhh...this should never happen, but whatever
+						}
+
+						if (potentialEnemyInStation1->client->sess.sessionTeam && potentialEnemyInStation1->client->sess.sessionTeam != TEAM_RED)
+						{
+							continue; //must be on offense
+						}
+
+						if (potentialEnemyInStation1 == ent || !potentialEnemyInStation1->takedamage || potentialEnemyInStation1->health <= 0 || potentialEnemyInStation1->client->tempSpectate >= level.time || (potentialEnemyInStation1->flags & FL_NOTARGET))
+						{
+							continue; //miscellaneous checks
+						}
+
+						if (potentialEnemyInStation1->client->ps.origin[0] >= (5134 + versionAdjustment) && potentialEnemyInStation1->client->ps.origin[0] <= (5733 + versionAdjustment) && potentialEnemyInStation1->client->ps.origin[1] >= 62 && potentialEnemyInStation1->client->ps.origin[1] <= 708)
+						{
+							//there is an enemy in the station 1
+							numConfirmedEnemiesInStation1++;
+						}
+					}
+					if (numConfirmedEnemiesInStation1)
+					{
+						//there are enemies in the Station1, so "spamming" is okay
+						//trap_SendServerCommand(-1, va("print \"^%iEnemies in station 1, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						return qfalse;
+					}
+					else
+					{
+						//trap_SendServerCommand(-1, va("print \"^%iNo enemies detected in station 1, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+						//proceed normally
+					}
 				}
 				else if (ent->client->ps.origin[0] >= (5391 + versionAdjustment) && ent->client->ps.origin[0] <= (6035 + versionAdjustment) && ent->client->ps.origin[1] >= -1318 && ent->client->ps.origin[1] <= -588)
 				{
