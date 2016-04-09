@@ -444,6 +444,9 @@ typedef struct {
 	int			lastreturnedflag;
 	int			flagsince;
 	int			lastfraggedcarrier;
+
+	int			frozeClient; //this client...
+	int			frozeTime; //...was frozen until this time
 } playerTeamState_t;
 
 // the auto following clients don't follow a specific client

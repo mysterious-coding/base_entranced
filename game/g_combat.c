@@ -1905,11 +1905,7 @@ static qboolean isAbovePit(gentity_t *ent){
 	return qtrue;
 }
 
-/*
-==================
-player_die
-==================
-*/
+
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
@@ -1923,6 +1919,39 @@ extern qboolean g_dontFrickinCheck;
 extern qboolean g_endPDuel;
 extern qboolean g_noPDuelCheck;
 extern void SetSiegeClass(gentity_t *ent, char* className);
+
+void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker)
+{
+	int i;
+
+	if (g_gametype.integer != GT_SIEGE || !self || !self->client || !attacker || !attacker->client || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
+	{
+		return;
+	}
+
+	if (self->client->ps.electrifyTime >= level.time)
+	{
+		//killed while frozen
+		for (i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (&g_entities[i] && &g_entities[i] != self && &g_entities[i] != attacker && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED &&
+				g_entities[i].client->pers.teamState.frozeClient == self->client->ps.clientNum && g_entities[i].client->pers.teamState.frozeTime >= level.time &&
+				g_entities[i].client->sess.sessionTeam == attacker->client->sess.sessionTeam && g_entities[i].client->sess.sessionTeam != self->client->sess.sessionTeam)
+			{
+				//killed while frozen by a third party
+				g_entities[i].client->pers.teamState.assists++;
+				g_entities[i].client->ps.persistant[PERS_ASSIST_COUNT]++;
+				g_entities[i].client->rewardTime = level.time + REWARD_SPRITE_TIME;
+			}
+		}
+	}
+}
+
+/*
+==================
+player_die
+==================
+*/
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
 	int			anim;
@@ -2260,6 +2289,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
+
+	//check siege awards stuff
+	if (self && self->client && attacker && attacker->client)
+	{
+		CheckSiegeKillAwards(self, attacker);
+	}
 
 	self->client->ps.pm_type = PM_DEAD;
 	self->client->ps.pm_flags &= ~PMF_STUCK_TO_WALL;
@@ -4159,6 +4194,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	float		famt = 0;
 	float		hamt = 0;
 	float		shieldAbsorbed = 0;
+	int			rng;
 
 	if (targ && targ->damageRedirect)
 	{
@@ -4178,12 +4214,14 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (targ->s.eType == ET_NPC && targ->s.NPC_class == CLASS_VEHICLE &&
 				targ->m_pVehicle && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
 			{ //do some extra stuff to speeders/walkers
-				targ->client->ps.electrifyTime = level.time + Q_irand(3000, 4000);
+				rng = Q_irand(3000, 4000);
+				targ->client->ps.electrifyTime = level.time + rng;
 			}
 			else if (targ->s.NPC_class != CLASS_VEHICLE
 				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER))
 			{//don't do this to fighters
-				targ->client->ps.electrifyTime = level.time + Q_irand(300, 800);
+				rng = Q_irand(300, 800);
+				targ->client->ps.electrifyTime = level.time + rng;
 			}
 		}
 	}
@@ -5229,6 +5267,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				//if your weapon is not busy
 				targ->client->ps.weaponTime = 2000;
 				targ->client->ps.electrifyTime = level.time + 2000;
+				if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam)
+				{
+					attacker->client->pers.teamState.frozeTime = level.time + 2000;
+					attacker->client->pers.teamState.frozeClient = targ->client->ps.clientNum;
+				}
 				if (targ->client->ps.weaponstate == WEAPON_CHARGING ||
 					targ->client->ps.weaponstate == WEAPON_CHARGING_ALT)
 				{
