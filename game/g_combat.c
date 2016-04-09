@@ -1924,7 +1924,7 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker)
 {
 	int i;
 
-	if (g_gametype.integer != GT_SIEGE || !self || !self->client || !attacker || !attacker->client || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
+	if (g_gametype.integer != GT_SIEGE || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
 	{
 		return;
 	}
