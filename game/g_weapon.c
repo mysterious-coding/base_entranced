@@ -715,8 +715,17 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							if (VectorLength(distanceBetweenDoorAndVictim) < doorspamDistanceCheck)
 							{
 								//enemy is behind door, and is rather close to the door. this is doorspam.
-								thereIsAnEnemyBehindDoor = qtrue;
 								//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenDoorAndVictim %f ^2LESS THAN^7 512\n\"", VectorLength(distanceBetweenDoorAndVictim)));
+								//let's check that we can't see him first before we say it's doorspam
+								if (!G_ClientCanBeSeenByClient(potentialSpamVictim, ent))
+								{
+									//trap_SendServerCommand(-1, va("print \"Debug: Client ^1cannot^7 be seen, so it's doorspam\n\""));
+									thereIsAnEnemyBehindDoor = qtrue;
+								}
+								//else
+								//{
+									//trap_SendServerCommand(-1, va("print \"Debug: Client ^2can^7 be seen, so it's not doorspam\n\""));
+								//}
 							}
 							else
 							{

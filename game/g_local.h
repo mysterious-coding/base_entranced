@@ -1242,6 +1242,8 @@ void	GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
 
 qboolean G_IsPlayer( gentity_t* ent );
 
+qboolean G_ClientCanBeSeenByClient(gentity_t *seen, gentity_t *seer);
+
 //
 // g_object.c
 //

@@ -2215,7 +2215,105 @@ qboolean G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMin
 	//box is completely contained within bounds
 	return qtrue;
 }
+#define VIS_CHECK_OFFSET	128
+//rather loose check to see if we can see another client, used for doorspam detection
+qboolean G_ClientCanBeSeenByClient(gentity_t *seen, gentity_t *seer)
+{
+	if (!seen || !seen->client || !seer || !seer->client)
+	{
+		return qfalse;
+	}
 
+	vec3_t		start, end;
+	trace_t		tr;
+	gentity_t	*traceEnt = NULL;
+	int			i;
+
+	memset(&tr, 0, sizeof(tr)); //to shut the compiler up
+
+	VectorCopy(seer->client->ps.origin, start);
+	VectorCopy(seen->client->ps.origin, end);
+
+	//trace 1: eyes to origin
+	start[2] += seer->client->ps.viewheight;//By eyes
+	trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+	traceEnt = &g_entities[tr.entityNum];
+	if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+	{
+		return qtrue;
+	}
+
+	//trace 2: eyes to eyes
+	end[2] += seer->client->ps.viewheight;//By eyes
+	trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+	traceEnt = &g_entities[tr.entityNum];
+	if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+	{
+		return qtrue;
+	}
+
+	//trace 3: overhead to eyes
+	start[2] += seer->client->ps.viewheight;//By eyes
+	trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+	traceEnt = &g_entities[tr.entityNum];
+	if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+	{
+		return qtrue;
+	}
+
+	//do some extra traces to account for third person view
+	start[0] -= VIS_CHECK_OFFSET;
+	start[1] -= VIS_CHECK_OFFSET;
+	trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+	traceEnt = &g_entities[tr.entityNum];
+	if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+	{
+		return qtrue;
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		start[1] += VIS_CHECK_OFFSET;
+		trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+		traceEnt = &g_entities[tr.entityNum];
+		if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+		{
+			return qtrue;
+		}
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		start[0] += VIS_CHECK_OFFSET;
+		trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+		traceEnt = &g_entities[tr.entityNum];
+		if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+		{
+			return qtrue;
+		}
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		start[1] -= VIS_CHECK_OFFSET;
+		trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+		traceEnt = &g_entities[tr.entityNum];
+		if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+		{
+			return qtrue;
+		}
+	}
+
+	start[0] -= VIS_CHECK_OFFSET;
+	trap_G2Trace(&tr, start, NULL, NULL, end, seer->client->ps.clientNum, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+	traceEnt = &g_entities[tr.entityNum];
+	if (traceEnt && traceEnt->client && traceEnt->client->ps.clientNum == seen->client->ps.clientNum)
+	{
+		return qtrue;
+	}
+
+	return qfalse;
+}
 
 void G_SetAngles( gentity_t *ent, vec3_t angles )
 {

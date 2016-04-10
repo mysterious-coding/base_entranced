@@ -2396,6 +2396,39 @@ void Cmd_Where_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->client->ps.origin ) ) );
 }
 
+void Cmd_TestVis_f(gentity_t *ent)
+{
+	if (!ent->client)
+		return;
+
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
+		return;
+	}
+
+	char buffer[64];
+	gentity_t *found = NULL;
+
+	trap_Argv(1, buffer, sizeof(buffer));
+	found = G_FindClient(buffer);
+
+	if (!found || !found->client)
+	{
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", buffer);
+		return;
+	}
+
+	if (G_ClientCanBeSeenByClient(found, ent))
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"%s^7 is ^2visible!^7\n\"", found->client->pers.netname));
+	}
+	else
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"%s^7 is ^1not^7 visible.\n\"", found->client->pers.netname));
+	}
+
+}
+
 /*
 ==================
 Cmd_TargetInfo_f
@@ -4162,7 +4195,7 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 
 void Cmd_Ignore_f( gentity_t *ent )
 {			   
-	char buffer[32];
+	char buffer[64];
 	gentity_t* found = NULL;
 	int id = 0;
 
@@ -6060,6 +6093,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_ClientList_f(ent);
 	else if (Q_stricmp(cmd, "help") == 0)
 		Cmd_Help_f(ent);
+	else if (Q_stricmp(cmd, "testvis") == 0)
+		Cmd_TestVis_f(ent);
 		
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))
