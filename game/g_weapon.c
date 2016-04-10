@@ -736,7 +736,55 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 						else
 						{
 							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-							thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
+							if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && ent->client->ps.origin[0] >= -3825 && ent->client->ps.origin[0] <= -1258 &&
+								ent->client->ps.origin[1] >= -570 && ent->client->ps.origin[1] <= 755 && ent->client->ps.origin[2] >= -295 && ent->client->ps.origin[2] <= 38)
+							{
+								//we are in the hangar on hoth
+								possibleEnemiesInStation1 = G_RadiusList(throwerOrigin, 9999, ent, qtrue, enemyInStation1List);
+
+								for (n = 0; n < possibleEnemiesInStation1; n++)
+								{
+									potentialEnemyInStation1 = enemyInStation1List[n];
+
+									if (!potentialEnemyInStation1 || !potentialEnemyInStation1->client)
+									{
+										continue; //??? uhh...this should never happen, but whatever
+									}
+
+									if (potentialEnemyInStation1->client->sess.sessionTeam && potentialEnemyInStation1->client->sess.sessionTeam != TEAM_RED)
+									{
+										continue; //must be on offense
+									}
+
+									if (potentialEnemyInStation1 == ent || !potentialEnemyInStation1->takedamage || potentialEnemyInStation1->health <= 0 || potentialEnemyInStation1->client->tempSpectate >= level.time || (potentialEnemyInStation1->flags & FL_NOTARGET))
+									{
+										continue; //miscellaneous checks
+									}
+
+									if (potentialEnemyInStation1->client->ps.origin[0] >= -3825 && potentialEnemyInStation1->client->ps.origin[0] <= -1258 &&
+										potentialEnemyInStation1->client->ps.origin[1] >= -570 && potentialEnemyInStation1->client->ps.origin[1] <= 755 &&
+										potentialEnemyInStation1->client->ps.origin[2] >= -295 && potentialEnemyInStation1->client->ps.origin[2] <= 38)
+									{
+										//there is an enemy in the hangar
+										numConfirmedEnemiesInStation1++;
+									}
+								}
+								if (numConfirmedEnemiesInStation1)
+								{
+									//there are enemies in the hangar, so "doorspamming" is okay
+									//trap_SendServerCommand(-1, va("print \"^%iEnemies in hangar, ^%ispam allowed.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+									thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
+								}
+								else
+								{
+									//trap_SendServerCommand(-1, va("print \"^%iNo enemies detected in hangar, ^%iproceeding normally.\n\"", Q_irand(1, 7), Q_irand(1, 7)));
+									thereIsAnEnemyBetweenMeAndDoor = qfalse; //enemy is behind the door
+								}
+							}
+							else
+							{
+								thereIsAnEnemyBetweenMeAndDoor = qtrue; //enemy is not behind the door
+							}
 						}
 					}
 				}
