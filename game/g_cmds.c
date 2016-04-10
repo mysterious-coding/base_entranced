@@ -5163,8 +5163,9 @@ void Cmd_ClientList_f(gentity_t *ent)
 			if (!(g_entities[i].r.svFlags & SVF_BOT))
 			{
 				//human
-				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s"S_COLOR_WHITE":\"", i, level.clients[i].pers.netname));
+				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s"S_COLOR_WHITE": \"", i, level.clients[i].pers.netname));
 				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context );
+				trap_SendServerCommand(ent - g_entities, "print \"\n\"");
 			}
 			else
 			{
