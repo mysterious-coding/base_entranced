@@ -2157,34 +2157,19 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	// set name
-	NormalizeName(client->pers.netname, oldname, sizeof(client->pers.netname), g_maxNameLength.integer);
-#if 0
-	Q_strncpyz ( oldname, client->pers.netname, sizeof( oldname ) );
-#endif
-	s = Info_ValueForKey (userinfo, "name");
-#if 0
-	NormalizeName(s, s, sizeof(s), g_maxNameLength.integer);
-#endif
-#if 1
-	if (IsEmpty(s)){ 
-		if (IsEmpty(oldname)){ //bastards connected with empty name probably
-			Q_strncpyz ( oldname, "Padawan", sizeof( oldname ) );
-		} 
-		Q_strncpyz(client->pers.netname, oldname, sizeof(client->pers.netname));
-		Info_SetValueForKey( userinfo, "name", oldname );
-		trap_SetUserinfo( clientNum, userinfo );
-	} else {
-#if 1
-		NormalizeName(s, client->pers.netname, sizeof(client->pers.netname), g_maxNameLength.integer);
-#endif
-#if 0
-		ClientCleanName( s, client->pers.netname, sizeof(client->pers.netname) );
-#endif
+	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
+	s = Info_ValueForKey(userinfo, "name");
+	NormalizeName(s, client->pers.netname, sizeof(client->pers.netname), g_maxNameLength.integer);
+	//ClientCleanName(s, client->pers.netname, sizeof(client->pers.netname));
+
+	Q_strncpyz(client->pers.netnameClean, client->pers.netname, sizeof(client->pers.netnameClean));
+	Q_CleanString(client->pers.netnameClean, STRIP_COLOUR);
+
+	if (CheckDuplicateName(clientNum)) {
+		Q_strncpyz(client->pers.netnameClean, client->pers.netname, sizeof(client->pers.netnameClean));
+		Q_CleanString(client->pers.netnameClean, STRIP_COLOUR);
 	}
-#endif
-#if 0
-	NormalizeName( s, client->pers.netname, sizeof( client->pers.netname ), g_maxNameLength.integer );
-#endif
+
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
 			Q_strncpyz( client->pers.netname, "scoreboard", sizeof(client->pers.netname) );
@@ -2209,23 +2194,6 @@ void ClientUserinfoChanged( int clientNum ) {
 				G_LogPrintf("Client num %i from %s renamed from '%s' to '%s'\n", clientNum,client->sess.ipString,
 					oldname, client->pers.netname);
 				client->pers.netnameTime = level.time + 700; //change time limit from 5s to 1s
-	// set name
-	Q_strncpyz( oldname, client->pers.netname, sizeof(oldname) );
-	s = Info_ValueForKey( userinfo, "name" );
-	ClientCleanName( s, client->pers.netname, sizeof(client->pers.netname) );
-
-	Q_strncpyz( client->pers.netnameClean, client->pers.netname, sizeof(client->pers.netnameClean) );
-	Q_CleanString( client->pers.netnameClean, STRIP_COLOUR );
-
-	if ( CheckDuplicateName( clientNum ) ) {
-		Q_strncpyz( client->pers.netnameClean, client->pers.netname, sizeof(client->pers.netnameClean) );
-		Q_CleanString( client->pers.netnameClean, STRIP_COLOUR );
-	}
-
-	if ( client->sess.sessionTeam == TEAM_SPECTATOR && client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
-		Q_strncpyz( client->pers.netname, "scoreboard", sizeof(client->pers.netname) );
-		Q_strncpyz( client->pers.netnameClean, "scoreboard", sizeof(client->pers.netnameClean) );
-	}
 
                 G_LogDbLogNickname( client->sess.ip, oldname, (getGlobalTime() - client->sess.nameChangeTime ) / 1000);
                 client->sess.nameChangeTime = getGlobalTime();
