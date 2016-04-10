@@ -859,12 +859,18 @@ void	Svcmd_ForceTeam_f( void ) {
 	{
 		goto afterTeamChange;
 	}
-	if (found->client->sess.canJoin)
+
+	if (!found->client->sess.canJoin)
 	{
 		found->client->sess.canJoin = qtrue; // Admins can force passwordless spectators on a team
 		SetTeam(found, str, qtrue);
 		found->client->sess.canJoin = qfalse;
 	}
+	else
+	{
+		SetTeam(found, str, qtrue);
+	}
+
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		if (found->client->sess.siegeDesiredTeam == TEAM_RED)
