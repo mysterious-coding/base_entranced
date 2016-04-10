@@ -5113,9 +5113,11 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
+#define BUILDNUMBER	115
+
 void Cmd_Help_f(gentity_t *ent)
 {
-	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build 114\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build %i\n\"", BUILDNUMBER));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2WHOIS\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2SIMPLIFIED PRIVATE MESSAGING\n\""));
