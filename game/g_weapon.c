@@ -617,7 +617,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue; //??? uhh...this should never happen, but whatever
 			}
 
-			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) &&
+				G_ClientCanBeSeenByClient(potentialSpamVictim, ent))
 			{
 				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby (regardless of angle)
 				continue;
@@ -625,7 +626,8 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 			if (potentialSpamVictim->client && &potentialSpamVictim->client->ps && potentialSpamVictim->client->ps.m_iVehicleNum && &g_entities[potentialSpamVictim->client->ps.m_iVehicleNum]
 				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle && (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo
-				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
+				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) &&
+				G_ClientCanBeSeenByClient(potentialSpamVictim, ent))
 			{
 				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a (piloted) walker or fighter nearby (regardless of angle)
 				continue;
