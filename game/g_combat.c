@@ -1920,7 +1920,33 @@ extern qboolean g_endPDuel;
 extern qboolean g_noPDuelCheck;
 extern void SetSiegeClass(gentity_t *ent, char* className);
 
-void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker)
+static int GetSiegeClassCount(int team, int classType, qboolean mustBeAlive)
+{
+	if (g_gametype.integer != GT_SIEGE || (team != TEAM_RED && team != TEAM_BLUE))
+	{
+		//return -1;
+		return 0;
+	}
+
+	int i, count = 0;
+
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED &&
+			(g_entities[i].client->sess.sessionTeam == team || level.inSiegeCountdown && g_entities[i].client->sess.sessionTeam == TEAM_SPECTATOR && g_entities[i].client->sess.siegeDesiredTeam == team) &&
+			bgSiegeClasses[g_entities[i].client->siegeClass].playerClass == classType)
+		{
+			if (!mustBeAlive || (g_entities[i].health > 0 && !(g_entities[i].client->tempSpectate > level.time)))
+			{
+				count++;
+			}
+		}
+	}
+
+	return count;
+}
+
+void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 {
 	int i;
 
@@ -1929,6 +1955,67 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker)
 		return;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	//holy shit
+	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
+		if (!level.lastObjectiveCompleted && self->m_pVehicle &&
+			self->client->ps.origin[0] >= 4210 && self->client->ps.origin[0] <= 4454 &&
+			self->client->ps.origin[1] >= -488 && self->client->ps.origin[1] <= 37 &&
+			!GetSiegeClassCount(TEAM_BLUE, SPC_SUPPORT, qtrue) && mod != MOD_TARGET_LASER)
+		{
+			//first objective; walker was killed near door with no living defense techs
+			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			++attacker->client->pers.teamState.saves;
+			if (self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED)
+			{
+				((gentity_t*)self->m_pVehicle->m_pPilot)->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			}
+		}
+		else if (level.lastObjectiveCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
+			self->client->ps.origin[0] >= -750 && self->client->ps.origin[0] <= -643 &&
+			self->client->ps.origin[1] >= -138 && self->client->ps.origin[1] <= 121 &&
+			self->client->ps.origin[2] <= -128 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_DEMP2_ALT && mod != MOD_TARGET_LASER)
+		{
+			//second objective; dude was killed very close to hack button
+			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			++attacker->client->pers.teamState.saves;
+		}
+		else if (level.lastObjectiveCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
+			self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_DEMP2_ALT && mod != MOD_TARGET_LASER)
+		{
+			//fourth objective; codes carrier was killed very close to button
+			vec3_t obj = { -3111, 1763, -199 };
+			vec3_t difference;
+			if (difference)
+			{
+				VectorSubtract(self->client->ps.origin, obj, difference);
+
+				if (VectorLength(difference) <= 110 && self->client->ps.origin[2] >= -205 && self->client->ps.origin[2] <= -110)
+				{
+					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+					self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+					++attacker->client->pers.teamState.saves;
+				}
+			}
+		}
+		else if (level.lastObjectiveCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
+			self->client->ps.origin[0] >= -1320 && self->client->ps.origin[0] <= -1040 &&
+			self->client->ps.origin[1] >= -160 && self->client->ps.origin[1] <= 110 &&
+			self->client->ps.origin[2] >= 43 &&
+			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_DEMP2_ALT && mod != MOD_TARGET_LASER)
+		{
+			//fourth objective; dude was killed higher up in the lift shaft
+			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			++attacker->client->pers.teamState.saves;
+		}
+	}
+
+	//assist
 	if (self->client->ps.electrifyTime >= level.time)
 	{
 		//killed while frozen
@@ -2098,6 +2185,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->bodyGrabIndex = ENTITYNUM_NONE;
 	self->client->bodyGrabTime = 0;
+
+	//check siege awards stuff
+	if (self && self->client && attacker && attacker->client)
+	{
+		CheckSiegeKillAwards(self, attacker, meansOfDeath);
+	}
 
 	if (self->client->holdingObjectiveItem > 0)
 	{ //carrying a siege objective item - make sure it updates and removes itself from us now in case this is an instant death-respawn situation
@@ -2290,12 +2383,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
 
-	//check siege awards stuff
-	if (self && self->client && attacker && attacker->client)
-	{
-		CheckSiegeKillAwards(self, attacker);
-	}
-
 	self->client->ps.pm_type = PM_DEAD;
 	self->client->ps.pm_flags &= ~PMF_STUCK_TO_WALL;
 
@@ -2462,7 +2549,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				}
 			}
 
-			if( meansOfDeath == MOD_STUN_BATON ) {
+			if( meansOfDeath == MOD_STUN_BATON || meansOfDeath == MOD_MELEE ) { //duo: added melee
 				
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
