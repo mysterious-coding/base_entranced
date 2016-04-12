@@ -1989,6 +1989,15 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 
 	switch (reward)
 	{
+	case REWARD_HUMILIATION:
+		if (mod == MOD_CRUSH && attacker->client->ps.m_iVehicleNum)
+		{
+			//ran someone over in a vehicle
+			attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
+			attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
+		}
+		break;
 	case REWARD_DEFEND: //also handles REWARD_DENIED
 		if (level.zombies)
 		{
@@ -2181,6 +2190,7 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 		return;
 	}
 
+	CheckSiegeAward(REWARD_HUMILIATION, self, attacker, mod);
 	CheckSiegeAward(REWARD_DEFEND, self, attacker, mod); //also handles REWARD_DENIED
 	CheckSiegeAward(REWARD_ASSIST, self, attacker, mod);
 	CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod);
