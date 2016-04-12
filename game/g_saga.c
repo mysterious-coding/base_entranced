@@ -2535,7 +2535,44 @@ void SiegeItemThink(gentity_t *ent)
 		{ //The carrier died so pop out where he is (unless in nodrop).
 			if (ent->target6 && ent->target6[0])
 			{
-				G_UseTargets2(ent, ent, ent->target6);
+				vmCvar_t mapname;
+				trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+				if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(ent->target6, "c3podroppedprint"))
+				{
+					//droid part on desert
+					char *part;
+					if (ent->model && ent->model[0])
+					{
+						if (strstr(ent->model, "arm"))
+						{
+							part = "arm";
+						}
+						else if (strstr(ent->model, "head"))
+						{
+							part = "head";
+						}
+						else if (strstr(ent->model, "leg"))
+						{
+							part = "leg";
+						}
+						else if (strstr(ent->model, "torso"))
+						{
+							part = "torso";
+						}
+					}
+					if (part && part[0])
+					{
+						trap_SendServerCommand(-1, va("cp \"Protocol droid %s has been dropped!\n\"", part));
+					}
+					else
+					{
+						G_UseTargets2(ent, ent, ent->target6);
+					}
+				}
+				else
+				{
+					G_UseTargets2(ent, ent, ent->target6);
+				}
 			}
 			if (ent->specialIconTreatment)
 			{
@@ -2649,14 +2686,12 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (level.zombies)
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2"))
 	{
-		vmCvar_t	mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
-		{
-			return;
-		}
+		return;
 	}
 
 	if (self->idealClassType && self->idealClassType >= CLASSTYPE_ASSAULT && other->client->sess.sessionTeam == TEAM_RED)
@@ -2692,7 +2727,42 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if (self->target2 && self->target2[0] && (!self->genericValue4 || !self->genericValue5))
 	{ //fire the target for pickup, if it's set to fire every time, or set to only fire the first time and the first time has not yet occured.
-		G_UseTargets2(self, self, self->target2);
+		if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(self->target2, "c3postolenprint"))
+		{
+			//droid part on desert
+			char *part;
+			if (self->model && self->model[0])
+			{
+				if (strstr(self->model, "arm"))
+				{
+					part = "arm";
+				}
+				else if (strstr(self->model, "head"))
+				{
+					part = "head";
+				}
+				else if (strstr(self->model, "leg"))
+				{
+					part = "leg";
+				}
+				else if (strstr(self->model, "torso"))
+				{
+					part = "torso";
+				}
+			}
+			if (part && part[0])
+			{
+				trap_SendServerCommand(-1, va("cp \"Protocol droid %s has been taken!\n\"", part));
+			}
+			else
+			{
+				G_UseTargets2(self, self, self->target2);
+			}
+		}
+		else
+		{
+			G_UseTargets2(self, self, self->target2);
+		}
 		self->genericValue5 = 1; //mark it as having been picked up
 	}	
 	if (self->specialIconTreatment)

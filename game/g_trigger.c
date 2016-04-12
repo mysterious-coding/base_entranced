@@ -216,8 +216,44 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 					{ //The carrier of the item is not on the team which disallows objective scoring for it
 						if (objItem->target3 && objItem->target3[0])
 						{ //if it has a target3, fire it off instead of using the trigger
-							G_UseTargets2(objItem, objItem, objItem->target3);
-
+							vmCvar_t	mapname;
+							trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+							if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(objItem->target3, "c3podeliverprint"))
+							{
+								//droid part on desert
+								char *part;
+								if (objItem->model && objItem->model[0])
+								{
+									if (strstr(objItem->model, "arm"))
+									{
+										part = "arm";
+									}
+									else if (strstr(objItem->model, "head"))
+									{
+										part = "head";
+									}
+									else if (strstr(objItem->model, "leg"))
+									{
+										part = "leg";
+									}
+									else if (strstr(objItem->model, "torso"))
+									{
+										part = "torso";
+									}
+								}
+								if (part && part[0])
+								{
+									trap_SendServerCommand(-1, va("cp \"Protocol droid %s has been rescued!\n\"", part));
+								}
+								else
+								{
+									G_UseTargets2(objItem, objItem, objItem->target3);
+								}
+							}
+							else
+							{
+								G_UseTargets2(objItem, objItem, objItem->target3);
+							}
                             //3-24-03 - want to fire off the target too I guess, if we have one.
 							if (ent->targetname && ent->targetname[0])
 							{
