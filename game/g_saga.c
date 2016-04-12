@@ -1828,6 +1828,13 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 {
 	int goals_completed, goals_required;
 
+	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
+	{
+		level.clients[client].pers.teamState.captures++;
+		level.clients[client].rewardTime = level.time + REWARD_SPRITE_TIME;
+		level.clients[client].ps.persistant[PERS_CAPTURES]++;
+	}
+
 	SiegeUpdateObjTime(objective, qfalse); //we just completed an obj, so let's write down the time it took for this obj
 
 	if (&g_entities[client] && g_entities[client].client)
