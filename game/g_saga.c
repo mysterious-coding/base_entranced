@@ -1837,7 +1837,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 
 	SiegeUpdateObjTime(objective, qfalse); //we just completed an obj, so let's write down the time it took for this obj
 
-	if (&g_entities[client] && g_entities[client].client)
+	if (client && objective && &g_entities[client] && g_entities[client].client)
 	{
 		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
 	}
