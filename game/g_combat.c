@@ -1981,7 +1981,7 @@ static float GetDistanceFromNearestSiegeitem(gentity_t *ent, int onlyItemsToucha
 	return closestDistance;
 }
 
-void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int mod)
+static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int mod)
 {
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -1996,12 +1996,13 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 			attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
 			attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
+			return qtrue;
 		}
 		break;
 	case REWARD_DEFEND: //also handles REWARD_DENIED
 		if (level.zombies)
 		{
-			return;
+			return qfalse;
 		}
 
 		if (self->client->holdingObjectiveItem)
@@ -2010,6 +2011,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 			attacker->client->pers.teamState.basedefense++;
 			attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
 			attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+			return qtrue;
 		}
 		else
 		{
@@ -2022,6 +2024,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+				return qtrue;
 			}
 		}
 
@@ -2030,7 +2033,15 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 	case REWARD_HOLYSHIT:
 		if (level.zombies)
 		{
-			return;
+			return qfalse;
+		}
+
+		if ((mod == MOD_MELEE || mod == MOD_STUN_BATON) && self->m_pVehicle && self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED)
+		{
+			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			++attacker->client->pers.teamState.saves;
+			((gentity_t*)self->m_pVehicle->m_pPilot)->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			return qtrue;
 		}
 
 		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
@@ -2047,6 +2058,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				{
 					((gentity_t*)self->m_pVehicle->m_pPilot)->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				}
+				return qtrue;
 			}
 			else if (level.lastObjectiveCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= -750 && self->client->ps.origin[0] <= -643 &&
@@ -2057,6 +2069,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 			else if (level.lastObjectiveCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
@@ -2073,6 +2086,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 						attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 						self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 						++attacker->client->pers.teamState.saves;
+						return qtrue;
 					}
 				}
 			}
@@ -2086,6 +2100,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 		}
 		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
@@ -2097,6 +2112,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 			else if (self->client->holdingObjectiveItem > 0 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= -2349 && self->client->ps.origin[0] <= -1016 &&
@@ -2107,6 +2123,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 		}
 		else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
@@ -2122,6 +2139,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 			else if (level.totalObjectivesCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= 6081 && self->client->ps.origin[0] <= 6506 &&
@@ -2132,6 +2150,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 			else if (level.totalObjectivesCompleted == 6 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= 1244 && self->client->ps.origin[0] <= 1881 &&
@@ -2142,6 +2161,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 		}
 		break;
@@ -2160,6 +2180,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 					g_entities[i].client->pers.teamState.assists++;
 					g_entities[i].client->ps.persistant[PERS_ASSIST_COUNT]++;
 					g_entities[i].client->rewardTime = level.time + REWARD_SPRITE_TIME;
+					return qtrue;
 				}
 			}
 		}
@@ -2174,6 +2195,7 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 			if (difference && VectorLength(difference) >= 950)
 			{
 				attacker->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+				return qtrue;
 			}
 		}
 		break;
@@ -2181,20 +2203,25 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 	default:
 		break;
 	}
+	return qfalse;
 }
 
-void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
+static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 {
 	if (g_gametype.integer != GT_SIEGE || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
 	{
-		return;
+		return qfalse;
 	}
 
-	CheckSiegeAward(REWARD_HUMILIATION, self, attacker, mod);
-	CheckSiegeAward(REWARD_DEFEND, self, attacker, mod); //also handles REWARD_DENIED
-	CheckSiegeAward(REWARD_ASSIST, self, attacker, mod);
-	CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod);
-	CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod);
+	qboolean gaveAward = qfalse;
+
+	if (CheckSiegeAward(REWARD_HUMILIATION, self, attacker, mod)) { gaveAward = qtrue; }
+	if (CheckSiegeAward(REWARD_DEFEND, self, attacker, mod)) { gaveAward = qtrue; } //also handles REWARD_DENIED
+	if (CheckSiegeAward(REWARD_ASSIST, self, attacker, mod)) { gaveAward = qtrue; }
+	if (CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod)) { gaveAward = qtrue; }
+	if (CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod)) { gaveAward = qtrue; }
+	
+	return gaveAward;
 }
 
 /*
@@ -2211,6 +2238,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	char		*killerName, *obit;
 	qboolean	wasJediMaster = qfalse;
 	int			sPMType = 0;
+	qboolean	gaveAward = qfalse;
 
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -2352,7 +2380,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	//check siege awards stuff
 	if (self && self->client && attacker && attacker->client)
 	{
-		CheckSiegeKillAwards(self, attacker, meansOfDeath);
+		gaveAward = CheckSiegeKillAwards(self, attacker, meansOfDeath);
 	}
 
 	if (self->client->holdingObjectiveItem > 0)
@@ -2712,7 +2740,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				}
 			}
 
-			if( meansOfDeath == MOD_STUN_BATON || meansOfDeath == MOD_MELEE ) { //duo: added melee
+			if(!gaveAward && (meansOfDeath == MOD_STUN_BATON || meansOfDeath == MOD_MELEE) && !(self->m_pVehicle && !self->m_pVehicle->m_pPilot) ) { //duo: added melee
 				
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
