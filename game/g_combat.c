@@ -1946,21 +1946,20 @@ static int GetSiegeClassCount(int team, int classType, qboolean mustBeAlive)
 	return count;
 }
 
-void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
+void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int mod)
 {
-	int i;
-
-	if (g_gametype.integer != GT_SIEGE || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
-	{
-		return;
-	}
-
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	int i;
 
-	//holy shit
-	if (!level.zombies)
+	switch (reward)
 	{
+	case REWARD_HOLYSHIT:
+		if (level.zombies)
+		{
+			return;
+		}
+
 		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 		{
 			if (!level.lastObjectiveCompleted && self->m_pVehicle &&
@@ -2072,25 +2071,55 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 				++attacker->client->pers.teamState.saves;
 			}
 		}
-	}
+		break;
 
-	//assist
-	if (self->client->ps.electrifyTime >= level.time)
-	{
-		//killed while frozen
-		for (i = 0; i < MAX_CLIENTS; i++)
+	case REWARD_ASSIST:
+		if (self->client->ps.electrifyTime >= level.time)
 		{
-			if (&g_entities[i] && &g_entities[i] != self && &g_entities[i] != attacker && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED &&
-				g_entities[i].client->pers.teamState.frozeClient == self->client->ps.clientNum && g_entities[i].client->pers.teamState.frozeTime >= level.time &&
-				g_entities[i].client->sess.sessionTeam == attacker->client->sess.sessionTeam && g_entities[i].client->sess.sessionTeam != self->client->sess.sessionTeam)
+			//killed while frozen
+			for (i = 0; i < MAX_CLIENTS; i++)
 			{
-				//killed while frozen by a third party
-				g_entities[i].client->pers.teamState.assists++;
-				g_entities[i].client->ps.persistant[PERS_ASSIST_COUNT]++;
-				g_entities[i].client->rewardTime = level.time + REWARD_SPRITE_TIME;
+				if (&g_entities[i] && &g_entities[i] != self && &g_entities[i] != attacker && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED &&
+					g_entities[i].client->pers.teamState.frozeClient == self->client->ps.clientNum && g_entities[i].client->pers.teamState.frozeTime >= level.time &&
+					g_entities[i].client->sess.sessionTeam == attacker->client->sess.sessionTeam && g_entities[i].client->sess.sessionTeam != self->client->sess.sessionTeam)
+				{
+					//killed while frozen by a third party
+					g_entities[i].client->pers.teamState.assists++;
+					g_entities[i].client->ps.persistant[PERS_ASSIST_COUNT]++;
+					g_entities[i].client->rewardTime = level.time + REWARD_SPRITE_TIME;
+				}
 			}
 		}
+		break;
+
+	case REWARD_IMPRESSIVE:
+		if (mod == MOD_SABER && self->client->pers.connected == CON_CONNECTED)
+		{
+			//check for long-distance saberthrow kills
+			vec3_t difference;
+			VectorSubtract(self->client->ps.origin, attacker->client->ps.origin, difference);
+			if (difference && VectorLength(difference) >= 950)
+			{
+				attacker->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+			}
+		}
+		break;
+
+	default:
+		break;
 	}
+}
+
+void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
+{
+	if (g_gametype.integer != GT_SIEGE || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
+	{
+		return;
+	}
+
+	CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod);
+	CheckSiegeAward(REWARD_ASSIST, self, attacker, mod);
+	CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod);
 }
 
 /*

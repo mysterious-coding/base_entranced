@@ -1351,6 +1351,18 @@ Ghoul2 Insert End
 //
 // g_combat.c
 //
+
+typedef enum {
+	REWARD_IMPRESSIVE = 0,
+	REWARD_EXCELLENT,
+	REWARD_HUMILIATION,
+	REWARD_DENIED,
+	REWARD_HOLYSHIT,
+	REWARD_DEFEND,
+	REWARD_ASSIST,
+	REWARD_CAPTURE
+} reward_t;
+
 qboolean CanDamage (gentity_t *targ, vec3_t origin);
 void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
 qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod);
