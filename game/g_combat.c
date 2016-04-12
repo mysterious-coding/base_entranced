@@ -2036,7 +2036,9 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 			return qfalse;
 		}
 
-		if ((mod == MOD_MELEE || mod == MOD_STUN_BATON) && self->m_pVehicle && self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED)
+		if ((mod == MOD_MELEE || mod == MOD_STUN_BATON) && self->m_pVehicle && self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot) &&
+			((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED &&
+			((gentity_t*)self->m_pVehicle->m_pPilot)->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
 		{
 			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 			++attacker->client->pers.teamState.saves;
@@ -2054,7 +2056,8 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				//first objective; walker was killed near door with no living defense techs
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
-				if (self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED)
+				if (self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot) && ((gentity_t*)self->m_pVehicle->m_pPilot)->client &&
+					((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
 				{
 					((gentity_t*)self->m_pVehicle->m_pPilot)->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				}
