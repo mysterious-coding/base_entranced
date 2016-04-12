@@ -1946,6 +1946,41 @@ static int GetSiegeClassCount(int team, int classType, qboolean mustBeAlive)
 	return count;
 }
 
+static float GetDistanceFromNearestSiegeitem(gentity_t *ent, int onlyItemsTouchableByThisTeam)
+{
+	int i, numItemsFound = 0;
+	float closestDistance = -1;
+	vec3_t difference;
+
+	for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
+	{
+		if (&g_entities[i] && g_entities[i].classname && g_entities[i].classname[0] && !Q_stricmp(g_entities[i].classname, "misc_siege_item") &&
+			!(g_entities[i].s.eFlags & EF_NODRAW) && !g_entities[i].genericValue2)
+		{
+			//found an item that is not hidden or in anyone's possession
+			if (onlyItemsTouchableByThisTeam > TEAM_FREE && g_entities[i].genericValue6 == ent->client->sess.sessionTeam)
+			{
+				//the ent's team can't touch this item
+				continue;
+			}
+			numItemsFound++;
+			VectorSubtract(g_entities[i].s.origin, ent->client->ps.origin, difference);
+			if (difference && (closestDistance == -1 || VectorLength(difference) < closestDistance))
+			{
+				closestDistance = VectorLength(difference);
+			}
+			memset(difference, 0, sizeof(difference));
+		}
+	}
+
+	if (!numItemsFound || closestDistance == -1)
+	{
+		return -1;
+	}
+
+	return closestDistance;
+}
+
 void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int mod)
 {
 	vmCvar_t	mapname;
@@ -1954,6 +1989,35 @@ void CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int 
 
 	switch (reward)
 	{
+	case REWARD_DEFEND: //also handles REWARD_DENIED
+		if (level.zombies)
+		{
+			return;
+		}
+
+		if (self->client->holdingObjectiveItem)
+		{
+			//killed while holding an obj item
+			attacker->client->pers.teamState.basedefense++;
+			attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+			attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+		}
+		else
+		{
+			//scan for any nearby obj items
+			float distance = GetDistanceFromNearestSiegeitem(self, self->client->sess.sessionTeam);
+			if (distance >= 0 && distance <= 128)
+			{
+				//killed while very close to an item
+				attacker->client->pers.teamState.basedefense++;
+				attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+			}
+		}
+
+		break;
+
 	case REWARD_HOLYSHIT:
 		if (level.zombies)
 		{
@@ -2117,9 +2181,10 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 		return;
 	}
 
-	CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod);
+	CheckSiegeAward(REWARD_DEFEND, self, attacker, mod); //also handles REWARD_DENIED
 	CheckSiegeAward(REWARD_ASSIST, self, attacker, mod);
 	CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod);
+	CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod);
 }
 
 /*
