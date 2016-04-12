@@ -2014,6 +2014,25 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 			++attacker->client->pers.teamState.saves;
 		}
 	}
+	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	{
+		if (self->client->isHacking && self->client->sess.sessionTeam == TEAM_RED && (level.lastObjectiveCompleted == 0 || level.lastObjectiveCompleted == 1 || level.totalObjectivesCompleted == 4))
+		{
+			//killed while hacking
+			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			++attacker->client->pers.teamState.saves;
+		}
+		else if (self->client->holdingObjectiveItem > 0 && self->client->sess.sessionTeam == TEAM_RED &&
+			self->client->ps.origin[0] >= -2349 && self->client->ps.origin[0] <= -1016 &&
+			self->client->ps.origin[1] >= 13072 && self->client->ps.origin[1] <= 14515)
+		{
+			//killed for an instant return
+			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+			++attacker->client->pers.teamState.saves;
+		}
+	}
 
 	//assist
 	if (self->client->ps.electrifyTime >= level.time)
