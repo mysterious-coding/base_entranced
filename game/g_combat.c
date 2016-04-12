@@ -1959,115 +1959,118 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	//holy shit
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	if (!level.zombies)
 	{
-		if (!level.lastObjectiveCompleted && self->m_pVehicle &&
-			self->client->ps.origin[0] >= 4210 && self->client->ps.origin[0] <= 4454 &&
-			self->client->ps.origin[1] >= -488 && self->client->ps.origin[1] <= 37 &&
-			!GetSiegeClassCount(TEAM_BLUE, SPC_SUPPORT, qtrue) && mod != MOD_TARGET_LASER)
+		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 		{
-			//first objective; walker was killed near door with no living defense techs
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
-			if (self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED)
+			if (!level.lastObjectiveCompleted && self->m_pVehicle &&
+				self->client->ps.origin[0] >= 4210 && self->client->ps.origin[0] <= 4454 &&
+				self->client->ps.origin[1] >= -488 && self->client->ps.origin[1] <= 37 &&
+				!GetSiegeClassCount(TEAM_BLUE, SPC_SUPPORT, qtrue) && mod != MOD_TARGET_LASER)
 			{
-				((gentity_t*)self->m_pVehicle->m_pPilot)->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			}
-		}
-		else if (level.lastObjectiveCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->ps.origin[0] >= -750 && self->client->ps.origin[0] <= -643 &&
-			self->client->ps.origin[1] >= -138 && self->client->ps.origin[1] <= 121 &&
-			self->client->ps.origin[2] <= -128 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
-		{
-			//second objective; dude was killed very close to hack button
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
-		}
-		else if (level.lastObjectiveCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
-		{
-			//fourth objective; codes carrier was killed very close to button
-			vec3_t obj = { -3111, 1763, -199 };
-			vec3_t difference;
-			if (difference)
-			{
-				VectorSubtract(self->client->ps.origin, obj, difference);
-
-				if (VectorLength(difference) <= 110 && self->client->ps.origin[2] >= -205 && self->client->ps.origin[2] <= -110)
+				//first objective; walker was killed near door with no living defense techs
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+				if (self->m_pVehicle->m_pPilot && ((gentity_t*)self->m_pVehicle->m_pPilot)->client && ((gentity_t*)self->m_pVehicle->m_pPilot)->client->pers.connected == CON_CONNECTED)
 				{
-					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-					self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-					++attacker->client->pers.teamState.saves;
+					((gentity_t*)self->m_pVehicle->m_pPilot)->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				}
 			}
+			else if (level.lastObjectiveCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= -750 && self->client->ps.origin[0] <= -643 &&
+				self->client->ps.origin[1] >= -138 && self->client->ps.origin[1] <= 121 &&
+				self->client->ps.origin[2] <= -128 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//second objective; dude was killed very close to hack button
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
+			else if (level.lastObjectiveCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//fourth objective; codes carrier was killed very close to button
+				vec3_t obj = { -3111, 1763, -199 };
+				vec3_t difference;
+				if (difference)
+				{
+					VectorSubtract(self->client->ps.origin, obj, difference);
+
+					if (VectorLength(difference) <= 110 && self->client->ps.origin[2] >= -205 && self->client->ps.origin[2] <= -110)
+					{
+						attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+						self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+						++attacker->client->pers.teamState.saves;
+					}
+				}
+			}
+			else if (level.lastObjectiveCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= -1320 && self->client->ps.origin[0] <= -1040 &&
+				self->client->ps.origin[1] >= -160 && self->client->ps.origin[1] <= 110 &&
+				self->client->ps.origin[2] >= 43 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//fourth objective; dude was killed higher up in the lift shaft
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
 		}
-		else if (level.lastObjectiveCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->ps.origin[0] >= -1320 && self->client->ps.origin[0] <= -1040 &&
-			self->client->ps.origin[1] >= -160 && self->client->ps.origin[1] <= 110 &&
-			self->client->ps.origin[2] >= 43 &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
 		{
-			//fourth objective; dude was killed higher up in the lift shaft
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
+			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED && (level.lastObjectiveCompleted == 0 || level.lastObjectiveCompleted == 1 || level.totalObjectivesCompleted == 4) &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//killed while hacking with <= 500 ms remaining on the hack
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
+			else if (self->client->holdingObjectiveItem > 0 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= -2349 && self->client->ps.origin[0] <= -1016 &&
+				self->client->ps.origin[1] >= 13072 && self->client->ps.origin[1] <= 14515 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//killed for an instant return
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
 		}
-	}
-	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
-	{
-		if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED && (level.lastObjectiveCompleted == 0 || level.lastObjectiveCompleted == 1 || level.totalObjectivesCompleted == 4) &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+		else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
 		{
-			//killed while hacking with <= 500 ms remaining on the hack
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
-		}
-		else if (self->client->holdingObjectiveItem > 0 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->ps.origin[0] >= -2349 && self->client->ps.origin[0] <= -1016 &&
-			self->client->ps.origin[1] >= 13072 && self->client->ps.origin[1] <= 14515 &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
-		{
-			//killed for an instant return
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
-		}
-	}
-	else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
-	{
-		if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
-			(!level.lastObjectiveCompleted || (self->client->ps.origin[0] >= 6145 && self->client->ps.origin[0] <= 6525 &&
-				self->client->ps.origin[1] >= 822 && self->client->ps.origin[1] <= 1077) || (self->client->ps.origin[0] >= 5435 && self->client->ps.origin[0] <= 5596 &&
-					self->client->ps.origin[1] >= -106 && self->client->ps.origin[1] <= 213 && self->client->ps.origin[2] <= 123) || (self->client->ps.origin[0] >= 4991 &&
-						self->client->ps.origin[0] <= 5327 && self->client->ps.origin[1] >= -1226 && self->client->ps.origin[1] <= -1007 && self->client->ps.origin[2] <= 123)) &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
-		{
-			//killed while hacking with <= 500 ms remaining on the hack
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
-		}
-		else if (level.totalObjectivesCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->ps.origin[0] >= 6081 && self->client->ps.origin[0] <= 6506 &&
-			self->client->ps.origin[1] >= 1049 && self->client->ps.origin[1] <= 1559 &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
-		{
-			//killed in doorway of cc
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
-		}
-		else if (level.totalObjectivesCompleted == 6 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->ps.origin[0] >= 1244 && self->client->ps.origin[0] <= 1881 &&
-			self->client->ps.origin[1] >= 667 && self->client->ps.origin[1] <= 1693 &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
-		{
-			//killed while almost escaping on last obj
-			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-			++attacker->client->pers.teamState.saves;
+			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
+				(!level.lastObjectiveCompleted || (self->client->ps.origin[0] >= 6145 && self->client->ps.origin[0] <= 6525 &&
+					self->client->ps.origin[1] >= 822 && self->client->ps.origin[1] <= 1077) || (self->client->ps.origin[0] >= 5435 && self->client->ps.origin[0] <= 5596 &&
+						self->client->ps.origin[1] >= -106 && self->client->ps.origin[1] <= 213 && self->client->ps.origin[2] <= 123) || (self->client->ps.origin[0] >= 4991 &&
+							self->client->ps.origin[0] <= 5327 && self->client->ps.origin[1] >= -1226 && self->client->ps.origin[1] <= -1007 && self->client->ps.origin[2] <= 123)) &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//killed while hacking with <= 500 ms remaining on the hack
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
+			else if (level.totalObjectivesCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= 6081 && self->client->ps.origin[0] <= 6506 &&
+				self->client->ps.origin[1] >= 1049 && self->client->ps.origin[1] <= 1559 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//killed in doorway of cc
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
+			else if (level.totalObjectivesCompleted == 6 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= 1244 && self->client->ps.origin[0] <= 1881 &&
+				self->client->ps.origin[1] >= 667 && self->client->ps.origin[1] <= 1693 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
+			{
+				//killed while almost escaping on last obj
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
 		}
 	}
 
