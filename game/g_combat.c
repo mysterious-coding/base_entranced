@@ -1977,7 +1977,7 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 		else if (level.lastObjectiveCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
 			self->client->ps.origin[0] >= -750 && self->client->ps.origin[0] <= -643 &&
 			self->client->ps.origin[1] >= -138 && self->client->ps.origin[1] <= 121 &&
-			self->client->ps.origin[2] <= -128 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_DEMP2_ALT && mod != MOD_TARGET_LASER)
+			self->client->ps.origin[2] <= -128 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
 		{
 			//second objective; dude was killed very close to hack button
 			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
@@ -1985,7 +1985,7 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 			++attacker->client->pers.teamState.saves;
 		}
 		else if (level.lastObjectiveCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
-			self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_DEMP2_ALT && mod != MOD_TARGET_LASER)
+			self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
 		{
 			//fourth objective; codes carrier was killed very close to button
 			vec3_t obj = { -3111, 1763, -199 };
@@ -2006,7 +2006,7 @@ void CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
 			self->client->ps.origin[0] >= -1320 && self->client->ps.origin[0] <= -1040 &&
 			self->client->ps.origin[1] >= -160 && self->client->ps.origin[1] <= 110 &&
 			self->client->ps.origin[2] >= 43 &&
-			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_DEMP2_ALT && mod != MOD_TARGET_LASER)
+			mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
 		{
 			//fourth objective; dude was killed higher up in the lift shaft
 			attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
