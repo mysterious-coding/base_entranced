@@ -1828,7 +1828,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 {
 	int goals_completed, goals_required;
 
-	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
+	if (client && client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
 	{
 		level.clients[client].pers.teamState.captures++;
 		level.clients[client].rewardTime = level.time + REWARD_SPRITE_TIME;
