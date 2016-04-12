@@ -750,6 +750,7 @@ void InitSiegeMode(void)
 	level.totalObjectivesCompleted = 0;
 	level.siegeRoundComplete = qfalse;
 	level.wallCompleted = qfalse;
+	level.killerOfLastDesertComputer = NULL;
 
 	//reset
 	SiegeSetCompleteData(0);
@@ -1864,6 +1865,11 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 		level.ccCompleted = qtrue;
 	}
 
+	if (objective == 2 && !Q_stricmp(mapname.string, "mp/siege_desert") && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
+	{
+		client = level.killerOfLastDesertComputer->s.number;
+	}
+
 	if (gSiegeRoundEnded)
 	{
 		return;
@@ -2782,6 +2788,22 @@ void SiegeItemPain(gentity_t *self, gentity_t *attacker, int damage)
 
 void SiegeItemDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!Q_stricmp(mapname.string, "mp/siege_desert") && self->model && self->model[0] && strstr(self->model, "vjun/control_station"))
+	{
+		//killed a desert computer; note the client so we can give him points
+		if (attacker && attacker->client && attacker->s.number < MAX_CLIENTS && attacker->client->sess.sessionTeam == TEAM_RED)
+		{
+			level.killerOfLastDesertComputer = attacker;
+		}
+		else
+		{
+			level.killerOfLastDesertComputer = NULL;
+		}
+	}
+
 	self->takedamage = qfalse; //don't die more than once
 
 	if (self->genericValue3)

@@ -1004,6 +1004,8 @@ typedef struct {
 	qboolean	wallCompleted;
 	qboolean	zombies;
 
+	gentity_t	*killerOfLastDesertComputer;
+
 	int			numConnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients
 	int			numPlayingClients;		// connected, non-spectators
