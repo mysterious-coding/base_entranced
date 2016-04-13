@@ -1955,9 +1955,9 @@ static float GetDistanceFromNearestSiegeitem(gentity_t *ent, int onlyItemsToucha
 	for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
 	{
 		if (&g_entities[i] && g_entities[i].classname && g_entities[i].classname[0] && !Q_stricmp(g_entities[i].classname, "misc_siege_item") &&
-			!(g_entities[i].s.eFlags & EF_NODRAW) && !g_entities[i].genericValue2)
+			!(g_entities[i].s.eFlags & EF_NODRAW) && !g_entities[i].genericValue2 && g_entities[i].canPickUp)
 		{
-			//found an item that is not hidden or in anyone's possession
+			//found a pickupable item that is not hidden or in anyone's possession
 			if (onlyItemsTouchableByThisTeam > TEAM_FREE && g_entities[i].genericValue6 == ent->client->sess.sessionTeam)
 			{
 				//the ent's team can't touch this item

@@ -380,6 +380,8 @@ struct gentity_s {
 	int			idealClassType;
 	int			idealClassTypeTeam2;
 
+	int			canPickUp;
+
 	int			canContinue;
 
 	char		*soundSet;

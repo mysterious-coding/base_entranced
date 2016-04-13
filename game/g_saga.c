@@ -2943,6 +2943,7 @@ void SP_misc_siege_item (gentity_t *ent)
 	}
 
 	G_SpawnInt("canpickup", "1", &canpickup);
+	ent->canPickUp = canpickup;
 	G_SpawnInt("usephysics", "1", &ent->genericValue1);
 	G_SpawnInt("autorespawn", "1", &ent->genericValue16);
 	G_SpawnInt("respawntime", "20000", &ent->genericValue17);
