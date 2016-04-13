@@ -5501,10 +5501,12 @@ static void FillCtfStats( gclient_t *cl, int *values ) {
 
 static const StatsDesc ForceStatsDesc = {
 	{
-		"PUSH", "PULL", "HEALED", "NRGSED", "DRAINED", "PROTDMG", "RAGEDMG"
+		"PUSH", "PULL", "HEALED", "NRGSED ALLY", "ENEMY",
+		"ABSRBD", "PROTDMG", "PROTTIME"
 	},
 	{
-		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT, STAT_INT
+		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2,
+		STAT_INT, STAT_INT, STAT_DURATION
 	}
 };
 
@@ -5512,10 +5514,11 @@ static void FillForceStats( gclient_t *cl, int *values ) {
 	*values++ = cl->pers.push;
 	*values++ = cl->pers.pull;
 	*values++ = cl->pers.healed;
-	*values++ = cl->pers.energized;
-	*values++ = cl->pers.drained;
+	*values++ = cl->pers.energizedAlly;
+	*values++ = cl->pers.energizedEnemy;
+	*values++ = cl->pers.absorbed;
 	*values++ = cl->pers.protDmgAvoided;
-	*values++ = cl->pers.rageDmgAvoided;
+	*values++ = cl->pers.protTimeUsed;
 }
 
 #define ColorForTeam( team )		( team == TEAM_BLUE ? COLOR_BLUE : COLOR_RED )
