@@ -485,6 +485,13 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			Anim	= (Walking)?(BOTH_VT_WALK_FWD  ):((Running)?(BOTH_VT_RUN_FWD  ):(BOTH_VT_IDLE1));
 		}
 	}
+
+	if (!parent->client->ps.speed)
+	{
+		//duo: prevent animals from running in place
+		Anim = BOTH_VT_IDLE;
+	}
+
 	Vehicle_SetAnim( parent, SETANIM_LEGS, Anim, iFlags, iBlend );
 }
 
