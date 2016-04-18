@@ -1606,6 +1606,37 @@ void Touch_PlatCenterTrigger_Hoth(gentity_t *ent, gentity_t *other, trace_t *tra
 	
 }
 
+/*
+==============
+Touch_PlatCenterTrigger_HothCodes
+
+Anti-liftlame for hoth codes plat
+===============
+*/
+void Touch_PlatCenterTrigger_HothCodes(gentity_t *ent, gentity_t *other, trace_t *trace) {
+	if (!other->client) {
+		return;
+	}
+
+	if (g_antiHothCodesLiftLame.integer && other->client->sess.sessionTeam == TEAM_BLUE) {
+		int i;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (&g_entities[i] && g_entities[i].client && g_entities[i].client->holdingObjectiveItem > 0 && g_entities[i].client->sess.sessionTeam == TEAM_RED &&
+				g_entities[i].health > 0 && !(g_entities[i].client->tempSpectate > level.time) &&
+				g_entities[i].client->ps.origin[0] >= -3820 && g_entities[i].client->ps.origin[0] <= -2711 &&
+				g_entities[i].client->ps.origin[1] >= 1750 && g_entities[i].client->ps.origin[1] <= 2300 &&
+				g_entities[i].client->ps.origin[2] < -256) {
+				return;
+			}
+		}
+	}
+
+	if (ent->parent->moverState == MOVER_POS1) {
+		Use_BinaryMover(ent->parent, ent, other);
+	}
+
+}
+
 
 /*
 ================
@@ -1616,7 +1647,7 @@ Elevator cars require that the trigger extend through the entire low position,
 not just sit on top of it.
 ================
 */
-void SpawnPlatTrigger(gentity_t *ent, qboolean isHothBunkerLift) {
+void SpawnPlatTrigger(gentity_t *ent, qboolean isHothBunkerLift, qboolean isHothCodesLift) {
 	gentity_t	*trigger;
 	vec3_t	tmin, tmax;
 
@@ -1629,6 +1660,10 @@ void SpawnPlatTrigger(gentity_t *ent, qboolean isHothBunkerLift) {
 	if (isHothBunkerLift)
 	{
 		trigger->touch = Touch_PlatCenterTrigger_Hoth;
+	}
+	else if (isHothCodesLift)
+	{
+		trigger->touch = Touch_PlatCenterTrigger_HothCodes;
 	}
 	else
 	{
@@ -1713,13 +1748,18 @@ void SP_func_plat(gentity_t *ent) {
 	if (!ent->targetname)
 	{
 		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmp(mapname.string, "mp/siege_hoth") && height == 568 && ent->damage == 9999) //hacktastic
+		if (!Q_stricmp(mapname.string, "mp/siege_hoth") && ent->damage == 9999) //hacktastic
 		{
-			SpawnPlatTrigger(ent, qtrue);
+			if (height == 568)
+				SpawnPlatTrigger(ent, qtrue, qfalse);
+			else if (height == 154)
+				SpawnPlatTrigger(ent, qfalse, qtrue);
+			else
+				SpawnPlatTrigger(ent, qfalse, qfalse);
 		}
 		else
 		{
-			SpawnPlatTrigger(ent, qfalse);
+			SpawnPlatTrigger(ent, qfalse, qfalse);
 		}
 	}
 }

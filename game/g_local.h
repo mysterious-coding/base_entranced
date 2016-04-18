@@ -2002,6 +2002,7 @@ extern vmCvar_t    g_autoKorribanSpam;
 extern vmCvar_t    g_gripRefresh;
 extern vmCvar_t    g_forceDTechItems;
 extern vmCvar_t    g_specAfterDeath;
+extern vmCvar_t    g_antiHothCodesLiftLame;
 extern vmCvar_t    g_antiHothHangarLiftLame;
 extern vmCvar_t    g_requireMoreCustomTeamVotes;
 extern vmCvar_t    g_antiCallvoteTakeover;

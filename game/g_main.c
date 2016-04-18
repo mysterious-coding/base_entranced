@@ -167,6 +167,7 @@ vmCvar_t    g_autoKorribanSpam;
 vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
 vmCvar_t	g_specAfterDeath;
+vmCvar_t    g_antiHothCodesLiftLame;
 vmCvar_t    g_antiHothHangarLiftLame;
 vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
@@ -707,6 +708,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_gripRefresh, "g_gripRefresh", "300", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_antiHothCodesLiftLame, "g_antiHothCodesLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "3", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
