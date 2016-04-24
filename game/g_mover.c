@@ -1622,7 +1622,7 @@ void Touch_PlatCenterTrigger_HothCodes(gentity_t *ent, gentity_t *other, trace_t
 		int i;
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			if (&g_entities[i] && g_entities[i].client && g_entities[i].client->holdingObjectiveItem > 0 && g_entities[i].client->sess.sessionTeam == TEAM_RED &&
-				g_entities[i].health > 0 && !(g_entities[i].client->tempSpectate > level.time) &&
+				g_entities[i].health > 0 && !(g_entities[i].client->ps.fd.forcePowersKnown & (1 << FP_LEVITATION)) && !(g_entities[i].client->tempSpectate > level.time) &&
 				g_entities[i].client->ps.origin[0] >= -3820 && g_entities[i].client->ps.origin[0] <= -2711 &&
 				g_entities[i].client->ps.origin[1] >= 1750 && g_entities[i].client->ps.origin[1] <= 2300 &&
 				g_entities[i].client->ps.origin[2] < -256) {
