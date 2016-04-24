@@ -95,7 +95,7 @@ These are unique features for base_entranced.
 ####`/g_antiHothCodesLiftLame`
 0 = normal behavior for Hoth codes delivery bunker lift
 
-1 = defenders cannot call up Hoth codes delivery bunker lift if the codes carrier is inside the bunker
+1 = defenders cannot call up Hoth codes delivery bunker lift if a non-Jedi codes carrier is inside the bunker
 
 ####`/g_antiHothHangarLiftLame`
 0 = normal behavior for Hoth hangar lift (default JK3)
