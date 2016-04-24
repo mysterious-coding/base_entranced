@@ -617,19 +617,51 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue; //??? uhh...this should never happen, but whatever
 			}
 
-			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) &&
-				!(!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && level.totalObjectivesCompleted >= 3))
+			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 			{
-				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby (regardless of angle)
-				continue;
+				if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+					if (level.totalObjectivesCompleted <= 2) { //allow walker to trigger "allow spam" for first 3 objs
+						thereIsAWalkerOrProtector = qtrue;
+						continue;
+					}
+					if (level.totalObjectivesCompleted >= 4) //don't allow walker to trigger "allow spam" for later objs
+						continue;
+					if (level.totalObjectivesCompleted == 3) //allow walker to trigger "allow spam" if you're near it i guess
+					{
+						if (ent->client->ps.origin[0] >= -917 && ent->client->ps.origin[0] <= 8219 &&
+							ent->client->ps.origin[1] >= -3729 && ent->client->ps.origin[1] <= 1635) {
+							thereIsAWalkerOrProtector = qtrue;
+						}
+						continue;
+					}
+				}
+				else
+					thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby (regardless of angle)
+					continue;
 			}
 
 			if (potentialSpamVictim->client && &potentialSpamVictim->client->ps && potentialSpamVictim->client->ps.m_iVehicleNum && &g_entities[potentialSpamVictim->client->ps.m_iVehicleNum]
 				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle && (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo
-				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) &&
-				!(!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && level.totalObjectivesCompleted >= 3))
+				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 			{
-				thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a (piloted) walker or fighter nearby (regardless of angle)
+				if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+					if (level.totalObjectivesCompleted <= 2) { //allow walker to trigger "allow spam" for first 3 objs
+						thereIsAWalkerOrProtector = qtrue;
+						continue;
+					}
+					if (level.totalObjectivesCompleted >= 4) //don't allow walker to trigger "allow spam" for later objs
+						continue;
+					if (level.totalObjectivesCompleted == 3) //allow walker to trigger "allow spam" if you're near it i guess
+					{
+						if (ent->client->ps.origin[0] >= -917 && ent->client->ps.origin[0] <= 8219 &&
+							ent->client->ps.origin[1] >= -3729 && ent->client->ps.origin[1] <= 1635) {
+							thereIsAWalkerOrProtector = qtrue;
+						}
+						continue;
+					}
+				}
+				else
+					thereIsAWalkerOrProtector = qtrue;//it's okay to spam if there's a walker or fighter nearby (regardless of angle)
 				continue;
 			}
 
