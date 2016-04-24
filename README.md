@@ -92,6 +92,11 @@ These are unique features for base_entranced.
 
 1 = Hoth bunker doors at first objective use standard door sounds
 
+####`/g_antiHothCodesLiftLame`
+0 = normal behavior for Hoth codes delivery bunker lift
+
+1 = defenders cannot call up Hoth codes delivery bunker lift if the codes carrier is inside the bunker
+
 ####`/g_antiHothHangarLiftLame`
 0 = normal behavior for Hoth hangar lift (default JK3)
 
@@ -348,6 +353,9 @@ Players now gain a JA+-style client number appended to their name if they try to
 ####Siege captain dueling
 You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, no force powers, offense can go through defense-only doors, and turrets are automatically destroyed.
 
+####Awards/medals support
+Humiliation, impressive, etc. Extra awards are being implemented (work-in-progress) for siege maps. You can get rewards if you use a compatible clientside mod such as Smod and have `cg_drawRewards` enabled in your client game.
+
 ####Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
 
@@ -555,9 +563,19 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Teamoverlay data is now broadcast to spectators who are following other players.
 * Fixed improper initialization of votes causing improper vote counts and improper display of teamvotes.
 * Generic "you can only change classes once every 5 seconds" message has been replaced with a message containing the remaining number of seconds until you can change classes.
+* Fixed bug with animal vehicles running in place after stopping.
 
 #Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features.
+
+####Chat tokens
+Clients can use the following chat tokens:
+
+* `$h` = current health
+* `$a` = current armor
+* `$f` = current force
+* `$m` = current ammo
+* `$l` = closest weapon spawn (this is not particularly useful for siege)
 
 ####Team-joining password requirement
 You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/sv_passwordlessSpectators 1`. The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
@@ -630,9 +648,6 @@ No longer need two players to start running around ingame in siege mode.
 
 ####Better logs
 Log detailed user info, rcon commands, and crash attempts. Use `g_hacklog <filename>`, `g_logclientinfo 1`, and `g_logrcon 1`.
-
-####Awards/medals support
-Humiliation, impressive, etc. if you use the clientside mod SMod and have `cg_drawRewards 1` enabled in your client game.
 
 ####Coin toss
 Call a `/cointoss` vote for random heads/tails result. Also works as an rcon command.
