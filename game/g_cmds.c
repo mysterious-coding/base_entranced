@@ -854,7 +854,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		}
 
 		// Only check one way, so you can join spec back if you were forced as a passwordless spectator
-		if (team != TEAM_SPECTATOR && !client->sess.canJoin) {
+		if (team != TEAM_SPECTATOR && !client->sess.canJoin && !forceteamed) {
 			trap_SendServerCommand(ent - g_entities,
 				"cp \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"");
 			trap_SendServerCommand(ent - g_entities,
@@ -938,7 +938,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	}
 
 	// Only check one way, so you can join spec back if you were forced as a passwordless spectator
-	if (team != TEAM_SPECTATOR && !client->sess.canJoin) {
+	if (team != TEAM_SPECTATOR && !client->sess.canJoin && !forceteamed) {
 		trap_SendServerCommand( ent - g_entities,
 			"cp \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"" );
 		trap_SendServerCommand(ent - g_entities,

@@ -1526,15 +1526,6 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)
 {
 	char userinfo[MAX_INFO_STRING];
 
-	// Only check one way, so you can join spec back if you were forced as a passwordless spectator
-	if (team != TEAM_SPECTATOR && !ent->client->sess.canJoin) {
-		trap_SendServerCommand( ent - g_entities,
-			"cp \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"" );
-		trap_SendServerCommand(ent - g_entities,
-			"print \"^7You may not join due to incorrect/missing password\n^7If you know the password, just use /password\n\"");
-		return;
-	}
-
 	trap_GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );
 
 	if (g_gametype.integer == GT_SIEGE)
