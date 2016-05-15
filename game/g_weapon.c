@@ -344,7 +344,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							continue; //must be on offense
 						}
 
-						if (potentialEnemyInStation1 == ent || !potentialEnemyInStation1->takedamage || potentialEnemyInStation1->health <= 0 || potentialEnemyInStation1->client->tempSpectate >= level.time || (potentialEnemyInStation1->flags & FL_NOTARGET))
+						if (potentialEnemyInStation1 == ent || !potentialEnemyInStation1->takedamage || potentialEnemyInStation1->health <= 0 || potentialEnemyInStation1->client->tempSpectate >= level.time || potentialEnemyInStation1->flags & FL_NOTARGET || potentialEnemyInStation1->s.eType == ET_NPC || potentialEnemyInStation1->client->ps.eFlags2 & EF2_HELD_BY_MONSTER)
 						{
 							continue; //miscellaneous checks
 						}
@@ -532,7 +532,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							continue; //must be on offense
 						}
 
-						if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || (potentialEnemyInStation->flags & FL_NOTARGET))
+						if (potentialEnemyInStation == ent || !potentialEnemyInStation->takedamage || potentialEnemyInStation->health <= 0 || potentialEnemyInStation->client->tempSpectate >= level.time || potentialEnemyInStation->flags & FL_NOTARGET || potentialEnemyInStation->s.eType == ET_NPC || potentialEnemyInStation->client->ps.eFlags2 & EF2_HELD_BY_MONSTER)
 						{
 							continue; //miscellaneous checks
 						}
@@ -712,7 +712,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue; //don't prevent people from "spamming" if the enemy in question is too far away vertically.
 			}
 
-			if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || (potentialSpamVictim->flags & FL_NOTARGET))
+			if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || potentialSpamVictim->flags & FL_NOTARGET || potentialSpamVictim->s.eType == ET_NPC || potentialSpamVictim->client->ps.eFlags2 & EF2_HELD_BY_MONSTER)
 			{
 				continue; //miscellaneous checks
 			}
@@ -790,7 +790,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 										continue; //must be on offense
 									}
 
-									if (potentialEnemyInStation1 == ent || !potentialEnemyInStation1->takedamage || potentialEnemyInStation1->health <= 0 || potentialEnemyInStation1->client->tempSpectate >= level.time || (potentialEnemyInStation1->flags & FL_NOTARGET))
+									if (potentialEnemyInStation1 == ent || !potentialEnemyInStation1->takedamage || potentialEnemyInStation1->health <= 0 || potentialEnemyInStation1->client->tempSpectate >= level.time || potentialEnemyInStation1->flags & FL_NOTARGET || potentialEnemyInStation1->s.eType == ET_NPC || potentialEnemyInStation1->client->ps.eFlags2 & EF2_HELD_BY_MONSTER)
 									{
 										continue; //miscellaneous checks
 									}
@@ -980,7 +980,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue;
 			}
 
-			if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || (potentialSpamVictim->flags & FL_NOTARGET))
+			if (potentialSpamVictim == ent || !potentialSpamVictim->takedamage || potentialSpamVictim->health <= 0 || potentialSpamVictim->client->tempSpectate >= level.time || potentialSpamVictim->flags & FL_NOTARGET || potentialSpamVictim->s.eType == ET_NPC || potentialSpamVictim->client->ps.eFlags2 & EF2_HELD_BY_MONSTER)
 			{
 				continue; //miscellaneous checks
 			}
