@@ -842,7 +842,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	{
 		qboolean teamChanged = qfalse;
 		if (forceteamed == qfalse && ((ent->health <= 0 && !g_specAfterDeath.integer) ||  (client->tempSpectate >= level.time &&
-			team == TEAM_SPECTATOR)))
+			team == TEAM_SPECTATOR) || ent->client->ps.eFlags2 & EF2_HELD_BY_MONSTER))
 		{ //sorry, can't do that.
 			return;
 		}
