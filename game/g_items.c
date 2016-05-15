@@ -2317,9 +2317,10 @@ int Get_Max_Ammo( gentity_t* ent, ammo_t ammoIndex )
 		{
 			max *= 2; //double ammo
 		}
-		else if (!Q_stricmp(mapname.string, "siege_cargobarge2") && (ammoIndex == AMMO_DETPACK || ammoIndex == AMMO_THERMAL))
-		{
-			max *= 2;
+		else if (!Q_stricmp(mapname.string, "siege_cargobarge2") && (ammoIndex == AMMO_DETPACK || ammoIndex == AMMO_THERMAL)) {
+			if (ent->client->sess.sessionTeam == TEAM_RED && (!g_redTeam.string || !g_redTeam.string[0] || g_redTeam.string[0] == '0' || !Q_stricmpn(g_redTeam.string, "none", 4)) ||
+				ent->client->sess.sessionTeam == TEAM_BLUE && (!g_blueTeam.string || !g_blueTeam.string[0] || g_blueTeam.string[0] == '0' || !Q_stricmpn(g_blueTeam.string, "none", 4)))
+				max *= 2;
 			//hacky fix to give double ammo for demos on cargo2 without me having to release an update...
 		}
 

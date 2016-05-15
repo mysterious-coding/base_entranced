@@ -4244,6 +4244,9 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_SHIELD);
 		}
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2") && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == SPC_SUPPORT && (!g_blueTeam.string || !g_blueTeam.string[0] || g_blueTeam.string[0] == '0' || !Q_stricmpn(g_blueTeam.string, "none", 4))) {
+			client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC); //duo: hacky fix to remove unintentional bacta from cargo2 d tech without me having to update server pk3
+		}
 	}
 	else
 	{
