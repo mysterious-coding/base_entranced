@@ -5339,6 +5339,9 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/NPC SPAWNLIST\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/npc spawnlist^7 to show a list of possible NPC spawns. Ingame console has limited scrolling; read /base/qconsole.log to see more.\n\""));
 	}
+	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"You can automatically write data in chat messages by writing some tokens:\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^5$H^7 (health), ^5$A^7 (armor), ^5$F^7 (force), ^5$M^7 (ammo)\n\""));
 }
 
 void Cmd_ClientList_f(gentity_t *ent)
