@@ -5283,64 +5283,48 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 void Cmd_Help_f(gentity_t *ent)
 {
 	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build %i\n\"", BUILDNUMBER));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2WHOIS\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2SIMPLIFIED PRIVATE MESSAGING\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player simply by pressing your chat bind and typing ^5@<player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"You can send private chats to another player with ^5/tell <player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/WHOIS:^7   You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL:^7   You can send private chats to another player with ^5/tell <player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/IGNORE\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/ignore <name/id>^7 to stop seeing chats from a player. Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2SIMPLIFIED PRIVATE MESSAGING:^7   Instead of using /tell, you can send private chats to another player simply by pressing your chat bind and typing ^5@<player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/IGNORE:^7   Use ^5/ignore <name/id>^7 to stop seeing chats from a player. Partial player names or slot numbers are okay.\n\""));
 	if (g_gametype.integer == GT_SIEGE)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"^2/JOIN\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/join <team letter><first letter of class name>^7 (no spaces) to join as a specific team and class. For example, '^5join rj^7' for red jedi)\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS:^7   Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/JOIN:^7   Use ^5/join <team letter><first letter of class name>^7 (no spaces) to join as a specific team and class. For example, '^5join rj^7' for red jedi)\n\""));
 	}
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLIENTLIST\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/clientlist^7 to see correct client numbers of all connected players. Helpful for commands like /whois.\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLIENTLIST:^7   Use ^5/clientlist^7 to see correct client numbers of all connected players. Helpful for commands like /whois.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2:^7   Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
 	if (g_allow_ready.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2/READY AND /UNREADY\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"You can ^5/ready^7 or ^5/unready^7 yourself to declare yourself eligible for selection by the random team generator(used with vote or rcon).\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/READY AND /UNREADY:^7   You can ^5/ready^7 or ^5/unready^7 yourself to declare yourself eligible for selection by the random team generator(used with vote or rcon).\n\""));
 	}
 	if (g_privateDuel.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2/ENGAGE_DUEL\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"You can challenge another captain to a pistol duel if both of you use ^5/engage_duel^7.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/ENGAGE_DUEL^7:   You can challenge another captain to a pistol duel if both of you use ^5/engage_duel^7.\n\""));
 	}
 	if (g_allowVote.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2VOTES\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2VOTES:^7   There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
 	}
 	if (g_moreTaunts.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2MORE TAUNTS\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, or ^5/bow^7.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2MORE TAUNTS:^7   This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, or ^5/bow^7.\n\""));
 	}
 	if (g_allow_vote_forceclass.integer && g_allowVote.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2TEAMVOTES: FORCECLASS AND UNFORCECLASS\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"You can call special team-only votes with ^5/callteamvote^7. You can force teammates to play a certain class.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2TEAMVOTES: FORCECLASS AND UNFORCECLASS:^7   You can call special team-only votes with ^5/callteamvote^7. You can force teammates to play a certain class.\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5forceclass <name> <first letter of class name>^7 or ^5unforceclass^7. For example, ^5/callteamvote forceclass pad a\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/teamvote yes^7 and ^5/teamvote no^7 to vote on these special teamvotes.\n\""));
 	}
-	trap_SendServerCommand(ent - g_entities, va("print \"^2WEAPON SPAWN PREFERENCE\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"You can specify an order of preferred weapons that you would like to be holding when you spawn by using ^5/setu prefer <15 letters>\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2WEAPON SPAWN PREFERENCE:^7   You can specify an order of preferred weapons that you would like to be holding when you spawn by using ^5/setu prefer <15 letters>\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"L=melee,S=saber,P=pistol,Y=bryar,E=E11,U=disruptor,B=bowcaster,I=repeater,D=demp,G=golan,R=rocket,C=conc,T=dets,M=mines,K=detpacks\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/setu prefer RCTIGDUEBSMKYPL\n\""));
 	if (g_cheats.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2/NPC SPAWNLIST\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/npc spawnlist^7 to show a list of possible NPC spawns. Ingame console has limited scrolling; read /base/qconsole.log to see more.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/NPC SPAWNLIST:^7   Use ^5/npc spawnlist^7 to show a list of possible NPC spawns. Ingame console has limited scrolling; read /base/qconsole.log to see more.\n\""));
 	}
-	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"You can automatically write data in chat messages by writing some tokens:\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS:^7   You can dynamically include some stats in your chat messages by writing these tokens:\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5$H^7 (health), ^5$A^7 (armor), ^5$F^7 (force), ^5$M^7 (ammo)\n\""));
 }
 
@@ -6269,6 +6253,8 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp(cmd, "clientlist") == 0)
 		Cmd_ClientList_f(ent);
 	else if (Q_stricmp(cmd, "help") == 0)
+		Cmd_Help_f(ent);
+	else if (Q_stricmp(cmd, "info") == 0)//stupid openjk broke my command
 		Cmd_Help_f(ent);
 	else if (Q_stricmp(cmd, "testvis") == 0)
 		Cmd_TestVis_f(ent);
