@@ -1247,14 +1247,14 @@ void BG_SiegeLoadClasses(siegeClassDesc_t *descBuffer)
 {
 	int numFiles;
 	int filelen;
-	char filelist[4096];
+	char filelist[MAX_SIEGE_CLASS_FILELIST];
 	char filename[MAX_QPATH];
 	char* fileptr;
 	int i;
 
 	bgNumSiegeClasses = 0;
 
-	numFiles = trap_FS_GetFileList("ext_data/Siege/Classes", ".scl", filelist, 4096 );
+	numFiles = trap_FS_GetFileList("ext_data/Siege/Classes", ".scl", filelist, MAX_SIEGE_CLASS_FILELIST );
 	fileptr = filelist;
 
 	for (i = 0; i < numFiles; i++, fileptr += filelen+1)
@@ -1410,14 +1410,14 @@ void BG_SiegeLoadTeams(void)
 {
 	int numFiles;
 	int filelen;
-	char filelist[4096];
+	char filelist[MAX_SIEGE_TEAM_FILELIST];
 	char filename[MAX_QPATH];
 	char* fileptr;
 	int i;
 
 	bgNumSiegeTeams = 0;
 
-	numFiles = trap_FS_GetFileList("ext_data/Siege/Teams", ".team", filelist, 4096 );
+	numFiles = trap_FS_GetFileList("ext_data/Siege/Teams", ".team", filelist, MAX_SIEGE_TEAM_FILELIST );
 	fileptr = filelist;
 
 	for (i = 0; i < numFiles; i++, fileptr += filelen+1)
