@@ -2021,6 +2021,8 @@ extern vmCvar_t    g_swoopKillPoints;
 extern vmCvar_t    g_openJKTeamVoteFix;
 extern vmCvar_t    g_antiLaming;
 
+extern vmCvar_t    g_tieGame;
+
 extern vmCvar_t    siegeStatus;
 extern	vmCvar_t	g_autoStats;
 

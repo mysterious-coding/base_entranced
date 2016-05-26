@@ -187,6 +187,8 @@ vmCvar_t	g_swoopKillPoints;
 vmCvar_t	g_openJKTeamVoteFix;
 vmCvar_t	g_antiLaming;
 
+vmCvar_t	g_tieGame;
+
 vmCvar_t	siegeStatus;
 
 vmCvar_t	g_autoStats;
@@ -729,6 +731,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_openJKTeamVoteFix, "g_openJKTeamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 
+	{ &g_tieGame, "g_tieGame", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },

@@ -61,6 +61,8 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 static char gObjectiveCfgStr[1024];
 
+static qboolean tieGame = qfalse;
+
 extern int g_siegeRespawnCheck;
 #define SIEGETIMER_FAKEOWNER 1023
 void UpdateFancyClientModSiegeTimers(void)
@@ -706,9 +708,10 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 
 //tell clients that this team won and print it on their scoreboard for intermission
 //or whatever.
+#define TIEGAME_CONFIGSTRING	3
 void SiegeSetCompleteData(int team)
 {
-	trap_SetConfigstring(CS_SIEGE_WINTEAM, va("%i", team));
+	trap_SetConfigstring(CS_SIEGE_WINTEAM, va("%i", tieGame ? TIEGAME_CONFIGSTRING : team)); //duo: override the config string so that you don't erroneously see "team 2 won the match!" if both teams were held for a max
 }
 
 void InitSiegeMode(void)
@@ -1631,6 +1634,11 @@ void SiegeBeginRound(int entNum)
 		}
 	}
 
+	if (!g_siegePersistant.beatingTime || !g_siegeTeamSwitch.integer) {
+		trap_Cvar_Set("g_tieGame", "0");
+		tieGame = qfalse;
+	}
+
 	//Now check if there's something to fire off at the round start, if so do it.
 	if (BG_SiegeGetPairedValue(siege_info, "roundbegin_target", targname))
 	{
@@ -1750,6 +1758,10 @@ void SiegeCheckTimers(void)
 	{ //team1
 		if (gImperialCountdown < level.time) //they were held for 20 minutes, so let's notate this differently
 		{
+			if (g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime) //round 1 was held for max, so note this in cvar for later
+				trap_Cvar_Set("g_tieGame", "1");
+			else if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_tieGame.integer) //round 2 was held for max, and round 1 was previously held for max, so the match is a draw
+				tieGame = qtrue;
 			if (objscompletedoffset)
 			{
 				SiegeUpdateObjTime(objscompleted + 1 - objscompletedoffset, qtrue); //we went out of order, so let's make sure we get a DNF at the correct obj
@@ -1768,6 +1780,10 @@ void SiegeCheckTimers(void)
 	{ //team2
 		if (gRebelCountdown < level.time)//they were held for 20 minutes, so let's notate this differently
 		{
+			if (g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime) //round 1 was held for max, so note this in cvar for later
+				trap_Cvar_Set("g_tieGame", "1");
+			else if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_tieGame.integer) //round 2 was held for max, and round 1 was previously held for max, so the match is a draw
+				tieGame = qtrue;
 			if (objscompletedoffset)
 			{
 				SiegeUpdateObjTime(objscompleted + 1 - objscompletedoffset, qtrue); //we went out of order, so let's make sure we get a DNF at the correct obj
