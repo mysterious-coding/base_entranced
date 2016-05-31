@@ -1418,7 +1418,45 @@ static void StartDeathDelay( Vehicle_t *pVeh, int iDelayTimeOverride )
 static void DeathUpdate( Vehicle_t *pVeh )
 {
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
+	if (pVeh->m_iDieTime && pVeh->m_pVehicleInfo->type != VH_FIGHTER) { //duo: forcibly eject people even if m_iDieTime hasn't been reached yet to prevent invis bugs
+		// If the vehicle is not empty.
+		if (pVeh->m_pVehicleInfo->Inhabited(pVeh))
+		{
+#ifndef _JK2MP
+			if (pVeh->m_pPilot)
+			{
+				pVeh->m_pPilot->client->noRagTime = -1;		// no ragdoll for you
+			}
+#endif
 
+			pVeh->m_pVehicleInfo->EjectAll(pVeh);
+#ifdef _JK2MP
+			if (pVeh->m_pVehicleInfo->Inhabited(pVeh))
+			{ //if we've still got people in us, just kill the bastards
+				if (pVeh->m_pPilot)
+				{
+					//FIXME: does this give proper credit to the enemy who shot you down?
+					G_Damage((gentity_t *)pVeh->m_pPilot, (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity,
+						NULL, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_EXPLOSIVE);
+				}
+				if (pVeh->m_iNumPassengers)
+				{
+					int i;
+
+					for (i = 0; i < pVeh->m_pVehicleInfo->maxPassengers; i++)
+					{
+						if (pVeh->m_ppPassengers[i])
+						{
+							//FIXME: does this give proper credit to the enemy who shot you down?
+							G_Damage((gentity_t *)pVeh->m_ppPassengers[i], (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity,
+								NULL, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_EXPLOSIVE);
+						}
+					}
+				}
+			}
+#endif
+		}
+	}
 	if ( level.time >= pVeh->m_iDieTime )
 	{
 		// If the vehicle is not empty.

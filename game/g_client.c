@@ -3548,6 +3548,14 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
+	if (ent->s.number < MAX_CLIENTS) {
+		//duo: this stuff should be reset on spawn...
+		memset(&ent->m_pVehicle, 0, sizeof(ent->m_pVehicle));
+		ent->s.owner = 0;
+		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && !(ent->client->ps.pm_flags & PMF_FOLLOW))
+			ent->s.eFlags &= ~EF_NODRAW;
+	}
+
 	if (ent->client->sess.siegeDuelInProgress)
 	{
 		ent->client->sess.siegeDuelInProgress = 0;
