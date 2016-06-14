@@ -1418,7 +1418,14 @@ static void StartDeathDelay( Vehicle_t *pVeh, int iDelayTimeOverride )
 static void DeathUpdate( Vehicle_t *pVeh )
 {
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
-	if (pVeh->m_iDieTime && pVeh->m_pVehicleInfo->type != VH_FIGHTER) { //duo: forcibly eject people even if m_iDieTime hasn't been reached yet to prevent invis bugs
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	if (pVeh->m_iDieTime && pVeh->m_pVehicleInfo->type != VH_FIGHTER && mapname.string && mapname.string[0] &&
+		!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && parent && parent->client &&
+		parent->client->ps.origin[0] >= 721 && parent->client->ps.origin[0] <= 1324 &&
+		parent->client->ps.origin[1] >= 198 && parent->client->ps.origin[1] <= 906 &&
+		parent->client->ps.origin[2] >= -861 && parent->client->ps.origin[2] <= 37)
+	{ //duo: forcibly eject people even if m_iDieTime hasn't been reached yet to prevent invis bugs
 		// If the vehicle is not empty.
 		if (pVeh->m_pVehicleInfo->Inhabited(pVeh))
 		{
