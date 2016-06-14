@@ -104,9 +104,14 @@ These are unique features for base_entranced.
 
 2 = any player on defense is prevented from calling up the lift if any player on offense is nearby ("nearby" is defined as between the boxes in the middle of the hangar and the lift). Returns to normal behavior after the hangar objective is completed.
 
-3 = use both 1 and 2 methods. (suggested setting for pug servers)
+3 = use both 1 and 2 methods.
 
-4 = use both 1 and 2 methods, plus completely prevent defense from calling up the lift once the infirmary has been breached by the offense. (suggested setting for public servers)
+4 = use both 1 and 2 methods, plus, after the infirmary has been breached, only allow the defense to call the lift up once within 15 seconds of the infirmary breach. (default setting)
+
+####`/g_antiHothInfirmaryLiftLame`
+0 = normal behavior for Hoth infirmary "short" lift (default JK3)
+
+1 = defense cannot call the "short" lift up with the top button; they must use the lower button
 
 ####`/g_antiLaming`
 0 = no anti-laming provisions (default JK3, suggested setting for pug servers)
@@ -335,8 +340,8 @@ Use partial client name with `/forceteam`. Optionally, you can include an additi
 ####`/forceclass` and `/unforceclass`
 Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `/callteamvote`. For example, `/callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `/callteamvote unforceclass pad` to undo this restriction. Use `/teamvote yes` and `/teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
 
-####`/g_openJKTeamVoteFix`
-There is a bug preventing the on-screen teamvote text from displaying on clients' screens if the server is running OpenJK Engine. This workaround prints some text on your screen so you can see what the vote is for. basejka servers should leave this at 0; OpenJK servers should set it to 1. If you don't know what this means, set it to 0.
+####`/g_teamVoteFix`
+There is a bug preventing the on-screen teamvote text from displaying on clients' screens if they are running certain client mods (such as SMod). This workaround prints some text on your screen so you can see what the vote is for.
 
 ####`/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
@@ -564,6 +569,8 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed improper initialization of votes causing improper vote counts and improper display of teamvotes.
 * Generic "you can only change classes once every 5 seconds" message has been replaced with a message containing the remaining number of seconds until you can change classes.
 * Fixed bug with animal vehicles running in place after stopping.
+* Fixed bug with "impressive" award being triggered for shooting NPCs.
+* Added a workaround (Hoth only) for the bug where vehicles getting crushed cause their pilot to become invisible.
 
 #Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features.
@@ -659,7 +666,7 @@ Ask everyone a question with `/callvote q`. For example, `/callvote q Keep same 
 Set url with `/g_dlurl`; clients with SMod can download
 
 ####Quiet rcon
-Use `/g_quietrcon` to avoid publishing mis-typed commands to everyone on the server.
+Mis-typed commands are no longer sent out as a chat message to everyone on the server.
 
 ####Lag icon above head
 Players with 999 ping show a lag icon above their head in-game. 
