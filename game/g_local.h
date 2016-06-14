@@ -2005,6 +2005,7 @@ extern vmCvar_t    g_forceDTechItems;
 extern vmCvar_t    g_specAfterDeath;
 extern vmCvar_t    g_antiHothCodesLiftLame;
 extern vmCvar_t    g_antiHothHangarLiftLame;
+extern vmCvar_t    g_antiHothInfirmaryLiftLame;
 extern vmCvar_t    g_requireMoreCustomTeamVotes;
 extern vmCvar_t    g_antiCallvoteTakeover;
 extern vmCvar_t    g_autoResetCustomTeams;

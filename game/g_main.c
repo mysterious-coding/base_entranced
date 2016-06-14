@@ -170,6 +170,7 @@ vmCvar_t	g_forceDTechItems;
 vmCvar_t	g_specAfterDeath;
 vmCvar_t    g_antiHothCodesLiftLame;
 vmCvar_t    g_antiHothHangarLiftLame;
+vmCvar_t	g_antiHothInfirmaryLiftLame;
 vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
 vmCvar_t	g_autoResetCustomTeams;
@@ -714,6 +715,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothCodesLiftLame, "g_antiHothCodesLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "4", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_antiHothInfirmaryLiftLame, "g_antiHothInfirmaryLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },

@@ -547,6 +547,10 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
+	if (!Q_stricmp(self->target, "medlabplatb") && other->client->ps.origin[2] >= 365 && g_antiHothInfirmaryLiftLame.integer && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && level.hangarCompletedTime) {
+		return;
+	}
+
 	if ( self->spawnflags & 2 )
 	{//FACING
 		vec3_t	forward;
