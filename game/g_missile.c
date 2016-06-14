@@ -827,7 +827,7 @@ void G_RunMissile( gentity_t *ent ) {
 	VectorSet(groundSpot, 0, 0, 0);
 
 	//prevent golan-spamming the lift
-	if (level.hangarCompleted && ent->s.weapon == WP_FLECHETTE && !iLikeToDoorSpam.integer)
+	if (level.hangarCompletedTime && ent->s.weapon == WP_FLECHETTE && !iLikeToDoorSpam.integer)
 	{
 		if (ent->r.currentOrigin[0] >= -1216 && ent->r.currentOrigin[0] <= -996 && ent->r.currentOrigin[1] >= -128 && ent->r.currentOrigin[1] <= 142 && ent->r.currentOrigin[2] <= 120)
 		{

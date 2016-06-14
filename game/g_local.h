@@ -999,7 +999,8 @@ typedef struct {
 
 	qboolean	inSiegeCountdown;
 
-	qboolean	hangarCompleted;
+	int			hangarCompletedTime;
+	qboolean	hangarLiftUsedByDefense;
 	qboolean	ccCompleted;
 	int			lastObjectiveCompleted;
 	int			totalObjectivesCompleted;

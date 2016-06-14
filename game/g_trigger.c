@@ -496,7 +496,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qfalse && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
+	if (!Q_stricmp(self->target, "hangarplatbig1") && !level.hangarCompletedTime && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
 	{
 		gentity_t	*entity_list[MAX_GENTITIES], *liftLameTarget;
 		vec3_t		liftOrigin;
@@ -541,8 +541,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 	}
-
-	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompleted == qtrue && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 4)
+	//d can use lift once, and it must be within 15 seconds of infirmary being breached
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompletedTime && (level.hangarLiftUsedByDefense || level.time >= level.hangarCompletedTime + 15000) && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 4)
 	{
 		return;
 	}
@@ -652,7 +652,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			}
 		}
 		if (!Q_stricmp(self->target,"hangarplatbig1") && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && g_antiHothHangarLiftLame.integer &&
-			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && level.hangarCompleted == qfalse && (g_antiHothHangarLiftLame.integer == 1 || g_antiHothHangarLiftLame.integer == 3))
+			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && !level.hangarCompletedTime && (g_antiHothHangarLiftLame.integer == 1 || g_antiHothHangarLiftLame.integer == 3))
 		{
 			if (hangarHackTime && (level.time - hangarHackTime < 2000))
 			{
@@ -734,6 +734,11 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 	{//We're waiting to fire our target2 first
 		self->nextthink = level.time + self->speed;
 		return;
+	}
+
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompletedTime && !level.hangarLiftUsedByDefense && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	{
+		level.hangarLiftUsedByDefense = qtrue;
 	}
 
 	multi_trigger( self, other );

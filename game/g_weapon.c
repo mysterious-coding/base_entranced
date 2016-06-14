@@ -2936,7 +2936,7 @@ void thermalThinkPrimaryAntiSpam(gentity_t *ent)
 	int n;
 
 	//prevent det-spamming the lift
-	if (level.hangarCompleted)
+	if (level.hangarCompletedTime)
 	{
 		if (ent->r.currentOrigin[0] >= -1216 && ent->r.currentOrigin[0] <= -996 && ent->r.currentOrigin[1] >= -128 && ent->r.currentOrigin[1] <= 142 && ent->r.currentOrigin[2] <= 120)
 		{

@@ -713,7 +713,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothCodesLiftLame, "g_antiHothCodesLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "3", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "4", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_requireMoreCustomTeamVotes, "g_requireMoreCustomTeamVotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },

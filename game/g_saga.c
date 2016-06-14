@@ -747,7 +747,8 @@ void InitSiegeMode(void)
 		trap_Cvar_Set("g_blueTeam", "none");
 	}
 
-	level.hangarCompleted = qfalse;
+	level.hangarCompletedTime = 0;
+	level.hangarLiftUsedByDefense = qfalse;
 	level.ccCompleted = qfalse;
 	level.lastObjectiveCompleted = 0;
 	level.totalObjectivesCompleted = 0;
@@ -1864,7 +1865,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 
 	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
-		level.hangarCompleted = qtrue;
+		level.hangarCompletedTime = level.time;
 	}
 
 	if (objective == 5 && !Q_stricmp(mapname.string, "siege_cargobarge2"))
