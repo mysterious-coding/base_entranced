@@ -2201,11 +2201,6 @@ qboolean	ConsoleCommand( void ) {
 			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
-		// everything else will also be printed as a say command
-		if (!g_quietrcon.integer){
-			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(0) ) );
-			return qtrue;
-		}
 	}
 
 	return qfalse;

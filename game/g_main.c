@@ -338,7 +338,6 @@ vmCvar_t    g_allow_vote_timelimit;
 vmCvar_t    g_allow_vote_fraglimit;
 vmCvar_t    g_allow_vote_maprandom;
 vmCvar_t    g_allow_vote_warmup;
-vmCvar_t    g_quietrcon;
 vmCvar_t    g_npc_spawn_limit;
 vmCvar_t	g_hackLog;
 vmCvar_t	g_allow_vote_randomteams;
@@ -677,7 +676,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_vote_pub, "g_allow_vote_pub", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_lockteams, "g_allow_vote_lockteams", "0", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_quietrcon,	"g_quietrcon"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_hackLog,	"g_hackLog"	, "hacks.log"	, CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_npc_spawn_limit,	"g_npc_spawn_limit"	, "100"	, CVAR_ARCHIVE, 0, qtrue },

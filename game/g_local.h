@@ -1938,8 +1938,6 @@ extern vmCvar_t		g_maxNameLength;
 
 extern vmCvar_t     g_strafejump_mod;
 
-extern vmCvar_t     g_quietrcon;
-
 extern vmCvar_t     g_hackLog;
 
 extern vmCvar_t     g_fixPitKills;
