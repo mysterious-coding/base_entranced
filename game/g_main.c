@@ -185,7 +185,7 @@ vmCvar_t	iLikeToMineSpam;
 vmCvar_t	autocfg_map;
 vmCvar_t	autocfg_unknown;
 vmCvar_t	g_swoopKillPoints;
-vmCvar_t	g_openJKTeamVoteFix;
+vmCvar_t	g_teamVoteFix;
 vmCvar_t	g_antiLaming;
 
 vmCvar_t	g_tieGame;
@@ -728,7 +728,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_openJKTeamVoteFix, "g_openJKTeamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_teamVoteFix, "g_teamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_tieGame, "g_tieGame", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },

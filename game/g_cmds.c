@@ -4249,7 +4249,7 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 	trap_SetConfigstring(CS_TEAMVOTE_YES + cs_offset, va("%i", level.teamVoteYes[cs_offset]));
 	trap_SetConfigstring(CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset]));
 
-	if (g_openJKTeamVoteFix.integer)
+	if (g_teamVoteFix.integer)
 	{
 		G_TeamCommand(team, va("cp \"%s called a team vote.\n\"", ent->client->pers.netname));
 		G_TeamCommand(team, va("print \"Team Vote: %s <Yes: %i  No: %i>\n\"", level.teamVoteString[cs_offset], level.teamVoteYes[cs_offset], level.teamVoteNo[cs_offset]));
@@ -4321,7 +4321,7 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset] ) );	
 	}
 
-	if (g_openJKTeamVoteFix.integer)
+	if (g_teamVoteFix.integer)
 	{
 		G_TeamCommand(team, va("print \"Team Vote: %s <Yes: %i  No: %i>\n\"", level.teamVoteString[cs_offset], level.teamVoteYes[cs_offset], level.teamVoteNo[cs_offset]));
 	}
