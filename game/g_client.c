@@ -2836,9 +2836,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// passwordless clients
 	client->sess.canJoin = canJoinLater;
 
-	if (isBot && bot_maxping.integer)
-		client->pers.botAvgPing = (bot_maxping.integer-bot_minping.integer)*random()+bot_minping.integer;;
-
 	// read or initialize the session data
 	if ( firstTime || level.newSession ) 
     {
