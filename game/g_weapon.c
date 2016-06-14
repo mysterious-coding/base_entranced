@@ -4551,6 +4551,10 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 		return qfalse;
 	}
 
+	if (target->s.eType == ET_NPC) {
+		return qfalse;
+	}
+
 	return qtrue;
 }
 
