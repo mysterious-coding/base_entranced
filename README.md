@@ -355,6 +355,15 @@ Rcon command to forcibly rename a player. Use partial client name or client numb
 ####Duplicate names fix
 Players now gain a JA+-style client number appended to their name if they try to copy someone else's name.
 
+####Probation
+As a less severe alternative to banning troublemakers, you can simply place them under probation. Take their unique id from the server logs and write it into `probation.txt` in the server's /base/ folder (separate multiple ids with line breaks). Then the player will be treated according to the cvar `g_probation`:
+
+0 = nothing unusual happens; treat players on probation normally
+
+1 = players on probation cannot vote, call votes, use `/tell` to send or receive messages, or use teamchat in spec. their votes are not needed for votes to pass.
+
+2 = same as 1, but they also cannot change teams without being forceteamed by admin.
+
 ####Siege captain dueling
 You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, no force powers, offense can go through defense-only doors, and turrets are automatically destroyed.
 
