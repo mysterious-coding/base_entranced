@@ -945,6 +945,8 @@ typedef struct
 	int		left; //when did this person leave his team :o
 } rosterData;
 
+#define MAX_PROBATION_UNIQUEIDS	64
+#define MAX_PROBATION_LEN	8192
 typedef struct {
 	struct gclient_s	*clients;		// [maxclients]
 
@@ -1111,6 +1113,9 @@ typedef struct {
         int levelId;
 
     } db;
+
+	unsigned long long clientUniqueIds[MAX_CLIENTS];
+	unsigned long long probationUniqueIds[MAX_PROBATION_UNIQUEIDS];
 
 } level_locals_t;
 
@@ -1547,6 +1552,7 @@ extern int gSlowMoDuelTime;
 
 void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec);
 
+qboolean G_ClientIsOnProbation(int clientNum);
 void FindIntermissionPoint( void );
 void SetLeader(int team, int client);
 void CheckTeamLeader( int team );
@@ -2016,6 +2022,7 @@ extern vmCvar_t    autocfg_unknown;
 extern vmCvar_t    g_swoopKillPoints;
 extern vmCvar_t    g_teamVoteFix;
 extern vmCvar_t    g_antiLaming;
+extern vmCvar_t    g_probation;
 
 extern vmCvar_t    g_tieGame;
 

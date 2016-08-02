@@ -2521,6 +2521,16 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 		totalHash = ((unsigned long long int) ipHash) << 32 | guidHash;
 		G_LogPrintf( "Client %d (%s) has unique id %llu\n", clientNum, client->pers.netname, totalHash );
+		level.clientUniqueIds[clientNum] = totalHash;
+		if (G_ClientIsOnProbation(clientNum)) {
+			G_LogPrintf("Client %d (%s) is under probation\n", clientNum, client->pers.netname);
+			if (!g_probation.integer)
+				G_LogPrintf("g_probation is currently set to zero, so this client will be treated normally\n");
+			else if (g_probation.integer >= 2)
+				G_LogPrintf("g_probation is currently set >= 2, so this client will be treated under full probation\n");
+			else
+				G_LogPrintf("g_probation is currently non-zero but < 2, so this client will be treated under partial probation(can join without being forceteamed).\n");
+		}
 		if (g_gametype.integer == GT_SIEGE)
 		{ //more crap to send
 			s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\smi\\%i\\id\\%llu",

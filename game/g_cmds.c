@@ -823,6 +823,11 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		return;
 	}
 
+	if (g_probation.integer >= 2 && G_ClientIsOnProbation(ent - g_entities) && !forceteamed) {
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot switch teams without being forceteamed by an admin.\n\""));
+		return;
+	}
+
 	if (ent->forcedTeamTime > level.time && !forceteamed)
 	{
 		//raped
@@ -2128,7 +2133,7 @@ static void TokenizeTeamChat( gentity_t *ent, char *dest, const char *src, size_
 				} else {
 					break; // don't write it at all if there is no room
 				}
-			}
+			}; 
 
 			--p; // this token is invalid, go back to write the $ sign
 		}
@@ -2158,6 +2163,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
+	}
+
+	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities) && mode == SAY_TEAM && ent->client->sess.sessionTeam == TEAM_SPECTATOR && !(ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.siegeDesiredTeam && (ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM1 || ent->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM2))) {
+		mode = SAY_ALL;
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation; your spec teamchat has been redirected into allchat.\n\""));
 	}
 
 	switch ( mode ) {
@@ -2304,6 +2314,11 @@ static void Cmd_Tell_f(gentity_t *ent, char *override) {
 	char		*p;
 	int			len;
 
+	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot use private chat.\n\""));
+		return;
+	}
+
 	if (!override && trap_Argc() < 3)
 	{
 		trap_SendServerCommand(ent - g_entities,
@@ -2343,6 +2358,11 @@ static void Cmd_Tell_f(gentity_t *ent, char *override) {
 			ent - g_entities,
 			va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"",
 				override && override[0] ? firstArg : buffer));
+		return;
+	}
+
+	if (g_probation.integer && G_ClientIsOnProbation(found - g_entities)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s ^7is on probation and cannot receive private messages.\n\"", found->client->pers.netname));
 		return;
 	}
 
@@ -3020,7 +3040,11 @@ qboolean TryingToDoCallvoteTakeover(gentity_t *ent)
 	{
 		if (level.clients[i].pers.connected != CON_DISCONNECTED && !(g_entities[i].r.svFlags & SVF_BOT)) //connected player who is not a bot
 		{
-			if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL || level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) //everyone is eligible in duel gametypes
+			if (G_ClientIsOnProbation(i))
+			{
+				numTotal++; //you are not probation, so you are not eligible
+			}
+			else if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL || level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) //everyone is eligible in duel gametypes
 			{
 				numEligible++; //you are not a spectator, so you are eligible
 				numTotal++;
@@ -3068,7 +3092,7 @@ void fixTeamVoters(gentity_t *ent)
 			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
 				if (level.clients[i].sess.sessionTeam == TEAM_RED)
 				{
-					if (!(g_entities[i].r.svFlags & SVF_BOT))
+					if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i))
 					{
 						level.clients[i].mGameFlags |= PSG_CANTEAMVOTERED;
 						numRedTeamers++;
@@ -3108,7 +3132,7 @@ void fixTeamVoters(gentity_t *ent)
 			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
 				if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
 				{
-					if (!(g_entities[i].r.svFlags & SVF_BOT))
+					if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i))
 					{
 						level.clients[i].mGameFlags |= PSG_CANTEAMVOTEBLUE;
 						numBlueTeamers++;
@@ -3150,7 +3174,7 @@ void fixVoters(){
 				if ( level.clients[i].pers.connected == CON_CONNECTED )
 				{
                 */
-					if ( !(g_entities[i].r.svFlags & SVF_BOT) )
+					if ( !(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i) )
 					{
 						level.clients[i].mGameFlags |= PSG_CANVOTE;
 						level.numVotingClients++;
@@ -3182,6 +3206,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	char*		mapName = 0;
 	const char*	arenaInfo;
     int argc;
+
+	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot call votes.\n\""));
+		return;
+	}
 
 	if ( !g_allowVote.integer ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) );
@@ -3824,7 +3853,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		// hacky param whitelist but we aren't going to do any parsing anyway
 		if ( argc >= 3 && ( !Q_stricmp( arg2, "0" ) || !Q_stricmpn( arg2, "r", 1 )
-			|| !Q_stricmp(arg2, "2s") || !Q_stricmp(arg2, "3s") || !Q_stricmp( arg2, "4s" ) || !Q_stricmp( arg2, "5s" ) || !Q_stricmp(arg2, "6s") || !Q_stricmp(arg2, "7s")) ) { //i'm lazy, fuck off.
+			|| !Q_stricmp(arg2, "1s") || !Q_stricmp(arg2, "2s") || !Q_stricmp(arg2, "3s") || !Q_stricmp( arg2, "4s" ) || !Q_stricmp( arg2, "5s" ) || !Q_stricmp(arg2, "6s") || !Q_stricmp(arg2, "7s")) ) { //i'm lazy, fuck off.
 			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
 			
 			if ( !Q_stricmp( arg2, "0" ) || !Q_stricmpn( arg2, "r", 1 ) ) {
@@ -3833,7 +3862,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 				Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Lock Teams - %s", arg2 );
 			}
 		} else {
-			trap_SendServerCommand( ent - g_entities, "print \"usage: /callvote lockteams 2s/3s/4s/5s/6s/7s/reset\n\"" );
+			trap_SendServerCommand( ent - g_entities, "print \"usage: /callvote lockteams 1s/2s/3s/4s/5s/6s/7s/reset\n\"" );
 			return;
 		}
 	}
@@ -3884,6 +3913,11 @@ Cmd_Vote_f
 */
 void Cmd_Vote_f( gentity_t *ent ) {
 	char		msg[64];
+
+	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot vote.\n\""));
+		return;
+	}
 
 	if (!level.voteTime && ent->client->sess.sessionTeam == TEAM_RED && level.teamVoteTime[0]) {
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")));
@@ -4006,6 +4040,11 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 		cs_offset = 1;
 	else
 		return;
+
+	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot call teamvotes.\n\""));
+		return;
+	}
 
 	if (!g_allowVote.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")));
@@ -4264,6 +4303,11 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		cs_offset = 1;
 	else
 		return;
+
+	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot teamvote.\n\""));
+		return;
+	}
 
 	if ( !level.teamVoteTime[cs_offset] ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOTEAMVOTEINPROG")) );

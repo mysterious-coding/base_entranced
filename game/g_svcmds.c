@@ -1218,8 +1218,9 @@ void Svcmd_LockTeams_f( void ) {
 	// could do some advanced parsing, but since we only have to handle a few cases...
 	if ( !Q_stricmp( str, "0" ) || !Q_stricmpn( str, "r", 1 ) ) {
 		n = 0;
-	}
-	else if (!Q_stricmp(str, "2s")) {
+	} else if (!Q_stricmp(str, "1s")) {
+		n = 2;
+	} else if (!Q_stricmp(str, "2s")) {
 		n = 4;
 	} else if (!Q_stricmp(str, "3s")) {
 		n = 6;
