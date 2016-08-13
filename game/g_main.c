@@ -318,6 +318,8 @@ vmCvar_t    g_fixPitKills;
 vmCvar_t	g_fixGripKills;
 
 vmCvar_t	g_allSabersCanKick;
+vmCvar_t	g_balanceSaberOffense;
+vmCvar_t	g_balanceSeeing;
 
 vmCvar_t    g_enforceEvenVotersCount;
 vmCvar_t    g_minVotersForEvenVotersCount;
@@ -636,6 +638,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixGripKills,	"g_fixGripKills", "1"	, CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_allSabersCanKick, "g_allSabersCanKick", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_balanceSaberOffense, "g_balanceSaberOffense", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_balanceSeeing, "g_balanceSeeing", "0", CVAR_ARCHIVE, 0, qtrue },
 
     { &g_minimumVotesCount, "g_minimumVotesCount", "0", CVAR_ARCHIVE, 0, qtrue },
 
