@@ -1951,7 +1951,12 @@ extern vmCvar_t     g_hackLog;
 extern vmCvar_t     g_fixPitKills;
 extern vmCvar_t     g_fixGripKills;
 
+<<<<<<< HEAD
 extern vmCvar_t		g_allow_vote_customTeams;
+=======
+extern vmCvar_t		g_allSabersCanKick;
+
+>>>>>>> eb704b7... added g_allSabersCanKick to kick with crouch+right click for all sabers (defaults off)
 extern vmCvar_t     g_allow_vote_gametype;
 extern vmCvar_t     g_allow_vote_kick;
 extern vmCvar_t     g_allow_vote_restart;
