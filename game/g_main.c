@@ -4647,6 +4647,46 @@ void UpdateFancyClientModLaggers(void)
 	}
 }
 
+#define SIEGEITEM_UPDATE_INTERVAL	1000
+void UpdateFancyClientModSiegeItems(void) {
+	int i, modelIndices[MAX_CLIENTS];
+	qboolean foundAny = qfalse;
+
+	for (i = 0; i < MAX_CLIENTS; i++) { // get list of clients with siege items
+		if (!(&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->holdingObjectiveItem &&
+			g_entities[i].health > 0 && g_entities[i].client->tempSpectate < level.time && g_entities[i].client->ps.pm_type != PM_SPECTATOR &&
+			(g_entities[i].client->sess.sessionTeam == TEAM_RED || g_entities[i].client->sess.sessionTeam == TEAM_BLUE) &&
+			&g_entities[g_entities[i].client->holdingObjectiveItem])) {
+			modelIndices[i] = -1;
+			continue;
+		}
+		foundAny = qtrue;
+		modelIndices[i] = g_entities[g_entities[i].client->holdingObjectiveItem].s.modelindex;
+	}
+
+	if (!foundAny) { // didn't find any; just send an "x"
+		trap_SendServerCommand(-1, "lchat \"si\" \"x\"");
+		return;
+	}
+
+	char command[MAX_STRING_CHARS] = { 0 };
+	Q_strncpyz(command, "lchat \"si\" \"", sizeof(command));
+	foundAny = qfalse;
+	for (i = 0; i < MAX_CLIENTS; i++) { // build the string we will send out
+		if (modelIndices[i] >= 0) { // this player has an item; add him to the string as clientNumber=modelIndex+iconIndex
+			Q_strncpyz(command, va("%s%s%i=%i", command, foundAny ? "," : "", i, modelIndices[i]), sizeof(command));
+			foundAny = qtrue;
+		}
+	}
+
+	if (!foundAny)
+		return;
+
+	Q_strncpyz(command, va("%s\"", command), sizeof(command)); // add the final quotation mark
+	trap_SendServerCommand(-1, command); // send it
+	//Com_Printf("Sent siege item command %s\n", command);
+}
+
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -4666,6 +4706,10 @@ void G_RunFrame( int levelTime ) {
 
 	if (g_gametype.integer == GT_SIEGE)
 	{
+		if (!level.siegeItemUpdateTime || level.siegeItemUpdateTime <= level.time) {
+			level.siegeItemUpdateTime = level.time + SIEGEITEM_UPDATE_INTERVAL;
+			UpdateFancyClientModSiegeItems();
+		}
 		if (!level.siegeStatusUpdateTime || level.siegeStatusUpdateTime <= level.time)
 		{
 			//level.siegeStatusUpdateTime = level.time + 1000; //update every second (debug)

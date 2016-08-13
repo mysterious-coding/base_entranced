@@ -981,6 +981,7 @@ typedef struct {
 	int			previousTime;			// so movers can back up when blocked
 	int			antiSpawnSpamTime;
 	int			siegeStatusUpdateTime;
+	int			siegeItemUpdateTime;
 	int			siegeRoundStartTime;
 	int			antiLamingTime;
 	int			lagIndexSendTime;
@@ -1565,6 +1566,7 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStringEdString(char *refSection, char *refName);
+void UpdateFancyClientModSiegeItems(void);
 
 //
 // g_client.c

@@ -2448,6 +2448,7 @@ void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 			carrier->client->ps.fd.forcePowerRegenDebounceTime = 0; //start regenerating force immediately
 		}
 		carrier->r.svFlags &= ~SVF_BROADCAST;
+		UpdateFancyClientModSiegeItems();
 	}
 }
 
@@ -2738,6 +2739,8 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	self->genericValue8 = other->s.number; //Keep the index so we know who is "carrying" us
 
 	self->genericValue9 = 0; //So it doesn't think it has to respawn.
+
+	UpdateFancyClientModSiegeItems();
 
 	if (self->target2 && self->target2[0] && (!self->genericValue4 || !self->genericValue5))
 	{ //fire the target for pickup, if it's set to fire every time, or set to only fire the first time and the first time has not yet occured.
