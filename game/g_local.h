@@ -1955,6 +1955,7 @@ extern vmCvar_t     g_fixGripKills;
 extern vmCvar_t		g_allow_vote_customTeams;
 =======
 extern vmCvar_t		g_allSabersCanKick;
+extern vmCvar_t		g_allSabersCanBackflip;
 extern vmCvar_t		g_balanceSaberOffense;
 extern vmCvar_t		g_balanceSeeing;
 
