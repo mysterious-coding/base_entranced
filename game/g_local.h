@@ -33,6 +33,7 @@ extern vec3_t gPainPoint;
 //#define	GAMEVERSION	"basejka" //test
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
+#define NEWMOD_SUPPORT
 
 #define MAX_USERNAME_SIZE 32 //username size	16
 #define MAX_PASSWORD	16
@@ -457,6 +458,10 @@ typedef struct {
 #define	FOLLOW_ACTIVE1	-1
 #define	FOLLOW_ACTIVE2	-2
 
+#ifdef NEWMOD_SUPPORT
+typedef unsigned long long int cuid_t;
+#endif
+
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
 // time and reading them back at connection time.  Anything added here
@@ -504,6 +509,11 @@ typedef struct {
 	int			siegeDuelIndex;
 	int			siegeDuelTime;
 
+#ifdef NEWMOD_SUPPORT
+	qboolean	hasNewmod; // qtrue if the client claims to support newmod features
+	qboolean	confirmedLegitClient; // qtrue if the client has authenticated successfully
+	cuid_t		cuidHash; // first 64 bits of the SHA-1 hash
+#endif
 } clientSession_t;
 
 // playerstate mGameFlags
