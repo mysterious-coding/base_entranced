@@ -5552,6 +5552,32 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 
+#ifdef NEWMOD_SUPPORT
+void Cmd_SvAuth_f(gentity_t *ent) {
+	if (!ent->client) {
+		return;
+	}
+
+	if (trap_Argc() < 2) {
+		return;
+	}
+
+	char buffer[32];
+	int result;
+	trap_Argv(1, buffer, sizeof(buffer));
+
+	result = atoi(buffer);
+
+	if (result && (result ^ ent->client->sess.confirmationKeys[1]) == ent->client->sess.confirmationKeys[0]) {
+		G_LogPrintf("Newmod Client %d successfully authenticated\n", ent - g_entities);
+		ent->client->sess.confirmationKeys[0] = ent->client->sess.confirmationKeys[1] = 0;
+		ent->client->sess.confirmedNewmod = qtrue;
+	}
+
+	G_LogPrintf("Newmod Client %d failed authentication\n", ent - g_entities);
+}
+#endif
+
 void Cmd_SiegeDuel_f(gentity_t *ent)
 {
 	trace_t tr;
@@ -6308,6 +6334,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_Help_f(ent);
 	else if (Q_stricmp(cmd, "testvis") == 0)
 		Cmd_TestVis_f(ent);
+#ifdef NEWMOD_SUPPORT
+	else if ( !ent->client->sess.confirmedNewmod && ent->client->sess.confirmationKeys[0] > 0 && ent->client->sess.confirmationKeys[1] > 0 && Q_stricmp( cmd, "svauth" ) == 0 )
+		Cmd_SvAuth_f( ent );
+#endif
 		
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))

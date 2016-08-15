@@ -510,9 +510,9 @@ typedef struct {
 	int			siegeDuelTime;
 
 #ifdef NEWMOD_SUPPORT
-	qboolean	hasNewmod; // qtrue if the client claims to support newmod features
-	qboolean	confirmedLegitClient; // qtrue if the client has authenticated successfully
+	qboolean	confirmedNewmod; // qtrue if the client is a confirmed and authenticated newmod client
 	cuid_t		cuidHash; // first 64 bits of the SHA-1 hash
+	int			confirmationKeys[2]; // randomly generated auth keys to confirm legit clients, -1 if waiting to be generated
 #endif
 } clientSession_t;
 
