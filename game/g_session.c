@@ -161,6 +161,9 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 	sess->isInkognito = qfalse;
 	sess->ignoreFlags = 0;
 
+	sess->canJoin = !sv_passwordlessSpectators.integer || PasswordMatches( Info_ValueForKey( userinfo, "password" ) );
+	sess->whTrustToggle = qfalse;
+
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
     sess->inactivityTime = getGlobalTime() + 1000 * g_spectatorInactivity.integer;

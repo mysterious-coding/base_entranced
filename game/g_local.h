@@ -502,6 +502,7 @@ typedef struct {
     int         nameChangeTime;
 
 	qboolean	canJoin; // Passwordless clients
+	qboolean	whTrustToggle; // in whitelist mode, qtrue = trusted, in blacklist mode, qtrue = untrusted
 
 	char        username[MAX_USERNAME_SIZE];
 
@@ -1958,6 +1959,8 @@ extern vmCvar_t		g_minVotersForEvenVotersCount;
 extern vmCvar_t		g_maxNameLength;
 
 extern vmCvar_t     g_strafejump_mod;
+
+extern vmCvar_t     g_antiWallhack;
 
 extern vmCvar_t     g_hackLog;
 

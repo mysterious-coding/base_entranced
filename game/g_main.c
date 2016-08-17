@@ -329,6 +329,8 @@ vmCvar_t	g_maxNameLength;
 
 extern vmCvar_t     g_strafejump_mod;
 
+vmCvar_t	g_antiWallhack;
+
 //allowing/disabling vote types
 vmCvar_t	g_allow_vote_customTeams;
 vmCvar_t    g_allow_vote_gametype;
@@ -652,7 +654,9 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_strafejump_mod,	"g_strafejump_mod"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_default_restart_countdown, "g_default_restart_countdown", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_antiWallhack,	"g_antiWallhack"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
+
+    { &g_default_restart_countdown, "g_default_restart_countdown", "0", CVAR_ARCHIVE, 0, qtrue }, 
 
 	{ &g_allow_vote_customTeams,	"g_allow_vote_customTeams"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_gametype,	"g_allow_vote_gametype"	, "1023"	, CVAR_ARCHIVE, 0, qtrue },
