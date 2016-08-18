@@ -1128,6 +1128,7 @@ typedef struct {
 
 	unsigned long long clientUniqueIds[MAX_CLIENTS];
 	unsigned long long probationUniqueIds[MAX_PROBATION_UNIQUEIDS];
+	int wallhackTracesDone;
 
 } level_locals_t;
 
@@ -1961,6 +1962,7 @@ extern vmCvar_t		g_maxNameLength;
 extern vmCvar_t     g_strafejump_mod;
 
 extern vmCvar_t     g_antiWallhack;
+extern vmCvar_t		g_wallhackMaxTraces;
 
 extern vmCvar_t     g_hackLog;
 
