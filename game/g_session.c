@@ -46,6 +46,7 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
+extern qboolean PasswordMatches(const char *s);
 extern int getGlobalTime();
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qboolean firstTime ) {
 	clientSession_t	*sess;

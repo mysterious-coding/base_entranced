@@ -2075,7 +2075,7 @@ unsigned long long int Q_strtoull(const char *str, char **endptr, int base) {
 #endif
 }
 
-static qboolean PasswordMatches(const char *s) {
+qboolean PasswordMatches(const char *s) {
 	return !strcmp(g_password.string, s) ||
 		(sv_privatepassword.string[0] && !strcmp(sv_privatepassword.string, s));
 }
