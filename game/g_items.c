@@ -1048,8 +1048,8 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	// hack the effect angle so that explode death can orient the effect properly
 	VectorSet( self->s.angles, 0, 0, 1 );
 
-	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->s.pos.trBase, self->s.angles);
-	G_RadiusDamage(self->s.pos.trBase, &g_entities[self->genericValue3], 30, 256, self, self, MOD_UNKNOWN);
+	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->r.currentOrigin, self->s.angles);
+	G_RadiusDamage(self->r.currentOrigin, &g_entities[self->genericValue3], 30, 256, self, self, MOD_UNKNOWN);
 
 	g_entities[self->genericValue3].client->ps.fd.sentryDeployed = qfalse;
 
