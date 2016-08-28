@@ -1824,6 +1824,66 @@ void Svcmd_RandomTeams_f() {
     trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[readyPlayers[team1Count]].client->pers.netname));
 }
 
+typedef struct
+{
+	int entNum;
+
+} AliasesContext;
+
+void listAliasesCallbackServer(void* context,
+	const char* name,
+	int duration)
+{
+	AliasesContext* thisContext = (AliasesContext*)context;
+	G_Printf("%s"S_COLOR_WHITE" (%i).\n", name, duration);
+}
+
+//void singleAliasCallbackServer(void* context,
+//	const char* name,
+//	int duration)
+//{
+//	AliasesContext* thisContext = (AliasesContext*)context;
+//	G_Printf("%s"S_COLOR_WHITE"\n", name);
+//}
+
+static void Svcmd_WhoIs_f(void)
+{
+	char buffer[64];
+	gentity_t* found = NULL;
+	AliasesContext context;
+
+	context.entNum = -1;
+
+	if (trap_Argc() < 2)
+	{
+		G_Printf("usage: whois [name or client number]  (name can be just part of name, colors don't count. use ^5/rcon status^7 to see client numbers)  \n");
+		return;
+	}
+
+	trap_Argv(1, buffer, sizeof(buffer));
+	found = G_FindClient(buffer);
+
+	if (!found || !found->client)
+	{
+		G_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", buffer);
+		return;
+	}
+
+	G_Printf("Aliases for client %i (%s"S_COLOR_WHITE").\n", found - g_entities, found->client->pers.netname);
+
+	unsigned int maskInt = 0xFFFFFFFF;
+
+	if (trap_Argc() > 2)
+	{
+		char mask[20];
+		trap_Argv(2, mask, sizeof(mask));
+		maskInt = 0;
+		getIpFromString(mask, &maskInt);
+	}
+
+	G_CfgDbListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallbackServer, &context);
+}
+
 void Svcmd_ClientInfo_f( void ) {
 	int i;
 
@@ -2284,6 +2344,11 @@ qboolean	ConsoleCommand( void ) {
         Svcmd_RandomTeams_f();
         return qtrue;
     }
+
+	if (!Q_stricmp(cmd, "whois")) {
+		Svcmd_WhoIs_f();
+		return qtrue;
+	}
 
 	if (!Q_stricmp(cmd, "greendoors")) {
 		Svcmd_GreenDoors_f(qtrue);
