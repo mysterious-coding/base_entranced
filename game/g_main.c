@@ -740,7 +740,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamVoteFix, "g_teamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "1000", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_tieGame, "g_tieGame", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
