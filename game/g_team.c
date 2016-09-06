@@ -1228,8 +1228,9 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		player = g_entities + i;
 		if (player->inuse && player->client->sess.sessionTeam == 
 			ent->client->ps.persistant[PERS_TEAM] ) {
-
-			h = player->client->ps.stats[STAT_HEALTH];
+			
+			// duo: fix incorrectly showing that dead tempspeccing siege players have 1 hp
+			h = g_gametype.integer == GT_SIEGE && player->client->tempSpectate >= level.time ? 0 : player->client->ps.stats[STAT_HEALTH];
 			a = player->client->ps.stats[STAT_ARMOR];
 			if (h < 0) h = 0;
 			if (a < 0) a = 0;
