@@ -2050,7 +2050,7 @@ extern vmCvar_t    g_swoopKillPoints;
 extern vmCvar_t    g_teamVoteFix;
 extern vmCvar_t    g_antiLaming;
 extern vmCvar_t    g_probation;
-
+extern vmCvar_t    g_teamOverlayUpdateRate;
 extern vmCvar_t    g_tieGame;
 
 extern vmCvar_t    siegeStatus;
