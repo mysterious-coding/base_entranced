@@ -64,8 +64,9 @@ static char gObjectiveCfgStr[1024];
 static qboolean tieGame = qfalse;
 
 extern int g_siegeRespawnCheck;
+#ifdef NEWMOD_SUPPORT
 #define SIEGETIMER_FAKEOWNER 1023
-void UpdateFancyClientModSiegeTimers(void)
+void UpdateNewmodSiegeTimers(void)
 {
 	int n;
 	for (n = 0; n < MAX_CLIENTS; n++)
@@ -79,6 +80,7 @@ void UpdateFancyClientModSiegeTimers(void)
 		}
 	}
 }
+#endif
 
 void SiegeParseMilliseconds(int objTimeInMilliseconds, char *string) //takes a time in milliseconds (e.g. 63000) and returns it as a pretty string ("1:03")
 {
@@ -1605,7 +1607,10 @@ void SiegeBeginRound(int entNum)
 		level.siegeRoundComplete = qfalse;
 		//respawn everyone now
 		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000 - SIEGE_ROUND_BEGIN_TIME - 200;
-		UpdateFancyClientModSiegeTimers();
+
+#ifdef NEWMOD_SUPPORT
+		UpdateNewmodSiegeTimers();
+#endif
 		while (i < MAX_CLIENTS)
 		{
 			ent = &g_entities[i];
@@ -2448,7 +2453,9 @@ void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 			carrier->client->ps.fd.forcePowerRegenDebounceTime = 0; //start regenerating force immediately
 		}
 		carrier->r.svFlags &= ~SVF_BROADCAST;
-		UpdateFancyClientModSiegeItems();
+#ifdef NEWMOD_SUPPORT
+		UpdateNewmodSiegeItems();
+#endif
 	}
 }
 
@@ -2740,7 +2747,9 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	self->genericValue9 = 0; //So it doesn't think it has to respawn.
 
-	UpdateFancyClientModSiegeItems();
+#ifdef NEWMOD_SUPPORT
+	UpdateNewmodSiegeItems();
+#endif
 
 	if (self->target2 && self->target2[0] && (!self->genericValue4 || !self->genericValue5))
 	{ //fire the target for pickup, if it's set to fire every time, or set to only fire the first time and the first time has not yet occured.

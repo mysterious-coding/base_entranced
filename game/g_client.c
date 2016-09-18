@@ -1190,9 +1190,9 @@ void respawn( gentity_t *ent ) {
 					te->s.time = g_siegeRespawnCheck;
 					te->s.owner = ent->s.number;
 				}
-
-				UpdateFancyClientModSiegeTimers();
-
+#ifdef NEWMOD_SUPPORT
+				UpdateNewmodSiegeTimers();
+#endif
 				return;
 			}
 		}
@@ -3039,9 +3039,9 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	char		userinfo[MAX_INFO_VALUE], *modelname;
 
 	ent = g_entities + clientNum;
-
-	UpdateFancyClientModSiegeTimers();
-
+#ifdef NEWMOD_SUPPORT
+	UpdateNewmodSiegeTimers();
+#endif
 	if ((ent->r.svFlags & SVF_BOT) && g_gametype.integer >= GT_TEAM)
 	{
 		if (allowTeamReset)

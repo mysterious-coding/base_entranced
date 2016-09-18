@@ -4645,9 +4645,9 @@ void UpdateSiegeStatus()
 
 	trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 }
-
+#ifdef NEWMOD_SUPPORT
 #define LAGINDEX_UPDATE_INTERVAL	2000
-void UpdateFancyClientModLaggers(void)
+void UpdateNewmodLaggers(void)
 {
 	int i;
 	unsigned long lagIndex = 0;
@@ -4669,7 +4669,7 @@ void UpdateFancyClientModLaggers(void)
 }
 
 #define SIEGEITEM_UPDATE_INTERVAL	1000
-void UpdateFancyClientModSiegeItems(void) {
+void UpdateNewmodSiegeItems(void) {
 	int i, modelIndices[MAX_CLIENTS];
 	qboolean foundAny = qfalse;
 
@@ -4707,6 +4707,7 @@ void UpdateFancyClientModSiegeItems(void) {
 	trap_SendServerCommand(-1, command); // send it
 	//Com_Printf("Sent siege item command %s\n", command);
 }
+#endif
 
 void G_RunFrame( int levelTime ) {
 	int			i;
@@ -4725,12 +4726,16 @@ void G_RunFrame( int levelTime ) {
 #endif
 	static int lastMsgTime = 0;
 
-	if (g_gametype.integer == GT_SIEGE)
-	{
+#ifdef NEWMOD_SUPPORT
+	if (g_gametype.integer == GT_SIEGE) {
 		if (!level.siegeItemUpdateTime || level.siegeItemUpdateTime <= level.time) {
 			level.siegeItemUpdateTime = level.time + SIEGEITEM_UPDATE_INTERVAL;
-			UpdateFancyClientModSiegeItems();
+			UpdateNewmodSiegeItems();
 		}
+	}
+#endif
+
+	if (g_gametype.integer == GT_SIEGE) {
 		if (!level.siegeStatusUpdateTime || level.siegeStatusUpdateTime <= level.time)
 		{
 			//level.siegeStatusUpdateTime = level.time + 1000; //update every second (debug)
@@ -4782,7 +4787,9 @@ void G_RunFrame( int levelTime ) {
 
 		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
 
-		UpdateFancyClientModSiegeTimers();
+#ifdef NEWMOD_SUPPORT
+		UpdateNewmodSiegeTimers();
+#endif
 
 	}
 
@@ -4904,7 +4911,9 @@ void G_RunFrame( int levelTime ) {
 
 			g_siegeRespawnCheck += dt;
 
-			UpdateFancyClientModSiegeTimers();
+#ifdef NEWMOD_SUPPORT
+			UpdateNewmodSiegeTimers();
+#endif
 
 			// siege objectives timers adjustments
 			if (gImperialCountdown)
@@ -5422,7 +5431,9 @@ void G_RunFrame( int levelTime ) {
 		iTimer_Queues);
 #endif
 
-	UpdateFancyClientModLaggers();
+#ifdef NEWMOD_SUPPORT
+	UpdateNewmodLaggers();
+#endif
 
 	if (g_maxGameClients.integer)
 	{

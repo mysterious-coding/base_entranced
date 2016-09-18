@@ -992,10 +992,12 @@ typedef struct {
 	int			previousTime;			// so movers can back up when blocked
 	int			antiSpawnSpamTime;
 	int			siegeStatusUpdateTime;
-	int			siegeItemUpdateTime;
 	int			siegeRoundStartTime;
 	int			antiLamingTime;
+#ifdef NEWMOD_SUPPORT
+	int			siegeItemUpdateTime;
 	int			lagIndexSendTime;
+#endif
 
 	char		mapVersion[32];
 
@@ -1581,7 +1583,9 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStringEdString(char *refSection, char *refName);
-void UpdateFancyClientModSiegeItems(void);
+#ifdef NEWMOD_SUPPORT
+void UpdateNewmodSiegeItems(void);
+#endif
 
 //
 // g_client.c
@@ -1724,7 +1728,9 @@ int getGlobalTime();
 // g_siege.c
 void InitSiegeMode(void);
 void G_SiegeClientExData(gentity_t *msgTarg);
-void UpdateFancyClientModSiegeTimers(void);
+#ifdef NEWMOD_SUPPORT
+void UpdateNewmodSiegeTimers(void);
+#endif
 
 // g_timer
 //Timing information
