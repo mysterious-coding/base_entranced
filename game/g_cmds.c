@@ -3821,6 +3821,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		char normalizedPoll[256] = { 0 };
 		NormalizeName(questionstring, normalizedPoll, sizeof(normalizedPoll), sizeof(normalizedPoll));
+		PurgeStringedTrolling(normalizedPoll, normalizedPoll, sizeof(normalizedPoll));
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "svsay Poll Result ^2YES^7: %s", normalizedPoll );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Poll: %s", normalizedPoll );
 		trap_SendServerCommand(-1, va("print \"Poll: %s\n\"", normalizedPoll));
