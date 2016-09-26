@@ -2074,6 +2074,7 @@ extern vmCvar_t    debug_testHeight6;*/
 
 extern vmCvar_t    debug_shieldLog;
 extern vmCvar_t    debug_duoTest;
+extern vmCvar_t	   debug_clientNumLog;
 
 extern vmCvar_t    g_siegeObjStorage;
 extern vmCvar_t    g_heldformax_old;
