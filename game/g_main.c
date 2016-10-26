@@ -1006,10 +1006,10 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 #define BUFFER_REAL_LEN 1024
 void QDECL G_Printf( const char *fmt, ... ) {
 	va_list		argptr;
-	static char		text[BUFFER_TEMP_LEN];
+	static char		text[BUFFER_TEMP_LEN] = { 0 };
 
 	va_start (argptr, fmt);
-	vsprintf (text, fmt, argptr);
+	vsnprintf (text, sizeof(text), fmt, argptr);
 	va_end (argptr);
 
 	text[BUFFER_REAL_LEN-1] = '\0';
@@ -1019,10 +1019,10 @@ void QDECL G_Printf( const char *fmt, ... ) {
 
 void QDECL G_Error( const char *fmt, ... ) {
 	va_list		argptr;
-	static char		text[BUFFER_TEMP_LEN];
+	static char		text[BUFFER_TEMP_LEN] = { 0 };
 
 	va_start (argptr, fmt);
-	vsprintf (text, fmt, argptr);
+	vsnprintf (text, sizeof(text), fmt, argptr);
 	va_end (argptr);
 
 	text[BUFFER_REAL_LEN-1] = '\0';
@@ -1712,11 +1712,11 @@ void G_ShutdownGame( int restart ) {
 
 void QDECL Com_Error ( int level, const char *error, ... ) {
 	va_list		argptr;
-	char		text[1024];
+	char		text[1024] = { 0 };
 	
 	G_LogPrintf("Com_Error (%i): %s", level, error);
 	va_start (argptr, error);
-	vsprintf (text, error, argptr);
+	vsnprintf (text, sizeof(text), error, argptr);
 	va_end (argptr);
 	
 	G_Error( "%s", text);
@@ -1724,10 +1724,10 @@ void QDECL Com_Error ( int level, const char *error, ... ) {
 
 void QDECL Com_Printf( const char *msg, ... ) {
 	va_list		argptr;
-	char		text[1024];
+	char		text[1024] = { 0 };
 
 	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
+	vsnprintf (text, sizeof(text), msg, argptr);
 	va_end (argptr);
 
 	G_Printf ("%s", text);
@@ -2710,7 +2710,7 @@ Print to the logfile with a time stamp if it is open
 */
 void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_list		argptr;
-	char		string[1024];
+	char		string[1024] = { 0 };
 	int			/*t,*/ min, sec, len;
 	static time_t rawtime;
 	static struct tm * timeinfo;
@@ -2729,7 +2729,7 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 
 
 	va_start( argptr, fmt );
-	vsprintf( string +len , fmt,argptr );
+	vsnprintf( string +len , sizeof(string) - len, fmt,argptr );
 	va_end( argptr );
 
 	if ( g_dedicated.integer ) {
@@ -2759,7 +2759,7 @@ static char* getCurrentTime()
 //CRASH LOG
 void QDECL G_HackLog( const char *fmt, ... ) {
 	va_list		argptr;
-	static char		string[2048];
+	static char		string[2048] = { 0 };
 	int len;
 
 	if ( !level.hackLogFile && !level.logFile) {
@@ -2769,7 +2769,7 @@ void QDECL G_HackLog( const char *fmt, ... ) {
 	len = Com_sprintf( string, sizeof(string), va("[%s] ",getCurrentTime()) );
 
 	va_start( argptr, fmt );
-	vsprintf( string+len, fmt, argptr );
+	vsnprintf( string+len, sizeof(string) - len, fmt, argptr );
 	va_end( argptr );
 
 	if ( g_dedicated.integer ) {
@@ -2785,7 +2785,7 @@ void QDECL G_HackLog( const char *fmt, ... ) {
 //DB-ACCOUNTS log
 void QDECL G_DBLog( const char *fmt, ... ) {
 	va_list		argptr;
-	static char		string[2048];
+	static char		string[2048] = { 0 };
 	int len;
 
 	if ( !level.DBLogFile ) {
@@ -2795,7 +2795,7 @@ void QDECL G_DBLog( const char *fmt, ... ) {
 	len = Com_sprintf( string, sizeof(string), va("[%s] ",getCurrentTime()) );
 
 	va_start( argptr, fmt );
-	vsprintf( string+len, fmt, argptr );
+	vsnprintf( string+len, sizeof(string) - len, fmt, argptr );
 	va_end( argptr );
 
 	trap_FS_Write( string, strlen( string ), level.DBLogFile );
@@ -2804,7 +2804,7 @@ void QDECL G_DBLog( const char *fmt, ... ) {
 //RCON log
 void QDECL G_RconLog( const char *fmt, ... ) {
 	va_list		argptr;
-	static char		string[2048];
+	static char		string[2048] = { 0 };
 	int len;
 
 	if ( !level.rconLogFile) {
@@ -2814,7 +2814,7 @@ void QDECL G_RconLog( const char *fmt, ... ) {
 	len = Com_sprintf( string, sizeof(string), va("[%s] ",getCurrentTime()) );
 
 	va_start( argptr, fmt );
-	vsprintf( string+len, fmt, argptr );
+	vsnprintf( string+len, sizeof(string) - len, fmt, argptr );
 	va_end( argptr );
 
 	trap_FS_Write( string, strlen( string ), level.rconLogFile );
