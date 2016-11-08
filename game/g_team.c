@@ -1237,11 +1237,11 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 
 #ifdef NEWMOD_SUPPORT
 			if (g_gametype.integer != GT_SIEGE && g_enhancedLocations.integer) {
-				char *enhancedLocation = GetLocation(player->client);
+				char *enhancedLocation = player->client->sess.enhancedLocation;
 				if (enhancedLocation && *enhancedLocation) {
 					// replace spaces with underscores (because location needs to fit into one word for lchat)
 					// you can filter these back to spaces clientside
-					char *p = NULL, trimmed[240] = { 0 };
+					char *p = NULL, trimmed[MAX_ENHANCED_LOCATION] = { 0 };
 					while (p = strchr(enhancedLocation, ' '))
 						*p = '_';
 
@@ -1299,6 +1299,14 @@ void CheckTeamStatus(void) {
 					ent->client->pers.teamState.location = loc->health;
 				else
 					ent->client->pers.teamState.location = 0;
+#ifdef NEWMOD_SUPPORT
+				// determine this player's enhanced location and store it
+				char *enhancedLocation = GetLocation(ent->client);
+				if (enhancedLocation && *enhancedLocation)
+					Q_strncpyz(ent->client->sess.enhancedLocation, enhancedLocation, sizeof(ent->client->sess.enhancedLocation));
+				else
+					ent->client->sess.enhancedLocation[0] = 0;
+#endif
 			}
 		}
 
