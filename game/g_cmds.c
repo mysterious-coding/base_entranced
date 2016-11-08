@@ -1956,7 +1956,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 	else
 	{
-		if (locMsg)
+		if (locMsg && !(g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)) // duo: never send location in teamchat for ctf
 		{
 			trap_SendServerCommand(other - g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\"",
 				mode == SAY_TEAM ? "ltchat" : "lchat",
