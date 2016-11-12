@@ -5761,11 +5761,12 @@ qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, in
 			return qfalse;
 		}
 	}
-
+#ifdef CTF_CVARS
 	if ( g_balanceSeeing.integer && self->client->ps.weapon == WP_SABER && self->client->ps.pm_flags & PMF_DUCKED ) {
 		// if we have a saber and are crouching, don't have a single weak point
 		noWeakPoints = qtrue;
 	}
+#endif
 
 	#define DodgeOrReturn( a )	\
 	do {						\
