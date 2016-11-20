@@ -36,7 +36,7 @@ base_entranced is icensed under GPLv2 as free software. You are free to use, mod
 Most cvars default to their "ideal" setting for a pug server, as far as the Siege community is concerned. You shouldn't really need to change anything to get your server running, although the cvars are nevertheless there for you to change if you would like to customize your server to your liking. I do recommend that you download the "Droid lame fix" PK3 (see "Downloads" section below).
 
 
-NOTE: Although all crashes seem to be fixed, it still doesn't hurt to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
+Although most memory overflow crashes seem to be fixed, it still doesn't hurt to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
 
 # Downloads
 
