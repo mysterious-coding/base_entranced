@@ -577,7 +577,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed incorrect sentry explosion location when dropping it a long vertical distance.
 
 #Features that are also in Alpha's base_enhanced
-These are features in base_entranced that are also available in Alpha's base_enhanced. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
+These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced). Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
 
 ####Chat tokens
 Clients can use the following chat tokens:
@@ -611,7 +611,7 @@ Sets the maximum permissible player name length. 35 is the basejka default; anyt
 * Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
 
 #Features that are also in Sil's base_enhanced
-These are features in base_entranced that are also available in Sil's base_enhanced. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features.
+These are features in base_entranced that are also available in Sil's base_enhanced (https://github.com/TheSil/base_enhanced). Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
 
 ####`/class`
 Clientside command. Use first letter of class to change, like `/class a` for assault, `/class s` for scout, etc. For maps with more than 6 classes, you can use `/class 7`, `/class 8`, etc.
