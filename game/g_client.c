@@ -2203,9 +2203,17 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	// set name
-	PurgeStringedTrolling(client->pers.netname, client->pers.netname, sizeof(client->pers.netname));
-	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
-	s = Info_ValueForKey(userinfo, "name");
+	qboolean whitelisted = qtrue;
+	if (g_lockdown.integer && !(ent->r.svFlags & SVF_BOT) && !G_ClientIsWhitelisted(clientNum)) {
+		Q_strncpyz(oldname, va("Client %i", clientNum), sizeof(oldname));
+		s = oldname;
+		whitelisted = qfalse;
+	}
+	else {
+		PurgeStringedTrolling(client->pers.netname, client->pers.netname, sizeof(client->pers.netname));
+		Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
+		s = Info_ValueForKey(userinfo, "name");
+	}
 	NormalizeName(s, client->pers.netname, sizeof(client->pers.netname), g_maxNameLength.integer);
 	PurgeStringedTrolling(client->pers.netname, client->pers.netname, sizeof(client->pers.netname));
 	//ClientCleanName(s, client->pers.netname, sizeof(client->pers.netname));
@@ -2224,8 +2232,7 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 	}
 
-	if ( client->pers.connected == CON_CONNECTED ||
-		(client->pers.connected == CON_CONNECTING && oldname[0]!='\0')) {
+	if ( whitelisted && (client->pers.connected == CON_CONNECTED ||	(client->pers.connected == CON_CONNECTING && oldname[0]!='\0'))) {
 		if ( strcmp( oldname, client->pers.netname ) ) 
 		{
 			if ( client->pers.netnameTime > level.time  )
@@ -2582,8 +2589,8 @@ void ClientUserinfoChanged( int clientNum ) {
 			}
 		}
 		totalHash = ((unsigned long long int) ipHash) << 32 | guidHash;
-		G_LogPrintf( "Client %d (%s) has unique id %llu\n", clientNum, client->pers.netname, totalHash );
 		level.clientUniqueIds[clientNum] = totalHash;
+		G_LogPrintf( "Client %d (%s) has unique id %llu%s\n", clientNum, client->pers.netname, totalHash, G_ClientIsWhitelisted(clientNum) ? " (whitelisted)" : " (NOT whitelisted)");
 		if (G_ClientIsOnProbation(clientNum)) {
 			G_LogPrintf("Client %d (%s) is under probation\n", clientNum, client->pers.netname);
 			if (!g_probation.integer)
@@ -4778,6 +4785,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->r.contents = 0;
+	level.clientUniqueIds[clientNum] = 0;
 
 	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 

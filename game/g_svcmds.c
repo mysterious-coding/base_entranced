@@ -1205,6 +1205,224 @@ void	Svcmd_ForceUnReady_f(void) {
 	(&g_entities[cl - level.clients])->client->pers.readyTime = level.time;
 }
 
+static qboolean Whitelist_Add(gentity_t *ent) {
+	if (!ent || !ent->client || ent - g_entities < 0 || ent - g_entities >= MAX_CLIENTS)
+		return qfalse;
+
+	unsigned long long id = level.clientUniqueIds[ent - g_entities];
+	if (!id)
+		return qfalse;
+	char *idBuf = va("%llu", id);
+	if (!idBuf || !idBuf[0])
+		return qfalse;
+
+	fileHandle_t f;
+	int len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
+
+	if (!f)
+		goto write;
+	if (len >= MAX_WHITELIST_LEN - 20 - 2) {
+		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
+		return qfalse;
+	}
+
+	char buf[MAX_WHITELIST_LEN] = { 0 };
+	trap_FS_Read(buf, len, f);
+	trap_FS_FCloseFile(f);
+
+	if (buf && buf[0] && strstr(buf, idBuf))
+		return qfalse; // already whitelisted
+
+	// write it
+	write:
+	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_APPEND_SYNC);
+	if (!f || len >= MAX_WHITELIST_LEN - 20 - 2)
+		return qfalse;
+	trap_FS_Write(va("\n%s\n", idBuf), 20 + 2, f);
+	trap_FS_FCloseFile(f);
+
+	// cleanse consecutive line breaks
+	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
+	if (!f)
+		return qtrue;
+	trap_FS_Read(buf, len, f);
+	trap_FS_FCloseFile(f);
+
+	char new[MAX_WHITELIST_LEN] = { 0 };
+	char *read = buf, *write = new;
+	int pos = 0;
+	while (*read && pos < MAX_WHITELIST_LEN - 20 - 2) {
+		if (!(pos && *read == '\n' && *(read - 1) == '\n')) {
+			*write = *read;
+			write++;
+		}
+		read++;
+		pos++;
+	}
+	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_WRITE);
+	if (!f)
+		return qtrue;
+	trap_FS_Write(new, strlen(new), f);
+	trap_FS_FCloseFile(f);
+	return qtrue;
+}
+
+static qboolean Whitelist_Remove(gentity_t *ent) {
+	if (!ent || !ent->client || ent - g_entities < 0 || ent - g_entities >= MAX_CLIENTS)
+		return qfalse;
+
+	fileHandle_t f;
+	int len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
+
+	if (!f || len <= 0)
+		return qfalse;
+	if (len >= MAX_WHITELIST_LEN - 20 - 2) {
+		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
+		return qfalse;
+	}
+
+	char buf[MAX_WHITELIST_LEN] = { 0 };
+	trap_FS_Read(buf, len, f);
+	trap_FS_FCloseFile(f);
+	if (!buf || !buf[0])
+		return qfalse;
+
+	unsigned long long id = level.clientUniqueIds[ent - g_entities];
+	if (!id)
+		return qfalse;
+	char *idBuf = va("%llu", id);
+	if (!idBuf || !idBuf[0])
+		return qfalse;
+
+	char *p = NULL;
+	qboolean changed = qfalse;
+	while (p = strstr(buf, idBuf)) { // overwrite any instances of this unique id
+		int i;
+		for (i = 0; i < 20 && *(p + i) && isdigit(*(p + i)); i++)
+			*(p + i) = '\n';
+		changed = qtrue;
+	}
+
+	// write if needed
+	if (changed) {
+		// cleanse consecutive line breaks
+		char new[MAX_WHITELIST_LEN] = { 0 };
+		char *read = buf, *write = new;
+		int pos = 0;
+		while (*read && pos < MAX_WHITELIST_LEN - 20 - 2) {
+			if (!(pos && *read == '\n' && *(read - 1) == '\n')) {
+				*write = *read;
+				write++;
+			}
+			read++;
+			pos++;
+		}
+		len = trap_FS_FOpenFile("whitelist.txt", &f, FS_WRITE);
+		if (!f)
+			return qfalse;
+		trap_FS_Write(new, strlen(new), f);
+		trap_FS_FCloseFile(f);
+		return qtrue;
+	}
+	return qfalse;
+}
+
+// whitelist
+// g_lockdown helper command
+// status == displays list of clients with their client number, name, unique, id and whitelist status
+// add/del == whitelists/unwhitelists a player from being affected by g_lockdown (adds/removes his unique id in whitelist.txt and level.whitelistedUniqueIds[])
+#define WHITELIST_ERROR	"Usage: whitelist < status | add | del > [partial name or client number]\nToggle server lockdown with g_lockdown.\n"
+void Svcmd_Whitelist_f(void) {
+	if (trap_Argc() < 2) {
+		Com_Printf(WHITELIST_ERROR);
+		return;
+	}
+
+	int i;
+	qboolean add;
+	char commandArg[MAX_STRING_CHARS] = { 0 };
+	trap_Argv(1, commandArg, sizeof(commandArg));
+	if (!Q_stricmp(commandArg, "status")) {
+		Com_Printf("Server lockdown is currently ^5%s^7 (toggle with g_lockdown).\n", g_lockdown.integer ? "enabled" : "disabled");
+		Com_Printf("#  Whitelisted?  Unique ID             Name\n");
+		int i;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (!&g_entities[i] || !g_entities[i].client || g_entities[i].client->pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT)
+				continue;
+			char uniqueString[MAX_STRING_CHARS] = { 0 };
+			Q_strncpyz(uniqueString, level.clientUniqueIds[i] ? va("%llu", level.clientUniqueIds[i]) : "Unknown", sizeof(uniqueString));
+			while (strlen(uniqueString) < 20 + 2)
+				uniqueString[strlen(uniqueString)] = ' ';
+			Com_Printf("%i%s%s%s%s"S_COLOR_WHITE"\n",
+				i, // client number
+				i >= 10 ? " " : "  ", // spacing
+				G_ClientIsWhitelisted(i) ? S_COLOR_GREEN"Yes           "S_COLOR_WHITE : "No            ", // whitelisted status
+				uniqueString, // unique id
+				g_entities[i].client->pers.netname // name
+				);
+		}
+		return;
+	}
+	else if (!Q_stricmp(commandArg, "add") && trap_Argc() >= 3)
+		add = qtrue;
+	else if (!Q_stricmp(commandArg, "del") && trap_Argc() >= 3)
+		add = qfalse;
+	else {
+		Com_Printf(WHITELIST_ERROR);
+		return;
+	}
+
+	// find the player
+	gentity_t	*found = NULL;
+	int			clientNum;
+	char playerArg[MAX_STRING_CHARS] = { 0 };
+	trap_Argv(2, playerArg, sizeof(playerArg));
+	found = G_FindClient(playerArg);
+	if (!found || !found->client) {
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", playerArg);
+		Com_Printf(WHITELIST_ERROR);
+		return;
+	}
+	clientNum = found - g_entities;
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
+		Com_Printf("Unexpected error attempting to %s.\n", add ? "whitelist client" : "remove client from whitelist");
+		Com_Printf(WHITELIST_ERROR);
+		return;
+	}
+
+	if (add) { // add him to whitelist file
+		if (Whitelist_Add(found))
+			G_LogPrintf("Successfully whitelisted client %i (%s"S_COLOR_WHITE").\n", clientNum, found->client->pers.netname);
+		else
+			G_LogPrintf("Error attempting to whitelist client %i (%s"S_COLOR_WHITE"). (is he already whitelisted?)\n", clientNum, found->client->pers.netname);
+
+		// add him to the array
+		if (level.clientUniqueIds[clientNum]) {
+			for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
+				if (!level.whitelistedUniqueIds[i]) {
+					// found an empty slot for this one
+					level.whitelistedUniqueIds[i] = level.clientUniqueIds[clientNum];
+					return;
+				}
+			}
+		}
+	}
+	else { // remove him from whitelist file
+		if (Whitelist_Remove(found))
+			G_LogPrintf("Successfully removed client %i (%s"S_COLOR_WHITE") from whitelist.\n", clientNum, found->client->pers.netname);
+		else
+			G_LogPrintf("Error attempting to remove client %i (%s"S_COLOR_WHITE") from whitelist. (is he already non-whitelisted?)\n", clientNum, found->client->pers.netname);
+
+		// remove him from the array
+		if (level.clientUniqueIds[clientNum]) {
+			for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
+				if (level.whitelistedUniqueIds[i] && level.whitelistedUniqueIds[i] == level.clientUniqueIds[clientNum])
+					level.whitelistedUniqueIds[i] = 0;
+			}
+		}
+	}
+}
+
 void Svcmd_LockTeams_f( void ) {
 	char	str[MAX_TOKEN_CHARS];
 	int		n = -1;
@@ -1238,13 +1456,13 @@ void Svcmd_LockTeams_f( void ) {
 		return;
 	}
 
-	trap_Cvar_Set( "g_maxgameclients", va( "%i", n ) );
-
 	if ( !n ) {
 		trap_SendServerCommand( -1, "print \""S_COLOR_GREEN"Teams were unlocked.\n\"");
 	} else {
 		trap_SendServerCommand( -1, va( "print \""S_COLOR_RED"Teams were locked to %i vs %i.\n\"", n / 2, n / 2 ) );
 	}
+
+	trap_Cvar_Set("g_maxgameclients", va("%i", n));
 }
 
 void Svcmd_Cointoss_f(void) 
@@ -2309,6 +2527,11 @@ qboolean	ConsoleCommand( void ) {
 		LogExit( "Match forced to end." );
         return qtrue;
     } 
+
+	if (!Q_stricmp(cmd, "whitelist")) {
+		Svcmd_Whitelist_f();
+		return qtrue;
+	}
 
 	if ( !Q_stricmp( cmd, "lockteams" ) )
 	{

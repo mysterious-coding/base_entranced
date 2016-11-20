@@ -190,7 +190,7 @@ vmCvar_t	g_antiLaming;
 vmCvar_t	g_probation;
 vmCvar_t	g_teamOverlayUpdateRate;
 vmCvar_t	g_tieGame;
-
+vmCvar_t	g_lockdown;
 vmCvar_t	siegeStatus;
 
 vmCvar_t	g_autoStats;
@@ -404,7 +404,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_MaxHolocronCarry, "g_MaxHolocronCarry", "3", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
 
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse },
-	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_trueJedi, "g_jediVmerc", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qtrue },
 
@@ -747,7 +747,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_tieGame, "g_tieGame", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
-
+	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight3, "debug_testHeight3", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -1235,6 +1235,70 @@ void initMatch(){
 
 }
 
+static void InitWhitelist(void) {
+	int currentwhitelistUniqueId = 0;
+	for (currentwhitelistUniqueId = 0; currentwhitelistUniqueId < MAX_WHITELIST_UNIQUEIDS; currentwhitelistUniqueId++)
+		level.whitelistedUniqueIds[currentwhitelistUniqueId] = 0;
+	fileHandle_t probFile;
+	int whitelistLen = trap_FS_FOpenFile("whitelist.txt", &probFile, FS_READ);
+
+	if (!probFile || whitelistLen < 20)
+		return;
+	if (whitelistLen >= MAX_WHITELIST_LEN) {
+		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
+		return;
+	}
+
+	char whitelistBuf[MAX_WHITELIST_LEN] = { 0 };
+	trap_FS_Read(whitelistBuf, whitelistLen, probFile);
+	trap_FS_FCloseFile(probFile);
+
+	if (!whitelistBuf || !whitelistBuf[0])
+		return;
+
+	int pos = 0;
+	char *wPtr = whitelistBuf;
+	int startPos;
+	int currentLen = 1;
+	currentwhitelistUniqueId = 0;
+	while (1) {
+		if (currentwhitelistUniqueId >= MAX_WHITELIST_UNIQUEIDS) {
+			G_LogPrintf("Too many whitelist IDs!\n");
+			goto donewhitelist;
+		}
+		else if (*wPtr && *wPtr == ' ')
+			goto keepGoing;
+		else if (!pos || *wPtr && *(wPtr - 1) && *(wPtr - 1) == '\n') {
+			startPos = pos;
+			currentLen = 1;
+		}
+		else if (pos && *wPtr && *wPtr == '\n' && *(wPtr - 1) == '\r')
+			goto keepGoing;
+		else if (*wPtr && *wPtr != '\r' && *wPtr != '\n')
+			currentLen++;
+		else if (currentLen >= 15 && currentLen <= 20 && (!*wPtr || *wPtr == '\n' || *wPtr == '\r')) {
+			char uniqueStr[32] = { 0 };
+			char *copyMe = &whitelistBuf[startPos];
+			Q_strncpyz(uniqueStr, copyMe, currentLen + 1);
+			level.whitelistedUniqueIds[currentwhitelistUniqueId] = strtoull(uniqueStr, NULL, 10);
+#if 0
+			G_LogPrintf("Unique ID %llu is whitelisted\n", level.whitelistedUniqueIds[currentwhitelistUniqueId]);
+#endif
+			currentwhitelistUniqueId++;
+			if (!*wPtr)
+				goto donewhitelist;
+		}
+		else if (!*wPtr)
+			goto donewhitelist;
+	keepGoing:;
+		pos++;
+		wPtr++;
+	}
+donewhitelist:;
+	if (currentwhitelistUniqueId)
+		G_LogPrintf("%i total unique IDs are whitelisted\n", currentwhitelistUniqueId);
+}
+
 // probation; substitute for banning troublemakers
 // removes ability to do vote, call votes, use /tell, receive /tell messages, join game without forceteam
 static void InitProbation(void) {
@@ -1247,7 +1311,7 @@ static void InitProbation(void) {
 	if (!probFile || probationLen < 20)
 		return;
 	if (probationLen >= MAX_PROBATION_LEN) {
-		G_LogPrintf("probation.txt is too long! Must be under 8192 bytes.\n");
+		G_LogPrintf("probation.txt is too long! Must be under %i bytes.\n", MAX_PROBATION_LEN);
 		return;
 	}
 
@@ -1278,7 +1342,7 @@ static void InitProbation(void) {
 			goto keepGoing;
 		else if (*probPtr && *probPtr != '\r' && *probPtr != '\n')
 			currentLen++;
-		else if (currentLen == 20 && (!*probPtr || *probPtr == '\n' || *probPtr == '\r')) {
+		else if (currentLen >= 15 && currentLen <= 20 && (!*probPtr || *probPtr == '\n' || *probPtr == '\r')) {
 			char uniqueStr[32] = { 0 };
 			char *copyMe = &probationBuf[startPos];
 			Q_strncpyz(uniqueStr, copyMe, currentLen + 1);
@@ -1299,12 +1363,24 @@ doneProbation:;
 		G_LogPrintf("%i total unique IDs are under probation\n", currentProbationUniqueId);
 }
 
+qboolean G_ClientIsWhitelisted(int clientNum) {
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS || !&level || !level.clientUniqueIds[clientNum])
+		return qfalse;
+
+	int i;
+	for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
+		if (level.whitelistedUniqueIds[i] && level.whitelistedUniqueIds[i] == level.clientUniqueIds[clientNum])
+			return qtrue;
+	}
+	return qfalse;
+}
+
 qboolean G_ClientIsOnProbation(int clientNum) {
 	if (clientNum < 0 || clientNum >= MAX_CLIENTS || !&level || !level.clientUniqueIds[clientNum])
 		return qfalse;
 
 	int i;
-	for (i = 0; i < MAX_CLIENTS; i++) {
+	for (i = 0; i < MAX_PROBATION_UNIQUEIDS; i++) {
 		if (level.probationUniqueIds[i] && level.probationUniqueIds[i] == level.clientUniqueIds[clientNum])
 			return qtrue;
 	}
@@ -1383,6 +1459,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.snd_medHealed = G_SoundIndex("sound/player/supp_healed.wav");
 	level.snd_medSupplied = G_SoundIndex("sound/player/supp_supplied.wav");
 
+	InitWhitelist();
 	InitProbation();
 
 #ifndef _XBOX

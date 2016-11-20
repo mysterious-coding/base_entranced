@@ -822,6 +822,10 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		return;
 	}
 
+	if (g_lockdown.integer && !(ent->r.svFlags & SVF_BOT) && !G_ClientIsWhitelisted(ent - g_entities) && !forceteamed) {
+		return;
+	}
+
 	if (g_probation.integer >= 2 && G_ClientIsOnProbation(ent - g_entities) && !forceteamed) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot switch teams without being forceteamed by an admin.\n\""));
 		return;
@@ -2378,6 +2382,10 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		return;
 	}
 
+	if (g_lockdown.integer && !(ent->r.svFlags & SVF_BOT) && !G_ClientIsWhitelisted(ent - g_entities)) {
+		return;
+	}
+
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
@@ -3257,7 +3265,7 @@ qboolean TryingToDoCallvoteTakeover(gentity_t *ent)
 	{
 		if (level.clients[i].pers.connected != CON_DISCONNECTED && !(g_entities[i].r.svFlags & SVF_BOT)) //connected player who is not a bot
 		{
-			if (G_ClientIsOnProbation(i))
+			if (G_ClientIsOnProbation(i) || g_lockdown.integer && !G_ClientIsWhitelisted(i))
 			{
 				numTotal++; //you are not probation, so you are not eligible
 			}
@@ -3309,7 +3317,7 @@ void fixTeamVoters(gentity_t *ent)
 			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
 				if (level.clients[i].sess.sessionTeam == TEAM_RED)
 				{
-					if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i))
+					if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i) && !(g_lockdown.integer && !G_ClientIsWhitelisted(i)))
 					{
 						level.clients[i].mGameFlags |= PSG_CANTEAMVOTERED;
 						numRedTeamers++;
@@ -3349,7 +3357,7 @@ void fixTeamVoters(gentity_t *ent)
 			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
 				if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
 				{
-					if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i))
+					if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i) && !(g_lockdown.integer && !G_ClientIsWhitelisted(i)))
 					{
 						level.clients[i].mGameFlags |= PSG_CANTEAMVOTEBLUE;
 						numBlueTeamers++;
@@ -3391,7 +3399,7 @@ void fixVoters(){
 				if ( level.clients[i].pers.connected == CON_CONNECTED )
 				{
                 */
-					if ( !(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i) )
+				if (!(g_entities[i].r.svFlags & SVF_BOT) && !G_ClientIsOnProbation(i) && !(g_lockdown.integer && !G_ClientIsWhitelisted(i)))
 					{
 						level.clients[i].mGameFlags |= PSG_CANVOTE;
 						level.numVotingClients++;
@@ -3425,6 +3433,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	char*		mapName = 0;
 	const char*	arenaInfo;
     int argc;
+
+	if (g_lockdown.integer && !G_ClientIsWhitelisted(ent - g_entities)) {
+		return;
+	}
 
 	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot call votes.\n\""));
@@ -4144,6 +4156,10 @@ Cmd_Vote_f
 void Cmd_Vote_f( gentity_t *ent ) {
 	char		msg[64];
 
+	if (g_lockdown.integer && !G_ClientIsWhitelisted(ent - g_entities)) {
+		return;
+	}
+
 	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot vote.\n\""));
 		return;
@@ -4210,6 +4226,9 @@ static void Cmd_Ready_f(gentity_t *ent) {
 		return;
 	}
 
+	if (g_lockdown.integer && !G_ClientIsWhitelisted(ent - g_entities))
+		return;
+
 	if (!g_allow_ready.integer) {
 		trap_SendServerCommand(ent - g_entities, "print \"Ready is disabled.\n\"");
 		return;
@@ -4270,6 +4289,10 @@ void Cmd_CallTeamVote_f(gentity_t *ent) {
 		cs_offset = 1;
 	else
 		return;
+
+	if (g_lockdown.integer && !G_ClientIsWhitelisted(ent - g_entities)) {
+		return;
+	}
 
 	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot call teamvotes.\n\""));
@@ -4533,6 +4556,10 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		cs_offset = 1;
 	else
 		return;
+
+	if (g_lockdown.integer && !G_ClientIsWhitelisted(ent - g_entities)) {
+		return;
+	}
 
 	if (g_probation.integer && G_ClientIsOnProbation(ent - g_entities)) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation and cannot teamvote.\n\""));
@@ -5556,7 +5583,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	138
+#define BUILDNUMBER	140
 
 void Cmd_Help_f(gentity_t *ent)
 {

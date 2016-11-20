@@ -982,6 +982,8 @@ typedef struct
 
 #define MAX_PROBATION_UNIQUEIDS	64
 #define MAX_PROBATION_LEN	8192
+#define MAX_WHITELIST_UNIQUEIDS	700
+#define MAX_WHITELIST_LEN	16384
 typedef struct {
 	struct gclient_s	*clients;		// [maxclients]
 
@@ -1154,6 +1156,7 @@ typedef struct {
 
 	unsigned long long clientUniqueIds[MAX_CLIENTS];
 	unsigned long long probationUniqueIds[MAX_PROBATION_UNIQUEIDS];
+	unsigned long long whitelistedUniqueIds[MAX_WHITELIST_UNIQUEIDS];
 	int wallhackTracesDone;
 
 } level_locals_t;
@@ -1599,6 +1602,7 @@ extern int gSlowMoDuelTime;
 
 void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec);
 
+qboolean G_ClientIsWhitelisted(int clientNum);
 qboolean G_ClientIsOnProbation(int clientNum);
 void FindIntermissionPoint( void );
 void SetLeader(int team, int client);
@@ -2090,6 +2094,7 @@ extern vmCvar_t    g_antiLaming;
 extern vmCvar_t    g_probation;
 extern vmCvar_t    g_teamOverlayUpdateRate;
 extern vmCvar_t    g_tieGame;
+extern vmCvar_t    g_lockdown;
 
 extern vmCvar_t    siegeStatus;
 extern	vmCvar_t	g_autoStats;
