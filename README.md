@@ -52,7 +52,7 @@ These are unique features for base_entranced.
 ####`/g_siegeStats`
 0 = no stats (default JK3)
 
-1 = prints times for each objective after completion; writes all obj times at end of round. Compares times and highlights faster time in green in round 2.
+1 = (default) prints times for each objective after completion; writes all obj times at end of round. Compares times and highlights faster time in green in round 2.
 
 ####`/g_siegeTiebreakEnd`
 0 = (default) no tiebreaking rules (JK3 default)
