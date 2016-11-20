@@ -1277,10 +1277,16 @@ static void InitWhitelist(void) {
 		else if (*wPtr && *wPtr != '\r' && *wPtr != '\n')
 			currentLen++;
 		else if (currentLen >= 15 && currentLen <= 20 && (!*wPtr || *wPtr == '\n' || *wPtr == '\r')) {
+			int base = 10;
 			char uniqueStr[32] = { 0 };
 			char *copyMe = &whitelistBuf[startPos];
+			if (copyMe && *copyMe && strlen(copyMe) >= 3 && !Q_stricmpn(copyMe, "NM:", 3)) { // newmod cuid written as NM:blablabla
+				copyMe += 3;
+				currentLen -= 3;
+				base = 16;
+			}
 			Q_strncpyz(uniqueStr, copyMe, currentLen + 1);
-			level.whitelistedUniqueIds[currentwhitelistUniqueId] = strtoull(uniqueStr, NULL, 10);
+			level.whitelistedUniqueIds[currentwhitelistUniqueId] = strtoull(uniqueStr, NULL, base);
 #if 0
 			G_LogPrintf("Unique ID %llu is whitelisted\n", level.whitelistedUniqueIds[currentwhitelistUniqueId]);
 #endif
@@ -1366,10 +1372,10 @@ doneProbation:;
 qboolean G_ClientIsWhitelisted(int clientNum) {
 	if (clientNum < 0 || clientNum >= MAX_CLIENTS || !&level || !level.clientUniqueIds[clientNum])
 		return qfalse;
-
+	qboolean newmod = &g_entities[clientNum] && g_entities[clientNum].client && g_entities[clientNum].client->sess.confirmedNewmod && g_entities[clientNum].client->sess.cuidHash ? qtrue : qfalse;
 	int i;
 	for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
-		if (level.whitelistedUniqueIds[i] && level.whitelistedUniqueIds[i] == level.clientUniqueIds[clientNum])
+		if (level.whitelistedUniqueIds[i] && (level.whitelistedUniqueIds[i] == level.clientUniqueIds[clientNum] || newmod && level.whitelistedUniqueIds[i] == g_entities[clientNum].client->sess.cuidHash))
 			return qtrue;
 	}
 	return qfalse;
