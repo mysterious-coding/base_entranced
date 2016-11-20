@@ -737,7 +737,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_teamVoteFix, "g_teamVoteFix", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_teamVoteFix, "g_teamVoteFix", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
