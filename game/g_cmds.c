@@ -841,7 +841,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		qboolean teamChanged = qfalse;
-		if (forceteamed == qfalse && ((ent->health <= 0 && !g_specAfterDeath.integer) ||  (client->tempSpectate >= level.time &&
+		if (forceteamed == qfalse && (ent->health <= 0 ||  (client->tempSpectate >= level.time &&
 			team == TEAM_SPECTATOR) || ent->client->ps.eFlags2 & EF2_HELD_BY_MONSTER))
 		{ //sorry, can't do that.
 			return;
@@ -5741,8 +5741,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_dismember.integer, ent);
 	Com_sprintf(string, 64, "g_enableCloak");
 	ServerCfgColor(string, g_enableCloak.integer, ent);
-	Com_sprintf(string, 64, "g_endSiege");
-	ServerCfgColor(string, g_endSiege.integer, ent);
+	Com_sprintf(string, 64, "g_siegeTiebreakEnd");
+	ServerCfgColor(string, g_siegeTiebreakEnd.integer, ent);
 	Com_sprintf(string, 64, "g_fixEweb");
 	ServerCfgColor(string, g_fixEweb.integer, ent);
 	Com_sprintf(string, 64, "g_fixFallingSounds");
@@ -5771,8 +5771,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_improvedTeamchat.integer, ent);
 	Com_sprintf(string, 64, "g_infiniteCharge");
 	ServerCfgColor(string, g_infiniteCharge.integer, ent);
-	Com_sprintf(string, 64, "g_jk2SaberMoves");
-	ServerCfgColor(string, g_jk2SaberMoves.integer, ent);
 	Com_sprintf(string, 64, "g_knockback");
 	ServerCfgColor(string, g_knockback.integer, ent);
 	Com_sprintf(string, 64, "g_korribanRedRocksReverse");
@@ -5795,8 +5793,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
 	Com_sprintf(string, 64, "g_siegeStats");
 	ServerCfgColor(string, g_siegeStats.integer, ent);
-	Com_sprintf(string, 64, "g_specAfterDeath");
-	ServerCfgColor(string, g_specAfterDeath.integer, ent);
 	Com_sprintf(string, 64, "g_swoopKillPoints");
 	ServerCfgColor(string, g_swoopKillPoints.integer, ent);
 	Com_sprintf(string, 64, "g_enhancedLocations");

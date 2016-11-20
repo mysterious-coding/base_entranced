@@ -1652,14 +1652,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 	VectorCopy( pm->ps->viewangles, fwdAngles );
 	fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
 	AngleVectors( fwdAngles, jumpFwd, NULL, NULL );
-	if (g_jk2SaberMoves.integer)
-	{
-		VectorScale(jumpFwd, 50, pm->ps->velocity);
-	}
-	else
-	{
-		VectorScale(jumpFwd, 150, pm->ps->velocity);
-	}
+	VectorScale(jumpFwd, 150, pm->ps->velocity);
 	pm->ps->velocity[2] = 400;
 
 	PM_SetForceJumpZStart(pm->ps->origin[2]);//so we don't take damage if we land at same height
@@ -2362,7 +2355,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					}
 				}
 			}
-			else if (!g_jk2SaberMoves.integer && !noSpecials&&
+			else if (!noSpecials&&
 				pm->ps->fd.saberAnimLevel == SS_STRONG &&
 				pm->ps->velocity[2] > 100 &&
 				PM_GroundDistance() < 32 &&
@@ -2379,26 +2372,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					}
 				}
 			}
-			else if (	g_jk2SaberMoves.integer && !noSpecials &&
-				pm->ps->fd.saberAnimLevel == SS_STRONG &&
-				(PM_GroundDistance() < 32) &&
-				(PM_GroundDistance() > 0) &&
-				!BG_InSpecialJump(pm->ps->legsAnim) &&
-				!BG_SaberInSpecialAttack(pm->ps->torsoAnim) &&
-				BG_SaberInAttack(pm->ps->saberMove) &&
-				BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
-			{
-				float animLength = PM_AnimLength(0, (animNumber_t)pm->ps->torsoAnim);
-				if (animLength - pm->ps->torsoTimer < 500)
-				{
-					newmove = PM_SaberJumpAttackMove();
-					if (newmove != LS_A_T2B && newmove != LS_NONE)
-					{
-						BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
-					}
-				}
-			}
-			else if (((!g_jk2SaberMoves.integer && pm->ps->fd.saberAnimLevel == SS_FAST ) || (pm->ps->fd.saberAnimLevel == SS_DUAL || pm->ps->fd.saberAnimLevel == SS_STAFF)) &&
+			else if (((pm->ps->fd.saberAnimLevel == SS_FAST ) || (pm->ps->fd.saberAnimLevel == SS_DUAL || pm->ps->fd.saberAnimLevel == SS_STAFF)) &&
 				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
 				(pm->ps->pm_flags & PMF_DUCKED) &&
 				pm->ps->weaponTime <= 0 &&
@@ -2408,19 +2382,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				newmove = PM_SaberLungeAttackMove( noSpecials );
 				if ( newmove != LS_A_T2B
 					&& newmove != LS_NONE )
-				{
-					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
-				}
-			}
-			else if (g_jk2SaberMoves.integer && pm->ps->fd.saberAnimLevel == SS_FAST &&
-				(pm->ps->pm_flags & PMF_DUCKED) &&
-				pm->ps->weaponTime <= 0 &&
-				!BG_SaberInSpecialAttack(pm->ps->torsoAnim) &&
-				BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
-			{ //LUNGE (weak)
-				newmove = PM_SaberAirLungeAttackMove();
-				if (newmove != LS_A_T2B
-					&& newmove != LS_NONE)
 				{
 					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 				}

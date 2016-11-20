@@ -2474,48 +2474,6 @@ static qboolean PM_CheckJump( void )
 		}
 	}
 
-	if (g_jk2SaberMoves.integer)
-	{
-		if (pm->cmd.upmove > 0
-			&& (pm->ps->weapon == WP_SABER || pm->ps->weapon == WP_MELEE)
-			&& !PM_IsRocketTrooper()
-			&& (pm->ps->weaponTime > 0 || pm->cmd.buttons&BUTTON_ATTACK))
-		{//okay, we just jumped and we're in an attack
-			if (!BG_InRoll(pm->ps, pm->ps->legsAnim)
-				&& !PM_InKnockDown(pm->ps)
-				&& !BG_InDeathAnim(pm->ps->legsAnim)
-				&& !BG_FlippingAnim(pm->ps->legsAnim)
-				&& !PM_SpinningAnim(pm->ps->legsAnim)
-				&& !BG_SaberInSpecialAttack(pm->ps->torsoAnim)
-				&& (BG_SaberInAttack(pm->ps->saberMove)))
-			{//not in an anim we shouldn't interrupt
-			 //see if it's not too late to start a special jump-attack
-				float animLength = PM_AnimLength(0, (animNumber_t)pm->ps->torsoAnim);
-				if (animLength - pm->ps->torsoTimer < 500)
-				{//just started the saberMove
-				 //check for special-case jump attacks
-					if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3)
-					{//using strong attacks
-						if (pm->cmd.forwardmove > 0 && //going forward
-							(pm->cmd.buttons & BUTTON_ATTACK) && //must be holding attack still
-							PM_GroundDistance() < 32 &&
-							!BG_InSpecialJump(pm->ps->legsAnim))
-						{//strong attack: jump-hack
-							PM_SetSaberMove(PM_SaberJumpAttackMove());
-							pml.groundPlane = qfalse;
-							pml.walking = qfalse;
-							pm->ps->pm_flags |= PMF_JUMP_HELD;
-							pm->ps->groundEntityNum = ENTITYNUM_NONE;
-							VectorClear(pml.groundTrace.plane.normal);
-
-							pm->ps->weaponTime = pm->ps->torsoTimer;
-						}
-					}
-				}
-			}
-		}
-	}
-
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 	{
 		return qfalse;
@@ -9743,7 +9701,7 @@ void PmoveSingle (pmove_t *pmove) {
 		if (pm->ps->legsAnim == BOTH_JUMPFLIPSTABDOWN ||
 			pm->ps->legsAnim == BOTH_JUMPFLIPSLASHDOWN1)
 		{ //flipover medium stance attack
-			if (pm->ps->legsTimer < 1600 && pm->ps->legsTimer > 900 && !g_jk2SaberMoves.integer)
+			if (pm->ps->legsTimer < 1600 && pm->ps->legsTimer > 900)
 			{
 				pm->ps->viewangles[YAW] += pml.frametime*240.0f;
 				PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
@@ -10086,7 +10044,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_AdjustAngleForWallRunUp( pm->ps, &pm->cmd, qtrue ); //here 1st
 	PM_AdjustAngleForWallRun( pm->ps, &pm->cmd, qtrue );
 
-	if (!g_jk2SaberMoves.integer && (pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
+	if ((pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
 		pm->ps->saberMove == LS_A_BACK_CR || pm->ps->saberMove == LS_A_BACK ||
 		pm->ps->saberMove == LS_A_BACKSTAB))
 	{

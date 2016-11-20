@@ -159,7 +159,7 @@ vmCvar_t    g_enableCloak;
 vmCvar_t    g_fixHothBunkerLift;
 vmCvar_t    g_infiniteCharge;
 vmCvar_t    g_siegeStats;
-vmCvar_t    g_endSiege;
+vmCvar_t    g_siegeTiebreakEnd;
 vmCvar_t    g_moreTaunts;
 vmCvar_t    g_fixRancorCharge;
 vmCvar_t    g_ammoCanisterSound;
@@ -167,7 +167,6 @@ vmCvar_t    g_autoKorribanFloatingItems;
 vmCvar_t    g_autoKorribanSpam;
 vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
-vmCvar_t	g_specAfterDeath;
 vmCvar_t    g_antiHothCodesLiftLame;
 vmCvar_t    g_antiHothHangarLiftLame;
 vmCvar_t	g_antiHothInfirmaryLiftLame;
@@ -176,7 +175,6 @@ vmCvar_t	g_antiCallvoteTakeover;
 vmCvar_t	g_autoResetCustomTeams;
 vmCvar_t    g_fixEweb;
 vmCvar_t	g_korribanRedRocksReverse;
-vmCvar_t	g_jk2SaberMoves;
 vmCvar_t	g_fixVoiceChat;
 vmCvar_t	g_botJumping;
 vmCvar_t	g_fixHothDoorSounds;
@@ -703,11 +701,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_enhancedLocations, "g_enhancedLocations", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixboon,	"g_fixboon"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_flags_overboarding, "g_flags_overboarding", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_selfkillPenalty, "g_selfkillPenalty", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_selfkillPenalty, "g_selfkillPenalty", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_sexyDisruptor, "g_sexyDisruptor", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixSiegeScoring, "g_fixSiegeScoring", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixFallingSounds, "g_fixFallingSounds", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_nextmapWarning, "g_nextmapWarning", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixSiegeScoring, "g_fixSiegeScoring", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixFallingSounds, "g_fixFallingSounds", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_nextmapWarning, "g_nextmapWarning", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_floatingItems, "g_floatingItems", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rocketSurfing, "g_rocketSurfing", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_improvedTeamchat, "g_improvedTeamchat", "2", CVAR_ARCHIVE, 0, qtrue },
@@ -715,15 +713,14 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeStats, "g_siegeStats", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_endSiege, "g_endSiege", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_siegeTiebreakEnd, "g_siegeTiebreakEnd", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_moreTaunts, "g_moreTaunts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_ammoCanisterSound, "g_ammoCanisterSound", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_autoKorribanSpam, "g_autoKorribanSpam", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoKorribanSpam, "g_autoKorribanSpam", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_gripRefresh, "g_gripRefresh", "300", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_specAfterDeath, "g_specAfterDeath", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothCodesLiftLame, "g_antiHothCodesLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "4", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothInfirmaryLiftLame, "g_antiHothInfirmaryLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -732,12 +729,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixEweb, "g_fixEweb", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_korribanRedRocksReverse, "g_korribanRedRocksReverse", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_jk2SaberMoves, "g_jk2SaberMoves", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixVoiceChat, "g_fixVoiceChat", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botJumping, "g_botJumping", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothDoorSounds, "g_fixHothDoorSounds", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &iLikeToDoorSpam, "iLikeToDoorSpam", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &iLikeToMineSpam, "iLikeToMineSpam", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &iLikeToDoorSpam, "iLikeToDoorSpam", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &iLikeToMineSpam, "iLikeToMineSpam", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
