@@ -588,8 +588,10 @@ Clients can use the following chat tokens:
 * `$m` = current ammo
 * `$l` = closest weapon spawn (not useful for siege)
 
-####Team-joining password requirement
-You can prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). Use `/sv_passwordlessSpectators 1`. The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
+####`/sv_passwordlessSpectators`
+0 = (default) normal server password behavior
+
+1 = prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
 
 ####`/lockteams`
 Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` is the same as setting `/g_maxGameClients` to 8.
