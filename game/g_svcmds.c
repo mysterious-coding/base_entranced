@@ -1218,27 +1218,25 @@ static qboolean Whitelist_Add(gentity_t *ent, qboolean cuid) {
 	if (!idBuf || !idBuf[0])
 		return qfalse;
 
+	char buf[MAX_WHITELIST_LEN] = { 0 };
 	fileHandle_t f;
 	int len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
+	if (f) {
+		if (len >= MAX_WHITELIST_LEN - 20 - 2) {
+			G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
+			trap_FS_FCloseFile(f);
+			return qfalse;
+		}
 
-	if (!f)
-		goto write;
-	if (len >= MAX_WHITELIST_LEN - 20 - 2) {
-		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
-		return qfalse;
+		trap_FS_Read(buf, len, f);
+		trap_FS_FCloseFile(f);
+
+		if (buf && buf[0] && strstr(buf, idBuf))
+			return qfalse; // already whitelisted
 	}
-
-	char buf[MAX_WHITELIST_LEN] = { 0 };
-	trap_FS_Read(buf, len, f);
-	trap_FS_FCloseFile(f);
-
-	if (buf && buf[0] && strstr(buf, idBuf))
-		return qfalse; // already whitelisted
-
 	// write it
-	write:
 	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_APPEND_SYNC);
-	if (!f || len >= MAX_WHITELIST_LEN - 20 - 2)
+	if (!f)
 		return qfalse;
 	char *writeStr = va("\n%s\n", idBuf);
 	trap_FS_Write(writeStr, strlen(writeStr), f);
@@ -1279,8 +1277,12 @@ static qboolean Whitelist_Remove(gentity_t *ent, qboolean cuid) {
 	fileHandle_t f;
 	int len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
 
-	if (!f || len <= 0)
+	if (!f)
 		return qfalse;
+	if (len <= 0) {
+		trap_FS_FCloseFile(f);
+		return qfalse;
+	}
 	if (len >= MAX_WHITELIST_LEN - 20 - 2) {
 		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
 		return qfalse;
