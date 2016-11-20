@@ -331,7 +331,7 @@ Use partial client name with `/forceteam`. Optionally, you can include an additi
 Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `/callteamvote`. For example, `/callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `/callteamvote unforceclass pad` to undo this restriction. Use `/teamvote yes` and `/teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
 
 ####`/g_teamVoteFix`
-There is a bug preventing the on-screen teamvote text from displaying on clients' screens if they are running certain client mods (such as SMod). This workaround prints some text on your screen so you can see what the vote is for.
+(default: 1) There is a bug preventing the on-screen teamvote text from displaying on clients' screens if they are running certain client mods (such as SMod). This workaround prints some text on your screen so you can see what the vote is for.
 
 ####`/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
