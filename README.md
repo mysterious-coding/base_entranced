@@ -609,6 +609,9 @@ The interval in milliseconds for teamoverlay data to be updated and sent out to 
 ####`/g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
 
+####`/clientInfo`
+Rcon command to see client mods people are using, if possible.
+
 ####Bugfixes and other changes
 * Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
 
@@ -667,9 +670,6 @@ Log detailed user info, rcon commands, and crash attempts. Use `g_hacklog <filen
 
 ####Coin toss
 Call a `/cointoss` vote for random heads/tails result. Also works as an rcon command.
-
-####`/clientInfo`
-Rcon command to see client mods people are using, if possible.
 
 ####Polls
 Ask everyone a question with `/callvote q`. For example, `/callvote q Keep same teams and restart?`
