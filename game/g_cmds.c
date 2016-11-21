@@ -5273,7 +5273,7 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 		getIpFromString( mask, &maskInt );
 	}     
 
-	G_CfgDbListAliases( found->client->sess.ip, maskInt, 3, listAliasesCallback, &context );
+	G_CfgDbListAliases( found->client->sess.ip, maskInt, 3, listAliasesCallback, &context, found->client->sess.confirmedNewmod && found->client->sess.cuidHash ? found->client->sess.cuidHash : 0);
 }
 
 #define MAX_STATS			16
@@ -5643,7 +5643,7 @@ void Cmd_ClientList_f(gentity_t *ent)
 			{
 				//human
 				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s"S_COLOR_WHITE": \"", i, level.clients[i].pers.netname));
-				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context );
+				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context, level.clients[i].sess.confirmedNewmod && level.clients[i].sess.cuidHash ? level.clients[i].sess.cuidHash : 0);
 				trap_SendServerCommand(ent - g_entities, "print \"\n\"");
 			}
 			else

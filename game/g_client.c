@@ -2250,7 +2250,7 @@ void ClientUserinfoChanged( int clientNum ) {
 					oldname, client->pers.netname);
 				client->pers.netnameTime = level.time + 700; //change time limit from 5s to 1s
 
-                G_LogDbLogNickname( client->sess.ip, oldname, (getGlobalTime() - client->sess.nameChangeTime ) / 1000);
+                G_LogDbLogNickname( client->sess.ip, oldname, (getGlobalTime() - client->sess.nameChangeTime ) / 1000, client->sess.confirmedNewmod && client->sess.cuidHash ? client->sess.cuidHash : 0);
                 client->sess.nameChangeTime = getGlobalTime();
 
 				//make heartbeat soon - accounts system
@@ -4681,7 +4681,7 @@ void ClientDisconnect( int clientNum ) {
 		return;
 	}
 
-    G_LogDbLogNickname( ent->client->sess.ip, ent->client->pers.netname, (getGlobalTime() - ent->client->sess.nameChangeTime ) / 1000);
+    G_LogDbLogNickname( ent->client->sess.ip, ent->client->pers.netname, (getGlobalTime() - ent->client->sess.nameChangeTime ) / 1000, ent->client->sess.confirmedNewmod && ent->client->sess.cuidHash ? ent->client->sess.cuidHash : 0);
     ent->client->sess.nameChangeTime = getGlobalTime();
 
     G_LogDbLogSessionEnd( ent->client->sess.sessionId );
