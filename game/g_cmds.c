@@ -5589,7 +5589,7 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2:^7   Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
 	if (g_allow_ready.integer)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2/READY AND /UNREADY:^7   You can ^5/ready^7 or ^5/unready^7 yourself to declare yourself eligible for selection by the random team generator(used with vote or rcon).\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/READY:^7   You can use ^5/ready^7 to yourself to toggle yourself eligible/ineligible for selection by the random team generator(used with vote or rcon).\n\""));
 	}
 	if (g_privateDuel.integer)
 	{
