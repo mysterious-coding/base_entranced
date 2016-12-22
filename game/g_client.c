@@ -4842,6 +4842,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->pers.connected = CON_DISCONNECTED;
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
+	ent->client->sess.skillBoost = 0;
 	ent->r.contents = 0;
 	level.clientUniqueIds[clientNum] = 0;
 

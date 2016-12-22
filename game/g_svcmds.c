@@ -1541,6 +1541,60 @@ void Svcmd_Cointoss_f(void)
 	trap_SendServerCommand(-1, va("print \"Coin Toss result: "S_COLOR_YELLOW"%s\n\"", cointoss ? "Heads" : "Tails"));
 }
 
+void Svcmd_Skillboost_f(void) {
+	gentity_t	*found = NULL;
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+
+	if (trap_Argc() <= 2) {
+		Com_Printf("Usage:   skillboost [client num or partial name] [amount]    Use positive number to boost bad players; negative number to handicap good players (use zero to reset).\n");
+		Com_Printf("Example: ^5skillboost baddie 0.25^7    (gives baddie +20 percent damage output and -20 percent damage intake)\n");
+		Com_Printf("Example: ^5skillboost goodie -0.5^7    (gives goodie -50 percent damage output and +50 percent damage intake)\n");
+		int i;
+		qboolean wrotePreface = qfalse;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.skillBoost) {
+				if (!wrotePreface) {
+					Com_Printf("Currently skillboosted players:\n");
+					wrotePreface = qtrue;
+				}
+				Com_Printf("^7%s^7 has a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output and intake).\n",
+					g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost, g_entities[i].client->sess.skillBoost > 0 ? "^2+" : "^1", g_entities[i].client->sess.skillBoost * 100);
+			}
+		}
+		if (!wrotePreface)
+			Com_Printf("No players are currently skillboosted.\n");
+		return;
+	}
+
+	// find the player
+	trap_Argv(1, str, sizeof(str));
+	found = G_FindClient(str);
+	if (!found || !found->client) {
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
+		Com_Printf("Usage:  rename [name or client number] [forced name] <optional duration in seconds>\nExample:  rename pad lamer 60\n");
+		return;
+	}
+
+	cl = found->client;
+
+	trap_Argv(2, str, sizeof(str));
+	float newValue = atof(str);
+
+	// notify everyone
+	if (!newValue) {
+		if (!found->client->sess.skillBoost)
+			Com_Printf("Client '%s'^7 already has a skillboost of zero.\n");
+		else
+			trap_SendServerCommand(-1, va("print \"^7%s^7's skillboost was reset to zero (default damage output and intake).\n\"", found->client->pers.netname));
+	}
+	else
+		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a skillboost of %.6g (%s%.6g percent^7 damage output and intake).\n\"",
+			found->client->pers.netname, newValue, newValue > 0 ? "^2+" : "^1-", newValue * 100));
+
+	found->client->sess.skillBoost = newValue;
+}
+
 void Svcmd_ForceName_f(void) {
 	gentity_t	*found = NULL;
 	gclient_t	*cl;
@@ -2405,6 +2459,11 @@ qboolean	ConsoleCommand( void ) {
 		Svcmd_ForceUnReady_f();
 		return qtrue;
 	}
+	if (Q_stricmp(cmd, "skillboost") == 0) {
+		Svcmd_Skillboost_f();
+		return qtrue;
+	}
+
 	if (Q_stricmp (cmd, "game_memory") == 0) {
 		Svcmd_GameMem_f();
 		return qtrue;

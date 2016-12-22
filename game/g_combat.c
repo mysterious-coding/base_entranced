@@ -4516,6 +4516,19 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	int originalDamage = damage;
+	if (targ && targ->client && targ->client->sess.skillBoost && !(attacker && attacker == targ)) { // target has a skillboost
+		damage -= (int)((float)damage * targ->client->sess.skillBoost);
+		if (!damage && originalDamage >= 1) // make sure we at least do some damage...
+			damage = 1;
+	}
+
+	if (attacker && attacker->client && attacker->client->sess.skillBoost && !(targ && targ == attacker)) { // attacker has a skillboost
+		damage += (int)((float)damage * attacker->client->sess.skillBoost);
+		if (!damage && originalDamage >= 1) // make sure we at least do some damage...
+			damage = 1;
+	}
+
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 

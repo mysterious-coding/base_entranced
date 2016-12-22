@@ -533,6 +533,8 @@ typedef struct {
 	int			siegeDuelIndex;
 	int			siegeDuelTime;
 
+	float		skillBoost;
+
 #ifdef NEWMOD_SUPPORT
 	qboolean	confirmedNewmod; // qtrue if the client is a confirmed and authenticated newmod client
 	cuid_t		cuidHash; // first 64 bits of the SHA-1 hash

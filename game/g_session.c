@@ -54,6 +54,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 
 	sess = &client->sess;
 
+	client->sess.skillBoost = 0;
+
 	client->sess.siegeDesiredTeam = TEAM_FREE;
 
 	// initial team determination
