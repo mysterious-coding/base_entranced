@@ -4753,42 +4753,56 @@ void UpdateNewmodLaggers(void)
 
 #define SIEGEITEM_UPDATE_INTERVAL	1000
 void UpdateNewmodSiegeItems(void) {
-	int i, modelIndices[MAX_CLIENTS];
-	qboolean foundAny = qfalse;
+	int i;
+	team_t currentTeam;
 
-	for (i = 0; i < MAX_CLIENTS; i++) { // get list of clients with siege items
-		if (!(&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->holdingObjectiveItem &&
-			g_entities[i].health > 0 && g_entities[i].client->tempSpectate < level.time && g_entities[i].client->ps.pm_type != PM_SPECTATOR &&
-			(g_entities[i].client->sess.sessionTeam == TEAM_RED || g_entities[i].client->sess.sessionTeam == TEAM_BLUE) &&
-			&g_entities[g_entities[i].client->holdingObjectiveItem])) {
-			modelIndices[i] = -1;
+	// loop through each team (red and red-followers only gets red carriers, blue and blue-followers only gets blue carriers, freespecs get all carriers)
+	for (currentTeam = TEAM_RED; currentTeam <= TEAM_SPECTATOR; currentTeam++) {
+		int modelIndices[MAX_CLIENTS];
+		qboolean foundAny = qfalse;
+		for (i = 0; i < MAX_CLIENTS; i++) { // get list of clients with siege items
+			if (!(&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->holdingObjectiveItem &&
+				g_entities[i].health > 0 && g_entities[i].client->tempSpectate < level.time && g_entities[i].client->ps.pm_type != PM_SPECTATOR &&
+				(currentTeam != TEAM_SPECTATOR && g_entities[i].client->sess.sessionTeam == currentTeam || currentTeam == TEAM_SPECTATOR && (g_entities[i].client->sess.sessionTeam == TEAM_RED || g_entities[i].client->sess.sessionTeam == TEAM_BLUE)) &&
+				&g_entities[g_entities[i].client->holdingObjectiveItem])) {
+				modelIndices[i] = -1;
+				continue;
+			}
+			foundAny = qtrue;
+			modelIndices[i] = g_entities[g_entities[i].client->holdingObjectiveItem].s.modelindex;
+		}
+
+		if (!foundAny) { // didn't find any; just send an "x"
+			for (i = 0; i < MAX_CLIENTS; i++) {
+				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
+					trap_SendServerCommand(i, "lchat \"si\" \"x\"");
+					//Com_Printf("Sent no siege item 'x' to client %i\n", i);
+				}
+			}
 			continue;
 		}
-		foundAny = qtrue;
-		modelIndices[i] = g_entities[g_entities[i].client->holdingObjectiveItem].s.modelindex;
-	}
 
-	if (!foundAny) { // didn't find any; just send an "x"
-		trap_SendServerCommand(-1, "lchat \"si\" \"x\"");
-		return;
-	}
+		char command[MAX_STRING_CHARS] = { 0 };
+		Q_strncpyz(command, "lchat \"si\" \"", sizeof(command));
+		foundAny = qfalse;
+		for (i = 0; i < MAX_CLIENTS; i++) { // build the string we will send out
+			if (modelIndices[i] >= 0) { // this player has an item; add him to the string as clientNumber=modelIndex+iconIndex
+				Q_strncpyz(command, va("%s%s%i=%i", command, foundAny ? "," : "", i, modelIndices[i]), sizeof(command));
+				foundAny = qtrue;
+			}
+		}
 
-	char command[MAX_STRING_CHARS] = { 0 };
-	Q_strncpyz(command, "lchat \"si\" \"", sizeof(command));
-	foundAny = qfalse;
-	for (i = 0; i < MAX_CLIENTS; i++) { // build the string we will send out
-		if (modelIndices[i] >= 0) { // this player has an item; add him to the string as clientNumber=modelIndex+iconIndex
-			Q_strncpyz(command, va("%s%s%i=%i", command, foundAny ? "," : "", i, modelIndices[i]), sizeof(command));
-			foundAny = qtrue;
+		if (!foundAny)
+			continue;
+
+		Q_strncpyz(command, va("%s\"", command), sizeof(command)); // add the final quotation mark
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
+				trap_SendServerCommand(i, command); // send it
+				//Com_Printf("Sent siege item command to client %i: %s\n", i, command);
+			}
 		}
 	}
-
-	if (!foundAny)
-		return;
-
-	Q_strncpyz(command, va("%s\"", command), sizeof(command)); // add the final quotation mark
-	trap_SendServerCommand(-1, command); // send it
-	//Com_Printf("Sent siege item command %s\n", command);
 }
 #endif
 
