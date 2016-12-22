@@ -1590,7 +1590,7 @@ void Svcmd_Skillboost_f(void) {
 	}
 	else
 		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a skillboost of %.6g (%s%.6g percent^7 damage output and intake).\n\"",
-			found->client->pers.netname, newValue, newValue > 0 ? "^2+" : "^1-", newValue * 100));
+			found->client->pers.netname, newValue, newValue > 0 ? "^2+" : "^1", newValue * 100));
 
 	found->client->sess.skillBoost = newValue;
 }
