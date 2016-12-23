@@ -1351,19 +1351,19 @@ void SP_worldspawn( void )
 	}
 	else
 	{
-		if (!Q_stricmp(mapname.string, "siege_cargobarge2") && Q_stricmp(text, "1.1"))
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
 		{
 			//hacky retcon so old cargo2 properly shows version number despite not being set in its worldspawn
 			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "1.1");
 		}
-		else if (!Q_stricmp(mapname.string, "mp/siege_hoth2") && Q_stricmp(text, "1.0"))
+		else if (!Q_stricmp(mapname.string, "mp/siege_hoth2"))
 		{
 			//hacky retcon so hoth2 properly shows version number despite not being set in its worldspawn
 			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "1.0");
 		}
 		else
 		{
-			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "");
+			memset(&level.mapVersion, 0, sizeof(level.mapVersion));
 		}
 	}
 
