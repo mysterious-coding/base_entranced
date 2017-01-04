@@ -240,6 +240,8 @@ vmCvar_t	g_filterBan;
 vmCvar_t	g_smoothClients;
 vmCvar_t	g_defaultBanHoursDuration;
 
+vmCvar_t	g_bouncePadDoubleJump;
+
 #include "namespace_begin.h"
 vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
@@ -772,6 +774,8 @@ static cvarTable_t		gameCvarTable[] = {
     { &sv_privateclients, "sv_privateclients", "0", CVAR_ARCHIVE | CVAR_SERVERINFO },
 	{ &sv_passwordlessSpectators, "sv_passwordlessSpectators", "0", CVAR_ARCHIVE | CVAR_SERVERINFO },
     { &g_defaultBanHoursDuration, "g_defaultBanHoursDuration", "24", CVAR_ARCHIVE | CVAR_INTERNAL },      
+
+	{ &g_bouncePadDoubleJump, "g_bouncePadDoubleJump", "1", CVAR_ARCHIVE, 0, qtrue }
 };
 
 // bk001129 - made static to avoid aliasing

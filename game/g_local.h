@@ -1956,6 +1956,8 @@ extern	vmCvar_t	g_filterBan;
 extern	vmCvar_t	g_smoothClients;
 extern	vmCvar_t	g_defaultBanHoursDuration;
 
+extern	vmCvar_t	g_bouncePadDoubleJump;
+
 #include "namespace_begin.h"
 extern	vmCvar_t	pmove_fixed;
 extern	vmCvar_t	pmove_msec;
