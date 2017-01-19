@@ -10,6 +10,8 @@
 #include "bg_vehicles.h"
 #include "g_public.h"
 
+#include "crypto.h"
+
 #ifndef __LCC__
 #define GAME_INLINE ID_INLINE
 #else
@@ -35,6 +37,7 @@ extern vec3_t gPainPoint;
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
 #define NEWMOD_SUPPORT
 #ifdef NEWMOD_SUPPORT
+#define NM_AUTH_PROTOCOL				2
 #define MAX_ENHANCED_LOCATION			31
 #define MAX_ENHANCED_LOCATION_STRING	1012
 #endif
@@ -536,9 +539,15 @@ typedef struct {
 	float		skillBoost;
 
 #ifdef NEWMOD_SUPPORT
-	qboolean	confirmedNewmod; // qtrue if the client is a confirmed and authenticated newmod client
+	enum {
+		INVALID = 0,
+		PENDING,
+		CLANNOUNCE,
+		CLAUTH,
+		AUTHENTICATED
+	} auth;
 	cuid_t		cuidHash; // first 64 bits of the SHA-1 hash
-	int			confirmationKeys[2]; // randomly generated auth keys to confirm legit clients, -1 if waiting to be generated
+	int			serverKeys[2]; // randomly generated auth keys to confirm legit clients
 	EnhancedLocationContext	enhancedLocation;
 #endif
 } clientSession_t;
@@ -1164,6 +1173,11 @@ typedef struct {
 	unsigned long long probationUniqueIds[MAX_PROBATION_UNIQUEIDS];
 	unsigned long long whitelistedUniqueIds[MAX_WHITELIST_UNIQUEIDS];
 	int wallhackTracesDone;
+
+#ifdef NEWMOD_SUPPORT
+	qboolean nmAuthEnabled;
+	char pubKeyStr[RSA_MAX_PUB_B64_CHARS];
+#endif
 
 } level_locals_t;
 

@@ -1208,7 +1208,7 @@ void	Svcmd_ForceUnReady_f(void) {
 static qboolean Whitelist_Add(gentity_t *ent, qboolean cuid) {
 	if (!ent || !ent->client || ent - g_entities < 0 || ent - g_entities >= MAX_CLIENTS)
 		return qfalse;
-	if (cuid && (!ent->client->sess.confirmedNewmod || !ent->client->sess.cuidHash))
+	if (cuid && ent->client->sess.auth != AUTHENTICATED)
 		return qfalse;
 
 	unsigned long long id = cuid ? ent->client->sess.cuidHash : level.clientUniqueIds[ent - g_entities];
@@ -1271,7 +1271,7 @@ static qboolean Whitelist_Add(gentity_t *ent, qboolean cuid) {
 static qboolean Whitelist_Remove(gentity_t *ent, qboolean cuid) {
 	if (!ent || !ent->client || ent - g_entities < 0 || ent - g_entities >= MAX_CLIENTS)
 		return qfalse;
-	if (cuid && (!ent->client->sess.confirmedNewmod || !ent->client->sess.cuidHash))
+	if (cuid && ent->client->sess.auth != AUTHENTICATED)
 		return qfalse;
 
 	fileHandle_t f;
@@ -1389,7 +1389,7 @@ void Svcmd_Whitelist_f(void) {
 
 			// get cuid, if available
 			char cuidString[MAX_STRING_CHARS] = { 0 };
-			Q_strncpyz(cuidString, g_entities[i].client->sess.confirmedNewmod && g_entities[i].client->sess.cuidHash ? va("%llX", g_entities[i].client->sess.cuidHash) : "                      ", sizeof(cuidString));
+			Q_strncpyz(cuidString, g_entities[i].client->sess.auth == AUTHENTICATED ? va("%llX", g_entities[i].client->sess.cuidHash) : "                      ", sizeof(cuidString));
 			while (strlen(cuidString) < 20 + 2)
 				cuidString[strlen(cuidString)] = ' ';
 
@@ -1431,7 +1431,7 @@ void Svcmd_Whitelist_f(void) {
 		Com_Printf(WHITELIST_ERROR);
 		return;
 	}
-	qboolean newmod = found->client->sess.confirmedNewmod && found->client->sess.cuidHash ? qtrue : qfalse;
+	qboolean newmod = found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0 ? qtrue : qfalse;
 
 	if (add) { // add him to whitelist file
 		if (newmod) { // newmod user; add both id and cuid hash
@@ -2223,7 +2223,7 @@ static void Svcmd_WhoIs_f(void)
 		getIpFromString(mask, &maskInt);
 	}
 
-	G_CfgDbListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallbackServer, &context, found->client->sess.confirmedNewmod && found->client->sess.cuidHash ? found->client->sess.cuidHash : 0);
+	G_CfgDbListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallbackServer, &context, found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0);
 }
 
 void Svcmd_ClientInfo_f( void ) {
@@ -2240,18 +2240,20 @@ void Svcmd_ClientInfo_f( void ) {
 				Q_strcat( description, sizeof( description ), "Newmod " );
 				Q_strcat( description, sizeof( description ), Info_ValueForKey( userinfo, "nm_ver" ) );
 
-				if ( level.clients[i].sess.confirmedNewmod ) {
+				if ( level.clients[i].sess.auth == AUTHENTICATED ) {
 					Q_strcat( description, sizeof( description ), S_COLOR_GREEN" (confirmed) "S_COLOR_WHITE );
-				} else {
-					Q_strcat( description, sizeof( description ), S_COLOR_RED" (unconfirmed) "S_COLOR_WHITE );
-				}
 
-				if ( level.clients[i].sess.cuidHash ) {
-					// valid cuid
-					Q_strcat( description, sizeof( description ), va( "(cuid hash: "S_COLOR_CYAN"%llX"S_COLOR_WHITE")", level.clients[i].sess.cuidHash ) );
+					if ( level.clients[i].sess.cuidHash ) {
+						// valid cuid
+						Q_strcat( description, sizeof( description ), va( "(cuid hash: "S_COLOR_CYAN"%llX"S_COLOR_WHITE")", level.clients[i].sess.cuidHash ) );
+					} else {
+						// invalid cuid, should not happen
+						Q_strcat( description, sizeof( description ), S_COLOR_RED"(invalid cuid!)"S_COLOR_WHITE );
+					}
+				} else if ( level.clients[i].sess.auth > INVALID ) {
+					Q_strcat( description, sizeof( description ), S_COLOR_YELLOW" (authing)"S_COLOR_WHITE );
 				} else {
-					// default cuid
-					Q_strcat( description, sizeof( description ), S_COLOR_RED"(default CUID!)"S_COLOR_WHITE );
+					Q_strcat( description, sizeof( description ), S_COLOR_RED" (auth failed)"S_COLOR_WHITE );
 				}
 
 				Q_strcat( description, sizeof( description ), ", " );

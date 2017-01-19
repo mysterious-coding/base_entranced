@@ -5273,7 +5273,7 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 		getIpFromString( mask, &maskInt );
 	}     
 
-	G_CfgDbListAliases( found->client->sess.ip, maskInt, 3, listAliasesCallback, &context, found->client->sess.confirmedNewmod && found->client->sess.cuidHash ? found->client->sess.cuidHash : 0);
+	G_CfgDbListAliases( found->client->sess.ip, maskInt, 3, listAliasesCallback, &context, found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0);
 }
 
 #define MAX_STATS			16
@@ -5643,7 +5643,7 @@ void Cmd_ClientList_f(gentity_t *ent)
 			{
 				//human
 				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s"S_COLOR_WHITE": \"", i, level.clients[i].pers.netname));
-				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context, level.clients[i].sess.confirmedNewmod && level.clients[i].sess.cuidHash ? level.clients[i].sess.cuidHash : 0);
+				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context, level.clients[i].sess.auth == AUTHENTICATED ? level.clients[i].sess.cuidHash : 0);
 				trap_SendServerCommand(ent - g_entities, "print \"\n\"");
 			}
 			else
@@ -5793,36 +5793,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, iLikeToMineSpam.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
-
-#ifdef NEWMOD_SUPPORT
-void Cmd_SvAuth_f(gentity_t *ent) {
-	if (!ent->client) {
-		return;
-	}
-
-	if ( trap_Argc() == 2 ) {
-		char buffer[32];
-		int result;
-		trap_Argv( 1, buffer, sizeof( buffer ) );
-
-		result = atoi( buffer );
-
-		if ( result && ( result ^ ent->client->sess.confirmationKeys[1] ) == ent->client->sess.confirmationKeys[0] ) {
-			G_LogPrintf( "Newmod Client %d successfully authenticated\n", ent - g_entities );
-			ent->client->sess.confirmedNewmod = qtrue;
-			ClientUserinfoChanged( ent - g_entities ); // update userinfo so cuid hash can be appended
-		}
-		else {
-			G_LogPrintf( "Newmod Client %d failed authentication\n", ent - g_entities );
-		}
-	} else {
-		G_LogPrintf( "Newmod Client %d failed authentication\n", ent - g_entities );
-	}
-
-	ent->client->sess.confirmationKeys[0] = ent->client->sess.confirmationKeys[1] = 0;
-
-}
-#endif
 
 void Cmd_SiegeDuel_f(gentity_t *ent)
 {
@@ -6580,10 +6550,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_Help_f(ent);
 	else if (Q_stricmp(cmd, "testvis") == 0)
 		Cmd_TestVis_f(ent);
-#ifdef NEWMOD_SUPPORT
-	else if ( !ent->client->sess.confirmedNewmod && ent->client->sess.confirmationKeys[0] > 0 && ent->client->sess.confirmationKeys[1] > 0 && Q_stricmp( cmd, "svauth" ) == 0 )
-		Cmd_SvAuth_f( ent );
-#endif
 		
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))
