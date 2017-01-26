@@ -110,6 +110,7 @@ typedef struct gNPCstats_e
 	int		quadKnockbackFrom;
 	int     nodmgfrom;
 	int		victimOfForce;
+	qboolean	normalSaberDamage;	// ignore saber damage of jedis vs. non-jedis
 } gNPCstats_t;
 
 // NOTE!!!  If you add any ptr fields into this structure could you please tell me so I can update the load/save code?

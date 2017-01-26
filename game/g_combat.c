@@ -4994,7 +4994,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		else if ( (client->ps.trueNonJedi || (g_gametype.integer == GT_SIEGE&&client->ps.weapon != WP_SABER))
-			&& mod == MOD_SABER )
+			&& mod == MOD_SABER && !(targ->NPC && targ->NPC->stats.normalSaberDamage) )
 		{//if the target is a trueNonJedi, take more saber damage... combined with the 1.5 in the w_saber stuff, this is 6 times damage!
 			if ( damage < 100 )
 			{

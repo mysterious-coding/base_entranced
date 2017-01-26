@@ -945,6 +945,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->doubleKnockbackFrom = 0;
 		stats->tripleKnockbackFrom = 0;
 		stats->quadKnockbackFrom = 0;
+		stats->normalSaberDamage = qfalse;
 	}
 	else
 	{
@@ -1662,6 +1663,21 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					if (NPC->NPC)
 					{
 						stats->victimOfForce = n;
+					}
+					continue;
+				}
+
+				// nodmgfrom
+				if (!Q_stricmp(token, "normalSaberDamage")) {
+					if (COM_ParseInt(&p, &n)) {
+						SkipRestOfLine(&p);
+						continue;
+					}
+					if (!n)
+						continue;
+					if (NPC->NPC)
+					{
+						stats->normalSaberDamage = qtrue;
 					}
 					continue;
 				}
