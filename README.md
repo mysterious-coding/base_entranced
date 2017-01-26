@@ -463,6 +463,8 @@ Mapmakers can add some new extra flags to .npc files for additional control over
 
 `quadKnockbackFrom <#>` = This NPC receives 4x knockback from these weapons
 
+`normalSaberDamage 1` = This NPC does not receive the basejka damage boost from sabers due to not having a saber equipped
+
 * Bit values for weapons:
 * Melee				1
 * Stun baton			2
