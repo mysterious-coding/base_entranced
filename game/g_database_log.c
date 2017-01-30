@@ -46,7 +46,12 @@ const char* const sqlCreateLogDb =
 "  [ip_int] INTEGER,                                                            "
 "  [name] TEXT,                                                                 "
 "  [duration] INTEGER,                                                          "
-"  [cuid_hash2] TEXT );                                                         ";
+"  [cuid_hash2] TEXT );                                                         "
+"                                                                               "
+"CREATE TABLE playerwhitelist(                                                  "
+"  [unique_id] BIGINT,                                                          "
+"  [cuid_hash2] TEXT,                                                           "
+"  [name] TEXT);                                                                ";
                                                                                
 
 const char* const sqlLogLevelStart =
@@ -133,6 +138,40 @@ const char* const sqlUpgradeToCuid2FromCuid1 =
 "DROP TABLE nicknames_temp;                                                                              "
 "COMMIT;                                                                                                 ";
 
+const char* const sqlTestWhitelistSupport =
+"PRAGMA table_info(playerwhitelist)";
+
+const char* const sqlUpgradeToWhitelist =
+"CREATE TABLE playerwhitelist(                                                  "
+"  [unique_id] BIGINT,                                                          "
+"  [cuid_hash2] TEXT,                                                           "
+"  [name] TEXT);                                                                ";
+
+const char* const sqlCheckNMPlayerWhitelisted =
+"SELECT COUNT(*) FROM playerwhitelist WHERE cuid_hash2 = ?1";
+
+const char* const sqlCheckPlayerWhitelisted =
+"SELECT COUNT(*) FROM playerwhitelist WHERE unique_id = ?1";
+
+const char* const sqlAddUniqueIDAndCuidToWhitelist =
+"INSERT INTO playerwhitelist (unique_id, cuid_hash2, name)                     "
+"VALUES (?1,?2,?3)                                                             ";
+
+const char* const sqlAddCuidToWhitelist =
+"INSERT INTO playerwhitelist (cuid_hash2, name)                                 "
+"VALUES (?1,?2)                                                                 ";
+
+const char* const sqlAddUniqueIDToWhitelist =
+"INSERT INTO playerwhitelist (unique_id, name)                                    "
+"VALUES (?1,?2)                                                                   ";
+
+const char* const sqlDeleteNMPlayerFromWhitelist =
+"DELETE FROM playerwhitelist WHERE unique_id = ?1 OR cuid_hash2 = ?2";
+
+const char* const sqlDeletePlayerFromWhitelist =
+"DELETE FROM playerwhitelist WHERE unique_id = ?1";
+
+
 //
 //  G_LogDbLoad
 // 
@@ -161,6 +200,16 @@ void G_LogDbLoad()
 				foundCuid1 = qtrue;
 			rc = sqlite3_step(statement);
 		}
+		sqlite3_reset(statement);
+		rc = sqlite3_prepare(db, sqlTestWhitelistSupport, -1, &statement, 0);
+		rc = sqlite3_step(statement);
+		qboolean foundWhitelist = qfalse;
+		while (rc == SQLITE_ROW) {
+			const char *name = (const char*)sqlite3_column_text(statement, 1);
+			if (name && *name)
+				foundWhitelist = qtrue;
+			rc = sqlite3_step(statement);
+		}
 		sqlite3_finalize(statement);
 		if (foundCuid2) {
 			//G_LogPrintf("Log database supports cuid 2.0, no upgrade needed.\n");
@@ -172,6 +221,13 @@ void G_LogDbLoad()
 		else {
 			G_LogPrintf("Automatically upgrading old log database: no cuid support ==> cuid 2.0 support.\n");
 			sqlite3_exec(db, sqlUpgradeToCuid2FromNoCuid, 0, 0, 0);
+		}
+		if (foundWhitelist) {
+			//G_LogPrintf("Log database supports whitelist, no upgrade needed.\n");
+		}
+		else {
+			G_LogPrintf("Automatically upgrading old log database: no player whitelist support ==> player whitelist support.\n");
+			sqlite3_exec(db, sqlUpgradeToWhitelist, 0, 0, 0);
 		}
 	}
 	else {
@@ -425,4 +481,77 @@ void G_CfgDbListAliases( unsigned int ipInt,
 
 		sqlite3_finalize(statement);
 	}
+}
+
+int G_DbPlayerWhitelisted(unsigned long long uniqueID, const char* cuidHash) {
+	sqlite3_stmt* statement;
+	int rc;
+	int whitelistedFlags = 0;
+
+	if (VALIDSTRING(cuidHash)) {
+		// check for cuid whitelist
+		rc = sqlite3_prepare(db, sqlCheckNMPlayerWhitelisted, -1, &statement, 0);
+		sqlite3_bind_text(statement, 1, cuidHash, -1, 0);
+		rc = sqlite3_step(statement);
+		while (rc == SQLITE_ROW) {
+			if (sqlite3_column_int(statement, 0) > 0)
+				whitelistedFlags |= WHITELISTED_CUID;
+			rc = sqlite3_step(statement);
+		}
+		sqlite3_reset(statement);
+	}
+
+	// check for ip whitelist
+	rc = sqlite3_prepare(db, sqlCheckPlayerWhitelisted, -1, &statement, 0);
+	sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
+	rc = sqlite3_step(statement);
+	while (rc == SQLITE_ROW) {
+		if (sqlite3_column_int(statement, 0) > 0)
+			whitelistedFlags |= WHITELISTED_ID;
+		rc = sqlite3_step(statement);
+	}
+	sqlite3_finalize(statement);
+
+	return whitelistedFlags;
+}
+
+void G_DbStorePlayerInWhitelist(unsigned long long uniqueID, const char* cuidHash, const char* name) {
+	sqlite3_stmt* statement;
+	int rc;
+
+	if (uniqueID && VALIDSTRING(cuidHash)) {
+		rc = sqlite3_prepare(db, sqlAddUniqueIDAndCuidToWhitelist, -1, &statement, 0);
+		sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
+		sqlite3_bind_text(statement, 2, cuidHash, -1, 0);
+		sqlite3_bind_text(statement, 3, name, -1, 0);
+		rc = sqlite3_step(statement);
+	}
+	else if (uniqueID) {
+		rc = sqlite3_prepare(db, sqlAddUniqueIDToWhitelist, -1, &statement, 0);
+		sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
+		sqlite3_bind_text(statement, 2, name, -1, 0);
+		rc = sqlite3_step(statement);
+	}
+	else if (VALIDSTRING(cuidHash)) {
+		rc = sqlite3_prepare(db, sqlAddCuidToWhitelist, -1, &statement, 0);
+		sqlite3_bind_text(statement, 1, cuidHash, -1, 0);
+		sqlite3_bind_text(statement, 2, name, -1, 0);
+		rc = sqlite3_step(statement);
+	}
+
+	sqlite3_finalize(statement);
+}
+
+void G_DbRemovePlayerFromWhitelist(unsigned long long uniqueID, const char* cuidHash) {
+	sqlite3_stmt* statement;
+
+	int rc = sqlite3_prepare(db, VALIDSTRING(cuidHash) ? sqlDeleteNMPlayerFromWhitelist: sqlDeletePlayerFromWhitelist, -1, &statement, 0);
+
+	sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
+	if (VALIDSTRING(cuidHash))
+		sqlite3_bind_text(statement, 2, cuidHash, -1, 0);
+
+	rc = sqlite3_step(statement);
+
+	sqlite3_finalize(statement);
 }

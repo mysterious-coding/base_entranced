@@ -2600,7 +2600,7 @@ void ClientUserinfoChanged( int clientNum ) {
 						if ( ( client->sess.serverKeys[0] ^ client->sess.serverKeys[1] ) == serverKeysXor ) {
 							// legit client
 							Crypto_Hash( s, client->sess.cuidHash, sizeof( client->sess.cuidHash ) );
-							G_Printf( "Newmod client %d authenticated successfully (cuid hash: %s)\n", clientNum, client->sess.cuidHash );
+							G_Printf( "Newmod client %d authenticated successfully (cuid hash: %s) (%swhitelisted)\n", clientNum, client->sess.cuidHash, G_ClientIsWhitelisted(clientNum) ? "" : "NOT " );
 						} else {
 							G_HackLog( S_COLOR_RED"Client %d failed the server keys check!\n", clientNum );
 							bumpStep = qfalse;
@@ -4919,6 +4919,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->client->sess.skillBoost = 0;
+	ent->client->sess.whitelistStatus = WHITELIST_UNKNOWN;
 	ent->r.contents = 0;
 	level.clientUniqueIds[clientNum] = 0;
 

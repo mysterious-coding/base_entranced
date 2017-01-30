@@ -49,6 +49,12 @@ void G_CfgDbListAliases(unsigned int ipInt,
 	void* context,
 	const char* cuidHash);
 
+#define WHITELISTED_ID		(1 << 0)
+#define WHITELISTED_CUID	(1 << 1)
+int G_DbPlayerWhitelisted(unsigned long long uniqueID, const char* cuidHash);
+void G_DbStorePlayerInWhitelist(unsigned long long uniqueID, const char* cuidHash, const char* name);
+void G_DbRemovePlayerFromWhitelist(unsigned long long uniqueID, const char* cuidHash);
+
 
 #endif //G_DATABASE_H
 

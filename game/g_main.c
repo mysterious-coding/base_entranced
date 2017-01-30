@@ -1233,76 +1233,6 @@ void initMatch(){
 
 }
 
-static void InitWhitelist(void) {
-	int currentwhitelistUniqueId = 0;
-	for (currentwhitelistUniqueId = 0; currentwhitelistUniqueId < MAX_WHITELIST_UNIQUEIDS; currentwhitelistUniqueId++)
-		level.whitelistedUniqueIds[currentwhitelistUniqueId] = 0;
-	fileHandle_t probFile;
-	int whitelistLen = trap_FS_FOpenFile("whitelist.txt", &probFile, FS_READ);
-
-	if (!probFile || whitelistLen < 20)
-		return;
-	if (whitelistLen >= MAX_WHITELIST_LEN) {
-		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
-		return;
-	}
-
-	char whitelistBuf[MAX_WHITELIST_LEN] = { 0 };
-	trap_FS_Read(whitelistBuf, whitelistLen, probFile);
-	trap_FS_FCloseFile(probFile);
-
-	if (!whitelistBuf || !whitelistBuf[0])
-		return;
-
-	int pos = 0;
-	char *wPtr = whitelistBuf;
-	int startPos;
-	int currentLen = 1;
-	currentwhitelistUniqueId = 0;
-	while (1) {
-		if (currentwhitelistUniqueId >= MAX_WHITELIST_UNIQUEIDS) {
-			G_LogPrintf("Too many whitelist IDs!\n");
-			goto donewhitelist;
-		}
-		else if (*wPtr && *wPtr == ' ')
-			goto keepGoing;
-		else if (!pos || *wPtr && *(wPtr - 1) && *(wPtr - 1) == '\n') {
-			startPos = pos;
-			currentLen = 1;
-		}
-		else if (pos && *wPtr && *wPtr == '\n' && *(wPtr - 1) == '\r')
-			goto keepGoing;
-		else if (*wPtr && *wPtr != '\r' && *wPtr != '\n')
-			currentLen++;
-		else if (currentLen >= 15 && currentLen <= 20 && (!*wPtr || *wPtr == '\n' || *wPtr == '\r')) {
-			int base = 10;
-			char uniqueStr[32] = { 0 };
-			char *copyMe = &whitelistBuf[startPos];
-			if (copyMe && *copyMe && strlen(copyMe) >= 3 && !Q_stricmpn(copyMe, "NM:", 3)) { // newmod cuid written as NM:blablabla
-				copyMe += 3;
-				currentLen -= 3;
-				base = 16;
-			}
-			Q_strncpyz(uniqueStr, copyMe, currentLen + 1);
-			level.whitelistedUniqueIds[currentwhitelistUniqueId] = strtoull(uniqueStr, NULL, base);
-#if 0
-			G_LogPrintf("Unique ID %llu is whitelisted\n", level.whitelistedUniqueIds[currentwhitelistUniqueId]);
-#endif
-			currentwhitelistUniqueId++;
-			if (!*wPtr)
-				goto donewhitelist;
-		}
-		else if (!*wPtr)
-			goto donewhitelist;
-	keepGoing:;
-		pos++;
-		wPtr++;
-	}
-donewhitelist:;
-	if (currentwhitelistUniqueId)
-		G_LogPrintf("%i total unique IDs are whitelisted\n", currentwhitelistUniqueId);
-}
-
 // probation; substitute for banning troublemakers
 // removes ability to do vote, call votes, use /tell, receive /tell messages, join game without forceteam
 static void InitProbation(void) {
@@ -1368,14 +1298,27 @@ doneProbation:;
 }
 
 qboolean G_ClientIsWhitelisted(int clientNum) {
-	if (clientNum < 0 || clientNum >= MAX_CLIENTS || !&level || !level.clientUniqueIds[clientNum])
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS || !&level.clients[clientNum] || !&level.clients[clientNum].sess)
 		return qfalse;
-	qboolean newmod = &g_entities[clientNum] && g_entities[clientNum].client && g_entities[clientNum].client->sess.auth == AUTHENTICATED ? qtrue : qfalse;
-	int i;
-	for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
-		if (level.whitelistedUniqueIds[i] && (level.whitelistedUniqueIds[i] == level.clientUniqueIds[clientNum] || newmod && level.whitelistedUniqueIds[i] == g_entities[clientNum].client->sess.cuidHash))
-			return qtrue;
+
+	gclient_t *client = &level.clients[clientNum];
+
+	if (client->sess.whitelistStatus == WHITELIST_NOTWHITELISTED)
+		return qfalse; // status is already known to not be whitelisted; don't spam db calls
+	if (client->sess.whitelistStatus == WHITELIST_WHITELISTED)
+		return qtrue; // status is already known to be whitelisted; don't spam db calls
+
+	// status is unknown; check it in the db now
+	unsigned long long id = level.clientUniqueIds[clientNum];
+	char *cuid = client->sess.auth == AUTHENTICATED ? client->sess.cuidHash : "";
+	if (G_DbPlayerWhitelisted(id, cuid)) {
+		// according to the db, he is whitelisted
+		client->sess.whitelistStatus = WHITELIST_WHITELISTED;
+		return qtrue;
 	}
+
+	// couldn't find a match in the db
+	client->sess.whitelistStatus = WHITELIST_NOTWHITELISTED;
 	return qfalse;
 }
 
@@ -1463,7 +1406,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.snd_medHealed = G_SoundIndex("sound/player/supp_healed.wav");
 	level.snd_medSupplied = G_SoundIndex("sound/player/supp_supplied.wav");
 
-	InitWhitelist();
 	InitProbation();
 
 #ifndef _XBOX

@@ -1205,137 +1205,6 @@ void	Svcmd_ForceUnReady_f(void) {
 	(&g_entities[cl - level.clients])->client->pers.readyTime = level.time;
 }
 
-static qboolean Whitelist_Add(gentity_t *ent, qboolean cuid) {
-	if (!ent || !ent->client || ent - g_entities < 0 || ent - g_entities >= MAX_CLIENTS)
-		return qfalse;
-	if (cuid && ent->client->sess.auth != AUTHENTICATED)
-		return qfalse;
-
-	unsigned long long id = cuid ? ent->client->sess.cuidHash : level.clientUniqueIds[ent - g_entities];
-	if (!id)
-		return qfalse;
-	char *idBuf = va(cuid ? "NM:%llX" : "%llu", id); // newmod cuid written as NM:blablabla
-	if (!idBuf || !idBuf[0])
-		return qfalse;
-
-	char buf[MAX_WHITELIST_LEN] = { 0 };
-	fileHandle_t f;
-	int len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
-	if (f) {
-		if (len >= MAX_WHITELIST_LEN - 20 - 2) {
-			G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
-			trap_FS_FCloseFile(f);
-			return qfalse;
-		}
-
-		trap_FS_Read(buf, len, f);
-		trap_FS_FCloseFile(f);
-
-		if (buf && buf[0] && strstr(buf, idBuf))
-			return qfalse; // already whitelisted
-	}
-	// write it
-	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_APPEND_SYNC);
-	if (!f)
-		return qfalse;
-	char *writeStr = va("\n%s\n", idBuf);
-	trap_FS_Write(writeStr, strlen(writeStr), f);
-	trap_FS_FCloseFile(f);
-
-	// cleanse consecutive line breaks
-	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
-	if (!f)
-		return qtrue;
-	trap_FS_Read(buf, len, f);
-	trap_FS_FCloseFile(f);
-
-	char new[MAX_WHITELIST_LEN] = { 0 };
-	char *read = buf, *write = new;
-	int pos = 0;
-	while (*read && pos < MAX_WHITELIST_LEN - 20 - 2) {
-		if (!(pos && *read == '\n' && *(read - 1) == '\n')) {
-			*write = *read;
-			write++;
-		}
-		read++;
-		pos++;
-	}
-	len = trap_FS_FOpenFile("whitelist.txt", &f, FS_WRITE);
-	if (!f)
-		return qtrue;
-	trap_FS_Write(new, strlen(new), f);
-	trap_FS_FCloseFile(f);
-	return qtrue;
-}
-
-static qboolean Whitelist_Remove(gentity_t *ent, qboolean cuid) {
-	if (!ent || !ent->client || ent - g_entities < 0 || ent - g_entities >= MAX_CLIENTS)
-		return qfalse;
-	if (cuid && ent->client->sess.auth != AUTHENTICATED)
-		return qfalse;
-
-	fileHandle_t f;
-	int len = trap_FS_FOpenFile("whitelist.txt", &f, FS_READ);
-
-	if (!f)
-		return qfalse;
-	if (len <= 0) {
-		trap_FS_FCloseFile(f);
-		return qfalse;
-	}
-	if (len >= MAX_WHITELIST_LEN - 20 - 2) {
-		G_LogPrintf("whitelist.txt is too long! Must be under %i bytes.\n", MAX_WHITELIST_LEN);
-		return qfalse;
-	}
-
-	char buf[MAX_WHITELIST_LEN] = { 0 };
-	trap_FS_Read(buf, len, f);
-	trap_FS_FCloseFile(f);
-	if (!buf || !buf[0])
-		return qfalse;
-
-	unsigned long long id = cuid ? ent->client->sess.cuidHash : level.clientUniqueIds[ent - g_entities];
-	if (!id)
-		return qfalse;
-	char *idBuf = va(cuid ? "NM:%llX" : "%llu", id); // newmod cuid written as NM:blablabla
-	if (!idBuf || !idBuf[0])
-		return qfalse;
-
-	char *p = NULL;
-	qboolean changed = qfalse;
-	while (p = strstr(buf, idBuf)) { // overwrite any instances of this unique id
-		int i;
-		for (i = 0; i < 20 && *(p + i) && isdigit(*(p + i)) ||
-			cuid && (*(p + i) == 'N' || *(p + i) == 'n' || *(p + i) == 'M' || *(p + i) == 'm' || *(p + i) == ':' ||
-				*(p + i) >= 'A' && *(p + i) <= 'F' || *(p + i) >= 'a' && *(p + i) <= 'f'); i++)
-			*(p + i) = '\n';
-		changed = qtrue;
-	}
-
-	// write if needed
-	if (changed) {
-		// cleanse consecutive line breaks
-		char new[MAX_WHITELIST_LEN] = { 0 };
-		char *read = buf, *write = new;
-		int pos = 0;
-		while (*read && pos < MAX_WHITELIST_LEN - 20 - 2) {
-			if (!(pos && *read == '\n' && *(read - 1) == '\n')) {
-				*write = *read;
-				write++;
-			}
-			read++;
-			pos++;
-		}
-		len = trap_FS_FOpenFile("whitelist.txt", &f, FS_WRITE);
-		if (!f)
-			return qfalse;
-		trap_FS_Write(new, strlen(new), f);
-		trap_FS_FCloseFile(f);
-		return qtrue;
-	}
-	return qfalse;
-}
-
 // whitelist
 // g_lockdown helper command
 // status == displays list of clients with their client number, name, unique, id and whitelist status
@@ -1347,7 +1216,6 @@ void Svcmd_Whitelist_f(void) {
 		return;
 	}
 
-	int i;
 	qboolean add;
 	char commandArg[MAX_STRING_CHARS] = { 0 };
 	trap_Argv(1, commandArg, sizeof(commandArg));
@@ -1361,14 +1229,14 @@ void Svcmd_Whitelist_f(void) {
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			if (!&g_entities[i] || !g_entities[i].client || g_entities[i].client->pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT)
 				continue;
-			unsigned int len = strlen(g_entities[i].client->pers.netname);
+			unsigned int len = strlen(g_entities[i].client->pers.netnameClean);
 			if (len > longestName) // fixme: color codes/drawstrlen
 				longestName = len;
 		}
 		char nameSpacingStr[64] = { 0 };
 		while (strlen(nameSpacingStr) < longestName - 4)
 			nameSpacingStr[strlen(nameSpacingStr)] = ' ';
-		Com_Printf("#  Name%sWhitelisted?  Unique ID             Newmod CUID\n", nameSpacingStr);
+		Com_Printf("#  Name%s  Whitelisted?  Unique ID             Newmod CUID\n", nameSpacingStr);
 
 		// print each player's line
 		for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1377,7 +1245,7 @@ void Svcmd_Whitelist_f(void) {
 
 			// get name
 			char nameString[64] = { 0 };
-			Q_strncpyz(nameString, g_entities[i].client->pers.netname, sizeof(nameString));
+			Q_strncpyz(nameString, g_entities[i].client->pers.netnameClean, sizeof(nameString));
 			while (strlen(nameString) < longestName + 2)
 				nameString[strlen(nameString)] = ' ';
 
@@ -1389,9 +1257,7 @@ void Svcmd_Whitelist_f(void) {
 
 			// get cuid, if available
 			char cuidString[MAX_STRING_CHARS] = { 0 };
-			Q_strncpyz(cuidString, g_entities[i].client->sess.auth == AUTHENTICATED ? va("%llX", g_entities[i].client->sess.cuidHash) : "                      ", sizeof(cuidString));
-			while (strlen(cuidString) < 20 + 2)
-				cuidString[strlen(cuidString)] = ' ';
+			Q_strncpyz(cuidString, g_entities[i].client->sess.auth == AUTHENTICATED ? va("%s", g_entities[i].client->sess.cuidHash) : "", sizeof(cuidString));
 
 			// print this player's line
 			Com_Printf("%i%s^7%s%s%s%s"S_COLOR_WHITE"\n",
@@ -1414,6 +1280,7 @@ void Svcmd_Whitelist_f(void) {
 		return;
 	}
 
+	// add or remove a player
 	// find the player
 	gentity_t	*found = NULL;
 	int			clientNum;
@@ -1427,66 +1294,47 @@ void Svcmd_Whitelist_f(void) {
 	}
 	clientNum = found - g_entities;
 	if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
-		Com_Printf("Unexpected error attempting to %s.\n", add ? "whitelist client" : "remove client from whitelist");
+		Com_Printf("Invalid client.\n");
 		Com_Printf(WHITELIST_ERROR);
 		return;
 	}
-	qboolean newmod = found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0 ? qtrue : qfalse;
 
-	if (add) { // add him to whitelist file
-		if (newmod) { // newmod user; add both id and cuid hash
-			qboolean gotOne = qfalse;
-			if (Whitelist_Add(found, qfalse))
-				gotOne = qtrue;
-			if (Whitelist_Add(found, qtrue))
-				gotOne = qtrue;
-			if (gotOne) // got at least one
-				G_LogPrintf("Successfully whitelisted client %i (%s"S_COLOR_WHITE").\n", clientNum, found->client->pers.netname);
-			else
-				G_LogPrintf("Error attempting to whitelist client %i (%s"S_COLOR_WHITE"). (is he already whitelisted?)\n", clientNum, found->client->pers.netname);
+	char *name = found->client->pers.netname;
+	unsigned long long id = level.clientUniqueIds[clientNum];
+	qboolean newmod = found->client->sess.auth == AUTHENTICATED ? qtrue : qfalse;
+	char *cuid = newmod ? found->client->sess.cuidHash : "";
+	int currentStatus = G_DbPlayerWhitelisted(id, cuid);
+	qboolean whiteId = currentStatus & WHITELISTED_ID ? qtrue : qfalse;
+	qboolean whiteCuid = currentStatus & WHITELISTED_CUID ? qtrue : qfalse;
+
+	if (add) {
+		found->client->sess.whitelistStatus = WHITELIST_WHITELISTED;
+		// add the player to the whitelist
+		if (newmod && whiteId && whiteCuid || !newmod && whiteId) {
+			Com_Printf("%s"S_COLOR_WHITE" is already whitelisted.\n", name);
 		}
-		else if (Whitelist_Add(found, qfalse))
-			G_LogPrintf("Successfully whitelisted client %i (%s"S_COLOR_WHITE").\n", clientNum, found->client->pers.netname);
-		else
-			G_LogPrintf("Error attempting to whitelist client %i (%s"S_COLOR_WHITE"). (is he already whitelisted?)\n", clientNum, found->client->pers.netname);
-
-		// add his id to the array (add both id and cuid hash if newmod)
-		qboolean added = qfalse;
-		if (level.clientUniqueIds[clientNum]) {
-			for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
-				if (!level.whitelistedUniqueIds[i]) {
-					// found an empty slot for this one
-					level.whitelistedUniqueIds[i] = newmod && added ? found->client->sess.cuidHash : level.clientUniqueIds[clientNum];
-					if (!newmod || added)
-						return;
-					added = qtrue;
-				}
-			}
+		else if (newmod && whiteId && !whiteCuid) {
+			G_DbStorePlayerInWhitelist(0, cuid, name);
+			Com_Printf("%s"S_COLOR_WHITE" was previously whitelisted by unique ID, but not CUID. Added their CUID to the whitelist.\n", name);
+		}
+		else if (newmod && !whiteId && whiteCuid) {
+			G_DbStorePlayerInWhitelist(id, "", name);
+			Com_Printf("%s"S_COLOR_WHITE" was previously whitelisted by CUID, but not unique ID. Added their unique ID to the whitelist.\n", name);
+		}
+		else {
+			G_DbStorePlayerInWhitelist(id, cuid, name);
+			Com_Printf("%s"S_COLOR_WHITE" was added to the whitelist.\n", name);
 		}
 	}
-	else { // remove him from whitelist file
-		if (newmod) { // newmod user; remove both id and cuid hash
-			qboolean gotOne = qfalse;
-			if (Whitelist_Remove(found, qfalse))
-				gotOne = qtrue;
-			if (Whitelist_Remove(found, qtrue))
-				gotOne = qtrue;
-			if (gotOne) // got at least one
-				G_LogPrintf("Successfully removed client %i (%s"S_COLOR_WHITE") from whitelist.\n", clientNum, found->client->pers.netname);
-			else
-				G_LogPrintf("Error attempting to remove client %i (%s"S_COLOR_WHITE") from whitelist. (is he already non-whitelisted?)\n", clientNum, found->client->pers.netname);
+	else {
+		found->client->sess.whitelistStatus = WHITELIST_NOTWHITELISTED;
+		// remove the player from the whitelist
+		if (currentStatus) {
+			G_DbRemovePlayerFromWhitelist(id, cuid);
+			Com_Printf("%s"S_COLOR_WHITE" was removed from the whitelist.\n", name);
 		}
-		else if (Whitelist_Remove(found, qfalse))
-			G_LogPrintf("Successfully removed client %i (%s"S_COLOR_WHITE") from whitelist.\n", clientNum, found->client->pers.netname);
-		else
-			G_LogPrintf("Error attempting to remove client %i (%s"S_COLOR_WHITE") from whitelist. (is he already non-whitelisted?)\n", clientNum, found->client->pers.netname);
-
-		// remove his id from the array (remove both id and cuid hash if newmod)
-		if (level.clientUniqueIds[clientNum]) {
-			for (i = 0; i < MAX_WHITELIST_UNIQUEIDS; i++) {
-				if (level.whitelistedUniqueIds[i] && (level.whitelistedUniqueIds[i] == level.clientUniqueIds[clientNum] || newmod && level.whitelistedUniqueIds[i] == found->client->sess.cuidHash))
-					level.whitelistedUniqueIds[i] = 0;
-			}
+		else {
+			Com_Printf("%s"S_COLOR_WHITE" is not currently whitelisted, so they couldn't be removed.\n", name);
 		}
 	}
 }

@@ -548,6 +548,11 @@ typedef struct {
 	char		cuidHash[HASH_MAX_SHA1_HEX_CHARS]; // sha1 hash of the client cuid
 	int			serverKeys[2]; // randomly generated auth keys to confirm legit clients
 	EnhancedLocationContext	enhancedLocation;
+	enum {
+		WHITELIST_UNKNOWN = 0,
+		WHITELIST_NOTWHITELISTED,
+		WHITELIST_WHITELISTED
+	} whitelistStatus;
 #endif
 } clientSession_t;
 
@@ -1170,7 +1175,6 @@ typedef struct {
 
 	unsigned long long clientUniqueIds[MAX_CLIENTS];
 	unsigned long long probationUniqueIds[MAX_PROBATION_UNIQUEIDS];
-	unsigned long long whitelistedUniqueIds[MAX_WHITELIST_UNIQUEIDS];
 	int wallhackTracesDone;
 
 #ifdef NEWMOD_SUPPORT
