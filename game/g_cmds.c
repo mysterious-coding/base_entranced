@@ -5239,12 +5239,23 @@ static void Cmd_WhoIs_f( gentity_t* ent )
 	char buffer[64];
 	gentity_t* found = NULL;
 	AliasesContext context;
+	int i;
 
 	context.entNum = ent - g_entities;
 
 	if ( trap_Argc() < 2 )
 	{
-		trap_SendServerCommand(ent - g_entities,"print \"usage: whois [name or client number]  (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
+		for ( i = 0 ; i < level.maxclients ; ++i ) {
+			if ( level.clients[i].pers.connected != CON_DISCONNECTED && !( &g_entities[i] && g_entities[i].r.svFlags & SVF_BOT ) ) {
+				trap_SendServerCommand( ent - g_entities, va( "print \"%sClient %i "S_COLOR_WHITE"(%s"S_COLOR_WHITE"): \"",
+					level.clients[i].sess.sessionTeam == TEAM_RED ? S_COLOR_RED : ( level.clients[i].sess.sessionTeam == TEAM_BLUE ? S_COLOR_BLUE : S_COLOR_WHITE ),
+					i, level.clients[i].pers.netname )
+				);
+				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context, level.clients[i].sess.auth == AUTHENTICATED ? level.clients[i].sess.cuidHash : "");
+				trap_SendServerCommand( ent - g_entities, "print \"\n\"" );
+			}
+		}
+
 		return;
 	}
 
@@ -6553,8 +6564,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_PrintStats_f(ent);
 	else if (Q_stricmp( cmd, "help" ) == 0 || Q_stricmp( cmd, "rules" ) == 0)
 		Cmd_Help_f( ent );
-	else if ( Q_stricmp( cmd, "clientlist" ) == 0 )
-		Cmd_ClientList_f( ent );
 	else if (Q_stricmp (cmd, "gc") == 0)
 		Cmd_GameCommand_f( ent );
 	else if (Q_stricmp (cmd, "setviewpos") == 0)
