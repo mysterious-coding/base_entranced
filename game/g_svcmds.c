@@ -2074,7 +2074,7 @@ static void Svcmd_WhoIs_f(void)
 	G_CfgDbListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallbackServer, &context, found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0);
 }
 
-void Svcmd_ClientInfo_f( void ) {
+void Svcmd_ClientDesc_f( void ) {
 	int i;
 
 	for ( i = 0; i < level.maxclients; ++i ) {
@@ -2560,7 +2560,7 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 	
-	if ( !Q_stricmp( cmd, "clientinfo" ) ) {
+	if ( !Q_stricmp( cmd, "clientdesc" ) ) {
 		Svcmd_ClientInfo_f();
 		return qtrue;
 	}
