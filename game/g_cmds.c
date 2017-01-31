@@ -6551,6 +6551,10 @@ void ClientCommand( int clientNum ) {
         Cmd_WhoIs_f( ent );
 	else if (Q_stricmp(cmd, "ctfstats") == 0)
 		Cmd_PrintStats_f(ent);
+	else if (Q_stricmp( cmd, "help" ) == 0 || Q_stricmp( cmd, "rules" ) == 0)
+		Cmd_Help_f( ent );
+	else if ( Q_stricmp( cmd, "clientlist" ) == 0 )
+		Cmd_ClientList_f( ent );
 	else if (Q_stricmp (cmd, "gc") == 0)
 		Cmd_GameCommand_f( ent );
 	else if (Q_stricmp (cmd, "setviewpos") == 0)
@@ -6561,10 +6565,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_TestCmd_f(ent);
 	else if (Q_stricmp(cmd, "serverstatus2") == 0)
 		Cmd_ServerStatus2_f(ent);
-	else if (Q_stricmp(cmd, "clientlist") == 0)
-		Cmd_ClientList_f(ent);
-	else if (Q_stricmp(cmd, "help") == 0)
-		Cmd_Help_f(ent);
 	else if (Q_stricmp(cmd, "info") == 0)//stupid openjk broke my command
 		Cmd_Help_f(ent);
 	else if (Q_stricmp(cmd, "testvis") == 0)

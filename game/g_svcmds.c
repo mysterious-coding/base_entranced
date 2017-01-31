@@ -2561,7 +2561,7 @@ qboolean	ConsoleCommand( void ) {
 	}
 	
 	if ( !Q_stricmp( cmd, "clientdesc" ) ) {
-		Svcmd_ClientInfo_f();
+		Svcmd_ClientDesc_f();
 		return qtrue;
 	}
 
