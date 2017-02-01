@@ -3132,7 +3132,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 // features whose existences are not necessarily implicitly declared via their use
 static char *supportedFeatures[] = {
 	"oid",	// octal ids
-	"cl",	// clientlist and whois commands
+	/*"cl",	// clientlist command*/
+	"whoi",	// whois command
 	"redy",	// ready command
 	"ctfs",	// ctfstats command
 	"csaa",	// custom siege ammo amounts
