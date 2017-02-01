@@ -2040,9 +2040,13 @@ extern vmCvar_t     g_fixGripKills;
 extern vmCvar_t		g_allow_vote_customTeams;
 
 #ifdef CTF_CVARS
-extern vmCvar_t		g_allSabersCanKick;
-extern vmCvar_t		g_allSabersCanBackflip;
-extern vmCvar_t		g_balanceSaberOffense;
+// flags for g_balanceSaber
+#define SB_KICK				(1<<0) // kick with all sabers
+#define SB_BACKFLIP			(1<<1) // backflip with all sabers
+#define SB_OFFENSE			(1<<2) // 3 styles with saber offense 1
+#define SB_OFFENSE_TAV_DES	(1<<3) // tavion/desann with offense 2/3
+
+extern vmCvar_t		g_balanceSaber;
 extern vmCvar_t		g_balanceSeeing;
 #endif
 

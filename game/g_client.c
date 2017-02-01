@@ -3755,8 +3755,9 @@ static qboolean SaberStyleIsValidNew(gentity_t *ent, int style, int forceLevel) 
 			return qtrue;
 		return qfalse;
 	}
+
 #ifdef CTF_CVARS
-	if (!g_balanceSaberOffense.integer) { // base mode
+	if (!(g_balanceSaber.integer & SB_OFFENSE)) { // base mode
 #else
 	if (1) {
 #endif
@@ -3764,17 +3765,17 @@ static qboolean SaberStyleIsValidNew(gentity_t *ent, int style, int forceLevel) 
 			return qfalse;
 	}
 #ifdef CTF_CVARS
-	else if (g_balanceSaberOffense.integer == 1) { // balanced/fixed mode, level 1+ allows fast, medium, and strong
+	} else if ( !( g_balanceSaber.integer & SB_OFFENSE_TAV_DES ) ) { // balanced/fixed mode, level 1+ allows fast, medium, and strong
 		if (style == SS_DESANN || style == SS_TAVION)
 			return qfalse;
-	}
-	else if (g_balanceSaberOffense.integer) { // fun mode, level 2 allows desann stance and level 3 allows tavion stance
+	} else { // fun mode, level 2 allows desann stance and level 3 allows tavion stance
 		if (forceLevel == 1 && (style == SS_DESANN || style == SS_TAVION)) // level 1, we only get normal styles
 			return qfalse;
 		if (forceLevel == 2 && style == SS_TAVION) // level 2, we get desann stance
 			return qfalse;
 	}
 #endif
+
 	return qtrue;
 }
 
@@ -3930,7 +3931,7 @@ void ClientSpawn(gentity_t *ent) {
 			}
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 #ifdef CTF_CVARS
-			if (g_gametype.integer != GT_SIEGE && !g_balanceSaberOffense.integer && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
+			if (g_gametype.integer != GT_SIEGE && !(g_balanceSaber.integer & SB_OFFENSE) && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 #else
 			if (g_gametype.integer != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 #endif
@@ -3979,7 +3980,7 @@ void ClientSpawn(gentity_t *ent) {
 			(ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 			&& ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE]
 #ifdef CTF_CVARS
-			&& !g_balanceSaberOffense.integer
+			&& !(g_balanceSaber.integer & SB_OFFENSE)
 #endif
 		    /*make sure we actually have sabers, this is fix for yellow stance going to blue after changing forcepowers to no saber cfg*/
 			)

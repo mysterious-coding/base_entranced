@@ -2405,7 +2405,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		{//backward= T2B slash//B2T uppercut?
 			if (!noSpecials&&
 #ifdef CTF_CVARS
-				( pm->ps->fd.saberAnimLevel == SS_STAFF || g_allSabersCanBackflip.integer ) &&
+				(pm->ps->fd.saberAnimLevel == SS_STAFF || (g_balanceSaber.integer & SB_BACKFLIP)) &&
 #else
 				pm->ps->fd.saberAnimLevel == SS_STAFF &&
 #endif
@@ -2625,7 +2625,7 @@ static qboolean CanSaberAnimKick( void ) {
 	}
 
 #ifdef CTF_CVARS
-	if ( !g_allSabersCanKick.integer ) {
+	if (!(g_balanceSaber.integer & SB_KICK)) {
 #else
 	if ( 1 ) {
 #endif
