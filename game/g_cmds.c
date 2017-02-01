@@ -2544,14 +2544,14 @@ static void Cmd_Tell_f(gentity_t *ent, char *override) {
 	if (!override && trap_Argc() < 3)
 	{
 		trap_SendServerCommand(ent - g_entities,
-			"print \"usage: tell <name or client number> <message> (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
+			"print \"usage: tell <name or client number> <message> (name can be just part of name, colors don't count. use ^5/whois^7 to see client numbers)  \n\"");
 		return;
 	}
 
 	if (override && !override[0])
 	{
 		trap_SendServerCommand(ent - g_entities,
-			"print \"usage: @[name or client number] [message] (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
+			"print \"usage: @[name or client number] [message] (name can be just part of name, colors don't count. use ^5/whois^7 to see client numbers)  \n\"");
 		return;
 	}
 
@@ -2561,7 +2561,7 @@ static void Cmd_Tell_f(gentity_t *ent, char *override) {
 		if (space == NULL || !space[1])
 		{
 			trap_SendServerCommand(ent - g_entities,
-				"print \"usage: @[name or client number] [message] (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
+				"print \"usage: @[name or client number] [message] (name can be just part of name, colors don't count. use ^5/whois^7 to see client numbers)  \n\"");
 			return;
 		}
 		Q_strncpyz(firstArg, override, sizeof(firstArg));
@@ -4656,7 +4656,7 @@ void Cmd_Ignore_f( gentity_t *ent )
 	if (trap_Argc() < 2)
 	{
 		trap_SendServerCommand( ent-g_entities, 
-			"print \"usage: ignore [name or client number]  (name can be just part of name, colors don't count. use ^5/clientlist^7 to see client numbers)  \n\"");
+			"print \"usage: ignore [name or client number]  (name can be just part of name, colors don't count. use ^5/whois^7 to see client numbers)  \n\"");
 		return;
 	}
 
@@ -5607,7 +5607,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 void Cmd_Help_f(gentity_t *ent)
 {
 	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build %i\n\"", BUILDNUMBER));
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/WHOIS:^7   You can see a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/WHOIS:^7   You can list everyone's client numbers and their most-used alias with ^5/whois^7. See a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL:^7   You can send private chats to another player with ^5/tell <player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2SIMPLIFIED PRIVATE MESSAGING:^7   Instead of using /tell, you can send private chats to another player simply by pressing your chat bind and typing ^5@<player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
@@ -5617,7 +5617,6 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS:^7   Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/JOIN:^7   Use ^5/join <team letter><first letter of class name>^7 (no spaces) to join as a specific team and class. For example, '^5join rj^7' for red jedi)\n\""));
 	}
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/CLIENTLIST:^7   Use ^5/clientlist^7 to see correct client numbers of all connected players. Helpful for commands like /whois.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2:^7   Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
 	if (g_allow_ready.integer)
 	{
@@ -5650,41 +5649,6 @@ void Cmd_Help_f(gentity_t *ent)
 	}
 	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS:^7   You can dynamically include some stats in your chat messages by writing these tokens:\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5$H^7 (health), ^5$A^7 (armor), ^5$F^7 (force), ^5$M^7 (ammo)\n\""));
-}
-
-void Cmd_ClientList_f(gentity_t *ent)
-{
-	//list all clients with real client numbers (serverstatus doesn't tell you the true client numbers)
-	//now with whois #1 name display
-
-	if (!ent->client)
-	{
-		return; //???
-	}
-
-	int i;
-	AliasesContext context;
-	
-	context.entNum = ent - g_entities;
-
-	for (i = 0; i < level.maxclients; ++i)
-	{
-		if (level.clients[i].pers.connected != CON_DISCONNECTED && &g_entities[i])
-		{
-			if (!(g_entities[i].r.svFlags & SVF_BOT))
-			{
-				//human
-				trap_SendServerCommand(ent - g_entities, va("print \"Client %i: %s"S_COLOR_WHITE": \"", i, level.clients[i].pers.netname));
-				G_CfgDbListAliases( level.clients[i].sess.ip, ( unsigned int )0xFFFFFFFF, 1, singleAliasCallback, &context, level.clients[i].sess.auth == AUTHENTICATED ? level.clients[i].sess.cuidHash : 0);
-				trap_SendServerCommand(ent - g_entities, "print \"\n\"");
-			}
-			else
-			{
-				//bot
-				trap_SendServerCommand(ent - g_entities, va("print \"Client %i (bot): %s\n\"", i, level.clients[i].pers.netname));
-			}
-		}
-	}
 }
 
 void Cmd_ServerStatus2_f(gentity_t *ent)
