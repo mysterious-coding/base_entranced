@@ -2682,8 +2682,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
-		ent->client->tempSpectate >= level.time)
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOICECHATASSPEC")) );
 		return;
