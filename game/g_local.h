@@ -1091,7 +1091,7 @@ typedef struct {
 	int			voteExecuteTime;		// time the vote is executed
 	int			voteYes;
 	int			voteNo;
-	int			numVotingClients;		// set by CalculateRanks
+	int			numVotingClients;		// set by fixVoters()
 	int			lastVotingClient;		//for delay purposes
 
 	qboolean	votingGametype;
@@ -1106,6 +1106,11 @@ typedef struct {
 	int			numteamVotingClients[2];// set by CalculateRanks
 	int			numRequiredTeamVotes[2];
 	int			numRequiredTeamVotesNo[2];
+
+	// b_e multi voting
+	qboolean	multiVoting; // bypass some stuff if this is true (ie, cant vote yes/no)
+	int			multiVoteChoices;
+	int			multiVotes[MAX_CLIENTS]; // the id of the choice they voted for
 
 	// spawn variables
 	qboolean	spawning;				// the G_Spawn*() functions are valid

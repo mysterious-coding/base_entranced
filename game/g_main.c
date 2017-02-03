@@ -4029,11 +4029,12 @@ void CheckVote( void ) {
 	if ( !level.voteTime ) {
 		return;
 	}
-	if ( level.time - level.voteTime >= VOTE_TIME ) {
-        if ((g_minimumVotesCount.integer) && (level.numVotingClients % 2 == 0) && (level.voteYes > level.voteNo) && (level.voteYes + level.voteNo >= g_minimumVotesCount.integer)) {
-            trap_SendServerCommand(-1, va("print \"%s\n\"",
-                G_GetStringEdString("MP_SVGAME", "VOTEPASSED")));
-
+	if ( !level.multiVoting ) {
+		// normal behavior for basejka voting
+		if ( level.time - level.voteTime >= VOTE_TIME ) {
+			if ( ( g_minimumVotesCount.integer ) && ( level.numVotingClients % 2 == 0 ) && ( level.voteYes > level.voteNo ) && ( level.voteYes + level.voteNo >= g_minimumVotesCount.integer ) ) {
+				trap_SendServerCommand( -1, va( "print \"%s\n\"",
+					G_GetStringEdString( "MP_SVGAME", "VOTEPASSED" ) ) );
 		// log the vote
             G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i g_minimumVotesCount:%i)\n", level.voteYes, level.voteNo, level.numVotingClients, g_minimumVotesCount.integer);
 			//special fix for siege status
@@ -4082,104 +4083,123 @@ void CheckVote( void ) {
 		// log the vote
 		G_LogPrintf("Vote timed out. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
         }
-	} else {
-        if ((g_enforceEvenVotersCount.integer) && (level.numVotingClients % 2 == 1)) {
-            if ((g_minVotersForEvenVotersCount.integer > 4) && (level.numVotingClients >= g_minVotersForEvenVotersCount.integer)) {
-                if (level.voteYes < level.numVotingClients/2 + 2) {
-                    return;
-                }
-            }
-        }
-
-		if (!IsVoteForCustomClasses(level.voteString) && level.voteYes > level.numVotingClients/2)
-		{
-			trap_SendServerCommand( -1, va("print \"%s\n\"", 
-				G_GetStringEdString("MP_SVGAME", "VOTEPASSED")) );
-
-			// log the vote
-			G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
-			if (!Q_strncmp(level.voteString, "vstr nextmap", sizeof(level.voteString))) {
-				SiegeClearSwitchData(); //clear siege to round 1 on nextmap vote
-			}
-			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
-				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
-				if (g_autoResetCustomTeams.integer) //reset custom teams
-				{
-					trap_Cvar_Set("g_redTeam", "none");
-					trap_Cvar_Set("g_blueTeam", "none");
+		}
+		else {
+			if ((g_enforceEvenVotersCount.integer) && (level.numVotingClients % 2 == 1)) {
+				if ((g_minVotersForEvenVotersCount.integer > 4) && (level.numVotingClients >= g_minVotersForEvenVotersCount.integer)) {
+					if (level.voteYes < level.numVotingClients / 2 + 2) {
+						return;
+					}
 				}
 			}
-			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
+
+			if (!IsVoteForCustomClasses(level.voteString) && level.voteYes > level.numVotingClients / 2)
 			{
-				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-				if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
-				{ //If we're voting to a different game type, be sure to refresh all the map stuff
-					const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
+				trap_SendServerCommand(-1, va("print \"%s\n\"",
+					G_GetStringEdString("MP_SVGAME", "VOTEPASSED")));
 
-					if (level.votingGametypeTo == GT_SIEGE)
-					{ //ok, kick all the bots, cause the aren't supported!
-						G_KickAllBots();
-						//just in case, set this to 0 too... I guess...maybe?
-						//trap_Cvar_Set("bot_minplayers", "0");
-					}
-
-					if (nextMap && nextMap[0])
+				// log the vote
+				G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
+				if (!Q_strncmp(level.voteString, "vstr nextmap", sizeof(level.voteString))) {
+					SiegeClearSwitchData(); //clear siege to round 1 on nextmap vote
+				}
+				if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
+					SiegeClearSwitchData(); //clear siege to round 1 on map change vote
+					if (g_autoResetCustomTeams.integer) //reset custom teams
 					{
-						trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", nextMap));
+						trap_Cvar_Set("g_redTeam", "none");
+						trap_Cvar_Set("g_blueTeam", "none");
 					}
 				}
-				else
-				{ //otherwise, just leave the map until a restart
-					G_RefreshNextMap(level.votingGametypeTo, qfalse);
+				if (!Q_stricmpn(level.voteString, "g_gametype", 10))
+				{
+					trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+					if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
+					{ //If we're voting to a different game type, be sure to refresh all the map stuff
+						const char *nextMap = G_GetDefaultMap(level.votingGametypeTo);
+
+						if (level.votingGametypeTo == GT_SIEGE)
+						{ //ok, kick all the bots, cause the aren't supported!
+							G_KickAllBots();
+							//just in case, set this to 0 too... I guess...maybe?
+							//trap_Cvar_Set("bot_minplayers", "0");
+						}
+
+						if (nextMap && nextMap[0])
+						{
+							trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", nextMap));
+						}
+					}
+					else
+					{ //otherwise, just leave the map until a restart
+						G_RefreshNextMap(level.votingGametypeTo, qfalse);
+					}
 				}
+				level.voteExecuteTime = level.time + 3000;
 			}
-			level.voteExecuteTime = level.time + 3000;
-		}
-		else if (IsVoteForCustomClasses(level.voteString) && level.voteYes >= FindRequiredCustomTeamYesVoters(level.numVotingClients))
-		{
-			trap_SendServerCommand(-1, va("print \"%s\n\"",
-				G_GetStringEdString("MP_SVGAME", "VOTEPASSED")));
-
-			// log the vote
-			G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
-			level.voteExecuteTime = level.time + 3000;
-		}
-		else if (!IsVoteForCustomClasses(level.voteString) && level.voteNo >= (level.numVotingClients+1)/2)
-		{
-			// same behavior as a timeout
-			trap_SendServerCommand( -1, va("print \"%s\n\"", 
-				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")) );
-			if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+			else if (IsVoteForCustomClasses(level.voteString) && level.voteYes >= FindRequiredCustomTeamYesVoters(level.numVotingClients))
 			{
-				trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
-			}
+				trap_SendServerCommand(-1, va("print \"%s\n\"",
+					G_GetStringEdString("MP_SVGAME", "VOTEPASSED")));
 
-			// log the vote
-			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
-		}
-		else if (IsVoteForCustomClasses(level.voteString) && level.voteNo >= FindRequiredCustomTeamNoVoters(level.numVotingClients))
-		{
-			// same behavior as a timeout
-			trap_SendServerCommand(-1, va("print \"%s\n\"",
-				G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
-			if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+				// log the vote
+				G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+				level.voteExecuteTime = level.time + 3000;
+			}
+			else if (!IsVoteForCustomClasses(level.voteString) && level.voteNo >= (level.numVotingClients + 1) / 2)
 			{
-				trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
-			}
+				// same behavior as a timeout
+				trap_SendServerCommand(-1, va("print \"%s\n\"",
+					G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
+				if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+				{
+					trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
+				}
 
-			// log the vote
-			G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+				// log the vote
+				G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
+			}
+			else if (IsVoteForCustomClasses(level.voteString) && level.voteNo >= FindRequiredCustomTeamNoVoters(level.numVotingClients))
+			{
+				// same behavior as a timeout
+				trap_SendServerCommand(-1, va("print \"%s\n\"",
+					G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
+				if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
+				{
+					trap_SendConsoleCommand(EXEC_APPEND, va("svsay Poll Result ^1NO^7: %s\n", level.voteDisplayString + 6));
+				}
+
+				// log the vote
+				G_LogPrintf("Vote failed. (Yes:%i No:%i All:%i) - 75 percent yes votes required\n", level.voteYes, level.voteNo, level.numVotingClients);
+			}
+			else
+			{
+				// still waiting for a majority
+				return;
+			}
 		}
-		else
-		{
-			// still waiting for a majority
+
+		g_entities[level.lastVotingClient].client->lastCallvoteTime = level.time;
+	} else {
+		// special handler for multiple choices voting
+		int i, numVotes = 0;
+		for ( i = 0; i < MAX_CLIENTS; ++i ) {
+			if ( level.multiVotes[i] > 0 && level.multiVotes[i] <= level.multiVoteChoices ) {
+				++numVotes;
+			}
+		}
+
+		// the vote only ends when it times out OR when everyone voted
+		if ( numVotes >= level.numVotingClients || level.time - level.voteTime >= VOTE_TIME ) {
+			G_LogPrintf( "Multi vote ended (%d voters)\n", numVotes );
+			level.voteExecuteTime = level.time + 3000; // everything else will be handled in the svcmd
+		} else {
 			return;
 		}
 
 	}
+
 	level.voteTime = 0;
-	g_entities[level.lastVotingClient].client->lastCallvoteTime = level.time;
-	
 	trap_SetConfigstring( CS_VOTE_TIME, "" );
 
 }
