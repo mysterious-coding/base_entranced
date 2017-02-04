@@ -2640,14 +2640,6 @@ static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 ) {
 		p = ConcatArgs( 1 );
 	}
 
-	if (p && p[0] && p[0] == '@')
-	{
-		//redirect this as a private message
-		p++;
-		Cmd_Tell_f(ent, p);
-		return;
-	}
-
 	/* *CHANGE 3* Anti say aaaaaaaaaaa */
 	len = strlen(p);
 	if ( len > 150 )
