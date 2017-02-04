@@ -2042,6 +2042,10 @@ extern vmCvar_t		g_minVotersForEvenVotersCount;
 
 extern vmCvar_t		g_maxNameLength;
 
+#ifdef NEWMOD_SUPPORT
+extern vmCvar_t		g_enableNmAuth;
+#endif
+
 extern vmCvar_t     g_strafejump_mod;
 
 extern vmCvar_t     g_antiWallhack;

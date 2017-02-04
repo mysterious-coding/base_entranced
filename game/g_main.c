@@ -327,7 +327,11 @@ vmCvar_t    g_minVotersForEvenVotersCount;
 
 vmCvar_t	g_maxNameLength;
 
-extern vmCvar_t     g_strafejump_mod;
+#ifdef NEWMOD_SUPPORT
+vmCvar_t	g_enableNmAuth;
+#endif
+
+vmCvar_t     g_strafejump_mod;
 
 vmCvar_t	g_antiWallhack;
 vmCvar_t	g_wallhackMaxTraces;
@@ -555,14 +559,14 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-	{ &g_dismember, "g_dismember", "0", CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_forceDodge, "g_forceDodge", "1", 0, 0, qtrue  },
+	{ &g_dismember, "g_dismember", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_forceDodge, "g_forceDodge", "1", 0, 0, qtrue },
 
 	{ &g_timeouttospec, "g_timeouttospec", "70", CVAR_ARCHIVE, 0, qfalse },
 
-	{ &g_saberDmgVelocityScale, "g_saberDmgVelocityScale", "0", CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_saberDmgDelay_Idle, "g_saberDmgDelay_Idle", "350", CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_saberDmgDelay_Wound, "g_saberDmgDelay_Wound", "0", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_saberDmgVelocityScale, "g_saberDmgVelocityScale", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_saberDmgDelay_Idle, "g_saberDmgDelay_Idle", "350", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_saberDmgDelay_Wound, "g_saberDmgDelay_Wound", "0", CVAR_ARCHIVE, 0, qtrue },
 
 #if 0//#ifndef FINAL_BUILD
 	{ &g_saberDebugPrint, "g_saberDebugPrint", "0", CVAR_CHEAT, 0, qfalse  },
@@ -615,16 +619,16 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_redTeam, "g_redTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_blueTeam, "g_blueTeam", "none", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 
-	//mainly for debugging with bots while I'm not around (want the server to
-	//cycle through levels naturally)
-	{ &d_noIntermissionWait, "d_noIntermissionWait", "0", CVAR_CHEAT, 0, qfalse  },
+		//mainly for debugging with bots while I'm not around (want the server to
+		//cycle through levels naturally)
+	{ &d_noIntermissionWait, "d_noIntermissionWait", "0", CVAR_CHEAT, 0, qfalse },
 
 	{ &g_austrian, "g_austrian", "0", CVAR_ARCHIVE, 0, qfalse  },
 	// nmckenzie:
 	// DUEL_HEALTH
 		{ &g_showDuelHealths, "g_showDuelHealths", "0", CVAR_SERVERINFO },
 
-	// *CHANGE 12* allowing/disabling cvars
+		// *CHANGE 12* allowing/disabling cvars
 	{ &g_protectQ3Fill,	"g_protectQ3Fill"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_protectQ3FillIPLimit,	"g_protectQ3FillIPLimit"	, "3"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_protectHPhack,	"g_protectHPhack"	, "3"	, CVAR_ARCHIVE, 0, qtrue },
@@ -634,7 +638,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_maxIPConnected,	"g_maxIPConnected"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 
-	// *CHANGE 10* anti q3fill
+		// *CHANGE 10* anti q3fill
 	{ &g_cleverFakeDetection,	"g_cleverFakeDetection"	, "forcepowers"	, CVAR_ARCHIVE, 0, qtrue },
 
 
@@ -646,14 +650,18 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_balanceSeeing, "g_balanceSeeing", "0", CVAR_ARCHIVE, 0, qtrue },
 #endif
 
-    { &g_minimumVotesCount, "g_minimumVotesCount", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_minimumVotesCount, "g_minimumVotesCount", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_enforceEvenVotersCount, "g_enforceEvenVotersCount", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_minVotersForEvenVotersCount, "g_minVotersForEvenVotersCount", "7", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_maxNameLength, "g_maxNameLength", "35", CVAR_ARCHIVE, 0, qtrue },
 
+#ifdef NEWMOD_SUPPORT
+	{ &g_enableNmAuth, "g_enableNmAuth", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
+#endif
 	{ &g_strafejump_mod,	"g_strafejump_mod"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
+
 
 	{ &g_antiWallhack,	"g_antiWallhack"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_wallhackMaxTraces,	"g_wallhackMaxTraces"	, "1000"	, CVAR_ARCHIVE, 0, qtrue },
@@ -1470,14 +1478,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 #ifdef NEWMOD_SUPPORT
-	level.nmAuthEnabled = Crypto_RSAInit() != CRYPTO_ERROR
-		&& Crypto_RSADumpKey( qtrue, level.pubKeyStr, sizeof( level.pubKeyStr ) ) != CRYPTO_ERROR;
+	if ( g_enableNmAuth.integer ) {
+		level.nmAuthEnabled = Crypto_RSAInit() != CRYPTO_ERROR
+			&& Crypto_RSADumpKey( qtrue, level.pubKeyStr, sizeof( level.pubKeyStr ) ) != CRYPTO_ERROR;
 
-	if ( !level.nmAuthEnabled ) {
-		G_Printf( S_COLOR_RED"%s\n", Crypto_LastError() );
-		G_Printf( S_COLOR_RED"Newmod auth support was disabled\n" );
+		if ( !level.nmAuthEnabled ) {
+			G_Printf( S_COLOR_RED"%s\n", Crypto_LastError() );
+			G_Printf( S_COLOR_RED"Newmod auth support was disabled\n" );
+		} else {
+			G_Printf( "Loaded RSA keys successfully\n" );
+		}
 	} else {
-		G_Printf( "Loaded RSA keys successfully\n" );
+		level.nmAuthEnabled = qfalse;
 	}
 #endif
 
