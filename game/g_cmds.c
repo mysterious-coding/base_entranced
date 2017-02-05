@@ -996,22 +996,6 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	}
 
 	BroadcastTeamChange( client, oldTeam );
-    const char* teamName = "";
-    switch ( team )
-    {
-        case TEAM_FREE:
-            teamName = "free";
-            break;
-        case TEAM_RED:
-            teamName = "red";
-            break;
-        case TEAM_BLUE:
-            teamName = "blue";
-            break;
-        case TEAM_SPECTATOR:
-            teamName = "spec";
-            break;
-    }  
     // G_LogDbLogLevelEvent( level.db.levelId, level.time - level.startTime, levelEventTeamChanged, client->sess.sessionId, oldTeam, team, 0, 0 );
 
 	//make a disappearing effect where they were before teleporting them to the appropriate spawn point,
@@ -2064,7 +2048,7 @@ static char *GetOwnerOfLocation(gentity_t *locEnt) {
 	switch (locEnt->owner) { // check to see if we have already determined that this entity has an owner earlier in the match
 	case OWNER_RED: return "$R";
 	case OWNER_BLUE: return "$B";
-	case OWNER_NONE: return "";
+	default: return "";
 	}
 
 	// count the number of instances of this kind of entity on the map (not including locEnt itself)
@@ -2276,11 +2260,11 @@ char* GetLocation( gclient_t *cl ) {
 
 	if (location && location[0]) {
 		TokenizeLocation(cl, tokenized, location, sizeof(ret));
-		if (tokenized && tokenized[0])
+		if (tokenized[0])
 			Q_strncpyz(ret, tokenized, sizeof(ret));
 	}
 
-	return ret && ret[0] ? ret : "";
+	return ret[0] ? ret : "";
 }
 #endif
 
@@ -4294,7 +4278,6 @@ static void Cmd_Ready_f(gentity_t *ent) {
 		trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", ent->client->pers.netname));
 		trap_SendServerCommand(ent - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\""));
 	}
-
 }
 
 
@@ -4755,9 +4738,9 @@ void Cmd_Ignore_f( gentity_t *ent )
 #define UTC (0)
 #define CCT (+8)
 
+void Cmd_WhoIs_f( gentity_t* ent );
 
 void Cmd_TestCmd_f( gentity_t *ent ) {
-
 }
 
 /*
@@ -5242,7 +5225,7 @@ static void Cmd_MapPool_f(gentity_t* ent)
         char short_name[64];
         trap_Argv( 1, short_name, sizeof( short_name ) );
 
-        G_CfgDbListMapsInPool( short_name, "", listMapsInPools, &ctxPtr );
+		G_CfgDbListMapsInPool( short_name, "", listMapsInPools, ( void** )&ctxPtr );
 
         trap_SendServerCommand( context.entity, va( "print \"Found %i maps for pool %s.\n\"",
             context.count, short_name, context.long_name ) );
@@ -5281,7 +5264,7 @@ void singleAliasCallback( void* context,
 	trap_SendServerCommand( thisContext->entNum, va( "print \"%s"S_COLOR_WHITE"\"", name ) );
 }
 
-static void Cmd_WhoIs_f( gentity_t* ent )
+void Cmd_WhoIs_f( gentity_t* ent )
 {
 	char buffer[64];
 	gentity_t* found = NULL;
