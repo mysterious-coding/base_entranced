@@ -322,7 +322,7 @@ vmCvar_t	g_balanceSaber;
 vmCvar_t	g_balanceSeeing;
 #endif
 
-vmCvar_t	g_randFix;
+vmCvar_t	g_breakRNG;
 
 vmCvar_t	g_reflectAngle;
 
@@ -654,7 +654,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_balanceSeeing, "g_balanceSeeing", "0", CVAR_ARCHIVE, 0, qtrue },
 #endif
 
-	{ &g_randFix, "g_randFix", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_breakRNG, "g_breakRNG", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_reflectAngle , "g_reflectAngle", "-1", CVAR_ARCHIVE, 0, qtrue },
 
