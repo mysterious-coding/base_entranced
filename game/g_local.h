@@ -2074,6 +2074,8 @@ extern vmCvar_t		g_balanceSaber;
 extern vmCvar_t		g_balanceSeeing;
 #endif
 
+extern vmCvar_t		g_randFix;
+
 extern vmCvar_t     g_allow_vote_gametype;
 extern vmCvar_t     g_allow_vote_kick;
 extern vmCvar_t     g_allow_vote_restart;
