@@ -1879,16 +1879,6 @@ void Svcmd_GreenDoors_f(qboolean announce)
 	}
 }
 
-void Svcmd_MapMultiVote_f() {
-	if ( !level.multiVoting || !level.multiVoteChoices ) {
-		return; // this command should only be run by the callvote code
-	}
-
-	if ( trap_Argc() - 1 != level.multiVoteChoices ) { // wtf? this should never happen...
-		G_LogPrintf( "MapMultiVote failed: argc=%d != multiVoteChoices=%d\n", trap_Argc() - 1, level.multiVoteChoices );
-		return;
-	}
-
 // allocates an array of length numChoices containing the sorted results from level.multiVoteChoices
 // don't forget to FREE THE RESULT
 int* BuildVoteResults( const int numChoices, int *numVotes, int *highestVoteCount ) {
