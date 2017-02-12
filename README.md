@@ -297,14 +297,11 @@ Note that this must contain EXACTLY 15 letters(one for each weapon). Also note t
 ####`/join`
 Clientside command. Use to join a specific class and team, e.g. `/join rj` for red jedi.
 
-####`/help`
+####`/help` / `/rules`
 Client command; displays some helpful commands that clients should be aware of (how to use `/whois`, `/class`, etc) as well as version number of currently-running server mod.
 
 ####`/serverstatus2`
 Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
-
-####`/clientlist`
-Client command; displays a list of everyone's true client numbers, as well as their most-used alias. Useful in combination with `/whois`, `/tell`, etc if you need someone's exact client number.
 
 ####Broadcast `siegeStatus` in serverinfo
 base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
@@ -318,11 +315,8 @@ base_enhanced supports random teams/capts, but it doesn't work for siege mode. I
 ####Unlimited class-changing during countdown
 Removed the 5-second delay for class-changing during the countdown.
 
-####Simple private messaging
-You can send private messages to other players by simply pressing your chat bind and typing `@` followed by a partial client name (for example, pressing your chat bind and typing `@pad how's it going` will send a message to Padawan saying "how's it going").
-
 ####Improved `/tell`
-In case for some reason you don't want to use the "@" method described above, you can still use partial client name with `/tell` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
+You can still use partial client names with `/tell` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
 
 ####Improved `/forceteam`
 Use partial client name with `/forceteam`. Optionally, you can include an additional argument for the number of seconds until they can change teams again (defaults to 0); for example, `/rcon forceteam douchebag r 60`
@@ -577,6 +571,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed bug with "impressive" award being triggered for shooting NPCs.
 * Added a workaround (Hoth only) for the bug where vehicles getting crushed cause their pilot to become invisible. Instead, the vehicle will instantly die. (see https://github.com/JACoders/OpenJK/issues/840)
 * Fixed incorrect sentry explosion location when dropping it a long vertical distance.
+* Voice chat is now allowed while dead.
 
 #Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
@@ -589,6 +584,12 @@ Clients can use the following chat tokens:
 * `$f` = current force
 * `$m` = current ammo
 * `$l` = closest weapon spawn (not useful for siege)
+
+####Advanced random map voting
+Instead of the traditional random map voting to have the server pick a map, `/g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `/vote 1`, `/vote 2`, etc.
+
+####Improved projectile pushing/deflection
+Instead of the buggy base JA behavior with pushing/deflecting projectiles, you now have some more options. `/g_breakRNG` (default: 0) controls whether to use old "broken" RNG system from base JA. `/g_randomConeReflection` (default: 0) controls whether to use an improved system of randomly generating a trajectory for the pushed/deflected projectile within a cone of the pusher/deflecter's FOV. `/g_coneReflectAngle` (default: 30) controls how wide of an angle to use for this.
 
 ####`/sv_passwordlessSpectators`
 0 = (default) normal server password behavior
@@ -611,7 +612,7 @@ The interval in milliseconds for teamoverlay data to be updated and sent out to 
 ####`/g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
 
-####`/clientInfo`
+####`/clientDesc`
 Rcon command to see client mods people are using, if possible.
 
 ####Bugfixes and other changes
@@ -653,7 +654,7 @@ See when someone joined a team in the center of your screen in siege mode.
 Use command `/pause` or `/unpause` (also can be called as vote) to stop the game temporarily. Useful if someone lags out. Stops game timer, siege timer, spawn timer, etc.
 
 ####`/whois`
-Use command `/whois` to see all known aliases of a player.
+Use command `/whois` to see a list of everyone in the server as well as their most-used alias. Optionally specify a client number or partial name to see the top aliases of that particular player.
 
 ####Auto-click on death
 If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn.
@@ -701,7 +702,7 @@ Prevent calling votes for some things:
 * `/g_allow_vote_nextmap` (default: 1)
 * `/g_allow_vote_timelimit` (default: 1)
 * `/g_allow_vote_fraglimit` (default: 1)
-* `/g_allow_vote_maprandom` (default: 1)
+* `/g_allow_vote_maprandom` (default: 4)
 * `/g_allow_vote_warmup` (default: 1)
 
 ####Bugfixes and other changes:
