@@ -4621,11 +4621,9 @@ void WP_TouchVehMissile( gentity_t *ent, gentity_t *other, trace_t *trace )
 }
 void WP_TouchRocket(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
-	if (ent)
-	{
+	if (ent && ent->s.eType == ET_MISSILE)
 		ent->die(ent, NULL, NULL, ROCKET_DAMAGE, MOD_ROCKET_HOMING);
-	}
-	}
+}
 
 void WP_CalcVehMuzzle(gentity_t *ent, int muzzleNum)
 {
