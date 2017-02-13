@@ -3140,6 +3140,7 @@ static char *supportedFeatures[] = {
 	"swpr",	// siege weapon preference
 	"tsgm",	// tie siege matches
 	"ubra",	// unlimited bryar ammo
+	"sclb", // siege class binds
 	NULL
 };
 
