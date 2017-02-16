@@ -55,6 +55,21 @@ int G_DbPlayerWhitelisted(unsigned long long uniqueID, const char* cuidHash);
 void G_DbStorePlayerInWhitelist(unsigned long long uniqueID, const char* cuidHash, const char* name);
 void G_DbRemovePlayerFromWhitelist(unsigned long long uniqueID, const char* cuidHash);
 
+void G_LogDbListCaptureRecords( const char *mapname,
+	CaptureRecordList *recordsToLoad );
+
+void G_LogDbSaveCaptureRecords( CaptureRecordList *recordsToSave );
+
+int G_LogDbCaptureTime( unsigned int ipInt,
+	const char *netname,
+	const char *cuid,
+	const int clientId,
+	const char *matchId,
+	const int captureTime,
+	const team_t whoseFlag,
+	const int pickupLevelTime,
+	const CaptureRecordType type,
+	CaptureRecordList *currentRecords );
 
 #endif //G_DATABASE_H
 
