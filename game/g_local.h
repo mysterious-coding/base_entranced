@@ -421,6 +421,8 @@ struct gentity_s {
 
 	gitem_t		*item;			// for bonus items
 
+	int			siegeItemSpawnTime;
+
 #ifdef NEWMOD_SUPPORT
 	locationOwner_t		owner;
 #endif

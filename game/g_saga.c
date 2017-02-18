@@ -2468,6 +2468,7 @@ void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 
 static void SiegeItemRespawnEffect(gentity_t *ent, vec3_t newOrg)
 {
+	ent->siegeItemSpawnTime = level.time;
 	vec3_t upAng;
 
 	if (ent->target5 && ent->target5[0])
@@ -2662,7 +2663,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	if (!other || !other->inuse ||
 		!other->client || other->s.eType == ET_NPC)
 	{
-		if (g_floatingItems.integer && trace && trace->startsolid)
+		if (trace && trace->startsolid && (g_floatingItems.integer || self->siegeItemSpawnTime && level.time - self->siegeItemSpawnTime <= 1000)) // duo: allow items to float for 1sec after spawning, even with g_floatingItems set to 0
 		{ //let me out! (ideally this should not happen, but such is life)
 			vec3_t escapePos;
 			VectorCopy(self->r.currentOrigin, escapePos);
