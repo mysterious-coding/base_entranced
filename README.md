@@ -10,7 +10,7 @@ a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhance
 
 base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive gameplay**, not as a general-purpose "hangout server" mod.
 
-base_entranced is the official server mod of the siege community [(www.jkasiege.com)](https://www.jkasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
+base_entranced is the official server mod of the siege community [(www.jasiege.com)](http://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
 base_entranced has three goals:
 * Fixing bugs.
@@ -21,7 +21,7 @@ base_entranced strives to remain close to basejka gameplay. You won't see anythi
 
 The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka gameplay, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else adheres to the "stay-close-to-basejka" philosophy.
 
-You can discuss base_entranced on the **base_entranced forum** at [www.jkasiege.com](https://www.jkasiege.com)
+You can discuss base_entranced on the **base_entranced forum** at [www.jasiege.com](http://www.jasiege.com)
 
 # Notice to coders
 
