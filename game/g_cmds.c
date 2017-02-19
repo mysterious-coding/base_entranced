@@ -2432,26 +2432,13 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			{
 				//we are in spec (in countdown) with a desired team/class...put our class type as our "location"
 				myClass = bgSiegeClasses[ent->client->siegeClass].playerClass;
-				switch (myClass)
-				{
-				case 0:
-					Com_sprintf(locMsg, 64, "Assault");
-					break;
-				case 1:
-					Com_sprintf(locMsg, 64, "Scout");
-					break;
-				case 2:
-					Com_sprintf(locMsg, 64, "Tech");
-					break;
-				case 3:
-					Com_sprintf(locMsg, 64, "Jedi");
-					break;
-				case 4:
-					Com_sprintf(locMsg, 64, "Demolitions");
-					break;
-				case 5:
-					Com_sprintf(locMsg, 64, "Heavy Weapons");
-					break;
+				switch (myClass) {
+				case 0:	locMsg = "Assault";			break;
+				case 1:	locMsg = "Scout";			break;
+				case 2:	locMsg = "Tech";			break;
+				case 3:	locMsg = "Jedi";			break;
+				case 4:	locMsg = "Demolitions";		break;
+				case 5:	locMsg = "Heavy Weapons";	break;
 				default:
 					doNotSendLocation = qtrue;
 					break;
