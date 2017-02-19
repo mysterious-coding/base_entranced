@@ -67,7 +67,7 @@ These are unique features for base_entranced.
 ####`/g_fixVoiceChat`
 0 = enemies can hear your voice chats and see icon over your head (default JK3)
 
-1 = (default) only teammates can hear your voice chats and see icon over your head
+1 = (default) only teammates can hear your voice chats and see icon over your head (except for air support, which is used to BM your enemies)
 
 ####`/iLikeToDoorSpam`
 0 = (default) door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
@@ -572,6 +572,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Added a workaround (Hoth only) for the bug where vehicles getting crushed cause their pilot to become invisible. Instead, the vehicle will instantly die. (see https://github.com/JACoders/OpenJK/issues/840)
 * Fixed incorrect sentry explosion location when dropping it a long vertical distance.
 * Voice chat is now allowed while dead.
+* Fixed bug with siege items getting stuck when they respawn.
 
 #Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
