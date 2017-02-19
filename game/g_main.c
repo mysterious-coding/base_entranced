@@ -5593,6 +5593,8 @@ void G_RunFrame( int levelTime ) {
 		}
 	}
 
+	level.frameStartTime = trap_Milliseconds(); // accurate timer
+
 	g_LastFrameTime = level.time;
 }
 
