@@ -229,6 +229,17 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 
 1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback (if it exists).
 
+###`/g_hothRebalance`
+0 = (default) hoth classes are unchanged
+
+bitflag 1 = o assault gets big bacta
+
+bitflag 2 = o hw gets regular bacta and e11
+
+bitflag 4 = d jedi gets heal 3
+
+-1 = enable all
+
 ####Custom team/class overrides
 You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
 
@@ -573,6 +584,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed incorrect sentry explosion location when dropping it a long vertical distance.
 * Voice chat is now allowed while dead.
 * Fixed bug with siege items getting stuck when they respawn.
+* Fixed double rocket explosion bug when shooting directly between someone's feet with rocket surfing disabled.
 
 #Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
@@ -608,7 +620,7 @@ The interval in milliseconds for teamoverlay data to be updated and sent out to 
 ####`/g_enforceNetSettings`
 0 = don't change any client net settings
 
-1 = (default) clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
+-1 = (default) clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
 
 ####`/g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
