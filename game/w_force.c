@@ -710,6 +710,14 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 			}
 			i++;
 		}
+
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (g_hothRebalance.integer & (1 << 2) && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && !Q_stricmp(g_redTeam.string, "none") && !Q_stricmp(g_blueTeam.string, "none") &&
+			ent->client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[ent->client->siegeClass].playerClass == SPC_JEDI) {
+			// hothRebalance: d jedi += heal 3
+			ent->client->ps.fd.forcePowerLevel[FP_HEAL] = 3;
+		}
 	}
 }
 

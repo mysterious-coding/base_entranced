@@ -2165,6 +2165,7 @@ extern vmCvar_t    g_probation;
 extern vmCvar_t    g_teamOverlayUpdateRate;
 extern vmCvar_t    g_tieGame;
 extern vmCvar_t    g_lockdown;
+extern vmCvar_t    g_hothRebalance;
 
 extern vmCvar_t    siegeStatus;
 extern	vmCvar_t	g_autoStats;

@@ -4365,6 +4365,12 @@ void ClientSpawn(gentity_t *ent) {
 			ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_DEMP2);
 		}
 
+		if (g_hothRebalance.integer & (1 << 1) && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && !Q_stricmp(g_redTeam.string, "none") && !Q_stricmp(g_blueTeam.string, "none") &&
+			client->sess.sessionTeam == TEAM_RED && bgSiegeClasses[client->siegeClass].playerClass == SPC_HEAVY_WEAPONS) {
+			// hothRebalance: o hw += e11
+			ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_BLASTER);
+		}
+
 		if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
 		{
 			client->ps.weapon = WP_SABER;
@@ -4543,6 +4549,16 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		if (!Q_stricmp(mapname.string, "siege_cargobarge2") && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == SPC_SUPPORT && (!g_blueTeam.string || !g_blueTeam.string[0] || g_blueTeam.string[0] == '0' || !Q_stricmpn(g_blueTeam.string, "none", 4))) {
 			client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC); //duo: hacky fix to remove unintentional bacta from cargo2 d tech without me having to update server pk3
+		}
+		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && !Q_stricmp(g_redTeam.string, "none") && !Q_stricmp(g_blueTeam.string, "none") && client->sess.sessionTeam == TEAM_RED) {
+			if (g_hothRebalance.integer & (1 << 0) && bgSiegeClasses[client->siegeClass].playerClass == SPC_INFANTRY) {
+				// hothRebalance: o assault += big bacta
+				client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_MEDPAC_BIG);
+			}
+			else if (g_hothRebalance.integer & (1 << 1) && bgSiegeClasses[client->siegeClass].playerClass == SPC_HEAVY_WEAPONS) {
+				// hothRebalance: o hw += bacta
+				client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_MEDPAC);
+			}
 		}
 	}
 	else

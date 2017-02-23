@@ -190,6 +190,7 @@ vmCvar_t	g_teamOverlayUpdateRate;
 vmCvar_t	g_tieGame;
 vmCvar_t	g_lockdown;
 vmCvar_t	siegeStatus;
+vmCvar_t	g_hothRebalance;
 
 vmCvar_t	g_autoStats;
 
@@ -759,6 +760,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_tieGame, "g_tieGame", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
+	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight3, "debug_testHeight3", "0", CVAR_ARCHIVE, 0, qtrue },
