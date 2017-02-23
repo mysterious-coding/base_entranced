@@ -1396,8 +1396,8 @@ void Svcmd_Skillboost_f(void) {
 
 	if (trap_Argc() <= 2) {
 		Com_Printf("Usage:   skillboost [client num or partial name] [amount]    Use positive number to boost bad players; negative number to handicap good players (use zero to reset).\n");
-		Com_Printf("Example: ^5skillboost baddie 0.25^7    (gives baddie +20 percent damage output and -20 percent damage intake)\n");
-		Com_Printf("Example: ^5skillboost goodie -0.5^7    (gives goodie -50 percent damage output and +50 percent damage intake)\n");
+		Com_Printf("Example: ^5skillboost baddie 0.25^7    (gives baddie +20 percent damage output)\n");
+		Com_Printf("Example: ^5skillboost goodie -0.5^7    (gives goodie -50 percent damage output)\n");
 		int i;
 		qboolean wrotePreface = qfalse;
 		for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1406,9 +1406,8 @@ void Svcmd_Skillboost_f(void) {
 					Com_Printf("Currently skillboosted players:\n");
 					wrotePreface = qtrue;
 				}
-				Com_Printf("^7%s^7 has a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output and %s%.6g percent^7 damage intake).\n",
-					g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost, g_entities[i].client->sess.skillBoost > 0 ? "^2+" : "^1", g_entities[i].client->sess.skillBoost * 100,
-					g_entities[i].client->sess.skillBoost > 0 ? "^2-" : "^1+", fabs(g_entities[i].client->sess.skillBoost) * 100);
+				Com_Printf("^7%s^7 has a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output).\n",
+					g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost, g_entities[i].client->sess.skillBoost > 0 ? "^2+" : "^1", g_entities[i].client->sess.skillBoost * 100);
 			}
 		}
 		if (!wrotePreface)
@@ -1435,12 +1434,11 @@ void Svcmd_Skillboost_f(void) {
 		if (!found->client->sess.skillBoost)
 			Com_Printf("Client '%s'^7 already has a skillboost of zero.\n");
 		else
-			trap_SendServerCommand(-1, va("print \"^7%s^7's skillboost was reset to zero (default damage output and intake).\n\"", found->client->pers.netname));
+			trap_SendServerCommand(-1, va("print \"^7%s^7's skillboost was reset to zero (default damage output).\n\"", found->client->pers.netname));
 	}
 	else
-		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output and %s%.6g percent^7 damage intake).\n\"",
-			found->client->pers.netname, newValue, newValue > 0 ? "^2+" : "^1", newValue * 100,
-			newValue > 0 ? "^2-" : "^1+", fabs(newValue) * 100));
+		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output).\n\"",
+			found->client->pers.netname, newValue, newValue > 0 ? "^2+" : "^1", newValue * 100));
 
 	found->client->sess.skillBoost = newValue;
 }
