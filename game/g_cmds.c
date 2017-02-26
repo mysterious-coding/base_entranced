@@ -2684,29 +2684,25 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	// always allow "air support" bind to be heard by enemies so you can gloat after mad airs
 	qboolean airSupport = !Q_stricmp(s, "*spot_air") ? qtrue : qfalse;
 
-	if (g_fixVoiceChat.integer && !airSupport) //only send voice chats to team
-	{
-		for (n = 0; n < level.maxclients; n++)
-		{
-			if (level.clients[n].pers.connected != CON_DISCONNECTED &&
-				!(g_entities[n].r.svFlags & SVF_BOT) &&
-				(level.clients[n].sess.sessionTeam == ent->client->sess.sessionTeam || level.clients[n].sess.sessionTeam == TEAM_SPECTATOR))
-			{
-				te = G_TempEntity(vec3_origin, EV_VOICECMD_SOUND);
-				te->s.groundEntityNum = ent->s.number;
-				te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
-				te->r.svFlags |= SVF_SINGLECLIENT;
-				te->r.svFlags |= SVF_BROADCAST;
-				te->r.singleClient = n;
-			}
-		}
-	}
-	else //send voice chats to everyone (default JK3)
-	{
+	for (n = 0; n < level.maxclients; n++) {
+		if (level.clients[n].pers.connected == CON_DISCONNECTED ||
+			g_entities[n].r.svFlags & SVF_BOT)
+			continue;
+
+		if (g_fixVoiceChat.integer && level.clients[n].sess.sessionTeam == OtherTeam(ent->client->sess.sessionTeam) && !airSupport)
+			continue;
+
 		te = G_TempEntity(vec3_origin, EV_VOICECMD_SOUND);
 		te->s.groundEntityNum = ent->s.number;
 		te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
+#ifdef NEWMOD_SUPPORT
+		// send location to teammates
+		if (!(g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY) && level.clients[n].sess.sessionTeam != OtherTeam(ent->client->sess.sessionTeam))
+			te->s.powerups = Team_GetLocation(ent)->health;
+#endif
+		te->r.svFlags |= SVF_SINGLECLIENT;
 		te->r.svFlags |= SVF_BROADCAST;
+		te->r.singleClient = n;
 	}
 }
 
