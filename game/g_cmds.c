@@ -2697,8 +2697,11 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		te->s.eventParm = G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
 #ifdef NEWMOD_SUPPORT
 		// send location to teammates
-		if (!(g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY) && level.clients[n].sess.sessionTeam != OtherTeam(ent->client->sess.sessionTeam))
-			te->s.powerups = Team_GetLocation(ent)->health;
+		if (!(g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY) && level.clients[n].sess.sessionTeam != OtherTeam(ent->client->sess.sessionTeam)) {
+			gentity_t *loc = Team_GetLocation(ent);
+			if (loc)
+				te->s.powerups = loc->health;
+		}
 #endif
 		te->r.svFlags |= SVF_SINGLECLIENT;
 		te->r.svFlags |= SVF_BROADCAST;
