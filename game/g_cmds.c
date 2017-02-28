@@ -1932,6 +1932,11 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 
+	// if this guy is shadow muted, don't let anyone see his messages except himself and other shadow muted clients
+	if (ent->client->sess.shadowMuted && ent != other && !other->client->sess.shadowMuted) {
+		return;
+	}
+
 	if (((ent->client->sess.sessionTeam == TEAM_SPECTATOR && (!level.inSiegeCountdown || (ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && ent->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) || level.intermissiontime) && g_improvedTeamchat.integer) || level.zombies && ent->client->sess.sessionTeam == TEAM_BLUE)
 	{
 		//a spectator during a live game, or a spectator without a desired team during the countdown

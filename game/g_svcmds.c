@@ -1443,6 +1443,27 @@ void Svcmd_Skillboost_f(void) {
 	found->client->sess.skillBoost = newValue;
 }
 
+void Svcmd_ShadowMute_f(void) {
+	gclient_t	*cl;
+	char		str[MAX_TOKEN_CHARS];
+
+	// find the player
+	trap_Argv(1, str, sizeof(str));
+	cl = ClientForString(str);
+	if (!cl) {
+		return;
+	}
+
+	cl->sess.shadowMuted = !cl->sess.shadowMuted;
+
+	if (cl->sess.shadowMuted) {
+		G_Printf("Client %d is now shadow muted\n", cl - level.clients);
+	}
+	else {
+		G_Printf("Client %d is no longer shadow muted\n", cl - level.clients);
+	}
+}
+
 void Svcmd_ForceName_f(void) {
 	gentity_t	*found = NULL;
 	gclient_t	*cl;
@@ -2409,6 +2430,10 @@ void Svcmd_ClientDesc_f( void ) {
 				Q_strcat( description, sizeof( description ), " ("S_COLOR_YELLOW"anti WH enabled"S_COLOR_WHITE")" );
 			}
 
+			if ( level.clients[i].sess.shadowMuted ) {
+				Q_strcat( description, sizeof( description ), " ("S_COLOR_YELLOW"shadow muted"S_COLOR_WHITE")" );
+			}
+
 			G_Printf( "Client %i (%s"S_COLOR_WHITE"): %s\n", i, level.clients[i].pers.netname, description );
 		}
 	}
@@ -2903,6 +2928,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if ( !Q_stricmp( cmd, "fastcaps_remove" ) ) {
 		Svcmd_FastCapsRemove_f();
+		return qtrue;
+	}
+
+	if ( !Q_stricmp( cmd, "shadowmute" ) ) {
+		Svcmd_ShadowMute_f();
 		return qtrue;
 	}
 
