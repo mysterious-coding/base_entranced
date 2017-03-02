@@ -632,7 +632,7 @@ Rcon command to see client mods people are using, if possible.
 Rcon command to secretly mute people. Only shadowmuted players can see each others' chats.
 
 ####Simplified private messaging
-Instead of using tell, you can send private messages to people by pressing your normal chat bind and typing two @ symbols followed by their name and the message, e.g. `@@ pad hello dude`
+Instead of using tell, you can send private messages to people by pressing your normal chat bind and typing two @ symbols followed by their name and the message, e.g. `@@pad hello dude`
 
 ####Bugfixes and other changes
 * Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
