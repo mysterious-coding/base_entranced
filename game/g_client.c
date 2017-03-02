@@ -2574,7 +2574,7 @@ void ClientUserinfoChanged( int clientNum ) {
 						);
 #endif
 					} else {
-						G_HackLog( S_COLOR_RED"Malformed svauth response to clannounce from client %d\n", clientNum );
+						G_HackLog( S_COLOR_RED"Malformed svauth response to clannounce from client %d: %s\n", clientNum, decryptedSvauth );
 					}
 				} else {
 					G_HackLog( S_COLOR_RED"Failed to decrypt svauth response to clannounce from client %d\n", clientNum );
@@ -2602,7 +2602,7 @@ void ClientUserinfoChanged( int clientNum ) {
 							bumpStep = qfalse;
 						}
 					} else {
-						G_HackLog( S_COLOR_RED"Malformed svauth response to clauth from client %d\n", clientNum );
+						G_HackLog( S_COLOR_RED"Malformed svauth response to clauth from client %d: %s\n", clientNum, decryptedSvauth );
 					}
 				} else {
 					G_HackLog( S_COLOR_RED"Failed to decrypt svauth response to clauth from client %d\n", clientNum );
