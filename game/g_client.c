@@ -2552,13 +2552,23 @@ void ClientUserinfoChanged( int clientNum ) {
 
 					bumpStep = qtrue;
 
-					s = Info_ValueForKey( decryptedSvauth, "ck1" );
-					if ( !*s || !Q_isanumber( s ) ) bumpStep = qfalse;
-					clientKeys[0] = atoi( s );
+					s = Info_ValueForKey(decryptedSvauth, "ck1");
+					if (!*s || !Q_isanumber(s)) {
+						bumpStep = qfalse;
 
-					s = Info_ValueForKey( decryptedSvauth, "ck2" );
-					if ( !*s || !Q_isanumber( s ) ) bumpStep = qfalse;
-					clientKeys[1] = atoi( s );
+						if (!*s) G_HackLog("(1) s is empty!!! ");
+						if (!Q_isanumber(s)) G_HackLog("(1) not a number!!! ");
+					}
+					clientKeys[0] = atoi(s);
+
+					s = Info_ValueForKey(decryptedSvauth, "ck2");
+					if (!*s || !Q_isanumber(s)) {
+						bumpStep = qfalse;
+
+						if (!*s) G_HackLog("(2) s is empty!!! ");
+						if (!Q_isanumber(s)) G_HackLog("(2) not a number!!! ");
+					}
+					clientKeys[1] = atoi(s);
 
 					if ( bumpStep ) {
 						client->sess.serverKeys[0] = RandomConfirmationKey();
