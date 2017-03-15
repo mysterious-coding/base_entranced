@@ -11,6 +11,8 @@
 #include "g_database_log.h"
 #include "g_database_config.h"
 
+#include "kdtree.h"
+
 level_locals_t	level;
 
 static char* getCurrentTime();
@@ -107,7 +109,6 @@ vmCvar_t	g_useWhileThrowing;
 vmCvar_t	g_RMG;
 
 vmCvar_t	g_svfps;
-vmCvar_t	g_enhancedLocations;
 vmCvar_t	g_forceRegenTime;
 vmCvar_t	g_spawnInvulnerability;
 vmCvar_t	g_forcePowerDisable;
@@ -322,6 +323,8 @@ vmCvar_t	g_fixGripKills;
 vmCvar_t	g_balanceSaber;
 vmCvar_t	g_balanceSeeing;
 #endif
+
+vmCvar_t	g_autoGenerateLocations;
 
 vmCvar_t	g_breakRNG;
 
@@ -658,6 +661,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_balanceSeeing, "g_balanceSeeing", "0", CVAR_ARCHIVE, 0, qtrue },
 #endif
 
+	{ &g_autoGenerateLocations, "g_autoGenerateLocations", "1", CVAR_ARCHIVE, 0, qtrue },
+
 	{ &g_breakRNG, "g_breakRNG", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_randomConeReflection , "g_randomConeReflection", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -719,7 +724,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_dlURL,	"g_dlURL"	, ""	, CVAR_SYSTEMINFO, 0, qtrue },
 	{ &cl_allowDownload,	"cl_allowDownload"	, "0"	, CVAR_SYSTEMINFO, 0, qfalse },
-	{ &g_enhancedLocations, "g_enhancedLocations", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixboon,	"g_fixboon"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_flags_overboarding, "g_flags_overboarding", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_selfkillPenalty, "g_selfkillPenalty", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -1764,6 +1768,8 @@ void G_ShutdownGame( int restart ) {
 	}
 
 	B_CleanupAlloc(); //clean up all allocations made with B_Alloc
+
+	kd_free( level.locations.enhanced.lookupTree );
 
 	// accounts system
 	//cleanDB();
