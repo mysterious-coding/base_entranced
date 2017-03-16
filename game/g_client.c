@@ -3095,8 +3095,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
     if ( firstTime )
     {
-        int sessionId = G_LogDbLogSessionStart( client->sess.ip, client->sess.port, clientNum );
-        client->sess.sessionId = sessionId;
+        //int sessionId = G_LogDbLogSessionStart( client->sess.ip, client->sess.port, clientNum );
+        //client->sess.sessionId = sessionId;
         ent->client->sess.nameChangeTime = getGlobalTime();
     }
 
@@ -4818,7 +4818,7 @@ void ClientDisconnect( int clientNum ) {
     G_LogDbLogNickname( ent->client->sess.ip, ent->client->pers.netname, (getGlobalTime() - ent->client->sess.nameChangeTime ) / 1000, ent->client->sess.auth == AUTHENTICATED ? ent->client->sess.cuidHash : "");
     ent->client->sess.nameChangeTime = getGlobalTime();
 
-    G_LogDbLogSessionEnd( ent->client->sess.sessionId );
+    //G_LogDbLogSessionEnd( ent->client->sess.sessionId );
 
 	// client disconnected, update auto dl if he was the last one
 	if (connectingClients > 0) {

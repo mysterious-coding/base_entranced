@@ -511,7 +511,7 @@ typedef struct {
 	qboolean    isInkognito;
 	unsigned	ignoreFlags;
     int			inactivityTime;
-    int         sessionId;
+    //int         sessionId;
     int         nameChangeTime;
 
 	qboolean	shadowMuted;
@@ -1220,11 +1220,11 @@ typedef struct {
             int time;
     } pause;
 
-    struct
+    /*struct
     {
         int levelId;
 
-    } db;
+    } db;*/
 
 	unsigned long long clientUniqueIds[MAX_CLIENTS];
 	unsigned long long probationUniqueIds[MAX_PROBATION_UNIQUEIDS];
