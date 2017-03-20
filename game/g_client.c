@@ -3124,7 +3124,12 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 void G_BroadcastServerFeatureList( int clientNum ) {
 	static char featureListCmd[MAX_TOKEN_CHARS] =
 		NM_LONG_SVCMD_PREFIX " sfl "
-		"oid";
+		"oid "
+		"esrw "
+		"swpr "
+		"tsgm "
+		"ubra "
+		"sclb";
 
 	static char commandListCmd[MAX_TOKEN_CHARS] =
 		NM_LONG_SVCMD_PREFIX " cmds "
@@ -3134,7 +3139,10 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"mappool \"Lists server map pools and their content\" "
 		"ready \"Marks yourself as ready to be part of random teams\" "
 		"ctfstats \"Shows stats for the current CTF game\" "
-		"toptimes \"Leaderboard of the fastest caps\"";
+		"toptimes \"Leaderboard of the fastest caps\" "
+		"join \"Changes Siege class on a specified team\" "
+		"class \"Changes Siege class on current team\" "
+		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
 
 	static char locationsListCmd[MAX_TOKEN_CHARS] = { 0 };
 
