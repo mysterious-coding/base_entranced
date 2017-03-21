@@ -3128,7 +3128,6 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"esrw "
 		"swpr "
 		"tsgm "
-		"ubra "
 		"sclb";
 
 	static char commandListCmd[MAX_TOKEN_CHARS] =
