@@ -1431,11 +1431,9 @@ void G_UpdateClientBroadcasts( gentity_t *self ) {
 			}
 		}
 
-		// broadcast this client to everyone using force sight if we are in distance/field of view
+		// broadcast this client to everyone using force sight, regardless of distance/field of view
 		if ( ( other->client->ps.fd.forcePowersActive & ( 1 << FP_SEE ) ) ) {
-			if ( dist < MAX_FORCE_SIGHT_DISTANCE && InFieldOfVision( other->client->ps.viewangles, MAX_FORCE_SIGHT_FOV, angles ) ) {
-				send = qtrue;
-			}
+			send = qtrue;
 		}
 
 		// always broadcast if we reached the max traces
