@@ -4810,22 +4810,23 @@ void UpdateNewmodSiegeItems(void) {
 			modelIndices[i] = g_entities[g_entities[i].client->holdingObjectiveItem].s.modelindex;
 		}
 
-		if (!foundAny) { // didn't find any; just send an "x"
+		char command[MAX_STRING_CHARS] = { 0 };
+		Q_strncpyz(command, "kls -1 -1 si", sizeof(command));
+
+		if (!foundAny) { // didn't find any; send empty message
 			for (i = 0; i < MAX_CLIENTS; i++) {
 				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
-					trap_SendServerCommand(i, "lchat \"si\" \"x\"");
+					trap_SendServerCommand(i, command);
 					//Com_Printf("Sent no siege item 'x' to client %i\n", i);
 				}
 			}
 			continue;
 		}
 
-		char command[MAX_STRING_CHARS] = { 0 };
-		Q_strncpyz(command, "lchat \"si\" \"", sizeof(command));
 		foundAny = qfalse;
 		for (i = 0; i < MAX_CLIENTS; i++) { // build the string we will send out
-			if (modelIndices[i] >= 0) { // this player has an item; add him to the string as clientNumber=modelIndex+iconIndex
-				Q_strncpyz(command, va("%s%s%i=%i", command, foundAny ? "," : "", i, modelIndices[i]), sizeof(command));
+			if (modelIndices[i] >= 0) { // this player has an item; add him to the string as "clientNumber modelIndex"
+				Q_strncpyz(command, va("%s %i %i", command, i, modelIndices[i]), sizeof(command));
 				foundAny = qtrue;
 			}
 		}
@@ -4833,7 +4834,6 @@ void UpdateNewmodSiegeItems(void) {
 		if (!foundAny)
 			continue;
 
-		Q_strncpyz(command, va("%s\"", command), sizeof(command)); // add the final quotation mark
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
 				trap_SendServerCommand(i, command); // send it
