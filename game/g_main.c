@@ -4817,7 +4817,7 @@ void UpdateNewmodSiegeItems(void) {
 			for (i = 0; i < MAX_CLIENTS; i++) {
 				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
 					trap_SendServerCommand(i, command);
-					//Com_Printf("Sent no siege item 'x' to client %i\n", i);
+					//Com_Printf("Sent no siege item to client %i\n", i);
 				}
 			}
 			continue;
