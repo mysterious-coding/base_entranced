@@ -3119,11 +3119,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 #ifdef NEWMOD_SUPPORT
 
-#define NM_LONG_SVCMD_PREFIX	"remapShader onasi is ez"
-
 void G_BroadcastServerFeatureList( int clientNum ) {
 	static char featureListCmd[MAX_TOKEN_CHARS] =
-		NM_LONG_SVCMD_PREFIX " sfl "
+		"kls -1 -1 sfl "
 		"oid "
 		"esrw "
 		"swpr "
@@ -3131,7 +3129,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"sclb";
 
 	static char commandListCmd[MAX_TOKEN_CHARS] =
-		NM_LONG_SVCMD_PREFIX " cmds "
+		"kls -1 -1 cmds "
 		"whois \"Shows the most used names\" "
 		"followflag \"Cycles between flag carriers as a spectator\" "
 		"rules \"Displays server rules\" "
@@ -3148,7 +3146,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	// lazy initialization of the locations strings
 
 	if ( level.locations.enhanced.numUnique && !*locationsListCmd ) {
-		Q_strncpyz( locationsListCmd, NM_LONG_SVCMD_PREFIX " locs", sizeof( locationsListCmd ) );
+		Q_strncpyz( locationsListCmd, "kls -1 -1 locs", sizeof( locationsListCmd ) );
 
 		int i;
 		for ( i = 0; i < level.locations.enhanced.numUnique; ++i ) {
