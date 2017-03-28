@@ -2138,6 +2138,8 @@ extern vmCvar_t		g_balanceSaber;
 extern vmCvar_t		g_balanceSeeing;
 #endif
 
+extern vmCvar_t		g_autoSendScores;
+
 extern vmCvar_t		g_autoGenerateLocations;
 
 // flags for g_randFix
