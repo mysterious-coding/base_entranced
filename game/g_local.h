@@ -1086,7 +1086,6 @@ typedef struct {
 	int			antiLamingTime;
 #ifdef NEWMOD_SUPPORT
 	int			siegeItemUpdateTime;
-	int			lagIndexSendTime;
 #endif
 
 	char		mapVersion[32];

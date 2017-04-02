@@ -4767,28 +4767,6 @@ void UpdateSiegeStatus()
 	trap_Cvar_Set("siegeStatus", va("%s", string)); //update it
 }
 #ifdef NEWMOD_SUPPORT
-#define LAGINDEX_UPDATE_INTERVAL	2000
-void UpdateNewmodLaggers(void)
-{
-	int i;
-	unsigned long lagIndex = 0;
-
-	for (i = 0; i < MAX_CLIENTS; i++)
-	{
-		if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->ps.eFlags & EF_CONNECTION)
-		{
-			lagIndex |= (1 << i);
-		}
-	}
-
-	//send it out
-	if (!level.lagIndexSendTime || level.lagIndexSendTime <= level.time)
-	{
-		level.lagIndexSendTime = level.time + LAGINDEX_UPDATE_INTERVAL;
-		trap_SendServerCommand(-1, va("lchat \"li\" \"%lu\"", lagIndex));
-	}
-}
-
 #define SIEGEITEM_UPDATE_INTERVAL	1000
 void UpdateNewmodSiegeItems(void) {
 	int i;
@@ -5586,10 +5564,6 @@ void G_RunFrame( int levelTime ) {
 		iTimer_ClientEndframe,
 		iTimer_GameChecks,
 		iTimer_Queues);
-#endif
-
-#ifdef NEWMOD_SUPPORT
-	UpdateNewmodLaggers();
 #endif
 
 	if (g_maxGameClients.integer)
