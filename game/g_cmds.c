@@ -1943,23 +1943,23 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		//a spectator during a live game, or a spectator without a desired team during the countdown
 		//or, it's intermission (for anyone, regardless of team) or zombies mode on blue team
 		//remove location from message (useless for spectator teamchat)
-		trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
+		trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\" \"%i\"",
 			mode == SAY_TEAM ? "tchat" : "chat",
-			name, Q_COLOR_ESCAPE, color, message));
+			name, Q_COLOR_ESCAPE, color, message, ent - g_entities));
 	}
 	else
 	{
 		if (locMsg && !(g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)) // duo: never send location in teamchat for ctf
 		{
-			trap_SendServerCommand(other - g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\"",
+			trap_SendServerCommand(other - g_entities, va("%s \"%s\" \"%s\" \"%c\" \"%s\" \"%i\"",
 				mode == SAY_TEAM ? "ltchat" : "lchat",
-				name, locMsg, color, message));
+				name, locMsg, color, message, ent - g_entities));
 		}
 		else
 		{
-			trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
+			trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\" \"%i\"",
 				mode == SAY_TEAM ? "tchat" : "chat",
-				name, Q_COLOR_ESCAPE, color, message));
+				name, Q_COLOR_ESCAPE, color, message, ent - g_entities));
 		}
 	}
 }
@@ -2112,28 +2112,28 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	default:
 	case SAY_ALL:
 		G_LogPrintf( "say: %i %s: %s\n", ent-g_entities, ent->client->pers.netname, chatText );
-		Com_sprintf (name, sizeof(name), "%s%s%c%c"EC": ", NM_SerializeUIntToColor(ent-g_entities), ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
 		break;
 	case SAY_TEAM:
 		G_LogPrintf( "sayteam: %i %s: %s\n", ent-g_entities, ent->client->pers.netname, chatText );
 		if (Team_GetLocation(ent, location, sizeof(location)))
 		{
-			Com_sprintf (name, sizeof(name), EC"(%s%s%c%c"EC")"EC": ", 
-				NM_SerializeUIntToColor(ent - g_entities), ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
+				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 			locMsg = location;
 		}
 		else
 		{
-			Com_sprintf (name, sizeof(name), EC"(%s%s%c%c"EC")"EC": ", 
-				NM_SerializeUIntToColor(ent - g_entities), ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
+				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		}
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
         G_LogPrintf( "tell: %i %i %s to %s: %s\n", ent-g_entities, target-g_entities, 
 			ent->client->pers.netname, target->client->pers.netname, chatText );
-		Com_sprintf (name, sizeof(name), EC"[%s%s%c%c"EC"]"EC": ", NM_SerializeUIntToColor(ent - g_entities), ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 
 		if (target && g_gametype.integer >= GT_TEAM &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
