@@ -4244,7 +4244,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				ent->client->ps.eFlags = cl->ps.eFlags;
 				ent->client->ps = cl->ps;
 
-				if (ent->client->sess.isInkognito || !G_ClientIsWhitelisted(ent - g_entities)
+				if (ent->client->sess.isInkognito || (g_lockdown.integer && !G_ClientIsWhitelisted(ent - g_entities))
 					|| originalPing == -1
 					|| originalPing == 999){
 					ent->client->ps.ping = originalPing;
