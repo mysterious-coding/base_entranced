@@ -2048,7 +2048,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 
 		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 		{
-			if (!level.lastObjectiveCompleted && self->m_pVehicle &&
+			if (!level.objectiveJustCompleted && self->m_pVehicle &&
 				self->client->ps.origin[0] >= 4210 && self->client->ps.origin[0] <= 4454 &&
 				self->client->ps.origin[1] >= -488 && self->client->ps.origin[1] <= 37 &&
 				!GetSiegeClassCount(TEAM_BLUE, SPC_SUPPORT, qtrue) && mod != MOD_TARGET_LASER)
@@ -2063,7 +2063,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				}
 				return qtrue;
 			}
-			else if (level.lastObjectiveCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
+			else if (level.objectiveJustCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= -750 && self->client->ps.origin[0] <= -643 &&
 				self->client->ps.origin[1] >= -138 && self->client->ps.origin[1] <= 121 &&
 				self->client->ps.origin[2] <= -128 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
@@ -2074,7 +2074,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				++attacker->client->pers.teamState.saves;
 				return qtrue;
 			}
-			else if (level.lastObjectiveCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
+			else if (level.objectiveJustCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->holdingObjectiveItem > 0 && mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
 			{
 				//fourth objective; codes carrier was killed very close to button
@@ -2093,7 +2093,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 					}
 				}
 			}
-			else if (level.lastObjectiveCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
+			else if (level.objectiveJustCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= -1320 && self->client->ps.origin[0] <= -1040 &&
 				self->client->ps.origin[1] >= -160 && self->client->ps.origin[1] <= 110 &&
 				self->client->ps.origin[2] >= 43 &&
@@ -2108,7 +2108,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 		}
 		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
 		{
-			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED && (level.lastObjectiveCompleted == 0 || level.lastObjectiveCompleted == 1 || level.totalObjectivesCompleted == 4) &&
+			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED && (level.objectiveJustCompleted == 0 || level.objectiveJustCompleted == 1 || level.totalObjectivesCompleted == 4) &&
 				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
 			{
 				//killed while hacking with <= 500 ms remaining on the hack
@@ -2132,7 +2132,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 		else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
 		{
 			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
-				(!level.lastObjectiveCompleted || (self->client->ps.origin[0] >= 6145 && self->client->ps.origin[0] <= 6525 &&
+				(!level.objectiveJustCompleted || (self->client->ps.origin[0] >= 6145 && self->client->ps.origin[0] <= 6525 &&
 					self->client->ps.origin[1] >= 822 && self->client->ps.origin[1] <= 1077) || (self->client->ps.origin[0] >= 5435 && self->client->ps.origin[0] <= 5596 &&
 						self->client->ps.origin[1] >= -106 && self->client->ps.origin[1] <= 213 && self->client->ps.origin[2] <= 123) || (self->client->ps.origin[0] >= 4991 &&
 							self->client->ps.origin[0] <= 5327 && self->client->ps.origin[1] >= -1226 && self->client->ps.origin[1] <= -1007 && self->client->ps.origin[2] <= 123)) &&

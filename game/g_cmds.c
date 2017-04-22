@@ -5378,6 +5378,7 @@ typedef enum {
 	STAT_BLANK, // only serves as caption, no value
 	STAT_INT,
 	STAT_DURATION,
+	STAT_OBJ_DURATION, // times with value of 0 are hidden, unless they have red color, which prints held time + "(DNF)" (did not finish)
 	STAT_INT_PAIR1,
 	STAT_LEFT_ALIGNED, // types after this are LEFT aligned
 	STAT_INT_PAIR2
@@ -5388,17 +5389,22 @@ typedef struct {
 	StatType types[MAX_STATS]; // type of data
 } StatsDesc;
 
+typedef struct {
+	int num;
+	char *forceColor;
+} Stat;
+
 #define FORMAT_INT( i )				va( "%d", i )
 #define FORMAT_PAIRED_INT( i )		va( "%d"S_COLOR_WHITE"/", i )
-#define FORMAT_MINS_SECS( m, s )	va( "%dm%02ds", m, s )
-#define FORMAT_SECS( s )			va( "%ds", s )
+#define FORMAT_MINS_SECS( m, s )	va( "%d:%02d", m, s )
+#define FORMAT_SECS( s )			va( "0:%02d", s )
 
 static char* GetFormattedValue( int value, StatType type ) {
 	switch ( type ) {
 	case STAT_INT: return FORMAT_INT( value );
 	case STAT_INT_PAIR1: return FORMAT_PAIRED_INT( value );
 	case STAT_INT_PAIR2: return FORMAT_INT( value );
-	case STAT_DURATION: {
+	case STAT_DURATION: case STAT_OBJ_DURATION: {
 		int secs = value / 1000;
 		int mins = secs / 60;
 
@@ -5416,7 +5422,7 @@ static char* GetFormattedValue( int value, StatType type ) {
 
 #define GetStatColor( s, b ) ( b && b == s ? S_COLOR_GREEN : S_COLOR_WHITE )
 
-static void PrintClientStats( const int id, const char *name, StatsDesc desc, int *stats, int *bestStats, const int nameCols ) {
+static void PrintClientStats( const int id, const char *name, StatsDesc desc, Stat *stats, Stat *bestStats, const int nameCols ) {
 	int i, nameLen = 0;
 	char s[MAX_STRING_CHARS];
 
@@ -5431,65 +5437,135 @@ static void PrintClientStats( const int id, const char *name, StatsDesc desc, in
 	}
 
 	// write all formatted stats
-	for ( i = 0; i < MAX_STATS && desc.types[i] > STAT_NONE; ++i ) {
+	for ( i = 0; i < MAX_STATS; ++i ) {
+		if (desc.types[i] == STAT_NONE)
+			continue;
+		char overrideStr[MAX_STRING_CHARS] = { 0 };
+		if (desc.types[i] == STAT_OBJ_DURATION && VALIDSTRING(stats[i].forceColor) && !Q_stricmp(stats[i].forceColor, S_COLOR_RED)) {
+			G_ParseMilliseconds(stats[i].num, overrideStr, sizeof(overrideStr));
+			Q_strncpyz(overrideStr, va("%s (DNF)", overrideStr), sizeof(overrideStr));
+		}
 		Q_strcat( s, sizeof( s ), va( desc.types[i] > STAT_LEFT_ALIGNED ? "%s%-*s" : " %s%*s",
-			GetStatColor( stats[i], bestStats[i] ), // green if the best, white otherwise
+			VALIDSTRING(stats[i].forceColor) ? stats[i].forceColor : GetStatColor( stats[i].num, bestStats[i].num ), // green if the best, white otherwise
 			Q_PrintStrlen( desc.cols[i] ) + ( desc.types[i] == STAT_INT_PAIR1 ? 3 : 0 ), // add 3 for the ^7/ of PAIR1 types
-			GetFormattedValue( stats[i], desc.types[i] ) ) // string-ified version of the type, will contain the slash for PAIR1
+			desc.types[i] == STAT_OBJ_DURATION ? (overrideStr[0] ? overrideStr : (stats[i].num ? GetFormattedValue(stats[i].num, desc.types[i]) : "")) : GetFormattedValue( stats[i].num, desc.types[i] ) ) // string-ified version of the type, will contain the slash for PAIR1
 			);
 	}
 
 	trap_SendServerCommand( id, va( "print \"%s\n\"", s ) );
+	G_LogPrintf("%s\n");
 }
 
-static void PrintTeamStats( const int id, const team_t team, const char teamColor, StatsDesc desc, void( *fillCallback )( gclient_t*, int* ), qboolean printHeader ) {
+static void PrintTeamStats( const int id, const team_t team, const char teamColor, StatsDesc desc, void( *fillCallback )( gclient_t*, Stat* ), qboolean printHeader ) {
 	int i, j, nameLen = 0, maxNameLen = 0;
-	int stats[MAX_CLIENTS][MAX_STATS] = { { 0 } }, bestStats[MAX_STATS] = { 0 };
+	Stat stats[MAX_CLIENTS][MAX_STATS], bestStats[MAX_STATS];
+	memset(&stats, 0, sizeof(stats));
+	memset(&bestStats, 0, sizeof(bestStats));
 	char header[MAX_STRING_CHARS], separator[MAX_STRING_CHARS];
 	gclient_t *client;
 	team_t otherTeam;
+	int siegeRound = level.siegeStage >= SIEGESTAGE_ROUND2POSTGAME ? 2 : 1;
+	char *firstColumnTitle = "NAME";
 
 	otherTeam = OtherTeam( team );
 
 	// loop over all clients to init stat values as well as the max name length
-	for ( i = 0; i < level.maxclients; ++i ) {
-		if ( !g_entities[i].inuse || !g_entities[i].client || g_entities[i].client->pers.connected != CON_CONNECTED ) {
-			continue;
+	if (desc.types[0] == STAT_OBJ_DURATION) {
+		firstColumnTitle = "ROUND";
+		if (siegeRound == 2) { // only highlight faster times in round 2 (or else all times will be highlighted in round 1)
+			for (j = 0; j < MAX_STATS; ++j) {
+				if (desc.types[j] == STAT_NONE)
+					continue;
+				bestStats[j].num = 0x7FFFFFFF;
+			}
 		}
-
-		client = g_entities[i].client;
-
-		// count both teams so the columns have the same size
-		if ( g_entities[i].client->sess.sessionTeam != team && g_entities[i].client->sess.sessionTeam != otherTeam ) {
-			continue;
+		for (i = 1; i <= siegeRound; i++) {
+			client = g_entities[i].client;
+			(*fillCallback)(client, &stats[i][0]);
+			// compare them to the best stats and sum to the total stats
+			for (j = 0; j < MAX_STATS; ++j) {
+				if (desc.types[j] == STAT_NONE)
+					continue;
+				if (j != MAX_STATS - 1 && j + 1 > level.numSiegeObjectivesOnMap) { // unused objectives are not put in the table
+					desc.types[j] = STAT_NONE;
+					continue;
+				}
+				else
+					desc.types[j] = STAT_OBJ_DURATION;
+				nameLen = Q_PrintStrlen(desc.cols[j]);
+				if (nameLen > maxNameLen) // highlight faster times
+					maxNameLen = nameLen;
+				if (bestStats[j].num > stats[i][j].num)
+					bestStats[j].num = stats[i][j].num;
+			}
 		}
-
-		nameLen = Q_PrintStrlen( client->pers.netname );
-		if ( nameLen > maxNameLen )
-			maxNameLen = nameLen;
-
-		// only fill stats for the current team
-		if ( client->sess.sessionTeam != team ) {
-			continue;
+		// in round 2, force green highlight if you completed an objective that the other round didn't
+		if (siegeRound == 2) {
+			for (j = 0; j < MAX_STATS; ++j) {
+				if (desc.types[j] == STAT_NONE)
+					continue;
+				if (!stats[1][j].num && stats[2][j].num)
+					bestStats[j].num = stats[2][j].num;
+				else if (!stats[2][j].num && stats[1][j].num)
+					bestStats[j].num = stats[1][j].num;
+			}
+			// sanity check: the winning team's time should always be in green
+			if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND1OFFENSE || level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND2OFFENSE) {
+				stats[level.siegeMatchWinner][MAX_STATS - 1].forceColor = S_COLOR_GREEN;
+				stats[OtherTeam(level.siegeMatchWinner)][MAX_STATS - 1].forceColor = S_COLOR_WHITE;
+			}
 		}
+		// if you were held for a max, color it red and add "(DNF)" with the time you were held for
+		for (i = 1; i <= siegeRound; i++) {
+			int heldForMaxAt = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxat", i));
+			if (heldForMaxAt) {
+				int incomplete = G_FirstIncompleteObjective(i);
+				stats[i][incomplete - 1].num = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxtime", i));
+				stats[i][incomplete - 1].forceColor = S_COLOR_RED;
+			}
+		}
+	}
+	else {
+		for (i = 0; i < level.maxclients; ++i) {
+			if (!g_entities[i].inuse || !g_entities[i].client || g_entities[i].client->pers.connected != CON_CONNECTED) {
+				continue;
+			}
 
-		( *fillCallback )( client, stats[i] );
+			client = g_entities[i].client;
 
-		// compare them to the best stats and sum to the total stats
-		for ( j = 0; j < MAX_STATS && desc.types[j] > STAT_NONE; ++j ) {
-			if ( bestStats[j] < stats[i][j] ) {
-				bestStats[j] = stats[i][j];
+			// count both teams so the columns have the same size
+			if (g_entities[i].client->sess.sessionTeam != team && g_entities[i].client->sess.sessionTeam != otherTeam) {
+				continue;
+			}
+
+			nameLen = Q_PrintStrlen(client->pers.netname);
+			if (nameLen > maxNameLen)
+				maxNameLen = nameLen;
+
+			// only fill stats for the current team
+			if (client->sess.sessionTeam != team) {
+				continue;
+			}
+
+			(*fillCallback)(client, &stats[i][0]);
+
+			// compare them to the best stats and sum to the total stats
+			for (j = 0; j < MAX_STATS; ++j) {
+				if (desc.types[j] == STAT_NONE)
+					continue;
+				if (bestStats[j].num < stats[i][j].num) {
+					bestStats[j].num = stats[i][j].num;
+				}
 			}
 		}
 	}
 
-	// make sure there is room for the NAME column alone
-	if ( maxNameLen < 4 )
-		maxNameLen = 4;
+	// make sure there is room for the first column title alone
+	if (maxNameLen < Q_PrintStrlen(firstColumnTitle))
+		maxNameLen = Q_PrintStrlen(firstColumnTitle);
 
-	Com_sprintf( header, sizeof( header ), S_COLOR_CYAN"NAME" );
-
-	for ( i = 0; i < maxNameLen - 4; ++i )
+	Com_sprintf(header, sizeof(header), S_COLOR_CYAN"%s", firstColumnTitle);
+	for ( i = 0; i < maxNameLen - Q_PrintStrlen(firstColumnTitle); ++i )
 		Q_strcat( header, sizeof( header ), " " );
 
 	Com_sprintf( separator, sizeof( separator ), "^%c", teamColor );
@@ -5498,7 +5574,9 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 		Q_strcat( separator, sizeof( separator ), STATS_ROW_SEPARATOR );
 
 	// prepare header and dotted separators
-	for ( j = 0; j < MAX_STATS && desc.types[j] > STAT_NONE; ++j ) {
+	for ( j = 0; j < MAX_STATS; ++j ) {
+		if (desc.types[j] == STAT_NONE)
+			continue;
 		// left aligned names should follow a slash, so no space
 		if ( desc.types[j] < STAT_LEFT_ALIGNED ) {
 			Q_strcat( header, sizeof( header ), " " );
@@ -5524,16 +5602,26 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 		trap_SendServerCommand( id, va( "print \"%s\n\"", separator ) );
 	}
 
-	// send stats of everyone on the team
-	for ( i = 0; i < level.numConnectedClients; i++ ) {
-		client = &level.clients[level.sortedClients[i]];
+	if (desc.types[0] == STAT_OBJ_DURATION) {
+		for (i = 1; i <= siegeRound; i++) {
+			client = &level.clients[level.sortedClients[i]];
+			PrintClientStats(id, va("Round %i", i), desc, stats[i], bestStats, maxNameLen);
+		}
+	}
+	else {
+		// send stats of everyone on the team
+		for (i = 0; i < level.numConnectedClients; i++) {
+			client = &level.clients[level.sortedClients[i]];
 
-		if ( !client || client->sess.sessionTeam != team )
-			continue;
+			if (!client || client->sess.sessionTeam != team)
+				continue;
 
-		PrintClientStats( id, client->pers.netname, desc, stats[level.sortedClients[i]], bestStats, maxNameLen );
+			PrintClientStats(id, client->pers.netname, desc, stats[level.sortedClients[i]], bestStats, maxNameLen);
+		}
 	}
 }
+
+#define FillValue(v)	values[i].num = v; i++;
 
 static const StatsDesc CtfStatsDesc = {
 	{
@@ -5546,20 +5634,21 @@ static const StatsDesc CtfStatsDesc = {
 	}
 };
 
-static void FillCtfStats( gclient_t *cl, int *values ) {
-	*values++ = cl->ps.persistant[PERS_SCORE];
-	*values++ = cl->ps.persistant[PERS_CAPTURES];
-	*values++ = cl->ps.persistant[PERS_ASSIST_COUNT];
-	*values++ = cl->ps.persistant[PERS_DEFEND_COUNT];
-	*values++ = cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0;
-	*values++ = cl->pers.teamState.fragcarrier;
-	*values++ = cl->pers.teamState.flagrecovery;
-	*values++ = cl->pers.teamState.boonPickups;
-	*values++ = cl->pers.teamState.flaghold;
-	*values++ = cl->pers.teamState.longestFlaghold;
-	*values++ = cl->pers.teamState.saves;
-	*values++ = cl->pers.damageCaused;
-	*values++ = cl->pers.damageTaken;
+static void FillCtfStats( gclient_t *cl, Stat *values ) {
+	int i = 0;
+	FillValue(cl->ps.persistant[PERS_SCORE])
+	FillValue(cl->ps.persistant[PERS_CAPTURES])
+	FillValue(cl->ps.persistant[PERS_ASSIST_COUNT])
+	FillValue(cl->ps.persistant[PERS_DEFEND_COUNT])
+	FillValue(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0)
+	FillValue(cl->pers.teamState.fragcarrier)
+	FillValue(cl->pers.teamState.flagrecovery)
+	FillValue(cl->pers.teamState.boonPickups)
+	FillValue(cl->pers.teamState.flaghold)
+	FillValue(cl->pers.teamState.longestFlaghold)
+	FillValue(cl->pers.teamState.saves)
+	FillValue(cl->pers.damageCaused)
+	FillValue(cl->pers.damageTaken)
 }
 
 static const StatsDesc ForceStatsDesc = {
@@ -5573,15 +5662,38 @@ static const StatsDesc ForceStatsDesc = {
 	}
 };
 
-static void FillForceStats( gclient_t *cl, int *values ) {
-	*values++ = cl->pers.push;
-	*values++ = cl->pers.pull;
-	*values++ = cl->pers.healed;
-	*values++ = cl->pers.energizedAlly;
-	*values++ = cl->pers.energizedEnemy;
-	*values++ = cl->pers.absorbed;
-	*values++ = cl->pers.protDmgAvoided;
-	*values++ = cl->pers.protTimeUsed;
+static void FillForceStats( gclient_t *cl, Stat *values ) {
+	int i = 0;
+	FillValue(cl->pers.push)
+	FillValue(cl->pers.pull)
+	FillValue(cl->pers.healed)
+	FillValue(cl->pers.energizedAlly)
+	FillValue(cl->pers.energizedEnemy)
+	FillValue(cl->pers.absorbed)
+	FillValue(cl->pers.protDmgAvoided)
+	FillValue(cl->pers.protTimeUsed)
+}
+
+static const StatsDesc ObjStatsDesc = {
+	{
+		"OBJECTIVE 1", "OBJECTIVE 2", "OBJECTIVE 3", "OBJECTIVE 4", "OBJECTIVE 5", "OBJECTIVE 6",
+		"OBJECTIVE 7", "OBJECTIVE 8", "OBJECTIVE 9", "OBJECTIVE 10", "OBJECTIVE 11",
+		"OBJECTIVE 12", "OBJECTIVE 13", "OBJECTIVE 14", "OBJECTIVE 15", "TOTAL",
+	},
+	{
+		STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION,
+		STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION,
+		STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION,
+		STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION, STAT_OBJ_DURATION
+	}
+};
+
+static void FillObjStats(gclient_t *cl, Stat *values) {
+	int i, roundNum = cl - level.clients;
+	for (i = 0; i < MAX_STATS - 1; i++) {
+		values[i].num = G_ObjectiveTimeDifference(i + 1, roundNum);
+	}
+	values[MAX_STATS - 1].num = trap_Cvar_VariableIntegerValue(va("siege_r%i_total", roundNum));
 }
 
 #define ColorForTeam( team )		( team == TEAM_BLUE ? COLOR_BLUE : COLOR_RED )
@@ -5591,15 +5703,15 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 	qboolean winningIngame = qfalse, losingIngame = qfalse;
 	int id = ent ? ( ent - g_entities ) : -1, i;
 	const StatsDesc *desc;
-	void( *callback )( gclient_t*, int* );
+	void( *callback )( gclient_t*, Stat* );
 
 	if ( !VALIDSTRING( type ) ) {
 		return;
 	}
 
-	if ( g_gametype.integer != GT_CTF ) {
+	if ( g_gametype.integer != GT_CTF && g_gametype.integer != GT_SIEGE ) {
 		if ( id != -1 ) {
-			trap_SendServerCommand( id, "print \""S_COLOR_WHITE"Gametype is not CTF. Statistics aren't generated.\n\"" );
+			trap_SendServerCommand( id, "print \""S_COLOR_WHITE"Gametype is not CTF or Siege. Statistics aren't generated.\n\"" );
 		}
 
 		return;
@@ -5608,31 +5720,34 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 	team_t winningTeam = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ? TEAM_RED : TEAM_BLUE;
 	team_t losingTeam = OtherTeam( winningTeam );
 
-	for ( i = 0; i < level.maxclients; i++ ) {
-		if ( !g_entities[i].inuse || !g_entities[i].client ) {
-			continue;
+	if (!(g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "obj"))) {
+		for (i = 0; i < level.maxclients; i++) {
+			if (!g_entities[i].inuse || !g_entities[i].client) {
+				continue;
+			}
+
+			if (g_entities[i].client->sess.sessionTeam == winningTeam) {
+				winningIngame = qtrue;
+			}
+			else if (g_entities[i].client->sess.sessionTeam == losingTeam) {
+				losingIngame = qtrue;
+			}
+
+			if (winningIngame && losingIngame) {
+				break;
+			}
 		}
 
-		if ( g_entities[i].client->sess.sessionTeam == winningTeam ) {
-			winningIngame = qtrue;
-		} else if ( g_entities[i].client->sess.sessionTeam == losingTeam ) {
-			losingIngame = qtrue;
-		}
+		if (!winningIngame && !losingIngame) {
+			if (id != -1) {
+				//trap_SendServerCommand(id, "print \""S_COLOR_WHITE"Nobody is playing. Statistics aren't generated.\n\"");
+			}
 
-		if ( winningIngame && losingIngame ) {
-			break;
+			return;
 		}
 	}
 
-	if ( !winningIngame && !losingIngame ) {
-		if ( id != -1 ) {
-			trap_SendServerCommand( id, "print \""S_COLOR_WHITE"Nobody is playing. Statistics aren't generated.\n\"" );
-		}
-
-		return;
-	}
-
-	if ( !Q_stricmp( type, "general" ) ) {
+	if ( g_gametype.integer == GT_CTF && !Q_stricmp( type, "general" ) ) {
 		desc = &CtfStatsDesc;
 		callback = &FillCtfStats;
 
@@ -5641,27 +5756,50 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 			ScoreTextForTeam( winningTeam ), level.teamScores[winningTeam],
 			ScoreTextForTeam( losingTeam ), level.teamScores[losingTeam]
 		) );
-	} else if ( !Q_stricmp( type, "force" ) ) {
+	} else if ( g_gametype.integer == GT_CTF && !Q_stricmp( type, "force" ) ) {
 		desc = &ForceStatsDesc;
 		callback = &FillForceStats;
+	} else if ( g_gametype.integer == GT_SIEGE && !Q_stricmp( type, "obj" ) ) {
+		if (!g_siegeTeamSwitch.integer) // not supported
+			return;
+		if (level.siegeStage < SIEGESTAGE_ROUND1POSTGAME) {
+			trap_SendServerCommand(id, va("print \""S_COLOR_WHITE"You are not yet able to view Siege stats. Please wait until the end of round 1.\n\""));
+			return;
+		}
+		desc = &ObjStatsDesc;
+		callback = &FillObjStats;
 	} else {
 		if ( id != -1 ) {
-			trap_SendServerCommand( id, va( "print \""S_COLOR_WHITE"Unknown type \"%s"S_COLOR_WHITE"\". Usage: "S_COLOR_CYAN"/ctfstats <general | force>\n\"", type ) );
+			if (g_gametype.integer == GT_SIEGE)
+				trap_SendServerCommand(id, va("print \""S_COLOR_WHITE"Unknown type \"%s"S_COLOR_WHITE"\". Usage: "S_COLOR_CYAN"/stats <obj | individual>\n\"", type));
+			else
+				trap_SendServerCommand( id, va( "print \""S_COLOR_WHITE"Unknown type \"%s"S_COLOR_WHITE"\". Usage: "S_COLOR_CYAN"/ctfstats <general | force>\n\"", type ) );
 		}
 
 		return;
 	}
 
 	// print the winning team first, and don't print stats of teams that have no players
-	if ( winningIngame ) PrintTeamStats( id, winningTeam, ColorForTeam( winningTeam ), *desc, callback, qtrue );
-	if ( losingIngame ) PrintTeamStats( id, losingTeam, ColorForTeam( losingTeam ), *desc, callback, !winningIngame );
+	if (desc == &ObjStatsDesc) {
+		PrintTeamStats(id, 0, COLOR_WHITE, *desc, callback, qtrue);
+	}
+	else {
+		if (winningIngame) PrintTeamStats(id, winningTeam, ColorForTeam(winningTeam), *desc, callback, qtrue);
+		if (losingIngame) PrintTeamStats(id, losingTeam, ColorForTeam(losingTeam), *desc, callback, !winningIngame);
+	}
 	trap_SendServerCommand( id, "print \"\n\"" );
 }
 
 void Cmd_PrintStats_f( gentity_t *ent ) {
 	if ( trap_Argc() < 2 ) { // display all types if none is specified, i guess
-		PrintStatsTo( ent, "general" );
-		PrintStatsTo( ent, "force" );
+		if (g_gametype.integer == GT_SIEGE) {
+			PrintStatsTo(ent, "obj");
+			//PrintStatsTo(ent, "individual");
+		}
+		else {
+			PrintStatsTo(ent, "general");
+			PrintStatsTo(ent, "force");
+		}
 	} else {
 		char subcmd[MAX_STRING_CHARS] = { 0 };
 		trap_Argv( 1, subcmd, sizeof( subcmd ) );
@@ -5863,8 +6001,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_sexyDisruptor.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_selfkillPenalty");
 	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_siegeStats");
-	ServerCfgColor(string, g_siegeStats.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_swoopKillPoints");
 	ServerCfgColor(string, g_swoopKillPoints.integer, ent);
 	Com_sprintf(string, sizeof(string), "iLikeToDoorSpam");
@@ -6506,7 +6642,7 @@ void ClientCommand( int clientNum ) {
 			Cmd_ForceChanged_f (ent);
 			return;
 		}
-		else if ( !Q_stricmp( cmd, "ctfstats" ) )
+		else if ( !Q_stricmp( cmd, "ctfstats" ) || !Q_stricmp(cmd, "stats") || !Q_stricmp(cmd, "siegestats"))
 		{ // special case: we want people to read their other stats as suggested
 			Cmd_PrintStats_f( ent );
 			return;
@@ -6610,7 +6746,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_MapPool_f(ent);
     else if ( Q_stricmp( cmd, "whois" ) == 0 )
         Cmd_WhoIs_f( ent );
-	else if (Q_stricmp(cmd, "ctfstats") == 0)
+	else if (Q_stricmp(cmd, "ctfstats") == 0 || Q_stricmp(cmd, "stats") == 0 || Q_stricmp(cmd, "siegestats") == 0)
 		Cmd_PrintStats_f(ent);
 	else if (Q_stricmp( cmd, "help" ) == 0 || Q_stricmp( cmd, "rules" ) == 0)
 		Cmd_Help_f( ent );

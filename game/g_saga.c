@@ -34,19 +34,7 @@ int			gRebelCountdown = 0;
 int			rebel_attackers = 0;
 int			imperial_attackers = 0;
 
-int			objtime[16] = { 0 };
-int			previousobjtime = 0;
-int         objscompleted = 0;
-int			objscompletedoffset = 0;
-int         roundstarttime = 0;
-
-int			totalroundtime = 0;
-int			heldformax = 0;
 int			winningteam = 0;
-
-int			objtime_old[16] = { 0 };
-
-int			totalroundtime_old = 10000;
 
 qboolean	gSiegeRoundBegun = qfalse;
 qboolean	gSiegeRoundEnded = qfalse;
@@ -60,8 +48,6 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
 static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 static char gObjectiveCfgStr[1024];
-
-static qboolean tieGame = qfalse;
 
 extern int g_siegeRespawnCheck;
 #ifdef NEWMOD_SUPPORT
@@ -82,590 +68,108 @@ void UpdateNewmodSiegeTimers(void)
 }
 #endif
 
-void SiegeParseMilliseconds(int objTimeInMilliseconds, char *string) //takes a time in milliseconds (e.g. 63000) and returns it as a pretty string ("1:03")
-{
-	int elapsedSeconds;
-	int minutes;
-	int seconds;
-	qboolean heldForMax = qfalse;
+static int CurrentSiegeRound(void) {
+	if (!g_siegeTeamSwitch.integer)
+		return 1;
+	if (g_siegePersistant.beatingTime)
+		return 2;
+	return 1;
+}
 
-	if (objTimeInMilliseconds < 0)
-	{
-		heldForMax = qtrue; //they got held for 20 minutes
-		objTimeInMilliseconds = abs(objTimeInMilliseconds); //make sure the number is positive before we work with it
+// returns the first incomplete objective for the specified round
+int G_FirstIncompleteObjective(int round) {
+	int i;
+	for (i = 1; i <= MAX_STATS - 1; i++) {
+		if (!trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, i)))
+			return i;
 	}
+	return 0;
+}
 
-	elapsedSeconds = ((objTimeInMilliseconds + 500) / 1000); //convert milliseconds to seconds
+// returns the first complete objective for the specified round
+int G_FirstCompleteObjective(int round) {
+	int i;
+	for (i = 1; i <= MAX_STATS - 1; i++) {
+		if (trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, i)))
+			return i;
+	}
+	return 0;
+}
+
+// convert milliseconds to time string
+void G_ParseMilliseconds(int ms, char *outBuf, size_t outSize) {
+	if (!outBuf)
+		return;
+
+	int elapsedSeconds, minutes, seconds;
+
+	elapsedSeconds = ((ms + 500) / 1000); //convert milliseconds to seconds
 	minutes = (elapsedSeconds / 60) % 60; //find minutes
 	seconds = elapsedSeconds % 60; //find seconds
 
-	if (seconds >= 10) //seconds is double-digit
-	{
-		Com_sprintf(string, 32, "%i:%i", minutes, seconds); //convert to string as-is
-	}
-	else //seconds is single-digit
-	{
-		Com_sprintf(string, 32, "%i:0%i", minutes, seconds); //convert to string, and also add a zero if seconds is single-digit
-	}
+	Q_strncpyz(outBuf, va("%d:%02d", minutes, seconds), outSize);
+}
 
-	if (heldForMax == qtrue)
-	{
-		if (!g_siegePersistant.beatingTime)
-		{
-			Com_sprintf(string, 32, "^1%s (DNF)", string); //round1 code in SiegePrintStats doesn't run the same color comparison stuff, so we have to set it red here instead
+// gets the objective that was completed just before the specified objective or time
+int G_PreviousObjective(int objective, int round, int timeOverride) {
+	int i, mostRecentObj = 0, mostRecentTime = 0;
+	int inputObjTime = timeOverride ? timeOverride : trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, objective));
+	for (i = 1; i <= MAX_STATS - 1; i++) {
+		if (i == objective)
+			continue;
+		int time = trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, i));
+		if (time && time < inputObjTime && time > mostRecentTime) {
+			mostRecentObj = i;
+			mostRecentTime = time;
 		}
+	}
+	return mostRecentObj;
+}
+
+// used for "objective completed in XX:XX"
+int G_ObjectiveTimeDifference(int objective, int round) {
+	int thisTime = trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, objective));
+	int prevTime = trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, G_PreviousObjective(objective, round, 0)));
+
+	return abs(thisTime - prevTime);
+}
+
+// used for "held at objective for XX:XX"
+static int HeldForMaxTime(void) {
+	int round = CurrentSiegeRound();
+	int heldAtObj = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxat", round));
+
+	if (heldAtObj == 1)
+		return abs(level.time - level.siegeRoundStartTime);
+	else {
+		int firstComplete = G_FirstCompleteObjective(round);
+		if (!firstComplete)
+			return abs(level.time - level.siegeRoundStartTime);
 		else
-		{
-			Com_sprintf(string, 32, "%s (DNF)", string);
-		}
+			return abs(abs(level.time - level.siegeRoundStartTime) - abs(trap_Cvar_VariableIntegerValue(va("siege_r%i_obj%i", round, G_PreviousObjective(heldAtObj, round, abs(level.time - level.siegeRoundStartTime))))));
 	}
 }
 
-void SiegeUpdateObjTime(int objective, qboolean heldForMax) //finds the time elapsed in milliseconds between the prior objective(or round start if first obj) and the objective we just got
-{
-	int multiplier;
-	char timeYouTook[32];
-
-	if (objective > 15)
-	{
-		G_LogPrintf("g_siegeStats error: objective %i is greater than 15.\n", objective);
+// print time of the objective that was either just completed or you were held for a max at
+static void PrintObjStat(int objective, int heldForMax) {
+	if (!g_autoStats.integer || !g_siegeTeamSwitch.integer)
 		return;
-	}
 
-	if (heldForMax == qtrue)
-	{
-		multiplier = -1; //you got held for 20 minutes, so let's set the time to negative so we can treat it differently later
-		heldformax = 1;
-	}
-	else
-	{
-		multiplier = 1;
-	}
+	int round = CurrentSiegeRound();
+	int ms = heldForMax ? HeldForMaxTime() : G_ObjectiveTimeDifference(objective, round);
 
-	objtime[objective] = (multiplier * (level.time - previousobjtime)); //save the obj time
-
-	previousobjtime = level.time; //save the current time so we can compare it with the next completed obj
-
-	if (heldForMax != qtrue)
-	{
-		objscompleted++;
-		if (objective != objscompleted) //we went out-of-order
-		{
-			objscompletedoffset++; //note this, so that if we get held for 20 it says we got held for 20 at the correct obj
-		}
-	}
-
-	if (g_siegeStats.integer)
-	{
-		SiegeParseMilliseconds(objtime[objective], timeYouTook);
-		G_TeamCommand(TEAM_BLUE, va("print \"Objective held for ^5%s^7.\n\"", timeYouTook));
-		if (heldForMax != qtrue)
-		{
-			G_TeamCommand(TEAM_RED, va("print \"Objective completed in ^5%s^7.\n\"", timeYouTook));
-			G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective completed in ^5%s^7.\n\"", timeYouTook));
-		}
-		else
-		{
-			G_TeamCommand(TEAM_RED, va("print \"Held at objective for ^5%s^7.\n\"", timeYouTook));
-			G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective held for in ^5%s^7.\n\"", timeYouTook));
-		}
-	}
-}
-
-void SiegeSetSpacing(char *timeString, char *spacingString)
-{
-
-	//adjust the number of spaces that will go between round 1 time and round 2 time based on the length of round 1 string
-	//the idea is to get all the round 2 times to line up visually.
-	if (strlen(timeString) >= 14)
-	{
+	if (ms == -1)
 		return;
-	}
 
-	Com_sprintf(spacingString, 32, "");
-	while (strlen(timeString) + strlen(spacingString) < 14) //sum of string lengths of time and spacing should always be 14.
-	{
-		Com_sprintf(spacingString, 32, "%s ", spacingString);
-	}
+	if (heldForMax)
+		trap_Cvar_Set(va("siege_r%i_heldformaxtime", round), va("%i", ms));
 
-}
+	char formattedTime[8] = { 0 };
+	G_ParseMilliseconds(ms, formattedTime, sizeof(formattedTime));
 
-void SiegeParseObjStorage() //reads g_siegeObjStorage and writes objtime_old array and totalroundtime_old 
-{
-	const char *delimiter = ",";
-	char *cp;
-	int i = 0;
-
-	cp = strdup(g_siegeObjStorage.string);
-	objtime_old[1] = atoi(strtok(cp, delimiter));
-	for (i = 2; i < 16; i++)
-	{
-		objtime_old[i] = atoi(strtok(NULL, delimiter));
-	}
-	totalroundtime_old = atoi(strtok(NULL, delimiter));
-}
-
-void SiegeSetObjColors(int num1, int num2, char *num1string, char *num2string) //put higher obj # in green
-{
-	if (num1 > num2)
-	{
-		Com_sprintf(num1string, 32, "^2%s", num1string);
-		Com_sprintf(num2string, 32, "^1%s", num2string);
-		winningteam = 1;
-	}
-	else if (num2 > num1)
-	{
-		Com_sprintf(num1string, 32, "^1%s", num1string);
-		Com_sprintf(num2string, 32, "^2%s", num2string);
-		winningteam = 2;
-	}
-	else //tie
-	{
-		Com_sprintf(num1string, 32, "^3%s", num1string);
-		Com_sprintf(num2string, 32, "^3%s", num2string);
-		winningteam = 3;
-	}
-}
-
-void SiegeSetTimeColors(int round1time, int round2time, char *round1string, char *round2string) //put faster time in green, slower time in red
-{
-	if (round2time <= 0 && round1time > 0) //round2 team didn't do obj, but round1 team did
-	{
-		Com_sprintf(round1string, 32, "^2%s", round1string);
-		Com_sprintf(round2string, 32, "^1%s", round2string);
-	}
-	else if (round1time <= 0 && round2time > 0)//round1 team didn't do obj, but round2 team did
-	{
-		Com_sprintf(round1string, 32, "^1%s", round1string);
-		Com_sprintf(round2string, 32, "^2%s", round2string);
-	}
-	else if (round1time <= 0 && round2time <= 0) //both teams got held for 20...shame on all of you! make them both red
-	{
-		Com_sprintf(round1string, 32, "^1%s", round1string);
-		Com_sprintf(round2string, 32, "^1%s", round2string);
-	}
-	else if (round1time > 0 && round2time > 0 && round1time < round2time) //round1 team was faster
-	{
-		Com_sprintf(round1string, 32, "^2%s", round1string);
-		Com_sprintf(round2string, 32, "^1%s", round2string);
-	}
-	else if (round1time > 0 && round2time > 0 && round2time < round1time) //round2 team was faster
-	{
-		Com_sprintf(round1string, 32, "^1%s", round1string);
-		Com_sprintf(round2string, 32, "^2%s", round2string);
-	}
-	else if (round1time == round2time) //extremely rare occurence. must be exactly equal to the millisecond!
-	{
-		Com_sprintf(round1string, 32, "^3%s", round1string);
-		Com_sprintf(round2string, 32, "^3%s", round2string);
-	}
-	else //???
-	{
-		Com_sprintf(round1string, 32, "^5%s", round1string);
-		Com_sprintf(round2string, 32, "^5%s", round2string);
-	}
-}
-
-void SiegeOverrideRoundColors(char *round1string, char *round2string) //make sure total round time colors are correct
-{
-	if (heldformax && !g_heldformax_old.integer) //round2 team was held for max; round1 team wasn't
-	{
-		Com_sprintf(round1string, 32, "^2%s", round1string);
-		Com_sprintf(round2string, 32, "^1%s", round2string);
-	}
-	else if (!heldformax && g_heldformax_old.integer) //round1 team was held for max; round2 team wasn't
-	{
-		Com_sprintf(round1string, 32, "^1%s", round1string);
-		Com_sprintf(round2string, 32, "^2%s", round2string);
-	}
-	else //tie game
-	{
-		Com_sprintf(round1string, 32, "^3%s", round1string);
-		Com_sprintf(round2string, 32, "^3%s", round2string);
-	}
-}
-
-qboolean SiegeGetFancyObjName(int objective, char *string)
-{
-	vmCvar_t	mapname;
-
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "            Hill");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "          Bridge");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "Shield Generator");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "           Codes");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "          Hangar");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "  Command Center");
-			break;
-
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "            Wall");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "        Stations");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "    Rancor Arena");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "          Shield");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "           Parts");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "        Entrance");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "     Red Crystal");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "   Green Crystal");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "    Blue Crystal");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "         Scepter");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "          Coffin");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "        Entrance");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "      Checkpoint");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "       Station 1");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "       Station 2");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "          Bridge");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "Superlaser Plans");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "siege_cargobarge"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "Cargo Hold Doors");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "      Comm Array");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "    Power Node 1");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "    Power Node 2");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "  Command Center");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "           Codes");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "Cargo Hold Doors");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "      Comm Array");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "    Power Node 1");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "    Power Node 2");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "  Command Center");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "           Codes");
-			break;
-		case 7:
-			Com_sprintf(string, 32, "          Escape");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_eat_shower"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "           Water");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "             Use");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "        Consoles");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "        Top Hack");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "        Teleport");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "           Codes");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_taspir"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "            Door");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "       Generator");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "        2nd Door");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "     Lava Shield");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "            Bomb");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_byss"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "        Consoles");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "            Lift");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "           Doors");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "            Room");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "       Generator");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "          Escape");
-			break;
-		}
-		return qtrue;
-	}
-	else if (!Q_stricmp(mapname.string, "mp/ktr2"))
-	{
-		switch (objective)
-		{
-		case 1:
-			Com_sprintf(string, 32, "       Main Gate");
-			break;
-		case 2:
-			Com_sprintf(string, 32, "            Lift");
-			break;
-		case 3:
-			Com_sprintf(string, 32, "          Shield");
-			break;
-		case 4:
-			Com_sprintf(string, 32, "           Tanks");
-			break;
-		case 5:
-			Com_sprintf(string, 32, "         Advance");
-			break;
-		case 6:
-			Com_sprintf(string, 32, "         Crystal");
-			break;
-		}
-		return qtrue;
-	}
-	return qfalse;
-}
-
-void SiegePrintStats() //print everything
-{
-	int i;
-	char timeString[32];
-	char timeString2[32];
-	char spacing[32];
-	char specialObjectiveName[32];
-	qboolean	usingSpecialObjectiveName = qfalse;
-	vmCvar_t	mapname;
-
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-	totalroundtime = (previousobjtime - roundstarttime);
-
-
-	if (g_siegePersistant.beatingTime && g_siegeObjStorage.string && (Q_stricmp(g_siegeObjStorage.string,"none")) && g_siegeTeamSwitch.integer) //it's round 2
-	{
-		SiegeParseObjStorage(); //set objtime_old array and totalroundtime_old
-		for (i = 1; i < 16; i++)
-		{
-			Com_sprintf(timeString, sizeof(timeString), "");
-			Com_sprintf(timeString2, sizeof(timeString2), "");
-			if (objtime_old[i]) { SiegeParseMilliseconds(objtime_old[i], timeString); }
-			if (objtime[i]) { SiegeParseMilliseconds(objtime[i], timeString2); }
-			if (objtime_old[i] || objtime[i]) //at least one team completed this objective
-			{
-				SiegeSetSpacing(timeString,spacing);
-				SiegeSetTimeColors(objtime_old[i], objtime[i], timeString, timeString2);
-
-				if (SiegeGetFancyObjName(i, specialObjectiveName))
-				{
-					usingSpecialObjectiveName = qtrue;
-				}
-				else
-				{
-					usingSpecialObjectiveName = qfalse;
-				}
-
-				if (usingSpecialObjectiveName)
-				{
-					trap_SendServerCommand(-1, va("print \"%s:   Round 1: %s%s^7Round 2: %s\n\"", specialObjectiveName, timeString, spacing, timeString2));
-				}
-				else
-				{
-					trap_SendServerCommand(-1, va("print \"     Objective %i:   Round 1: %s%s^7Round 2: %s\n\"", i, timeString, spacing, timeString2));
-				}
-			}
-		}
-		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-		Com_sprintf(timeString, sizeof(timeString), "");
-		Com_sprintf(timeString2, sizeof(timeString2), "");
-		if (totalroundtime_old) { SiegeParseMilliseconds(totalroundtime_old, timeString); }
-		if (totalroundtime) { SiegeParseMilliseconds(totalroundtime, timeString2); }
-		SiegeSetSpacing(timeString, spacing);
-		if (heldformax || g_heldformax_old.integer)
-		{
-			SiegeOverrideRoundColors(timeString, timeString2);
-		}
-		else
-		{
-			SiegeSetTimeColors(totalroundtime_old, totalroundtime, timeString, timeString2);
-		}
-		trap_SendServerCommand(-1, va("print \"      Total time:   Round 1: %s%s^7Round 2: %s\n\"", timeString, spacing, timeString2));
-		if (heldformax && g_heldformax_old.integer)
-		{
-			Com_sprintf(timeString, sizeof(timeString), "0");
-			Com_sprintf(timeString2, sizeof(timeString2), "0");
-			if (g_objscompleted_old.integer) { Com_sprintf(timeString, sizeof(timeString), "%i", g_objscompleted_old.integer); }
-			if (objscompleted) { Com_sprintf(timeString2, sizeof(timeString2), "%i", objscompleted); }
-			SiegeSetObjColors(g_objscompleted_old.integer, objscompleted, timeString, timeString2);
-			trap_SendServerCommand(-1, va("print \"  Objs completed:   Round 1: %s             ^7Round 2: %s\n\"", timeString, timeString2));
-			if (winningteam && winningteam == 1)
-			{
-				trap_SendServerCommand(-1, va("print \"                    ^2Winner\n\""));
-			}
-			else if (winningteam && winningteam == 2)
-			{
-				trap_SendServerCommand(-1, va("print \"                                           ^2Winner\n\""));
-			}
-			else if (winningteam && winningteam == 3)
-			{
-				trap_SendServerCommand(-1, va("print \"                                   ^3Draw\n\""));
-			}
-		}
-
-	}
-
-	else //it's either round 1, or g_siegeTeamSwitch is disabled (single-round games)
-	{
-		for (i = 1; i < 16; i++)
-		{
-			if (objtime[i])
-			{
-				SiegeParseMilliseconds(objtime[i], timeString);
-
-				if (SiegeGetFancyObjName(i, specialObjectiveName))
-				{
-					usingSpecialObjectiveName = qtrue;
-				}
-				else
-				{
-					usingSpecialObjectiveName = qfalse;
-				}
-
-				if (usingSpecialObjectiveName)
-				{
-					trap_SendServerCommand(-1, va("print \"%s:    ^5%s\n\"", specialObjectiveName, timeString));
-				}
-				else
-				{
-					trap_SendServerCommand(-1, va("print \"     Objective %i:    ^5%s\n\"", i, timeString));
-				}
-			}
-		}
-		trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-		SiegeParseMilliseconds(totalroundtime, timeString);
-		trap_SendServerCommand(-1, va("print \"      Total time:    ^5%s\n\"", timeString));
-	}
-	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
-	trap_SendServerCommand(-1, va("print \"\n\"")); //line break
+	G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
+	G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
+	G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %i "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
 }
 
 //go through all classes on a team and register their
@@ -713,7 +217,7 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 #define TIEGAME_CONFIGSTRING	3
 void SiegeSetCompleteData(int team)
 {
-	trap_SetConfigstring(CS_SIEGE_WINTEAM, va("%i", tieGame ? TIEGAME_CONFIGSTRING : team)); //duo: override the config string so that you don't erroneously see "team 2 won the match!" if both teams were held for a max
+	trap_SetConfigstring(CS_SIEGE_WINTEAM, va("%i", level.siegeMatchWinner ? OtherTeam(level.siegeMatchWinner) : team)); //duo: override the config string so that you don't erroneously see "team 2 won the match!" if both teams were held for a max
 }
 
 void InitSiegeMode(void)
@@ -752,10 +256,10 @@ void InitSiegeMode(void)
 	level.hangarCompletedTime = 0;
 	level.hangarLiftUsedByDefense = qfalse;
 	level.ccCompleted = qfalse;
-	level.lastObjectiveCompleted = 0;
+	level.objectiveJustCompleted = 0;
 	level.totalObjectivesCompleted = 0;
-	level.siegeRoundComplete = qfalse;
 	level.wallCompleted = qfalse;
+	level.siegeRoundComplete = qfalse;
 	level.killerOfLastDesertComputer = NULL;
 
 	//reset
@@ -1284,20 +788,10 @@ void AddSiegeWinningTeamPoints(int team, int winner)
 
 void SiegeClearSwitchData(void)
 {
-	trap_Cvar_Set("g_siegeObjStorage", "none");
-	trap_Cvar_Set("g_heldformax_old", "0");
-	trap_Cvar_Set("g_objscompleted_old", "0");
 	memset(&g_siegePersistant, 0, sizeof(g_siegePersistant));
 	trap_SiegePersSet(&g_siegePersistant);
-	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
-	previousobjtime = 0; //for time calculation of first objective
-	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
 	level.siegeRoundStartTime = 0;
 	level.antiLamingTime = 0;
-	objscompleted = 0; //clear objs completed counter
-	objscompletedoffset = 0; //clear offset
-	totalroundtime = 0; //clear total round time
-	heldformax = 0;
 }
 
 void SiegeDoTeamAssign(void)
@@ -1359,48 +853,35 @@ void SiegeTeamSwitch(int winTeam, int winTime)
 
 void SiegeRoundComplete(int winningteam, int winningclient)
 {
+
 	vec3_t nomatter;
 	char teamstr[1024];
 	int originalWinningClient = winningclient;
-	int i;
-	char objStorage[256];
+
+	level.antiLamingTime = 0;
 	level.siegeRoundComplete = qtrue;
 
-	if (g_siegeStats.integer)
-	{
-		SiegePrintStats();//write all the stats
+	if (level.siegeStage == SIEGESTAGE_ROUND1) {
+		level.siegeStage = SIEGESTAGE_ROUND1POSTGAME;
+		int realTime = 0;
+		if (g_siegeTeamSwitch.integer && (imperial_time_limit || rebel_time_limit)) {
+			if (imperial_time_limit)
+				realTime = imperial_time_limit - (gImperialCountdown - level.time);
+			else if (rebel_time_limit)
+				realTime = rebel_time_limit - (gRebelCountdown - level.time);
+			if (realTime < 1)
+				realTime = 1;
+		}
+		trap_Cvar_Set("siege_r1_total", va("%i", realTime ? realTime : abs(level.time - level.siegeRoundStartTime)));
+	}
+	else if (level.siegeStage == SIEGESTAGE_ROUND2) {
+		level.siegeStage = SIEGESTAGE_ROUND2POSTGAME;
+		if (!level.siegeMatchWinner)
+			level.siegeMatchWinner = OtherTeam(winningteam);
+		trap_Cvar_Set("siege_r2_total", va("%i", abs(level.time - level.siegeRoundStartTime)));
 	}
 
-	if (g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime) //round 1, so store all the time stuff so we can compare it next round
-	{
-		for (i = 1; i < 16; i++)
-		{
-			if (i == 1)
-				Com_sprintf(objStorage, sizeof(objStorage), "%i", objtime[i]);
-			else
-				Com_sprintf(objStorage, sizeof(objStorage), "%s,%i", objStorage, objtime[i]);
-		}
-		Com_sprintf(objStorage, sizeof(objStorage), "%s,%i", objStorage, totalroundtime);
-		trap_Cvar_Set("g_siegeObjStorage", va("%s", objStorage));
-		if (heldformax)
-		{
-			trap_Cvar_Set("g_heldformax_old", "1");
-		}
-		else
-		{
-			trap_Cvar_Set("g_heldformax_old", "0");
-		}
-		trap_Cvar_Set("g_objscompleted_old", va("%i", objscompleted));
-	}
-
-	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
-	previousobjtime = 0; //for time calculation of first objective
-	roundstarttime = 0; //save the level.time from when we started the round so we can later calculate the exact length of the round
-	level.antiLamingTime = 0;
 	level.siegeRoundStartTime = 0;
-	objscompleted = 0; //clear objs completed counter
-	objscompletedoffset = 0; //clear offset
-	totalroundtime = 0; //clear total round time
 
 	if (winningclient != ENTITYNUM_NONE && g_entities[winningclient].client &&
 		g_entities[winningclient].client->sess.sessionTeam != winningteam)
@@ -1605,6 +1086,12 @@ void SiegeBeginRound(int entNum)
 		qboolean spawnEnt = qfalse;
 		level.inSiegeCountdown = qfalse;
 		level.siegeRoundComplete = qfalse;
+		if (!g_siegeTeamSwitch.integer)
+			level.siegeStage = SIEGESTAGE_NONE;
+		else if (CurrentSiegeRound() == 1)
+			level.siegeStage = SIEGESTAGE_ROUND1;
+		else
+			level.siegeStage = SIEGESTAGE_ROUND2;
 		//respawn everyone now
 		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000 - SIEGE_ROUND_BEGIN_TIME - 200;
 
@@ -1638,11 +1125,6 @@ void SiegeBeginRound(int entNum)
 			}
 			i++;
 		}
-	}
-
-	if (!g_siegePersistant.beatingTime || !g_siegeTeamSwitch.integer) {
-		trap_Cvar_Set("g_tieGame", "0");
-		tieGame = qfalse;
 	}
 
 	//Now check if there's something to fire off at the round start, if so do it.
@@ -1682,14 +1164,23 @@ void SiegeBeginRound(int entNum)
 		SetIconFromClassname("misc_model_health_power_converter", 3, qfalse);
 	}
 
-	memset(objtime, 0, sizeof(objtime)); //reset obj times to zero
-	previousobjtime = level.time; //for time calculation of first objective
-	roundstarttime = level.time; //save the level.time from when we started the round so we can later calculate the exact length of the round
 	level.antiLamingTime = 0;
-	level.siegeRoundStartTime = level.time;
-	objscompleted = 0; //clear objs completed counter
-	objscompletedoffset = 0; //clear offset
-	heldformax = 0;
+
+
+	// if round 1, reset both round 1 and round 2 cvars
+	// if round 2, reset only round 2 cvars
+	int i, j, currentRound = CurrentSiegeRound();
+	for (i = 2; i >= currentRound; i--) {
+		trap_Cvar_Set(va("siege_r%i_objscompleted", currentRound), "");
+		trap_Cvar_Set(va("siege_r%i_heldformaxat", currentRound), "");
+		trap_Cvar_Set(va("siege_r%i_heldformaxtime", currentRound), "");
+		trap_Cvar_Set(va("siege_r%i_total", currentRound), "");
+		for (j = 1; j <= MAX_STATS - 1; j++) {
+			trap_Cvar_Set(va("siege_r%i_obj%i", i, j), "");
+		}
+	}
+
+	level.siegeMatchWinner = SIEGEMATCHWINNER_NONE;
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
 }
 
@@ -1764,18 +1255,17 @@ void SiegeCheckTimers(void)
 	{ //team1
 		if (gImperialCountdown < level.time) //they were held for 20 minutes, so let's notate this differently
 		{
-			if (g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime) //round 1 was held for max, so note this in cvar for later
-				trap_Cvar_Set("g_tieGame", "1");
-			else if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_tieGame.integer) //round 2 was held for max, and round 1 was previously held for max, so the match is a draw
-				tieGame = qtrue;
-			if (objscompletedoffset)
-			{
-				SiegeUpdateObjTime(objscompleted + 1 - objscompletedoffset, qtrue); //we went out of order, so let's make sure we get a DNF at the correct obj
+			int round = CurrentSiegeRound();
+			trap_Cvar_Set(va("siege_r%i_heldformaxat", round), va("%i", G_FirstIncompleteObjective(round)));
+			if (round == 2 && siege_r1_heldformaxat.integer) { //round 2 was held for max, and round 1 was previously held for max
+				if (siege_r2_objscompleted.integer > siege_r1_objscompleted.integer)
+					level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND2OFFENSE;
+				else if (siege_r1_objscompleted.integer > siege_r2_objscompleted.integer)
+					level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND1OFFENSE;
+				else
+					level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
 			}
-			else
-			{
-				SiegeUpdateObjTime(objscompleted + 1, qtrue); //we didn't go out of order, so just go ahead and give a DNF for the next obj
-			}
+			PrintObjStat(0, qtrue);
 			SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
 			imperial_time_limit = 0;
 			return;
@@ -1786,18 +1276,17 @@ void SiegeCheckTimers(void)
 	{ //team2
 		if (gRebelCountdown < level.time)//they were held for 20 minutes, so let's notate this differently
 		{
-			if (g_siegeTeamSwitch.integer && !g_siegePersistant.beatingTime) //round 1 was held for max, so note this in cvar for later
-				trap_Cvar_Set("g_tieGame", "1");
-			else if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_tieGame.integer) //round 2 was held for max, and round 1 was previously held for max, so the match is a draw
-				tieGame = qtrue;
-			if (objscompletedoffset)
-			{
-				SiegeUpdateObjTime(objscompleted + 1 - objscompletedoffset, qtrue); //we went out of order, so let's make sure we get a DNF at the correct obj
+			int round = CurrentSiegeRound();
+			trap_Cvar_Set(va("siege_r%i_heldformaxat", round), va("%i", G_FirstIncompleteObjective(round)));
+			if (round == 2 && siege_r1_heldformaxat.integer) { //round 2 was held for max, and round 1 was previously held for max
+				if (siege_r2_objscompleted.integer > siege_r1_objscompleted.integer)
+					level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND2OFFENSE;
+				else if (siege_r1_objscompleted.integer > siege_r2_objscompleted.integer)
+					level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND1OFFENSE;
+				else
+					level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
 			}
-			else
-			{
-				SiegeUpdateObjTime(objscompleted + 1, qtrue); //we didn't go out of order, so just go ahead and give a DNF for the next obj
-			}
+			PrintObjStat(0, qtrue);
 			SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
 			rebel_time_limit = 0;
 			return;
@@ -1811,9 +1300,16 @@ void SiegeCheckTimers(void)
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			trap_SetConfigstring(CS_SIEGE_STATE, "1"); //"waiting for players on both teams"
 			level.inSiegeCountdown = qfalse;
+			if (!g_siegeTeamSwitch.integer)
+				level.siegeStage = SIEGESTAGE_NONE;
+			else if (CurrentSiegeRound() == 1)
+				level.siegeStage = SIEGESTAGE_PREROUND1;
+			else
+				level.siegeStage = SIEGESTAGE_PREROUND2;
 		}
 		else if (gSiegeBeginTime < level.time)
 		{ //mark the round as having begun
+			level.siegeRoundStartTime = gSiegeBeginTime;
 			if (debug_duoTest.integer)
 			{
 				trap_Cvar_Set("g_siegeRespawn", "1");
@@ -1834,18 +1330,30 @@ void SiegeCheckTimers(void)
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			level.inSiegeCountdown = qtrue;
 			level.siegeRoundComplete = qfalse;
+			if (!g_siegeTeamSwitch.integer)
+				level.siegeStage = SIEGESTAGE_NONE;
+			else if (CurrentSiegeRound() == 1)
+				level.siegeStage = SIEGESTAGE_PREROUND1;
+			else
+				level.siegeStage = SIEGESTAGE_PREROUND2;
 		}
 		else
 		{
 			trap_SetConfigstring(CS_SIEGE_STATE, va("2|%i", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME)); //getting ready to begin
 			level.inSiegeCountdown = qtrue;
 			level.siegeRoundComplete = qfalse;
+			if (!g_siegeTeamSwitch.integer)
+				level.siegeStage = SIEGESTAGE_NONE;
+			else if (CurrentSiegeRound() == 1)
+				level.siegeStage = SIEGESTAGE_PREROUND1;
+			else
+				level.siegeStage = SIEGESTAGE_PREROUND2;
 		}
 	}
 }
 
-void SiegeObjectiveCompleted(int team, int objective, int final, int client)
-{
+void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
+
 	int goals_completed, goals_required;
 
 	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
@@ -1855,7 +1363,8 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 		level.clients[client].ps.persistant[PERS_CAPTURES]++;
 	}
 
-	SiegeUpdateObjTime(objective, qfalse); //we just completed an obj, so let's write down the time it took for this obj
+	trap_Cvar_Set(va("siege_r%i_obj%i", CurrentSiegeRound(), objective), va("%i", level.time - level.siegeRoundStartTime));
+	PrintObjStat(objective, 0);
 
 	if (client >= 0 && objective && &g_entities[client] && g_entities[client].client)
 	{
@@ -1864,15 +1373,6 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (objective)
-	{
-		level.lastObjectiveCompleted = objective;
-	}
-	else
-	{
-		level.lastObjectiveCompleted = 0;
-	}
 
 	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
@@ -1919,7 +1419,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client)
 		goals_completed = rebel_goals_completed;
 		goals_required = rebel_goals_required;
 	}
-	if (final == 1 || goals_completed >= goals_required || (g_siegeTiebreakEnd.integer && g_siegePersistant.beatingTime && g_siegeObjStorage.string && (Q_stricmp(g_siegeObjStorage.string, "none")) && g_siegeTeamSwitch.integer && objscompleted > g_objscompleted_old.integer))
+	if (final == 1 || goals_completed >= goals_required || (g_siegeTiebreakEnd.integer && g_siegePersistant.beatingTime && g_siegeTeamSwitch.integer && siege_r2_objscompleted.integer > siege_r1_objscompleted.integer))
 	{
 		SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
 		SiegeRoundComplete(team, client);
@@ -1945,6 +1445,9 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	{
 		return;
 	}
+
+	if (level.siegeRoundComplete) // no completing objs while the round is already over
+		return;
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -2044,6 +1547,10 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	}
 
 	level.totalObjectivesCompleted++;
+	level.previousObjectiveCompleted = level.objectiveJustCompleted;
+	level.objectiveJustCompleted = ent->objective;
+	char *roundCvar = va("siege_r%i_objscompleted", CurrentSiegeRound());
+	trap_Cvar_Set(roundCvar, va("%i", trap_Cvar_VariableIntegerValue(roundCvar) + 1));
 
 	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{
@@ -2229,6 +1736,9 @@ void SP_info_siege_objective(gentity_t *ent)
 		G_Printf("ERROR: info_siege_objective without an objective or side value\n");
 		return;
 	}
+
+	if (!level.numSiegeObjectivesOnMap || ent->objective > level.numSiegeObjectivesOnMap)
+		level.numSiegeObjectivesOnMap = ent->objective;
 
 	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
 	{

@@ -1083,14 +1083,20 @@ typedef struct {
 	int			antiSpawnSpamTime;
 	int			siegeStatusUpdateTime;
 	int			siegeRoundStartTime;
+	int			siegeRoundComplete;
+	enum {
+		SIEGEMATCHWINNER_NONE = 0,
+		SIEGEMATCHWINNER_ROUND1OFFENSE,
+		SIEGEMATCHWINNER_ROUND2OFFENSE,
+		SIEGEMATCHWINNER_TIE
+	} siegeMatchWinner;
+	int			numSiegeObjectivesOnMap;
 	int			antiLamingTime;
 #ifdef NEWMOD_SUPPORT
 	int			siegeItemUpdateTime;
 #endif
 
 	char		mapVersion[32];
-
-	qboolean	siegeRoundComplete;
 
 	int			startTime;				// level.time the map was started
 
@@ -1103,11 +1109,22 @@ typedef struct {
 	qboolean	restarted;				// waiting for a map_restart to fire
 
 	qboolean	inSiegeCountdown;
+	enum {
+		SIEGESTAGE_NONE = 0,
+		SIEGESTAGE_PREROUND1,
+		SIEGESTAGE_ROUND1,
+		SIEGESTAGE_ROUND1POSTGAME,
+		SIEGESTAGE_PREROUND2,
+		SIEGESTAGE_ROUND2,
+		SIEGESTAGE_ROUND2POSTGAME,
+		MAX_SIEGESTAGES
+	} siegeStage;
 
 	int			hangarCompletedTime;
 	qboolean	hangarLiftUsedByDefense;
 	qboolean	ccCompleted;
-	int			lastObjectiveCompleted;
+	int			previousObjectiveCompleted;
+	int			objectiveJustCompleted;
 	int			totalObjectivesCompleted;
 	qboolean	wallCompleted;
 	qboolean	zombies;
@@ -1410,6 +1427,17 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
+
+
+//
+// g_saga.c
+//
+
+void G_ParseMilliseconds(int ms, char *outBuf, size_t outSize);
+int G_ObjectiveTimeDifference(int objective, int round);
+int G_FirstIncompleteObjective(int round);
+int G_FirstCompleteObjective(int round);
+int G_PreviousObjective(int objective, int round, int timeOverride);
 
 //
 // g_object.c
@@ -2200,7 +2228,6 @@ extern vmCvar_t    g_improvedTeamchat;
 extern vmCvar_t    g_enableCloak;
 extern vmCvar_t    g_fixHothBunkerLift;
 extern vmCvar_t    g_infiniteCharge;
-extern vmCvar_t    g_siegeStats;
 extern vmCvar_t    g_siegeTiebreakEnd;
 extern vmCvar_t	   g_moreTaunts;
 extern vmCvar_t    g_fixRancorCharge;
@@ -2229,7 +2256,6 @@ extern vmCvar_t    g_teamVoteFix;
 extern vmCvar_t    g_antiLaming;
 extern vmCvar_t    g_probation;
 extern vmCvar_t    g_teamOverlayUpdateRate;
-extern vmCvar_t    g_tieGame;
 extern vmCvar_t    g_lockdown;
 extern vmCvar_t    g_hothRebalance;
 
@@ -2246,9 +2272,44 @@ extern vmCvar_t    debug_testHeight6;*/
 extern vmCvar_t    debug_shieldLog;
 extern vmCvar_t    debug_duoTest;
 
-extern vmCvar_t    g_siegeObjStorage;
-extern vmCvar_t    g_heldformax_old;
-extern vmCvar_t    g_objscompleted_old;
+extern vmCvar_t    siege_r1_obj0;
+extern vmCvar_t    siege_r1_obj1;
+extern vmCvar_t    siege_r1_obj2;
+extern vmCvar_t    siege_r1_obj3;
+extern vmCvar_t    siege_r1_obj4;
+extern vmCvar_t    siege_r1_obj5;
+extern vmCvar_t    siege_r1_obj6;
+extern vmCvar_t    siege_r1_obj7;
+extern vmCvar_t    siege_r1_obj8;
+extern vmCvar_t    siege_r1_obj9;
+extern vmCvar_t    siege_r1_obj10;
+extern vmCvar_t    siege_r1_obj11;
+extern vmCvar_t    siege_r1_obj12;
+extern vmCvar_t    siege_r1_obj13;
+extern vmCvar_t    siege_r1_obj14;
+extern vmCvar_t    siege_r1_obj15;
+extern vmCvar_t    siege_r1_objscompleted;
+extern vmCvar_t    siege_r1_heldformaxat;
+extern vmCvar_t    siege_r1_heldformaxtime;
+extern vmCvar_t    siege_r2_obj0;
+extern vmCvar_t    siege_r2_obj1;
+extern vmCvar_t    siege_r2_obj2;
+extern vmCvar_t    siege_r2_obj3;
+extern vmCvar_t    siege_r2_obj4;
+extern vmCvar_t    siege_r2_obj5;
+extern vmCvar_t    siege_r2_obj6;
+extern vmCvar_t    siege_r2_obj7;
+extern vmCvar_t    siege_r2_obj8;
+extern vmCvar_t    siege_r2_obj9;
+extern vmCvar_t    siege_r2_obj10;
+extern vmCvar_t    siege_r2_obj11;
+extern vmCvar_t    siege_r2_obj12;
+extern vmCvar_t    siege_r2_obj13;
+extern vmCvar_t    siege_r2_obj14;
+extern vmCvar_t    siege_r2_obj15;
+extern vmCvar_t    siege_r2_objscompleted;
+extern vmCvar_t    siege_r2_heldformaxat;
+extern vmCvar_t    siege_r2_heldformaxtime;
 
 extern vmCvar_t    g_forceOnNpcs;
 extern vmCvar_t    g_enforceNetSettings;

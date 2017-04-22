@@ -159,7 +159,6 @@ vmCvar_t    g_improvedTeamchat;
 vmCvar_t    g_enableCloak;
 vmCvar_t    g_fixHothBunkerLift;
 vmCvar_t    g_infiniteCharge;
-vmCvar_t    g_siegeStats;
 vmCvar_t    g_siegeTiebreakEnd;
 vmCvar_t    g_moreTaunts;
 vmCvar_t    g_fixRancorCharge;
@@ -188,7 +187,6 @@ vmCvar_t	g_teamVoteFix;
 vmCvar_t	g_antiLaming;
 vmCvar_t	g_probation;
 vmCvar_t	g_teamOverlayUpdateRate;
-vmCvar_t	g_tieGame;
 vmCvar_t	g_lockdown;
 vmCvar_t	siegeStatus;
 vmCvar_t	g_hothRebalance;
@@ -205,9 +203,44 @@ vmCvar_t	debug_testHeight6;*/
 vmCvar_t	debug_shieldLog;
 vmCvar_t	debug_duoTest;
 
-vmCvar_t	g_siegeObjStorage;
-vmCvar_t    g_heldformax_old;
-vmCvar_t    g_objscompleted_old;
+vmCvar_t	siege_r1_obj0;
+vmCvar_t	siege_r1_obj1;
+vmCvar_t	siege_r1_obj2;
+vmCvar_t	siege_r1_obj3;
+vmCvar_t	siege_r1_obj4;
+vmCvar_t	siege_r1_obj5;
+vmCvar_t	siege_r1_obj6;
+vmCvar_t	siege_r1_obj7;
+vmCvar_t	siege_r1_obj8;
+vmCvar_t	siege_r1_obj9;
+vmCvar_t	siege_r1_obj10;
+vmCvar_t	siege_r1_obj11;
+vmCvar_t	siege_r1_obj12;
+vmCvar_t	siege_r1_obj13;
+vmCvar_t	siege_r1_obj14;
+vmCvar_t	siege_r1_obj15;
+vmCvar_t	siege_r1_objscompleted;
+vmCvar_t	siege_r1_heldformaxat;
+vmCvar_t	siege_r1_heldformaxtime;
+vmCvar_t	siege_r2_obj0;
+vmCvar_t	siege_r2_obj1;
+vmCvar_t	siege_r2_obj2;
+vmCvar_t	siege_r2_obj3;
+vmCvar_t	siege_r2_obj4;
+vmCvar_t	siege_r2_obj5;
+vmCvar_t	siege_r2_obj6;
+vmCvar_t	siege_r2_obj7;
+vmCvar_t	siege_r2_obj8;
+vmCvar_t	siege_r2_obj9;
+vmCvar_t	siege_r2_obj10;
+vmCvar_t	siege_r2_obj11;
+vmCvar_t	siege_r2_obj12;
+vmCvar_t	siege_r2_obj13;
+vmCvar_t	siege_r2_obj14;
+vmCvar_t	siege_r2_obj15;
+vmCvar_t	siege_r2_objscompleted;
+vmCvar_t	siege_r2_heldformaxat;
+vmCvar_t	siege_r2_heldformaxtime;
 
 vmCvar_t    g_forceOnNpcs;
 
@@ -426,7 +459,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ff_objectives, "g_ff_objectives", "0", /*CVAR_SERVERINFO |*/ CVAR_CHEAT | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_autoMapCycle, "g_autoMapCycle", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_autoStats, "g_autoStats", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoStats, "g_autoStats", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_maxForceRank, "g_maxForceRank", "6", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
@@ -741,7 +774,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_enableCloak, "g_enableCloak", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_siegeStats, "g_siegeStats", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeTiebreakEnd, "g_siegeTiebreakEnd", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_moreTaunts, "g_moreTaunts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -770,7 +802,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_tieGame, "g_tieGame", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -783,9 +814,44 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &debug_shieldLog, "debug_shieldLog", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_duoTest, "debug_duoTest", "0", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_siegeObjStorage, "g_siegeObjStorage", "none", CVAR_ARCHIVE|CVAR_ROM, 0, qfalse },
-	{ &g_heldformax_old, "g_heldformax_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
-	{ &g_objscompleted_old, "g_objscompleted_old", "0", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj0, "siege_r1_obj0", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj1, "siege_r1_obj1", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj2, "siege_r1_obj2", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj3, "siege_r1_obj3", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj4, "siege_r1_obj4", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj5, "siege_r1_obj5", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj6, "siege_r1_obj6", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj7, "siege_r1_obj7", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj8, "siege_r1_obj8", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj9, "siege_r1_obj9", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj10, "siege_r1_obj10", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj11, "siege_r1_obj11", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj12, "siege_r1_obj12", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj13, "siege_r1_obj13", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj14, "siege_r1_obj14", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_obj15, "siege_r1_obj15", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_objscompleted, "siege_r1_objscompleted", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_heldformaxat, "siege_r1_heldformaxat", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_heldformaxat, "siege_r1_heldformaxtime", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj0, "siege_r2_obj0", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj1, "siege_r2_obj1", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj2, "siege_r2_obj2", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj3, "siege_r2_obj3", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj4, "siege_r2_obj4", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj5, "siege_r2_obj5", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj6, "siege_r2_obj6", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj7, "siege_r2_obj7", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj8, "siege_r2_obj8", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj9, "siege_r2_obj9", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj10, "siege_r2_obj10", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj11, "siege_r2_obj11", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj12, "siege_r2_obj12", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj13, "siege_r2_obj13", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj14, "siege_r2_obj14", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_obj15, "siege_r2_obj15", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_objscompleted, "siege_r2_objscompleted", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_heldformaxat, "siege_r2_heldformaxat", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r2_heldformaxat, "siege_r2_heldformaxtime", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	{ &g_forceOnNpcs, "g_forceOnNpcs", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_enforceNetSettings, "g_enforceNetSettings", "-1", CVAR_ARCHIVE, 0, qtrue },
@@ -2672,8 +2738,13 @@ void BeginIntermission( void ) {
 	SendScoreboardMessageToAllClients();
 
 	if ( g_autoStats.integer ) {
-		PrintStatsTo( NULL, "general" );
-		PrintStatsTo( NULL, "force" );
+		if (g_gametype.integer == GT_SIEGE) {
+			PrintStatsTo(NULL, "obj");
+		}
+		else if (g_gametype.integer == GT_CTF) {
+			PrintStatsTo(NULL, "general");
+			PrintStatsTo(NULL, "force");
+		}
 	}
 }
 
@@ -4642,8 +4713,6 @@ extern int getstatus_LastReportTime;
 extern int getstatus_UniqueIPCount;
 extern int gImperialCountdown;
 extern int gRebelCountdown;
-extern int roundstarttime;
-extern int previousobjtime;
 
 void UpdateSiegeStatus()
 {
@@ -4726,21 +4795,21 @@ void UpdateSiegeStatus()
 
 	if (Q_stricmp(mapname.string, "siege_sillyroom") && Q_stricmp(mapname.string, "siege_codes"))
 	{
-		if (level.lastObjectiveCompleted == 0)
+		if (level.objectiveJustCompleted == 0)
 		{
 			Com_sprintf(string, 128, "%s, 1st obj", string);
 		}
-		else if (level.lastObjectiveCompleted == 1)
+		else if (level.objectiveJustCompleted == 1)
 		{
 			Com_sprintf(string, 128, "%s, 2nd obj", string);
 		}
-		else if (level.lastObjectiveCompleted == 2)
+		else if (level.objectiveJustCompleted == 2)
 		{
 			Com_sprintf(string, 128, "%s, 3rd obj", string);
 		}
 		else
 		{
-			Com_sprintf(string, 128, "%s, %ith obj", string, level.lastObjectiveCompleted + 1);
+			Com_sprintf(string, 128, "%s, %ith obj", string, level.objectiveJustCompleted + 1);
 		}
 	}
 
@@ -5030,8 +5099,7 @@ void G_RunFrame( int levelTime ) {
 		{
 			static int accumulatedDt = 0;
 
-			roundstarttime += dt;
-			previousobjtime += dt;
+			level.siegeRoundStartTime += dt;
 
 			// siege timer adjustment
 			accumulatedDt += dt;
