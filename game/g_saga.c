@@ -214,7 +214,6 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 
 //tell clients that this team won and print it on their scoreboard for intermission
 //or whatever.
-#define TIEGAME_CONFIGSTRING	3
 void SiegeSetCompleteData(int team)
 {
 	trap_SetConfigstring(CS_SIEGE_WINTEAM, va("%i", level.siegeMatchWinner ? OtherTeam(level.siegeMatchWinner) : team)); //duo: override the config string so that you don't erroneously see "team 2 won the match!" if both teams were held for a max
@@ -851,7 +850,7 @@ void SiegeTeamSwitch(int winTeam, int winTime)
 	}
 }
 
-void SiegeRoundComplete(int winningteam, int winningclient)
+void G_SiegeRoundComplete(int winningteam, int winningclient)
 {
 
 	vec3_t nomatter;
@@ -1266,7 +1265,7 @@ void SiegeCheckTimers(void)
 					level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
 			}
 			PrintObjStat(0, qtrue);
-			SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
+			G_SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
 			imperial_time_limit = 0;
 			return;
 		}
@@ -1287,7 +1286,7 @@ void SiegeCheckTimers(void)
 					level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
 			}
 			PrintObjStat(0, qtrue);
-			SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
+			G_SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
 			rebel_time_limit = 0;
 			return;
 		}
@@ -1422,7 +1421,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	if (final == 1 || goals_completed >= goals_required || (g_siegeTiebreakEnd.integer && g_siegePersistant.beatingTime && g_siegeTeamSwitch.integer && siege_r2_objscompleted.integer > siege_r1_objscompleted.integer))
 	{
 		SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
-		SiegeRoundComplete(team, client);
+		G_SiegeRoundComplete(team, client);
 	}
 	else
 	{

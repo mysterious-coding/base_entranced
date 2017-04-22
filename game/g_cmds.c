@@ -5509,10 +5509,14 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 				else if (!stats[2][j].num && stats[1][j].num)
 					bestStats[j].num = stats[1][j].num;
 			}
-			// sanity check: the winning team's time should always be in green
+			// sanity check: the winning team's time should always be in green, but nobody should be green if it's a tie
 			if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND1OFFENSE || level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND2OFFENSE) {
 				stats[level.siegeMatchWinner][MAX_STATS - 1].forceColor = S_COLOR_GREEN;
 				stats[OtherTeam(level.siegeMatchWinner)][MAX_STATS - 1].forceColor = S_COLOR_WHITE;
+			}
+			else if (level.siegeMatchWinner == SIEGEMATCHWINNER_TIE) {
+				stats[1][MAX_STATS - 1].forceColor = S_COLOR_WHITE;
+				stats[2][MAX_STATS - 1].forceColor = S_COLOR_WHITE;
 			}
 		}
 		// if you were held for a max, color it red and add "(DNF)" with the time you were held for
@@ -5762,10 +5766,8 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 	} else if ( g_gametype.integer == GT_SIEGE && !Q_stricmp( type, "obj" ) ) {
 		if (!g_siegeTeamSwitch.integer) // not supported
 			return;
-		if (level.siegeStage < SIEGESTAGE_ROUND1POSTGAME) {
-			trap_SendServerCommand(id, va("print \""S_COLOR_WHITE"You are not yet able to view Siege stats. Please wait until the end of round 1.\n\""));
+		if (level.siegeStage < SIEGESTAGE_ROUND1POSTGAME)
 			return;
-		}
 		desc = &ObjStatsDesc;
 		callback = &FillObjStats;
 	} else {

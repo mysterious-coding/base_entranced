@@ -2861,8 +2861,28 @@ qboolean	ConsoleCommand( void ) {
 #ifdef NEWMOD_SUPPORT
 		trap_SendServerCommand(-1, "lchat \"em\"");
 #endif
+		G_LogPrintf("Match forced to end.\n");
 		trap_SendServerCommand( -1,  va("print \"Match forced to end.\n\""));
-		LogExit( "Match forced to end." );
+		// duo: fix siege winners if match is forced to end in round 2 and one team completed more objectives than the other
+		if (g_gametype.integer == GT_SIEGE && level.siegeStage == SIEGESTAGE_ROUND2) {
+			trap_Cvar_Set("siege_r2_heldformaxat", va("%i", G_FirstIncompleteObjective(2)));
+			int r1objs = trap_Cvar_VariableIntegerValue("siege_r1_objscompleted");
+			int r2objs = trap_Cvar_VariableIntegerValue("siege_r2_objscompleted");
+			if (r1objs > r2objs) {
+				level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND1OFFENSE;
+				G_SiegeRoundComplete(TEAM_BLUE, ENTITYNUM_NONE);
+			}
+			else if (r2objs > r1objs) {
+				level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND2OFFENSE;
+				G_SiegeRoundComplete(TEAM_RED, ENTITYNUM_NONE);
+			}
+			else {
+				level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
+				G_SiegeRoundComplete(TEAM_BLUE, ENTITYNUM_NONE);
+			}
+		}
+		else
+			LogExit("Match forced to end.");
         return qtrue;
     } 
 

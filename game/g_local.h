@@ -1438,6 +1438,7 @@ int G_ObjectiveTimeDifference(int objective, int round);
 int G_FirstIncompleteObjective(int round);
 int G_FirstCompleteObjective(int round);
 int G_PreviousObjective(int objective, int round, int timeOverride);
+void G_SiegeRoundComplete(int winningteam, int winningclient);
 
 //
 // g_object.c
