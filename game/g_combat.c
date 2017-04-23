@@ -2209,12 +2209,29 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 	return qfalse;
 }
 
-static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod)
-{
-	if (g_gametype.integer != GT_SIEGE || self == attacker || self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
-	{
+static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod) {
+	if (g_gametype.integer != GT_SIEGE)
+		return qfalse;
+
+	self->client->sess.siegeStats.killer = attacker - g_entities;
+
+	if (self == attacker) {
+		self->client->sess.siegeStats.selfkills[GetSiegeStatRound()]++;
 		return qfalse;
 	}
+
+	if (self->client->sess.sessionTeam == TEAM_RED)
+		self->client->sess.siegeStats.oDeaths[GetSiegeStatRound()]++;
+	else if (self->client->sess.sessionTeam == TEAM_BLUE)
+		self->client->sess.siegeStats.dDeaths[GetSiegeStatRound()]++;
+
+	if (self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
+		return qfalse;
+
+	if (attacker->client->sess.sessionTeam == TEAM_RED)
+		attacker->client->sess.siegeStats.oKills[GetSiegeStatRound()]++;
+	else if (attacker->client->sess.sessionTeam == TEAM_BLUE)
+		attacker->client->sess.siegeStats.dKills[GetSiegeStatRound()]++;
 
 	qboolean gaveAward = qfalse;
 
@@ -2222,7 +2239,11 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 	if (CheckSiegeAward(REWARD_DEFEND, self, attacker, mod)) { gaveAward = qtrue; } //also handles REWARD_DENIED
 	if (CheckSiegeAward(REWARD_ASSIST, self, attacker, mod)) { gaveAward = qtrue; }
 	if (CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod)) { gaveAward = qtrue; }
-	if (CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod)) { gaveAward = qtrue; }
+	if (CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod)) {
+		if (attacker->client->sess.sessionTeam == TEAM_BLUE)
+			attacker->client->sess.siegeStats.saves[GetSiegeStatRound()]++;
+		gaveAward = qtrue;
+	}
 	
 	return gaveAward;
 }
@@ -5418,6 +5439,16 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		// TODO: it does not count rage or protect reduction...
 		targ->client->pers.damageTaken += (take + asave);
 		attacker->client->pers.damageCaused += (take + asave);
+		if (g_gametype.integer == GT_SIEGE) {
+			if (attacker->client->sess.sessionTeam == TEAM_RED) {
+				targ->client->sess.siegeStats.dDamageTaken[GetSiegeStatRound()] += (take + asave);
+				attacker->client->sess.siegeStats.oDamageDealt[GetSiegeStatRound()] += (take + asave);
+			}
+			else if (attacker->client->sess.sessionTeam == TEAM_BLUE) {
+				targ->client->sess.siegeStats.oDamageTaken[GetSiegeStatRound()] += (take + asave);
+				attacker->client->sess.siegeStats.dDamageDealt[GetSiegeStatRound()] += (take + asave);
+			}
+		}
 	}
 
 #if 0//#ifndef FINAL_BUILD

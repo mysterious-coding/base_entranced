@@ -1177,6 +1177,26 @@ void SiegeBeginRound(int entNum)
 		for (j = 1; j <= MAX_STATS - 1; j++) {
 			trap_Cvar_Set(va("siege_r%i_obj%i", i, j), "");
 		}
+		for (j = 0; j < MAX_CLIENTS; j++) {
+			level.clients[j].sess.siegeStats.caps[i - 1] = 0;
+			level.clients[j].sess.siegeStats.saves[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oKills[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dKills[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oDeaths[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dDeaths[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oDamageDealt[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oDamageTaken[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dDamageDealt[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dDamageTaken[i - 1] = 0;
+			level.clients[j].sess.siegeStats.killer = -1;
+			level.clients[j].sess.siegeStats.maxes[i - 1] = 0;
+			level.clients[j].sess.siegeStats.maxed[i - 1] = 0;
+			level.clients[j].sess.siegeStats.spawnWaitTime[i - 1] = 0;
+			level.clients[j].sess.siegeStats.spawnWaitTimeDeaths[i - 1] = 0;
+			level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oClassChanges[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dClassChanges[i - 1] = 0;
+		}
 	}
 
 	level.siegeMatchWinner = SIEGEMATCHWINNER_NONE;
@@ -1368,6 +1388,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	if (client >= 0 && objective && &g_entities[client] && g_entities[client].client)
 	{
 		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
+		g_entities[client].client->sess.siegeStats.caps[GetSiegeStatRound()]++;
 	}
 
 	vmCvar_t	mapname;

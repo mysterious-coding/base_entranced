@@ -1173,6 +1173,18 @@ void respawn( gentity_t *ent ) {
 				{
 					minDel = 20000;
 				}
+				if (g_siegeRespawn.integer >= 10) {
+					if (ent->client->sess.siegeStats.killer >= 0 && ent->client->sess.siegeStats.killer < MAX_CLIENTS && ent->client->sess.siegeStats.killer != ent - g_entities) {
+						ent->client->sess.siegeStats.spawnWaitTime[GetSiegeStatRound()] += (g_siegeRespawnCheck - level.time);
+						ent->client->sess.siegeStats.spawnWaitTimeDeaths[GetSiegeStatRound()]++;
+					}
+					if (g_siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
+						ent->client->sess.siegeStats.maxed[GetSiegeStatRound()]++;
+						if (ent->client->sess.siegeStats.killer >= 0 && ent->client->sess.siegeStats.killer < MAX_CLIENTS && ent->client->sess.siegeStats.killer != ent - g_entities)
+							g_entities[ent->client->sess.siegeStats.killer].client->sess.siegeStats.maxes[GetSiegeStatRound()]++;
+					}
+				}
+				ent->client->sess.siegeStats.killer = -1;
 				ent->client->tempSpectate = level.time + minDel;
 				ent->health = ent->client->ps.stats[STAT_HEALTH] = 1;
 				ent->client->ps.weapon = WP_NONE;

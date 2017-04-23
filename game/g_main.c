@@ -2740,6 +2740,7 @@ void BeginIntermission( void ) {
 	if ( g_autoStats.integer ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(NULL, "obj");
+			PrintStatsTo(NULL, "general");
 		}
 		else if (g_gametype.integer == GT_CTF) {
 			PrintStatsTo(NULL, "general");

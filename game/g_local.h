@@ -475,6 +475,8 @@ typedef struct {
 #define	FOLLOW_ACTIVE1	-1
 #define	FOLLOW_ACTIVE2	-2
 
+#define GetSiegeStatRound()		(level.siegeStage >= SIEGESTAGE_ROUND2 ? 1 : 0)
+
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
 // time and reading them back at connection time.  Anything added here
@@ -526,6 +528,27 @@ typedef struct {
 	int			siegeDuelTime;
 
 	float		skillBoost;
+
+	struct {
+		int caps[2];
+		int saves[2];
+		int oKills[2];
+		int dKills[2];
+		int oDeaths[2];
+		int dDeaths[2];
+		int oDamageDealt[2];
+		int oDamageTaken[2];
+		int dDamageDealt[2];
+		int dDamageTaken[2];
+		int killer;
+		int maxes[2];
+		int maxed[2];
+		int spawnWaitTime[2];
+		int spawnWaitTimeDeaths[2];
+		int selfkills[2];
+		int oClassChanges[2];
+		int dClassChanges[2];
+	} siegeStats;
 
 #ifdef NEWMOD_SUPPORT
 	enum {
