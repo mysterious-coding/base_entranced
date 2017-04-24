@@ -2787,7 +2787,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				}
 			}
 
-			if(!gaveAward && (meansOfDeath == MOD_STUN_BATON || meansOfDeath == MOD_MELEE) && !(self->m_pVehicle && !self->m_pVehicle->m_pPilot) ) { //duo: added melee
+			if(!gaveAward && (meansOfDeath == MOD_STUN_BATON || meansOfDeath == MOD_MELEE) && !(self->m_pVehicle && !self->m_pVehicle->m_pPilot) && !(self->NPC && !self->m_pVehicle) ) { //duo: added melee
 				
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
