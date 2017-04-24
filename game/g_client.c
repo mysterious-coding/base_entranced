@@ -1174,14 +1174,25 @@ void respawn( gentity_t *ent ) {
 					minDel = 20000;
 				}
 				if (g_siegeRespawn.integer >= 10) {
-					if (ent->client->sess.siegeStats.killer >= 0 && ent->client->sess.siegeStats.killer < MAX_CLIENTS && ent->client->sess.siegeStats.killer != ent - g_entities) {
+					int killer = ent->client->sess.siegeStats.killer;
+					if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities) {
 						ent->client->sess.siegeStats.spawnWaitTime[GetSiegeStatRound()] += (g_siegeRespawnCheck - level.time);
 						ent->client->sess.siegeStats.spawnWaitTimeDeaths[GetSiegeStatRound()]++;
 					}
 					if (g_siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
 						ent->client->sess.siegeStats.maxed[GetSiegeStatRound()]++;
-						if (ent->client->sess.siegeStats.killer >= 0 && ent->client->sess.siegeStats.killer < MAX_CLIENTS && ent->client->sess.siegeStats.killer != ent - g_entities)
-							g_entities[ent->client->sess.siegeStats.killer].client->sess.siegeStats.maxes[GetSiegeStatRound()]++;
+						if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities && &g_entities[killer] && g_entities[killer].client) {
+							g_entities[killer].client->sess.siegeStats.maxes[GetSiegeStatRound()]++;
+							// check for tech max
+							if (bgSiegeClasses[ent->client->siegeClass].playerClass == SPC_SUPPORT && ent->client->sess.sessionTeam == TEAM_BLUE && g_entities[killer].client->sess.sessionTeam == TEAM_RED) {
+								char map[MAX_QPATH] = { 0 };
+								trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+								if (map[0] && !Q_stricmpn(map, "mp/siege_hoth", 13))
+									g_entities[killer].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_TECHMAX]++;
+								else if (map[0] && !Q_stricmp(map, "siege_narshaddaa"))
+									g_entities[killer].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_TECHMAX]++;
+							}
+						}
 					}
 				}
 				ent->client->sess.siegeStats.killer = -1;

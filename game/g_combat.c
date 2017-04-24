@@ -2213,6 +2213,7 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 	if (g_gametype.integer != GT_SIEGE)
 		return qfalse;
 
+	// set killer
 	self->client->sess.siegeStats.killer = attacker - g_entities;
 
 	if (self == attacker) {
@@ -2220,6 +2221,7 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 		return qfalse;
 	}
 
+	// deaths
 	if (self->client->sess.sessionTeam == TEAM_RED)
 		self->client->sess.siegeStats.oDeaths[GetSiegeStatRound()]++;
 	else if (self->client->sess.sessionTeam == TEAM_BLUE)
@@ -2228,9 +2230,21 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 	if (self->client->sess.sessionTeam == attacker->client->sess.sessionTeam)
 		return qfalse;
 
-	if (attacker->client->sess.sessionTeam == TEAM_RED)
+
+	// kills
+	if (attacker->client->sess.sessionTeam == TEAM_RED && !self->m_pVehicle) {
 		attacker->client->sess.siegeStats.oKills[GetSiegeStatRound()]++;
-	else if (attacker->client->sess.sessionTeam == TEAM_BLUE)
+		// tech kills
+		if (self->client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[self->client->siegeClass].playerClass == SPC_SUPPORT) {
+			char map[MAX_QPATH] = { 0 };
+			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+			if (map[0] && !Q_stricmpn(map, "mp/siege_hoth", 13))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_TECHKILL]++;
+			else if (map[0] && !Q_stricmp(map, "siege_narshaddaa"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_TECHKILL]++;
+		}
+	}
+	else if (attacker->client->sess.sessionTeam == TEAM_BLUE && !self->m_pVehicle)
 		attacker->client->sess.siegeStats.dKills[GetSiegeStatRound()]++;
 
 	qboolean gaveAward = qfalse;
@@ -2240,6 +2254,7 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 	if (CheckSiegeAward(REWARD_ASSIST, self, attacker, mod)) { gaveAward = qtrue; }
 	if (CheckSiegeAward(REWARD_IMPRESSIVE, self, attacker, mod)) { gaveAward = qtrue; }
 	if (CheckSiegeAward(REWARD_HOLYSHIT, self, attacker, mod)) {
+		// saves
 		if (attacker->client->sess.sessionTeam == TEAM_BLUE)
 			attacker->client->sess.siegeStats.saves[GetSiegeStatRound()]++;
 		gaveAward = qtrue;
@@ -5431,8 +5446,50 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
+	// siege stats
+	if (attacker && attacker->client && targ) {
+		char currentMap[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
+		// hoth
+		if (!Q_stricmpn(currentMap, "mp/siege_hoth", 13)) {
+			// atst
+			if (attacker->client->sess.sessionTeam == TEAM_BLUE && targ->m_pVehicle) {
+				if (!targ->atstKilled) { // don't credit if atst is already on fire
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_ATSTDMG] += (take + asave);
+					if (targ->health - (take + asave) <= 0) {
+						targ->atstKilled = qtrue;
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_ATSTKILL]++;
+					}
+				}
+			}
+			// shield gen + cc
+			if (attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
+				if (!Q_stricmp(targ->paintarget, "shieldgen_underattack"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_GENDMG] += (take + asave);
+				else if (!Q_stricmp(targ->paintarget, "comcentercounter_attack"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CCDMG] += (take + asave);
+			}
+		}
+		// nar shaddaa
+		else if (!Q_stricmp(currentMap, "siege_narshaddaa") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
+			if (!Q_stricmp(targ->paintarget, "rstation1attacked"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION1DMG] += (take + asave);
+			else if (!Q_stricmp(targ->paintarget, "rstation2attacked"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION2DMG] += (take + asave);
+		}
+		// cargo2
+		else if (!Q_stricmp(currentMap, "siege_cargobarge2") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
+			if (!Q_stricmp(targ->paintarget, "obj2_under_a_tack"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_ARRAYDMG] += (take + asave);
+			else if (!Q_stricmp(targ->paintarget, "powernode1attack"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE1DMG] += (take + asave);
+			else if (!Q_stricmp(targ->paintarget, "powernode2attack"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE2DMG] += (take + asave);
+		}
+	}
+
 	//we count only from client to client damage
-	if (attacker && attacker->client && targ && targ->client
+	if (attacker && attacker->client && targ && targ->client && !targ->m_pVehicle /* duo: don't count damage against vehicles */
 		&& attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam
 		&& mod > MOD_UNKNOWN && mod <= MOD_FORCE_DARK) {
 		// TODO: do we want other kinds of damage?

@@ -2800,3 +2800,12 @@ gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func filterFunc ) {
 
 	return found;
 }
+
+qboolean G_MapIs(char *s) {
+	char buf[MAX_QPATH] = { 0 };
+	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
+	if (buf[0] && !Q_stricmp(buf, s))
+		return qtrue;
+
+	return qfalse;
+}

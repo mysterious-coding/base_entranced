@@ -142,6 +142,17 @@ void ShieldRemove(gentity_t *self)
 // Count down the health of the shield.
 void ShieldThink(gentity_t *self)
 {
+	// update shield uptime stat
+	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		char map[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		}
+		else if (!Q_stricmp(map, "siege_narshaddaa"))
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		self->siegeItemSpawnTime = level.time;
+	}
 	self->s.trickedentindex = 0;
 
 	if (g_gametype.integer == GT_SIEGE)
@@ -169,6 +180,18 @@ void ShieldThink(gentity_t *self)
 // The shield was damaged to below zero health.
 void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
+	// update shield uptime stat
+	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		char map[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		}
+		else if (!Q_stricmp(map, "siege_narshaddaa"))
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		self->siegeItemSpawnTime = 0;
+	}
+
 	// Play damaging sound...
 	G_AddEvent(self, EV_GENERAL_SOUND, shieldDamageSound);
 
@@ -211,6 +234,18 @@ void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 // Try to turn the shield back on after a delay.
 void ShieldGoSolid(gentity_t *self)
 {
+	// update shield uptime stat
+	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		char map[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		}
+		else if (!Q_stricmp(map, "siege_narshaddaa"))
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		self->siegeItemSpawnTime = level.time;
+	}
+
 	trace_t		tr;
 
 	// see if we're valid
@@ -265,6 +300,18 @@ void ShieldGoSolid(gentity_t *self)
 // Turn the shield off to allow a friend to pass through.
 void ShieldGoNotSolid(gentity_t *self)
 {
+	// update shield uptime stat
+	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		char map[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		}
+		else if (!Q_stricmp(map, "siege_narshaddaa"))
+			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
+		self->siegeItemSpawnTime = level.time;
+	}
+
 	qboolean wasSolid = (self->r.contents & CONTENTS_SOLID);
 
 	// make the shield non-solid very briefly
@@ -325,6 +372,20 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 // After a short delay, create the shield by expanding in all directions.
 void CreateShield(gentity_t *ent)
 {
+	// siege stats: shields placed
+	if (ent && ent->parent && ent->parent - g_entities >= 0 && ent->parent - g_entities < MAX_CLIENTS && ent->parent->client) {
+		char map[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+		if (map[0] && !Q_stricmpn(map, "mp/siege_hoth", 13)) {
+			ent->siegeItemSpawnTime = level.time;
+			ent->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDS]++;
+		}
+		else if (map[0] && !Q_stricmp(map, "siege_narshaddaa")) {
+			ent->siegeItemSpawnTime = level.time;
+			ent->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDS]++;
+		}
+	}
+
 	trace_t		tr;
 	vec3_t		end, posTraceEnd, negTraceEnd, start;
 	int			height, posWidth, negWidth, halfWidth = 0;
@@ -468,8 +529,7 @@ void CreateShield(gentity_t *ent)
 	return;
 }
 
-qboolean PlaceShield(gentity_t *playerent)
-{
+qboolean PlaceShield(gentity_t *playerent) {
 	static const gitem_t *shieldItem = NULL;
 	gentity_t	*shield = NULL;
 	trace_t		tr;

@@ -1384,6 +1384,7 @@ bool EjectAll( Vehicle_t *pVeh )
 static void StartDeathDelay( Vehicle_t *pVeh, int iDelayTimeOverride )
 {
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
+	parent->atstKilled = qtrue;
 
 	if ( iDelayTimeOverride )
 	{

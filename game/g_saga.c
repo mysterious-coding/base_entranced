@@ -1196,6 +1196,7 @@ void SiegeBeginRound(int entNum)
 			level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
 			level.clients[j].sess.siegeStats.oClassChanges[i - 1] = 0;
 			level.clients[j].sess.siegeStats.dClassChanges[i - 1] = 0;
+			memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
 		}
 	}
 
@@ -1385,7 +1386,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	trap_Cvar_Set(va("siege_r%i_obj%i", CurrentSiegeRound(), objective), va("%i", level.time - level.siegeRoundStartTime));
 	PrintObjStat(objective, 0);
 
-	if (client >= 0 && objective && &g_entities[client] && g_entities[client].client)
+	if (client >= 0 && client < MAX_CLIENTS && objective && &g_entities[client] && g_entities[client].client)
 	{
 		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
 		g_entities[client].client->sess.siegeStats.caps[GetSiegeStatRound()]++;

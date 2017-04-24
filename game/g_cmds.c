@@ -5645,7 +5645,7 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 	}
 }
 
-#define FillValue(v)	values[i].num = v; i++;
+#define FillValue(v)	do { values[i].num = v; i++; } while (0)
 
 static const StatsDesc CtfStatsDesc = {
 	{
@@ -5660,19 +5660,19 @@ static const StatsDesc CtfStatsDesc = {
 
 static void FillCtfStats( gclient_t *cl, Stat *values ) {
 	int i = 0;
-	FillValue(cl->ps.persistant[PERS_SCORE])
-	FillValue(cl->ps.persistant[PERS_CAPTURES])
-	FillValue(cl->ps.persistant[PERS_ASSIST_COUNT])
-	FillValue(cl->ps.persistant[PERS_DEFEND_COUNT])
-	FillValue(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0)
-	FillValue(cl->pers.teamState.fragcarrier)
-	FillValue(cl->pers.teamState.flagrecovery)
-	FillValue(cl->pers.teamState.boonPickups)
-	FillValue(cl->pers.teamState.flaghold)
-	FillValue(cl->pers.teamState.longestFlaghold)
-	FillValue(cl->pers.teamState.saves)
-	FillValue(cl->pers.damageCaused)
-	FillValue(cl->pers.damageTaken)
+	FillValue(cl->ps.persistant[PERS_SCORE]);
+	FillValue(cl->ps.persistant[PERS_CAPTURES]);
+	FillValue(cl->ps.persistant[PERS_ASSIST_COUNT]);
+	FillValue(cl->ps.persistant[PERS_DEFEND_COUNT]);
+	FillValue(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0);
+	FillValue(cl->pers.teamState.fragcarrier);
+	FillValue(cl->pers.teamState.flagrecovery);
+	FillValue(cl->pers.teamState.boonPickups);
+	FillValue(cl->pers.teamState.flaghold);
+	FillValue(cl->pers.teamState.longestFlaghold);
+	FillValue(cl->pers.teamState.saves);
+	FillValue(cl->pers.damageCaused);
+	FillValue(cl->pers.damageTaken);
 }
 
 static const StatsDesc ForceStatsDesc = {
@@ -5688,14 +5688,14 @@ static const StatsDesc ForceStatsDesc = {
 
 static void FillForceStats( gclient_t *cl, Stat *values ) {
 	int i = 0;
-	FillValue(cl->pers.push)
-	FillValue(cl->pers.pull)
-	FillValue(cl->pers.healed)
-	FillValue(cl->pers.energizedAlly)
-	FillValue(cl->pers.energizedEnemy)
-	FillValue(cl->pers.absorbed)
-	FillValue(cl->pers.protDmgAvoided)
-	FillValue(cl->pers.protTimeUsed)
+	FillValue(cl->pers.push);
+	FillValue(cl->pers.pull);
+	FillValue(cl->pers.healed);
+	FillValue(cl->pers.energizedAlly);
+	FillValue(cl->pers.energizedEnemy);
+	FillValue(cl->pers.absorbed);
+	FillValue(cl->pers.protDmgAvoided);
+	FillValue(cl->pers.protTimeUsed);
 }
 
 static const StatsDesc ObjStatsDesc = {
@@ -5722,13 +5722,13 @@ static void FillObjStats(gclient_t *cl, Stat *values) {
 
 static const StatsDesc SiegeGeneralDesc = {
 	{
-		"CAP", "SAVE", "OKIL", "DTH", "ODAMAGE", "TAKEN",
-		"DKIL", "DTH", "DDAMAGE", "TAKEN", "MAXES", "MAXED",
-		"AVGWAIT", "SK", "OCLASSCHANGE", "DCLASSCHANGE"
+		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN",
+		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "MAXES", "MAXED",
+		"AVGWAIT", "SK", "OFFCLCHANGE", "DEFCLCHANGE"
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2_LOWERBETTER, STAT_INT_PAIR1, STAT_INT_PAIR2_LOWERBETTER,
-		STAT_INT_PAIR1, STAT_INT_PAIR2_LOWERBETTER, STAT_INT_PAIR1, STAT_INT_PAIR2_LOWERBETTER, STAT_INT_PAIR1, STAT_INT_PAIR2_LOWERBETTER,
+		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
+		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_INT, STAT_INT_LOWERBETTER,
 		STAT_INT_LOWERBETTER, STAT_INT, STAT_INT, STAT_INT
 	}
 };
@@ -5738,12 +5738,12 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 	FillValue(cl->sess.siegeStats.caps[0] + cl->sess.siegeStats.caps[1]);
 	FillValue(cl->sess.siegeStats.saves[0] + cl->sess.siegeStats.saves[1]);
 	FillValue(cl->sess.siegeStats.oKills[0] + cl->sess.siegeStats.oKills[1]);
-	FillValue(cl->sess.siegeStats.oDeaths[0] + cl->sess.siegeStats.oDeaths[1]);
 	FillValue(cl->sess.siegeStats.oDamageDealt[0] + cl->sess.siegeStats.oDamageDealt[1]);
+	FillValue(cl->sess.siegeStats.oDeaths[0] + cl->sess.siegeStats.oDeaths[1]);
 	FillValue(cl->sess.siegeStats.oDamageTaken[0] + cl->sess.siegeStats.oDamageTaken[1]);
 	FillValue(cl->sess.siegeStats.dKills[0] + cl->sess.siegeStats.dKills[1]);
-	FillValue(cl->sess.siegeStats.dDeaths[0] + cl->sess.siegeStats.dDeaths[1]);
 	FillValue(cl->sess.siegeStats.dDamageDealt[0] + cl->sess.siegeStats.dDamageDealt[1]);
+	FillValue(cl->sess.siegeStats.dDeaths[0] + cl->sess.siegeStats.dDeaths[1]);
 	FillValue(cl->sess.siegeStats.dDamageTaken[0] + cl->sess.siegeStats.dDamageTaken[1]);
 	FillValue(cl->sess.siegeStats.maxes[0] + cl->sess.siegeStats.maxes[1]);
 	FillValue(cl->sess.siegeStats.maxed[0] + cl->sess.siegeStats.maxed[1]);
@@ -5761,6 +5761,40 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 	FillValue(cl->sess.siegeStats.dClassChanges[0] + cl->sess.siegeStats.dClassChanges[1]);
 }
 
+static const StatsDesc HothDesc = {
+	{
+		"ATSTKILL", "ATSTDMG", "GENDMG", "CCDMG", "TECHMAX", "KILL", "SHIELD", "SHIELDUPTIME"
+	},
+	{
+		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_DURATION
+	}
+};
+
+static const StatsDesc NarDesc = {
+	{
+		"STATION1DMG", "STATION2DMG", "TECHMAX", "KILL", "SHIELDS", "SHIELDUPTIME"
+	},
+	{
+		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_DURATION
+	}
+};
+
+static const StatsDesc Cargo2Desc = {
+	{
+		"ARRAYDMG", "NODE1DMG", "NODE2DMG", "HACKS"
+	},
+	{
+		STAT_INT, STAT_INT, STAT_INT, STAT_INT
+	}
+};
+
+static void FillMapSpecificStats(gclient_t *cl, Stat *values) {
+	int i;
+	for (i = 0; i < MAX_STATS; i++) {
+		values[i].num = cl->sess.siegeStats.mapSpecific[0][i] + cl->sess.siegeStats.mapSpecific[1][i];
+	}
+}
+
 #define ColorForTeam( team )		( team == TEAM_BLUE ? COLOR_BLUE : COLOR_RED )
 #define ScoreTextForTeam( team )	( team == TEAM_BLUE ? S_COLOR_BLUE"BLUE" : S_COLOR_RED"RED" )
 
@@ -5769,6 +5803,9 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 	int id = ent ? ( ent - g_entities ) : -1, i;
 	const StatsDesc *desc;
 	void( *callback )( gclient_t*, Stat* );
+
+	if (g_gametype.integer == GT_SIEGE && !g_siegeTeamSwitch.integer) // not supported
+		return;
 
 	if ( !VALIDSTRING( type ) ) {
 		return;
@@ -5825,26 +5862,43 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 		desc = &ForceStatsDesc;
 		callback = &FillForceStats;
 	} else if ( g_gametype.integer == GT_SIEGE && !Q_stricmp( type, "obj" ) ) {
-		if (!g_siegeTeamSwitch.integer) // not supported
-			return;
 		if (level.siegeStage < SIEGESTAGE_ROUND1POSTGAME)
 			return;
 		trap_SendServerCommand(id, "print \"\n\"");
 		desc = &ObjStatsDesc;
 		callback = &FillObjStats;
 	} else if (g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "general")) {
-#ifndef _DEBUG
-		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR) {
-			trap_SendServerCommand(id, "print \"General stats cannot be shown to in-game players until the end of the round.\n\"");
+#if 1
+		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
-		}
 #endif
 		desc = &SiegeGeneralDesc;
 		callback = &FillSiegeGeneralStats;
+	} else if (g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "map")) {
+#if 1
+		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
+			return;
+#endif
+		char map[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+		if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13))) {
+			desc = &HothDesc;
+			callback = &FillMapSpecificStats;
+		}
+		else if (map[0] && !Q_stricmp(map, "siege_narshaddaa")) {
+			desc = &NarDesc;
+			callback = &FillMapSpecificStats;
+		}
+		else if (map[0] && !Q_stricmp(map, "siege_cargobarge2")) {
+			desc = &Cargo2Desc;
+			callback = &FillMapSpecificStats;
+		}
+		else
+			return;
 	} else {
 		if ( id != -1 ) {
 			if (g_gametype.integer == GT_SIEGE)
-				trap_SendServerCommand(id, va("print \""S_COLOR_WHITE"Unknown type \"%s"S_COLOR_WHITE"\". Usage: "S_COLOR_CYAN"/stats <obj | general>\n\"", type));
+				trap_SendServerCommand(id, va("print \""S_COLOR_WHITE"Unknown type \"%s"S_COLOR_WHITE"\". Usage: "S_COLOR_CYAN"/stats <obj | general | map>\n\"", type));
 			else
 				trap_SendServerCommand( id, va( "print \""S_COLOR_WHITE"Unknown type \"%s"S_COLOR_WHITE"\". Usage: "S_COLOR_CYAN"/ctfstats <general | force>\n\"", type ) );
 		}
@@ -5868,6 +5922,10 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(ent, "obj");
 			PrintStatsTo(ent, "general");
+			char map[MAX_QPATH] = { 0 };
+			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
+				PrintStatsTo(ent, "map");
 		}
 		else {
 			PrintStatsTo(ent, "general");

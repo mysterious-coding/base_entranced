@@ -410,6 +410,8 @@ struct gentity_s {
 	gitem_t		*item;			// for bonus items
 
 	int			siegeItemSpawnTime;
+
+	qboolean	atstKilled;
 };
 
 #define DAMAGEREDIRECT_HEAD		1
@@ -476,6 +478,30 @@ typedef struct {
 #define	FOLLOW_ACTIVE2	-2
 
 #define GetSiegeStatRound()		(level.siegeStage >= SIEGESTAGE_ROUND2 ? 1 : 0)
+enum {
+	SIEGEMAPSTAT_HOTH_ATSTKILL = 0,
+	SIEGEMAPSTAT_HOTH_ATSTDMG,
+	SIEGEMAPSTAT_HOTH_GENDMG,
+	SIEGEMAPSTAT_HOTH_CCDMG,
+	SIEGEMAPSTAT_HOTH_TECHMAX,
+	SIEGEMAPSTAT_HOTH_TECHKILL,
+	SIEGEMAPSTAT_HOTH_SHIELDS,
+	SIEGEMAPSTAT_HOTH_SHIELDUPTIME
+};
+enum {
+	SIEGEMAPSTAT_NAR_STATION1DMG = 0,
+	SIEGEMAPSTAT_NAR_STATION2DMG,
+	SIEGEMAPSTAT_NAR_TECHMAX,
+	SIEGEMAPSTAT_NAR_TECHKILL,
+	SIEGEMAPSTAT_NAR_SHIELDS,
+	SIEGEMAPSTAT_NAR_SHIELDUPTIME
+};
+enum {
+	SIEGEMAPSTAT_CARGO2_ARRAYDMG = 0,
+	SIEGEMAPSTAT_CARGO2_NODE1DMG,
+	SIEGEMAPSTAT_CARGO2_NODE2DMG,
+	SIEGEMAPSTAT_CARGO2_HACKS
+};
 
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
@@ -548,6 +574,7 @@ typedef struct {
 		int selfkills[2];
 		int oClassChanges[2];
 		int dClassChanges[2];
+		int mapSpecific[2][MAX_STATS];
 	} siegeStats;
 
 #ifdef NEWMOD_SUPPORT
@@ -1450,7 +1477,7 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
-
+qboolean G_MapIs(char *s);
 
 //
 // g_saga.c

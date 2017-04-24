@@ -649,6 +649,15 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			{ //finished with the hack, reset the hacking values and let it fall through
 				other->client->isHacking = 0; //can't hack a client
 				other->client->ps.hackingTime = 0;
+				// cargo2 non-objective hacks
+				if (G_MapIs("siege_cargobarge2") && VALIDSTRING(self->target)) {
+					if (!Q_stricmp(self->target, "powernode2side") ||
+						!Q_stricmp(self->target, "holdeledoors") ||
+						!Q_stricmp(self->target, "tunneldoors") ||
+						!Q_stricmp(self->target, "topdoor") ||
+						!Q_stricmp(self->target, "ccturrets"))
+						other->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_HACKS]++;
+				}
 			}
 			else
 			{ //hack in progress
