@@ -1335,15 +1335,6 @@ void SetSiegeClass(gentity_t *ent, char* className)
 	//Make sure the class is valid for the team
 	BG_SiegeCheckClassLegality(team, className);
 
-	// only increment class changes stat if you are already ingame and aren't already this class
-	if (!startedAsSpec && ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
-		ent->client->sess.siegeClass[0] && Q_stricmp(ent->client->sess.siegeClass, className)) {
-		if (ent->client->sess.sessionTeam == TEAM_RED)
-			ent->client->sess.siegeStats.oClassChanges[GetSiegeStatRound()]++;
-		else if (ent->client->sess.sessionTeam == TEAM_BLUE)
-			ent->client->sess.siegeStats.dClassChanges[GetSiegeStatRound()]++;
-	}
-
 	//Set the session data
 	strcpy(ent->client->sess.siegeClass, className);
 
@@ -5724,12 +5715,12 @@ static const StatsDesc SiegeGeneralDesc = {
 	{
 		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN",
 		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "MAXES", "MAXED",
-		"AVGWAIT", "SK", "OFFCLCHANGE", "DEFCLCHANGE"
+		"AVGWAIT", "SK",
 	},
 	{
 		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
 		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_INT, STAT_INT_LOWERBETTER,
-		STAT_INT_LOWERBETTER, STAT_INT, STAT_INT, STAT_INT
+		STAT_INT_LOWERBETTER, STAT_INT,
 	}
 };
 
@@ -5757,8 +5748,6 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 		FillValue(0);
 	}
 	FillValue(cl->sess.siegeStats.selfkills[0] + cl->sess.siegeStats.selfkills[1]);
-	FillValue(cl->sess.siegeStats.oClassChanges[0] + cl->sess.siegeStats.oClassChanges[1]);
-	FillValue(cl->sess.siegeStats.dClassChanges[0] + cl->sess.siegeStats.dClassChanges[1]);
 }
 
 static const StatsDesc HothDesc = {

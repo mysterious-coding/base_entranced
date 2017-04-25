@@ -1194,8 +1194,6 @@ void SiegeBeginRound(int entNum)
 			level.clients[j].sess.siegeStats.spawnWaitTime[i - 1] = 0;
 			level.clients[j].sess.siegeStats.spawnWaitTimeDeaths[i - 1] = 0;
 			level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
-			level.clients[j].sess.siegeStats.oClassChanges[i - 1] = 0;
-			level.clients[j].sess.siegeStats.dClassChanges[i - 1] = 0;
 			memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
 		}
 	}

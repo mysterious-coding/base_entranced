@@ -572,8 +572,6 @@ typedef struct {
 		int spawnWaitTime[2];
 		int spawnWaitTimeDeaths[2];
 		int selfkills[2];
-		int oClassChanges[2];
-		int dClassChanges[2];
 		int mapSpecific[2][MAX_STATS];
 	} siegeStats;
 
