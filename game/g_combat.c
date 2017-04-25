@@ -5470,6 +5470,25 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CCDMG] += (take + asave);
 			}
 		}
+		// desert
+		else if (!Q_stricmp(currentMap, "mp/siege_desert") && attacker->client->sess.sessionTeam == TEAM_RED) {
+			if (VALIDSTRING(targ->paintarget)) {
+				if (!Q_stricmp(targ->paintarget, "wallattack"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_WALLDMG] += (take + asave);
+				else if (!Q_stricmp(targ->paintarget, "rancorgateattack"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += (take + asave);
+			}
+			else if (VALIDSTRING(targ->target4)) {
+				if (!Q_stricmp(targ->target4, "b1counter"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION1DMG] += (take + asave);
+				else if (!Q_stricmp(targ->target4, "b2counter"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION2DMG] += (take + asave);
+				else if (!Q_stricmp(targ->target4, "b3counter"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION3DMG] += (take + asave);
+			}
+			else if (targ->spawnflags == 96 && targ->teamnodmg == TEAM_BLUE && !VALIDSTRING(targ->healingclass))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += (take + asave);
+		}
 		// nar shaddaa
 		else if (!Q_stricmp(currentMap, "siege_narshaddaa") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "rstation1attacked"))

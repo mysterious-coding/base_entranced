@@ -1374,21 +1374,8 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 
 	int goals_completed, goals_required;
 
-	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
-	{
-		level.clients[client].pers.teamState.captures++;
-		level.clients[client].rewardTime = level.time + REWARD_SPRITE_TIME;
-		level.clients[client].ps.persistant[PERS_CAPTURES]++;
-	}
-
 	trap_Cvar_Set(va("siege_r%i_obj%i", CurrentSiegeRound(), objective), va("%i", level.time - level.siegeRoundStartTime));
 	PrintObjStat(objective, 0);
-
-	if (client >= 0 && client < MAX_CLIENTS && objective && &g_entities[client] && g_entities[client].client)
-	{
-		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
-		g_entities[client].client->sess.siegeStats.caps[GetSiegeStatRound()]++;
-	}
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -1406,6 +1393,19 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	if (objective == 2 && !Q_stricmp(mapname.string, "mp/siege_desert") && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
 	{
 		client = level.killerOfLastDesertComputer->s.number;
+	}
+
+	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
+	{
+		level.clients[client].pers.teamState.captures++;
+		level.clients[client].rewardTime = level.time + REWARD_SPRITE_TIME;
+		level.clients[client].ps.persistant[PERS_CAPTURES]++;
+	}
+
+	if (client >= 0 && client < MAX_CLIENTS && objective && &g_entities[client] && g_entities[client].client)
+	{
+		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
+		g_entities[client].client->sess.siegeStats.caps[GetSiegeStatRound()]++;
 	}
 
 	if (gSiegeRoundEnded)
@@ -2168,6 +2168,8 @@ void SiegeItemThink(gentity_t *ent)
 			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
 			if (!Q_stricmpn(map, "mp/siege_hoth", 13))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
+			else if (!Q_stricmp(map, "mp/siege_desert"))
+				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_PARTSTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (!Q_stricmp(map, "siege_narshaddaa"))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (!Q_stricmp(map, "siege_cargobarge2"))
@@ -2294,7 +2296,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	char map[MAX_QPATH] = { 0 };
 	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
+	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;

@@ -221,7 +221,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 							if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(objItem->target3, "c3podeliverprint"))
 							{
 								//droid part on desert
-								char *part;
+								char *part = NULL;
 								if (objItem->model && objItem->model[0])
 								{
 									if (strstr(objItem->model, "arm"))
@@ -243,6 +243,8 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 								}
 								if (part && part[0])
 								{
+									objItem->siegeItemCarrierTime = 0;
+									activator->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_PARTS]++;
 									trap_SendServerCommand(-1, va("cp \"Protocol droid %s has been rescued!\n\"", part));
 								}
 								else
