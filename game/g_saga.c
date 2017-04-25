@@ -2083,6 +2083,7 @@ void SiegeItemThink(gentity_t *ent)
 			(carrier->client->sess.sessionTeam != SIEGETEAM_TEAM1 && carrier->client->sess.sessionTeam != SIEGETEAM_TEAM2) ||
 			(carrier->client->ps.pm_flags & PMF_FOLLOW))
 		{ //respawn on the original spot
+			ent->siegeItemCarrierTime = 0;
 			if (ent->specialIconTreatment)
 			{
 				ent->s.eFlags |= EF_RADAROBJECT;
@@ -2091,6 +2092,7 @@ void SiegeItemThink(gentity_t *ent)
 		}
 		else if (carrier->health < 1)
 		{ //The carrier died so pop out where he is (unless in nodrop).
+			ent->siegeItemCarrierTime = 0;
 			if (ent->target6 && ent->target6[0])
 			{
 				vmCvar_t mapname;
@@ -2160,10 +2162,25 @@ void SiegeItemThink(gentity_t *ent)
 				SiegeItemRemoveOwner(ent, carrier);
 			}
 		}
+		// update siege item carry time
+		else if (ent->siegeItemCarrierTime && carrier->client && carrier - g_entities >= 0 && carrier - g_entities < MAX_CLIENTS) {
+			char map[MAX_QPATH] = { 0 };
+			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+			if (!Q_stricmpn(map, "mp/siege_hoth", 13))
+				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
+			else if (!Q_stricmp(map, "siege_narshaddaa"))
+				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
+			else if (!Q_stricmp(map, "siege_cargobarge2"))
+				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
+			ent->siegeItemCarrierTime = level.time;
+		}
 	}
+	else
+		ent->siegeItemCarrierTime = 0;
 
 	if (ent->genericValue9 && ent->genericValue9 < level.time && ent->genericValue17 != -1)
 	{ //time to respawn on the original spot then
+		ent->siegeItemCarrierTime = 0;
 		if (ent->specialIconTreatment)
 		{
 			ent->s.eFlags |= EF_RADAROBJECT;
@@ -2274,6 +2291,13 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	{ //play the pickup noise.
 		G_Sound(other, CHAN_AUTO, self->noise_index);
 	}
+
+	char map[MAX_QPATH] = { 0 };
+	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
+		self->siegeItemCarrierTime = level.time;
+	else
+		self->siegeItemCarrierTime = 0;
 
 	self->genericValue2 = 1; //Mark it as picked up.
 
@@ -2503,6 +2527,7 @@ void SP_misc_siege_item (gentity_t *ent)
 	G_SpawnInt("usephysics", "1", &ent->genericValue1);
 	G_SpawnInt("autorespawn", "1", &ent->genericValue16);
 	G_SpawnInt("respawntime", "20000", &ent->genericValue17);
+	ent->siegeItemCarrierTime = 0;
 
 	ent->classname = "misc_siege_item";
 

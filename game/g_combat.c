@@ -5497,11 +5497,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		targ->client->pers.damageTaken += (take + asave);
 		attacker->client->pers.damageCaused += (take + asave);
 		if (g_gametype.integer == GT_SIEGE) {
-			if (attacker->client->sess.sessionTeam == TEAM_RED) {
+			if (attacker->client->sess.sessionTeam == TEAM_RED && targ->client->sess.sessionTeam == TEAM_BLUE && !attacker->NPC && !targ->NPC) {
 				targ->client->sess.siegeStats.dDamageTaken[GetSiegeStatRound()] += (take + asave);
 				attacker->client->sess.siegeStats.oDamageDealt[GetSiegeStatRound()] += (take + asave);
 			}
-			else if (attacker->client->sess.sessionTeam == TEAM_BLUE) {
+			else if (attacker->client->sess.sessionTeam == TEAM_BLUE && targ->client->sess.sessionTeam == TEAM_RED && !attacker->NPC && !targ->NPC) {
 				targ->client->sess.siegeStats.oDamageTaken[GetSiegeStatRound()] += (take + asave);
 				attacker->client->sess.siegeStats.dDamageDealt[GetSiegeStatRound()] += (take + asave);
 			}
