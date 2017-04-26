@@ -2170,6 +2170,16 @@ void SiegeItemThink(gentity_t *ent)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (!Q_stricmp(map, "mp/siege_desert"))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_PARTSTIME] += (level.time - ent->siegeItemCarrierTime);
+			else if (!Q_stricmp(map, "mp/siege_korriban") && VALIDSTRING(ent->goaltarget)) {
+				if (!Q_stricmp(ent->goaltarget, "bluecrystaldelivery"))
+					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_BLUETIME] += (level.time - ent->siegeItemCarrierTime);
+				else if (!Q_stricmp(ent->goaltarget, "greencrystaldelivery"))
+					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_GREENTIME] += (level.time - ent->siegeItemCarrierTime);
+				else if (!Q_stricmp(ent->goaltarget, "redcrystaldelivery"))
+					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_REDTIME] += (level.time - ent->siegeItemCarrierTime);
+				else if (!Q_stricmp(ent->goaltarget, "staffplace"))
+					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_SCEPTERTIME] += (level.time - ent->siegeItemCarrierTime);
+			}
 			else if (!Q_stricmp(map, "siege_narshaddaa"))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (!Q_stricmp(map, "siege_cargobarge2"))
@@ -2296,7 +2306,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	char map[MAX_QPATH] = { 0 };
 	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
+	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;

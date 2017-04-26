@@ -5720,7 +5720,7 @@ static const StatsDesc SiegeGeneralDesc = {
 	{
 		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
 		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_INT, STAT_INT_LOWERBETTER,
-		STAT_INT_LOWERBETTER, STAT_INT,
+		STAT_INT_LOWERBETTER, STAT_INT
 	}
 };
 
@@ -5764,7 +5764,18 @@ static const StatsDesc DesertDesc = {
 		"WALLDMG", "STATION1DMG", "STATION2DMG", "STATION3DMG", "GATEDMG", "PARTS", "PARTSTIME",
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_DURATION,
+		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_DURATION
+	}
+};
+
+static const StatsDesc KorriDesc = {
+	{
+		"TEMPGATEDMG", "BLUETIME", "GREENTIME", "REDTIME",
+		"SCEPTGATEDMG", "ALTGATEDMG", "SCEPTTIME", "COFFINDMG"
+	},
+	{
+		STAT_INT, STAT_DURATION, STAT_DURATION, STAT_DURATION,
+		STAT_INT, STAT_INT, STAT_DURATION, STAT_INT
 	}
 };
 
@@ -5866,14 +5877,14 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 		desc = &ObjStatsDesc;
 		callback = &FillObjStats;
 	} else if (g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "general")) {
-#if 0
+#if 0 // duodebug
 		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
 #endif
 		desc = &SiegeGeneralDesc;
 		callback = &FillSiegeGeneralStats;
 	} else if (g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "map")) {
-#if 0
+#if 0 // duodebug
 		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
 #endif
@@ -5885,6 +5896,10 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 		}
 		else if (map[0] && !Q_stricmp(map, "mp/siege_desert")) {
 			desc = &DesertDesc;
+			callback = &FillMapSpecificStats;
+		}
+		else if (map[0] && !Q_stricmp(map, "mp/siege_korriban")) {
+			desc = &KorriDesc;
 			callback = &FillMapSpecificStats;
 		}
 		else if (map[0] && !Q_stricmp(map, "siege_narshaddaa")) {
@@ -5926,7 +5941,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 			PrintStatsTo(ent, "general");
 			char map[MAX_QPATH] = { 0 };
 			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
+			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2")))
 				PrintStatsTo(ent, "map");
 		}
 		else {

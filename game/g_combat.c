@@ -5489,6 +5489,21 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			else if (targ->spawnflags == 96 && targ->teamnodmg == TEAM_BLUE && !VALIDSTRING(targ->healingclass))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += (take + asave);
 		}
+		// korriban
+		else if (!Q_stricmp(currentMap, "mp/siege_korriban")) {
+			if (attacker->client->sess.sessionTeam == TEAM_RED) {
+				if (VALIDSTRING(targ->paintarget)) {
+					if (!Q_stricmp(targ->paintarget, "firstgateattack"))
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_TEMPLEGATEDMG] += (take + asave);
+					else if (!Q_stricmp(targ->paintarget, "scepterrrom_attack_print")) // raven @ spelling bee champions
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_SCEPTERGATEDMG] += (take + asave);
+					else if (!Q_stricmp(targ->paintarget, "altarroom_attack_print"))
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_ALTARGATEDMG] += (take + asave);
+				}
+				else if (VALIDSTRING(targ->targetname) && !Q_stricmp(targ->targetname, "ragnos_coffin"))
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_COFFINDMG] += (take + asave);
+			}
+		}
 		// nar shaddaa
 		else if (!Q_stricmp(currentMap, "siege_narshaddaa") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "rstation1attacked"))
