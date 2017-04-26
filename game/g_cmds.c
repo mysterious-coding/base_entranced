@@ -5877,14 +5877,14 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 		desc = &ObjStatsDesc;
 		callback = &FillObjStats;
 	} else if (g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "general")) {
-#if 0 // duodebug
+#if 1
 		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
 #endif
 		desc = &SiegeGeneralDesc;
 		callback = &FillSiegeGeneralStats;
 	} else if (g_gametype.integer == GT_SIEGE && !Q_stricmp(type, "map")) {
-#if 0 // duodebug
+#if 1
 		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
 #endif
