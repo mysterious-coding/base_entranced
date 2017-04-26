@@ -2232,7 +2232,7 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 
 
 	// kills
-	if (attacker->client->sess.sessionTeam == TEAM_RED && !self->m_pVehicle) {
+	if (attacker->client->sess.sessionTeam == TEAM_RED && !self->NPC && !self->m_pVehicle) {
 		attacker->client->sess.siegeStats.oKills[GetSiegeStatRound()]++;
 		// tech kills
 		if (self->client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[self->client->siegeClass].playerClass == SPC_SUPPORT) {
@@ -2244,7 +2244,7 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_TECHKILL]++;
 		}
 	}
-	else if (attacker->client->sess.sessionTeam == TEAM_BLUE && !self->m_pVehicle)
+	else if (attacker->client->sess.sessionTeam == TEAM_BLUE && !self->NPC && !self->m_pVehicle)
 		attacker->client->sess.siegeStats.dKills[GetSiegeStatRound()]++;
 
 	qboolean gaveAward = qfalse;
