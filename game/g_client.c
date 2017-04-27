@@ -3060,12 +3060,11 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	static char commandListCmd[MAX_TOKEN_CHARS] =
 		"kls -1 -1 cmds "
 		"whois \"Shows the most used names\" "
-		"followflag \"Cycles between flag carriers as a spectator\" "
 		"rules \"Displays server rules\" "
 		"mappool \"Lists server map pools and their content\" "
 		"ready \"Marks yourself as ready to be part of random teams\" "
-		"ctfstats \"Shows stats for the current CTF game\" "
-		"toptimes \"Leaderboard of the fastest caps\" "
+		"stats \"Shows stats for the current game\" "
+		"siegestats \"Shows stats for the current game\" "
 		"join \"Changes Siege class on a specified team\" "
 		"class \"Changes Siege class on current team\" "
 		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
