@@ -3057,15 +3057,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
 
-	if (g_gametype.integer == GT_SIEGE)
-	{ //in siege remove all powerups
-		if (ent->item->giType == IT_POWERUP)
-		{
-			G_FreeEntity(ent);
-			return;
-		}
-	}
-
 	if (g_gametype.integer != GT_JEDIMASTER)
 	{
 		if (HasSetSaberOnly())
