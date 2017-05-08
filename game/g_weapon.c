@@ -172,7 +172,7 @@ qboolean OnValidMapForAntiSpam(void)
 {
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	if (!Q_stricmp(mapname.string, "siege_codes")) //we are currently on any of these maps
+	if (!Q_stricmp(mapname.string, "siege_codes") || !Q_stricmpn(mapname.string, "mp/siege_crystals", 17)) //we are currently on any of these maps
 	{
 		return qfalse;
 	}

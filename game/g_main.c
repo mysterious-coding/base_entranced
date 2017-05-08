@@ -4808,7 +4808,7 @@ void UpdateSiegeStatus()
 		Com_sprintf(string, 128, "%s: Round 2", string);
 	}
 
-	if (Q_stricmp(mapname.string, "siege_sillyroom") && Q_stricmp(mapname.string, "siege_codes"))
+	if (Q_stricmp(mapname.string, "siege_sillyroom") && Q_stricmp(mapname.string, "siege_codes") && Q_stricmpn(mapname.string, "mp/siege_crystals", 17))
 	{
 		if (level.objectiveJustCompleted == 0)
 		{
