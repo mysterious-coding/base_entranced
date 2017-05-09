@@ -6101,7 +6101,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_fixEweb.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_fixFallingSounds");
 	ServerCfgColor(string, g_fixFallingSounds.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fitGripKills");
+	Com_sprintf(string, sizeof(string), "g_fixGripKills");
 	ServerCfgColor(string, g_fixGripKills.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_fixHothBunkerLift");
 	ServerCfgColor(string, g_fixHothBunkerLift.integer, ent);
