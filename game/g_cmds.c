@@ -6071,8 +6071,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_vote_warmup.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_allow_vote_zombies");
 	ServerCfgColor(string, g_allow_vote_zombies.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_ammoCanisterSound");
-	ServerCfgColor(string, g_ammoCanisterSound.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_antiCallvoteTakeover");
 	ServerCfgColor(string, g_antiCallvoteTakeover.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_antiHothCodesLiftLame");
@@ -6121,8 +6119,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_floatingItems.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_forceDTechItems");
 	ServerCfgColor(string, g_forceDTechItems.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_gripRefresh");
-	ServerCfgColor(string, g_gripRefresh.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_hothRebalance");
 	ServerCfgColor(string, g_hothRebalance.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_improvedTeamchat");
@@ -6131,8 +6127,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_infiniteCharge.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_knockback");
 	ServerCfgColor(string, g_knockback.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_korribanRedRocksReverse");
-	ServerCfgColor(string, g_korribanRedRocksReverse.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_locationBasedDamage");
 	ServerCfgColor(string, g_locationBasedDamage.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_moreTaunts");

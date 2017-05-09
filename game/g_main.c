@@ -162,10 +162,8 @@ vmCvar_t    g_infiniteCharge;
 vmCvar_t    g_siegeTiebreakEnd;
 vmCvar_t    g_moreTaunts;
 vmCvar_t    g_fixRancorCharge;
-vmCvar_t    g_ammoCanisterSound;
 vmCvar_t    g_autoKorribanFloatingItems;
 vmCvar_t    g_autoKorribanSpam;
-vmCvar_t    g_gripRefresh;
 vmCvar_t	g_forceDTechItems;
 vmCvar_t    g_antiHothCodesLiftLame;
 vmCvar_t    g_antiHothHangarLiftLame;
@@ -174,7 +172,6 @@ vmCvar_t    g_requireMoreCustomTeamVotes;
 vmCvar_t	g_antiCallvoteTakeover;
 vmCvar_t	g_autoResetCustomTeams;
 vmCvar_t    g_fixEweb;
-vmCvar_t	g_korribanRedRocksReverse;
 vmCvar_t	g_fixVoiceChat;
 vmCvar_t	g_botJumping;
 vmCvar_t	g_fixHothDoorSounds;
@@ -777,10 +774,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeTiebreakEnd, "g_siegeTiebreakEnd", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_moreTaunts, "g_moreTaunts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_ammoCanisterSound, "g_ammoCanisterSound", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanSpam, "g_autoKorribanSpam", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_gripRefresh, "g_gripRefresh", "300", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_forceDTechItems, "g_forceDTechItems", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothCodesLiftLame, "g_antiHothCodesLiftLame", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiHothHangarLiftLame, "g_antiHothHangarLiftLame", "4", CVAR_ARCHIVE, 0, qtrue },
@@ -789,7 +784,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiCallvoteTakeover, "g_antiCallvoteTakeover", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoResetCustomTeams, "g_autoResetCustomTeams", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixEweb, "g_fixEweb", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_korribanRedRocksReverse, "g_korribanRedRocksReverse", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixVoiceChat, "g_fixVoiceChat", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botJumping, "g_botJumping", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothDoorSounds, "g_fixHothDoorSounds", "1", CVAR_ARCHIVE, 0, qtrue },

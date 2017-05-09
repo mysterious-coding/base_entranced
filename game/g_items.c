@@ -1571,10 +1571,10 @@ void ItemUse_UseDisp(gentity_t *ent, int type)
 	{
 		vec3_t fwd, pos;
 		gentity_t	*te;
-		if (g_ammoCanisterSound.integer)
-		{
-			G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/interface/choose_torso.wav"));
-		}
+
+		// duo: added a small sound for dispensing ammo
+		G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/interface/choose_torso.wav"));
+
 		eItem = G_Spawn();
 		eItem->r.ownerNum = ent->s.number;
 		eItem->classname = item->classname;

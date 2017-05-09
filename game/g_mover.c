@@ -1442,12 +1442,6 @@ void SP_func_door(gentity_t *ent)
 
 	G_SpawnInt("teamallow", "0", &ent->alliedTeam);
 
-	if (!Q_stricmp(mapname.string,"mp/siege_korriban") && ent->spawnflags == 3 && lip == 64 && ent->wait == -1000 && g_korribanRedRocksReverse.integer)
-	{
-		ent->wait = 1000;
-		ent->spawnflags = 11;
-	}
-
 	// first position at start
 	VectorCopy(ent->s.origin, ent->pos1);
 
