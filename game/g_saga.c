@@ -169,7 +169,7 @@ static void PrintObjStat(int objective, int heldForMax) {
 
 	G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
 	G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
-	G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %i "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
+	G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
 }
 
 //go through all classes on a team and register their
