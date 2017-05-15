@@ -2954,9 +2954,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 
 			// lag compensation for selfkill
-			if (g_gametype.integer == GT_SIEGE && attacker && self && attacker->client && self->client && attacker->s.number < MAX_CLIENTS && self->s.number < MAX_CLIENTS && attacker == self &&
-				meansOfDeath == MOD_SUICIDE && g_siegeRespawn.integer && level.siegeRespawnCheck && level.siegeRespawnCheck > level.time &&
-				self->client->ps.ping > 0 && self->client->ps.ping <= 350 && level.siegeRespawnCheck - (level.time - self->client->ps.ping) >= 1000) {
+			if (g_gametype.integer == GT_SIEGE && meansOfDeath == MOD_SUICIDE && attacker && self && attacker->client && self->client
+				&& attacker->s.number < MAX_CLIENTS && self->s.number < MAX_CLIENTS && attacker == self &&
+				g_siegeRespawn.integer && level.siegeRespawnCheck && level.siegeRespawnCheck > level.time &&
+				self->client->ps.ping > 0 && self->client->ps.ping <= 350) {
 				self->client->respawnTime = level.time + 1000 - self->client->ps.ping;
 			}
 			else {
