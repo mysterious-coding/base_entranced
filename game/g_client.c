@@ -16,8 +16,6 @@
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
 
-extern int g_siegeRespawnCheck;
-
 extern void EWebDisattach(gentity_t *owner, gentity_t *eweb);
 
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
@@ -1166,7 +1164,7 @@ void respawn( gentity_t *ent ) {
 	{
 		if (g_siegeRespawn.integer)
 		{
-            if ( (ent->client->tempSpectate <= level.time) && (g_siegeRespawnCheck >= level.time) )
+            if ( (ent->client->tempSpectate <= level.time) && (level.siegeRespawnCheck >= level.time) )
 			{
 				int minDel = g_siegeRespawn.integer* 2000;
 				if (minDel < 20000)
@@ -1176,10 +1174,10 @@ void respawn( gentity_t *ent ) {
 				if (g_siegeRespawn.integer >= 10) {
 					int killer = ent->client->sess.siegeStats.killer;
 					if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities) {
-						ent->client->sess.siegeStats.spawnWaitTime[GetSiegeStatRound()] += (g_siegeRespawnCheck - level.time);
+						ent->client->sess.siegeStats.spawnWaitTime[GetSiegeStatRound()] += (level.siegeRespawnCheck - level.time);
 						ent->client->sess.siegeStats.spawnWaitTimeDeaths[GetSiegeStatRound()]++;
 					}
-					if (g_siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
+					if (level.siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
 						ent->client->sess.siegeStats.maxed[GetSiegeStatRound()]++;
 						if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities && &g_entities[killer] && g_entities[killer].client) {
 							g_entities[killer].client->sess.siegeStats.maxes[GetSiegeStatRound()]++;
@@ -1210,7 +1208,7 @@ void respawn( gentity_t *ent ) {
 				if ( ent->s.number < MAX_CLIENTS )
 				{
 					gentity_t *te = G_TempEntity( ent->client->ps.origin, EV_SIEGESPEC );
-					te->s.time = g_siegeRespawnCheck;
+					te->s.time = level.siegeRespawnCheck;
 					te->s.owner = ent->s.number;
 				}
 #ifdef NEWMOD_SUPPORT

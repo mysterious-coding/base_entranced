@@ -49,7 +49,6 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 static char gObjectiveCfgStr[1024];
 
-extern int g_siegeRespawnCheck;
 #ifdef NEWMOD_SUPPORT
 #define SIEGETIMER_FAKEOWNER 1023
 void UpdateNewmodSiegeTimers(void)
@@ -60,7 +59,7 @@ void UpdateNewmodSiegeTimers(void)
 		if (&g_entities[n] && g_entities[n].inuse && g_entities[n].client)
 		{
 			gentity_t *te = G_TempEntity(g_entities[n].client->ps.origin, EV_SIEGESPEC);
-			te->s.time = g_siegeRespawnCheck;
+			te->s.time = level.siegeRespawnCheck;
 			te->s.owner = SIEGETIMER_FAKEOWNER;
 			te->s.saberInFlight = qtrue;
 		}
@@ -1092,7 +1091,7 @@ void SiegeBeginRound(int entNum)
 		else
 			level.siegeStage = SIEGESTAGE_ROUND2;
 		//respawn everyone now
-		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000 - SIEGE_ROUND_BEGIN_TIME - 200;
+		level.siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000 - SIEGE_ROUND_BEGIN_TIME - 200;
 
 #ifdef NEWMOD_SUPPORT
 		UpdateNewmodSiegeTimers();

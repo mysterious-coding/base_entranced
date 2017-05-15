@@ -2953,7 +2953,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				self->health = GIB_HEALTH+1;
 			}
 
-			self->client->respawnTime = level.time + 1000;
+			// lag compensation for selfkill
+			if (g_gametype.integer == GT_SIEGE && attacker && self && attacker->client && self->client && attacker->s.number < MAX_CLIENTS && self->s.number < MAX_CLIENTS && attacker == self &&
+				meansOfDeath == MOD_SUICIDE && g_siegeRespawn.integer && level.siegeRespawnCheck && level.siegeRespawnCheck > level.time &&
+				self->client->ps.ping > 0 && self->client->ps.ping <= 350 && level.siegeRespawnCheck - (level.time - self->client->ps.ping) >= 1000) {
+				self->client->respawnTime = level.time + 1000 - self->client->ps.ping;
+			}
+			else {
+				self->client->respawnTime = level.time + 1000;
+			}
 
 			sPMType = self->client->ps.pm_type;
 			self->client->ps.pm_type = PM_NORMAL; //don't want pm type interfering with our setanim calls.

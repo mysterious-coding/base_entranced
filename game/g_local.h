@@ -1155,6 +1155,7 @@ typedef struct {
 	int			siegeStatusUpdateTime;
 	int			siegeRoundStartTime;
 	int			siegeRoundComplete;
+	int			siegeRespawnCheck;
 	enum {
 		SIEGEMATCHWINNER_NONE = 0,
 		SIEGEMATCHWINNER_ROUND1OFFENSE,

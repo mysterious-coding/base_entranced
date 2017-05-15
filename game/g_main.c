@@ -4713,8 +4713,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd );
 extern void Jedi_Decloak( gentity_t *self );
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 
-int g_siegeRespawnCheck = 0;
-
 extern unsigned getstatus_LastIP;
 extern int getstatus_TimeToReset;
 extern int getstatus_Counter;
@@ -4984,7 +4982,7 @@ void G_RunFrame( int levelTime ) {
 
 	if (g_gametype.integer == GT_SIEGE &&
 		g_siegeRespawn.integer &&
-		g_siegeRespawnCheck < level.time)
+		level.siegeRespawnCheck < level.time)
 	{ //check for a respawn wave
 		int i = 0;
 		gentity_t *clEnt;
@@ -5002,7 +5000,7 @@ void G_RunFrame( int levelTime ) {
 			i++;
 		}
 
-		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
+		level.siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
 
 #ifdef NEWMOD_SUPPORT
 		UpdateNewmodSiegeTimers();
@@ -5125,7 +5123,7 @@ void G_RunFrame( int levelTime ) {
 				accumulatedDt = 0;
 			}
 
-			g_siegeRespawnCheck += dt;
+			level.siegeRespawnCheck += dt;
 
 #ifdef NEWMOD_SUPPORT
 			UpdateNewmodSiegeTimers();
