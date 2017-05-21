@@ -2434,7 +2434,6 @@ extern vmCvar_t    siege_r2_heldformaxat;
 extern vmCvar_t    siege_r2_heldformaxtime;
 
 extern vmCvar_t    g_forceOnNpcs;
-extern vmCvar_t    g_enforceNetSettings;
 
 extern vmCvar_t	   g_rconpassword;
 

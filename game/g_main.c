@@ -256,8 +256,6 @@ vmCvar_t	siege_r2_heldformaxtime;
 
 vmCvar_t    g_forceOnNpcs;
 
-vmCvar_t	g_enforceNetSettings;
-
 #if 0//#ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
 #endif
@@ -811,6 +809,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
+
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixShield, "g_fixShield", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -878,7 +877,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &siege_r2_heldformaxat, "siege_r2_heldformaxtime", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	{ &g_forceOnNpcs, "g_forceOnNpcs", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_enforceNetSettings, "g_enforceNetSettings", "-1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_maxstatusrequests,	"g_maxstatusrequests"	, "50"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_testdebug,	"g_testdebug"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
