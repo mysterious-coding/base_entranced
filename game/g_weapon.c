@@ -3393,7 +3393,7 @@ void laserTrapThink ( gentity_t *ent )
 	ent->nextthink = level.time;
 
 	// Find the main impact point
-	VectorMA ( ent->s.pos.trBase, 1024, ent->movedir, end );
+	VectorMA ( ent->s.pos.trBase, g_doWarmup.integer, ent->movedir, end );
 	trap_Trace ( &tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT);
 	
 	traceEnt = &g_entities[ tr.entityNum ];
