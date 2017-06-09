@@ -1173,10 +1173,6 @@ void respawn( gentity_t *ent ) {
 				}
 				if (g_siegeRespawn.integer >= 10) {
 					int killer = ent->client->sess.siegeStats.killer;
-					if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities) {
-						ent->client->sess.siegeStats.spawnWaitTime[GetSiegeStatRound()] += (level.siegeRespawnCheck - level.time);
-						ent->client->sess.siegeStats.spawnWaitTimeDeaths[GetSiegeStatRound()]++;
-					}
 					if (level.siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
 						ent->client->sess.siegeStats.maxed[GetSiegeStatRound()]++;
 						if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities && &g_entities[killer] && g_entities[killer].client) {

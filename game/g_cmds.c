@@ -5714,13 +5714,13 @@ static void FillObjStats(gclient_t *cl, Stat *values) {
 static const StatsDesc SiegeGeneralDesc = {
 	{
 		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN",
-		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "MAXES", "MAXED",
-		"AVGWAIT", "SK",
+		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "MAXES", "GOTMAXED",
+		"SK",
 	},
 	{
 		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
 		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_INT, STAT_INT_LOWERBETTER,
-		STAT_INT_LOWERBETTER, STAT_INT
+		STAT_INT
 	}
 };
 
@@ -5738,21 +5738,12 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 	FillValue(cl->sess.siegeStats.dDamageTaken[0] + cl->sess.siegeStats.dDamageTaken[1]);
 	FillValue(cl->sess.siegeStats.maxes[0] + cl->sess.siegeStats.maxes[1]);
 	FillValue(cl->sess.siegeStats.maxed[0] + cl->sess.siegeStats.maxed[1]);
-	int deaths = cl->sess.siegeStats.spawnWaitTimeDeaths[0] + cl->sess.siegeStats.spawnWaitTimeDeaths[1];
-	if (deaths) {
-		int waitTime = cl->sess.siegeStats.spawnWaitTime[0] + cl->sess.siegeStats.spawnWaitTime[1];
-		double avg = (double)waitTime / (double)deaths;
-		FillValue((((int)(avg + 0.5)) + 500)/1000);
-	}
-	else {
-		FillValue(0);
-	}
 	FillValue(cl->sess.siegeStats.selfkills[0] + cl->sess.siegeStats.selfkills[1]);
 }
 
 static const StatsDesc HothDesc = {
 	{
-		"GENDMG", "CODESTIME", "CCDMG", "TECHMAX", "KILL", "ATSTKILL", "ATSTDMG", "SHIELD", "SHIELDUPTIME"
+		"GENDMG", "CODESTIME", "CCDMG", "TECHMAX", "KILL", "ATSTKILL", "ATSTDMG", "SHIELD", "UPTIME"
 	},
 	{
 		STAT_INT, STAT_DURATION, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT, STAT_INT, STAT_DURATION
