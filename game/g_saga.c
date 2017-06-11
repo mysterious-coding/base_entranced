@@ -1056,10 +1056,113 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)
 	}
 }
 
+extern void SetSiegeClass(gentity_t *ent, char* className);
+
+// account for raven being inconsistent
+static int GetStupidClassNumber(int in) {
+	switch (in) {
+	case SPC_INFANTRY:		return 1;
+	case SPC_HEAVY_WEAPONS:	return 2;
+	case SPC_DEMOLITIONIST:	return 3;
+	case SPC_VANGUARD:		return 4;
+	case SPC_SUPPORT:		return 5;
+	case SPC_JEDI:			return 6;
+	}
+	return 1;
+}
+
+void G_ChangePlayerFromExceededClass(gentity_t *ent) {
+	if (!g_classLimits.integer)
+		return;
+
+	int current = bgSiegeClasses[ent->client->siegeClass].playerClass, lastLegit = level.lastLegitClass[ent - g_entities];
+
+	// first, see if we can change back to our previous class
+	if (lastLegit != -1 && !G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, lastLegit, qtrue)) {
+		siegeClass_t *new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(lastLegit));
+		if (new) {
+			char *newTypeName = "your old class";
+			switch (new->playerClass) {
+			case SPC_INFANTRY:			newTypeName = "Assault";		break;
+			case SPC_HEAVY_WEAPONS:		newTypeName = "Heavy Weapons";	break;
+			case SPC_DEMOLITIONIST:		newTypeName = "Demolitions";	break;
+			case SPC_SUPPORT:			newTypeName = "Tech";			break;
+			case SPC_VANGUARD:			newTypeName = "Scout";			break;
+			case SPC_JEDI:				newTypeName = "Jedi";			break;
+			}
+			trap_SendServerCommand(ent - g_entities, va("print \"Exceeded class limit; you were automatically changed back to %s.\n\"", newTypeName));
+			SetSiegeClass(ent, new->name);
+			return;
+		}
+	}
+	else { // we were unable to switch back to our previous class; try to switch to something else
+		int i, classPreferenceOrder[] = { SPC_INFANTRY, SPC_HEAVY_WEAPONS, SPC_DEMOLITIONIST, SPC_SUPPORT, SPC_VANGUARD, SPC_JEDI };
+		for (i = 0; i < 6; i++) {
+			siegeClass_t *new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(classPreferenceOrder[i]));
+			if (!new || new->playerClass == current || G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, new->playerClass, qtrue))
+				continue;
+			// we found a valid target to switch to
+			char *newTypeName = "another class";
+			switch (new->playerClass) {
+			case SPC_INFANTRY:			newTypeName = "Assault";		break;
+			case SPC_HEAVY_WEAPONS:		newTypeName = "Heavy Weapons";	break;
+			case SPC_DEMOLITIONIST:		newTypeName = "Demolitions";	break;
+			case SPC_SUPPORT:			newTypeName = "Tech";			break;
+			case SPC_VANGUARD:			newTypeName = "Scout";			break;
+			case SPC_JEDI:				newTypeName = "Jedi";			break;
+			}
+			trap_SendServerCommand(ent - g_entities, va("print \"Exceeded class limit; you were automatically changed to %s.\n\"", newTypeName));
+			SetSiegeClass(ent, new->name);
+			return;
+		}
+	}
+	// morons playing game larger than 6v6 with limit of 1 on each class...
+	Com_Error(ERR_DROP, "G_ChangePlayerFromExceededClass: Unable to find a class that wouldn't exceed limit!");
+}
+
+static void CheckForClassesExceedingLimits(team_t team) {
+	assert(team == TEAM_RED || team == TEAM_BLUE);
+	int i;
+	for (i = 0; i < SPC_MAX; i++) {
+		int tries = 0;
+		while (G_WouldExceedClassLimit(team, i, qfalse)) { // loop to account for cases where the limit is exceeded by more than one
+			if (tries > MAX_CLIENTS) // call it quits after 32 tries
+				Com_Error(ERR_DROP, "CheckForClassesExceedingLimits: recursive error when trying to switch players off from classes!");
+			tries++;
+			int j, mostRecentChange = -1, mostRecentSwitcher = -1;
+			for (j = 0; j < MAX_CLIENTS; j++) {
+				gentity_t *dude = &g_entities[j];
+				if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || level.tryChangeClass[j].class != i || level.tryChangeClass[j].team != team || (!level.inSiegeCountdown && dude->health > 0 && !(dude->client->tempSpectate > level.time)))
+					continue;
+				if (level.tryChangeClass[j].time > mostRecentChange) {
+					mostRecentChange = level.tryChangeClass[j].time;
+					mostRecentSwitcher = j;
+				}
+			}
+			if (mostRecentSwitcher != -1) // we found the guy who switched most recently; switch him off
+				G_ChangePlayerFromExceededClass(&g_entities[mostRecentSwitcher]);
+			else { // otherwise, this limit is exceeded but nobody has tryChangeClass set (probably beginning of game or something)
+				// just start picking dudes
+				for (j = 0; j < MAX_CLIENTS; j++) {
+					gentity_t *dude = &g_entities[j];
+					if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || bgSiegeClasses[dude->client->siegeClass].playerClass != i)
+						continue;
+					G_ChangePlayerFromExceededClass(dude);
+					break;
+				}
+			}
+		}
+	}
+}
+
 void SiegeRespawn(gentity_t *ent)
 {
 	gentity_t *tent;
 
+	if (g_classLimits.integer)
+		CheckForClassesExceedingLimits(ent->client->sess.siegeDesiredTeam);
+
+	level.lastLegitClass[ent - g_entities] = bgSiegeClasses[ent->client->siegeClass].playerClass;
 	if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
 	{
 		SetTeamQuick(ent, ent->client->sess.siegeDesiredTeam, qtrue);
@@ -1076,12 +1179,12 @@ void SiegeRespawn(gentity_t *ent)
 void SiegeBeginRound(int entNum)
 { //entNum is just used as something to fire targets from.
 	char targname[1024];
+	memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
 
 	if (!g_preroundState)
 	{ //if players are not ingame on round start then respawn them now
 		int i = 0;
 		gentity_t *ent;
-		qboolean spawnEnt = qfalse;
 		level.inSiegeCountdown = qfalse;
 		level.siegeRoundComplete = qfalse;
 		if (!g_siegeTeamSwitch.integer)
@@ -1096,32 +1199,31 @@ void SiegeBeginRound(int entNum)
 #ifdef NEWMOD_SUPPORT
 		UpdateNewmodSiegeTimers();
 #endif
-		while (i < MAX_CLIENTS)
-		{
+
+		// determine who needs to be spawned
+		qboolean spawnEnt[MAX_CLIENTS] = { qfalse };
+		for (i = 0; i < MAX_CLIENTS; i++) {
 			ent = &g_entities[i];
 
-			if (ent->inuse && ent->client)
-			{
-				if (ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
-					!(ent->client->ps.pm_flags & PMF_FOLLOW))
-				{ //not a spec, just respawn them
-					spawnEnt = qtrue;
-				}
+			if (ent->inuse && ent->client) {
+				if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && !(ent->client->ps.pm_flags & PMF_FOLLOW))
+					spawnEnt[i] = qtrue; //not a spec, just respawn them
 				else if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-					(ent->client->sess.siegeDesiredTeam == TEAM_RED ||
-					 ent->client->sess.siegeDesiredTeam == TEAM_BLUE))
-				{ //spectator but has a desired team
-					spawnEnt = qtrue;
-				}
+					(ent->client->sess.siegeDesiredTeam == TEAM_RED || ent->client->sess.siegeDesiredTeam == TEAM_BLUE))
+					spawnEnt[i] = qtrue; //spectator but has a desired team
 			}
+		}
 
-			if (spawnEnt)
-			{
-				SiegeRespawn(ent);
+		// switch people off classes that are exceeding their limits
+		if (g_classLimits.integer) {
+			CheckForClassesExceedingLimits(TEAM_RED);
+			CheckForClassesExceedingLimits(TEAM_BLUE);
+		}
 
-				spawnEnt = qfalse;
-			}
-			i++;
+		// spawn everyone who needs to be spawned
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (spawnEnt[i])
+				SiegeRespawn(&g_entities[i]);
 		}
 	}
 
@@ -1312,6 +1414,8 @@ void SiegeCheckTimers(void)
 	{
 		if (!numTeam1 && !numTeam2)
 		{ //don't have people on both teams yet.
+			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
+			memset(&level.tryChangeClass, -1, sizeof(level.tryChangeClass));
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			trap_SetConfigstring(CS_SIEGE_STATE, "1"); //"waiting for players on both teams"
 			level.inSiegeCountdown = qfalse;
@@ -1342,6 +1446,7 @@ void SiegeCheckTimers(void)
 		}
 		else if (gSiegeBeginTime > (level.time + SIEGE_ROUND_BEGIN_TIME))
 		{
+			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			level.inSiegeCountdown = qtrue;
 			level.siegeRoundComplete = qfalse;
@@ -1354,6 +1459,7 @@ void SiegeCheckTimers(void)
 		}
 		else
 		{
+			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
 			trap_SetConfigstring(CS_SIEGE_STATE, va("2|%i", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME)); //getting ready to begin
 			level.inSiegeCountdown = qtrue;
 			level.siegeRoundComplete = qfalse;

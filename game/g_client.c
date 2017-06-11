@@ -2938,6 +2938,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
     clientSession_t	sessOld = client->sess;
 	memset( client, 0, sizeof(*client) );
+	level.lastLegitClass[clientNum] = -1;
+	memset(&level.tryChangeClass[clientNum], -1, sizeof(level.tryChangeClass[clientNum]));
     client->sess = sessOld;
 
 	client->pers.connected = CON_CONNECTING;

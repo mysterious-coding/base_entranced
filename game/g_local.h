@@ -1118,6 +1118,12 @@ typedef struct {
 } enhancedLocation_t;
 
 typedef struct {
+	int class;
+	int team;
+	int time;
+} changeClass_t;
+
+typedef struct {
 	struct gclient_s	*clients;		// [maxclients]
 
 	struct gentity_s	*gentities;
@@ -1189,6 +1195,8 @@ typedef struct {
 		SIEGESTAGE_ROUND2POSTGAME,
 		MAX_SIEGESTAGES
 	} siegeStage;
+	int lastLegitClass[MAX_CLIENTS];
+	changeClass_t tryChangeClass[MAX_CLIENTS];
 
 	int			hangarCompletedTime;
 	qboolean	hangarLiftUsedByDefense;
@@ -1502,7 +1510,7 @@ qboolean G_MapIs(char *s);
 //
 // g_saga.c
 //
-
+void G_ChangePlayerFromExceededClass(gentity_t *ent);
 void G_ParseMilliseconds(int ms, char *outBuf, size_t outSize);
 int G_ObjectiveTimeDifference(int objective, int round);
 int G_FirstIncompleteObjective(int round);
@@ -1637,6 +1645,7 @@ void TossClientCubes( gentity_t *self );
 void ExplodeDeath( gentity_t *self );
 void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, int deathAnim, qboolean postDeath);
 extern int gGAvoidDismember;
+int G_SiegeClassCount(int team, int classType, qboolean mustBeAlive);
 
 
 // damage flags
@@ -1795,7 +1804,8 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 // g_cmds.c
 //
 char* NM_SerializeUIntToColor(const unsigned int n);
-
+int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical);
+void *G_SiegeClassFromName(char *s);
 //
 // g_pweapon.c
 //
@@ -2326,6 +2336,20 @@ extern vmCvar_t    g_probation;
 extern vmCvar_t    g_teamOverlayUpdateRate;
 extern vmCvar_t    g_lockdown;
 extern vmCvar_t    g_hothRebalance;
+
+extern vmCvar_t    g_classLimits;
+extern vmCvar_t    oAssaultLimit;
+extern vmCvar_t    oHWLimit;
+extern vmCvar_t    oDemoLimit;
+extern vmCvar_t    oTechLimit;
+extern vmCvar_t    oScoutLimit;
+extern vmCvar_t    oJediLimit;
+extern vmCvar_t    dAssaultLimit;
+extern vmCvar_t    dHWLimit;
+extern vmCvar_t    dDemoLimit;
+extern vmCvar_t    dTechLimit;
+extern vmCvar_t    dScoutLimit;
+extern vmCvar_t    dJediLimit;
 
 extern vmCvar_t    siegeStatus;
 extern	vmCvar_t	g_autoStats;

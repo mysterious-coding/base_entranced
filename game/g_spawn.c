@@ -1238,7 +1238,7 @@ static	char *defaultStyles[32][3] =
 };
 
 void *precachedKyle = 0;
-void scriptrunner_run (gentity_t *self);
+void scriptrunner_run(gentity_t *self);
 
 /*QUAKED worldspawn (0 0 0) ?
 
@@ -1367,6 +1367,57 @@ void SP_worldspawn( void )
 		{
 			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "");
 		}
+	}
+
+	// class limits: "1" setting for g_classLimits allows map/mod overrides
+	if (g_classLimits.integer == 1) {
+		int assaultLimit[2] = { 0 }, hwLimit[2] = { 0 }, demoLimit[2] = { 0 }, techLimit[2] = { 0 }, scoutLimit[2] = { 0 }, jediLimit[2] = { 0 };
+
+		// get the worldspawn keys
+		G_SpawnInt("oAssaultLimit", "", &assaultLimit[0]);
+		G_SpawnInt("oHWLimit", "", &hwLimit[0]);
+		G_SpawnInt("oDemoLimit", "", &demoLimit[0]);
+		G_SpawnInt("oTechLimit", "", &techLimit[0]);
+		G_SpawnInt("oScoutLimit", "", &scoutLimit[0]);
+		G_SpawnInt("oJediLimit", "", &jediLimit[0]);
+		G_SpawnInt("dAssaultLimit", "", &assaultLimit[1]);
+		G_SpawnInt("dHWLimit", "", &hwLimit[1]);
+		G_SpawnInt("dDemoLimit", "", &demoLimit[1]);
+		G_SpawnInt("dTechLimit", "", &techLimit[1]);
+		G_SpawnInt("dScoutLimit", "", &scoutLimit[1]);
+		G_SpawnInt("dJediLimit", "", &jediLimit[1]);
+
+		// mod overrides
+		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+			hwLimit[1] = 1;
+			techLimit[1] = 1;
+		}
+		else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) {
+			hwLimit[1] = 1;
+			techLimit[1] = 1;
+		}
+		else if (!Q_stricmpn(mapname.string, "siege_cargobarge", 16)) {
+			assaultLimit[1] = 1;
+			hwLimit[1] = 1;
+			techLimit[1] = 1;
+		}
+		else if (!Q_stricmpn(mapname.string, "siege_bespin", 12)) {
+			hwLimit[1] = 1;
+		}
+
+		// set the cvars
+		trap_Cvar_Set("oAssaultLimit", va("%i", assaultLimit[0]));
+		trap_Cvar_Set("oHWLimit", va("%i", hwLimit[0]));
+		trap_Cvar_Set("oDemoLimit", va("%i", demoLimit[0]));
+		trap_Cvar_Set("oTechLimit", va("%i", techLimit[0]));
+		trap_Cvar_Set("oScoutLimit", va("%i", scoutLimit[0]));
+		trap_Cvar_Set("oJediLimit", va("%i", jediLimit[0]));
+		trap_Cvar_Set("dAssaultLimit", va("%i", assaultLimit[1]));
+		trap_Cvar_Set("dHWLimit", va("%i", hwLimit[1]));
+		trap_Cvar_Set("dDemoLimit", va("%i", demoLimit[1]));
+		trap_Cvar_Set("dTechLimit", va("%i", techLimit[1]));
+		trap_Cvar_Set("dScoutLimit", va("%i", scoutLimit[1]));
+		trap_Cvar_Set("dJediLimit", va("%i", jediLimit[1]));
 	}
 
 	if (!debug_duoTest.integer)

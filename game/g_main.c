@@ -188,6 +188,20 @@ vmCvar_t	g_lockdown;
 vmCvar_t	siegeStatus;
 vmCvar_t	g_hothRebalance;
 
+vmCvar_t	g_classLimits;
+vmCvar_t	oAssaultLimit;
+vmCvar_t	oHWLimit;
+vmCvar_t	oDemoLimit;
+vmCvar_t	oTechLimit;
+vmCvar_t	oScoutLimit;
+vmCvar_t	oJediLimit;
+vmCvar_t	dAssaultLimit;
+vmCvar_t	dHWLimit;
+vmCvar_t	dDemoLimit;
+vmCvar_t	dTechLimit;
+vmCvar_t	dScoutLimit;
+vmCvar_t	dJediLimit;
+
 vmCvar_t	g_autoStats;
 
 /*vmCvar_t	debug_testHeight1;
@@ -804,6 +818,20 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &debug_testHeight4, "debug_testHeight4", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight5, "debug_testHeight5", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight6, "debug_testHeight6", "0", CVAR_ARCHIVE, 0, qtrue },*/
+
+	{ &g_classLimits, "g_classLimits", "1", 0, 0, qtrue },
+	{ &oAssaultLimit, "oAssaultLimit", "0", 0, 0, qtrue },
+	{ &oHWLimit, "oHWLimit", "0", 0, 0, qtrue },
+	{ &oDemoLimit, "oDemoLimit", "0", 0, 0, qtrue },
+	{ &oTechLimit, "oTechLimit", "0", 0, 0, qtrue },
+	{ &oScoutLimit, "oScoutLimit", "0", 0, 0, qtrue },
+	{ &oJediLimit, "oJediLimit", "0", 0, 0, qtrue },
+	{ &dAssaultLimit, "dAssaultLimit", "0", 0, 0, qtrue },
+	{ &dHWLimit, "dHWLimit", "0", 0, 0, qtrue },
+	{ &dDemoLimit, "dDemoLimit", "0", 0, 0, qtrue },
+	{ &dTechLimit, "dTechLimit", "0", 0, 0, qtrue },
+	{ &dScoutLimit, "dScoutLimit", "0", 0, 0, qtrue },
+	{ &dJediLimit, "dJediLimit", "0", 0, 0, qtrue },
 
 	{ &debug_shieldLog, "debug_shieldLog", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_duoTest, "debug_duoTest", "0", CVAR_ARCHIVE, 0, qtrue },

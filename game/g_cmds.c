@@ -1266,8 +1266,65 @@ int G_TeamForSiegeClass(const char *clName)
 	return 0;
 }
 
+// if the proposed class change would not violate any limits, returns 0
+// else, returns the limit of the class
+int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical) {
+	if (!g_classLimits.integer)
+		return 0;
+
+	int limit;
+	if (team == TEAM_RED) {
+		switch (classType) {
+		case SPC_INFANTRY:		limit = oAssaultLimit.integer;	break;
+		case SPC_HEAVY_WEAPONS:	limit = oHWLimit.integer;		break;
+		case SPC_DEMOLITIONIST:	limit = oDemoLimit.integer;		break;
+		case SPC_SUPPORT:		limit = oTechLimit.integer;		break;
+		case SPC_VANGUARD:		limit = oScoutLimit.integer;	break;
+		case SPC_JEDI:			limit = oJediLimit.integer;		break;
+		default:				return 0;
+		}
+	}
+	else if (team == TEAM_BLUE) {
+		switch (classType) {
+		case SPC_INFANTRY:		limit = dAssaultLimit.integer;	break;
+		case SPC_HEAVY_WEAPONS:	limit = dHWLimit.integer;		break;
+		case SPC_DEMOLITIONIST:	limit = dDemoLimit.integer;		break;
+		case SPC_SUPPORT:		limit = dTechLimit.integer;		break;
+		case SPC_VANGUARD:		limit = dScoutLimit.integer;	break;
+		case SPC_JEDI:			limit = dJediLimit.integer;		break;
+		default:				return 0;
+		}
+	}
+
+	int current = G_SiegeClassCount(team, classType, qfalse);
+	if (hypothetical)
+		current += 1;
+
+	if (current > limit)
+		return limit;
+
+	return 0;
+}
+
+void *G_SiegeClassFromName(char *s) {
+	if (!VALIDSTRING(s))
+		return NULL;
+
+	static void *c;
+	int i;
+
+	for (i = 0; i < MAX_SIEGE_CLASSES; i++) {
+		c = (void *)&bgSiegeClasses[i];
+		if (c && !Q_stricmp(s, ((siegeClass_t *)c)->name))
+			return c;
+	}
+
+	return NULL;
+}
+
 void SetSiegeClass(gentity_t *ent, char* className)
 {
+	qboolean doDelay = qtrue;
 	qboolean startedAsSpec = qfalse;
 	int team = 0;
 	int preScore;
@@ -1295,6 +1352,24 @@ void SetSiegeClass(gentity_t *ent, char* className)
 		{
 			trap_SendServerCommand(ent - g_entities, va("print \"You cannot play as offense gunners in zombies.\n\""));
 			return;
+		}
+	}
+	
+	if (g_classLimits.integer) {
+		siegeClass_t *scl = (siegeClass_t *)G_SiegeClassFromName(className);
+		int limit = scl ? G_WouldExceedClassLimit(team, scl->playerClass, qtrue) : 0;
+		if (scl && limit) {
+			if (level.inSiegeCountdown || ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+				trap_SendServerCommand(ent - g_entities, va("print \"Warning: The class you selected is full. You will be switched if there %s more than %i.\n\"", limit == 1 ? "is" : "are", limit));
+				level.tryChangeClass[ent - g_entities].class = scl->playerClass;
+				level.tryChangeClass[ent - g_entities].team = team;
+				level.tryChangeClass[ent - g_entities].time = level.time;
+				doDelay = qfalse;
+			}
+			else {
+				trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full (limit: %i).\n\"", limit));
+				return;
+			}
 		}
 	}
 
@@ -1359,7 +1434,8 @@ void SetSiegeClass(gentity_t *ent, char* className)
 	//set it back after we do all the stuff
 	ent->client->ps.persistant[PERS_SCORE] = preScore;
 
-	ent->client->switchClassTime = level.time + 5000;
+	if (doDelay)
+		ent->client->switchClassTime = level.time + 5000;
 }
 
 /*

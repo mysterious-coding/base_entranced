@@ -1920,7 +1920,7 @@ extern qboolean g_endPDuel;
 extern qboolean g_noPDuelCheck;
 extern void SetSiegeClass(gentity_t *ent, char* className);
 
-static int GetSiegeClassCount(int team, int classType, qboolean mustBeAlive)
+int G_SiegeClassCount(int team, int classType, qboolean mustBeAlive)
 {
 	if (g_gametype.integer != GT_SIEGE || (team != TEAM_RED && team != TEAM_BLUE))
 	{
@@ -1933,7 +1933,7 @@ static int GetSiegeClassCount(int team, int classType, qboolean mustBeAlive)
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED &&
-			(g_entities[i].client->sess.sessionTeam == team || level.inSiegeCountdown && g_entities[i].client->sess.sessionTeam == TEAM_SPECTATOR && g_entities[i].client->sess.siegeDesiredTeam == team) &&
+			(g_entities[i].client->sess.sessionTeam == team || !mustBeAlive && g_entities[i].client->sess.sessionTeam == TEAM_SPECTATOR && g_entities[i].client->sess.siegeDesiredTeam == team) &&
 			bgSiegeClasses[g_entities[i].client->siegeClass].playerClass == classType)
 		{
 			if (!mustBeAlive || (g_entities[i].health > 0 && !(g_entities[i].client->tempSpectate > level.time)))
@@ -2051,7 +2051,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 			if (!level.objectiveJustCompleted && self->m_pVehicle &&
 				self->client->ps.origin[0] >= 4210 && self->client->ps.origin[0] <= 4454 &&
 				self->client->ps.origin[1] >= -488 && self->client->ps.origin[1] <= 37 &&
-				!GetSiegeClassCount(TEAM_BLUE, SPC_SUPPORT, qtrue) && mod != MOD_TARGET_LASER)
+				!G_SiegeClassCount(TEAM_BLUE, SPC_SUPPORT, qtrue) && mod != MOD_TARGET_LASER)
 			{
 				//first objective; walker was killed near door with no living defense techs
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
