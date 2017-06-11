@@ -1406,18 +1406,18 @@ void SP_worldspawn( void )
 		}
 
 		// set the cvars
-		trap_Cvar_Set("oAssaultLimit", va("%i", assaultLimit[0]));
-		trap_Cvar_Set("oHWLimit", va("%i", hwLimit[0]));
-		trap_Cvar_Set("oDemoLimit", va("%i", demoLimit[0]));
-		trap_Cvar_Set("oTechLimit", va("%i", techLimit[0]));
-		trap_Cvar_Set("oScoutLimit", va("%i", scoutLimit[0]));
-		trap_Cvar_Set("oJediLimit", va("%i", jediLimit[0]));
-		trap_Cvar_Set("dAssaultLimit", va("%i", assaultLimit[1]));
-		trap_Cvar_Set("dHWLimit", va("%i", hwLimit[1]));
-		trap_Cvar_Set("dDemoLimit", va("%i", demoLimit[1]));
-		trap_Cvar_Set("dTechLimit", va("%i", techLimit[1]));
-		trap_Cvar_Set("dScoutLimit", va("%i", scoutLimit[1]));
-		trap_Cvar_Set("dJediLimit", va("%i", jediLimit[1]));
+		trap_Cvar_Set("oAssaultLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, assaultLimit[0])));
+		trap_Cvar_Set("oHWLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, hwLimit[0])));
+		trap_Cvar_Set("oDemoLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, demoLimit[0])));
+		trap_Cvar_Set("oTechLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, techLimit[0])));
+		trap_Cvar_Set("oScoutLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, scoutLimit[0])));
+		trap_Cvar_Set("oJediLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, jediLimit[0])));
+		trap_Cvar_Set("dAssaultLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, assaultLimit[1])));
+		trap_Cvar_Set("dHWLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, hwLimit[1])));
+		trap_Cvar_Set("dDemoLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, demoLimit[1])));
+		trap_Cvar_Set("dTechLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, techLimit[1])));
+		trap_Cvar_Set("dScoutLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, scoutLimit[1])));
+		trap_Cvar_Set("dJediLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, jediLimit[1])));
 	}
 
 	if (!debug_duoTest.integer)

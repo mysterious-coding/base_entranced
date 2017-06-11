@@ -1295,6 +1295,11 @@ int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical) {
 		default:				return 0;
 		}
 	}
+	else
+		return 0;
+
+	if (limit <= 0)
+		return 0;
 
 	int current = G_SiegeClassCount(team, classType, qfalse);
 	if (hypothetical)
