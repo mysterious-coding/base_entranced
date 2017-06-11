@@ -2201,6 +2201,12 @@ void Svcmd_Zombies_f()
 		Svcmd_GreenDoors_f(qfalse);
 		trap_Cvar_Set("g_siegeRespawn", "5");
 		Svcmd_KillTurrets_f(qfalse);
+		trap_Cvar_Set("oJediLimit", "0");
+		trap_Cvar_Set("dAssaultLimit", "0");
+		trap_Cvar_Set("dHWLimit", "0");
+		trap_Cvar_Set("dDemoLimit", "0");
+		trap_Cvar_Set("dTechLimit", "0");
+		trap_Cvar_Set("dScoutLimit", "0");
 		vmCvar_t	mapname;
 		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
