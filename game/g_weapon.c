@@ -3568,6 +3568,13 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 		return; //primary mines
 	}
 
+	if (ent && ent->client && ent->client->sess.sessionTeam == TEAM_BLUE) {
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+			ent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_MINESTHROWN]++;
+	}
+
 	foundLaserTraps[0] = ENTITYNUM_NONE;
 
 	VectorCopy( forward, dir );
