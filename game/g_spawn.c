@@ -1397,6 +1397,7 @@ void SP_worldspawn( void )
 			techLimit[1] = 1;
 		}
 		else if (!Q_stricmpn(mapname.string, "siege_cargobarge", 16)) {
+			hwLimit[0] = 1;
 			assaultLimit[1] = 1;
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
