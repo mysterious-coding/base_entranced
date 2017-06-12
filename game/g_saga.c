@@ -1071,53 +1071,33 @@ static int GetStupidClassNumber(int in) {
 	return 1;
 }
 
+static char *classNames[] = { "Assault", "Scout", "Tech", "Jedi", "Demolitions", "Heavy Weapons", "another class" };
 void G_ChangePlayerFromExceededClass(gentity_t *ent) {
 	if (!g_classLimits.integer)
 		return;
-
 	int current = bgSiegeClasses[ent->client->siegeClass].playerClass, lastLegit = level.lastLegitClass[ent - g_entities];
 
 	// first, see if we can change back to our previous class
-	if (lastLegit != -1 && !G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, lastLegit, qtrue)) {
-		siegeClass_t *new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(lastLegit));
-		if (new) {
-			char *newTypeName = "your old class";
-			switch (new->playerClass) {
-			case SPC_INFANTRY:			newTypeName = "Assault";		break;
-			case SPC_HEAVY_WEAPONS:		newTypeName = "Heavy Weapons";	break;
-			case SPC_DEMOLITIONIST:		newTypeName = "Demolitions";	break;
-			case SPC_SUPPORT:			newTypeName = "Tech";			break;
-			case SPC_VANGUARD:			newTypeName = "Scout";			break;
-			case SPC_JEDI:				newTypeName = "Jedi";			break;
-			}
-			trap_SendServerCommand(ent - g_entities, va("print \"Exceeded class limit; you were automatically changed back to %s.\n\"", newTypeName));
-			SetSiegeClass(ent, new->name);
-			return;
-		}
+	siegeClass_t *new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(lastLegit));
+	if (new && lastLegit != -1 && !G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, lastLegit, qtrue)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full. You were automatically changed back to %s.\n\"", classNames[Com_Clampi(SPC_INFANTRY, SPC_MAX, new->playerClass)]));
+		SetSiegeClass(ent, new->name);
+		return;
 	}
 	else { // we were unable to switch back to our previous class; try to switch to something else
 		int i, classPreferenceOrder[] = { SPC_INFANTRY, SPC_HEAVY_WEAPONS, SPC_DEMOLITIONIST, SPC_SUPPORT, SPC_VANGUARD, SPC_JEDI };
 		for (i = 0; i < 6; i++) {
-			siegeClass_t *new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(classPreferenceOrder[i]));
+			new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(classPreferenceOrder[i]));
 			if (!new || new->playerClass == current || G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, new->playerClass, qtrue))
 				continue;
 			// we found a valid target to switch to
-			char *newTypeName = "another class";
-			switch (new->playerClass) {
-			case SPC_INFANTRY:			newTypeName = "Assault";		break;
-			case SPC_HEAVY_WEAPONS:		newTypeName = "Heavy Weapons";	break;
-			case SPC_DEMOLITIONIST:		newTypeName = "Demolitions";	break;
-			case SPC_SUPPORT:			newTypeName = "Tech";			break;
-			case SPC_VANGUARD:			newTypeName = "Scout";			break;
-			case SPC_JEDI:				newTypeName = "Jedi";			break;
-			}
-			trap_SendServerCommand(ent - g_entities, va("print \"Exceeded class limit; you were automatically changed to %s.\n\"", newTypeName));
+			trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full. You were automatically changed to %s.\n\"", classNames[Com_Clampi(SPC_INFANTRY, SPC_MAX, new->playerClass)]));
 			SetSiegeClass(ent, new->name);
 			return;
 		}
 	}
 	// morons playing game larger than 6v6 with limit of 1 on each class...
-	Com_Error(ERR_DROP, "G_ChangePlayerFromExceededClass: Unable to find a class that wouldn't exceed limit!");
+	Com_Error(ERR_DROP, "G_ChangePlayerFromExceededClass: unable to find a class that wouldn't exceed limit!");
 }
 
 static void CheckForClassesExceedingLimits(team_t team) {
@@ -1125,33 +1105,81 @@ static void CheckForClassesExceedingLimits(team_t team) {
 	int i;
 	for (i = 0; i < SPC_MAX; i++) {
 		int tries = 0;
-		while (G_WouldExceedClassLimit(team, i, qfalse)) { // loop to account for cases where the limit is exceeded by more than one
-			if (tries > MAX_CLIENTS) // call it quits after 32 tries
-				Com_Error(ERR_DROP, "CheckForClassesExceedingLimits: recursive error when trying to switch players off from classes!");
+		while (G_WouldExceedClassLimit(team, i, qfalse)) {
+			// this class's limit is exceeded; switch one player at a time to another class until the limit is no longer exceeded.
+
+			if (tries > MAX_CLIENTS) // avoid infinite loop
+				Com_Error(ERR_DROP, va("CheckForClassesExceedingLimits: recursive error for team %s, class %s)!", team == TEAM_RED ? "red" : "blue", classNames[i]));
 			tries++;
+			
+			// method #1: the (dead) player who changed to it most recently gets switched off. should cover most real-world cases.
 			int j, mostRecentChange = -1, mostRecentSwitcher = -1;
 			for (j = 0; j < MAX_CLIENTS; j++) {
 				gentity_t *dude = &g_entities[j];
-				if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || level.tryChangeClass[j].class != i || level.tryChangeClass[j].team != team || (!level.inSiegeCountdown && dude->health > 0 && !(dude->client->tempSpectate > level.time)))
+				if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || bgSiegeClasses[dude->client->siegeClass].playerClass != i || level.tryChangeClass[j].class != i || level.tryChangeClass[j].team != team || (!level.inSiegeCountdown && dude->health > 0 && !(dude->client->tempSpectate > level.time)))
 					continue;
 				if (level.tryChangeClass[j].time > mostRecentChange) {
 					mostRecentChange = level.tryChangeClass[j].time;
 					mostRecentSwitcher = j;
 				}
 			}
-			if (mostRecentSwitcher != -1) // we found the guy who switched most recently; switch him off
+			if (mostRecentSwitcher != -1) {
 				G_ChangePlayerFromExceededClass(&g_entities[mostRecentSwitcher]);
-			else { // otherwise, this limit is exceeded but nobody has tryChangeClass set (probably beginning of game or something)
-				// just start picking dudes
-				for (j = 0; j < MAX_CLIENTS; j++) {
-					gentity_t *dude = &g_entities[j];
-					if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || bgSiegeClasses[dude->client->siegeClass].playerClass != i)
-						continue;
-					G_ChangePlayerFromExceededClass(dude);
-					break;
+				continue;
+			}
+
+			// method #2: the dead player who changed teams most recently gets switched off.
+			int mostRecentTeamChange = -1, mostRecentTeamChanger = -1;
+			for (j = 0; j < MAX_CLIENTS; j++) {
+				gentity_t *dude = &g_entities[j];
+				if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || bgSiegeClasses[dude->client->siegeClass].playerClass != i || (!level.inSiegeCountdown && dude->health > 0 && !(dude->client->tempSpectate > level.time)) || !level.teamChangeTime[j])
+					continue;
+				if (level.teamChangeTime[j] > mostRecentTeamChange) {
+					mostRecentTeamChange = level.teamChangeTime[j];
+					mostRecentTeamChanger = j;
 				}
 			}
+			if (mostRecentTeamChanger != -1) {
+				G_ChangePlayerFromExceededClass(&g_entities[mostRecentTeamChanger]);
+				continue;
+			}
+
+			// method #3: the alive player who changed teams most recently gets switched off.
+			mostRecentTeamChange = -1, mostRecentTeamChanger = -1;
+			for (j = 0; j < MAX_CLIENTS; j++) {
+				gentity_t *dude = &g_entities[j];
+				if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || bgSiegeClasses[dude->client->siegeClass].playerClass != i || !level.teamChangeTime[j])
+					continue;
+				if (level.teamChangeTime[j] > mostRecentTeamChange) {
+					mostRecentTeamChange = level.teamChangeTime[j];
+					mostRecentTeamChanger = j;
+				}
+			}
+			if (mostRecentTeamChanger != -1) {
+				G_ChangePlayerFromExceededClass(&g_entities[mostRecentTeamChanger]);
+				continue;
+			}
+
+			// fallback/sanity check; just pick someone.
+			int selectedGuy = -1;
+			for (j = 0; j < MAX_CLIENTS; j++) {
+				gentity_t *dude = &g_entities[j];
+				if (!dude || !dude->client || dude->client->sess.siegeDesiredTeam != team || bgSiegeClasses[dude->client->siegeClass].playerClass != i)
+					continue;
+				selectedGuy = j;
+				break;
+			}
+			if (selectedGuy != -1) {
+				G_ChangePlayerFromExceededClass(&g_entities[selectedGuy]);
+				continue;
+			}
 		}
+	}
+
+	// sanity check; make sure that we actually resolved everything (i.e., that we didn't just shift everyone around to other limited classes)
+	for (i = 0; i < SPC_MAX; i++) {
+		if (G_WouldExceedClassLimit(team, i, qfalse))
+			Com_Error(ERR_DROP, va("CheckForClassesExceedingLimits: unable to resolve class limits for team %s, class %s!", team == TEAM_RED ? "red" : "blue", classNames[i]));
 	}
 }
 
@@ -1447,6 +1475,7 @@ void SiegeCheckTimers(void)
 		else if (gSiegeBeginTime > (level.time + SIEGE_ROUND_BEGIN_TIME))
 		{
 			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
+			memset(&level.tryChangeClass, -1, sizeof(level.tryChangeClass));
 			gSiegeBeginTime = level.time + SIEGE_ROUND_BEGIN_TIME;
 			level.inSiegeCountdown = qtrue;
 			level.siegeRoundComplete = qfalse;

@@ -996,6 +996,7 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		return;
 	}
 
+	level.teamChangeTime[ent - g_entities] = level.time;
 	BroadcastTeamChange( client, oldTeam );
     // G_LogDbLogLevelEvent( level.db.levelId, level.time - level.startTime, levelEventTeamChanged, client->sess.sessionId, oldTeam, team, 0, 0 );
 
@@ -1364,8 +1365,8 @@ void SetSiegeClass(gentity_t *ent, char* className)
 		siegeClass_t *scl = (siegeClass_t *)G_SiegeClassFromName(className);
 		int limit = scl ? G_WouldExceedClassLimit(team, scl->playerClass, qtrue) : 0;
 		if (scl && limit) {
-			if (level.inSiegeCountdown || ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
-				trap_SendServerCommand(ent - g_entities, va("print \"Warning: The class you selected is full. You will be switched if there %s more than %i.\n\"", limit == 1 ? "is" : "are", limit));
+			if (level.inSiegeCountdown || ent->client->sess.sessionTeam == team) { // countdown, or ingame and already on the desired team
+				trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full. You will be switched if there %s more than %i.\n\"", limit == 1 ? "is" : "are", limit));
 				level.tryChangeClass[ent - g_entities].class = scl->playerClass;
 				level.tryChangeClass[ent - g_entities].team = team;
 				level.tryChangeClass[ent - g_entities].time = level.time;

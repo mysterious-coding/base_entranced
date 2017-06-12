@@ -2940,6 +2940,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	memset( client, 0, sizeof(*client) );
 	level.lastLegitClass[clientNum] = -1;
 	memset(&level.tryChangeClass[clientNum], -1, sizeof(level.tryChangeClass[clientNum]));
+	level.teamChangeTime[clientNum] = 0;
     client->sess = sessOld;
 
 	client->pers.connected = CON_CONNECTING;

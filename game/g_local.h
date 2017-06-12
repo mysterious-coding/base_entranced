@@ -1197,6 +1197,7 @@ typedef struct {
 	} siegeStage;
 	int lastLegitClass[MAX_CLIENTS];
 	changeClass_t tryChangeClass[MAX_CLIENTS];
+	int teamChangeTime[MAX_CLIENTS];
 
 	int			hangarCompletedTime;
 	qboolean	hangarLiftUsedByDefense;
