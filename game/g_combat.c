@@ -4541,6 +4541,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
 		if (targ->client->ps.electrifyTime < level.time)
@@ -4556,6 +4559,33 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			{//don't do this to fighters
 				rng = Q_irand(300, 800);
 				targ->client->ps.electrifyTime = level.time + rng;
+
+				// siege freezing stats
+				if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker - g_entities >= 0 &&
+					attacker - g_entities < MAX_CLIENTS && targ - g_entities >= 0 && targ - g_entities < MAX_CLIENTS &&
+					(targ->client->sess.sessionTeam == TEAM_RED || targ->client->sess.sessionTeam == TEAM_BLUE) && targ->client->sess.sessionTeam == OtherTeam(attacker->client->sess.sessionTeam)) {
+					int freezeStatIndex = -1, frozenStatIndex = -1;
+					if (!Q_stricmp(mapname.string, "mp/siege_hoth2")) {
+						freezeStatIndex =  attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_HOTH_OFFDEMP : SIEGEMAPSTAT_HOTH_DEFDEMP;
+						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_HOTH_OFFGOTDEMPED : SIEGEMAPSTAT_HOTH_DEFGOTDEMPED;
+					} else if (!Q_stricmp(mapname.string, "mp/siege_desert")) {
+						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_DESERT_OFFDEMP : SIEGEMAPSTAT_DESERT_DEFDEMP;
+						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_DESERT_OFFGOTDEMPED : SIEGEMAPSTAT_DESERT_DEFGOTDEMPED;
+					} else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) {
+						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OFFDEMP : SIEGEMAPSTAT_NAR_DEFDEMP;
+						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OFFGOTDEMPED : SIEGEMAPSTAT_NAR_DEFGOTDEMPED;
+					} else if (!Q_stricmp(mapname.string, "siege_cargobarge2")) {
+						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OFFDEMP : SIEGEMAPSTAT_CARGO2_DEFDEMP;
+						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OFFGOTDEMPED : SIEGEMAPSTAT_CARGO2_DEFGOTDEMPED;
+					} else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
+						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OFFDEMP : SIEGEMAPSTAT_BESPIN_DEFDEMP;
+						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OFFGOTDEMPED : SIEGEMAPSTAT_BESPIN_DEFGOTDEMPED;
+					}
+					if (freezeStatIndex != -1 && frozenStatIndex != -1 && frozenStatIndex != freezeStatIndex) {
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][freezeStatIndex] += rng;
+						targ->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][frozenStatIndex] += rng;
+					}
+				}
 			}
 		}
 	}
@@ -4576,9 +4606,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (damage <= 0 && originalDamage >= 1) // make sure we at least do some damage...
 			damage = 1;
 	}
-
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && !Q_stricmp(mapname.string, "mp/siege_desert") && !level.totalObjectivesCompleted)
 	{

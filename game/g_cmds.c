@@ -5461,10 +5461,15 @@ typedef enum {
 	STAT_INT,
 	STAT_INT_LOWERBETTER,
 	STAT_DURATION,
+	STAT_DURATION_LOWERBETTER,
+	STAT_DURATION_PAIR1,
+	STAT_DURATION_PAIR1_LOWERBETTER,
 	STAT_OBJ_DURATION, // times with value of 0 are hidden, unless they have red color, which prints held time + "(DNF)" (did not finish)
 	STAT_INT_PAIR1,
 	STAT_INT_PAIR1_LOWERBETTER,
 	STAT_LEFT_ALIGNED, // types after this are LEFT aligned
+	STAT_DURATION_PAIR2,
+	STAT_DURATION_PAIR2_LOWERBETTER,
 	STAT_INT_PAIR2,
 	STAT_INT_PAIR2_LOWERBETTER
 } StatType;
@@ -5479,33 +5484,42 @@ typedef struct {
 	char *forceColor;
 } Stat;
 
-#define FORMAT_INT( i )				va( "%d", i )
-#define FORMAT_PAIRED_INT( i )		va( "%d"S_COLOR_WHITE"/", i )
-#define FORMAT_MINS_SECS( m, s )	va( "%d:%02d", m, s )
-#define FORMAT_SECS( s )			va( "0:%02d", s )
+#define FORMAT_INT( i )					va( "%d", i )
+#define FORMAT_PAIRED_INT( i )			va( "%d"S_COLOR_WHITE"/", i )
+#define FORMAT_MINS_SECS( m, s )		va( "%d:%02d", m, s )
+#define FORMAT_PAIRED_MINS_SECS( m,s )	va( "%d:%02d"S_COLOR_WHITE"/", m, s )
+#define FORMAT_SECS( s )				va( "0:%02d", s )
+#define FORMAT_PAIRED_SECS( s )			va( "0:%02d"S_COLOR_WHITE"/", s )
 
 static char* GetFormattedValue( int value, StatType type ) {
 	switch ( type ) {
 	case STAT_INT: case STAT_INT_LOWERBETTER: return FORMAT_INT( value );
 	case STAT_INT_PAIR1: case STAT_INT_PAIR1_LOWERBETTER: return FORMAT_PAIRED_INT( value );
 	case STAT_INT_PAIR2: case STAT_INT_PAIR2_LOWERBETTER: return FORMAT_INT( value );
-	case STAT_DURATION: case STAT_OBJ_DURATION: {
+	case STAT_DURATION: case STAT_DURATION_PAIR1: case STAT_DURATION_PAIR1_LOWERBETTER: case STAT_DURATION_PAIR2: case STAT_DURATION_PAIR2_LOWERBETTER: case STAT_DURATION_LOWERBETTER: case STAT_OBJ_DURATION: {
 		int secs = value / 1000;
 		int mins = secs / 60;
 
 		// more or less than a minute?
 		if ( value >= 60000 ) {
 			secs %= 60;
-			return FORMAT_MINS_SECS( mins, secs );
+			if (type == STAT_DURATION_PAIR1 || type == STAT_DURATION_PAIR1_LOWERBETTER)
+				return FORMAT_PAIRED_MINS_SECS( mins, secs );
+			else
+				return FORMAT_MINS_SECS( mins, secs );
 		} else {
-			return FORMAT_SECS( secs );
+			if (type == STAT_DURATION_PAIR1 || type == STAT_DURATION_PAIR1_LOWERBETTER)
+				return FORMAT_PAIRED_SECS( secs );
+			else
+				return FORMAT_SECS( secs );
 		}
 	}
 	default: return "0"; // should never happen
 	}
 }
 
-#define TypeIsLowerBetter(t) (t == STAT_INT_LOWERBETTER || t == STAT_INT_PAIR1_LOWERBETTER || t == STAT_INT_PAIR2_LOWERBETTER)
+#define TypeIsLowerBetter(t) (t == STAT_DURATION_LOWERBETTER || t == STAT_DURATION_PAIR1_LOWERBETTER || t == STAT_DURATION_PAIR2_LOWERBETTER || t == STAT_INT_LOWERBETTER || t == STAT_INT_PAIR1_LOWERBETTER || t == STAT_INT_PAIR2_LOWERBETTER)
+#define TypeIsPair1(t) (t == STAT_DURATION_PAIR1 || t == STAT_DURATION_PAIR1_LOWERBETTER || t == STAT_INT_PAIR1 || t == STAT_INT_PAIR1_LOWERBETTER)
 #define GetStatColor( s, b ) ( b && b == s ? S_COLOR_GREEN : S_COLOR_WHITE )
 #define GetStatColorZeroOkay( s, b ) ( b == s ? S_COLOR_GREEN : S_COLOR_WHITE )
 
@@ -5534,7 +5548,7 @@ static void PrintClientStats( const int id, const char *name, StatsDesc desc, St
 		}
 		Q_strcat( s, sizeof( s ), va( desc.types[i] > STAT_LEFT_ALIGNED ? "%s%-*s" : " %s%*s",
 			VALIDSTRING(stats[i].forceColor) ? stats[i].forceColor : (TypeIsLowerBetter(desc.types[i]) ? GetStatColorZeroOkay(stats[i].num, bestStats[i].num) : GetStatColor( stats[i].num, bestStats[i].num )), // green if the best, white otherwise
-			Q_PrintStrlen( desc.cols[i] ) + ( (desc.types[i] == STAT_INT_PAIR1 || desc.types[i] == STAT_INT_PAIR1_LOWERBETTER) ? 3 : 0 ), // add 3 for the ^7/ of PAIR1 types
+			Q_PrintStrlen( desc.cols[i] ) + ( TypeIsPair1(desc.types[i]) ? 3 : 0 ), // add 3 for the ^7/ of PAIR1 types
 			desc.types[i] == STAT_OBJ_DURATION ? (overrideStr[0] ? overrideStr : (stats[i].num ? GetFormattedValue(stats[i].num, desc.types[i]) : "")) : GetFormattedValue( stats[i].num, desc.types[i] ) ) // string-ified version of the type, will contain the slash for PAIR1
 			);
 	}
@@ -5684,12 +5698,12 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 		Q_strcat( header, sizeof( header ), desc.cols[j] );
 
 		// only for PAIR1 types, append a slash in the name
-		if ( desc.types[j] == STAT_INT_PAIR1 || desc.types[j] == STAT_INT_PAIR1_LOWERBETTER) {
+		if ( TypeIsPair1(desc.types[j]) ) {
 			Q_strcat( header, sizeof( header ), "/" );
 		}
 
 		// generate the dotted delimiter, adding a char for the slash of PAIR1 types
-		for ( i = 0; i < Q_PrintStrlen( desc.cols[j] ) + ( (desc.types[j] == STAT_INT_PAIR1 || desc.types[j] == STAT_INT_PAIR1_LOWERBETTER) ? 1 : 0 ); ++i ) {
+		for ( i = 0; i < Q_PrintStrlen( desc.cols[j] ) + ( TypeIsPair1(desc.types[j]) ? 1 : 0 ); ++i ) {
 			Q_strcat( separator, sizeof( separator ), STATS_ROW_SEPARATOR );
 		}
 	}
@@ -5825,19 +5839,27 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 
 static const StatsDesc HothDesc = {
 	{
-		"GENDMG", "CODESTIME", "CCDMG", "TECHMAX", "KILL", "ATSTKILL", "ATSTDMG", "SHIELD", "UPTIME"
+		"GENDMG", "CODESTIME", "CCDMG", "TECHMAX", "KILL",
+		"ATSTKILL", "ATSTDMG", "SHIELD", "UPTIME",
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
 	},
 	{
-		STAT_INT, STAT_DURATION, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT, STAT_INT, STAT_DURATION
+		STAT_INT, STAT_DURATION, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2,
+		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION,
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
 	}
 };
 
 static const StatsDesc DesertDesc = {
 	{
-		"WALLDMG", "STATION1DMG", "STATION2DMG", "STATION3DMG", "GATEDMG", "PARTS", "PARTSTIME",
+		"WALLDMG", "STATION1DMG", "STATION2DMG", "STATION3DMG", "GATEDMG",
+		"PARTS", "PARTSTIME",
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_DURATION
+		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT,
+		STAT_INT, STAT_DURATION,
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
 	}
 };
 
@@ -5856,28 +5878,36 @@ static const StatsDesc KorriDesc = {
 
 static const StatsDesc NarDesc = {
 	{
-		"STATION1DMG", "STATION2DMG", "CODESTIME", "TECHMAX", "KILL", "SHIELDS", "SHIELDUPTIME"
+		"STATION1DMG", "STATION2DMG", "CODESTIME", "TECHMAX", "KILL",
+		"SHIELDS", "SHIELDUPTIME",
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
 	},
 	{
-		STAT_INT, STAT_INT, STAT_DURATION, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_DURATION
+		STAT_INT, STAT_INT, STAT_DURATION, STAT_INT_PAIR1, STAT_INT_PAIR2,
+		STAT_INT, STAT_DURATION,
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
 	}
 };
 
 static const StatsDesc Cargo2Desc = {
 	{
-		"ARRAYDMG", "NODE1DMG", "NODE2DMG", "CODESTIME", "HACKS"
+		"ARRAYDMG", "NODE1DMG", "NODE2DMG", "CODESTIME", "HACKS",
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_INT
+		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_INT,
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
 	}
 };
 
 static const StatsDesc BespinDesc = {
 	{
-		"LOCKDMG", "PANELDMG", "GENDMG", "CODESTIME", "PODDMG"
+		"LOCKDMG", "PANELDMG", "GENDMG", "CODESTIME", "PODDMG",
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_INT
+		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_INT,
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
 	}
 };
 
