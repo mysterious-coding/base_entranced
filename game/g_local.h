@@ -525,6 +525,13 @@ enum {
 	SIEGEMAPSTAT_CARGO2_CODESTIME,
 	SIEGEMAPSTAT_CARGO2_HACKS
 };
+enum {
+	SIEGEMAPSTAT_BESPIN_LOCKDMG = 0,
+	SIEGEMAPSTAT_BESPIN_PANELDMG,
+	SIEGEMAPSTAT_BESPIN_GENDMG,
+	SIEGEMAPSTAT_BESPIN_CODESTIME,
+	SIEGEMAPSTAT_BESPIN_PODDMG
+};
 
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown

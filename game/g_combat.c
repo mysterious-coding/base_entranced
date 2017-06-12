@@ -5529,6 +5529,17 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			else if (!Q_stricmp(targ->paintarget, "powernode2attack"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE2DMG] += (take + asave);
 		}
+		// bespin
+		else if (!Q_stricmpn(currentMap, "mp/siege_bespin", 15) && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->target)) {
+			if (!Q_stricmp(targ->target, "UnlockDoor"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_LOCKDMG] += (take + asave);
+			else if (!Q_stricmpn(targ->target, "breakpanel", 10))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PANELDMG] += (take + asave);
+			else if (!Q_stricmp(targ->target, "obj3"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_GENDMG] += (take + asave);
+			else if (!Q_stricmp(targ->target, "obj6"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PODDMG] += (take + asave);
+		}
 	}
 
 	//we count only from client to client damage

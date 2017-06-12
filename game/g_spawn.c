@@ -1401,7 +1401,7 @@ void SP_worldspawn( void )
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (!Q_stricmpn(mapname.string, "siege_bespin", 12)) {
+		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
 			hwLimit[1] = 1;
 		}
 
