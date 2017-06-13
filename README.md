@@ -304,7 +304,7 @@ Client command; displays many cvars to the client that are not shown with basejk
 base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
 
 #### Reset siege to round 1 on map change vote
-No more changing maps with timer going down.
+No more changing maps with timer still going down.
 
 #### Random teams/capts in siege
 base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `/ready` command)
@@ -337,7 +337,7 @@ Rcon command to forcibly rename a player. Use partial client name or client numb
 Players now gain a JA+-style client number appended to their name if they try to copy someone else's name.
 
 #### Lockdown
-Due to the possibility of troll players making trouble on the server and spamming reconnect under VPN IPs, you can lock down the server with `/g_lockdown` (default: 0). While enabled, only players who are whitelisted will be allowed to chat, join, rename, or vote. In addition, non-whitelisted players will be renamed to "Client 13" (or whatever their client number is) when they connect. You can add/remove whitelisted players by using the command `/whitelist` or by manually editing `whitelist.txt` to include their unique ID.
+Due to the possibility of troll players making trouble on the server and spamming reconnect under VPN IPs, you can lock down the server with `/g_lockdown` (default: 0). While enabled, only players who are whitelisted will be allowed to chat, join, rename, or vote. In addition, non-whitelisted players will be renamed to "Client 13" (or whatever their client number is) when they connect. You can add/remove whitelisted players by using the command `/whitelist`.
 
 #### Probation
 As a less severe alternative to banning troublemakers, you can simply place them under probation. Take their unique id from the server logs and write it into `probation.txt` in the server's /base/ folder (separate multiple ids with line breaks). Then the player will be treated according to the cvar `g_probation`:
