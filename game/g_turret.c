@@ -517,7 +517,8 @@ void turret_base_think( gentity_t *self )
 			turnOff = qfalse;
 		}
 	}
-	else if ( self->enemy->client && self->enemy->client->sess.sessionTeam == TEAM_SPECTATOR )
+	else if (self->enemy->flags & FL_NOTARGET ||
+		(self->enemy->client && (self->enemy->client->sess.sessionTeam == TEAM_SPECTATOR || self->alliedTeam && self->enemy->client->sess.sessionTeam == self->alliedTeam)))
 	{//don't keep going after spectators
 		self->enemy = NULL;
 	}
