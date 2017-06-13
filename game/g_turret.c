@@ -100,6 +100,7 @@ void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 		{
 			G_UseTargets( self, attacker );
 		}
+
 	}
 	else
 	{
@@ -120,6 +121,10 @@ void bottom_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		}
 		auto_turret_die(self->target_ent, inflictor, attacker, damage, meansOfDeath);
 	}
+
+	// duo: remove radar icon when dead
+	if (self->s.eFlags & EF_RADAROBJECT)
+		self->s.eFlags &= ~EF_RADAROBJECT;
 }
 
 #define START_DIS 15
@@ -584,7 +589,8 @@ void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
-
+	if (!(self->spawnflags & 1)) // duo: fix not being able to turn turrets on because they never think again
+		self->nextthink = level.time + FRAMETIME;
 }
 
 
@@ -642,6 +648,7 @@ void SP_misc_turret( gentity_t *base )
 		// We have an icon, so index it now.  We are reusing the genericenemyindex
 		// variable rather than adding a new one to the entity state.
 		base->s.genericenemyindex = G_IconIndex(s);
+		base->s.eFlags |= EF_RADAROBJECT; // duo: fixed radar icon not working
 	}
 
 	G_SetAngles( base, base->s.angles );

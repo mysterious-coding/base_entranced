@@ -278,11 +278,14 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 		
 		if (self->spawnflags & SPF_TURRETG2_CANRESPAWN)
 		{//respawn
+			self->use = turretG2_base_use; // duo: allow dead turret to still be triggered
 			if (self->health < 1 && !self->genericValue5)
 			{ //we are dead, set our respawn delay if we have one
 				self->genericValue5 = level.time + self->count;
 			}
 		}
+		else if (self->s.eFlags & EF_RADAROBJECT) // duo: remove radar icon when dead
+			self->s.eFlags &= ~EF_RADAROBJECT;
 	}
 	else
 	{
@@ -393,8 +396,11 @@ void turretG2_respawn( gentity_t *self )
 	self->takedamage = qtrue;
 	self->s.shouldtarget = qtrue;
 	if ( self->s.eFlags & EF_SHADER_ANIM )
-	{
-		self->s.frame = 0; // normal
+	{ // duo: fixed bug with inactive turret triggered while dead lighting up when it respawns
+		if (self->spawnflags & 1)
+			self->s.frame = 1;
+		else
+			self->s.frame = 0; // normal
 	}
 	self->s.weapon = WP_TURRET; // crosshair code uses this to mark crosshair red
 
@@ -819,9 +825,9 @@ void turretG2_base_think( gentity_t *self )
 
 	if ( self->enemy )
 	{
-		if ( self->enemy->health < 0 
-			|| !self->enemy->inuse )
-		{
+		if ( self->enemy->health <= 0 
+			|| !self->enemy->inuse || self->enemy->flags & FL_NOTARGET || self->alliedTeam && self->enemy->client && self->enemy->client->sess.sessionTeam == self->alliedTeam)
+		{ // duo: fixed bugs when targeting player who uses cloak or changes team
 			self->enemy = NULL;
 		}
 	}
@@ -922,7 +928,7 @@ void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator 
 	{
 		self->s.frame = 1; // black
 	}
-	else
+	else if (self->health > 0) // duo: don't light up if triggered while dead (it will happen on respawn anyway)
 	{
 		self->s.frame = 0; // glow
 	}
