@@ -6,100 +6,101 @@ by Duo
 
 a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) CTF server mod
 
-# What is base_entranced?
+# About base_entranced
 
-base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive gameplay**, not as a general-purpose "hangout server" mod.
+base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive Siege gameplay**, not as a general-purpose "hangout server" mod.
 
 base_entranced is the official server mod of the siege community [(www.jasiege.com)](http://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
 base_entranced has three goals:
 * Fixing bugs.
 * Adding enhancements to basejka siege gameplay and server administration.
-* Providing enhanced framework for siege mappers.
+* Providing an enhanced mapping framework that allows for many more possilibities for siege mappers.
 
 base_entranced strives to remain close to basejka gameplay. You won't see anything like kiss emotes or grappling hooks like JA+, nor is it wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind.
 
-The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka gameplay, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else adheres to the "stay-close-to-basejka" philosophy.
+The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka Siege gameplay, doorspam and minespam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else generally adheres to the "stay-close-to-basejka" philosophy.
 
 You can discuss base_entranced on the **base_entranced forum** at [www.jasiege.com](http://www.jasiege.com)
-
-# Notice to coders
-
-I compile this mod with Debug setting, not Final. There is a random rare server crash that tends to happen when changing maps. Due to auto-initialization, this crash seems to go away with Debug compile. Until this can be fixed, this mod should be compiled with Debug. It's not really a huge deal, as the mod works perfectly fine under those conditions.
-
-I usually try to include all related commits inside the comments of their related issue, but sometimes I forget to add some patches. If you are cherry-picking a feature into your mod, you should double check that your code matches mine to make sure you didn't miss any commits.
 
 base_entranced is icensed under GPLv2 as free software. You are free to use, modify and redistribute base_entranced following the terms in LICENSE.txt.
 
 # Notice to server admins
 
-Most cvars default to their "ideal" setting for a pug server, as far as the Siege community is concerned. You shouldn't really need to change anything to get your server running, although the cvars are nevertheless there for you to change if you would like to customize your server to your liking. I do recommend that you download the "Droid lame fix" PK3 (see "Downloads" section below).
-
-
-Although most memory overflow crashes seem to be fixed, it still doesn't hurt to restart your servers daily to prevent a memory overflow from crashing the server. Most server providers are able to set this up to happen automatically upon request -- set it for a time in the middle of the night when nobody is online.
+base_entranced is intended to be fully usable "out of the box." Most cvars default to their ideal/recommended setting for a pug server, as far as the Siege community is concerned. You shouldn't really need to change anything to get your server running, although the cvars are nevertheless there for you to change if you would like to customize your server to your liking. I do recommend that you download the "Droid lame fix" PK3 (see "Downloads" section below).
 
 # Downloads
 
-####Download base_entranced
+#### Download base_entranced
 To download base_entranced, please find the "releases" button on the Github Repo, or simply go to [https://github.com/deathsythe47/base_entranced/releases](https://github.com/deathsythe47/base_entranced/releases)
 
-####Droid lame fix [[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
+#### Droid lame fix
+[[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
 base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
 
-#base_entranced features
+# base_entranced features
 These are unique features for base_entranced.
 
-####`/g_siegeStats`
+#### `/g_autoStats`
 0 = no stats (default JK3)
 
-1 = (default) prints times for each objective after completion; writes all obj times at end of round. Compares times and highlights faster time in green in round 2.
+1 = (default) automatically prints stats at the end of each round, including objective times, kills, deaths, damage, etc. Some maps also have their own unique stats for that map. Clients can also access these stats manually by using the `stats` command.
 
-####`/g_siegeTiebreakEnd`
+#### `/g_classLimits`
+0 = no limits (default JK3)
+
+1 = (default) enable class limits + automatic overrides from map/server mod
+
+2 = enable class limits + DO NOT use automatic overrides from map/server mod
+
+If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of people who can play a particular class. For example, `/dAssaultLimit 1` limits the number of defense assaults to 2, `/oJediLimit 2` limits offense to two jedis, etc. With `/g_classLimits 1`, some automatic overrides for community maps will be applied from bsp files and from hardcoded limits in the server mod itself.
+
+#### `/g_siegeTiebreakEnd`
 0 = (default) no tiebreaking rules (JK3 default)
 
 1 = enforce traditional siege community tiebreaking rule. If round 1 offense got held for maximum time(20 minutes on most maps), game will end once round 2 offense has completed one more objective. Round 2 offense will be declared the winner of the match.
 
-####`/g_fixSiegeScoring`
+#### `/g_fixSiegeScoring`
 0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
 1 = (default) improved/logical scoring (100 pts per obj)
 
-####`/g_fixVoiceChat`
+#### `/g_fixVoiceChat`
 0 = enemies can hear your voice chats and see icon over your head (default JK3)
 
 1 = (default) only teammates can hear your voice chats and see icon over your head (except for air support, which is used to BM your enemies)
 
-####`/iLikeToDoorSpam`
+#### `/iLikeToDoorSpam`
 0 = (default) door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
 
 1 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (default JK3)
 
-####`/iLikeToMineSpam`
+#### `/iLikeToMineSpam`
 0 = (default) mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already refrain from this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
 
 1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door (bonus points for "was planting, bro" excuse) (default JK3)
 
-####`/g_autoKorribanSpam`
+#### `/g_autoKorribanSpam`
 0 = spam-related cvars are unaffected by map
 
 1 = (default) `/iLikeToDoorSpam` and `/iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
 
-####`/g_fixHothBunkerLift`
+#### `/g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
 
 1 = (default) Hoth codes bunker lift requires pressing `+use` button (prevents you from killing yourself way too easily on this dumb lift)
 
-####`/g_fixHothDoorSounds`
+#### `/g_fixHothDoorSounds`
 0 = Hoth bunker doors at first objective are silent (bug from default JK3)
 
 1 = (default) Hoth bunker doors at first objective use standard door sounds
 
-####`/g_antiHothCodesLiftLame`
+#### `/g_antiHothCodesLiftLame`
 0 = normal behavior for Hoth codes delivery bunker lift
 
 1 = (default) defenders cannot call up Hoth codes delivery bunker lift if a non-Jedi codes carrier is inside the bunker
 
-####`/g_antiHothHangarLiftLame`
+#### `/g_antiHothHangarLiftLame`
 0 = normal behavior for Hoth hangar lift (default JK3)
 
 1 = defense tech uses a 2 second hack to call up the lift. Returns to normal behavior after the hangar objective is completed.
@@ -110,126 +111,111 @@ These are unique features for base_entranced.
 
 4 = (default) use both 1 and 2 methods, plus, after the infirmary has been breached, only allow the defense to call the lift up once within 15 seconds of the infirmary breach. (default setting)
 
-####`/g_antiHothInfirmaryLiftLame`
+#### `/g_antiHothInfirmaryLiftLame`
 0 = normal behavior for Hoth infirmary "short" lift (default JK3)
 
 1 = (default) defense cannot call the "short" lift up with the top button; they must use the lower button
 
-####`/g_antiLaming`
+#### `/g_antiLaming`
 0 = (default) no anti-laming provisions (default JK3, suggested setting for pug servers)
 
 1 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being killed.
 
 2 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being kicked from the server.
 
-####`/g_autoKorribanFloatingItems`
+#### `/g_autoKorribanFloatingItems`
 0 = `g_floatingItems` is unaffected by map change
 
 1 = (default) `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
 
-####`/g_korribanRedRocksReverse`
-0 = (default) Korriban red crystal room rocks can only be pulled up (default JK3)
-
-1 = Korriban red crystal room rocks can be pushed back down
-
-####`/g_nextmapWarning`
+#### `/g_nextmapWarning`
 0 = no warning (default JK3)
 
 1 = (default) when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
-####`/g_improvedTeamchat`
+#### `/g_improvedTeamchat`
 0 = default JK3 team chat
 
 1 = show selected class as "location" during countdown, show "(DEAD)" in teamchat for dead players, hide location from teamchat between spectators, hide location from teamchat during intermission
 
 2 = (default) all of the above, plus show HP in teamchat for alive players
 
-####`/g_fixFallingSounds`
+#### `/g_fixFallingSounds`
 0 = default JK3 sound (normal death sound)
 
 1 = (default) use falling death scream sound when damaged by a `trigger_hurt` entity for >= 100 damage (i.e., death pits). Also plays scream sound if selfkilling while affected by `/g_fixPitKills`
 
-####`/g_fixEweb`
+#### `/g_fixEweb`
 0 = default JK3 eweb behavior (huge annoying recoil, etc)
 
 1 = (default) remove eweb recoil, remove "unfolding" animation when pulling out eweb, make eweb crosshair start closer to normal crosshair
 
-####`/g_enableCloak`
+#### `/g_enableCloak`
 0 = (default) remove cloak from all siege classes (eliminates need for no-cloak PK3 patches)
 
 1 = cloak enabled (default JK3)
 
-####`/g_fixRancorCharge`
+#### `/g_fixRancorCharge`
 0 = (default) default JK3 behavior - rancor can charge/jump through `BLOCKNPC` areas (e.g. desert arena door)
 
 1 = rancor cannot charge/jump through `BLOCKNPC` areas
 
-####`/g_infiniteCharge`
+#### `/g_infiniteCharge`
 0 = no infinite charging bug with `+useforce`/`+button2` (bugfix from base_enhanced)
 
 1 = (default) infinite charging bug enabled (classic behavior, brought back by popular demand. hold `+useforce` or `+button2` to hold weapon charge indefinitely)
 
-####`/g_fixGripKills`
+#### `/g_fixGripKills`
 0 = normal selfkilling while gripped (default JK3)
 
 1 = (default) selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill (similar to `/g_fixPitKills` from base_enhanced)
 
-####`/g_gripRefresh`
-300 = default JK3 grip refresh (your velocity is updated every 300ms while being gripped, which equals 3.33Hz refresh rate)
-
-Set for lower values to get smoother grip without lag (maybe 50, which equals 20Hz refresh rate). Some players have said that lowering this value makes grip slamming people(inflicting fall damage) impossible, although I have not tested or verified this.
-
-####`/g_antiCallvoteTakeover`
+#### `/g_antiCallvoteTakeover`
 0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, and `lockteams` votes (default JK3)
 
 1 = (default) calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, or `lockteams` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
 
-####`/g_moreTaunts`
+#### `/g_moreTaunts`
 0 = default JK3 behavior (only allow `/taunt` in non-duel gametypes)
 
 1 = (default) enable `/gloat`, `/flourish`, and `/bow` in non-duel gametypes)
 
-####`/g_ammoCanisterSound`
-0 = dispensing ammo cans is oddly silent (default JK3)
-
-1 = (default) dispensing an ammo can plays a small sound
-
-####`/g_botJumping`
+#### `/g_botJumping`
 0 = (default) bots jump around like crazy on maps without botroute support (default JK3)
 
 1 = bots stay on the ground on maps without botroute support
 
-####`/g_swoopKillPoints`
+#### `/g_swoopKillPoints`
 The number of points you gain from killing swoops (1 = default JK3). Set to 0 (the default) so you don't gain points from farming swoops.
 
-####`/g_sexyDisruptor`
+#### `/g_sexyDisruptor`
 0 = (default) lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
 
-####`/siege_restart`
+#### `/siege_restart`
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `/callvote nextmap` (lol)
 
-####`/forceround2 mm:ss`
+#### `/forceround2 mm:ss`
 Restarts current map with siege timer going down from a specified time. For example, `/forceround2 7:30` starts siege in round 2 with the timer going down from 7:30. Can be executed from rcon or callvote.
 
-####`/killturrets`
+#### `/killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
 
-####`/greenDoors`
+#### `/greenDoors`
 "Greens" (unlocks) all doors on the map. For testing purposes only; should not be used in live games.
 
-####`/autocfg_map`
+#### `/autocfg_map`
 0 = (default) no automatic cfg execution (default JK3)
 
 1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` (if it exists). This should eliminate the need for map-specific cvars like `/g_autoKorribanFloatingItems`, etc.
 
-####`/autocfg_unknown`
+#### `/autocfg_unknown`
 0 = (default) if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, nothing will happen.
 
 1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback (if it exists).
 
-###`/g_hothRebalance`
+#### `/g_hothRebalance`
 0 = (default) hoth classes are unchanged
 
 bitflag 1 = o assault gets big bacta
@@ -240,7 +226,7 @@ bitflag 4 = d jedi gets heal 3
 
 -1 = enable all
 
-####Custom team/class overrides
+#### Custom team/class overrides
 You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
 
 To reset to base classes, use `0` or `none` as the argument.
@@ -254,17 +240,17 @@ A few important clientside bugs to be aware of:
 * Ravensoft decided to combine force powers and items into one menu/cycle in JK3; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
 * If the server is using teams/class that you don't have at all (like completely new classes, or classes for a map you don't have), you will see people as using Kyle skin with no sounds and no class icons.
 
-####`/g_autoResetCustomTeams`
+#### `/g_autoResetCustomTeams`
 0 = retain custom teams/classes between map change votes
 
 1 = (default) `/g_redTeam` and `/g_blueTeam` are automatically reset to normal classes when map is changed via `/callvote`
 
-####`/g_requireMoreCustomTeamVotes`
+#### `/g_requireMoreCustomTeamVotes`
 0 = 51% yes votes required for all votes to pass (default JK3)
 
 1 = (default) custom team/class votes require 75% yes votes. This does not apply if the argument is `0` or `none` (resetting to normal classes)
 
-####`/g_forceDTechItems`
+#### `/g_forceDTechItems`
 This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban. This cvar is only used when custom teams are in use, and does not affect any classes that already have demp/shield.
 
 0 = no additional weapons/items
@@ -283,7 +269,7 @@ This cvar helps custom team/class overrides by adding some extra weapons/items t
 
 7 = all DTechs get shield; only Hoth DTech gets demp also
 
-####Weapon spawn preference
+#### Weapon spawn preference
 Clients can decide their own preference of which weapon they would like to be holding when they spawn. To define your own preference list, type into your client JA: `/setu prefer <15 letters>`
 * `L` : Melee
 * `S` : Saber
@@ -305,55 +291,55 @@ Your most-preferred weapons go at the beginning; least-preferred weapons go at t
 
 Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use default JK3 weapon priority.
 
-####`/join`
+#### `/join`
 Clientside command. Use to join a specific class and team, e.g. `/join rj` for red jedi.
 
-####`/help` / `/rules`
-Client command; displays some helpful commands that clients should be aware of (how to use `/whois`, `/class`, etc) as well as version number of currently-running server mod.
+#### `/help` / `/rules` / `info`
+Client command; displays some helpful commands and features that clients should be aware of (how to use `/whois`, `/class`, etc) as well as version number of currently-running server mod.
 
-####`/serverstatus2`
+#### `/serverstatus2`
 Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
 
-####Broadcast `siegeStatus` in serverinfo
+#### Broadcast `siegeStatus` in serverinfo
 base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
 
-####Reset siege to round 1 on map change vote
+#### Reset siege to round 1 on map change vote
 No more changing maps with timer going down.
 
-####Random teams/capts in siege
+#### Random teams/capts in siege
 base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `/ready` command)
 
-####Unlimited class-changing during countdown
+#### Unlimited class-changing during countdown
 Removed the 5-second delay for class-changing during the countdown.
 
-####Improved `/tell`
+#### Improved `/tell`
 You can still use partial client names with `/tell` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
 
-####Improved `/forceteam`
+#### Improved `/forceteam`
 Use partial client name with `/forceteam`. Optionally, you can include an additional argument for the number of seconds until they can change teams again (defaults to 0); for example, `/rcon forceteam douchebag r 60`
 
-####`/forceclass` and `/unforceclass`
+#### `/forceclass` and `/unforceclass`
 Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `/callteamvote`. For example, `/callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `/callteamvote unforceclass pad` to undo this restriction. Use `/teamvote yes` and `/teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
 
-####`/g_teamVoteFix`
+#### `/g_teamVoteFix`
 (default: 1) There is a bug preventing the on-screen teamvote text from displaying on clients' screens if they are running certain client mods (such as SMod). This workaround prints some text on your screen so you can see what the vote is for.
 
-####`/forceready` and `/forceunready`
+#### `/forceready` and `/forceunready`
 Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
 
-####`/g_allow_ready`
+#### `/g_allow_ready`
 (default: 1) Use to enable/disable players from using the `/ready` command.
 
-####`/rename`
+#### `/rename`
 Rcon command to forcibly rename a player. Use partial client name or client number. Optionally, you can include an additional argument for the number of seconds until they can rename again (defaults to 0); for example, `/rcon rename douchebag padawan 60`
 
-####Duplicate names fix
+#### Duplicate names fix
 Players now gain a JA+-style client number appended to their name if they try to copy someone else's name.
 
-####Lockdown
+#### Lockdown
 Due to the possibility of troll players making trouble on the server and spamming reconnect under VPN IPs, you can lock down the server with `/g_lockdown` (default: 0). While enabled, only players who are whitelisted will be allowed to chat, join, rename, or vote. In addition, non-whitelisted players will be renamed to "Client 13" (or whatever their client number is) when they connect. You can add/remove whitelisted players by using the command `/whitelist` or by manually editing `whitelist.txt` to include their unique ID.
 
-####Probation
+#### Probation
 As a less severe alternative to banning troublemakers, you can simply place them under probation. Take their unique id from the server logs and write it into `probation.txt` in the server's /base/ folder (separate multiple ids with line breaks). Then the player will be treated according to the cvar `g_probation`:
 
 0 = nothing unusual happens; treat players on probation normally
@@ -362,28 +348,33 @@ As a less severe alternative to banning troublemakers, you can simply place them
 
 2 = (default) same as 1, but they also cannot change teams without being forceteamed by admin.
 
-####Siege captain dueling
+#### Siege captain dueling
 You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, no force powers, offense can go through defense-only doors, and turrets are automatically destroyed.
 
-####Awards/medals support
+#### Awards/medals support
 Humiliation, impressive, etc. Extra awards are being implemented (work-in-progress) for siege maps. You can get rewards if you use a compatible clientside mod such as Smod and have `cg_drawRewards` enabled in your client game.
 
-####Public server / Pug server modes
+#### Public server / Pug server modes
 Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
 
-####`/removePassword`
+#### `/removePassword`
 In basejka, it is impossible to remove an existing server password with rcon; the only way is by cfg. Now you can simply use the rcon command `/removePassword` to clear the value of `/g_password`.
 
-####More custom character colors
+#### More custom character colors
 Some models allow you to use custom color shading (for example, trandoshan and weequay). Basejka had a lower limit of 100 for these settings(to ensure colors couldn't be too dark); this limit has been removed in base_entranced. Now you can play as a black trandoshan if you want. As in basejka, use the clientside commands `char_color_red`, `char_color_green`, and `char_color_blue` (valid values are between 0-255)
 
-####Map updates/improvements
+#### Selfkill lag compensation
+Selfkilling with high ping can be frustrating on base servers when you accidentally max yourself due to selfkilling too late. base_entranced's lag compensation allows you to selfkill slightly closer to the respawn wave if you have high ping by subtracting your ping from the minimum delay of 1000 milliseconds. For example, if you have 200 ping, you will only have to wait 800 milliseconds before you can respawn instead of 1000. This is because you actually pressed your selfkill bind earlier and the server simply did not receive that packet until later.
+
+#### Map updates/improvements
 Some maps have hardcoded fixes in base_entranced in order to eliminate the need for releasing pk3 patches. For example, on siege_cargobarge2, defense demo was given double ammo via base_entranced hardcoding rather than releasing another pk3 patch. Yes, some of these are "hacky," but it's better than forcing everyone to redownload the maps.
 
-####Enhanced mapping framework
+#### Enhanced mapping framework
 base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
 
 Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
+
+Mapmakers can set the new class limits keys in `worldspawn`, which automatically sets the cvars such as `/dAssaultLimit` on servers with `/g_classLimits` set to `1`. For example, adding the key `dHWLimit` with value `1` will cause the server to set the cvar `/dHWLimit` to `1`.
 
 Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
 
@@ -504,7 +495,7 @@ Mapmakers can use `idealClassType` for triggers activated by red team; use the f
 
 Note that if a map includes these new special features, and is then played on a non-base_entranced server, those features will obviously not work.
 
-####Additional control over vote-calling
+#### Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_randomteams` (default: 1)
 * `/g_allow_vote_randomcapts` (default: 1)
@@ -518,7 +509,7 @@ In addition to the base_enhanced vote controls, you can use these:
 * `/g_allow_vote_zombies` (default: 1)
 * `/g_allow_vote_lockteams` (default: 1)
 
-####Zombies
+#### Zombies
 "Zombies" is an unnoficial quasi-gametype that has been played by the siege community to kill time over years. It is a hide-and-seek game that involves one offense jedi hunting down defense gunners after some initial setup time. Gunners who die join offense jedi and hunt until there is only one gunner left.
 
 Zombies receives some much-needed help in base_entranced. To activate the zombies features, use `/zombies` (rcon command) or `/callvote zombies` (assuming you enabled `/g_allow_vote_zombies`). Zombies features include:
@@ -537,7 +528,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * No using jetpack on cargo2 2nd obj
 * Removes auto-detonation timer for detpacks
 
-####Bugfixes and other changes:
+#### Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
 * Fixed thermals bugging lifts
 * Fixed seekers attacking walkers and fighters.
@@ -585,11 +576,19 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Voice chat is now allowed while dead.
 * Fixed bug with siege items getting stuck when they respawn.
 * Fixed double rocket explosion bug when shooting directly between someone's feet with rocket surfing disabled.
+* Fixed primary mines not triggering if you were too far away.
+* Fixed not being able to use icons for big Hoth turrets.
+* Fixed not being able to re-activate inactive big Hoth turrets.
+* Fixed not being able to trigger dead turrets.
+* Fixed inactive turrets lighting up when respawning.
+* Fixed issues with turrets tracking players who are cloaked or changed teams.
+* Turret icons are now removed if the turret is destroyed and cannot respawn.
+* A small sound is now played when dispensing an ammo canister.
 
-#Features that are also in Alpha's base_enhanced
-These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. Since base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
+# Features that are also in Alpha's base_enhanced
+These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, so they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
 
-####Chat tokens
+#### Chat tokens
 Clients can use the following chat tokens:
 
 * `$h` = current health
@@ -598,70 +597,70 @@ Clients can use the following chat tokens:
 * `$m` = current ammo
 * `$l` = closest weapon spawn (not useful for siege)
 
-####Advanced random map voting
+#### Advanced random map voting
 Instead of the traditional random map voting to have the server pick a map, `/g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `/vote 1`, `/vote 2`, etc.
 
-####Improved projectile pushing/deflection
+#### Improved projectile pushing/deflection
 Instead of the buggy base JA behavior with pushing/deflecting projectiles, you now have some more options. `/g_breakRNG` (default: 0) controls whether to use old "broken" RNG system from base JA. `/g_randomConeReflection` (default: 0) controls whether to use an improved system of randomly generating a trajectory for the pushed/deflected projectile within a cone of the pusher/deflecter's FOV. `/g_coneReflectAngle` (default: 30) controls how wide of an angle to use for this.
 
-####`/sv_passwordlessSpectators`
+#### `/sv_passwordlessSpectators`
 0 = (default) normal server password behavior
 
 1 = prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
 
-####`/lockteams`
+#### `/lockteams`
 Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` is the same as setting `/g_maxGameClients` to 8.
 
 Teams are automatically unlocked at intermission, or if there are 0 players in-game.
 
-####`/g_teamOverlayUpdateRate`
+#### `/g_teamOverlayUpdateRate`
 The interval in milliseconds for teamoverlay data to be updated and sent out to clients. Defaults to 250 (JK3 default is 1000).
 
-####`/g_enforceNetSettings`
+#### `/g_enforceNetSettings`
 0 = don't change any client net settings
 
 -1 = (default) clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
 
-####`/g_maxNameLength`
+#### `/g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
 
-####`/clientDesc`
+#### `/clientDesc`
 Rcon command to see client mods people are using, if possible.
 
-####`/shadowMute`
+#### `/shadowMute`
 Rcon command to secretly mute people. Only shadowmuted players can see each others' chats.
 
-####Simplified private messaging
+#### Simplified private messaging
 Instead of using tell, you can send private messages to people by pressing your normal chat bind and typing two @ symbols followed by their name and the message, e.g. `@@pad hello dude`
 
-####Bugfixes and other changes
+#### Bugfixes and other changes
 * Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
 
-#Features that are also in Sil's base_enhanced
-These are features in base_entranced that are also available in Sil's base_enhanced (https://github.com/TheSil/base_enhanced), the legacy server mod of the CTF and siege communities. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
+# Features that are also in Sil's base_enhanced
+These are features in base_entranced that are also available in Sil's now-inactive base_enhanced mod (https://github.com/TheSil/base_enhanced), the legacy server mod of the CTF and siege communities. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
 
-####`/class`
+#### `/class`
 Clientside command. Use first letter of class to change, like `/class a` for assault, `/class s` for scout, etc. For maps with more than 6 classes, you can use `/class 7`, `/class 8`, etc.
 
-####`/g_rocketSurfing`
+#### `/g_rocketSurfing`
 0 = (default) no rocket surfing (ideal setting)
 
 1 = bullshit rocket surfing enabled; landing on top of a rocket will not explode the rocket (JK3 default)
 
-####`/g_floatingItems`
+#### `/g_floatingItems`
 0 = (default) no floating siege items (ideal setting for most maps)
 
 1 = siege items float up walls when dropped - annoying bug on most maps, but classic strategy for korriban (JK3 default)
 
-####`/g_selfkillPenalty`
+#### `/g_selfkillPenalty`
 Set to 0 (the default) so you don't lose points when you SK.
 
-####`/g_fixPitKills`
+#### `/g_fixPitKills`
 0 = normal pit kills (JK3 default)
 
 1 = (default) if you selfkill while above a pit, it grants a kill to whoever pushed you into the pit. This prevents people from denying enemies' kills with selfkill.
 
-####`/g_maxGameClients`
+#### `/g_maxGameClients`
 0 = (default) people can freely join the game
 
 other number = only this many players may join the game; the reset must stay in spectators
@@ -669,50 +668,47 @@ other number = only this many players may join the game; the reset must stay in 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
 
-####`/pause` and `/unpause`
+#### `/pause` and `/unpause`
 Use command `/pause` or `/unpause` (also can be called as vote) to stop the game temporarily. Useful if someone lags out. Stops game timer, siege timer, spawn timer, etc.
 
-####`/whois`
+#### `/whois`
 Use command `/whois` to see a list of everyone in the server as well as their most-used alias. Optionally specify a client number or partial name to see the top aliases of that particular player.
 
-####Auto-click on death
+#### Auto-click on death
 If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn.
 
-####Random teams/capts
+#### Random teams/capts
 Use `/randomteams 2 2` for random 2v2, etc. and `/randomcapts` for random captains. Make sure clients use `/ready` to be eligible for selection (or use `/forceready` through rcon)
 
-####`/specall`
+#### `/specall`
 Use the rcon command `/specall` to force all players to spec.
 
-####Start round with one player
+#### Start round with one player
 No longer need two players to start running around ingame in siege mode.
 
-####Better logs
+#### Better logs
 Log detailed user info, rcon commands, and crash attempts. Use `g_hacklog <filename>`, `g_logclientinfo 1`, and `g_logrcon 1`.
 
-####Coin toss
+#### Coin toss
 Call a `/cointoss` vote for random heads/tails result. Also works as an rcon command.
 
-####Polls
+#### Polls
 Ask everyone a question with `/callvote q`. For example, `/callvote q Keep same teams and restart?`
 
-####HTTP auto downloading
-Set url with `/g_dlurl`; clients with SMod can download
+#### HTTP auto downloading
+Set url with `/g_dlurl`; clients with compatible mods such as SMod can download
 
-####Quiet rcon
+#### Quiet rcon
 Mis-typed commands are no longer sent out as a chat message to everyone on the server.
 
-####Lag icon above head
-Players with 999 ping show a lag icon above their head in-game. 
-
-####Fixed siege chat
+#### Fixed siege chat
 * Spectator chat can be seen by people who are in-game
 * Chat from dead players can be seen
 
-####`/npc spawnlist`
+#### `/npc spawnlist`
 Use this command to list possible npc spawns. Note that ingame console only lets you scroll up so far; use qconsole.log to see entire list.
 
-####Control vote-calling
+#### Control vote-calling
 Prevent calling votes for some things:
 * `/g_allow_vote_gametype` (default: 1023)
 * `/g_allow_vote_kick` (default: 1)
@@ -724,7 +720,7 @@ Prevent calling votes for some things:
 * `/g_allow_vote_maprandom` (default: 4)
 * `/g_allow_vote_warmup` (default: 1)
 
-####Bugfixes and other changes:
+#### Bugfixes and other changes:
 * When you run someone over in the ATST, you get a kill.
 * No more spying on the enemy teamchat during siege countdown.
 * Bugfix for not scoring points on Hoth first obj.
