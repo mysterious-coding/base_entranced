@@ -4,7 +4,7 @@ a multiplayer server mod for Jedi Knight 3's Siege gametype
 
 by Duo
 
-a fork of Sil's fantastic [base_enhanced](https://github.com/TheSil/base_enhanced) CTF server mod
+a fork of Sil's old [base_enhanced](https://github.com/TheSil/base_enhanced) CTF server mod
 
 # About base_entranced
 
