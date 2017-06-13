@@ -53,7 +53,7 @@ These are unique features for base_entranced.
 
 2 = enable class limits + DO NOT use automatic overrides from map/server mod
 
-If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of people who can play a particular class. For example, `/dAssaultLimit 1` limits the number of defense assaults to 2, `/oJediLimit 2` limits offense to two jedis, etc. With `/g_classLimits 1`, some automatic overrides for community maps will be applied from bsp files and from hardcoded limits in the server mod itself.
+If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of people who can play a particular class. For example, `/dAssaultLimit 1` limits the number of defense assaults to two, `/oJediLimit 2` limits offense to two jedis, etc. With `/g_classLimits 1`, some automatic overrides for community maps will be applied from bsp files and from hardcoded limits in the server mod itself.
 
 #### `/g_siegeTiebreakEnd`
 0 = (default) no tiebreaking rules (JK3 default)
