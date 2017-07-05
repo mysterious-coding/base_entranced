@@ -3044,8 +3044,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 #ifdef NEWMOD_SUPPORT
 
 void G_BroadcastServerFeatureList( int clientNum ) {
-	static char featureListCmd[MAX_TOKEN_CHARS] =
-		"kls -1 -1 sfl "
+	static char featureListConfigString[MAX_TOKEN_CHARS] =
+		"sfl "
 		"oid "
 		"esrw "
 		"swpr "
@@ -3079,7 +3079,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		}
 	}
 
-	trap_SendServerCommand( clientNum, featureListCmd );
+	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 	trap_SendServerCommand( clientNum, commandListCmd );
 	if ( level.locations.enhanced.numUnique )
 		trap_SendServerCommand( clientNum, locationsListCmd );
