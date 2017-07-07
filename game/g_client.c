@@ -3066,23 +3066,23 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"class \"Changes Siege class on current team\" "
 		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
 
-	static char locationsListCmd[MAX_TOKEN_CHARS] = { 0 };
+	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };
 
 	// lazy initialization of the locations strings
 
-	if ( level.locations.enhanced.numUnique && !*locationsListCmd ) {
-		Q_strncpyz( locationsListCmd, "kls -1 -1 locs", sizeof( locationsListCmd ) );
+	if ( level.locations.enhanced.numUnique && !*locationsListConfigString ) {
+		Q_strncpyz( locationsListConfigString, "locs", sizeof( locationsListConfigString ) );
 
 		int i;
 		for ( i = 0; i < level.locations.enhanced.numUnique; ++i ) {
-			Q_strcat( locationsListCmd, sizeof( locationsListCmd ), va( " \"%s\" %d", level.locations.enhanced.data[i].message, level.locations.enhanced.data[i].teamowner ) );
+			Q_strcat( locationsListConfigString, sizeof( locationsListConfigString ), va( " \"%s\" %d", level.locations.enhanced.data[i].message, level.locations.enhanced.data[i].teamowner ) );
 		}
 	}
 
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 	trap_SendServerCommand( clientNum, commandListCmd );
 	if ( level.locations.enhanced.numUnique )
-		trap_SendServerCommand( clientNum, locationsListCmd );
+		trap_SetConfigstring(CS_ENHANCEDLOCATIONS, locationsListConfigString);
 }
 #endif
 
