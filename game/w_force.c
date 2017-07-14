@@ -4761,8 +4761,9 @@ void FindGenericEnemyIndex(gentity_t *self)
 		if (ent && //potential target exists
 			ent->client && //potential target is a client
 			(!ent->client->ps.m_iVehicleNum ||
-				(&g_entities[ent->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type != VH_WALKER && //potential targets's vehicle is not a walker
-				(&g_entities[ent->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) &&//potential target's vehicle is not a fighter
+			(ent->client->ps.m_iVehicleNum > 0 && &g_entities[ent->client->ps.m_iVehicleNum] && g_entities[ent->client->ps.m_iVehicleNum].m_pVehicle && g_entities[ent->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo &&
+				g_entities[ent->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->type != VH_WALKER && //potential targets's vehicle is not a walker
+				g_entities[ent->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER)) &&//potential target's vehicle is not a fighter
 			ent->inuse && //potential target is connected to the server
             (ent->s.number != self->s.number) && 
             (ent->health > 0) && 
