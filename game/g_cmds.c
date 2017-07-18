@@ -6229,6 +6229,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_fixPitKills.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_fixRancorCharge");
 	ServerCfgColor(string, g_fixRancorCharge.integer, ent);
+	Com_sprintf(string, sizeof(string), "g_fixShield");
+	ServerCfgColor(string, g_fixShield.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_fixSiegeScoring");
 	ServerCfgColor(string, g_fixSiegeScoring.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_fixVoiceChat");

@@ -437,16 +437,35 @@ void CreateShield(gentity_t *ent)
 	}
 	ent->r.currentOrigin[2] += (height >> 1);
 
+	int xHalfHeightUp, yHalfHeightUp;
+	switch (g_fixShield.integer) {
+	case 0: // g_fixShield 0 ==> basejka behavior (y-axis shields are taller, although clients do not draw/predict it properly)
+		xHalfHeightUp = (height >> 1);
+		yHalfHeightUp = height;
+		break;
+	case 1: // g_fixShield 1 ==> all shields are fixed (basejka x-axis shield behavior is applied to all shields)
+		xHalfHeightUp = yHalfHeightUp = (height >> 1);
+		break;
+	default: // g_fixShield 2 ==> all shields are broken (basejka y-axis shield behavior is applied to all shields)
+		xHalfHeightUp = yHalfHeightUp = height;
+		break;
+	}
+
+#ifdef NEWMOD_SUPPORT
+	if ((xaxis && xHalfHeightUp == height) || (!xaxis && yHalfHeightUp == height))
+		ent->s.trickedentindex2 = 1;
+#endif
+
 	// set entity's mins and maxs to new values, make it solid, and link it
 	if (xaxis)
 	{
 		VectorSet(ent->r.mins, -halfWidth, -SHIELD_HALFTHICKNESS, -(height >> 1));
-		VectorSet(ent->r.maxs, halfWidth, SHIELD_HALFTHICKNESS, height >> 1);
+		VectorSet(ent->r.maxs, halfWidth, SHIELD_HALFTHICKNESS, xHalfHeightUp);
 	}
 	else
 	{
 		VectorSet(ent->r.mins, -SHIELD_HALFTHICKNESS, -halfWidth, -(height >> 1));
-		VectorSet(ent->r.maxs, SHIELD_HALFTHICKNESS, halfWidth, height);
+		VectorSet(ent->r.maxs, SHIELD_HALFTHICKNESS, halfWidth, yHalfHeightUp);
 	}
 	ent->clipmask = MASK_SHOT;
 	if (debug_shieldLog.integer)
