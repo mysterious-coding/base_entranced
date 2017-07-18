@@ -454,6 +454,8 @@ void CreateShield(gentity_t *ent)
 #ifdef NEWMOD_SUPPORT
 	if ((xaxis && xHalfHeightUp == height) || (!xaxis && yHalfHeightUp == height))
 		ent->s.trickedentindex2 = 1;
+	else
+		ent->s.trickedentindex2 = 0;
 #endif
 
 	// set entity's mins and maxs to new values, make it solid, and link it
