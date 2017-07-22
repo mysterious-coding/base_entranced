@@ -103,22 +103,14 @@ void P_DamageFeedback( gentity_t *player ) {
 			percent = player->health;
 		}
 		// disguise HP amounts before sending them to clients
-		if (percent < 25) { //0-24
+		if (percent < 25) //0-24
 			percent = 24;
-			Com_Printf("percent is between 0 and 24\n");
-		}
-		else if (percent < 50) { //25-49
+		else if (percent < 50) //25-49
 			percent = 49;
-			Com_Printf("percent is between 25 and 49\n");
-		}
-		else if (percent < 75) { //50-74
+		else if (percent < 75) //50-74
 			percent = 74;
-			Com_Printf("percent is between 50 and 74\n");
-		}
-		else { //75 +
+		else //75 +
 			percent = 100;
-			Com_Printf("percent 75 or higher\n");
-		}
 		G_AddEvent(player, EV_PAIN, percent);
 
 		client->ps.damageEvent++;
