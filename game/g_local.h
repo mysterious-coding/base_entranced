@@ -2236,7 +2236,6 @@ extern vmCvar_t		g_showDuelHealths;
 // *CHANGE 12* allowing/disabling cvars
 extern vmCvar_t		g_protectQ3Fill;
 extern vmCvar_t		g_protectQ3FillIPLimit;
-extern vmCvar_t		g_protectHPhack;
 extern vmCvar_t		g_protectCallvoteHack;
 extern vmCvar_t		g_maxIPConnected;
 extern vmCvar_t		g_minimumVotesCount;

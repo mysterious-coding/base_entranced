@@ -93,26 +93,33 @@ void P_DamageFeedback( gentity_t *player ) {
 		P_SetTwitchInfo(client);
 		player->pain_debounce_time = level.time + 700;
 
-		// *CHANGE 100* anti HP hack - HP is not seen by everyone
-		if (!g_protectHPhack.integer){ //0
-			G_AddEvent( player, EV_PAIN, player->health );
-		} else if(g_protectHPhack.integer == 2){//3
-			G_AddEvent( player, EV_PAIN, Q_irand(1, 100) );
-		} else if(g_protectHPhack.integer == 3){//2
-			int health = player->health;
-			if ( health < 25 ) { //0-24
-				health = 24;
-			} else if ( health < 50 ) { //25-49
-				health = 49;
-			} else if ( health < 75 ) { //50-74
-				health = 74;
-			} else { //75 +
-				health = 100;
-			}
-			G_AddEvent( player, EV_PAIN, health );
-		} else {//1
-			G_AddEvent( player, EV_PAIN, 100 );
+		int percent;
+		if (g_gametype.integer == GT_SIEGE && client->siegeClass != -1) { // get accurate health percentages for siege classes whose starting/max HP isn't 100
+			siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
+			if (scl && scl->maxhealth > 0)
+				percent = (int)(100.0f * ((double)player->health / (double)scl->maxhealth));
 		}
+		else {
+			percent = player->health;
+		}
+		// disguise HP amounts before sending them to clients
+		if (percent < 25) { //0-24
+			percent = 24;
+			Com_Printf("percent is between 0 and 24\n");
+		}
+		else if (percent < 50) { //25-49
+			percent = 49;
+			Com_Printf("percent is between 25 and 49\n");
+		}
+		else if (percent < 75) { //50-74
+			percent = 74;
+			Com_Printf("percent is between 50 and 74\n");
+		}
+		else { //75 +
+			percent = 100;
+			Com_Printf("percent 75 or higher\n");
+		}
+		G_AddEvent(player, EV_PAIN, percent);
 
 		client->ps.damageEvent++;
 

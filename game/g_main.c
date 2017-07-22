@@ -355,7 +355,6 @@ Enhanced mod server cvars
 vmCvar_t	g_cleverFakeDetection;
 vmCvar_t	g_protectQ3Fill;
 vmCvar_t	g_protectQ3FillIPLimit;
-vmCvar_t	g_protectHPhack;
 vmCvar_t	g_maxIPConnected;
 vmCvar_t	g_protectCallvoteHack;
 vmCvar_t    g_minimumVotesCount;
@@ -687,7 +686,6 @@ static cvarTable_t		gameCvarTable[] = {
 		// *CHANGE 12* allowing/disabling cvars
 	{ &g_protectQ3Fill,	"g_protectQ3Fill"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_protectQ3FillIPLimit,	"g_protectQ3FillIPLimit"	, "3"	, CVAR_ARCHIVE, 0, qtrue },
-	{ &g_protectHPhack,	"g_protectHPhack"	, "3"	, CVAR_ARCHIVE, 0, qtrue },
 
 
 	{ &g_protectCallvoteHack,	"g_protectCallvoteHack"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
