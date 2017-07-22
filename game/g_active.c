@@ -2042,7 +2042,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					&& ent->client->saber[1].model 
 					&& ent->client->saber[1].model[0] )
 				{//turn on second saber
-					G_Sound( ent, CHAN_WEAPON, ent->client->saber[1].soundOn && ent->client->ps.weapon == WP_SABER);
+					G_Sound( ent, CHAN_WEAPON, ent->client->saber[1].soundOn);
 				}
 				else if ( ent->client->ps.saberHolstered == 2 && ent->client->ps.weapon == WP_SABER)
 				{//turn on first
