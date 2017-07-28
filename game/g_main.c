@@ -810,7 +810,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_fixShield, "g_fixShield", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixShield, "g_fixShield", "1", CVAR_ARCHIVE, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight3, "debug_testHeight3", "0", CVAR_ARCHIVE, 0, qtrue },
