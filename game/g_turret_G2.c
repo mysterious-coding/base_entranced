@@ -376,6 +376,7 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		bolt->methodOfDeath = MOD_TARGET_LASER;
 		bolt->splashMethodOfDeath = MOD_TARGET_LASER;
 		bolt->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+		bolt->parent = ent; // duo: fix teamkilling with splash due to no parent
 
 		VectorSet( bolt->r.maxs, 1.5, 1.5, 1.5 );
 		VectorScale( bolt->r.maxs, -1, bolt->r.mins );
