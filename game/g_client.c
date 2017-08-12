@@ -2134,21 +2134,27 @@ Creates and sends the server command necessary to update the CS index for the
 given client
 ===============
 */
-static void G_SendConfigstring( int clientNum, int configstringNum, char *extra )
+// if overrideCs is qtrue, inStr will *be* the new cs at that index; otherwise, it will simply be appended
+static void G_SendConfigstring( int clientNum, int configstringNum, char *inStr, qboolean overrideCs )
 {
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS )
 		return;
 
 	int maxChunkSize = MAX_STRING_CHARS - 24, len;
 	char configstring[16384] = { 0 };
-	trap_GetConfigstring( configstringNum, configstring, sizeof( configstring ) );
-
-	if ( !configstring[0] ) {
-		return; // fix: sometimes cs is empty, this prevents unpinning them client side
+	if (overrideCs) {
+		Q_strncpyz(configstring, inStr, sizeof(configstring));
 	}
+	else {
+		trap_GetConfigstring(configstringNum, configstring, sizeof(configstring));
 
-	if ( extra && *extra ) {
-		Q_strcat( configstring, sizeof( configstring ), extra );
+		if (!configstring[0]) {
+			return; // fix: sometimes cs is empty, this prevents unpinning them client side
+		}
+
+		if (VALIDSTRING(inStr)) {
+			Q_strcat(configstring, sizeof(configstring), inStr);
+		}
 	}
 
 	len = strlen( configstring );
@@ -2502,6 +2508,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
+	unsigned long long int totalHash = 0;
 	if ( ent->r.svFlags & SVF_BOT ) {
 		s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i",
 			client->pers.netname, team, model,  c1, c2, 
@@ -2509,8 +2516,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader, className, saberName, saber2Name, client->sess.duelTeam, client->sess.siegeDesiredTeam );
 	} else {
 		// compute and send a uniqueid
-		int ipHash = 0, guidHash = 0;
-		unsigned long long int totalHash;
+		int ipHash = 0, guidHash = 0;\
 		SHA1Context ctx;
 		SHA1Reset( &ctx );
 
@@ -2569,8 +2575,8 @@ void ClientUserinfoChanged( int clientNum ) {
 				}
 
 				// they only need to see it once for it to be set
-				G_SendConfigstring( clientNum, CS_SYSTEMINFO, va( "\\sex\\%d", guidHash ) );
-				G_SendConfigstring( clientNum, CS_SYSTEMINFO, NULL );
+				G_SendConfigstring( clientNum, CS_SYSTEMINFO, va( "\\sex\\%d", guidHash ), qfalse );
+				G_SendConfigstring( clientNum, CS_SYSTEMINFO, NULL, qfalse );
 			}
 		}
 		totalHash = ((unsigned long long int) ipHash) << 32 | guidHash;
@@ -2605,7 +2611,30 @@ void ClientUserinfoChanged( int clientNum ) {
 #endif
 	}
 
-	trap_SetConfigstring( CS_PLAYERS+clientNum, s );
+	trap_SetConfigstring(CS_PLAYERS + clientNum, s); // set it on the server
+	if (g_gametype.integer == GT_SIEGE && g_delayClassUpdate.integer && !(ent->r.svFlags & SVF_BOT)) {
+		int i;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT)
+				continue;
+			qboolean pregame = (level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2) ? qtrue : qfalse;
+			if (OnOppositeTeam(client, &level.clients[i]) && (level.inSiegeCountdown || client->sess.spawnedSiegeClass[0] && client->sess.spawnedSiegeModel[0] && Q_stricmp(className, client->sess.spawnedSiegeClass))) {
+				// this guy doesn't get to see our real class yet
+				s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\id\\%llu",
+					client->pers.netname, client->sess.sessionTeam, pregame ? "kyle" : client->sess.spawnedSiegeModel, c1, c2,
+					pregame ? 100 : client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, pregame ? "" : client->sess.spawnedSiegeClass, pregame ? "Kyle" : saberName, pregame ? "none" : saber2Name, client->sess.duelTeam,
+					client->sess.siegeDesiredTeam, totalHash);
+			}
+			else {
+				// teammate; show him our real class
+				s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\id\\%llu",
+					client->pers.netname, client->sess.sessionTeam, model, c1, c2,
+					client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, className, saberName, saber2Name, client->sess.duelTeam,
+					client->sess.siegeDesiredTeam, totalHash);
+			}
+			G_SendConfigstring(i, CS_PLAYERS + clientNum, s, qtrue);
+		}
+	}
 
 	if (modelChanged) //only going to be true for allowable server-side custom skeleton cases
 	{ //update the server g2 instance if appropriate
@@ -4826,6 +4855,8 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->client->sess.skillBoost = 0;
+	memset(&ent->client->sess.spawnedSiegeClass, 0, sizeof(ent->client->sess.spawnedSiegeClass));
+	memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
 	ent->client->sess.whitelistStatus = WHITELIST_UNKNOWN;
 	ent->r.contents = 0;
 	level.clientUniqueIds[clientNum] = 0;

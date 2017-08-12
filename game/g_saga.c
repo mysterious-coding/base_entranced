@@ -1191,6 +1191,17 @@ void SiegeRespawn(gentity_t *ent)
 		CheckForClassesExceedingLimits(ent->client->sess.siegeDesiredTeam);
 
 	level.lastLegitClass[ent - g_entities] = bgSiegeClasses[ent->client->siegeClass].playerClass;
+
+	if (ent->client->sess.siegeClass[0])
+		Q_strncpyz(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass, sizeof(ent->client->sess.spawnedSiegeClass));
+	else
+		memset(&ent->client->sess.spawnedSiegeClass, 0, sizeof(ent->client->sess.spawnedSiegeClass));
+	siegeClass_t *scl = BG_SiegeFindClassByName(ent->client->sess.spawnedSiegeClass);
+	if (scl && scl->forcedModel[0])
+		Q_strncpyz(ent->client->sess.spawnedSiegeModel, scl->forcedModel, sizeof(ent->client->sess.spawnedSiegeModel));
+	else
+		memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
+
 	if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
 	{
 		SetTeamQuick(ent, ent->client->sess.siegeDesiredTeam, qtrue);
@@ -1440,6 +1451,7 @@ void SiegeCheckTimers(void)
 
 	if (!gSiegeRoundBegun)
 	{
+		static qboolean forcedInfoReload = qfalse;
 		if (!numTeam1 && !numTeam2)
 		{ //don't have people on both teams yet.
 			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
@@ -1471,6 +1483,7 @@ void SiegeCheckTimers(void)
 						g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost, g_entities[i].client->sess.skillBoost > 0 ? "^2+" : "^1", g_entities[i].client->sess.skillBoost * 100));
 				}
 			}
+			forcedInfoReload = qfalse;
 		}
 		else if (gSiegeBeginTime > (level.time + SIEGE_ROUND_BEGIN_TIME))
 		{
@@ -1498,6 +1511,13 @@ void SiegeCheckTimers(void)
 				level.siegeStage = SIEGESTAGE_PREROUND1;
 			else
 				level.siegeStage = SIEGESTAGE_PREROUND2;
+			if (!forcedInfoReload && g_delayClassUpdate.integer) { // it's now countdown, so force a resend of userinfo to hide classes for people already joined
+				forcedInfoReload = qtrue;
+				for (i = 0; i < MAX_CLIENTS; i++) {
+					if (level.clients[i].pers.connected && !(g_entities[i].r.svFlags & SVF_BOT))
+						ClientUserinfoChanged(i);
+				}
+			}
 		}
 	}
 }

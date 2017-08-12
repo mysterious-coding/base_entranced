@@ -265,6 +265,29 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	return qfalse;
 }
 
+team_t GetRealTeam(gclient_t *cl) {
+	if (!cl)
+		return TEAM_SPECTATOR;
+	if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
+		return TEAM_FREE; // there aren't really spectators in duel/powerduel; everyone is forced to play
+	if (g_gametype.integer == GT_SIEGE) {
+		if (cl->sess.sessionTeam == TEAM_RED || cl->sess.sessionTeam == TEAM_BLUE)
+			return cl->sess.sessionTeam; // during the round
+		if (level.inSiegeCountdown && (cl->sess.siegeDesiredTeam == TEAM_RED || cl->sess.siegeDesiredTeam == TEAM_BLUE))
+			return cl->sess.siegeDesiredTeam; // during the countdown
+		return TEAM_SPECTATOR; // a true spectator
+	}
+	return cl->sess.sessionTeam;
+}
+
+qboolean OnOppositeTeam(gclient_t *cl1, gclient_t *cl2) {
+	team_t t1 = GetRealTeam(cl1);
+	team_t t2 = GetRealTeam(cl2);
+	if ((t1 == TEAM_RED && t2 == TEAM_BLUE) || (t1 == TEAM_BLUE && t2 == TEAM_RED))
+		return qtrue;
+	return qfalse;
+}
+
 
 static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
 

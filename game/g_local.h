@@ -574,6 +574,8 @@ typedef struct {
 	int			updateUITime;		// only update userinfo for FP/SL if < level.time
 	qboolean	teamLeader;			// true when this client is a team leader
 	char		siegeClass[64];
+	char		spawnedSiegeClass[64]; // siege class we successfully spawned as at least once
+	char		spawnedSiegeModel[64]; // model for this class
 	char		saberType[64];
 	char		saber2Type[64];
 	int			duelTeam;
@@ -1907,6 +1909,8 @@ typedef enum {
 // g_team.c
 //
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
+team_t GetRealTeam(gclient_t *cl);
+qboolean OnOppositeTeam(gclient_t *cl1, gclient_t *cl2);
 void Team_CheckDroppedItem( gentity_t *dropped );
 
 //
@@ -2362,6 +2366,7 @@ extern vmCvar_t    g_teamOverlayUpdateRate;
 extern vmCvar_t    g_lockdown;
 extern vmCvar_t    g_hothRebalance;
 extern vmCvar_t    g_fixShield;
+extern vmCvar_t    g_delayClassUpdate;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

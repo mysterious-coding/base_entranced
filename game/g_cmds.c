@@ -951,6 +951,9 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	// execute the team change
 	//
 
+	memset(&client->sess.spawnedSiegeClass, 0, sizeof(client->sess.spawnedSiegeClass));
+	memset(&client->sess.spawnedSiegeModel, 0, sizeof(client->sess.spawnedSiegeModel));
+
 	// if the player was dead leave the body
 	if ( client->ps.stats[STAT_HEALTH] <= 0 && client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		MaintainBodyQueue(ent);

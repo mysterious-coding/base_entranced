@@ -188,6 +188,7 @@ vmCvar_t	g_lockdown;
 vmCvar_t	siegeStatus;
 vmCvar_t	g_hothRebalance;
 vmCvar_t	g_fixShield;
+vmCvar_t	g_delayClassUpdate;
 
 vmCvar_t	g_classLimits;
 vmCvar_t	oAssaultLimit;
@@ -807,6 +808,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_delayClassUpdate, "g_delayClassUpdate", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
