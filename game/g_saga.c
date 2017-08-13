@@ -1192,6 +1192,8 @@ void SiegeRespawn(gentity_t *ent)
 
 	level.lastLegitClass[ent - g_entities] = bgSiegeClasses[ent->client->siegeClass].playerClass;
 
+	qboolean needUpdateInfo = g_delayClassUpdate.integer && (Q_stricmp(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass) || Q_stricmp(ent->client->sess.spawnedSiegeModel, ent->client->modelname)) ? qtrue : qfalse;
+
 	if (ent->client->sess.siegeClass[0])
 		Q_strncpyz(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass, sizeof(ent->client->sess.spawnedSiegeClass));
 	else
@@ -1201,6 +1203,9 @@ void SiegeRespawn(gentity_t *ent)
 		Q_strncpyz(ent->client->sess.spawnedSiegeModel, scl->forcedModel, sizeof(ent->client->sess.spawnedSiegeModel));
 	else
 		memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
+
+	if (needUpdateInfo)
+		ClientUserinfoChanged(ent - g_entities);
 
 	if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
 	{
