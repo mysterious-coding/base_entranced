@@ -271,7 +271,7 @@ If qfalse is returned, *obstacle will be the blocking entity
 ============
 */
 extern void NPC_RemoveBody(gentity_t *self);
-
+extern void charge_stick(gentity_t *self, gentity_t *other, trace_t *trace);
 qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle) {
 	int			i, e;
 	gentity_t	*check;
@@ -348,7 +348,8 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 			}
 			// see if the ent's bbox is inside the pusher's final position
 			// this does allow a fast moving object to pass through a thin entity...
-			if (!G_TestEntityPosition(check)) {
+			gentity_t *touchingEnt = G_TestEntityPosition(check);
+			if (!touchingEnt || touchingEnt != pusher) { // duodebug
 				continue;
 			}
 		}
