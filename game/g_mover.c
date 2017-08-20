@@ -271,7 +271,7 @@ If qfalse is returned, *obstacle will be the blocking entity
 ============
 */
 extern void NPC_RemoveBody(gentity_t *self);
-extern void charge_stick(gentity_t *self, gentity_t *other, trace_t *trace);
+
 qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle) {
 	int			i, e;
 	gentity_t	*check;
