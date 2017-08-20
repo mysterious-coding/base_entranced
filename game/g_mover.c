@@ -349,7 +349,7 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 			// see if the ent's bbox is inside the pusher's final position
 			// this does allow a fast moving object to pass through a thin entity...
 			gentity_t *touchingEnt = G_TestEntityPosition(check);
-			if (!touchingEnt || touchingEnt != pusher) { // duodebug
+			if (!touchingEnt || touchingEnt != pusher) {
 				continue;
 			}
 		}
