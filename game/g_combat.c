@@ -2167,6 +2167,75 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				return qtrue;
 			}
 		}
+		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
+			if (!level.totalObjectivesCompleted && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= 440 && self->client->ps.origin[0] <= 560 &&
+				self->client->ps.origin[1] >= -1775 && self->client->ps.origin[1] <= -1500 &&
+				self->client->ps.origin[2] >= 90 && self->client->ps.origin[2] <= 360 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
+				//killed in doorway of first obj
+				qboolean foundLock = qfalse;
+				int j;
+				for (j = 0; j < MAX_GENTITIES; j++) {
+					gentity_t *lock = &g_entities[j];
+					if (!Q_stricmp(lock->targetname, "locker") && !Q_stricmp(lock->classname, "func_breakable") && lock->health > 0) {
+						foundLock = qtrue;
+						break;
+					}
+				}
+				if (!foundLock) {
+					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+					self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+					++attacker->client->pers.teamState.saves;
+				}
+			}
+			else if (level.totalObjectivesCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= 2865 && self->client->ps.origin[0] <= 2985 &&
+				self->client->ps.origin[1] >= -2010 && self->client->ps.origin[1] <= -1804 &&
+				self->client->ps.origin[2] >= 100 && self->client->ps.origin[2] <= 250 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
+				//killed in doorway of 2nd obj
+				int j;
+				for (j = 0; j < MAX_GENTITIES; j++) {
+					gentity_t *counter = &g_entities[j];
+					if (!Q_stricmp(counter->targetname, "Obj2_Relay") && !Q_stricmp(counter->classname, "target_counter")) {
+						if (!counter->count) {
+							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+							++attacker->client->pers.teamState.saves;
+						}
+						break;
+					}
+				}
+			}
+			else if (level.totalObjectivesCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
+				//killed while hacking with <= 500 ms remaining on 4th obj hack
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+			}
+			else if (level.totalObjectivesCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
+				self->client->ps.origin[0] >= 112 && self->client->ps.origin[0] <= 320 &&
+				self->client->ps.origin[1] >= 4150 && self->client->ps.origin[1] <= 4300 &&
+				self->client->ps.origin[2] >= 330 && self->client->ps.origin[2] <= 900 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
+				//killed in lift of 5th obj
+				int j;
+				for (j = 0; j < MAX_GENTITIES; j++) {
+					gentity_t *lift = &g_entities[j];
+					if (!Q_stricmp(lift->targetname, "lift5") && !Q_stricmp(lift->classname, "func_door")) {
+						if (lift->moverState == MOVER_1TO2) {
+							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+							++attacker->client->pers.teamState.saves;
+						}
+						break;
+					}
+				}
+			}
+		}
 		break;
 
 	case REWARD_ASSIST:
