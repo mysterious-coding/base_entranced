@@ -1237,6 +1237,7 @@ typedef struct {
 	int			totalObjectivesCompleted;
 	qboolean	wallCompleted;
 	qboolean	zombies;
+	qboolean	narStationBreached[2];
 
 	gentity_t	*killerOfLastDesertComputer;
 

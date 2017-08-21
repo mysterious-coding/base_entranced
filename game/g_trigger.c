@@ -130,6 +130,8 @@ extern qboolean gSiegeRoundBegun;
 void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
 void multi_trigger( gentity_t *ent, gentity_t *activator ) 
 {
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	qboolean haltTrigger = qfalse;
 	short i1, i2;
 	if ( ent->think == multi_trigger_run )
@@ -216,8 +218,6 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 					{ //The carrier of the item is not on the team which disallows objective scoring for it
 						if (objItem->target3 && objItem->target3[0])
 						{ //if it has a target3, fire it off instead of using the trigger
-							vmCvar_t	mapname;
-							trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 							if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(objItem->target3, "c3podeliverprint"))
 							{
 								//droid part on desert
@@ -407,11 +407,25 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
 	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2") && (!Q_stricmp(ent->target, "commandcenterdooractual") || !Q_stricmp(ent->target, "ccturrets")))
 	{
+		return;
+	}
+
+	if (activator && activator->client && !Q_stricmp(mapname.string, "siege_narshaddaa") && !Q_stricmp(ent->target, "station2breached")) {
+		if (activator->client->ps.origin[1] < 8500 && !level.narStationBreached[0]) {
+			trap_SendServerCommand(-1, "cp \"Research station 1 breached!\n\"");
+			level.narStationBreached[0] = qtrue;
+		}
+		else if (activator->client->ps.origin[1] >= 8500 && !level.narStationBreached[1]) {
+			trap_SendServerCommand(-1, "cp \"Research station 2 breached!\n\"");
+			level.narStationBreached[1] = qtrue;
+		}
+		if (level.narStationBreached[0] && level.narStationBreached[1]) {
+			ent->r.contents &= ~CONTENTS_TRIGGER;
+			ent->think = 0;
+			ent->use = 0;
+		}
 		return;
 	}
 
