@@ -2187,6 +2187,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 					self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 					++attacker->client->pers.teamState.saves;
+					return qtrue;
 				}
 			}
 			else if (level.totalObjectivesCompleted == 1 && self->client->sess.sessionTeam == TEAM_RED &&
@@ -2203,6 +2204,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 							++attacker->client->pers.teamState.saves;
+							return qtrue;
 						}
 						break;
 					}
@@ -2215,6 +2217,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 			else if (level.totalObjectivesCompleted == 4 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= 112 && self->client->ps.origin[0] <= 320 &&
@@ -2230,6 +2233,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 							++attacker->client->pers.teamState.saves;
+							return qtrue;
 						}
 						break;
 					}
