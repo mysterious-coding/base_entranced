@@ -5483,16 +5483,17 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// siege stats
+	int adjustedTake = Com_Clampi(take + asave, targ->health + asave, take + asave); // so damage dealt doesn't exceed the target's maximum health (e.g. rocketing someone with 1 hp == 1 damage)
 	if (attacker && attacker->client && targ) {
 		char currentMap[MAX_QPATH] = { 0 };
 		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
 		// hoth
 		if (!Q_stricmpn(currentMap, "mp/siege_hoth", 13)) {
 			// atst
-			if (attacker->client->sess.sessionTeam == TEAM_BLUE && targ->m_pVehicle) {
+			if (attacker->client->sess.sessionTeam == TEAM_BLUE && targ->s.NPC_class == CLASS_VEHICLE) {
 				if (!targ->atstKilled) { // don't credit if atst is already on fire
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_ATSTDMG] += (take + asave);
-					if (targ->health - (take + asave) <= 0) {
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_ATSTDMG] += adjustedTake;
+					if (targ->health - adjustedTake <= 0) {
 						targ->atstKilled = qtrue;
 						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_ATSTKILL]++;
 					}
@@ -5501,71 +5502,71 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			// shield gen + cc
 			if (attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 				if (!Q_stricmp(targ->paintarget, "shieldgen_underattack"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_GENDMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_GENDMG] += adjustedTake;
 				else if (!Q_stricmp(targ->paintarget, "comcentercounter_attack"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CCDMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CCDMG] += adjustedTake;
 			}
 		}
 		// desert
 		else if (!Q_stricmp(currentMap, "mp/siege_desert") && attacker->client->sess.sessionTeam == TEAM_RED) {
 			if (VALIDSTRING(targ->paintarget)) {
 				if (!Q_stricmp(targ->paintarget, "wallattack"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_WALLDMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_WALLDMG] += adjustedTake;
 				else if (!Q_stricmp(targ->paintarget, "rancorgateattack"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += adjustedTake;
 			}
 			else if (VALIDSTRING(targ->target4)) {
 				if (!Q_stricmp(targ->target4, "b1counter"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION1DMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION1DMG] += adjustedTake;
 				else if (!Q_stricmp(targ->target4, "b2counter"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION2DMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION2DMG] += adjustedTake;
 				else if (!Q_stricmp(targ->target4, "b3counter"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION3DMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_STATION3DMG] += adjustedTake;
 			}
 			else if (targ->spawnflags == 96 && targ->teamnodmg == TEAM_BLUE && !VALIDSTRING(targ->healingclass))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += adjustedTake;
 		}
 		// korriban
 		else if (!Q_stricmp(currentMap, "mp/siege_korriban")) {
 			if (attacker->client->sess.sessionTeam == TEAM_RED) {
 				if (VALIDSTRING(targ->paintarget)) {
 					if (!Q_stricmp(targ->paintarget, "firstgateattack"))
-						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_TEMPLEGATEDMG] += (take + asave);
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_TEMPLEGATEDMG] += adjustedTake;
 					else if (!Q_stricmp(targ->paintarget, "scepterrrom_attack_print")) // raven @ spelling bee champions
-						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_SCEPTERGATEDMG] += (take + asave);
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_SCEPTERGATEDMG] += adjustedTake;
 					else if (!Q_stricmp(targ->paintarget, "altarroom_attack_print"))
-						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_ALTARGATEDMG] += (take + asave);
+						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_ALTARGATEDMG] += adjustedTake;
 				}
 				else if (VALIDSTRING(targ->targetname) && !Q_stricmp(targ->targetname, "ragnos_coffin"))
-					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_COFFINDMG] += (take + asave);
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_COFFINDMG] += adjustedTake;
 			}
 		}
 		// nar shaddaa
 		else if (!Q_stricmp(currentMap, "siege_narshaddaa") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "rstation1attacked"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION1DMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION1DMG] += adjustedTake;
 			else if (!Q_stricmp(targ->paintarget, "rstation2attacked"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION2DMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION2DMG] += adjustedTake;
 		}
 		// cargo2
 		else if (!Q_stricmp(currentMap, "siege_cargobarge2") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "obj2_under_a_tack"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_ARRAYDMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_ARRAYDMG] += adjustedTake;
 			else if (!Q_stricmp(targ->paintarget, "powernode1attack"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE1DMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE1DMG] += adjustedTake;
 			else if (!Q_stricmp(targ->paintarget, "powernode2attack"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE2DMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE2DMG] += adjustedTake;
 		}
 		// bespin
 		else if (!Q_stricmpn(currentMap, "mp/siege_bespin", 15) && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->target)) {
 			if (!Q_stricmp(targ->target, "UnlockDoor"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_LOCKDMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_LOCKDMG] += adjustedTake;
 			else if (!Q_stricmpn(targ->target, "breakpanel", 10))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PANELDMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PANELDMG] += adjustedTake;
 			else if (!Q_stricmp(targ->target, "obj3"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_GENDMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_GENDMG] += adjustedTake;
 			else if (!Q_stricmp(targ->target, "obj6"))
-				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PODDMG] += (take + asave);
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PODDMG] += adjustedTake;
 		}
 	}
 
@@ -5575,16 +5576,16 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		&& mod > MOD_UNKNOWN && mod <= MOD_FORCE_DARK) {
 		// TODO: do we want other kinds of damage?
 		// TODO: it does not count rage or protect reduction...
-		targ->client->pers.damageTaken += (take + asave);
-		attacker->client->pers.damageCaused += (take + asave);
+		targ->client->pers.damageTaken += adjustedTake;
+		attacker->client->pers.damageCaused += adjustedTake;
 		if (g_gametype.integer == GT_SIEGE) {
 			if (attacker->client->sess.sessionTeam == TEAM_RED && targ->client->sess.sessionTeam == TEAM_BLUE && !attacker->NPC && !targ->NPC) {
-				targ->client->sess.siegeStats.dDamageTaken[GetSiegeStatRound()] += (take + asave);
-				attacker->client->sess.siegeStats.oDamageDealt[GetSiegeStatRound()] += (take + asave);
+				targ->client->sess.siegeStats.dDamageTaken[GetSiegeStatRound()] += adjustedTake;
+				attacker->client->sess.siegeStats.oDamageDealt[GetSiegeStatRound()] += adjustedTake;
 			}
 			else if (attacker->client->sess.sessionTeam == TEAM_BLUE && targ->client->sess.sessionTeam == TEAM_RED && !attacker->NPC && !targ->NPC) {
-				targ->client->sess.siegeStats.oDamageTaken[GetSiegeStatRound()] += (take + asave);
-				attacker->client->sess.siegeStats.dDamageDealt[GetSiegeStatRound()] += (take + asave);
+				targ->client->sess.siegeStats.oDamageTaken[GetSiegeStatRound()] += adjustedTake;
+				attacker->client->sess.siegeStats.dDamageDealt[GetSiegeStatRound()] += adjustedTake;
 			}
 		}
 	}
