@@ -258,6 +258,7 @@ void InitSiegeMode(void)
 	level.totalObjectivesCompleted = 0;
 	level.wallCompleted = qfalse;
 	level.siegeRoundComplete = qfalse;
+	memset(&level.narStationBreached, qfalse, sizeof(level.narStationBreached));
 	level.killerOfLastDesertComputer = NULL;
 
 	//reset
