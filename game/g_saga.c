@@ -1560,10 +1560,14 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		level.clients[client].ps.persistant[PERS_CAPTURES]++;
 	}
 
-	if (client >= 0 && client < MAX_CLIENTS && objective && &g_entities[client] && g_entities[client].client)
-	{
-		G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
-		g_entities[client].client->sess.siegeStats.caps[GetSiegeStatRound()]++;
+	if (objective) {
+		if (client >= 0 && client < MAX_CLIENTS && g_entities[client].client) {
+			G_LogPrintf("Objective %i completed by client %i (%s)\n", objective, client, g_entities[client].client->pers.netname);
+			g_entities[client].client->sess.siegeStats.caps[GetSiegeStatRound()]++;
+		}
+		else {
+			G_LogPrintf("Objective %i completed by client %i\n", objective, client);
+		}
 	}
 
 	if (gSiegeRoundEnded)
@@ -1820,14 +1824,17 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 
 
-	if (activator)
-	{ //activator will hopefully be the person who triggered this event
-		if (activator->s.NPC_class == CLASS_VEHICLE)
-		{
-			clUser = activator->m_pVehicle->m_pPilot->s.number;
+	if (activator) { //activator will hopefully be the person who triggered this event
+		if (activator->s.NPC_class == CLASS_VEHICLE) { // if a vehicle captured the objective, the pilot should be credited for the objective
+			if (activator->m_pVehicle && activator->m_pVehicle->m_pPilot) {
+				clUser = activator->m_pVehicle->m_pPilot->s.number; // we have a pilot
+			}
+			else if (activator->lastPilot && activator->lastPilot - g_entities >= 0 && activator->lastPilot - g_entities < MAX_CLIENTS &&
+				activator->lastPilot->client && activator->lastPilot->client->pers.connected == CON_CONNECTED) {
+				clUser = activator->lastPilot->s.number; // the vehicle has no pilot, but it previously had a pilot (maybe the vehicle's own momentum carried it in)
+			}
 		}
-		else if (activator->client)
-		{
+		else if (activator->client) {
 			clUser = activator->s.number;
 		}
 	}

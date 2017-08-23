@@ -413,6 +413,7 @@ struct gentity_s {
 
 	qboolean	atstKilled;
 	int			siegeItemCarrierTime;
+	gentity_t	*lastPilot;
 };
 
 #define DAMAGEREDIRECT_HEAD		1

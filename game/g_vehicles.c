@@ -643,7 +643,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	if ( ent->s.number < MAX_CLIENTS )
 	{
 		pVeh->m_pOldPilot = pVeh->m_pPilot;
-
+		parent->lastPilot = ent;
 
 #ifdef _JK2MP
 		if ( !pVeh->m_pPilot )
@@ -1686,6 +1686,7 @@ bool Initialize( Vehicle_t *pVeh )
 	pVeh->m_iBoarding = 0;
 	pVeh->m_bWasBoarding = false;
 	pVeh->m_pOldPilot = NULL;
+	parent->lastPilot = NULL;
 	VectorClear(pVeh->m_vBoardingVelocity);
 	pVeh->m_pPilot = NULL;
 	memset( &pVeh->m_ucmd, 0, sizeof( usercmd_t ) );
