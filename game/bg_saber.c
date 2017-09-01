@@ -2404,11 +2404,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		else if ( pm->cmd.forwardmove < 0 )
 		{//backward= T2B slash//B2T uppercut?
 			if (!noSpecials&&
-#ifdef CTF_CVARS
 				(pm->ps->fd.saberAnimLevel == SS_STAFF || (g_balanceSaber.integer & SB_BACKFLIP)) &&
-#else
-				pm->ps->fd.saberAnimLevel == SS_STAFF &&
-#endif
 				pm->ps->fd.forceRageRecoveryTime < pm->cmd.serverTime &&
 				pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 &&
 				(pm->ps->groundEntityNum != ENTITYNUM_NONE || PM_GroundDistance() <= 40) &&
@@ -2624,11 +2620,7 @@ static qboolean CanSaberAnimKick( void ) {
 		return qtrue; // always true for staff
 	}
 
-#ifdef CTF_CVARS
 	if (!(g_balanceSaber.integer & SB_KICK)) {
-#else
-	if ( 1 ) {
-#endif
 		return qfalse; // basejka behavior
 	}
 	// we can kick if crouching/walking and moving in any direction

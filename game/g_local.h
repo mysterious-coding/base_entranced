@@ -2251,6 +2251,11 @@ extern vmCvar_t		g_minVotersForEvenVotersCount;
 extern vmCvar_t		g_maxNameLength;
 
 #ifdef NEWMOD_SUPPORT
+extern vmCvar_t		g_netUnlock;
+#define NMF_KICK			(1 << 0)
+#define NMF_BACKFLIP		(1 << 1)
+#define NMF_NETUNLOCK		(1 << 2)
+extern vmCvar_t		g_nmFlags;
 extern vmCvar_t		g_enableNmAuth;
 #endif
 
@@ -2267,7 +2272,6 @@ extern vmCvar_t     g_fixGripKills;
 
 extern vmCvar_t		g_allow_vote_customTeams;
 
-#ifdef CTF_CVARS
 // flags for g_balanceSaber
 #define SB_KICK				(1<<0) // kick with all sabers
 #define SB_BACKFLIP			(1<<1) // backflip with all sabers
@@ -2276,7 +2280,6 @@ extern vmCvar_t		g_allow_vote_customTeams;
 
 extern vmCvar_t		g_balanceSaber;
 extern vmCvar_t		g_balanceSeeing;
-#endif
 
 extern vmCvar_t		g_autoSendScores;
 
