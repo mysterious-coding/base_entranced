@@ -2632,6 +2632,11 @@ void ClientUserinfoChanged( int clientNum ) {
 					client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, className, saberName, saber2Name, client->sess.duelTeam,
 					client->sess.siegeDesiredTeam, totalHash);
 			}
+#ifdef NEWMOD_SUPPORT
+			if (client->sess.auth == AUTHENTICATED && client->sess.cuidHash[0]) {
+				s = va("%s\\cid\\%s", s, client->sess.cuidHash);
+			}
+#endif
 			G_SendConfigstring(i, CS_PLAYERS + clientNum, s, qtrue);
 		}
 	}
