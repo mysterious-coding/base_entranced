@@ -96,8 +96,15 @@ void P_DamageFeedback( gentity_t *player ) {
 		int percent;
 		if (g_gametype.integer == GT_SIEGE && client->siegeClass != -1) { // get accurate health percentages for siege classes whose starting/max HP isn't 100
 			siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
-			if (scl && scl->maxhealth > 0)
-				percent = (int)(100.0f * ((double)player->health / (double)scl->maxhealth));
+			int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+			int maxhealth = 0;
+			if (obj && bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].valid && bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].value)
+				maxhealth = bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].value;
+			else
+				maxhealth = bgSiegeClasses[client->siegeClass].mMaxhealth.baseValue;
+
+			if (maxhealth > 0)
+				percent = (int)(100.0f * ((double)player->health / (double)maxhealth));
 		}
 		else {
 			percent = player->health;
@@ -2724,12 +2731,20 @@ void ClientThink_real( gentity_t *ent ) {
 			if (g_gametype.integer == GT_SIEGE &&
 				client->siegeClass != -1)
 			{
-				client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+				int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+				float speedModifier;
+				if (obj && bgSiegeClasses[client->siegeClass].mSpeed.obj[obj - 1].valid && FloatFromInt(bgSiegeClasses[client->siegeClass].mSpeed.obj[obj - 1].value))
+					speedModifier = FloatFromInt(bgSiegeClasses[client->siegeClass].mSpeed.obj[obj - 1].value);
+				else
+					speedModifier = FloatFromInt(bgSiegeClasses[client->siegeClass].mSpeed.baseValue);
+				if (speedModifier <= 0.0f)
+					speedModifier = 1.0f;
+				client->ps.speed = client->ps.speed * speedModifier;
 			}
 
 			if (client->bodyGrabIndex != ENTITYNUM_NONE)
 			{ //can't go nearly as fast when dragging a body around
-				client->ps.speed *= 0.2f;
+				client->ps.speed = client->ps.speed * 0.2f;
 			}
 
 			client->ps.basespeed = client->ps.speed;
@@ -2737,14 +2752,14 @@ void ClientThink_real( gentity_t *ent ) {
 			if (client->holdingObjectiveItem && client->sess.sessionTeam == TEAM_RED && g_entities[client->holdingObjectiveItem].speedMultiplier && g_entities[client->holdingObjectiveItem].speedMultiplier != 1)
 			{
 				//speed multiplier for siege items (team red)
-				client->ps.speed *= g_entities[client->holdingObjectiveItem].speedMultiplier;
+				client->ps.speed = client->ps.speed * g_entities[client->holdingObjectiveItem].speedMultiplier;
 				client->ps.basespeed = client->ps.speed;
 			}
 			else if (client->holdingObjectiveItem && client->sess.sessionTeam == TEAM_BLUE && g_entities[client->holdingObjectiveItem].speedMultiplierTeam2 &&
 				g_entities[client->holdingObjectiveItem].speedMultiplierTeam2 != 1)
 			{
 				//speed multiplier for siege items (team blue)
-				client->ps.speed *= g_entities[client->holdingObjectiveItem].speedMultiplierTeam2;
+				client->ps.speed = client->ps.speed * g_entities[client->holdingObjectiveItem].speedMultiplierTeam2;
 				client->ps.basespeed = client->ps.speed;
 			}
 		}
@@ -2931,7 +2946,7 @@ void ClientThink_real( gentity_t *ent ) {
 				{
 					for (forcePowerNum = 0; forcePowerNum < NUM_FORCE_POWERS; forcePowerNum++)
 					{
-						ent->client->ps.fd.forcePowerLevel[forcePowerNum] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[forcePowerNum];
+						ent->client->ps.fd.forcePowerLevel[forcePowerNum] = bgSiegeClasses[ent->client->siegeClass].mForce.baseValues[forcePowerNum];
 						if (!ent->client->ps.fd.forcePowerLevel[forcePowerNum])
 						{
 							ent->client->ps.fd.forcePowersKnown &= ~(1 << forcePowerNum);
@@ -2945,8 +2960,26 @@ void ClientThink_real( gentity_t *ent ) {
 				if (ent->client->siegeClass != -1)
 				{
 					//valid siege class
-					ent->client->ps.stats[STAT_HEALTH] = ent->health = bgSiegeClasses[ent->client->siegeClass].maxhealth;
-					ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].startarmor;
+					int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+					int starthealth;
+					if (obj && bgSiegeClasses[ent->client->siegeClass].mStarthealth.obj[obj - 1].valid && bgSiegeClasses[ent->client->siegeClass].mStarthealth.obj[obj - 1].value)
+						starthealth = bgSiegeClasses[ent->client->siegeClass].mStarthealth.obj[obj - 1].value;
+					else
+						starthealth = bgSiegeClasses[ent->client->siegeClass].mStarthealth.baseValue;
+					if (starthealth <= 0)
+						starthealth = 100;
+
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = starthealth;
+
+					int startarmor;
+					if (obj && bgSiegeClasses[ent->client->siegeClass].mStartarmor.obj[obj - 1].valid)
+						startarmor = bgSiegeClasses[ent->client->siegeClass].mStartarmor.obj[obj - 1].value;
+					else
+						startarmor = bgSiegeClasses[ent->client->siegeClass].mStartarmor.baseValue;
+					if (startarmor < 0)
+						startarmor = 0;
+
+					ent->client->ps.stats[STAT_ARMOR] = startarmor;
 				}
 				else
 				{
@@ -2967,7 +3000,16 @@ void ClientThink_real( gentity_t *ent ) {
 				{
 					//valid siege class
 					ent->client->ps.speed = g_speed.value;
-					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+
+					int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+					float speedModifier;
+					if (obj && bgSiegeClasses[ent->client->siegeClass].mSpeed.obj[obj - 1].valid && FloatFromInt(bgSiegeClasses[ent->client->siegeClass].mSpeed.obj[obj - 1].value))
+						speedModifier = FloatFromInt(bgSiegeClasses[ent->client->siegeClass].mSpeed.obj[obj - 1].value);
+					else
+						speedModifier = FloatFromInt(bgSiegeClasses[ent->client->siegeClass].mSpeed.baseValue);
+					if (speedModifier <= 0.0f)
+						speedModifier = 1.0f;
+					client->ps.speed = client->ps.speed * speedModifier;
 					ent->client->ps.basespeed = client->ps.speed;
 				}
 				else
@@ -2991,7 +3033,7 @@ void ClientThink_real( gentity_t *ent ) {
 				{
 					for (forcePowerNum = 0; forcePowerNum < NUM_FORCE_POWERS; forcePowerNum++)
 					{
-						ent->client->ps.fd.forcePowerLevel[forcePowerNum] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[forcePowerNum];
+						ent->client->ps.fd.forcePowerLevel[forcePowerNum] = bgSiegeClasses[ent->client->siegeClass].mForce.baseValues[forcePowerNum];
 						if (!ent->client->ps.fd.forcePowerLevel[forcePowerNum])
 						{
 							ent->client->ps.fd.forcePowersKnown &= ~(1 << forcePowerNum);
@@ -3005,8 +3047,26 @@ void ClientThink_real( gentity_t *ent ) {
 				if (ent->client->siegeClass != -1)
 				{
 					//valid siege class
-					ent->client->ps.stats[STAT_HEALTH] = ent->health = bgSiegeClasses[ent->client->siegeClass].maxhealth;
-					ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].startarmor;
+					int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+					int starthealth;
+					if (obj && bgSiegeClasses[ent->client->siegeClass].mStarthealth.obj[obj - 1].valid && bgSiegeClasses[ent->client->siegeClass].mStarthealth.obj[obj - 1].value)
+						starthealth = bgSiegeClasses[ent->client->siegeClass].mStarthealth.obj[obj - 1].value;
+					else
+						starthealth = bgSiegeClasses[ent->client->siegeClass].mStarthealth.baseValue;
+					if (starthealth <= 0)
+						starthealth = 100;
+
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = starthealth;
+
+					int startarmor;
+					if (obj && bgSiegeClasses[ent->client->siegeClass].mStartarmor.obj[obj - 1].valid)
+						startarmor = bgSiegeClasses[ent->client->siegeClass].mStartarmor.obj[obj - 1].value;
+					else
+						startarmor = bgSiegeClasses[ent->client->siegeClass].mStartarmor.baseValue;
+					if (startarmor < 0)
+						startarmor = 0;
+
+					ent->client->ps.stats[STAT_ARMOR] = startarmor;
 				}
 				else
 				{
@@ -3027,7 +3087,15 @@ void ClientThink_real( gentity_t *ent ) {
 				{
 					//valid siege class
 					ent->client->ps.speed = g_speed.value;
-					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+					int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+					float speedModifier;
+					if (obj && bgSiegeClasses[ent->client->siegeClass].mSpeed.obj[obj - 1].valid && FloatFromInt(bgSiegeClasses[ent->client->siegeClass].mSpeed.obj[obj - 1].value))
+						speedModifier = FloatFromInt(bgSiegeClasses[ent->client->siegeClass].mSpeed.obj[obj - 1].value);
+					else
+						speedModifier = FloatFromInt(bgSiegeClasses[ent->client->siegeClass].mSpeed.baseValue);
+					if (speedModifier <= 0.0f)
+						speedModifier = 1.0f;
+					client->ps.speed = client->ps.speed * speedModifier;
 					ent->client->ps.basespeed = client->ps.speed;
 				}
 				else

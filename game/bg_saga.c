@@ -594,11 +594,11 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 	{
 		if (allPowers)
 		{
-			siegeClass->forcePowerLevels[i] = FORCE_LEVEL_3;
+			siegeClass->mForce.baseValues[i] = FORCE_LEVEL_3;
 		}
 		else
 		{
-			siegeClass->forcePowerLevels[i] = 0;
+			siegeClass->mForce.baseValues[i] = 0;
 		}
 		i++;
 	}
@@ -664,7 +664,7 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 				{
 					if (!Q_stricmp(checkPower, FPTable[k].name))
 					{ //found it, add the weapon into the weapons value
-						siegeClass->forcePowerLevels[k] = parsedLevel;
+						siegeClass->mForce.baseValues[k] = parsedLevel;
 						break;
 					}
 					k++;
@@ -754,12 +754,97 @@ char *classTitles[SPC_MAX] =
 "heavy_weapons",	// SPC_HEAVY_WEAPONS
 };
 
+static void *ParseWeaponsFunc(const char *s, void *defaultvalue) {
+	static int weapons;
+	weapons = BG_SiegeTranslateGenericTable((char *)s, WPTable, qtrue);
+
+	// make sure it has melee if there's no saber
+	if (!(weapons & (1 << WP_SABER)))
+		weapons |= (1 << WP_MELEE);
+
+	return (void *)&weapons;
+}
+
+static void *ParseForcepowersFunc(const char *s, void *defaultValue) {
+	static siegeClass_t scl;
+	memset(&scl, 0, sizeof(scl));
+	BG_SiegeTranslateForcePowers((char *)s, &scl);
+
+	return (void *)&scl;
+}
+
+static void *ParseHoldablesFunc(const char *s, void *defaultValue) {
+	static int holdables;
+	holdables = BG_SiegeTranslateGenericTable((char *)s, HoldableTable, qtrue);
+
+	return (void *)&holdables;
+}
+
+static void *ParseIntegerFunc(const char *s, void *defaultValue) {
+	static int result;
+	result = atoi(s);
+
+	if (result <= 0 && defaultValue)
+		result = *((int *)defaultValue);
+
+	return (void *)&result;
+}
+
+static void *ParseFloatFunc(const char *s, void *defaultValue) {
+	static float result;
+	result = atof(s);
+
+	if (result <= 0.0f && defaultValue)
+		result = *((float *)defaultValue);
+
+	return (void *)&result;
+}
+
+// parses a parameter in a siege class file (.scl) such as "weapons" (as well as all obj-specific variants, e.g. "weapons_obj1", "weapons_obj2", etc.)
+// and fills in the requested struct with this data
+static void ParseMutableSiegeParam(const char *info, const char *key, void *parseFunc(const char *, void *), void *defaultValue, void *fill, qboolean required) {
+	assert(info);
+	assert(key);
+	assert(&parseFunc);
+	assert(fill);
+	char buf[4096] = { 0 };
+	int i, j;
+
+	// parse the base value
+	qboolean gotBaseValue = BG_SiegeGetPairedValue((char *)info, (char *)key, buf);
+	if (required && !gotBaseValue)
+		Com_Error(ERR_DROP, "Siege class without %s entry", key);
+	if (parseFunc == &ParseForcepowersFunc) { // special case for force powers
+		siegeClass_t *scl = (siegeClass_t *)((*parseFunc)(buf, defaultValue));
+		for (i = 0; i < NUM_FORCE_POWERS; i++)
+			((MutableSiegeForce *)fill)->baseValues[i] = scl->mForce.baseValues[i];
+	}
+	else {
+		((MutableSiegeParam *)fill)->baseValue = *((int *)((*parseFunc)(buf, defaultValue)));
+	}
+
+	// parse the objective-specific values
+	for (i = 0; i < 16; i++) {
+		memset(&buf, 0, sizeof(buf));
+		char *param = va("%s_obj%i", key, i + 1);
+		if (parseFunc == &ParseForcepowersFunc) { // special case for force powers
+			((MutableSiegeForce *)fill)->obj[i].valid = BG_SiegeGetPairedValue((char *)info, param, buf);
+			siegeClass_t *scl = ((MutableSiegeForce *)fill)->obj[i].valid ? (siegeClass_t *)((*parseFunc)(buf, defaultValue)) : NULL;
+			for (j = 0; j < NUM_FORCE_POWERS; j++)
+				((MutableSiegeForce *)fill)->obj[i].values[j] = ((MutableSiegeForce *)fill)->obj[i].valid ? scl->mForce.baseValues[j] : 0;
+		}
+		else {
+			((MutableSiegeParam *)fill)->obj[i].valid = BG_SiegeGetPairedValue((char *)info, param, buf);
+			((MutableSiegeParam *)fill)->obj[i].value = ((MutableSiegeParam *)fill)->obj[i].valid ? *((int *)((*parseFunc)(buf, defaultValue))) : 0;
+		}
+	}
+
+}
 
 void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 {
 	fileHandle_t f;
-	int len;
-	int i;
+	int i, len;
 	char classInfo[4096];
 	char parseBuf[4096];
 
@@ -791,10 +876,12 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 
 	BG_SiegeGetValueGroup(classInfo, "ClassInfo", classInfo);
 
+	siegeClass_t *scl = &bgSiegeClasses[bgNumSiegeClasses];
+
 	//Parse name
 	if (BG_SiegeGetPairedValue(classInfo, "name", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].name, parseBuf);
+		strcpy(scl->name, parseBuf);
 	}
 	else
 	{
@@ -804,247 +891,175 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	//Parse forced model
 	if (BG_SiegeGetPairedValue(classInfo, "model", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].forcedModel, parseBuf);
+		strcpy(scl->forcedModel, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].forcedModel[0] = 0;
+		scl->forcedModel[0] = 0;
 	}
 
 	//Parse forced skin
 	if (BG_SiegeGetPairedValue(classInfo, "skin", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].forcedSkin, parseBuf);
+		strcpy(scl->forcedSkin, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].forcedSkin[0] = 0;
+		scl->forcedSkin[0] = 0;
 	}
 
 	//Parse first saber
 	if (BG_SiegeGetPairedValue(classInfo, "saber1", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].saber1, parseBuf);
+		strcpy(scl->saber1, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].saber1[0] = 0;
+		scl->saber1[0] = 0;
 	}
 
 	//Parse second saber
 	if (BG_SiegeGetPairedValue(classInfo, "saber2", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].saber2, parseBuf);
+		strcpy(scl->saber2, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].saber2[0] = 0;
+		scl->saber2[0] = 0;
 	}
 
 	//Parse forced saber stance
 	if (BG_SiegeGetPairedValue(classInfo, "saberstyle", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].saberStance = BG_SiegeTranslateGenericTable(parseBuf, StanceTable, qtrue);
+		scl->saberStance = BG_SiegeTranslateGenericTable(parseBuf, StanceTable, qtrue);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].saberStance = 0;
+		scl->saberStance = 0;
 	}
 
 	//Parse forced saber color
 	if (BG_SiegeGetPairedValue(classInfo, "sabercolor", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].forcedSaberColor = atoi(parseBuf);
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaberColor = qtrue;
+		scl->forcedSaberColor = atoi(parseBuf);
+		scl->hasForcedSaberColor = qtrue;
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaberColor = qfalse;
+		scl->hasForcedSaberColor = qfalse;
 	}
 
 	//Parse forced saber2 color
 	if (BG_SiegeGetPairedValue(classInfo, "saber2color", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].forcedSaber2Color = atoi(parseBuf);
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaber2Color = qtrue;
+		scl->forcedSaber2Color = atoi(parseBuf);
+		scl->hasForcedSaber2Color = qtrue;
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaber2Color = qfalse;
+		scl->hasForcedSaber2Color = qfalse;
 	}
 
 	//Parse weapons
-	if (BG_SiegeGetPairedValue(classInfo, "weapons", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].weapons = BG_SiegeTranslateGenericTable(parseBuf, WPTable, qtrue);
-	}
-	else
-	{
-		Com_Error(ERR_DROP, "Siege class without weapons entry");
-	}
-
-	if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & (1 << WP_SABER)))
-	{ //make sure it has melee if there's no saber
-		bgSiegeClasses[bgNumSiegeClasses].weapons |= (1 << WP_MELEE);
-
-		//always give them this too if they are not a saber user
-	}
+	ParseMutableSiegeParam(classInfo, "weapons", &ParseWeaponsFunc, NULL, &scl->mWeapons, qtrue);
 
 	//Parse forcepowers
-	if (BG_SiegeGetPairedValue(classInfo, "forcepowers", parseBuf))
-	{
-		BG_SiegeTranslateForcePowers(parseBuf, &bgSiegeClasses[bgNumSiegeClasses]);
-	}
-	else
-	{ //fine, clear out the powers.
-		i = 0;
-		while (i < NUM_FORCE_POWERS)
-		{
-			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[i] = 0;
-			i++;
-		}
-	}
+	ParseMutableSiegeParam(classInfo, "forcepowers", &ParseForcepowersFunc, NULL, &scl->mForce, qfalse);
 
 	//Parse classflags
 	if (BG_SiegeGetPairedValue(classInfo, "classflags", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].classflags = BG_SiegeTranslateGenericTable(parseBuf, bgSiegeClassFlagNames, qtrue);
+		scl->classflags = BG_SiegeTranslateGenericTable(parseBuf, bgSiegeClassFlagNames, qtrue);
 	}
 	else
 	{ //fine, we'll 0 it.
-		bgSiegeClasses[bgNumSiegeClasses].classflags = 0;
+		scl->classflags = 0;
 	}
 
 	//Parse maxhealth
-	if (BG_SiegeGetPairedValue(classInfo, "maxhealth", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].maxhealth = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 100 then.
-		bgSiegeClasses[bgNumSiegeClasses].maxhealth = 100;
-	}
+	int defaultHealth = 100;
+	ParseMutableSiegeParam(classInfo, "maxhealth", ParseIntegerFunc, &defaultHealth, &scl->mMaxhealth, qfalse);
+	ParseMutableSiegeParam(classInfo, "starthealth", ParseIntegerFunc, NULL, &scl->mStarthealth, qfalse);
 
-	//Parse starthealth
-	if (BG_SiegeGetPairedValue(classInfo, "starthealth", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].starthealth = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 100 then.
-		bgSiegeClasses[bgNumSiegeClasses].starthealth = bgSiegeClasses[bgNumSiegeClasses].maxhealth;
+	// check that the mapmaker didn't enter stupid health values
+	if (scl->mMaxhealth.baseValue <= 0)
+		scl->mMaxhealth.baseValue = defaultHealth;
+	if (scl->mStarthealth.baseValue <= 0)
+		scl->mStarthealth.baseValue = scl->mMaxhealth.baseValue;
+	for (i = 0; i < 16; i++) {
+		if (scl->mMaxhealth.obj[i].valid && scl->mMaxhealth.obj[i].value <= 0) {
+			scl->mMaxhealth.obj[i].value = defaultHealth;
+		}
+		if (scl->mStarthealth.obj[i].valid && scl->mStarthealth.obj[i].value <= 0) {
+			if (scl->mMaxhealth.obj[i].valid)
+				scl->mStarthealth.obj[i].value = scl->mMaxhealth.obj[i].value;
+			else
+				scl->mStarthealth.obj[i].value = scl->mMaxhealth.baseValue;
+		}
 	}
 
 	//Parse ammoblaster
-	if (BG_SiegeGetPairedValue(classInfo, "ammoblaster", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammoblaster = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammoblaster = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammoblaster", ParseIntegerFunc, NULL, &scl->mAmmoblaster, qfalse);
 
 	//Parse ammopowercell
-	if (BG_SiegeGetPairedValue(classInfo, "ammopowercell", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammopowercell = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammopowercell = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammopowercell", ParseIntegerFunc, NULL, &scl->mAmmopowercell, qfalse);
 
 	//Parse ammometallicbolts
-	if (BG_SiegeGetPairedValue(classInfo, "ammometallicbolts", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammometallicbolts = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammometallicbolts = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammometallicbolts", ParseIntegerFunc, NULL, &scl->mAmmometallicbolts, qfalse);
 
 	//Parse ammorockets
-	if (BG_SiegeGetPairedValue(classInfo, "ammorockets", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammorockets = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammorockets = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammorockets", ParseIntegerFunc, NULL, &scl->mAmmorockets, qfalse);
 
 	//Parse ammothermals
-	if (BG_SiegeGetPairedValue(classInfo, "ammothermals", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammothermals = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammothermals = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammothermals", ParseIntegerFunc, NULL, &scl->mAmmothermals, qfalse);
 
 	//Parse ammotripmines
-	if (BG_SiegeGetPairedValue(classInfo, "ammotripmines", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammotripmines = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammotripmines = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammotripmines", ParseIntegerFunc, NULL, &scl->mAmmotripmines, qfalse);
 
 	//Parse ammodetpacks
-	if (BG_SiegeGetPairedValue(classInfo, "ammodetpacks", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "ammodetpacks", ParseIntegerFunc, NULL, &scl->mAmmodetpacks, qfalse);
 
 	//Parse startarmor
-	if (BG_SiegeGetPairedValue(classInfo, "maxarmor", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].maxarmor = atoi(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].maxarmor = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "maxarmor", ParseIntegerFunc, NULL, &scl->mMaxarmor, qfalse);
+	ParseMutableSiegeParam(classInfo, "startarmor", ParseIntegerFunc, NULL, &scl->mStartarmor, qfalse);
 
-	//Parse startarmor
-	if (BG_SiegeGetPairedValue(classInfo, "startarmor", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].startarmor = atoi(parseBuf);
-		if (!bgSiegeClasses[bgNumSiegeClasses].maxarmor)
-		{ //if they didn't specify a damn max armor then use this.
-			bgSiegeClasses[bgNumSiegeClasses].maxarmor = bgSiegeClasses[bgNumSiegeClasses].startarmor;
+	// check that the mapmaker didn't enter stupid armor values
+	if (scl->mMaxarmor.baseValue < 0)
+		scl->mMaxarmor.baseValue = 0;
+	if (scl->mStartarmor.baseValue < 0) {
+		if (scl->mMaxarmor.baseValue)
+			scl->mStartarmor.baseValue = scl->mMaxarmor.baseValue;
+		else
+			scl->mStartarmor.baseValue = 0;
+	}
+	if (scl->mMaxarmor.baseValue && !BG_SiegeGetPairedValue(classInfo, "startarmor", parseBuf)) // start armor = max armor if unspecified
+		scl->mStartarmor.baseValue = scl->mMaxarmor.baseValue;
+	for (i = 0; i < 16; i++) {
+		if (scl->mMaxarmor.obj[i].valid && scl->mMaxarmor.obj[i].value < 0) {
+			scl->mMaxarmor.obj[i].value = 0;
 		}
-	}
-	else
-	{ //default to maxarmor.
-		bgSiegeClasses[bgNumSiegeClasses].startarmor = bgSiegeClasses[bgNumSiegeClasses].maxarmor;
+		if (scl->mStartarmor.obj[i].valid && scl->mStartarmor.obj[i].value < 0) {
+			if (scl->mMaxarmor.obj[i].valid)
+				scl->mStartarmor.obj[i].value = scl->mMaxarmor.obj[i].value;
+			else
+				scl->mStartarmor.obj[i].value = scl->mStartarmor.baseValue;
+		}
+		if (scl->mMaxarmor.obj[i].valid && !BG_SiegeGetPairedValue(classInfo, va("startarmor_obj%i", i + 1), parseBuf)) { // start armor = max armor if unspecified (per-obj)
+			scl->mStartarmor.obj[i].valid = qtrue;
+			scl->mStartarmor.obj[i].value = scl->mMaxarmor.obj[i].value;
+		}
 	}
 
 	//Parse speed (this is a multiplier value)
-	if (BG_SiegeGetPairedValue(classInfo, "speed", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].speed = atof(parseBuf);
-	}
-	else
-	{ //It's alright, just default to 1 then.
-		bgSiegeClasses[bgNumSiegeClasses].speed = 1.0f;
-	}
+	float defaultSpeed = 1.0f;
+	ParseMutableSiegeParam(classInfo, "speed", ParseFloatFunc, &defaultSpeed, &scl->mSpeed, qfalse);
 
 	//Parse shader for ui to use
 	if (BG_SiegeGetPairedValue(classInfo, "uishader", parseBuf))
 	{
 #ifdef QAGAME
-		bgSiegeClasses[bgNumSiegeClasses].uiPortraitShader = 0;
-		memset(bgSiegeClasses[bgNumSiegeClasses].uiPortrait,0,sizeof(bgSiegeClasses[bgNumSiegeClasses].uiPortrait));
+		scl->uiPortraitShader = 0;
+		memset(&scl->uiPortrait,0,sizeof(scl->uiPortrait));
 #elif defined CGAME
 		bgSiegeClasses[bgNumSiegeClasses].uiPortraitShader = 0;
 		memset(bgSiegeClasses[bgNumSiegeClasses].uiPortrait,0,sizeof(bgSiegeClasses[bgNumSiegeClasses].uiPortrait));
@@ -1062,7 +1077,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	if (BG_SiegeGetPairedValue(classInfo, "class_shader", parseBuf))
 	{
 #ifdef QAGAME
-		bgSiegeClasses[bgNumSiegeClasses].classShader = 0;
+		scl->classShader = 0;
 #else //cgame, ui
 		bgSiegeClasses[bgNumSiegeClasses].classShader = trap_R_RegisterShaderNoMip(parseBuf);
 		assert( bgSiegeClasses[bgNumSiegeClasses].classShader );
@@ -1091,7 +1106,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 				holdBuf = parseBuf + ( titleLength - arrayTitleLength);
 				if (!strcmp(holdBuf,classTitles[i]))
 				{
-					bgSiegeClasses[bgNumSiegeClasses].playerClass = i;
+					scl->playerClass = i;
 					break;
 				}
 			}
@@ -1099,33 +1114,26 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			// In case the icon name doesn't match up
 			if (i>=SPC_MAX)
 			{
-				bgSiegeClasses[bgNumSiegeClasses].playerClass = SPC_INFANTRY;
+				scl->playerClass = SPC_INFANTRY;
 			}
 		}
 	}
 	else
 	{ //No entry!  Bad bad bad
-		Com_Printf( "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
+		Com_Printf( "ERROR: no class_shader defined for class %s\n", scl->name );
 	}
 
 	//Parse holdable items to use
-	if (BG_SiegeGetPairedValue(classInfo, "holdables", parseBuf))
-	{
-		bgSiegeClasses[bgNumSiegeClasses].invenItems = BG_SiegeTranslateGenericTable(parseBuf, HoldableTable, qtrue);
-	}
-	else
-	{ //Just don't start out with any then.
-		bgSiegeClasses[bgNumSiegeClasses].invenItems = 0;
-	}
+	ParseMutableSiegeParam(classInfo, "holdables", &ParseHoldablesFunc, NULL, &scl->mHoldables, qfalse);
 
 	//Parse powerups to use
 	if (BG_SiegeGetPairedValue(classInfo, "powerups", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].powerups = BG_SiegeTranslateGenericTable(parseBuf, PowerupTable, qtrue);
+		scl->powerups = BG_SiegeTranslateGenericTable(parseBuf, PowerupTable, qtrue);
 	}
 	else
 	{ //Just don't start out with any then.
-		bgSiegeClasses[bgNumSiegeClasses].powerups = 0;
+		scl->powerups = 0;
 	}
 
 	//A successful read.

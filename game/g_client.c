@@ -2468,9 +2468,16 @@ void ClientUserinfoChanged( int clientNum ) {
 		siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
 		maxHealth = 100;
 
-		if (scl->maxhealth)
+		int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+		int maxhealth = 0;
+		if (obj && bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].valid && bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].value)
+			maxhealth = bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].value;
+		else
+			maxhealth = bgSiegeClasses[client->siegeClass].mMaxhealth.baseValue;
+
+		if (maxhealth)
 		{
-			maxHealth = scl->maxhealth;
+			maxHealth = maxhealth;
 		}
 
 		health = maxHealth;
@@ -4090,10 +4097,18 @@ void ClientSpawn(gentity_t *ent) {
 		siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
 		maxHealth = 100;
 
-		if (scl->maxhealth)
+		int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+		int maxhealth = 0;
+		if (obj && bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].valid && bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].value)
+			maxhealth = bgSiegeClasses[client->siegeClass].mMaxhealth.obj[obj - 1].value;
+		else
+			maxhealth = bgSiegeClasses[client->siegeClass].mMaxhealth.baseValue;
+
+		if (maxhealth)
 		{
-			maxHealth = scl->maxhealth;
+			maxHealth = maxhealth;
 		}
+
 	}
 	else
 	{
@@ -4275,7 +4290,12 @@ void ClientSpawn(gentity_t *ent) {
 	{ //well then, we will use a custom weaponset for our class
 		int m = 0;
 
-		client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].weapons;
+		int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+		if (obj && bgSiegeClasses[client->siegeClass].mWeapons.obj[obj - 1].valid)
+			client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].mWeapons.obj[obj - 1].value;
+		else
+			client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].mWeapons.baseValue;
+
 
 		if (Q_stricmp(mapname.string, "mp/siege_korriban") && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && g_forceDTechItems.integer && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == 2 &&
 			((g_forceDTechItems.integer && (g_forceDTechItems.integer == 4 || g_forceDTechItems.integer == 6) ||
@@ -4433,24 +4453,26 @@ void ClientSpawn(gentity_t *ent) {
 						client->ps.weapon = m;
 					}
 				}
-
-				if (m >= WP_BRYAR_PISTOL)
-				{ //Max his ammo out for all the weapons he has.
-					if (g_gametype.integer == GT_SIEGE && m == WP_ROCKET_LAUNCHER && !bgSiegeClasses[ent->client->siegeClass].ammorockets && !(bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)))
-					{
-						if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO) && Q_stricmp(mapname.string, "siege_cargobarge"))
-							//siege_cargobarge (the original one) needs a manual override due to oink being dumb
-							Add_Ammo(ent, AMMO_ROCKETS, 20);
-						else
-							Add_Ammo(ent, AMMO_ROCKETS, 10);
-					}
-					else
-					{
-						Add_Max_Ammo(ent, weaponData[m].ammoIndex);
-					}
-				}
 			}
 			m++;
+		}
+
+		// they get the max ammo for all ammo types, even weapons they don't have
+		ammo_t a;
+		for (a = AMMO_BLASTER; a < AMMO_MAX; a++) {
+			if (a == AMMO_EMPLACED)
+				continue;
+			int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+			if (a == AMMO_ROCKETS &&
+				!(bgSiegeClasses[ent->client->siegeClass].mAmmorockets.baseValue || obj && bgSiegeClasses[ent->client->siegeClass].mAmmorockets.obj[obj - 1].value) && !(bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET))) {
+				if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO) && Q_stricmp(mapname.string, "siege_cargobarge"))
+					Add_Ammo(ent, a, 20); // siege_cargobarge (the original one) needs a manual override due to oink being dumb
+				else
+					Add_Ammo(ent, a, 10); // basejka 10 rockets
+			}
+			else {
+				Add_Max_Ammo(ent, a);
+			}
 		}
 	}
 
@@ -4458,7 +4480,11 @@ void ClientSpawn(gentity_t *ent) {
 		client->siegeClass != -1 &&
 		client->sess.sessionTeam != TEAM_SPECTATOR)
 	{ //use class-specified inventory
-		client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].invenItems;
+		int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+		if (obj && bgSiegeClasses[client->siegeClass].mHoldables.obj[obj - 1].valid)
+			client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].mHoldables.obj[obj - 1].value;
+		else
+			client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].mHoldables.baseValue;
 		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 		if (Q_stricmp(mapname.string, "mp/siege_korriban") && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && g_forceDTechItems.integer && client->sess.sessionTeam == TEAM_BLUE && bgSiegeClasses[client->siegeClass].playerClass == 2 &&
 			((g_forceDTechItems.integer == 5 || g_forceDTechItems.integer == 6 || g_forceDTechItems.integer == 7)
@@ -4546,11 +4572,18 @@ void ClientSpawn(gentity_t *ent) {
 	WP_SpawnInitForcePowers( ent );
 
 	// health will count down towards max_health
+	int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
+	int starthealth = 0;
+	if (obj && bgSiegeClasses[client->siegeClass].mStarthealth.obj[obj - 1].valid && bgSiegeClasses[client->siegeClass].mStarthealth.obj[obj - 1].value)
+		starthealth = bgSiegeClasses[client->siegeClass].mStarthealth.obj[obj - 1].value;
+	else
+		starthealth = bgSiegeClasses[client->siegeClass].mStarthealth.baseValue;
+
 	if (g_gametype.integer == GT_SIEGE &&
 		client->siegeClass != -1 &&
-		bgSiegeClasses[client->siegeClass].starthealth)
+		starthealth)
 	{ //class specifies a start health, so use it
-		ent->health = client->ps.stats[STAT_HEALTH] = bgSiegeClasses[client->siegeClass].starthealth;
+		ent->health = client->ps.stats[STAT_HEALTH] = starthealth;
 	}
 	else if ( g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL )
 	{//only start with 100 health in Duel
@@ -4585,12 +4618,17 @@ void ClientSpawn(gentity_t *ent) {
 		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
 	}
 
+	int startarmor = 0;
+	if (obj && bgSiegeClasses[client->siegeClass].mStartarmor.obj[obj - 1].valid)
+		startarmor = bgSiegeClasses[client->siegeClass].mStartarmor.obj[obj - 1].value;
+	else
+		startarmor = bgSiegeClasses[client->siegeClass].mStartarmor.baseValue;
 	// Start with a small amount of armor as well.
 	if (g_gametype.integer == GT_SIEGE &&
 		client->siegeClass != -1 /*&&
 		bgSiegeClasses[client->siegeClass].startarmor*/)
 	{ //class specifies a start armor amount, so use it
-		client->ps.stats[STAT_ARMOR] = bgSiegeClasses[client->siegeClass].startarmor;
+		client->ps.stats[STAT_ARMOR] = startarmor;
 	}
 	else if ( g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL )
 	{//no armor in duel
