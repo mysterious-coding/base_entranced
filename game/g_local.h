@@ -1540,8 +1540,6 @@ typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
 qboolean G_MapIs(char *s);
 
-float FloatFromInt(int x);
-
 //
 // g_saga.c
 //

@@ -809,10 +809,6 @@ char	*vtos( const vec3_t v ) {
 	return s;
 }
 
-float FloatFromInt(int x) {
-	int	temp = x;
-	return *(float *)&temp;
-}
 
 /*
 ===============

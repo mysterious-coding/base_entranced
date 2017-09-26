@@ -190,42 +190,18 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 				int j = 0;
 				while (j < WP_NUM_WEAPONS)
 				{
-					if (scl->mWeapons.baseValue & (1 << j))
+					if (scl->weapons & (1 << j))
 					{ //we use this weapon so register it.
 						RegisterItem(BG_FindItemForWeapon(j));
-					}
-					else {
-						int k = 0;
-						while (k < 16) {
-							if (scl->mWeapons.obj[k].value & (1 << j))
-							{ //we use this weapon so register it.
-								RegisterItem(BG_FindItemForWeapon(j));
-								goto leaveWeaponLoop;
-							}
-							k++;
-						}
-					leaveWeaponLoop:;
 					}
 					j++;
 				}
 				j = 0;
 				while (j < HI_NUM_HOLDABLE)
 				{
-					if (scl->mHoldables.baseValue & (1 << j))
+					if (scl->invenItems & (1 << j))
 					{ //we use this item so register it.
 						RegisterItem(BG_FindItemForHoldable(j));
-					}
-					else {
-						int k = 0;
-						while (k < 16) {
-							if (scl->mHoldables.obj[k].value & (1 << j))
-							{ //we use this weapon so register it.
-								RegisterItem(BG_FindItemForHoldable(j));
-								goto leaveHoldableLoop;
-							}
-							k++;
-						}
-					leaveHoldableLoop:;
 					}
 					j++;
 				}
@@ -1335,6 +1311,37 @@ void SiegeBeginRound(int entNum)
 
 	level.antiLamingTime = 0;
 
+
+	// if round 1, reset both round 1 and round 2 cvars
+	// if round 2, reset only round 2 cvars
+	int i, j, currentRound = CurrentSiegeRound();
+	for (i = 2; i >= currentRound; i--) {
+		trap_Cvar_Set(va("siege_r%i_objscompleted", currentRound), "");
+		trap_Cvar_Set(va("siege_r%i_heldformaxat", currentRound), "");
+		trap_Cvar_Set(va("siege_r%i_heldformaxtime", currentRound), "");
+		trap_Cvar_Set(va("siege_r%i_total", currentRound), "");
+		for (j = 1; j <= MAX_STATS - 1; j++) {
+			trap_Cvar_Set(va("siege_r%i_obj%i", i, j), "");
+		}
+		for (j = 0; j < MAX_CLIENTS; j++) {
+			level.clients[j].sess.siegeStats.caps[i - 1] = 0;
+			level.clients[j].sess.siegeStats.saves[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oKills[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dKills[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oDeaths[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dDeaths[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oDamageDealt[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oDamageTaken[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dDamageDealt[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dDamageTaken[i - 1] = 0;
+			level.clients[j].sess.siegeStats.killer = -1;
+			level.clients[j].sess.siegeStats.maxes[i - 1] = 0;
+			level.clients[j].sess.siegeStats.maxed[i - 1] = 0;
+			level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
+			memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
+		}
+	}
+
 	level.siegeMatchWinner = SIEGEMATCHWINNER_NONE;
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
 }
@@ -1464,35 +1471,6 @@ void SiegeCheckTimers(void)
 				level.siegeStage = SIEGESTAGE_PREROUND1;
 			else
 				level.siegeStage = SIEGESTAGE_PREROUND2;
-			// if round 1, reset both round 1 and round 2 cvars
-			// if round 2, reset only round 2 cvars
-			int i, j, currentRound = CurrentSiegeRound();
-			for (i = 2; i >= currentRound; i--) {
-				trap_Cvar_Set(va("siege_r%i_objscompleted", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_heldformaxat", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_heldformaxtime", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_total", currentRound), "");
-				for (j = 1; j <= MAX_STATS - 1; j++) {
-					trap_Cvar_Set(va("siege_r%i_obj%i", i, j), "");
-				}
-				for (j = 0; j < MAX_CLIENTS; j++) {
-					level.clients[j].sess.siegeStats.caps[i - 1] = 0;
-					level.clients[j].sess.siegeStats.saves[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oKills[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dKills[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDeaths[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDeaths[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDamageDealt[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDamageTaken[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDamageDealt[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDamageTaken[i - 1] = 0;
-					level.clients[j].sess.siegeStats.killer = -1;
-					level.clients[j].sess.siegeStats.maxes[i - 1] = 0;
-					level.clients[j].sess.siegeStats.maxed[i - 1] = 0;
-					level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
-					memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
-				}
-			}
 		}
 		else if (gSiegeBeginTime < level.time)
 		{ //mark the round as having begun
@@ -1526,35 +1504,6 @@ void SiegeCheckTimers(void)
 				level.siegeStage = SIEGESTAGE_PREROUND1;
 			else
 				level.siegeStage = SIEGESTAGE_PREROUND2;
-			// if round 1, reset both round 1 and round 2 cvars
-			// if round 2, reset only round 2 cvars
-			int i, j, currentRound = CurrentSiegeRound();
-			for (i = 2; i >= currentRound; i--) {
-				trap_Cvar_Set(va("siege_r%i_objscompleted", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_heldformaxat", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_heldformaxtime", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_total", currentRound), "");
-				for (j = 1; j <= MAX_STATS - 1; j++) {
-					trap_Cvar_Set(va("siege_r%i_obj%i", i, j), "");
-				}
-				for (j = 0; j < MAX_CLIENTS; j++) {
-					level.clients[j].sess.siegeStats.caps[i - 1] = 0;
-					level.clients[j].sess.siegeStats.saves[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oKills[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dKills[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDeaths[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDeaths[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDamageDealt[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDamageTaken[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDamageDealt[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDamageTaken[i - 1] = 0;
-					level.clients[j].sess.siegeStats.killer = -1;
-					level.clients[j].sess.siegeStats.maxes[i - 1] = 0;
-					level.clients[j].sess.siegeStats.maxed[i - 1] = 0;
-					level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
-					memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
-				}
-			}
 		}
 		else
 		{
@@ -1568,35 +1517,6 @@ void SiegeCheckTimers(void)
 				level.siegeStage = SIEGESTAGE_PREROUND1;
 			else
 				level.siegeStage = SIEGESTAGE_PREROUND2;
-			// if round 1, reset both round 1 and round 2 cvars
-			// if round 2, reset only round 2 cvars
-			int i, j, currentRound = CurrentSiegeRound();
-			for (i = 2; i >= currentRound; i--) {
-				trap_Cvar_Set(va("siege_r%i_objscompleted", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_heldformaxat", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_heldformaxtime", currentRound), "");
-				trap_Cvar_Set(va("siege_r%i_total", currentRound), "");
-				for (j = 1; j <= MAX_STATS - 1; j++) {
-					trap_Cvar_Set(va("siege_r%i_obj%i", i, j), "");
-				}
-				for (j = 0; j < MAX_CLIENTS; j++) {
-					level.clients[j].sess.siegeStats.caps[i - 1] = 0;
-					level.clients[j].sess.siegeStats.saves[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oKills[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dKills[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDeaths[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDeaths[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDamageDealt[i - 1] = 0;
-					level.clients[j].sess.siegeStats.oDamageTaken[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDamageDealt[i - 1] = 0;
-					level.clients[j].sess.siegeStats.dDamageTaken[i - 1] = 0;
-					level.clients[j].sess.siegeStats.killer = -1;
-					level.clients[j].sess.siegeStats.maxes[i - 1] = 0;
-					level.clients[j].sess.siegeStats.maxed[i - 1] = 0;
-					level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
-					memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
-				}
-			}
 			if (!forcedInfoReload && g_delayClassUpdate.integer) { // it's now countdown, so force a resend of userinfo to hide classes for people already joined
 				forcedInfoReload = qtrue;
 				for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1688,108 +1608,6 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	else
 	{
 		BroadcastObjectiveCompletion(team, objective, final, client);
-
-		/*
-		// see if anyone needs to change loadouts for the new obj
-		int i, n, obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
-		if (obj) {
-			for (i = 0; i < MAX_CLIENTS; i++) {
-				gclient_t *client = &level.clients[i];
-				if (client->pers.connected != CON_CONNECTED ||
-					(client->sess.sessionTeam != TEAM_RED && client->sess.sessionTeam != TEAM_BLUE) ||
-					g_entities[i].health <= 0 ||
-					client->siegeClass == -1) {
-					continue;
-				}
-
-				// weapons
-				if (bgSiegeClasses[level.clients[i].siegeClass].mWeapons.obj[obj - 1].valid)
-					client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].mWeapons.obj[obj - 1].value;
-				else
-					client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].mWeapons.baseValue;
-
-				// if their new loadout does not include their current weapon, force them to change
-				if (!(client->ps.stats[STAT_WEAPONS] & (1 << client->ps.weapon))) {
-					if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
-						client->ps.weapon = WP_SABER;
-					else if (client->ps.stats[STAT_WEAPONS] & (1 << WP_BRYAR_PISTOL))
-						client->ps.weapon = WP_BRYAR_PISTOL;
-					else
-						client->ps.weapon = WP_MELEE;
-
-					// see if they have "prefer" set in userinfo
-					char userinfo[MAX_INFO_STRING], *value;
-					trap_GetUserinfo(i, userinfo, sizeof(userinfo));
-					value = Info_ValueForKey(userinfo, "prefer");
-					int favWeap[16], goodWeaps = 0;
-					if (value && strlen(value) == 15) {
-						for (n = 0; n < 15; n++) {
-							switch (tolower(value[n])) {
-							case 's':	favWeap[n] = WP_SABER;				goodWeaps++;	break;
-							case 'l':	favWeap[n] = WP_MELEE;				goodWeaps++;	break;
-							case 'p':	favWeap[n] = WP_BRYAR_PISTOL;		goodWeaps++;	break;
-							case 'y':	favWeap[n] = WP_BRYAR_OLD;			goodWeaps++;	break;
-							case 'e':	favWeap[n] = WP_BLASTER;			goodWeaps++;	break;
-							case 'u':	favWeap[n] = WP_DISRUPTOR;			goodWeaps++;	break;
-							case 'b':	favWeap[n] = WP_BOWCASTER;			goodWeaps++;	break;
-							case 'i':	favWeap[n] = WP_REPEATER;			goodWeaps++;	break;
-							case 'd':	favWeap[n] = WP_DEMP2;				goodWeaps++;	break;
-							case 'g':	favWeap[n] = WP_FLECHETTE;			goodWeaps++;	break;
-							case 'r':	favWeap[n] = WP_ROCKET_LAUNCHER;	goodWeaps++;	break;
-							case 'c':	favWeap[n] = WP_CONCUSSION;			goodWeaps++;	break;
-							case 't':	favWeap[n] = WP_THERMAL;			goodWeaps++;	break;
-							case 'm':	favWeap[n] = WP_TRIP_MINE;			goodWeaps++;	break;
-							case 'k':	favWeap[n] = WP_DET_PACK;			goodWeaps++;	break;
-							default:	goodWeaps = 0;						break;
-							}
-						}
-					}
-					else {
-						goodWeaps = 0;
-					}
-					if (goodWeaps == 15) {
-						for (n = 0; n < 15; n++) {
-							if (client->ps.stats[STAT_WEAPONS] & (1 << favWeap[n])) {
-								client->ps.weapon = favWeap[n];
-								break;
-							}
-						}
-					}
-					else if (client->ps.weapon != WP_SABER) { // just find the highest-ranking weapon, unless we're holding saber
-						for (n = 0; n < WP_NUM_WEAPONS; n++) {
-							if (client->ps.stats[STAT_WEAPONS] & (1 << n))
-								client->ps.weapon = n;
-						}
-					}
-				}
-
-				// force
-				client->ps.fd.forcePowersKnown = 0;
-				for (n = 0; n < NUM_FORCE_POWERS; n++) {
-					if (obj && bgSiegeClasses[client->siegeClass].mForce.obj[obj - 1].valid) {
-						client->ps.fd.forcePowerLevel[n] = bgSiegeClasses[client->siegeClass].mForce.obj[obj - 1].values[n];
-						if (client->ps.fd.forcePowerLevel[n])
-							client->ps.fd.forcePowersKnown |= (1 << n);
-					}
-					else {
-						client->ps.fd.forcePowerLevel[n] = bgSiegeClasses[client->siegeClass].mForce.baseValues[n];
-						if (client->ps.fd.forcePowerLevel[n])
-							client->ps.fd.forcePowersKnown |= (1 << n);
-					}
-				}
-
-				// if their new loadout does not include their current force power, force them to change
-
-				// holdables
-				//if (bgSiegeClasses[level.clients[i].siegeClass].mHoldables.obj[obj - 1].valid)
-				//	client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].mHoldables.obj[obj - 1].value;
-				//else
-				//	client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].mHoldables.baseValue;
-
-				// if their new loadout does not include their current holdable, force them to change
-			}
-		}
-		*/
 	}
 }
 

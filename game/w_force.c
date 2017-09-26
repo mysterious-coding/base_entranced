@@ -248,7 +248,7 @@ void WP_InitForcePowers( gentity_t *ent )
 	if (g_gametype.integer == GT_SIEGE && !Q_stricmp(mapname.string, "siege_codes") && (bgSiegeClasses[ent->client->siegeClass].playerClass + 10 == CLASSTYPE_JEDI))
 	{
 		//hacky fix to make sure you don't have mind trick on siege_codes
-		bgSiegeClasses[ent->client->siegeClass].mForce.baseValues[FP_TELEPATHY] = 0;
+		bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[FP_TELEPATHY] = 0;
 	}
 
 	if (g_gametype.integer == GT_SIEGE &&
@@ -258,11 +258,7 @@ void WP_InitForcePowers( gentity_t *ent )
 
 		while (i < NUM_FORCE_POWERS)
 		{
-			int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
-			if (obj && bgSiegeClasses[ent->client->siegeClass].mForce.obj[obj - 1].valid)
-				ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].mForce.obj[obj - 1].values[i];
-			else
-				ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].mForce.baseValues[i];
+			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
 
 			if (!ent->client->ps.fd.forcePowerLevel[i])
 			{
@@ -702,11 +698,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 		while (i < NUM_FORCE_POWERS)
 		{
-			int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
-			if (obj && bgSiegeClasses[ent->client->siegeClass].mForce.obj[obj - 1].valid)
-				ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].mForce.obj[obj - 1].values[i];
-			else
-				ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].mForce.baseValues[i];
+			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
 
 			if (!ent->client->ps.fd.forcePowerLevel[i])
 			{

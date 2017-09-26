@@ -58,22 +58,6 @@ typedef struct
 	char		desc[SIEGE_CLASS_DESC_LEN];
 } siegeClassDesc_t;
 
-typedef struct {
-	int				baseValue;
-	struct {
-		qboolean	valid;
-		int			value;
-	} obj[16];
-} MutableSiegeParam;
-
-typedef struct {
-	int				baseValues[NUM_FORCE_POWERS];
-	struct {
-		qboolean	valid;
-		int			values[NUM_FORCE_POWERS];
-	} obj[16];
-} MutableSiegeForce;
-
 typedef struct
 {
 	char		name[512];
@@ -82,31 +66,31 @@ typedef struct
 	char		saber1[64];
 	char		saber2[64];
 	int			saberStance;
-	MutableSiegeParam		mWeapons;
-	MutableSiegeForce		mForce;
-	MutableSiegeParam		mHoldables;
+	int			weapons;
+	int			forcePowerLevels[NUM_FORCE_POWERS];
 	int			classflags;
-	MutableSiegeParam	mMaxhealth;
-	MutableSiegeParam	mStarthealth;
-	MutableSiegeParam	mMaxarmor;
-	MutableSiegeParam	mStartarmor;
-	MutableSiegeParam	mSpeed;
+	int			maxhealth;
+	int			starthealth;
+	int			maxarmor;
+	int			startarmor;
+	float		speed;
 	qboolean	hasForcedSaberColor;
 	int			forcedSaberColor;
 	qboolean	hasForcedSaber2Color;
 	int			forcedSaber2Color;
+	int			invenItems;
 	int			powerups;
 	int			uiPortraitShader;
 	char		uiPortrait[256];
 	int			classShader;
 	short		playerClass;		// SPC_INFANTRY . .. 
-	MutableSiegeParam			mAmmoblaster;
-	MutableSiegeParam			mAmmopowercell;
-	MutableSiegeParam			mAmmometallicbolts;
-	MutableSiegeParam			mAmmorockets;
-	MutableSiegeParam			mAmmothermals;
-	MutableSiegeParam			mAmmotripmines;
-	MutableSiegeParam			mAmmodetpacks;
+	int			ammoblaster;
+	int			ammopowercell;
+	int			ammometallicbolts;
+	int			ammorockets;
+	int			ammothermals;
+	int			ammotripmines;
+	int			ammodetpacks;
 } siegeClass_t;
 
 typedef struct

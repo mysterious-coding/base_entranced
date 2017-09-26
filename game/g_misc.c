@@ -1158,14 +1158,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		&& other->client 
 		&& other->client->siegeClass )
 	{
-		int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
-		int maxarmor = 0;
-		if (obj && bgSiegeClasses[other->client->siegeClass].mMaxarmor.obj[obj - 1].valid && bgSiegeClasses[other->client->siegeClass].mMaxarmor.obj[obj - 1].value)
-			maxarmor = bgSiegeClasses[other->client->siegeClass].mMaxarmor.obj[obj - 1].value;
-		else
-			maxarmor = bgSiegeClasses[other->client->siegeClass].mMaxarmor.baseValue;
-
-		if ( !maxarmor )
+		if ( !bgSiegeClasses[other->client->siegeClass].maxarmor )
 		{//can't use it!
 			G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
 			return;
@@ -1187,13 +1180,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 			&& other->client 
 			&& other->client->siegeClass != -1 )
 		{
-			int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
-			int maxarmor = 0;
-			if (obj && bgSiegeClasses[other->client->siegeClass].mMaxarmor.obj[obj - 1].valid && bgSiegeClasses[other->client->siegeClass].mMaxarmor.obj[obj - 1].value)
-				maxarmor = bgSiegeClasses[other->client->siegeClass].mMaxarmor.obj[obj - 1].value;
-			else
-				maxarmor = bgSiegeClasses[other->client->siegeClass].mMaxarmor.baseValue;
-			maxArmor = maxarmor;
+			maxArmor = bgSiegeClasses[other->client->siegeClass].maxarmor;
 		}
 		else
 		{
@@ -1261,7 +1248,6 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 {
 	int add;
 	int stop = 1;
-	int obj = G_FirstIncompleteObjective(level.siegeStage >= SIEGESTAGE_PREROUND2 ? 2 : 1);
 
 	if (!activator || !activator->client)
 	{
@@ -1305,10 +1291,9 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 					activator->client->ps.ammo[i] = 1;
 				}
 			}
-			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].mAmmorockets.baseValue || obj && bgSiegeClasses[activator->client->siegeClass].mAmmorockets.obj[obj - 1].value) && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
+			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && bgSiegeClasses[activator->client->siegeClass].ammorockets && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
 			{
-				int max = obj && bgSiegeClasses[activator->client->siegeClass].mAmmorockets.obj[obj - 1].value ? bgSiegeClasses[activator->client->siegeClass].mAmmorockets.obj[obj - 1].value : bgSiegeClasses[activator->client->siegeClass].mAmmorockets.baseValue;
-				if (activator->client->ps.ammo[i] < (max * 2))
+				if (activator->client->ps.ammo[i] < (bgSiegeClasses[activator->client->siegeClass].ammorockets * 2))
 				{
 					if (Add_Ammo(activator, i, add) > 0)
 					{
@@ -1317,10 +1302,9 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 					}
 				}
 			}
-			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].mAmmorockets.baseValue || obj && bgSiegeClasses[activator->client->siegeClass].mAmmorockets.obj[obj - 1].value))
+			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && bgSiegeClasses[activator->client->siegeClass].ammorockets)
 			{
-				int max = obj && bgSiegeClasses[activator->client->siegeClass].mAmmorockets.obj[obj - 1].value ? bgSiegeClasses[activator->client->siegeClass].mAmmorockets.obj[obj - 1].value : bgSiegeClasses[activator->client->siegeClass].mAmmorockets.baseValue;
-				if (activator->client->ps.ammo[i] < max)
+				if (activator->client->ps.ammo[i] < bgSiegeClasses[activator->client->siegeClass].ammorockets)
 				{
 					if (Add_Ammo(activator, i, add) > 0)
 					{
