@@ -3337,6 +3337,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "cointoss")) {
     } else if ( !Q_stricmp( arg1, "randomcapts")) {
     } else if ( !Q_stricmp( arg1, "randomteams")) {
+	} else if ( !Q_stricmp( arg1, "shuffleteams")) {
 	} else if ( !Q_stricmp( arg1, "killturrets")) {
 	} else if ( !Q_stricmp( arg1, "zombies")) {
 	} else if (!Q_stricmp(arg1, "pug")) {
@@ -3348,7 +3349,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
 			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, "
-			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam, zombies, lockTeams <numPlayers>\n\"" );
+			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, shuffleteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam, zombies, lockTeams <numPlayers>\n\"" );
 		return;
 	}
 
@@ -3741,9 +3742,32 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         trap_Argv(3, count, sizeof(count));
         team2Count = atoi(count);
 
-        Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
-        Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random Teams - %i vs %i", team1Count, team2Count);
+		if (team1Count > 0 && team2Count > 0) {
+			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random Teams - %i vs %i", team1Count, team2Count);
+		}
     }
+	else if (!Q_stricmp(arg1, "shuffleteams"))
+	{
+		//disable this vote
+		if (!g_allow_vote_randomteams.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Shuffle teams is disabled.\n\"");
+			return;
+		}
+		int team1Count, team2Count;
+		char count[2];
+
+		trap_Argv(2, count, sizeof(count));
+		team1Count = atoi(count);
+
+		trap_Argv(3, count, sizeof(count));
+		team2Count = atoi(count);
+
+		if (team1Count > 0 && team2Count > 0) {
+			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Shuffle Teams - %i vs %i", team1Count, team2Count);
+		}
+	}
 	else if (!Q_stricmp(arg1, "forceround2"))
 	{
 		char count[32];

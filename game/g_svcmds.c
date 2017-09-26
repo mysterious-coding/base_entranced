@@ -2242,7 +2242,7 @@ void Svcmd_Zombies_f()
 
 void Svcmd_RandomTeams_f() {
     int i, j, temp, numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
-    int otherPlayers[32], readyPlayers[32];
+    int otherPlayers[MAX_CLIENTS], readyPlayers[MAX_CLIENTS];
     int team1Count, team2Count;
     char count[2];
 
@@ -2316,6 +2316,113 @@ void Svcmd_RandomTeams_f() {
 
     trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[readyPlayers[0]].client->pers.netname));
     trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[readyPlayers[team1Count]].client->pers.netname));
+}
+
+void Svcmd_ShuffleTeams_f() {
+	unsigned long long oldRedPlayers = 0, oldBluePlayers = 0;
+	int i, j, temp, numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
+	int otherPlayers[MAX_CLIENTS], readyPlayers[MAX_CLIENTS];
+	int team1Count, team2Count;
+	char count[2];
+
+	// TODO: ignore passwordless specs
+	if (trap_Argc() < 3) {
+		return;
+	}
+
+	trap_Argv(1, count, sizeof(count));
+	team1Count = atoi(count);
+
+	trap_Argv(2, count, sizeof(count));
+	team2Count = atoi(count);
+
+	if ((team1Count <= 0) || (team2Count <= 0)) {
+		return;
+	}
+
+	for (i = 0; i < level.maxclients; i++) {
+		if (!g_entities[i].inuse || !g_entities[i].client) {
+			continue;
+		}
+
+		if (g_entities[i].client->sess.sessionTeam == TEAM_RED)
+			oldRedPlayers |= (1llu << (unsigned long long)i);
+		else if (g_entities[i].client->sess.sessionTeam == TEAM_BLUE)
+			oldBluePlayers |= (1llu << (unsigned long long)i);
+
+		if (!g_entities[i].client->pers.ready) {
+			otherPlayers[numberOfOtherPlayers] = i;
+			numberOfOtherPlayers++;
+			continue;
+		}
+
+		readyPlayers[numberOfReadyPlayers] = i;
+		numberOfReadyPlayers++;
+	}
+
+	if (numberOfReadyPlayers < team1Count + team2Count) {
+		trap_SendServerCommand(-1, va("print \"^1Not enough ready players on the server: %i\n\"", numberOfReadyPlayers));
+		return;
+	}
+
+	int tries = 0;
+	unsigned long long newRedPlayers, newBluePlayers;
+	int redCaptain = -1, blueCaptain = -1;
+
+	while (tries < 128) {
+		// fisher-yates shuffle algorithm
+		for (i = numberOfReadyPlayers - 1; i >= 1; i--) {
+			j = rand() % (i + 1);
+			temp = readyPlayers[i];
+			readyPlayers[i] = readyPlayers[j];
+			readyPlayers[j] = temp;
+		}
+
+		newRedPlayers = newBluePlayers = 0llu;
+		redCaptain = blueCaptain = -1;
+
+		for (i = 0; i < team1Count; i++) {
+			newRedPlayers |= (1llu << (unsigned long long)readyPlayers[i]);
+			if (redCaptain == -1)
+				redCaptain = readyPlayers[i];
+		}
+		for (i = team1Count; i < team1Count + team2Count; i++) {
+			newBluePlayers |= (1llu << (unsigned long long)readyPlayers[i]);
+			if (blueCaptain == -1)
+				blueCaptain = readyPlayers[i];
+		}
+
+		if (!oldRedPlayers || !oldBluePlayers)
+			break; // we didn't actually have teams before, so just take the first result
+
+		if (newRedPlayers != oldRedPlayers || newBluePlayers != oldBluePlayers)
+			break; // we got a different result than we had; use it
+
+		tries++;
+	}
+
+	unsigned long long k;
+	for (k = 0llu; k < 32llu; k++) {
+		if (!g_entities[k].inuse || !g_entities[k].client)
+			continue;
+		if (newRedPlayers & (1llu << k)) {
+			if (g_entities[k].client->sess.sessionTeam != TEAM_RED)
+				SetTeam(&g_entities[k], "red", qtrue);
+		}
+		else if (newBluePlayers & (1llu << k)) {
+			if (g_entities[k].client->sess.sessionTeam != TEAM_BLUE)
+				SetTeam(&g_entities[k], "blue", qtrue);
+		}
+		else {
+			if (g_entities[k].client->sess.sessionTeam != TEAM_SPECTATOR)
+				SetTeam(&g_entities[k], "spectator", qtrue);
+		}
+	}
+
+	if (redCaptain != -1)
+		trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[redCaptain].client->pers.netname));
+	if (blueCaptain != -1)
+		trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[blueCaptain].client->pers.netname));
 }
 
 typedef struct
@@ -2934,6 +3041,11 @@ qboolean	ConsoleCommand( void ) {
         Svcmd_RandomTeams_f();
         return qtrue;
     }
+
+	if (!Q_stricmp(cmd, "shuffleteams")) {
+		Svcmd_ShuffleTeams_f();
+		return qtrue;
+	}
 
 	if (!Q_stricmp(cmd, "whois")) {
 		Svcmd_WhoIs_f();
