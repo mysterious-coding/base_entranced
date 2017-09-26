@@ -2395,6 +2395,11 @@ void Svcmd_ShuffleTeams_f() {
 		if (!oldRedPlayers || !oldBluePlayers)
 			break; // we didn't actually have teams before, so just take the first result
 
+		if (numberOfReadyPlayers > 2 && newRedPlayers == oldBluePlayers && newBluePlayers == oldRedPlayers) {
+			tries++;
+			continue; // all we did was swap which team each group of players was on; try again
+		}
+
 		if (newRedPlayers != oldRedPlayers || newBluePlayers != oldBluePlayers)
 			break; // we got a different result than we had; use it
 
