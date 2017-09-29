@@ -2281,6 +2281,8 @@ void Svcmd_RandomTeams_f() {
         return;
     }
 
+	trap_SendServerCommand(-1, "print \"Randomizing teams.\n\"");
+
     // fisher-yates shuffle algorithm
     for (i = numberOfReadyPlayers - 1; i >= 1; i--) {
         j = rand() % (i + 1);
@@ -2364,6 +2366,8 @@ void Svcmd_ShuffleTeams_f() {
 		trap_SendServerCommand(-1, va("print \"^1Not enough ready players on the server: %i\n\"", numberOfReadyPlayers));
 		return;
 	}
+
+	trap_SendServerCommand(-1, "print \"Shuffling teams.\n\"");
 
 	int tries = 0;
 	unsigned long long newRedPlayers, newBluePlayers;
