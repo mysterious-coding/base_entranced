@@ -2373,7 +2373,7 @@ void Svcmd_ShuffleTeams_f() {
 	unsigned long long newRedPlayers, newBluePlayers;
 	int redCaptain = -1, blueCaptain = -1;
 
-	while (tries < 128) {
+	while (tries < 1024) {
 		// fisher-yates shuffle algorithm
 		for (i = numberOfReadyPlayers - 1; i >= 1; i--) {
 			j = rand() % (i + 1);
@@ -2399,9 +2399,9 @@ void Svcmd_ShuffleTeams_f() {
 		if (!oldRedPlayers || !oldBluePlayers)
 			break; // we didn't actually have teams before, so just take the first result
 
-		if (numberOfReadyPlayers > 2 && newRedPlayers == oldBluePlayers && newBluePlayers == oldRedPlayers) {
+		if (numberOfReadyPlayers > 2 && (newRedPlayers == oldBluePlayers || newBluePlayers == oldRedPlayers)) {
 			tries++;
-			continue; // all we did was swap which team each group of players was on; try again
+			continue; // one of the teams was simply the other old team; try again
 		}
 
 		if (newRedPlayers == oldRedPlayers || newBluePlayers == oldBluePlayers) {
