@@ -1340,6 +1340,8 @@ typedef struct {
 	float		mRotationAdjust;
 	char		*mTargetAdjust;
 
+	int			nobodyHereTime;
+
 	char		mTeamFilter[MAX_QPATH];
 
     struct {
@@ -2372,6 +2374,7 @@ extern vmCvar_t    g_lockdown;
 extern vmCvar_t    g_hothRebalance;
 extern vmCvar_t    g_fixShield;
 extern vmCvar_t    g_delayClassUpdate;
+extern vmCvar_t    g_defaultMap;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

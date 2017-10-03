@@ -189,6 +189,7 @@ vmCvar_t	siegeStatus;
 vmCvar_t	g_hothRebalance;
 vmCvar_t	g_fixShield;
 vmCvar_t	g_delayClassUpdate;
+vmCvar_t	g_defaultMap;
 
 vmCvar_t	g_classLimits;
 vmCvar_t	oAssaultLimit;
@@ -809,6 +810,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_delayClassUpdate, "g_delayClassUpdate", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_defaultMap, "g_defaultMap", "", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -5720,6 +5722,30 @@ void G_RunFrame( int levelTime ) {
 		{
 			trap_Cvar_Set("g_maxGameClients", "0");
 			trap_SendServerCommand(-1, va("print \"Teams automatically unlocked due to lack of in-game players.\n\""));
+		}
+	}
+	
+	char currentMap[MAX_QPATH] = { 0 };
+	trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
+	if (g_defaultMap.string[0] && !(currentMap[0] && !Q_stricmp(currentMap, g_defaultMap.string))) {
+		qboolean anyoneConnected = qfalse;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected != CON_DISCONNECTED) {
+				anyoneConnected = qtrue;
+				break;
+			}
+		}
+		if (anyoneConnected) {
+			level.nobodyHereTime = 0;
+		}
+		else {
+			if (!level.nobodyHereTime) {
+				level.nobodyHereTime = level.time;
+			}
+			else if (level.time - level.nobodyHereTime >= 60000) {
+				G_LogPrintf(va("60 seconds passed with nobody connected, reverting to g_defaultMap %s.\n", g_defaultMap.string));
+				trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", g_defaultMap.string));
+			}
 		}
 	}
 
