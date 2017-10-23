@@ -2488,7 +2488,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// check siege stuff
 	if (g_gametype.integer == GT_SIEGE && self && self->client && attacker) {
-		if ((self->client->sess.sessionTeam == TEAM_RED || self->client->sess.sessionTeam == TEAM_BLUE) && ((attacker - g_entities == ENTITYNUM_WORLD && meansOfDeath == MOD_SUICIDE/*vehicle explosion*/) || (attacker->client && self->client->sess.sessionTeam == OtherTeam(attacker->client->sess.sessionTeam))) && self->client->siegeClass != -1 && bgSiegeClasses[self->client->siegeClass].invenItems & (1 << HI_SHIELD))
+		if ((self->client->sess.sessionTeam == TEAM_RED || self->client->sess.sessionTeam == TEAM_BLUE) && ((attacker - g_entities == ENTITYNUM_WORLD && meansOfDeath == MOD_SUICIDE/*vehicle explosion*/) || (attacker->s.eType == ET_NPC && attacker->s.NPC_class == CLASS_VEHICLE) || (attacker->client && self->client->sess.sessionTeam == OtherTeam(attacker->client->sess.sessionTeam))) && self->client->siegeClass != -1 && bgSiegeClasses[self->client->siegeClass].invenItems & (1 << HI_SHIELD))
 			level.canShield[self->client->sess.sessionTeam] = CANSHIELD_YES;
 		if (attacker->client)
 			gaveAward = CheckSiegeKillAwards(self, attacker, meansOfDeath);
@@ -6141,6 +6141,12 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 				attacker->m_pVehicle && attacker->m_pVehicle->m_pPilot)
 			{ //say my pilot did it.
 				G_Damage (ent, NULL, (gentity_t *)attacker->m_pVehicle->m_pPilot, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+			}
+			else if (attacker && attacker->inuse && attacker->client &&
+				attacker->s.eType == ET_NPC && attacker->s.NPC_class == CLASS_VEHICLE &&
+				attacker->m_pVehicle && attacker->lastPilot && attacker->lastPilot - g_entities < MAX_CLIENTS)
+			{ //say my last pilot did it.
+				G_Damage(ent, NULL, attacker->lastPilot, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 			}
 			else
 			{
