@@ -317,7 +317,7 @@ struct gentity_s {
 	int			nextthink;
 	void		(*think)(gentity_t *self);
 	void		(*reached)(gentity_t *self);	// movers call this when hitting endpoint
-	void		(*blocked)(gentity_t *self, gentity_t *other);
+	void		(*blocked)(gentity_t *self, gentity_t *other, gentity_t *blockedBy);
 	void		(*touch)(gentity_t *self, gentity_t *other, trace_t *trace);
 	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
 	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage);
@@ -1525,7 +1525,7 @@ void	G_SendG2KillQueue(void);
 void	G_KillG2Queue(int entNum);
 void	G_FreeEntity( gentity_t *e );
 qboolean	G_EntitiesFree( void );
-void Blocked_Door(gentity_t *ent, gentity_t *other);
+void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy);
 void UnLockDoors(gentity_t *const ent);
 
 qboolean G_ActivateBehavior (gentity_t *self, int bset );

@@ -162,10 +162,12 @@ G_TryPushingEntity
 Returns qfalse if the move is blocked
 ==================
 */
-qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove) {
+qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **blocker) {
 	vec3_t		matrix[3], transpose[3];
 	vec3_t		org, org2, move2;
-	gentity_t	*block;
+	gentity_t	*block, *blockingPlayer = NULL;
+
+	*blocker = NULL;
 
 	//This was only serverside not to mention it was never set.
 	if (pusher->s.apos.trType != TR_STATIONARY//rotating
@@ -218,7 +220,10 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	}
 
 	block = G_TestEntityPosition(check);
-	if (!block) {
+	if (block) {
+		blockingPlayer = block;
+	}
+	else {
 		// pushed ok
 		if (check->client) {
 			VectorCopy(check->client->ps.origin, check->r.currentOrigin);
@@ -255,6 +260,8 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	}
 
 	// blocked
+	if (blockingPlayer && blockingPlayer - g_entities < MAX_CLIENTS)
+		*blocker = blockingPlayer;
 	return qfalse;
 }
 
@@ -272,9 +279,9 @@ If qfalse is returned, *obstacle will be the blocking entity
 */
 extern void NPC_RemoveBody(gentity_t *self);
 
-qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle) {
+qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle, gentity_t **blockedBy) {
 	int			i, e;
-	gentity_t	*check;
+	gentity_t	*check, *blocker = NULL;
 	vec3_t		mins, maxs;
 	pushed_t	*p;
 	int			entityList[MAX_GENTITIES];
@@ -282,7 +289,7 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 	vec3_t		totalMins, totalMaxs;
 
 	*obstacle = NULL;
-
+	*blockedBy = NULL;
 
 	// mins/maxs are the bounds at the destination
 	// totalMins / totalMaxs are the bounds for the entire move
@@ -355,7 +362,7 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 		}
 
 		// the entity needs to be pushed
-		if (G_TryPushingEntity(check, pusher, move, amove)) {
+		if (G_TryPushingEntity(check, pusher, move, amove, &blocker)) {
 			continue;
 		}
 
@@ -426,6 +433,9 @@ qboolean G_MoverPush(gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **o
 			trap_LinkEntity(p->ent);
 		}
 
+		if (blocker)
+			*blockedBy = blocker;
+
 		return qfalse;
 	}
 
@@ -440,10 +450,8 @@ G_MoverTeam
 */
 void G_MoverTeam(gentity_t *ent) {
 	vec3_t		move, amove;
-	gentity_t	*part, *obstacle;
+	gentity_t	*part, *obstacle = NULL, *blockedBy = NULL;
 	vec3_t		origin, angles;
-
-	obstacle = NULL;
 
 	// make sure all team slaves can move before commiting
 	// any moves or calling any think functions
@@ -458,7 +466,7 @@ void G_MoverTeam(gentity_t *ent) {
 		if (!VectorCompare(move, vec3_origin)
 			|| !VectorCompare(amove, vec3_origin))
 		{//actually moved
-			if (!G_MoverPush(part, move, amove, &obstacle)) {
+			if (!G_MoverPush(part, move, amove, &obstacle, &blockedBy)) {
 				break;	// move was blocked
 			}
 		}
@@ -476,7 +484,7 @@ void G_MoverTeam(gentity_t *ent) {
 
 		// if the pusher has a "blocked" function, call it
 		if (ent->blocked) {
-			ent->blocked(ent, obstacle);
+			ent->blocked(ent, obstacle, blockedBy);
 		}
 		return;
 	}
@@ -1041,7 +1049,7 @@ targeted by another entity.
 Blocked_Door
 ================
 */
-void Blocked_Door(gentity_t *ent, gentity_t *other)
+void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy)
 {
 	vmCvar_t mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -1051,7 +1059,11 @@ void Blocked_Door(gentity_t *ent, gentity_t *other)
 		G_Damage(other, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH);
 	}
 	else if (ent->damage) {
-		G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		// duo: properly credit liftkills
+		if (blockedBy && blockedBy - g_entities < MAX_CLIENTS && blockedBy->client && blockedBy->client->pers.connected != CON_DISCONNECTED)
+			G_Damage(other, blockedBy, blockedBy, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		else
+			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
 	}
 
 

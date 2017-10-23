@@ -259,7 +259,7 @@ void Cmd_KillTurrets_f(gentity_t *ent)
 	Svcmd_KillTurrets_f(qtrue);
 }
 
-extern void Blocked_Door(gentity_t *ent, gentity_t *other);
+extern void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy);
 extern void UnLockDoors(gentity_t *const ent);
 
 void Cmd_GreenDoors_f(gentity_t *ent)
