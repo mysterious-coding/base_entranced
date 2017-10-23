@@ -1660,6 +1660,10 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	else
 		dflags = 0;
 
+	// duo: never allow slow fade-to-black fall deaths in siege due to the annoying amount of time they take up and the fact that we are on a respawn timer
+	if (g_gametype.integer == GT_SIEGE && self->damage == -1)
+		self->damage = 99999;
+
 	if (self->damage == -1 && other && other->client)
 	{
 		if (other->client->ps.otherKillerTime > level.time)
