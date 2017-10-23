@@ -98,7 +98,7 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 #### `/g_fixShield`
 0 = bugged basejka shield behavior; shields placed along the x-axis of a map are 25% taller (even though they do not visually reflect it in unpatched client mods)
 
-1 = fixed shield behavior; all shields are correct height
+1 = (default) fixed shield behavior; all shields are correct height
 
 2 = break all shields; all shields are 25% taller
 
