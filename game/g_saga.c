@@ -1484,11 +1484,13 @@ void SiegeCheckTimers(void)
 			level.siegeRoundComplete = qfalse;
 			SiegeBeginRound(i); //perform any round start tasks
 			for (i = 0; i < MAX_CLIENTS; i++) {
-				if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.skillBoost) {
+				if (g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.skillBoost) {
 					trap_SendServerCommand(-1, va("print \"^7%s^7 has a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output).\n\"",
 						g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost, g_entities[i].client->sess.skillBoost > 0 ? "^2+" : "^1", g_entities[i].client->sess.skillBoost * 100));
 				}
 			}
+			level.canShield[TEAM_RED] = CANSHIELD_YES;
+			level.canShield[TEAM_BLUE] = CANSHIELD_YES;
 			forcedInfoReload = qfalse;
 		}
 		else if (gSiegeBeginTime > (level.time + SIEGE_ROUND_BEGIN_TIME))
@@ -1568,6 +1570,8 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		else {
 			G_LogPrintf("Objective %i completed by client %i\n", objective, client);
 		}
+		level.canShield[TEAM_RED] = CANSHIELD_YO_NOTPLACED;
+		level.canShield[TEAM_BLUE] = CANSHIELD_YO_NOTPLACED;
 	}
 
 	if (gSiegeRoundEnded)

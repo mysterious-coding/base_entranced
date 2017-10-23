@@ -177,6 +177,7 @@ vmCvar_t	g_botJumping;
 vmCvar_t	g_fixHothDoorSounds;
 vmCvar_t	iLikeToDoorSpam;
 vmCvar_t	iLikeToMineSpam;
+vmCvar_t	iLikeToShieldSpam;
 vmCvar_t	autocfg_map;
 vmCvar_t	autocfg_unknown;
 vmCvar_t	g_swoopKillPoints;
@@ -802,6 +803,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixHothDoorSounds, "g_fixHothDoorSounds", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &iLikeToDoorSpam, "iLikeToDoorSpam", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &iLikeToMineSpam, "iLikeToMineSpam", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &iLikeToShieldSpam, "iLikeToShieldSpam", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_map, "autocfg_map", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &autocfg_unknown, "autocfg_unknown", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_swoopKillPoints, "g_swoopKillPoints", "0", CVAR_ARCHIVE, 0, qfalse },
@@ -5030,24 +5032,33 @@ void G_RunFrame( int levelTime ) {
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE &&
-		g_siegeRespawn.integer &&
-		level.siegeRespawnCheck < level.time)
-	{ //check for a respawn wave
-		int i = 0;
-		gentity_t *clEnt;
-		while (i < MAX_CLIENTS)
-		{
-			clEnt = &g_entities[i];
+	if (g_gametype.integer == GT_SIEGE && g_siegeRespawn.integer && level.siegeRespawnCheck < level.time) { // check for a respawn wave
+		int i;
+		qboolean hasAliveTech[3] = { qfalse };
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			gentity_t *clEnt = &g_entities[i];
+			if (!clEnt->inuse || !clEnt->client || clEnt->client->sess.sessionTeam == TEAM_SPECTATOR || clEnt->client->sess.sessionTeam == TEAM_FREE)
+				continue;
 
-			if (clEnt->inuse && clEnt->client &&
-                ((clEnt->client->tempSpectate > level.time) || ((clEnt->health <= 0) && (level.time > clEnt->client->respawnTime))) &&
-				clEnt->client->sess.sessionTeam != TEAM_SPECTATOR)
-			{
+			if ((clEnt->client->tempSpectate > level.time) || (clEnt->health <= 0 && level.time > clEnt->client->respawnTime)) {
 				respawn(clEnt);
 				clEnt->client->tempSpectate = 0;
 			}
-			i++;
+			else if (clEnt->client->siegeClass != -1 && bgSiegeClasses[clEnt->client->siegeClass].invenItems & (1 << HI_SHIELD)) {
+				hasAliveTech[clEnt->client->sess.sessionTeam] = qtrue;
+			}
+		}
+
+		for (i = TEAM_RED; i <= TEAM_BLUE; i++) {
+			if (level.canShield[i] == CANSHIELD_YO_NOTPLACED) {	
+				level.canShield[i] = CANSHIELD_YES; // respawn wave hit and this team didn't place yo shield ==> can shield
+			}
+			else if (level.canShield[i] == CANSHIELD_YO_PLACED) {
+				if (hasAliveTech[i])
+					level.canShield[i] = CANSHIELD_NO; // respawn wave hit and this team placed yo shield but didn't die ==> cannot shield
+				else
+					level.canShield[i] = CANSHIELD_YES; // respawn wave hit and this team placed yo shield and died ==> can shield
+			}
 		}
 
 		level.siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;

@@ -1229,6 +1229,12 @@ typedef struct {
 	int lastLegitClass[MAX_CLIENTS];
 	changeClass_t tryChangeClass[MAX_CLIENTS];
 	int teamChangeTime[MAX_CLIENTS];
+	enum {
+		CANSHIELD_NO = 0,
+		CANSHIELD_YES,
+		CANSHIELD_YO_NOTPLACED,
+		CANSHIELD_YO_PLACED
+	} canShield[3];
 
 	int			hangarCompletedTime;
 	qboolean	hangarLiftUsedByDefense;
@@ -2363,6 +2369,7 @@ extern vmCvar_t    g_botJumping;
 extern vmCvar_t    g_fixHothDoorSounds;
 extern vmCvar_t    iLikeToDoorSpam;
 extern vmCvar_t    iLikeToMineSpam;
+extern vmCvar_t    iLikeToShieldSpam;
 extern vmCvar_t    autocfg_map;
 extern vmCvar_t    autocfg_unknown;
 extern vmCvar_t    g_swoopKillPoints;

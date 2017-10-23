@@ -870,9 +870,8 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 
 		client->sess.siegeDesiredTeam = team;
 
-		if (client->sess.sessionTeam != TEAM_SPECTATOR &&
-			team != TEAM_SPECTATOR)
-		{ //not a spectator now, and not switching to spec, so you have to wait til you die.
+		if (client->sess.sessionTeam != TEAM_SPECTATOR && team != TEAM_SPECTATOR) {
+			//not a spectator now, and not switching to spec, so you have to wait til you die.
 			//trap_SendServerCommand( ent-g_entities, va("print \"You will be on the selected team the next time you respawn.\n\"") );
 			qboolean doBegin;
 			if (ent->client->tempSpectate >= level.time)
@@ -6296,6 +6295,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, iLikeToDoorSpam.integer, ent);
 	Com_sprintf(string, sizeof(string), "iLikeToMineSpam");
 	ServerCfgColor(string, iLikeToMineSpam.integer, ent);
+	Com_sprintf(string, sizeof(string), "iLikeToShieldSpam");
+	ServerCfgColor(string, iLikeToShieldSpam.integer, ent);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 

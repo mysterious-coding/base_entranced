@@ -2283,9 +2283,6 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 }
 
 static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int mod) {
-	if (g_gametype.integer != GT_SIEGE)
-		return qfalse;
-
 	// set killer
 	self->client->sess.siegeStats.killer = attacker - g_entities;
 
@@ -2489,10 +2486,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->client->bodyGrabIndex = ENTITYNUM_NONE;
 	self->client->bodyGrabTime = 0;
 
-	//check siege awards stuff
-	if (self && self->client && attacker && attacker->client)
-	{
-		gaveAward = CheckSiegeKillAwards(self, attacker, meansOfDeath);
+	// check siege stuff
+	if (g_gametype.integer == GT_SIEGE && self && self->client && attacker) {
+		if ((self->client->sess.sessionTeam == TEAM_RED || self->client->sess.sessionTeam == TEAM_BLUE) && ((attacker - g_entities == ENTITYNUM_WORLD && meansOfDeath == MOD_SUICIDE/*vehicle explosion*/) || (attacker->client && self->client->sess.sessionTeam == OtherTeam(attacker->client->sess.sessionTeam))) && self->client->siegeClass != -1 && bgSiegeClasses[self->client->siegeClass].invenItems & (1 << HI_SHIELD))
+			level.canShield[self->client->sess.sessionTeam] = CANSHIELD_YES;
+		if (attacker->client)
+			gaveAward = CheckSiegeKillAwards(self, attacker, meansOfDeath);
 	}
 
 	if (self->client->holdingObjectiveItem > 0)
