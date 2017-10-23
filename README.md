@@ -55,6 +55,11 @@ These are unique features for base_entranced.
 
 If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of people who can play a particular class. For example, `/dAssaultLimit 1` limits the number of defense assaults to one, `/oJediLimit 2` limits offense to two jedis, etc. With `/g_classLimits 1`, some automatic overrides for community maps will be applied from bsp files and from hardcoded limits in the server mod itself.
 
+#### `/g_delayClassUpdate`
+0 = instantly broadcast class changes
+
+1 = (default) instantly broadcast class changes to teammates; delay class change broadcast for enemies until after the respawn. Prevents the stupid "oh you changed class 150ms before the respawn? Let me counter you by changing class 140ms before the respawn" garbage.
+
 #### `/g_siegeTiebreakEnd`
 0 = (default) no tiebreaking rules (JK3 default)
 
@@ -80,10 +85,22 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 
 1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door (bonus points for "was planting, bro" excuse) (default JK3)
 
+#### `/iLikeToShieldSpam`
+0 = (default) shield spam prohibited; you have to be killed by an enemy or walker explosion to place a new shield. You can place a new shield at each objective, with one freebie ("Yo shield") during the 20 seconds immediately after an objective.
+
+1 = shield spam allowed, have fun getting shield spammed
+
 #### `/g_autoKorribanSpam`
 0 = spam-related cvars are unaffected by map
 
 1 = (default) `/iLikeToDoorSpam` and `/iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
+
+#### `/g_fixShield`
+0 = bugged basejka shield behavior; shields placed along the x-axis of a map are 25% taller (even though they do not visually reflect it in unpatched client mods)
+
+1 = fixed shield behavior; all shields are correct height
+
+2 = break all shields; all shields are 25% taller
 
 #### `/g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
@@ -214,6 +231,9 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 0 = (default) if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, nothing will happen.
 
 1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback (if it exists).
+
+#### `/g_defaultMap`
+If specified, the server will change to this map after 60 seconds of being empty.
 
 #### `/g_hothRebalance`
 0 = (default) hoth classes are unchanged
@@ -584,6 +604,19 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed issues with turrets tracking players who are cloaked or changed teams.
 * Turret icons are now removed if the turret is destroyed and cannot respawn.
 * A small sound is now played when dispensing an ammo canister.
+* Fixed "using" mind trick when no enemy players were around.
+* The correct pain sounds are now used for Siege (HP-percentage-based instead of HP-based).
+* Fixed turrets teamkilling with splash damage.
+* Fixed detpacks exploding when near a mover but not touching it.
+* Fixed incorrect "station breached" messages on siege_narshaddaa.
+* Fixed server crash when capturing an objective with a vehicle that has no pilot.
+* Fixed being able to suicide by pistoling the walker.
+* Lift kills now properly credit the killer.
+* Falling deaths on certain maps now use the correct "fell to their death"/"thrown to their doom" message instead of generic "died"/"killed" message.
+* 3-second-long fade-to-black falling deaths are now filtered to instant deaths in Siege.
+* Filtered map callvotes to lowercase.
+* Hoth map vote is automatically filtered to hoth2 if the server has it.
+* Fixed SQL DB lag present in base_enhanced.
 
 # Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, so they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
@@ -616,10 +649,21 @@ Teams are automatically unlocked at intermission, or if there are 0 players in-g
 #### `/g_teamOverlayUpdateRate`
 The interval in milliseconds for teamoverlay data to be updated and sent out to clients. Defaults to 250 (JK3 default is 1000).
 
-#### `/g_enforceNetSettings`
-0 = don't change any client net settings
+#### `/g_balanceSaber` (bitflag cvar)
+0 = (default) basejka saber moves
 
--1 = (default) clients who have bad net settings (`/rate`, `/snaps`, `/cl_maxpackets`) will have their settings automatically overridden so they get better ping
+1 = all saber stances can use kick move
+
+2 = all saber stances can use backflip move
+
+4 = using saber offense level 1 grants you all three saber stances
+
+8 = (just for screwing around, not recommended) using saber offense level 2/3 grants you Tavion/Desann stance
+
+#### `/g_balanceSeeing`
+0 = (default) basejka force sense behavior
+
+1 = when crouching with saber up with sense 3, dodging disruptor shots is guaranteed
 
 #### `/g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
@@ -678,7 +722,7 @@ Use command `/whois` to see a list of everyone in the server as well as their mo
 If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn.
 
 #### Random teams/capts
-Use `/randomteams 2 2` for random 2v2, etc. and `/randomcapts` for random captains. Make sure clients use `/ready` to be eligible for selection (or use `/forceready` through rcon)
+Use `/randomteams 2 2` for random 2v2, etc. and `/randomcapts` for random captains. Use `/shuffleteams 2 2` for random teams that are different from the current teams. Make sure clients use `/ready` to be eligible for selection (or use `/forceready`/`/forceunready` through rcon)
 
 #### `/specall`
 Use the rcon command `/specall` to force all players to spec.
@@ -744,7 +788,6 @@ Prevent calling votes for some things:
 * Bugfix for healing NPCs/vehicles in siege.
 * Bugfix for invisible/super-bugged shield because someone bodyblocked your placement.
 * Bugfix for teamnodmg for NPCs.
-* Bugfix for mindtricking when no enemies are around.
 * Golan alternate fire properly uses "was shrapnelled by" now.
 * Trip mine alternate fire properly uses "was mined by" now.
 * Bugfix for mines doing less splash damage when killed by player in slot 0.
