@@ -680,6 +680,10 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue; //spam victim must be on offense
 			}
 
+			if (ent->client->ps.origin[2] < 470 && potentialSpamVictim->client->ps.origin[2] >= 470 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+				continue; // fix for attackers in cc/short area triggering anti spam for defenders down below
+			}
+
 			VectorSubtract(throwerOrigin, potentialSpamVictim->client->ps.origin, distanceToVictim); //DUOFIXME: add more graduated angles for extreme distances (e.g very small angle for long-range rocket use)
 			if (VectorLength(distanceToVictim) < 600)
 			{
