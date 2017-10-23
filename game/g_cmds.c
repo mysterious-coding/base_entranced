@@ -3431,7 +3431,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 					Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
 				}
 				else {
-					serverHasHoth2 = qtrue;
+					serverHasHoth2 = qfalse;
 				}
 			}
 		}
