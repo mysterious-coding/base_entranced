@@ -259,6 +259,45 @@ void Cmd_KillTurrets_f(gentity_t *ent)
 	Svcmd_KillTurrets_f(qtrue);
 }
 
+void Cmd_ShieldTest_f(gentity_t *ent) {
+	char *redStatus = NULL, *blueStatus = NULL;
+	switch (level.canShield[TEAM_RED]) {
+	case CANSHIELD_NO:
+		redStatus = "cannot shield";
+		break;
+	case CANSHIELD_YES:
+		redStatus = "can shield";
+		break;
+	case CANSHIELD_YO_NOTPLACED:
+		redStatus = "can yo shield, has not placed";
+		break;
+	case CANSHIELD_YO_PLACED:
+		redStatus = "can yo shield, has placed";
+		break;
+	default:
+		redStatus = va("WTF? unknown state (%i)", level.canShield[TEAM_RED]);
+		break;
+	}
+	switch (level.canShield[TEAM_BLUE]) {
+	case CANSHIELD_NO:
+		blueStatus = "cannot shield";
+		break;
+	case CANSHIELD_YES:
+		blueStatus = "can shield";
+		break;
+	case CANSHIELD_YO_NOTPLACED:
+		blueStatus = "can yo shield, has not placed";
+		break;
+	case CANSHIELD_YO_PLACED:
+		blueStatus = "can yo shield, has placed";
+		break;
+	default:
+		blueStatus = va("WTF? unknown state (%i)", level.canShield[TEAM_RED]);
+		break;
+	}
+	trap_SendServerCommand(ent - g_entities, va("print \"^1[^7Red team^1]^7: %s\n^4^[^7Blue team^4]^7: %s^7\n\"", redStatus, blueStatus));
+}
+
 extern void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy);
 extern void UnLockDoors(gentity_t *const ent);
 
@@ -6984,6 +7023,9 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp(cmd, "killturrets") == 0)
 	{
 		Cmd_KillTurrets_f(ent);
+	}
+	else if (!Q_stricmp(cmd, "shieldtest")) {
+		Cmd_ShieldTest_f(ent);
 	}
 	else if (Q_stricmp(cmd, "duotest") == 0)
 	{

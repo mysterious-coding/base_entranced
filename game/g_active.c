@@ -3818,10 +3818,17 @@ void ClientThink_real( gentity_t *ent ) {
 					G_AddEvent(ent, EV_USE_ITEM0 + HI_SHIELD, 0);
 					ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SHIELD);
 					if (g_gametype.integer == GT_SIEGE && (ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE)) {
-						if (level.canShield[ent->client->sess.sessionTeam] == CANSHIELD_YES)
+						if (level.canShield[ent->client->sess.sessionTeam] == CANSHIELD_YES) {
+							trap_SendServerCommand(ent - g_entities, "print \"Your shield status is 'yes', setting it to 'no' now.\n\"");
 							level.canShield[ent->client->sess.sessionTeam] = CANSHIELD_NO;
-						else if (level.canShield[ent->client->sess.sessionTeam] == CANSHIELD_YO_NOTPLACED)
+						}
+						else if (level.canShield[ent->client->sess.sessionTeam] == CANSHIELD_YO_NOTPLACED) {
+							trap_SendServerCommand(ent - g_entities, "print \"Your shield status is 'yo shield, not placed', setting it to 'yo shield, placed' now.\n\"");
 							level.canShield[ent->client->sess.sessionTeam] = CANSHIELD_YO_PLACED;
+						}
+						else {
+							trap_SendServerCommand(ent - g_entities, va("print \"Your shield status was unexpected (%i)\n\"", level.canShield[ent->client->sess.sessionTeam]));
+						}
 					}
 				}
 			}
