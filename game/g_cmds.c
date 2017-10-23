@@ -3411,6 +3411,31 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
+		// force map name to lowercase
+		char *p = arg2;
+		for (; *p; ++p)
+			*p = tolower(*p);
+
+		// redirect hoth vote to hoth2 if the server has it
+		if (!Q_stricmp(arg2, "mp/siege_hoth")) {
+			static qboolean serverHasHoth2 = qfalse;
+			if (serverHasHoth2) {
+				Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
+			}
+			else {
+				fileHandle_t f;
+				trap_FS_FOpenFile("maps/mp/siege_hoth2.bsp", &f, FS_READ);
+				if (f) {
+					trap_FS_FCloseFile(f);
+					serverHasHoth2 = qtrue;
+					Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
+				}
+				else {
+					serverHasHoth2 = qtrue;
+				}
+			}
+		}
+
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
 		if (result)
 		{
