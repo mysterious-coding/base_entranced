@@ -2650,13 +2650,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->ps.fd.forceDeactivateAll = 1;
 
-	if (g_fixGripKills.integer && self == attacker && meansOfDeath == MOD_SUICIDE && self->client->ps.fd.forceGripBeingGripped && self->client->ps.fd.forceGripBeingGripped >= level.time && &g_entities[self->client->ps.otherKiller] && &g_entities[self->client->ps.otherKiller].client)
+	if (g_fixGripKills.integer && self == attacker && meansOfDeath == MOD_SUICIDE && !(g_gametype.integer == GT_SIEGE && self->client->siegeClass != -1 && bgSiegeClasses[self->client->siegeClass].invenItems & (1 << HI_SHIELD)) && self->client->ps.fd.forceGripBeingGripped && self->client->ps.fd.forceGripBeingGripped >= level.time && &g_entities[self->client->ps.otherKiller] && &g_entities[self->client->ps.otherKiller].client)
 	{
 		meansOfDeath = MOD_FORCE_DARK;
 		attacker = &g_entities[self->client->ps.otherKiller];
 	}
 
-	if (g_fixPitKills.integer && ((self == attacker || !attacker->client) &&
+	if (g_fixPitKills.integer && ((self == attacker || !attacker->client) && !(g_gametype.integer == GT_SIEGE && self->client->siegeClass != -1 && bgSiegeClasses[self->client->siegeClass].invenItems & (1 << HI_SHIELD)) &&
 		(meansOfDeath == MOD_CRUSH || meansOfDeath == MOD_FALLING || meansOfDeath == MOD_TRIGGER_HURT || meansOfDeath == MOD_UNKNOWN ||
 		(meansOfDeath == MOD_SUICIDE && 
 		//(self->client->ps.fallingToDeath || self->client->ps.origin[2] < self->client->ps.fd.forceJumpZStart || self->client->ps.velocity[2] < -600))) &&
