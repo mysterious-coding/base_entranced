@@ -544,6 +544,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
 		}
 
+		// duo: fix killing yourself off the walker
+		if (other->s.NPC_class == CLASS_VEHICLE && other->m_pVehicle && other->m_pVehicle->m_pVehicleInfo && other->m_pVehicle->m_pVehicleInfo->type == VH_WALKER) {
+			ent->damage = 0;
+			ent->splashDamage = 0;
+		}
+
 		G_DeflectMissile(other, ent, fwd);
 		G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
 		return;
