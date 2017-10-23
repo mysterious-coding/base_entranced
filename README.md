@@ -617,6 +617,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Filtered map callvotes to lowercase.
 * Hoth map vote is automatically filtered to hoth2 if the server has it.
 * Fixed SQL DB lag present in base_enhanced.
+* Classes with shield (i.e. tech on many maps) cannot trigger the `/g_fixPitKills` feature by manually SKing over a pit to get an early death at the hands of an enemy.
 
 # Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, so they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
