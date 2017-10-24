@@ -1060,7 +1060,8 @@ void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy)
 	}
 	else if (ent->damage) {
 		// duo: properly credit liftkills
-		if (blockedBy && blockedBy - g_entities < MAX_CLIENTS && blockedBy->client && blockedBy->client->pers.connected != CON_DISCONNECTED)
+		if (blockedBy && blockedBy - g_entities < MAX_CLIENTS && blockedBy->client && blockedBy->client->pers.connected != CON_DISCONNECTED &&
+			other && other - g_entities < MAX_CLIENTS && other->client && other->client->pers.connected != CON_DISCONNECTED && !(g_gametype.integer >= GT_TEAM && !g_friendlyFire.integer && other->client->sess.sessionTeam == blockedBy->client->sess.sessionTeam))
 			G_Damage(other, blockedBy, blockedBy, NULL, NULL, ent->damage, 0, MOD_CRUSH);
 		else
 			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
