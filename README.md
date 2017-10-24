@@ -612,6 +612,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed server crash when capturing an objective with a vehicle that has no pilot.
 * Fixed being able to suicide by pistoling the walker.
 * Lift kills now properly credit the killer.
+* Kills via vehicle weapon after the pilot exited the vehicle now properly credit the killer.
 * Falling deaths on certain maps now use the correct "fell to their death"/"thrown to their doom" message instead of generic "died"/"killed" message.
 * 3-second-long fade-to-black falling deaths are now filtered to instant deaths in Siege.
 * Filtered map callvotes to lowercase.
