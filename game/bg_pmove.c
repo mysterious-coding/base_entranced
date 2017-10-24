@@ -6327,6 +6327,7 @@ PM_Weapon
 Generates weapon events and modifes the weapon counter
 ==============
 */
+static int lastCantShieldMessageTime[MAX_CLIENTS] = { 0 };
 extern int PM_KickMoveForConditions(void);
 static void PM_Weapon( void )
 {
@@ -6740,7 +6741,27 @@ static void PM_Weapon( void )
 						}
 						else
 						{
-							if (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag))
+							qboolean prohibitedShield = qfalse;
+							if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SHIELD && pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) {
+								if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && (g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_RED || g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[g_entities[pm->ps->clientNum].client->sess.sessionTeam]) {
+									if (!lastCantShieldMessageTime[pm->ps->clientNum] || level.time - lastCantShieldMessageTime[pm->ps->clientNum] > 1000) {
+										trap_SendServerCommand(pm->ps->clientNum, "print \"You are not allowed to place a shield at the moment.\n\"");
+										lastCantShieldMessageTime[pm->ps->clientNum] = level.time;
+									}
+									prohibitedShield = qtrue;
+									pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
+								}
+								else {
+									if (g_gametype.integer == GT_SIEGE && (level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_RED || level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE)) {
+										if (level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] == CANSHIELD_YES)
+											level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] = CANSHIELD_NO;
+										else if (level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] == CANSHIELD_YO_NOTPLACED)
+											level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] = CANSHIELD_YO_PLACED;
+									}
+								}
+							}
+
+							if (!prohibitedShield && pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag))
 							{
 								if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_BINOCULARS &&
 									bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_JETPACK &&
@@ -6800,7 +6821,26 @@ static void PM_Weapon( void )
 				}
 				else
 				{
-					if (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag))
+					qboolean prohibitedShield = qfalse;
+					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SHIELD && pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) {
+						if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && (g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_RED || g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[g_entities[pm->ps->clientNum].client->sess.sessionTeam]) {
+							if (!lastCantShieldMessageTime[pm->ps->clientNum] || level.time - lastCantShieldMessageTime[pm->ps->clientNum] > 1000) {
+								trap_SendServerCommand(pm->ps->clientNum, "print \"You are not allowed to place a shield at the moment.\n\"");
+								lastCantShieldMessageTime[pm->ps->clientNum] = level.time;
+							}
+							prohibitedShield = qtrue;
+							pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
+						}
+						else {
+							if (g_gametype.integer == GT_SIEGE && (level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_RED || level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE)) {
+								if (level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] == CANSHIELD_YES)
+									level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] = CANSHIELD_NO;
+								else if (level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] == CANSHIELD_YO_NOTPLACED)
+									level.canShield[level.clients[pm->ps->clientNum].sess.sessionTeam] = CANSHIELD_YO_PLACED;
+							}
+						}
+					}
+					if (!prohibitedShield && pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag))
 					{
 						if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_BINOCULARS &&
 							bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_JETPACK &&
