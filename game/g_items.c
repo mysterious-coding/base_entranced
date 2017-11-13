@@ -129,13 +129,14 @@ void ShieldRemove(gentity_t *self)
 {
 	self->think = G_FreeEntity;
 	self->nextthink = level.time + 100;
+	if (!self->genericValue1) { // if this is the first time ShieldRemove is called, play the deactivate sound and set the forced removal time
+		self->genericValue1 = level.time + 100;
 
-	// Play kill sound...
-	G_AddEvent(self, EV_GENERAL_SOUND, shieldDeactivateSound);
-	self->s.loopSound = 0;
-	self->s.loopIsSoundset = qfalse;
-
-	return;
+		// Play kill sound...
+		G_AddEvent(self, EV_GENERAL_SOUND, shieldDeactivateSound);
+		self->s.loopSound = 0;
+		self->s.loopIsSoundset = qfalse;
+	}
 }
 
 
@@ -180,6 +181,17 @@ void ShieldThink(gentity_t *self)
 // The shield was damaged to below zero health.
 void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
+	if (self->genericValue1) { // this shield needs to be forcibly removed now or soon
+		if (level.time >= self->genericValue1) { // time to be forcibly removed now
+			if (debug_shieldLog.integer) {
+				G_LogPrintf("ShieldDie() Freeing shield %i by inflictor %i (%s), attacker %i (%s), dmg %i, mod %i\n",
+					self - g_entities, inflictor - g_entities, inflictor->classname,
+					attacker - g_entities, attacker->classname, damage, mod);
+			}
+			G_FreeEntity(self);
+		}
+		return;
+	}
 	// update shield uptime stat
 	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
 		char map[MAX_QPATH] = { 0 };
@@ -503,6 +515,7 @@ void CreateShield(gentity_t *ent)
 	ent->pain = ShieldPain;
 	ent->die = ShieldDie;
 	ent->touch = ShieldTouch;
+	ent->genericValue1 = 0; // zero the forced removal time
 
 	// see if we're valid
 	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY);
