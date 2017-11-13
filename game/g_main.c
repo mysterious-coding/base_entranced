@@ -5494,14 +5494,27 @@ void G_RunFrame( int levelTime ) {
 				}
 			}
 
-			if (g_gametype.integer == GT_SIEGE &&
-				ent->client->siegeClass != -1 &&
-				(bgSiegeClasses[ent->client->siegeClass].classflags & (1<<CFL_STATVIEWER)))
+			if (g_gametype.integer == GT_SIEGE && !ent->client->isLagging &&
+				((ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].classflags & (1<<CFL_STATVIEWER)) ||
+					(ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
+						ent->client->sess.spectatorClient >= 0 && ent->client->sess.spectatorClient < MAX_CLIENTS &&
+						g_entities[ent->client->sess.spectatorClient].client && g_entities[ent->client->sess.spectatorClient].client->sess.sessionTeam != TEAM_SPECTATOR &&
+						g_entities[ent->client->sess.spectatorClient].client->siegeClass != -1 && bgSiegeClasses[g_entities[ent->client->sess.spectatorClient].client->siegeClass].classflags & (1 << CFL_STATVIEWER))))
 			{ //see if it's time to send this guy an update of extended info
 				if (ent->client->siegeEDataSend < level.time)
 				{
+					int updateRate = Com_Clampi(1, 1000, g_teamOverlayUpdateRate.integer);
                     G_SiegeClientExData(ent);
-					ent->client->siegeEDataSend = level.time + 1000; //once every sec seems ok
+					if (ent->client->isMedHealingSomeone || ent->client->isMedSupplyingSomeone || (ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
+						ent->client->sess.spectatorClient >= 0 && ent->client->sess.spectatorClient < MAX_CLIENTS &&
+						g_entities[ent->client->sess.spectatorClient].client && g_entities[ent->client->sess.spectatorClient].client->sess.sessionTeam != TEAM_SPECTATOR &&
+						g_entities[ent->client->sess.spectatorClient].client->siegeClass != -1 && bgSiegeClasses[g_entities[ent->client->sess.spectatorClient].client->siegeClass].classflags & (1 << CFL_STATVIEWER) &&
+						(g_entities[ent->client->sess.spectatorClient].client->isMedHealingSomeone || g_entities[ent->client->sess.spectatorClient].client->isMedSupplyingSomeone))) {
+						ent->client->siegeEDataSend = level.time + (updateRate < 100 ? updateRate : 100); // faster if you are actively healing someone
+					}
+					else {
+						ent->client->siegeEDataSend = level.time + updateRate;
+					}
 				}
 			}
 

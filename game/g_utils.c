@@ -1725,6 +1725,7 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 		}
 
 		target->client->isMedHealed = level.time + 500;
+		ent->client->isMedHealingSomeone = level.time + 500;
 		target->health = target->client->ps.stats[STAT_HEALTH];
 	}
 	else if (dispType == HI_AMMODISP)
@@ -1743,6 +1744,7 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 			ent->client->medSupplyDebounce = level.time + weaponData[target->client->ps.weapon].fireTime;
 		}
 		target->client->isMedSupplied = level.time + 500;
+		ent->client->isMedSupplyingSomeone = level.time + 500;
 	}
 }
 

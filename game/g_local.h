@@ -964,7 +964,9 @@ struct gclient_s {
 
 	//time values for when being healed/supplied by supplier class
 	int			isMedHealed;
+	int			isMedHealingSomeone;
 	int			isMedSupplied;
+	int			isMedSupplyingSomeone;
 
 	//seperate debounce time for refilling someone's ammo as a supplier
 	int			medSupplyDebounce;

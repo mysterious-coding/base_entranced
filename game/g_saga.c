@@ -2959,7 +2959,7 @@ void G_SiegeClientExData(gentity_t *msgTarg)
 		ent = &g_entities[i];
 
 		if (ent->inuse && ent->client && msgTarg->s.number != ent->s.number &&
-			ent->s.eType == ET_PLAYER && msgTarg->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
+			ent->s.eType == ET_PLAYER && msgTarg->client->ps.persistant[PERS_TEAM] == ent->client->ps.persistant[PERS_TEAM] &&
 			trap_InPVS(msgTarg->client->ps.origin, ent->client->ps.origin))
 		{ //another client in the same pvs, send his jive
             if (count)
