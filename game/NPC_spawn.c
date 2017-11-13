@@ -1209,6 +1209,19 @@ gentity_t *NPC_Spawn_Do( gentity_t *client_ent, gentity_t *ent )
 	int			index;
 	vec3_t		saveOrg;
 
+	if (g_gametype.integer == GT_SIEGE && level.totalObjectivesCompleted >= 1) { // hack to fix improper walker spawn at 2nd+ obj on hoth
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && VALIDSTRING(ent->targetname) && !Q_stricmp(ent->targetname, "atst_1")) {
+			ent->NPC_target = "atst_2";
+			vec3_t newPos = { 3184, -264, -118 };
+			G_SetOrigin(ent, newPos);
+			ent->s.origin[0] = 3184;
+			ent->s.origin[1] = -264;
+			ent->s.origin[2] = -118;
+		}
+	}
+
 	//Test for drop to floor
 	if ( ent->spawnflags & NSF_DROP_TO_FLOOR )
 	{
