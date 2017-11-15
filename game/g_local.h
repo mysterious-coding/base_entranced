@@ -1552,6 +1552,7 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
 qboolean G_MapIs(char *s);
+qboolean G_MapAllowsShieldSpam(void);
 
 //
 // g_saga.c

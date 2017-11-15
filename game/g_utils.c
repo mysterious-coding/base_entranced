@@ -2811,3 +2811,11 @@ qboolean G_MapIs(char *s) {
 
 	return qfalse;
 }
+
+qboolean G_MapAllowsShieldSpam(void) {
+	vmCvar_t mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	if (!Q_stricmp(mapname.string, "siege_codes"))
+		return qtrue;
+	return qfalse;
+}
