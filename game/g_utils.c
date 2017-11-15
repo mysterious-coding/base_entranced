@@ -2812,10 +2812,13 @@ qboolean G_MapIs(char *s) {
 	return qfalse;
 }
 
-qboolean G_MapAllowsShieldSpam(void) {
+qboolean G_ShieldSpamAllowed(team_t t) {
 	vmCvar_t mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	if (!Q_stricmp(mapname.string, "siege_codes"))
+		return qfalse;
+	else if (t == TEAM_BLUE)
+		return qfalse;
+	else
 		return qtrue;
-	return qfalse;
 }
