@@ -1021,6 +1021,7 @@ struct gclient_s {
 #ifdef NEWMOD_SUPPORT
 	qboolean	isLagging; // mark lagger without actually changing EF_CONNECTION
 #endif
+
 };
 
 //Interest points
@@ -1237,6 +1238,8 @@ typedef struct {
 		CANSHIELD_YO_NOTPLACED,
 		CANSHIELD_YO_PLACED
 	} canShield[3];
+	int			sentriesDeployed[MAX_CLIENTS];
+	int			sentriesUsedThisLife[MAX_CLIENTS];
 
 	int			hangarCompletedTime;
 	qboolean	hangarLiftUsedByDefense;

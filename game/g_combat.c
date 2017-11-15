@@ -2370,6 +2370,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
+	if (self - g_entities >= 0 && self - g_entities < MAX_CLIENTS)
+		level.sentriesUsedThisLife[self - g_entities] = 0;
+
 	if (self->s.eType == ET_NPC &&
 		self->s.NPC_class == CLASS_VEHICLE &&
 		self->m_pVehicle &&

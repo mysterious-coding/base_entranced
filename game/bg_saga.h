@@ -91,6 +91,7 @@ typedef struct
 	int			ammothermals;
 	int			ammotripmines;
 	int			ammodetpacks;
+	int			maxSentries;
 } siegeClass_t;
 
 typedef struct

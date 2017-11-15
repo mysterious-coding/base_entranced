@@ -3880,7 +3880,10 @@ void ClientThink_real( gentity_t *ent ) {
 			{
 				ItemUse_Sentry(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+HI_SENTRY_GUN, 0);
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SENTRY_GUN);
+				if (ent - g_entities >= 0 && ent - g_entities < MAX_CLIENTS && g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].maxSentries > 0 && level.sentriesUsedThisLife[ent - g_entities] < bgSiegeClasses[ent->client->siegeClass].maxSentries)
+					ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_SENTRY_GUN);
+				else
+					ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SENTRY_GUN);
 			}
 			break;
 		case GENCMD_USE_JETPACK:

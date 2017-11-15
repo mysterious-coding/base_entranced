@@ -1145,7 +1145,15 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->r.currentOrigin, self->s.angles);
 	G_RadiusDamage(self->r.currentOrigin, &g_entities[self->genericValue3], 30, 256, self, self, MOD_UNKNOWN);
 
-	g_entities[self->genericValue3].client->ps.fd.sentryDeployed = qfalse;
+	if (self->genericValue3 >= 0 && self->genericValue3 < MAX_CLIENTS) {
+		level.sentriesDeployed[self->genericValue3]--;
+		if (level.sentriesDeployed[self->genericValue3] < 0)
+			level.sentriesDeployed[self->genericValue3] = 0;
+	}
+	if (self->genericValue3 >= 0 && self->genericValue3 < MAX_CLIENTS && g_gametype.integer == GT_SIEGE && g_entities[self->genericValue3].client->siegeClass != -1 && bgSiegeClasses[g_entities[self->genericValue3].client->siegeClass].maxSentries > 0 && level.sentriesDeployed[self->genericValue3] >= bgSiegeClasses[g_entities[self->genericValue3].client->siegeClass].maxSentries)
+		g_entities[self->genericValue3].client->ps.fd.sentryDeployed = qtrue;
+	else
+		g_entities[self->genericValue3].client->ps.fd.sentryDeployed = qfalse;
 
 	G_FreeEntity( self );
 }
@@ -1252,7 +1260,17 @@ void ItemUse_Sentry( gentity_t *ent )
 
 	sentry->alliedTeam = ent->client->sess.sessionTeam;
 
-	ent->client->ps.fd.sentryDeployed = qtrue;
+	if (ent - g_entities >= 0 && ent - g_entities < MAX_CLIENTS) {
+		level.sentriesUsedThisLife[ent - g_entities]++;
+		level.sentriesDeployed[ent - g_entities]++;
+	}
+	if (ent - g_entities >= 0 && ent - g_entities < MAX_CLIENTS && g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].maxSentries > 0 && level.sentriesDeployed[ent - g_entities] < bgSiegeClasses[ent->client->siegeClass].maxSentries)
+		ent->client->ps.fd.sentryDeployed = qfalse;
+	else
+		ent->client->ps.fd.sentryDeployed = qtrue;
+
+	if (ent - g_entities >= 0 && ent - g_entities < MAX_CLIENTS && g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].maxSentries > 0 && level.sentriesUsedThisLife[ent - g_entities] < bgSiegeClasses[ent->client->siegeClass].maxSentries)
+		ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_SENTRY_GUN);
 
 	trap_LinkEntity(sentry);
 

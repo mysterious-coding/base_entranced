@@ -1005,6 +1005,16 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = 0;
 	}
 
+	//Parse maxsentries
+	if (BG_SiegeGetPairedValue(classInfo, "maxsentries", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].maxSentries = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].maxSentries = 0;
+	}
+
 	//Parse startarmor
 	if (BG_SiegeGetPairedValue(classInfo, "maxarmor", parseBuf))
 	{

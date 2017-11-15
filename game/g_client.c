@@ -3749,6 +3749,9 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
+	if (index >= 0 && index < MAX_CLIENTS)
+		level.sentriesUsedThisLife[index] = 0;
+
 	if (ent->s.number < MAX_CLIENTS) {
 		//duo: this stuff should be reset on spawn...
 		memset(&ent->m_pVehicle, 0, sizeof(ent->m_pVehicle));
