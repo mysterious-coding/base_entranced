@@ -1421,6 +1421,8 @@ void SP_worldspawn( void )
 		trap_Cvar_Set("dJediLimit", va("%i", Com_Clampi(0, MAX_CLIENTS, jediLimit[1])));
 	}
 
+	G_SpawnInt("shieldSpamAllowed", "1", &level.shieldSpamAllowed); // red team can shield spam; blue can't, unless otherwise specified
+
 	if (!debug_duoTest.integer)
 	{
 		G_SpawnString("siegeRespawn", "20", &text); //if not defined, set to 20

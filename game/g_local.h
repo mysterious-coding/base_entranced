@@ -1240,6 +1240,7 @@ typedef struct {
 	} canShield[3];
 	int			sentriesDeployed[MAX_CLIENTS];
 	int			sentriesUsedThisLife[MAX_CLIENTS];
+	int			shieldSpamAllowed;
 
 	int			hangarCompletedTime;
 	qboolean	hangarLiftUsedByDefense;

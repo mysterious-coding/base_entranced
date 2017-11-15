@@ -2816,9 +2816,13 @@ qboolean G_ShieldSpamAllowed(team_t t) {
 	vmCvar_t mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	if (!Q_stricmp(mapname.string, "siege_codes"))
-		return qfalse;
-	else if (t == TEAM_BLUE)
-		return qfalse;
-	else
+		return qfalse; // hack so neither team can spam on this map
+	
+	if (t == TEAM_RED && level.shieldSpamAllowed & TEAM_RED)
 		return qtrue;
+	
+	if (t == TEAM_BLUE && level.shieldSpamAllowed & TEAM_BLUE)
+		return qtrue;
+
+	return qfalse;
 }
