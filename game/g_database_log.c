@@ -2,7 +2,6 @@
 #include "sqlite3.h"
 #include "time.h"
 
-static sqlite3* fileDb = 0;
 static sqlite3* db = 0;
 
 const char* const logDbFileName = "jka_log.db";
@@ -225,13 +224,13 @@ void G_LogDbLoad()
     int rc = -1;    
 
     rc = sqlite3_initialize();
-    rc = sqlite3_open_v2( logDbFileName, &fileDb, SQLITE_OPEN_READWRITE, 0 );
+    rc = sqlite3_open_v2( logDbFileName, &db, SQLITE_OPEN_READWRITE, 0 );
 
 	if (rc == SQLITE_OK) {
 		G_LogPrintf("Successfully loaded log database %s\n", logDbFileName);
 		// if needed, upgrade legacy servers that don't support cuid_hash yet
 		sqlite3_stmt* statement;
-		rc = sqlite3_prepare(fileDb, sqlTestCuidSupport, -1, &statement, 0);
+		rc = sqlite3_prepare(db, sqlTestCuidSupport, -1, &statement, 0);
 		rc = sqlite3_step(statement);
 		qboolean foundCuid2 = qfalse, foundCuid1 = qfalse;
 		while (rc == SQLITE_ROW) {
@@ -243,7 +242,7 @@ void G_LogDbLoad()
 			rc = sqlite3_step(statement);
 		}
 		sqlite3_reset(statement);
-		rc = sqlite3_prepare(fileDb, sqlTestWhitelistSupport, -1, &statement, 0);
+		rc = sqlite3_prepare(db, sqlTestWhitelistSupport, -1, &statement, 0);
 		rc = sqlite3_step(statement);
 		qboolean foundWhitelist = qfalse;
 		while (rc == SQLITE_ROW) {
@@ -258,39 +257,31 @@ void G_LogDbLoad()
 		}
 		else if (foundCuid1) {
 			G_LogPrintf("Automatically upgrading old log database: cuid 1.0 support ==> cuid 2.0 support.\n");
-			sqlite3_exec(fileDb, sqlUpgradeToCuid2FromCuid1, 0, 0, 0);
+			sqlite3_exec(db, sqlUpgradeToCuid2FromCuid1, 0, 0, 0);
 		}
 		else {
 			G_LogPrintf("Automatically upgrading old log database: no cuid support ==> cuid 2.0 support.\n");
-			sqlite3_exec(fileDb, sqlUpgradeToCuid2FromNoCuid, 0, 0, 0);
+			sqlite3_exec(db, sqlUpgradeToCuid2FromNoCuid, 0, 0, 0);
 		}
 		if (foundWhitelist) {
 			//G_LogPrintf("Log database supports whitelist, no upgrade needed.\n");
 		}
 		else {
 			G_LogPrintf("Automatically upgrading old log database: no player whitelist support ==> player whitelist support.\n");
-			sqlite3_exec(fileDb, sqlUpgradeToWhitelist, 0, 0, 0);
+			sqlite3_exec(db, sqlUpgradeToWhitelist, 0, 0, 0);
 		}
 
 		// create the database IF NEEDED, since it might have been created before the feature was added
-		sqlite3_exec( fileDb, sqlCreateFastcapsTable, 0, 0, 0 );
+		sqlite3_exec( db, sqlCreateFastcapsTable, 0, 0, 0 );
 	}
 	else {
 		G_LogPrintf("Couldn't find log database %s, creating a new one\n", logDbFileName);
         // create new database
-        rc = sqlite3_open_v2( logDbFileName, &fileDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0 );
+        rc = sqlite3_open_v2( logDbFileName, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0 );
 
-        sqlite3_exec( fileDb, sqlCreateLogDb, 0, 0, 0 );
-		sqlite3_exec( fileDb, sqlCreateFastcapsTable, 0, 0, 0 );
+        sqlite3_exec( db, sqlCreateLogDb, 0, 0, 0 );
+		sqlite3_exec( db, sqlCreateFastcapsTable, 0, 0, 0 );
     }
-	
-	// open in memory
-	sqlite3_open_v2(":memory:", &db, SQLITE_OPEN_READWRITE, 0);
-	sqlite3_backup *backup = sqlite3_backup_init(db, "main", fileDb, "main");
-	if (backup) {
-		sqlite3_backup_step(backup, -1);
-		sqlite3_backup_finish(backup);
-	}
 }
 
 
@@ -302,13 +293,7 @@ void G_LogDbLoad()
 //
 void G_LogDbUnload()
 {
-	sqlite3_backup *backup = sqlite3_backup_init(fileDb, "main", db, "main");
-	if (backup) {
-		sqlite3_backup_step(backup, -1);
-		sqlite3_backup_finish(backup);
-	}
-	sqlite3_close(fileDb);
-    sqlite3_close(db);
+    sqlite3_close( db );
 }
 
 //
