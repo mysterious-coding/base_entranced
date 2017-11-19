@@ -2014,9 +2014,19 @@ void TryUse( gentity_t *ent )
 	}
 #endif
 
+	static int isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = 1;
+		else
+			isUrban = 0;
+	}
+
 	if (target && target->m_pVehicle && target->client &&
 		target->s.NPC_class == CLASS_VEHICLE &&
-		!ent->client->ps.zoomMode)
+		!ent->client->ps.zoomMode && !(isUrban == 1 && level.totalObjectivesCompleted >= 4))
 	{ //if target is a vehicle then perform appropriate checks
 		Vehicle_t *pVeh = target->m_pVehicle;
 		qboolean used = qfalse;

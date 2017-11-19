@@ -457,6 +457,18 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		}
 	}
 
+	static int isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = 1;
+		else
+			isUrban = 0;
+	}
+	if (isUrban == 1 && parentPS && parentPS->electrifyTime > curTime)
+		speedMax *= 0.5f;
+
 	if ( parentPS->speed > speedMax )
 	{
 		parentPS->speed = speedMax;
@@ -466,9 +478,17 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		parentPS->speed = speedMin;
 	}
 
-	if (parentPS && parentPS->electrifyTime > curTime)
+	if (parentPS && parentPS->electrifyTime > curTime && isUrban != 1)
 	{
 		parentPS->speed *= (pVeh->m_fTimeModifier/60.0f);
+	}
+
+	if (isUrban == 1 && level.totalObjectivesCompleted >= 4) {
+		parentPS->speed = 0.0f;
+		if (pVeh->m_pVehicleInfo && pVeh->m_pPilot && !pVeh->m_iBoarding) {
+			((gentity_t *)pVeh->m_pParentEntity)->alliedTeam = -1;
+			pVeh->m_pVehicleInfo->Eject(pVeh, pVeh->m_pPilot, qtrue);
+		}
 	}
 
 
@@ -533,7 +553,10 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 
 		if (parentPS->electrifyTime > pm->cmd.serverTime)
 		{ //do some crazy stuff
-			pVeh->m_vOrientation[YAW] += (sin(pm->cmd.serverTime/1000.0f)*3.0f)*pVeh->m_fTimeModifier;
+			vmCvar_t mapname;
+			trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+			if (Q_stricmpn(mapname.string, "siege_urban", 11))
+				pVeh->m_vOrientation[YAW] += (sin(pm->cmd.serverTime/1000.0f)*3.0f)*pVeh->m_fTimeModifier;
 		}
 	}
 
