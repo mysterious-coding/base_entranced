@@ -2209,29 +2209,70 @@ void Svcmd_Zombies_f()
 		trap_Cvar_Set("dScoutLimit", "0");
 		vmCvar_t	mapname;
 		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
-		{
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2")) {
 			int i;
-			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
-			{
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];
-				if (ent && ent->classname && ent->classname[0] && !Q_stricmp(ent->classname, "func_usable") && ent->targetname && ent->targetname[0] && !Q_stricmp(ent->targetname, "ccshield"))
-				{
+				if (ent && VALIDSTRING(ent->classname) && !Q_stricmp(ent->classname, "func_usable") && ent->targetname && ent->targetname[0] && !Q_stricmp(ent->targetname, "ccshield")) {
 					//disable cc shields on cargo2
 					G_FreeEntity(ent);
 				}
 			}
 		}
-		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
-		{
+		else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) {
 			int i;
-			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
-			{
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];
-				if (ent && ent->classname && ent->classname[0] && !Q_stricmp(ent->classname, "func_usable") && ent->targetname && ent->targetname[0] && (!Q_stricmp(ent->targetname, "fieldtobridge") || !Q_stricmp(ent->targetname, "obj1delayfield")))
-				{
+				if (ent && VALIDSTRING(ent->classname) && !Q_stricmp(ent->classname, "func_usable") && ent->targetname && ent->targetname[0] && (!Q_stricmp(ent->targetname, "fieldtobridge") || !Q_stricmp(ent->targetname, "obj1delayfield"))) {
 					//disable breach prints and anti-rush shields on nar shaddaa
 					G_FreeEntity(ent);
+				}
+			}
+		}
+		else if (!Q_stricmpn(mapname.string, "siege_urban", 11)) {
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				gentity_t *ent = &g_entities[i];
+				if (!ent || !VALIDSTRING(ent->classname))
+					continue;
+				if (!Q_stricmp(ent->classname, "misc_siege_item")) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "info_player_siegeteam1") && Q_stricmp(ent->targetname, "zomspawno")) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "info_player_siegeteam2") && Q_stricmp(ent->targetname, "spawn3d")) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "trigger_once")) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "trigger_multiple") && VALIDSTRING(ent->targetname) && !Q_stricmpn(ent->targetname, "retreat", 7)) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "func_usable") && !(VALIDSTRING(ent->targetname) && (!Q_stricmp(ent->targetname, "doorshack") || !Q_stricmp(ent->targetname, "retreat")))) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "func_wall")) {
+					G_FreeEntity(ent);
+				}
+				else if (!Q_stricmp(ent->classname, "func_breakable")) {
+					if (ent->spawnflags & 1 || ent->spawnflags & 8 || ent->maxHealth == 150) {
+						G_FreeEntity(ent);
+					}
+					else {
+						ent->health = 999999;
+						ent->maxHealth = 999999;
+						ent->paintarget = NULL;
+					}
+				}
+				else if (!Q_stricmp(ent->classname, "target_print") && VALIDSTRING(ent->targetname) && !Q_stricmpn(ent->targetname, "breach", 6)) {
+					ent->message = NULL;
+				}
+				else if (ent->client && ent->NPC && ent->s.NPC_class == CLASS_LIZARD) {
+					ent->health = 999999;
+					ent->maxHealth = 999999;
+					ent->paintarget = NULL;
 				}
 			}
 		}

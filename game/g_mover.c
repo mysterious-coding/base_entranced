@@ -1126,6 +1126,16 @@ Touch_DoorTrigger
 */
 void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
 	gentity_t *relockEnt = NULL;
 
 	if (other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR)
@@ -1161,8 +1171,15 @@ void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 	}
 
 	if (ent->parent->spawnflags & MOVER_LOCKED)
-	{//don't even try to use the door if it's locked 
-		if (!ent->parent->alliedTeam //we don't have a "teamallow" team
+	{//don't even try to use the door if it's locked
+		if (isUrban && VALIDSTRING(ent->parent->targetname) &&
+			((level.totalObjectivesCompleted < 1 && !Q_stricmp(ent->parent->targetname, "obj1to2")) ||
+			(level.totalObjectivesCompleted < 2 && !Q_stricmp(ent->parent->targetname, "obj2to3")) ||
+				(level.totalObjectivesCompleted < 3 && !Q_stricmp(ent->parent->targetname, "obj3to4"))))
+		{
+			return;
+		}
+		else if (!ent->parent->alliedTeam //we don't have a "teamallow" team
 			|| !other->client //we do have a "teamallow" team, but this isn't a client
 			||( other->client->sess.sessionTeam != ent->parent->alliedTeam && !other->client->sess.siegeDuelInProgress))//it is a client, but it's not on the right team
 		{
@@ -1425,9 +1442,6 @@ void SP_func_door(gentity_t *ent)
 	float	distance;
 	vec3_t	size;
 	float	lip;
-
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	G_SpawnInt("vehopen", "0", &ent->genericValue14);
 

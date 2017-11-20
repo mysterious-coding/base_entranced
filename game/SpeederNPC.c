@@ -483,7 +483,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		parentPS->speed *= (pVeh->m_fTimeModifier/60.0f);
 	}
 
-	if (isUrban == 1 && level.totalObjectivesCompleted >= 4) {
+	if (isUrban == 1 && (level.totalObjectivesCompleted >= 4 || level.zombies)) {
 		parentPS->speed = 0.0f;
 		if (pVeh->m_pVehicleInfo && pVeh->m_pPilot && !pVeh->m_iBoarding) {
 			((gentity_t *)pVeh->m_pParentEntity)->alliedTeam = -1;

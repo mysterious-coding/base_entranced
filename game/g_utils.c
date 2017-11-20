@@ -2026,7 +2026,7 @@ void TryUse( gentity_t *ent )
 
 	if (target && target->m_pVehicle && target->client &&
 		target->s.NPC_class == CLASS_VEHICLE &&
-		!ent->client->ps.zoomMode && !(isUrban == 1 && level.totalObjectivesCompleted >= 4))
+		!ent->client->ps.zoomMode && !(isUrban == 1 && (level.totalObjectivesCompleted >= 4 || level.zombies)))
 	{ //if target is a vehicle then perform appropriate checks
 		Vehicle_t *pVeh = target->m_pVehicle;
 		qboolean used = qfalse;
