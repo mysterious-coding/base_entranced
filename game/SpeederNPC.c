@@ -466,8 +466,6 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		else
 			isUrban = 0;
 	}
-	if (isUrban == 1 && parentPS && parentPS->electrifyTime > curTime)
-		speedMax *= 0.5f;
 
 	if ( parentPS->speed > speedMax )
 	{
