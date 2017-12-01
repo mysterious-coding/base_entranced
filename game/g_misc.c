@@ -1800,6 +1800,11 @@ void health_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		return; //no getting health while in a siege duel
 	}
 
+	if (level.zombies)
+	{
+		return;
+	}
+
 	if (self->setTime < level.time)
 	{
 		if (!self->s.loopSound)

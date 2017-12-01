@@ -1837,9 +1837,27 @@ void HealSomething(gentity_t *ent, gentity_t *target)
 
 qboolean TryHeal(gentity_t *ent, gentity_t *target)
 {
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
+	int max = target->maxHealth;
+	if (isUrban == qtrue && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
+		if (target->health <= (int)(((double)max) / 3))
+			max = (int)(((double)max) / 3);
+		else if (target->health <= (int)((((double)max) / 3) * 2))
+			max = (int)((((double)max) / 3) * 2);
+	}
+
 	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 &&
-		target && target->inuse && target->maxHealth && target->healingclass &&
-		target->healingclass[0] && target->health > 0 && target->health < target->maxHealth)
+		target && target->inuse && target->maxHealth && VALIDSTRING(target->healingclass) &&
+		target->health > 0 && target->health < max)
 	{ //it's not dead yet...
 		siegeClass_t *scl = &bgSiegeClasses[ent->client->siegeClass];
 		if (ent->client->sess.sessionTeam == TEAM_RED && g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none"))
