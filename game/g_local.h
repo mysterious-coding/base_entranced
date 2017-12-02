@@ -554,6 +554,11 @@ enum {
 	SIEGEMAPSTAT_BESPIN_DEFDEMP,
 	SIEGEMAPSTAT_BESPIN_DEFGOTDEMPED
 };
+enum {
+	SIEGEMAPSTAT_URBAN_MONEYTIME = 0,
+	SIEGEMAPSTAT_URBAN_BLUEDMG,
+	SIEGEMAPSTAT_URBAN_REDDMG
+};
 
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown

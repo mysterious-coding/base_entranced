@@ -5665,6 +5665,18 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			else if (!Q_stricmp(targ->target, "obj6"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PODDMG] += adjustedTake;
 		}
+		else if (!Q_stricmpn(mapname.string, "siege_urban", 11) && attacker->client->sess.sessionTeam == TEAM_RED) {
+			if (VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "spawnblueguy"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_BLUEDMG] += adjustedTake;
+			else if (VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "spawnredguy"))
+				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_REDDMG] += adjustedTake;
+			else if (targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && strlen(targ->NPC_type) >= 10 && tolower(*targ->NPC_type) == 'w') {
+				if (tolower(*(targ->NPC_type + 7)) == 'b')
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_BLUEDMG] += adjustedTake;
+				else if (tolower(*(targ->NPC_type + 7)) == 'r')
+					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_REDDMG] += adjustedTake;
+			}
+		}
 	}
 
 	//we count only from client to client damage

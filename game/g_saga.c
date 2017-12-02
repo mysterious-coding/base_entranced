@@ -2367,6 +2367,8 @@ void SiegeItemThink(gentity_t *ent)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (!Q_stricmpn(map, "mp/siege_bespin", 15))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
+			else if (!Q_stricmpn(map, "siege_urban", 11))
+				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_MONEYTIME] += (level.time - ent->siegeItemCarrierTime);
 			ent->siegeItemCarrierTime = level.time;
 		}
 	}
@@ -2489,7 +2491,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	char map[MAX_QPATH] = { 0 };
 	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15)))
+	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;

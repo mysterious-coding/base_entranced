@@ -5962,6 +5962,15 @@ static const StatsDesc BespinDesc = {
 	}
 };
 
+static const StatsDesc UrbanDesc = {
+	{
+		"MONEYTIME", "BLUEDMG", "REDDMG"
+	},
+	{
+		STAT_DURATION, STAT_INT, STAT_INT
+	}
+};
+
 static void FillMapSpecificStats(gclient_t *cl, Stat *values) {
 	int i;
 	for (i = 0; i < MAX_STATS; i++) {
@@ -6079,6 +6088,10 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 			desc = &BespinDesc;
 			callback = &FillMapSpecificStats;
 		}
+		else if (map[0] && !Q_stricmpn(map, "siege_urban", 11)) {
+			desc = &UrbanDesc;
+			callback = &FillMapSpecificStats;
+		}
 		else
 			return;
 	} else {
@@ -6110,7 +6123,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 			PrintStatsTo(ent, "general");
 			char map[MAX_QPATH] = { 0 };
 			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15)))
+			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
 				PrintStatsTo(ent, "map");
 		}
 		else {

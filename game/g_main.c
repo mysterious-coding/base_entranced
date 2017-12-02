@@ -2769,7 +2769,7 @@ void BeginIntermission( void ) {
 			PrintStatsTo(NULL, "general");
 			char map[MAX_QPATH] = { 0 };
 			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15)))
+			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
 				PrintStatsTo(NULL, "map");
 		}
 		else if (g_gametype.integer == GT_CTF) {
