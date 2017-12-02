@@ -1555,6 +1555,18 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		client = level.killerOfLastDesertComputer->s.number;
 	}
 
+	if (objective == 2 && !Q_stricmpn(mapname.string, "siege_urban", 11))
+	{
+		int i;
+		for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+			gentity_t *icon = &g_entities[i];
+			if (VALIDSTRING(icon->targetname) && !Q_stricmp(icon->targetname, "hackicon") && VALIDSTRING(icon->classname) && !Q_stricmp(icon->classname, "info_siege_radaricon")) {
+				icon->s.eFlags &= ~EF_RADAROBJECT;
+				break;
+			}
+		}
+	}
+
 	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
 	{
 		level.clients[client].pers.teamState.captures++;

@@ -5773,6 +5773,49 @@ void G_RunFrame( int levelTime ) {
 		}
 	}
 
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+	if (isUrban == qtrue) {
+		static gentity_t *swoop = NULL, *icon = NULL;
+		if (!swoop) {
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				if (g_entities[i].m_pVehicle && g_entities[i].m_pVehicle->m_pVehicleInfo && g_entities[i].m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER && VALIDSTRING(g_entities[i].m_pVehicle->m_pVehicleInfo->name) && !Q_stricmp(g_entities[i].m_pVehicle->m_pVehicleInfo->name, "swoop_urban")) {
+					swoop = &g_entities[i];
+					break;
+				}
+			}
+		}
+		if (!icon) {
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				if (VALIDSTRING(g_entities[i].targetname) && !Q_stricmp(g_entities[i].targetname, "swoopicon") && VALIDSTRING(g_entities[i].classname) && !Q_stricmp(g_entities[i].classname, "info_siege_radaricon")) {
+					icon = &g_entities[i];
+					break;
+				}
+			}
+		}
+		if (swoop && icon && level.totalObjectivesCompleted == 3 && !level.zombies) {
+			icon->s.eFlags |= EF_RADAROBJECT;
+			icon->r.svFlags |= SVF_BROADCAST;
+			icon->s.origin[0] = swoop->r.currentOrigin[0];
+			icon->s.origin[1] = swoop->r.currentOrigin[1];
+			icon->s.origin[2] = swoop->r.currentOrigin[2];
+			G_SetOrigin(icon, swoop->r.currentOrigin);
+		}
+		else {
+			if (icon) {
+				icon->s.eFlags &= ~EF_RADAROBJECT;
+				icon->r.svFlags &= ~SVF_BROADCAST;
+			}
+		}
+	}
+
 	level.frameStartTime = trap_Milliseconds(); // accurate timer
 
 	g_LastFrameTime = level.time;
