@@ -2241,7 +2241,7 @@ void Svcmd_Zombies_f()
 				else if (!Q_stricmp(ent->classname, "info_player_siegeteam1") && Q_stricmp(ent->targetname, "zomspawno")) {
 					G_FreeEntity(ent);
 				}
-				else if (!Q_stricmp(ent->classname, "info_player_siegeteam2") && Q_stricmp(ent->targetname, "spawn3d")) {
+				else if (!Q_stricmp(ent->classname, "info_player_siegeteam2") && Q_stricmp(ent->targetname, "spawn3")) {
 					G_FreeEntity(ent);
 				}
 				else if (!Q_stricmp(ent->classname, "trigger_once")) {

@@ -4649,10 +4649,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			isUrban = qfalse;
 	}
 
-	if (targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w' && isUrban == qtrue) {
-		targ->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
-	}
-
 	if (attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w' && isUrban == qtrue) {
 		return;
 	}

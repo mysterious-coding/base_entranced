@@ -6185,7 +6185,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	201
+#define BUILDNUMBER	202
 
 void Cmd_Help_f(gentity_t *ent)
 {
