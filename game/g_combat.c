@@ -4541,7 +4541,7 @@ void G_LocationBasedDamageModifier(gentity_t *inflictor, gentity_t *ent, vec3_t 
 		break;
 	case HL_HEAD:
 		*damage *= 1.3;
-		break;
+break;
 	default:
 		break; //do nothing then
 	}
@@ -4572,9 +4572,9 @@ qboolean G_ThereIsAMaster(void)
 	return qfalse;
 }
 
-void G_Knockdown( gentity_t *victim )
+void G_Knockdown(gentity_t *victim)
 {
-	if ( victim && victim->client && BG_KnockDownable(&victim->client->ps) )
+	if (victim && victim->client && BG_KnockDownable(&victim->client->ps))
 	{
 		victim->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
 		victim->client->ps.forceDodgeAnim = 0;
@@ -4638,6 +4638,22 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if (mod == MOD_DEMP2 && targ && targ->s.eType && targ->s.eType == ET_NPC && targ->NPC && targ->NPC->stats.nodmgfrom && (targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE || targ->NPC->stats.nodmgfrom == -1))
 	{
+		return;
+	}
+
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
+	if (targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w' && isUrban == qtrue) {
+		targ->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
+	}
+
+	if (attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w' && isUrban == qtrue) {
 		return;
 	}
 
@@ -4872,9 +4888,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if ( !(dflags&DAMAGE_NO_HIT_LOC) )
 	{//see if we should modify it by damage location
-		if (!(targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w') && !Q_stricmpn(mapname.string, "siege_urban", 11)) {
+		if (!(targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w') && isUrban == qtrue) {
 			if (targ->inuse && (targ->client || targ->s.eType == ET_NPC) &&
-				attacker->inuse && (attacker->client || attacker->s.eType == ET_NPC))
+				attacker && attacker->inuse && (attacker->client || attacker->s.eType == ET_NPC))
 			{ //check for location based damage stuff.
 				G_LocationBasedDamageModifier(attacker, targ, point, mod, dflags, &damage);
 			}
@@ -4929,6 +4945,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		knockback = 0;
 	}
 	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
+		knockback = 0;
+	}
+	if (isUrban == qtrue && targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo && targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER && VALIDSTRING(targ->m_pVehicle->m_pVehicleInfo->name) && !Q_stricmp(targ->m_pVehicle->m_pVehicleInfo->name, "swoop_urban")) {
 		knockback = 0;
 	}
 

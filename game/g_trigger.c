@@ -1596,6 +1596,19 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 		self->activator = NULL;
 	}
 
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
+	if (isUrban == qtrue && VALIDSTRING(self->targetname) && !Q_stricmp(self->targetname, "barrelsdead"))
+		self->activator = NULL;
+
 	G_ActivateBehavior(self,BSET_USE);
 
 	if ( self->r.linked ) {

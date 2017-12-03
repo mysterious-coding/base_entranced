@@ -3436,6 +3436,25 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			}
 		}
 
+		if (!Q_stricmp(arg2, "siege_urban") || !Q_stricmp(arg2, "mp/siege_urban")) {
+			fileHandle_t f;
+			trap_FS_FOpenFile("maps/siege_urban.bsp", &f, FS_READ);
+			if (f) {
+				trap_FS_FCloseFile(f);
+				Q_strncpyz(arg2, "siege_urban", sizeof(arg2));
+			}
+			else { // get highest beta version
+				for (i = 99; i > 0; i--) {
+					trap_FS_FOpenFile(va("maps/siege_urban_b%d.bsp", i), &f, FS_READ);
+					if (f) {
+						trap_FS_FCloseFile(f);
+						Q_strncpyz(arg2, va("siege_urban_b%d", i), sizeof(arg2));
+						break;
+					}
+				}
+			}
+		}
+
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
 		if (result)
 		{
@@ -3778,14 +3797,26 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Shuffle teams is disabled.\n\"");
 			return;
 		}
-		int team1Count, team2Count;
-		char count[2];
+		int team1Count = 0, team2Count = 0;
+		char count[2] = { 0 };
 
-		trap_Argv(2, count, sizeof(count));
-		team1Count = atoi(count);
+		if (trap_Argc() >= 4) {
+			trap_Argv(2, count, sizeof(count));
+			team1Count = atoi(count);
 
-		trap_Argv(3, count, sizeof(count));
-		team2Count = atoi(count);
+			trap_Argv(3, count, sizeof(count));
+			team2Count = atoi(count);
+		}
+		else { // no arguments; get numbers based on current ingame player counts
+			for (i = 0; i < MAX_CLIENTS; i++) {
+				if (level.clients[i].pers.connected != CON_CONNECTED)
+					continue;
+				if (level.clients[i].sess.sessionTeam == TEAM_RED)
+					team1Count++;
+				else if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
+					team2Count++;
+			}
+		}
 
 		if (team1Count > 0 && team2Count > 0) {
 			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
@@ -6154,7 +6185,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	200
+#define BUILDNUMBER	201
 
 void Cmd_Help_f(gentity_t *ent)
 {
