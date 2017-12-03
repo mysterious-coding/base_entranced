@@ -3822,6 +3822,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
 			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Shuffle Teams - %i vs %i", team1Count, team2Count);
 		}
+		else {
+			trap_SendServerCommand(ent - g_entities, "print \"Both team numbers must be greater than zero.\n\"");
+			return;
+		}
 	}
 	else if (!Q_stricmp(arg1, "forceround2"))
 	{
