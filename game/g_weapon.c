@@ -2167,6 +2167,18 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 			continue;
 		}
 
+		static qboolean isUrban = -1;
+		if (isUrban == -1) { // uninitialized
+			vmCvar_t mapname;
+			trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+			if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+				isUrban = qtrue;
+			else
+				isUrban = qfalse;
+		}
+		if (isUrban == qtrue && VALIDSTRING(gent->NPC_type) && tolower(*gent->NPC_type) == 'w')
+			continue;
+
 		// find the distance from the edge of the bounding box
 		for ( i = 0 ; i < 3 ; i++ ) 
 		{
