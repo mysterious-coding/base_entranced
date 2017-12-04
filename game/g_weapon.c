@@ -168,14 +168,17 @@ static	vec3_t	muzzle;
 
 
 
-qboolean OnValidMapForAntiSpam(void)
+qboolean OnValidMapForAntiSpam(qboolean doorSpam)
 {
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	if (!Q_stricmp(mapname.string, "siege_codes") || !Q_stricmpn(mapname.string, "mp/siege_crystals", 17)) //we are currently on any of these maps
-	{
+
+	if (!Q_stricmp(mapname.string, "siege_codes") || !Q_stricmpn(mapname.string, "mp/siege_crystals", 17))
 		return qfalse;
-	}
+
+	if (doorSpam && !Q_stricmpn(mapname.string, "siege_urban", 11)) // workaround
+		return qfalse;
+
 	return qtrue;
 }
 
@@ -245,7 +248,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (!ent || !ent->client || !OnValidMapForAntiSpam() || g_gametype.integer != GT_SIEGE)
+	if (!ent || !ent->client || !OnValidMapForAntiSpam(checkDoorspam) || g_gametype.integer != GT_SIEGE)
 	{
 		return qfalse;
 	}
