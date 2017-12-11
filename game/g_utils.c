@@ -1849,9 +1849,19 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 
 	int max = target->maxHealth;
 	if (isUrban == qtrue && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
+		static enum {
+			ONETHIRD = 0,
+			TWOTHIRDS,
+			FULL
+		} healthStatus = FULL;
 		if (target->health <= (int)(((double)max) / 3))
+			healthStatus = ONETHIRD;
+		else if (healthStatus == FULL && target->health <= (int)((((double)max) / 3) * 2))
+			healthStatus = TWOTHIRDS;
+		
+		if (healthStatus == ONETHIRD)
 			max = (int)(((double)max) / 3);
-		else if (target->health <= (int)((((double)max) / 3) * 2))
+		else if (healthStatus == TWOTHIRDS)
 			max = (int)((((double)max) / 3) * 2);
 	}
 
