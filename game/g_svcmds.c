@@ -2241,13 +2241,13 @@ void Svcmd_Zombies_f()
 				else if (!Q_stricmp(ent->classname, "info_player_siegeteam1") && Q_stricmp(ent->targetname, "zomspawno")) {
 					G_FreeEntity(ent);
 				}
-				else if (!Q_stricmp(ent->classname, "info_player_siegeteam2") && Q_stricmp(ent->targetname, "spawn3")) {
+				else if (!Q_stricmp(ent->classname, "info_player_siegeteam2") && Q_stricmp(ent->targetname, "zomspawnd")) {
 					G_FreeEntity(ent);
 				}
 				else if (!Q_stricmp(ent->classname, "trigger_once")) {
 					G_FreeEntity(ent);
 				}
-				else if (!Q_stricmp(ent->classname, "trigger_multiple") && VALIDSTRING(ent->targetname) && !Q_stricmpn(ent->targetname, "retreat", 7)) {
+				else if (!Q_stricmp(ent->classname, "trigger_multiple") && VALIDSTRING(ent->targetname) && Q_stristrclean(ent->targetname, "telehack")) {
 					G_FreeEntity(ent);
 				}
 				else if (!Q_stricmp(ent->classname, "func_usable") && !(VALIDSTRING(ent->targetname) && (!Q_stricmp(ent->targetname, "doorshack") || !Q_stricmp(ent->targetname, "retreat")))) {
@@ -2257,7 +2257,7 @@ void Svcmd_Zombies_f()
 					G_FreeEntity(ent);
 				}
 				else if (!Q_stricmp(ent->classname, "func_breakable")) {
-					if (ent->spawnflags & 1 || ent->spawnflags & 8 || ent->maxHealth == 150) {
+					if (ent->spawnflags & 1 || ent->spawnflags & 8 || ent->maxHealth == 150 || ent->maxHealth == 300) {
 						G_FreeEntity(ent);
 					}
 					else {
