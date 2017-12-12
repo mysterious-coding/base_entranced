@@ -2257,7 +2257,7 @@ void Svcmd_Zombies_f()
 					G_FreeEntity(ent);
 				}
 				else if (!Q_stricmp(ent->classname, "func_breakable")) {
-					if (ent->spawnflags & 1 || ent->spawnflags & 8 || ent->maxHealth == 150 || ent->maxHealth == 300) {
+					if (ent->spawnflags & 1 || ent->spawnflags & 8 || ent->maxHealth == 150 || (VALIDSTRING(ent->targetname) && !Q_stricmp(ent->targetname, "obj2backdoorlockbox"))) {
 						G_FreeEntity(ent);
 					}
 					else {

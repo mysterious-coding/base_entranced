@@ -644,6 +644,21 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 					return;
 				}
 			}
+			if (g_gametype.integer == GT_SIEGE) {
+				static qboolean isUrban = -1;
+				if (isUrban == -1) { // uninitialized
+					vmCvar_t mapname;
+					trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+					if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+						isUrban = qtrue;
+					else
+						isUrban = qfalse;
+				}
+				if (isUrban == qtrue && VALIDSTRING(self->target) && !Q_stricmp(self->target, "obj2backdoorlockbox") &&
+					other && other->client && other->client->siegeClass != -1 && bgSiegeClasses[other->client->siegeClass].playerClass == SPC_JEDI) {
+					return;
+				}
+			}
 			if (!G_PointInBounds( other->client->ps.origin, self->r.absmin, self->r.absmax ))
 			{
 				return;
