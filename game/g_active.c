@@ -865,7 +865,12 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		}
 
 		// count down armor when over max
-		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
+		int maxArmor;
+		if (g_gametype.integer == GT_SIEGE && client->siegeClass != -1)
+			maxArmor = bgSiegeClasses[client->siegeClass].maxarmor;
+		else
+			maxArmor = client->ps.stats[STAT_MAX_HEALTH];
+		if ( client->ps.stats[STAT_ARMOR] > maxArmor ) {
 			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
