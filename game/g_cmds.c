@@ -1442,8 +1442,12 @@ void SetSiegeClass(gentity_t *ent, char* className)
 	//set it back after we do all the stuff
 	ent->client->ps.persistant[PERS_SCORE] = preScore;
 
-	if (doDelay)
-		ent->client->switchClassTime = level.time + 5000;
+	if (doDelay) {
+		if (g_delayClassUpdate.integer)
+			ent->client->switchClassTime = level.time + 1000;
+		else
+			ent->client->switchClassTime = level.time + 5000;
+	}
 }
 
 /*
