@@ -2028,6 +2028,27 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 			}
 		}
 
+		if (self->client->sess.sessionTeam == TEAM_RED && level.totalObjectivesCompleted == 3 && !Q_stricmpn(mapname.string, "siege_urban", 11)) {
+			// check if killed while on or close to swoop
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				if (g_entities[i].NPC && g_entities[i].s.NPC_class == CLASS_VEHICLE) {
+					vec3_t difference = { 0 };
+					VectorSubtract(g_entities[i].r.currentOrigin, self->client->ps.origin, difference);
+					float distance = VectorLength(difference);
+					if (distance <= 128) {
+						attacker->client->pers.teamState.basedefense++;
+						attacker->client->ps.persistant[PERS_DEFEND_COUNT]++;
+						attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+						if (distance > 20)
+							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+						return qtrue;
+					}
+					break;
+				}
+			}
+		}
+
 		break;
 
 	case REWARD_HOLYSHIT:
@@ -2238,6 +2259,26 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 						break;
 					}
 				}
+			}
+		}
+		else if (!Q_stricmpn(mapname.string, "siege_urban", 11)) {
+			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
+				(!level.totalObjectivesCompleted || (level.totalObjectivesCompleted == 1 && self->client->ps.origin[1] >= 900 && self->client->holdingObjectiveItem) || (level.totalObjectivesCompleted == 2 && self->client->ps.origin[1] >= 1000))) {
+				// killed while hacking
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+				return qtrue;
+			}
+			else if (level.totalObjectivesCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED && self->m_pVehicle &&
+				self->client->ps.origin[0] >= 4242 && self->client->ps.origin[0] <= 4770 &&
+				self->client->ps.origin[1] >= 6600 && self->client->ps.origin[1] <= 6842 &&
+				self->client->ps.origin[2] >= -23 && self->client->ps.origin[2] <= 172 &&
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
+				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+				++attacker->client->pers.teamState.saves;
+				return qtrue;
 			}
 		}
 		break;

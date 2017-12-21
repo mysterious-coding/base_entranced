@@ -1101,6 +1101,25 @@ void Svcmd_ResetFlags_f(){
 	Team_ResetFlags();
 }
 
+void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce) {
+	if (!cl || cl - level.clients < 0 || cl - level.clients >= MAX_CLIENTS)
+		return;
+
+	cl->pers.ready = ready;
+	cl->pers.readyTime = level.time;
+
+	if (announce) {
+		if (cl->pers.ready) {
+			trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", cl->pers.netname));
+			trap_SendServerCommand(cl - level.clients, va("cp \""S_COLOR_GREEN"You are ready\""));
+		}
+		else {
+			trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", cl->pers.netname));
+			trap_SendServerCommand(cl - level.clients, va("cp \""S_COLOR_RED"You are NOT ready\""));
+		}
+	}
+}
+
 /*
 ===================
 Svcmd_ForceReady_f
@@ -1109,48 +1128,40 @@ forceready <player>
 ===================
 */
 void	Svcmd_ForceReady_f(void) {
-	gclient_t	*cl;
+	gentity_t *found = NULL;
 	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() != 2) {
-		Com_Printf("Usage: forceready <clientnumber> (use -1 for all clients)\n"); //bad number of arguments
+		Com_Printf("Usage: forceready <clientnumber> (use -1 for all clients, -2 for all ingame players)\n"); //bad number of arguments
 		return;
 	}
 
-	// find the player
 	trap_Argv(1, str, sizeof(str));
-	if (!Q_stricmp(str, "-1"))
-	{
-		int i = 0;
-		while (i < MAX_CLIENTS)
-		{
-			if ((&g_entities[i]) && (&g_entities[i])->client && (&g_entities[i])->client->pers.connected != CON_DISCONNECTED)
-			{
-				trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", (&g_entities[i])->client->pers.netname)); //tell everyone he is ready
-				if (!(&g_entities[i])->client->pers.ready)
-				{
-					trap_SendServerCommand(&g_entities[i] - g_entities, va("cp \""S_COLOR_GREEN"You are ready\"")); //if he's not already ready, tell him he's ready
-				}
-				(&g_entities[i])->client->pers.ready = 1; //ready him up
-				(&g_entities[i])->client->pers.readyTime = level.time;
-				
-			}
-
-			i++;
+	int argInt = atoi(str), affectedPlayers = 0;
+	if (argInt < 0) { // all players or all ingame players
+		int i;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected != CON_CONNECTED)
+				continue;
+			if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && argInt == -2)
+				continue;
+			G_ChangePlayerReadiness(&level.clients[i], qtrue, qfalse);
+			affectedPlayers++;
 		}
-		return;
+		if (affectedPlayers > 0)
+			trap_SendServerCommand(-1, va("print \"All %d %splayers "S_COLOR_GREEN"are ready"S_COLOR_WHITE"\n\"", affectedPlayers, argInt == -2 ? "ingame " : ""));
+		else
+			Com_Printf("No valid %splayers found.\n", argInt == -2 ? "ingame " : "");
 	}
-	cl = ClientForString(str);
-	if (!cl) {
-		Com_Printf("Usage: forceready <clientnumber> (use -1 for all clients)\n"); //bad client number
-		return;
+	else { // one specific player
+		found = G_FindClient(str);
+		if (!found || !found->client) {
+			Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
+			return;
+		}
+
+		G_ChangePlayerReadiness(found->client, qtrue, qtrue);
 	}
-	trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", (&g_entities[cl - level.clients])->client->pers.netname)); //tell everyone he is ready
-	if (!(&g_entities[cl - level.clients])->client->pers.ready) {
-		trap_SendServerCommand((&g_entities[cl - level.clients]) - g_entities, va("cp \""S_COLOR_GREEN"You are ready\"")); //if he's not already ready, tell him he's ready
-	}
-	(&g_entities[cl - level.clients])->client->pers.ready = 1; //ready him up
-	(&g_entities[cl - level.clients])->client->pers.readyTime = level.time;
 }
 
 /*
@@ -1161,48 +1172,40 @@ forceunready <player>
 ===================
 */
 void	Svcmd_ForceUnReady_f(void) {
-	gclient_t	*cl;
+	gentity_t *found = NULL;
 	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() != 2) {
-		Com_Printf("Usage: forceunready <clientnumber> (use -1 for all clients)\n"); //bad number of arguments
+		Com_Printf("Usage: forceunready <clientnumber> (use -1 for all clients, -2 for all ingame players)\n"); //bad number of arguments
 		return;
 	}
 
-	// find the player
 	trap_Argv(1, str, sizeof(str));
-	if (!Q_stricmp(str, "-1"))
-	{
-		int i = 0;
-		while (i < MAX_CLIENTS)
-		{
-			if ((&g_entities[i]) && (&g_entities[i])->client && (&g_entities[i])->client->pers.connected != CON_DISCONNECTED)
-			{
-				trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", (&g_entities[i])->client->pers.netname)); //tell everyone he is unready
-				if ((&g_entities[i])->client->pers.ready)
-				{
-					trap_SendServerCommand(&g_entities[i] - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\"")); //if he's not already unready, tell him he's unready
-				}
-				(&g_entities[i])->client->pers.ready = 0; //unready him up
-				(&g_entities[i])->client->pers.readyTime = level.time;
-
-			}
-
-			i++;
+	int argInt = atoi(str), affectedPlayers = 0;
+	if (argInt < 0) { // all players or all ingame players
+		int i;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected != CON_CONNECTED)
+				continue;
+			if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && argInt == -2)
+				continue;
+			G_ChangePlayerReadiness(&level.clients[i], qfalse, qfalse);
+			affectedPlayers++;
 		}
-		return;
+		if (affectedPlayers > 0)
+			trap_SendServerCommand(-1, va("print \"All %d %splayers "S_COLOR_RED"are NOT ready"S_COLOR_WHITE"\n\"", affectedPlayers, argInt == -2 ? "ingame " : ""));
+		else
+			Com_Printf("No valid %splayers found.\n", argInt == -2 ? "ingame " : "");
 	}
-	cl = ClientForString(str);
-	if (!cl) {
-		Com_Printf("Usage: forceunready <clientnumber> (use -1 for all clients)\n"); //bad client number
-		return;
+	else { // one specific player
+		found = G_FindClient(str);
+		if (!found || !found->client) {
+			Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
+			return;
+		}
+
+		G_ChangePlayerReadiness(found->client, qfalse, qtrue);
 	}
-	trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", (&g_entities[cl - level.clients])->client->pers.netname)); //tell everyone he is unready
-	if ((&g_entities[cl - level.clients])->client->pers.ready) {
-		trap_SendServerCommand((&g_entities[cl - level.clients]) - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\"")); //if he's not already unready, tell him he's unready
-	}
-	(&g_entities[cl - level.clients])->client->pers.ready = 0; //unready him up
-	(&g_entities[cl - level.clients])->client->pers.readyTime = level.time;
 }
 
 // whitelist

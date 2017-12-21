@@ -1555,14 +1555,24 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		client = level.killerOfLastDesertComputer->s.number;
 	}
 
-	if (objective == 2 && !Q_stricmpn(mapname.string, "siege_urban", 11))
+	if (!Q_stricmpn(mapname.string, "siege_urban", 11))
 	{
-		int i;
-		for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
-			gentity_t *icon = &g_entities[i];
-			if (VALIDSTRING(icon->targetname) && !Q_stricmp(icon->targetname, "hackicon") && VALIDSTRING(icon->classname) && !Q_stricmp(icon->classname, "info_siege_radaricon")) {
-				icon->s.eFlags &= ~EF_RADAROBJECT;
-				break;
+		if (objective == 2) {
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				gentity_t *icon = &g_entities[i];
+				if (VALIDSTRING(icon->targetname) && !Q_stricmp(icon->targetname, "hackicon") && VALIDSTRING(icon->classname) && !Q_stricmp(icon->classname, "info_siege_radaricon")) {
+					icon->s.eFlags &= ~EF_RADAROBJECT;
+					break;
+				}
+			}
+		}
+		if (objective < 5) {
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				gentity_t *sentry = &g_entities[i];
+				if (VALIDSTRING(sentry->classname) && !Q_stricmp(sentry->classname, "sentryGun") && level.time - sentry->genericValue8 < (TURRET_LIFETIME - 3000))
+						sentry->genericValue8 = level.time - (TURRET_LIFETIME - 3000); // explode in 3 seconds
 			}
 		}
 	}

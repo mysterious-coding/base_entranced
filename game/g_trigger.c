@@ -459,6 +459,16 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
 	if ( self->flags & FL_INACTIVE )
 	{//set by target_deactivate
 		return;
@@ -497,6 +507,10 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				{//not the right guy to fire me off
 					return;
 				}
+				if (isUrban == qtrue && other->m_pVehicle && (!other->m_pVehicle->m_pPilot || ((gentity_t *)other->m_pVehicle->m_pPilot)->health <= 0))
+				{
+					return; // must have pilot
+				}
 			}
 			else
 			{
@@ -505,8 +519,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2") && self->target && self->target[0] && (!Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
 	{
 		return;
@@ -644,20 +656,9 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 					return;
 				}
 			}
-			if (g_gametype.integer == GT_SIEGE) {
-				static qboolean isUrban = -1;
-				if (isUrban == -1) { // uninitialized
-					vmCvar_t mapname;
-					trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-					if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-						isUrban = qtrue;
-					else
-						isUrban = qfalse;
-				}
-				if (isUrban == qtrue && VALIDSTRING(self->target) && !Q_stricmp(self->target, "obj2backdoorlockbox") &&
-					other && other->client && other->client->siegeClass != -1 && bgSiegeClasses[other->client->siegeClass].playerClass == SPC_JEDI) {
-					return;
-				}
+			if (g_gametype.integer == GT_SIEGE && isUrban == qtrue && VALIDSTRING(self->target) && !Q_stricmp(self->target, "obj2backdoorlockbox") &&
+				other && other->client && other->client->siegeClass != -1 && bgSiegeClasses[other->client->siegeClass].playerClass == SPC_JEDI) {
+				return;
 			}
 			if (!G_PointInBounds( other->client->ps.origin, self->r.absmin, self->r.absmax ))
 			{

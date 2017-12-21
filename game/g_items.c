@@ -881,7 +881,6 @@ void pas_adjust_enemy( gentity_t *ent )
 }
 
 #define TURRET_DEATH_DELAY 2000
-#define TURRET_LIFETIME 60000
 
 void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 

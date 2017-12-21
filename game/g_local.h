@@ -1444,6 +1444,7 @@ gentity_t *G_GetDuelWinner(gclient_t *client);
 //
 // g_items.c
 //
+#define TURRET_LIFETIME 60000
 void ItemUse_Binoculars(gentity_t *ent);
 void ItemUse_Shield(gentity_t *ent);
 void ItemUse_Sentry(gentity_t *ent);
@@ -1837,6 +1838,7 @@ qboolean G_FilterGetstatusPacket (unsigned int ip);
 qboolean getIpFromString( const char* from, unsigned int* ip );
 qboolean getIpPortFromString( const char* from, unsigned int* ip, int* port );
 void getStringFromIp( unsigned int ip, char* buffer, int size );
+void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce);
 
 
 //

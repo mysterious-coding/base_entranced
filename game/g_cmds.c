@@ -4149,7 +4149,7 @@ static void Cmd_Ready_f(gentity_t *ent) {
 		return;
 	}
 
-	if (level.restarted  )
+	if (level.restarted)
 		return;
 
 	if (ent->client->pers.readyTime > level.time - 2000)
@@ -4166,18 +4166,7 @@ static void Cmd_Ready_f(gentity_t *ent) {
 	// if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
     //     return;
 
-	ent->client->pers.ready = !ent->client->pers.ready;
-	ent->client->pers.readyTime = level.time;
-
-	if (ent->client->pers.ready) {
-		trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", ent->client->pers.netname));
-		trap_SendServerCommand(ent - g_entities, va("cp \""S_COLOR_GREEN"You are ready\""));
-	}
-	else 
-	{
-		trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", ent->client->pers.netname));
-		trap_SendServerCommand(ent - g_entities, va("cp \""S_COLOR_RED"You are NOT ready\""));
-	}
+	G_ChangePlayerReadiness(ent->client, !ent->client->pers.ready, qtrue);
 }
 
 
@@ -6193,7 +6182,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	208
+#define BUILDNUMBER	209
 
 void Cmd_Help_f(gentity_t *ent)
 {
