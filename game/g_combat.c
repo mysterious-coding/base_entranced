@@ -2286,7 +2286,6 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
 							++attacker->client->pers.teamState.saves;
 							return qtrue;
-							return qtrue;
 						}
 						break;
 					}
