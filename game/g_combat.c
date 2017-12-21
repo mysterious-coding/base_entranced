@@ -2270,15 +2270,27 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				++attacker->client->pers.teamState.saves;
 				return qtrue;
 			}
-			else if (level.totalObjectivesCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED && self->m_pVehicle &&
+			else if (level.totalObjectivesCompleted == 3 && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= 4242 && self->client->ps.origin[0] <= 4770 &&
 				self->client->ps.origin[1] >= 6600 && self->client->ps.origin[1] <= 6842 &&
 				self->client->ps.origin[2] >= -23 && self->client->ps.origin[2] <= 172 &&
-				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
-				attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-				++attacker->client->pers.teamState.saves;
-				return qtrue;
+				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) { // killed while on swoop near obj
+				int i;
+				for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+					if (g_entities[i].NPC && g_entities[i].s.NPC_class == CLASS_VEHICLE) {
+						vec3_t difference = { 0 };
+						VectorSubtract(g_entities[i].r.currentOrigin, self->client->ps.origin, difference);
+						float distance = VectorLength(difference);
+						if (distance < 20) {
+							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+							self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+							++attacker->client->pers.teamState.saves;
+							return qtrue;
+							return qtrue;
+						}
+						break;
+					}
+				}
 			}
 		}
 		break;
