@@ -1831,6 +1831,8 @@ extern gentity_t *gJMSaberEnt;
 //
 // g_svcmds.c
 //
+#define MAX_RANDOMPUGMAPS 5
+qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize);
 qboolean	ConsoleCommand( void );
 void G_ProcessGetstatusIPBans(void);
 qboolean G_FilterPacket( char *from, char* reasonBuffer, int reasonBufferSize);
@@ -2331,6 +2333,7 @@ extern vmCvar_t     g_allow_vote_nextmap;
 extern vmCvar_t     g_allow_vote_timelimit;
 extern vmCvar_t     g_allow_vote_fraglimit;
 extern vmCvar_t     g_allow_vote_maprandom;
+extern vmCvar_t     g_allow_vote_nextpug;
 extern vmCvar_t     g_allow_vote_warmup;
 extern vmCvar_t     g_default_restart_countdown;
 extern vmCvar_t		g_allow_vote_randomteams;
@@ -2410,6 +2413,8 @@ extern vmCvar_t    dDemoLimit;
 extern vmCvar_t    dTechLimit;
 extern vmCvar_t    dScoutLimit;
 extern vmCvar_t    dJediLimit;
+
+extern vmCvar_t    playedPugMaps;
 
 extern vmCvar_t    siegeStatus;
 extern	vmCvar_t	g_autoStats;

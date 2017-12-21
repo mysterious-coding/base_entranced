@@ -1859,6 +1859,151 @@ void Svcmd_MapRandom_f()
     G_Printf( "Map pool '%s' not found\n", pool );
 }
 
+qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize) {
+	char *fileName, *prettyName;
+	switch (tolower(c)) {
+	case 'h':	fileName = "mp/siege_hoth2";		prettyName = "Hoth";		break;
+	case 'n':	fileName = "siege_narshaddaa";		prettyName = "Nar";			break;
+	case 'c':	fileName = "siege_cargobarge2";		prettyName = "Cargo";		break;
+	case 'u':	fileName = "siege_urban_b5";		prettyName = "Urban";		break;
+	case 'b':	fileName = "mp/siege_bespin_b11";	prettyName = "Bespin";		break;
+	case 'a':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
+	case 'e':	fileName = "mp/siege_eat_shower";	prettyName = "Eat Shower";	break;
+	case 'd':	fileName = "mp/siege_desert";		prettyName = "Desert";		break;
+	case 'k':	fileName = "mp/siege_korriban";		prettyName = "Korri";		break;
+	default:	return qfalse;
+	}
+	if (outFileName && outFileNameSize > 0)
+		Q_strncpyz(outFileName, fileName, outFileNameSize);
+	if (outPrettyName && outPrettyNameSize > 0)
+		Q_strncpyz(outPrettyName, prettyName, outPrettyNameSize);
+	return qtrue;
+}
+
+static char CharFromMapName(char *s) {
+	if (!s)
+		return '\0';
+	if (!Q_stricmp(s, "mp/siege_hoth2"))
+		return 'h';
+	if (!Q_stricmp(s, "siege_narshaddaa"))
+		return 'n';
+	if (!Q_stricmp(s, "siege_cargobarge2"))
+		return 'c';
+	if (!Q_stricmp(s, "siege_urban_b5"))
+		return 'u';
+	if (!Q_stricmp(s, "mp/siege_urban_b11"))
+		return 'b';
+	if (!Q_stricmp(s, "mp/siege_alzocIII"))
+		return 'a';
+	if (!Q_stricmp(s, "mp/siege_eat_shower"))
+		return 'e';
+	if (!Q_stricmp(s, "mp/siege_desert"))
+		return 'd';
+	if (!Q_stricmp(s, "mp/siege_korriban"))
+		return 'k';
+	return '\0';
+}
+
+void Svcmd_RandomPugMap_f()
+{
+	char maps[MAX_RANDOMPUGMAPS][64] = { 0 };
+	int mapsToRandomize = 0;
+
+	if (trap_Argc() < 2) {
+		return;
+	}
+
+	char theArg[64];
+	trap_Argv(1, theArg, sizeof(theArg));
+	int i, len = strlen(theArg);
+	for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+		if (!LongMapNameFromChar(theArg[i], maps[i], sizeof(maps[i]), NULL, 0)) {
+			Com_Printf("Unrecognized map '%s'\n", tolower(theArg[i]));
+			return;
+		}
+		mapsToRandomize++;
+	}
+
+	if (mapsToRandomize < 1) {
+		Com_Printf("Invalid maps to be randomized.\n");
+		return;
+	}
+
+	int total, ingame;
+	CountPlayersIngame(&total, &ingame);
+	if (ingame < 2) { // how? this should have been handled in callvote code, maybe some stupid admin directly called it with nobody in game..?
+					  // or it could also be caused by people joining spec before map_random passes... so inform them, i guess
+		Com_Printf("Not enough people in game to start a multi vote; a single map will be randomized.\n");
+		mapsToRandomize = 1;
+	}
+
+	MapSelectionContext context;
+	memset(&context, 0, sizeof(context));
+
+	if (mapsToRandomize > 1) { // if we are randomizing more than one map, there will be a second vote
+		if (level.multiVoting && level.voteTime) {
+			return; // theres already a multi vote going on, retard
+		}
+
+		if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
+			return; // another vote just passed and is waiting to execute, don't interrupt it...
+		}
+
+		context.announceMultiVote = qtrue;
+	}
+
+	for (i = 0; i < mapsToRandomize; i++)
+		mapSelectedCallback(&context, maps[i]);
+
+	if (VALIDSTRING(context.printMessage)) {
+		// print in console and do a global prioritized center print
+		trap_SendServerCommand(-1, va("print \"%s\n\"", context.printMessage));
+		G_GlobalTickedCenterPrint(context.printMessage, 10000, qtrue); // give them 10s to see the options
+	}
+
+	if (context.numSelected > 1) {
+		// we are going to need another vote for this...
+		StartMultiMapVote(context.numSelected, context.listOfMaps);
+	}
+	else {
+		// we want 1 map, this means listOfMaps only contains 1 randomized map. Just change to it straight away.
+		trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", context.listOfMaps));
+	}
+}
+
+void Svcmd_NewPug_f(void) {
+	trap_SendServerCommand(-1, va("print \"Starting a new pug%s.\n\"", strlen(playedPugMaps.string) ? "; clearing list of played maps" : ""));
+	trap_Cvar_Set("playedPugMaps", "");
+	trap_SendConsoleCommand(EXEC_APPEND, "randompugmap hncu\n");
+}
+
+void Svcmd_NextPug_f(void) {
+	char arg[MAX_RANDOMPUGMAPS + 1] = { 0 }, maps[] = { 'h', 'n', 'c', 'u' }, currentMap[64];
+	trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
+	char played[MAX_STRING_CHARS], thisMapChar = CharFromMapName(currentMap);
+	Q_strncpyz(played, playedPugMaps.string, sizeof(played));
+
+	// add the current map to the cvar
+	if (thisMapChar && !strchr(played, thisMapChar)) {
+		Q_strcat(played, sizeof(played), va("%c", thisMapChar));
+		trap_Cvar_Set("playedPugMaps", played);
+		trap_Cvar_Update(&playedPugMaps);
+	}
+
+	int i;
+	for (i = 0; i < sizeof(maps); i++) {
+		if (!strchr(playedPugMaps.string, maps[i]))
+			Q_strcat(arg, sizeof(arg), va("%c", maps[i]));
+	}
+
+	if (!arg[0]) { // all maps have been played
+		Svcmd_NewPug_f();
+		return;
+	}
+
+	trap_SendConsoleCommand(EXEC_APPEND, va("randompugmap %s", arg));
+}
+
 void Svcmd_KillTurrets_f(qboolean announce)
 {
 	int i = 0;
@@ -2907,6 +3052,21 @@ qboolean	ConsoleCommand( void ) {
 
 	if (Q_stricmp(cmd, "map_random") == 0) {
 		Svcmd_MapRandom_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "randompugmap") == 0) {
+		Svcmd_RandomPugMap_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "newpug") == 0) {
+		Svcmd_NewPug_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "nextpug") == 0) {
+		Svcmd_NextPug_f();
 		return qtrue;
 	}
 

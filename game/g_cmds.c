@@ -3325,6 +3325,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
 	} else if ( !Q_stricmp( arg1, "map_random" ) ) {
+	} else if ( !Q_stricmp( arg1, "newpug" ) ) {
+	} else if ( !Q_stricmp( arg1, "nextpug" ) ) {
 	} else if ( !Q_stricmp( arg1, "g_gametype" ) ) {
 	} else if ( !Q_stricmp( arg1, "kick" ) ) {
 	} else if ( !Q_stricmp( arg1, "clientkick" ) ) {
@@ -3558,6 +3560,81 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		//Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random Map: %s", pools[i].longname);
 		//Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
+	}
+	else if (!Q_stricmp(arg1, "newpug")) {
+		if (!g_allow_vote_nextpug.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Vote newpug is disabled.\n\"");
+			return;
+		}
+
+		int total, ingame;
+		CountPlayersIngame(&total, &ingame);
+		if (ingame < 2) {
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
+			return;
+		}
+
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New random pug map rotation");
+		Com_sprintf(level.voteString, sizeof(level.voteString), arg1);
+	}
+	else if (!Q_stricmp(arg1, "nextpug")) {
+		if (!g_allow_vote_nextpug.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Vote nextpug is disabled.\n\"");
+			return;
+		}
+
+		int total, ingame;
+		CountPlayersIngame(&total, &ingame);
+		if (ingame < 2) {
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
+			return;
+		}
+
+		char maps[] = { 'h', 'n', 'c', 'u' }, eligibleMaps[MAX_RANDOMPUGMAPS + 1] = { 0 }, currentMap[64];
+		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
+		int i;
+		for (i = 0; i < sizeof(maps); i++) {
+			if (!strchr(playedPugMaps.string, maps[i])) {
+				char possibleMap[64] = { 0 };
+				LongMapNameFromChar(maps[i], possibleMap, sizeof(possibleMap), NULL, 0);
+				if (Q_stricmp(currentMap, possibleMap))
+					Q_strcat(eligibleMaps, sizeof(eligibleMaps), va("%c", maps[i]));
+			}
+		}
+		int len = strlen(eligibleMaps);
+		if (!len) { // all maps have been played
+			trap_SendServerCommand(ent - g_entities, "print \"All rotation maps have been played; calling newpug vote instead.\n\"");
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New random pug map rotation");
+			Com_sprintf(level.voteString, sizeof(level.voteString), "newpug");
+		}
+		else if (len == 1) { // only one map left
+			char fileName[64], prettyName[64];
+			if (LongMapNameFromChar(eligibleMaps[0], fileName, sizeof(fileName), prettyName, sizeof(prettyName))) {
+				Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Final pug map (%s)", prettyName);
+				Com_sprintf(level.voteString, sizeof(level.voteString), "map %s", fileName);
+			}
+			else {
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid map '%c'; unable to call vote.\n\"", eligibleMaps[0]));
+				return;
+			}
+		}
+		else { // multiple maps are eligible
+			char mapsString[MAX_STRING_CHARS] = { 0 };
+			for (i = 0; i < len; i++) {
+				char thisMap[64];
+				if (LongMapNameFromChar(eligibleMaps[i], NULL, 0, thisMap, sizeof(thisMap))) {
+					if (i > 0)
+						Q_strcat(mapsString, sizeof(mapsString), ", ");
+					Q_strcat(mapsString, sizeof(mapsString), thisMap);
+				}
+				else {
+					trap_SendServerCommand(ent - g_entities, va("print \"Invalid map '%c'; unable to call vote.\n\"", eligibleMaps[i]));
+					return;
+				}
+			}
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Next random pug map (%s)", mapsString);
+			Com_sprintf(level.voteString, sizeof(level.voteString), arg1);
+		}
 	}
 	else if ( !Q_stricmp ( arg1, "clientkick" ) )
 	{
@@ -6261,6 +6338,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_allow_vote_map.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_allow_vote_maprandom");
 	ServerCfgColor(string, g_allow_vote_maprandom.integer, ent);
+	Com_sprintf(string, sizeof(string), "g_allow_vote_nextpug");
+	ServerCfgColor(string, g_allow_vote_nextpug.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_allow_vote_netxmap");
 	ServerCfgColor(string, g_allow_vote_nextmap.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_allow_vote_pub");

@@ -206,6 +206,8 @@ vmCvar_t	dTechLimit;
 vmCvar_t	dScoutLimit;
 vmCvar_t	dJediLimit;
 
+vmCvar_t	playedPugMaps;
+
 vmCvar_t	g_autoStats;
 
 /*vmCvar_t	debug_testHeight1;
@@ -404,6 +406,7 @@ vmCvar_t    g_allow_vote_nextmap;
 vmCvar_t    g_allow_vote_timelimit;
 vmCvar_t    g_allow_vote_fraglimit;
 vmCvar_t    g_allow_vote_maprandom;
+vmCvar_t    g_allow_vote_nextpug;
 vmCvar_t    g_allow_vote_warmup;
 vmCvar_t    g_npc_spawn_limit;
 vmCvar_t	g_hackLog;
@@ -745,6 +748,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_vote_timelimit,	"g_allow_vote_timelimit"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_fraglimit,	"g_allow_vote_fraglimit"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_maprandom, "g_allow_vote_maprandom", "4", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_allow_vote_nextpug, "g_allow_vote_nextpug", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_warmup, "g_allow_vote_warmup", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_randomteams, "g_allow_vote_randomteams", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_randomcapts, "g_allow_vote_randomcapts", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -837,6 +841,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &dTechLimit, "dTechLimit", "0", 0, 0, qtrue },
 	{ &dScoutLimit, "dScoutLimit", "0", 0, 0, qtrue },
 	{ &dJediLimit, "dJediLimit", "0", 0, 0, qtrue },
+
+	{ &playedPugMaps, "playedPugMaps", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 
 	{ &debug_shieldLog, "debug_shieldLog", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_duoTest, "debug_duoTest", "0", CVAR_ARCHIVE, 0, qtrue },
