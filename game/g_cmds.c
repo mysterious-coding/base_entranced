@@ -3325,6 +3325,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
 	} else if ( !Q_stricmp( arg1, "map_random" ) ) {
+	} else if ( !Q_stricmp( arg1, "randompugmap" ) ) {
 	} else if ( !Q_stricmp( arg1, "newpug" ) ) {
 	} else if ( !Q_stricmp( arg1, "nextpug" ) ) {
 	} else if ( !Q_stricmp( arg1, "g_gametype" ) ) {
@@ -3560,6 +3561,49 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		//Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random Map: %s", pools[i].longname);
 		//Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
+	}
+	else if (!Q_stricmp(arg1, "randompugmap")) {
+		if (!g_allow_vote_maprandom.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Vote maprandom is disabled.\n\"");
+			return;
+		}
+
+		if (trap_Argc() != 3 || !arg2[0]) {
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: callvote randompugmap <letters of map names, without spaces>\n\"");
+			return;
+		}
+
+		int total, ingame;
+		CountPlayersIngame(&total, &ingame);
+		if (ingame < 2) {
+			trap_SendServerCommand(ent - g_entities, va("print \"At least two players must be in-game to call this vote.\n\""));
+			return;
+		}
+		
+		int len = strlen(arg2), valid = 0;
+		char eligibleMaps[MAX_RANDOMPUGMAPS + 1] = { 0 }, mapsString[MAX_STRING_CHARS] = { 0 };
+		for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+			char possibleMap[64] = { 0 }, possibleMapPrettyName[64] = { 0 };
+			if (LongMapNameFromChar(arg2[i], possibleMap, sizeof(possibleMap), possibleMapPrettyName, sizeof(possibleMapPrettyName))) {
+				Q_strcat(eligibleMaps, sizeof(eligibleMaps), va("%c", arg2[i]));
+				if (i > 0)
+					Q_strcat(mapsString, sizeof(mapsString), ", ");
+				Q_strcat(mapsString, sizeof(mapsString), possibleMapPrettyName);
+				valid++;
+			}
+			else {
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid map name '%c'.\nEligible maps: h = Hoth, n = Nar Shaddaa, c = Cargo Barge, u = Urban, b = Bespin, a = Alzoc III, e = Eat Shower, d = Desert, k = Korriban\n\"", arg2[i]));
+				return;
+			}
+		}
+
+		if (valid < 2) {
+			trap_SendServerCommand(ent - g_entities, "print \"Must specify at least two valid maps.\n\"");
+			return;
+		}
+
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random pug map: %s", mapsString);
+		Com_sprintf(level.voteString, sizeof(level.voteString), "randompugmap %s", eligibleMaps);
 	}
 	else if (!Q_stricmp(arg1, "newpug")) {
 		if (!g_allow_vote_nextpug.integer) {
