@@ -1918,7 +1918,7 @@ void Svcmd_RandomPugMap_f()
 	int i, len = strlen(theArg);
 	for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
 		if (!LongMapNameFromChar(theArg[i], maps[i], sizeof(maps[i]), NULL, 0)) {
-			Com_Printf("Unrecognized map '%s'\n", tolower(theArg[i]));
+			Com_Printf("Unrecognized map '%c'\n", tolower(theArg[i]));
 			return;
 		}
 		mapsToRandomize++;
