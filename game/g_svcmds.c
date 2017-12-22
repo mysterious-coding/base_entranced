@@ -2974,7 +2974,7 @@ qboolean	ConsoleCommand( void ) {
 		Svcmd_ForceReady_f();
 		return qtrue;
 	}
-	if (Q_stricmp(cmd, "forceunready") == 0) {
+	if (Q_stricmp(cmd, "forceunready") == 0 || Q_stricmp(cmd, "unforceready") == 0) {
 		Svcmd_ForceUnReady_f();
 		return qtrue;
 	}

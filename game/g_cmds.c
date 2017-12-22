@@ -3355,7 +3355,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
 			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, "
-			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, shuffleteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam, zombies, lockTeams <numPlayers>\n\"" );
+			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, shuffleteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam, zombies, lockTeams <numPlayers>, newpug, nextpug, randompugmap\n\"" );
 		return;
 	}
 
@@ -3655,7 +3655,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			char fileName[64], prettyName[64];
 			if (LongMapNameFromChar(eligibleMaps[0], fileName, sizeof(fileName), prettyName, sizeof(prettyName))) {
 				Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Final pug map (%s)", prettyName);
-				Com_sprintf(level.voteString, sizeof(level.voteString), "map %s", fileName);
+				Com_sprintf(level.voteString, sizeof(level.voteString), arg1);
 			}
 			else {
 				trap_SendServerCommand(ent - g_entities, va("print \"Invalid map '%c'; unable to call vote.\n\"", eligibleMaps[0]));
@@ -6303,7 +6303,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	210
+#define BUILDNUMBER	211
 
 void Cmd_Help_f(gentity_t *ent)
 {
