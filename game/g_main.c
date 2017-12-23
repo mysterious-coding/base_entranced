@@ -207,6 +207,8 @@ vmCvar_t	dScoutLimit;
 vmCvar_t	dJediLimit;
 
 vmCvar_t	playedPugMaps;
+vmCvar_t	desiredPugMaps;
+vmCvar_t	g_defaultPugMaps;
 
 vmCvar_t	g_autoStats;
 
@@ -843,6 +845,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &dJediLimit, "dJediLimit", "0", 0, 0, qtrue },
 
 	{ &playedPugMaps, "playedPugMaps", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &desiredPugMaps, "desiredPugMaps", "", CVAR_ARCHIVE | CVAR_ROM, 0 , qfalse },
+	{ &g_defaultPugMaps, "g_defaultPugMaps", "hncu", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &debug_shieldLog, "debug_shieldLog", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_duoTest, "debug_duoTest", "0", CVAR_ARCHIVE, 0, qtrue },

@@ -3618,8 +3618,33 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New random pug map rotation");
-		Com_sprintf(level.voteString, sizeof(level.voteString), arg1);
+		char maps[MAX_RANDOMPUGMAPS + 1] = { 0 };
+		if (arg2[0]) {
+			if (desiredPugMaps.string[0])
+				Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
+			else
+				Q_strncpyz(maps, "hncu", sizeof(maps));
+		}
+		else {
+			Q_strncpyz(maps, arg2, sizeof(maps));
+		}
+
+		char thisMap[64] = { 0 }, mapsString[MAX_STRING_CHARS] = { 0 };
+		int len = strlen(maps);
+		for (i = 0; i < len; i++) {
+			if (LongMapNameFromChar(maps[i], NULL, 0, thisMap, sizeof(thisMap))) {
+				if (i > 0)
+					Q_strcat(mapsString, sizeof(mapsString), ", ");
+				Q_strcat(mapsString, sizeof(mapsString), thisMap);
+			}
+			else {
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid map '%c'; unable to call vote.\n\"", maps[i]));
+				return;
+			}
+		}
+
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New random pug map rotation (%s)", mapsString);
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, maps);
 	}
 	else if (!Q_stricmp(arg1, "nextpug")) {
 		if (!g_allow_vote_nextpug.integer) {
@@ -3634,10 +3659,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-		char maps[] = { 'h', 'n', 'c', 'u' }, eligibleMaps[MAX_RANDOMPUGMAPS + 1] = { 0 }, currentMap[64];
+		char maps[MAX_RANDOMPUGMAPS + 1] = { 0 }, eligibleMaps[MAX_RANDOMPUGMAPS + 1] = { 0 }, currentMap[64];
+		if (desiredPugMaps.string[0])
+			Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
+		else
+			Q_strncpyz(maps, "hncu", sizeof(maps));
 		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
-		int i;
-		for (i = 0; i < sizeof(maps); i++) {
+		int i, len = strlen(maps);
+		for (i = 0; i < len; i++) {
 			if (!strchr(playedPugMaps.string, maps[i])) {
 				char possibleMap[64] = { 0 };
 				LongMapNameFromChar(maps[i], possibleMap, sizeof(possibleMap), NULL, 0);
@@ -3645,14 +3674,13 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 					Q_strcat(eligibleMaps, sizeof(eligibleMaps), va("%c", maps[i]));
 			}
 		}
-		int len = strlen(eligibleMaps);
+		len = strlen(eligibleMaps);
 		if (!len) { // all maps have been played
-			trap_SendServerCommand(ent - g_entities, "print \"All rotation maps have been played; calling newpug vote instead.\n\"");
-			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New random pug map rotation");
-			Com_sprintf(level.voteString, sizeof(level.voteString), "newpug");
+			trap_SendServerCommand(ent - g_entities, "print \"All maps have been played; call a newpug vote to start a new pug map rotation.\n\"");
+			return;
 		}
 		else if (len == 1) { // only one map left
-			char fileName[64], prettyName[64];
+			char fileName[64] = { 0 }, prettyName[64] = { 0 };
 			if (LongMapNameFromChar(eligibleMaps[0], fileName, sizeof(fileName), prettyName, sizeof(prettyName))) {
 				Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Final pug map (%s)", prettyName);
 				Com_sprintf(level.voteString, sizeof(level.voteString), arg1);
@@ -6303,7 +6331,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	211
+#define BUILDNUMBER	212
 
 void Cmd_Help_f(gentity_t *ent)
 {

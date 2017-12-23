@@ -2415,6 +2415,8 @@ extern vmCvar_t    dScoutLimit;
 extern vmCvar_t    dJediLimit;
 
 extern vmCvar_t    playedPugMaps;
+extern vmCvar_t    desiredPugMaps;
+extern vmCvar_t    g_defaultPugMaps;
 
 extern vmCvar_t    siegeStatus;
 extern	vmCvar_t	g_autoStats;

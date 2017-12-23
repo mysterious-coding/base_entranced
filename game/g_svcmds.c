@@ -1972,16 +1972,46 @@ void Svcmd_RandomPugMap_f()
 }
 
 void Svcmd_NewPug_f(void) {
+	char arg[MAX_RANDOMPUGMAPS + 1] = { 0 };
+	if (trap_Argc() < 2) { // no arg
+		if (g_defaultPugMaps.string[0])
+			Q_strncpyz(arg, g_defaultPugMaps.string, sizeof(arg));
+		else
+			Q_strncpyz(arg, "hncu", sizeof(arg));
+	}
+	else {
+		trap_Argv(1, arg, sizeof(arg));
+		if (!arg[0]) {
+			if (g_defaultPugMaps.string[0])
+				Q_strncpyz(arg, g_defaultPugMaps.string, sizeof(arg));
+			else
+				Q_strncpyz(arg, "hncu", sizeof(arg));
+		}
+	}
+
+	int i, len = strlen(arg);
+	for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+		if (!LongMapNameFromChar(arg[i], NULL, 0, NULL, 0)) {
+			Com_Printf("Unrecognized map '%c'\n", tolower(arg[i]));
+			return;
+		}
+	}
+
 	trap_SendServerCommand(-1, va("print \"Starting a new pug%s.\n\"", strlen(playedPugMaps.string) ? "; clearing list of played maps" : ""));
 	trap_Cvar_Set("playedPugMaps", "");
-	trap_SendConsoleCommand(EXEC_APPEND, "randompugmap hncu\n");
+	trap_Cvar_Set("desiredPugMaps", arg);
+	trap_SendConsoleCommand(EXEC_APPEND, va("randompugmap %s\n", arg));
 }
 
 void Svcmd_NextPug_f(void) {
-	char arg[MAX_RANDOMPUGMAPS + 1] = { 0 }, maps[] = { 'h', 'n', 'c', 'u' }, currentMap[64];
+	char arg[MAX_RANDOMPUGMAPS + 1] = { 0 }, maps[MAX_RANDOMPUGMAPS + 1] = { 0 }, currentMap[64];
 	trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
 	char played[MAX_STRING_CHARS], thisMapChar = CharFromMapName(currentMap);
 	Q_strncpyz(played, playedPugMaps.string, sizeof(played));
+	if (desiredPugMaps.string[0])
+		Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
+	else
+		Q_strncpyz(maps, "hncu", sizeof(maps));
 
 	// add the current map to the cvar
 	if (thisMapChar && !strchr(played, thisMapChar)) {
@@ -1992,7 +2022,7 @@ void Svcmd_NextPug_f(void) {
 
 	int i;
 	for (i = 0; i < sizeof(maps); i++) {
-		if (!strchr(playedPugMaps.string, maps[i]))
+		if (maps[i] && !strchr(playedPugMaps.string, maps[i]))
 			Q_strcat(arg, sizeof(arg), va("%c", maps[i]));
 	}
 
