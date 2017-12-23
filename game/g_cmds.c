@@ -3631,7 +3631,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		char thisMap[64] = { 0 }, mapsString[MAX_STRING_CHARS] = { 0 };
 		int len = strlen(maps);
-		for (i = 0; i < len; i++) {
+		for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
 			if (LongMapNameFromChar(maps[i], NULL, 0, thisMap, sizeof(thisMap))) {
 				if (i > 0)
 					Q_strcat(mapsString, sizeof(mapsString), ", ");
@@ -3666,7 +3666,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			Q_strncpyz(maps, "hncu", sizeof(maps));
 		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
 		int i, len = strlen(maps);
-		for (i = 0; i < len; i++) {
+		for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
 			if (!strchr(playedPugMaps.string, maps[i])) {
 				char possibleMap[64] = { 0 };
 				LongMapNameFromChar(maps[i], possibleMap, sizeof(possibleMap), NULL, 0);
@@ -3692,7 +3692,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		else { // multiple maps are eligible
 			char mapsString[MAX_STRING_CHARS] = { 0 };
-			for (i = 0; i < len; i++) {
+			for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
 				char thisMap[64];
 				if (LongMapNameFromChar(eligibleMaps[i], NULL, 0, thisMap, sizeof(thisMap))) {
 					if (i > 0)
@@ -6331,7 +6331,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	212
+#define BUILDNUMBER	213
 
 void Cmd_Help_f(gentity_t *ent)
 {
