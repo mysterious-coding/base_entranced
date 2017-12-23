@@ -3623,8 +3623,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			Q_strncpyz(maps, arg2, sizeof(maps));
 		}
 		else {
-			if (desiredPugMaps.string[0])
-				Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
+			if (g_defaultPugMaps.string[0])
+				Q_strncpyz(maps, g_defaultPugMaps.string, sizeof(maps));
 			else
 				Q_strncpyz(maps, "hncu", sizeof(maps));
 		}
@@ -6331,7 +6331,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	214
+#define BUILDNUMBER	215
 
 void Cmd_Help_f(gentity_t *ent)
 {
