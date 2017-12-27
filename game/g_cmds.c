@@ -6506,6 +6506,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	ServerCfgColor(string, g_sexyDisruptor.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_selfkillPenalty");
 	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
+	Com_sprintf(string, sizeof(string), "g_specInfo");
+	ServerCfgColor(string, g_specInfo.integer, ent);
 	Com_sprintf(string, sizeof(string), "g_swoopKillPoints");
 	ServerCfgColor(string, g_swoopKillPoints.integer, ent);
 	Com_sprintf(string, sizeof(string), "iLikeToDoorSpam");
