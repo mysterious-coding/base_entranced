@@ -4917,7 +4917,7 @@ void UpdateNewmodSiegeItems(void) {
 
 		if (!foundAny) { // didn't find any; send empty message
 			for (i = 0; i < MAX_CLIENTS; i++) {
-				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
+				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].sess.sessionTeam == currentTeam) {
 					trap_SendServerCommand(i, va("lchat %s", command));
 					//Com_Printf("Sent no siege item to client %i\n", i);
 				}
@@ -4937,7 +4937,7 @@ void UpdateNewmodSiegeItems(void) {
 			continue;
 
 		for (i = 0; i < MAX_CLIENTS; i++) {
-			if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].ps.persistant[PERS_TEAM] == currentTeam) {
+			if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].sess.sessionTeam == currentTeam) {
 				trap_SendServerCommand(i, va("kls -1 -1 %s", command)); // send it
 				//Com_Printf("Sent siege item command to client %i: %s\n", i, command);
 			}
