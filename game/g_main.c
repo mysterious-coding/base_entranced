@@ -4945,7 +4945,7 @@ void UpdateNewmodSiegeItems(void) {
 	}
 }
 
-#define MAX_SPECINFO_PLAYERS_PER_TEAM	4
+#define MAX_SPECINFO_PLAYERS_PER_TEAM	8
 #define MAX_SPECINFO_PLAYERS			(MAX_SPECINFO_PLAYERS_PER_TEAM * 2)
 void CheckSpecInfo(void) {
 	if (!g_specInfo.integer)
@@ -5011,6 +5011,11 @@ void CheckSpecInfo(void) {
 		Q_strcat(playerString, sizeof(playerString), "\"");
 
 		Q_strcat(totalString, sizeof(totalString), playerString);
+	}
+
+	int len = strlen(totalString);
+	if (len >= 1000) {
+		G_LogPrintf("Warning: specinfo string is very long! (%d digits)\n", len);
 	}
 
 	// send it to specs
