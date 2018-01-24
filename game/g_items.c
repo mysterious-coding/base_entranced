@@ -1623,7 +1623,7 @@ void ItemUse_UseDisp(gentity_t *ent, int type)
 		vec3_t fwd, pos;
 		gentity_t	*te;
 
-		// duo: added a small sound for dispensing ammo
+		// duo: added a small sound for dispensing healthpaks/ammo
 		G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/interface/choose_torso.wav"));
 
 		eItem = G_Spawn();
