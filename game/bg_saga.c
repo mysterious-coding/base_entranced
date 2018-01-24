@@ -1005,6 +1005,16 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = 0;
 	}
 
+	//Parse dispensehealthpaks
+	if (BG_SiegeGetPairedValue(classInfo, "dispensehealthpaks", parseBuf))
+	{
+		bgSiegeClasses[bgNumSiegeClasses].dispenseHealthpaks = atoi(parseBuf);
+	}
+	else
+	{ //It's alright, just default to 0 then.
+		bgSiegeClasses[bgNumSiegeClasses].dispenseHealthpaks = 0;
+	}
+
 	//Parse maxsentries
 	if (BG_SiegeGetPairedValue(classInfo, "maxsentries", parseBuf))
 	{

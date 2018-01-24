@@ -2186,6 +2186,25 @@ tryJetPack:
 		}
 	}
 
+	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].dispenseHealthpaks && (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)))
+	{ // toss a healthpak
+		trace_t trToss;
+		vec3_t fAng;
+		vec3_t fwd;
+
+		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
+		AngleVectors(fAng, fwd, 0, 0);
+
+		VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);
+		trap_Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
+		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
+		{
+			ItemUse_UseDisp(ent, HI_HEALTHDISP);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_HEALTHDISP, 0);
+			return;
+		}
+	}
+	
 	if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) /*&&
 		G_ItemUsable(&ent->client->ps, HI_AMMODISP)*/ )
 	{ //if you used nothing, then try spewing out some ammo

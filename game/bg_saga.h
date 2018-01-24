@@ -92,6 +92,7 @@ typedef struct
 	int			ammotripmines;
 	int			ammodetpacks;
 	int			maxSentries;
+	qboolean	dispenseHealthpaks;
 } siegeClass_t;
 
 typedef struct
