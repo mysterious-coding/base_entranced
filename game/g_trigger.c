@@ -801,6 +801,11 @@ void trigger_cleared_fire (gentity_t *self)
 }
 
 void RunControlPoint(gentity_t *self) {
+	if (g_gametype.integer != GT_SIEGE) {
+		G_FreeEntity(self);
+		return;
+	}
+
 	int *time = &self->genericValue1;
 	int *team = &self->genericValue2;
 	int *rateModifier = &self->genericValue3; // percentage
@@ -837,7 +842,7 @@ void RunControlPoint(gentity_t *self) {
 	self->think = RunControlPoint;
 	self->nextthink = level.time + 50;
 
-	if (g_gametype.integer != GT_SIEGE || !gSiegeRoundBegun || level.zombies || self->flags & FL_INACTIVE)
+	if (!gSiegeRoundBegun || level.zombies || self->flags & FL_INACTIVE)
 		return;
 
 	// count how many people are inside it
