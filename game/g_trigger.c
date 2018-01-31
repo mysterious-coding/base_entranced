@@ -800,6 +800,157 @@ void trigger_cleared_fire (gentity_t *self)
 	}
 }
 
+void RunControlPoint(gentity_t *self) {
+	int *time = &self->genericValue1;
+	int *team = &self->genericValue2;
+	int *rateModifier = &self->genericValue3; // percentage
+	int *blockable = &self->genericValue4;
+	int *maxPlayers = &self->genericValue5;
+	int *reverseWithNoEnemies = &self->genericValue6;
+	int *delayBeforeReverse = &self->genericValue7;
+	int *reversible = &self->genericValue8;
+	int *progress = &self->genericValue9;
+	int *lastThink = &self->genericValue10;
+	int *lastProgress = &self->genericValue11;
+	int timeSinceLastThink = level.time - *lastThink;
+	*lastThink = level.time;
+	int timeSinceLastProgress = level.time - *lastProgress;
+
+	assert(*time > 0 && (*team == TEAM_RED || *team == TEAM_BLUE));
+
+	if (self->think == multi_trigger_run) // this shouldn't happen, but we're already triggered and just waiting to fire
+		return;
+
+	if (*progress >= *time) { // time to fire
+		if (self->delay && self->painDebounceTime < (level.time + self->delay)) { // delay before firing trigger
+			self->think = multi_trigger_run;
+			self->nextthink = level.time + self->delay;
+			self->painDebounceTime = level.time;
+			return;
+		}
+		else { // fire immediately
+			multi_trigger_run(self);
+			return;
+		}
+	}
+
+	self->think = RunControlPoint;
+	self->nextthink = level.time + 50;
+
+	if (g_gametype.integer != GT_SIEGE || !gSiegeRoundBegun || level.zombies || self->flags & FL_INACTIVE)
+		return;
+
+	// count how many people are inside it
+	int entityList[MAX_GENTITIES];
+	int numEnts = trap_EntitiesInBox(self->r.absmin, self->r.absmax, entityList, MAX_GENTITIES);
+	int i, numGoodTeam = 0, numBadTeam = 0;
+	for (i = 0; i < numEnts; i++) {
+		if (entityList[i] < 0 || entityList[i] >= MAX_CLIENTS)
+			continue;
+		gentity_t *toucher = &g_entities[entityList[i]];
+		if (!toucher->inuse || !toucher->client || toucher->health <= 0 || toucher->client->ps.eFlags & EF_DEAD || toucher->client->tempSpectate >= level.time)
+			continue;
+		if (toucher->client->sess.sessionTeam == *team)
+			numGoodTeam++;
+		else if (toucher->client->sess.sessionTeam == OtherTeam(*team))
+			numBadTeam++;
+	}
+
+#ifdef DEBUG_CONTROLPOINT
+	int originalProgress = *progress;
+#endif
+
+	if (numGoodTeam > 0) {
+		if (blockable && numBadTeam > 0) { // progress blocked by bad guys
+			if (VALIDSTRING(self->target4))
+				G_UseTargets2(self, NULL, self->target4);
+			//return;
+		}
+		else { // increase progress
+			if (VALIDSTRING(self->target2))
+				G_UseTargets2(self, NULL, self->target2);
+			*lastProgress = level.time;
+			*progress += timeSinceLastThink; // add the first guy's progress
+			int numExtraGuys = Com_Clampi(0, *maxPlayers > 0 ? *maxPlayers : MAX_CLIENTS, numGoodTeam - 1);
+			for (i = 0; i < numExtraGuys; i++) // add additional progress for extra people
+				*progress += (((float)*rateModifier) / 100.0f) * (float)timeSinceLastThink;
+			if (*progress >= *time) { // check if we need to fire now, rather than waiting until the next think
+				if (self->delay && self->painDebounceTime < (level.time + self->delay)) { // delay before firing trigger
+					self->think = multi_trigger_run;
+					self->nextthink = level.time + self->delay;
+					self->painDebounceTime = level.time;
+					return;
+				}
+				else { // fire immediately
+					multi_trigger_run(self);
+					return;
+				}
+			}
+		}
+	}
+	else if (reversible && (numBadTeam > 0 || reverseWithNoEnemies) && (!*delayBeforeReverse || timeSinceLastProgress >= *delayBeforeReverse)) { // decrease progress
+		if (VALIDSTRING(self->target3))
+			G_UseTargets2(self, NULL, self->target3);
+		*progress -= timeSinceLastThink; // subtract the first guy's progress (or just progress for nobody being on it, if applicable)
+		int numExtraGuys = Com_Clampi(0, *maxPlayers > 0 ? *maxPlayers : MAX_CLIENTS, numBadTeam - 1);
+		for (i = 0; i < numExtraGuys; i++) // subtract additional progress for extra people
+			*progress -= (((float)*rateModifier) / 100.0f) * (float)timeSinceLastThink;
+		if (*progress < 0)
+			*progress = 0;
+	}
+
+#ifdef DEBUG_CONTROLPOINT
+	if (numGoodTeam > 0 || numBadTeam > 0) {
+		Com_Printf("%d good guys, %d bad guys; ", numGoodTeam, numBadTeam);
+		int difference = *progress - originalProgress;
+		if (difference > 0)
+			Com_Printf("added %d progress; ", difference);
+		else if (difference < 0)
+			Com_Printf("removed %d progress; ", abs(difference));
+		else
+			Com_Printf("no difference; ");
+		Com_Printf("progress is now %d\n", *progress);
+	}
+#endif
+}
+
+void InitControlPoint(gentity_t *ent) {
+	G_SpawnInt("time", "1000", &ent->genericValue1);
+	G_SpawnInt("team", "1", &ent->genericValue2);
+	G_SpawnInt("ratemodifier", "0", &ent->genericValue3);
+	G_SpawnInt("blockable", "0", &ent->genericValue4);
+	G_SpawnInt("maxplayers", "1", &ent->genericValue5);
+	G_SpawnInt("reversewithnoenemies", "0", &ent->genericValue6);
+	G_SpawnInt("delaybeforereverse", "0", &ent->genericValue7);
+	G_SpawnInt("reversible", "1", &ent->genericValue8);
+
+	G_SpawnInt("delay", "0", &ent->delay);
+
+	if ((ent->wait > 0) && (ent->random >= ent->wait)) {
+		ent->random = ent->wait - FRAMETIME;
+		Com_Printf(S_COLOR_YELLOW"trigger_multiple has random >= wait\n");
+	}
+
+	ent->delay *= 1000;//1 = 1 msec, 1000 = 1 sec
+	if (!ent->speed && ent->target2 && ent->target2[0])
+	{
+		ent->speed = 1000;
+	}
+	else
+	{
+		ent->speed *= 1000;
+	}
+
+	ent->touch = NULL;
+	ent->use = NULL;
+	ent->think = RunControlPoint;
+	ent->nextthink = level.time + 50;
+
+	InitTrigger(ent);
+	trap_LinkEntity(ent);
+}
+
+
 /*QUAKED trigger_multiple (.1 .5 .1) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON NPCONLY x x INACTIVE MULTIPLE
 CLIENTONLY - only a player can trigger this by touch
 FACING - Won't fire unless triggering ent's view angles are within 45 degrees of trigger's angles (in addition to any other conditions)
@@ -849,6 +1000,13 @@ idealclass	-	Can only be used by this class/these classes. You can specify use b
 */
 void SP_trigger_multiple( gentity_t *ent ) 
 {
+	int isControlPoint;
+	G_SpawnInt("controlpoint", "0", &isControlPoint);
+	if (isControlPoint) {
+		InitControlPoint(ent);
+		return;
+	}
+
 	char	*s;
 	if ( G_SpawnString( "noise", "", &s ) ) 
 	{
@@ -969,7 +1127,6 @@ void SP_trigger_multiple( gentity_t *ent )
 	trap_LinkEntity (ent);
 }
 
-
 /*QUAKED trigger_once (.5 1 .5) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON x x x INACTIVE MULTIPLE
 CLIENTONLY - only a player can trigger this by touch
 FACING - Won't fire unless triggering ent's view angles are within 45 degrees of trigger's angles (in addition to any other conditions)
@@ -1007,6 +1164,13 @@ idealclass	-	Can only be used by this class/these classes. You can specify use b
 */
 void SP_trigger_once( gentity_t *ent ) 
 {
+	int isControlPoint;
+	G_SpawnInt("controlpoint", "0", &isControlPoint);
+	if (isControlPoint) {
+		InitControlPoint(ent);
+		return;
+	}
+
 	char	*s;
 	if ( G_SpawnString( "noise", "", &s ) ) 
 	{
