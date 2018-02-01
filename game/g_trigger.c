@@ -814,9 +814,15 @@ void RunControlPoint(gentity_t *self) {
 	int *reverseWithNoEnemies = &self->genericValue6;
 	int *delayBeforeReverse = &self->genericValue7;
 	int *reversible = &self->genericValue8;
-	int *progress = &self->genericValue9;
-	int *lastThink = &self->genericValue10;
-	int *lastProgress = &self->genericValue11;
+	int *target2wait = &self->genericValue9;
+	int *target3wait = &self->genericValue10;
+	int *target4wait = &self->genericValue11;
+	int *lastTarget2 = &self->genericValue12;
+	int *lastTarget3 = &self->genericValue13;
+	int *lastTarget4 = &self->genericValue14;
+	int *progress = &self->genericValue15;
+	int *lastThink = &self->genericValue16;
+	int *lastProgress = &self->genericValue17;
 	int timeSinceLastThink = level.time - *lastThink;
 	*lastThink = level.time;
 	int timeSinceLastProgress = level.time - *lastProgress;
@@ -867,13 +873,21 @@ void RunControlPoint(gentity_t *self) {
 
 	if (numGoodTeam > 0) {
 		if (blockable && numBadTeam > 0) { // progress blocked by bad guys
-			if (VALIDSTRING(self->target4))
-				G_UseTargets2(self, NULL, self->target4);
+			if (VALIDSTRING(self->target4)) {
+				if (!*target4wait || !*lastTarget4 || level.time - *lastTarget4 >= *target4wait) {
+					G_UseTargets2(self, NULL, self->target4);
+					*lastTarget4 = level.time;
+				}
+			}
 			//return;
 		}
 		else { // increase progress
-			if (VALIDSTRING(self->target2))
-				G_UseTargets2(self, NULL, self->target2);
+			if (VALIDSTRING(self->target2)) {
+				if (!*target2wait || !*lastTarget2 || level.time - *lastTarget2 >= *target2wait) {
+					G_UseTargets2(self, NULL, self->target2);
+					*lastTarget2 = level.time;
+				}
+			}
 			*lastProgress = level.time;
 			*progress += timeSinceLastThink; // add the first guy's progress
 			int numExtraGuys = Com_Clampi(0, *maxPlayers > 0 ? *maxPlayers : MAX_CLIENTS, numGoodTeam - 1);
@@ -894,8 +908,12 @@ void RunControlPoint(gentity_t *self) {
 		}
 	}
 	else if (reversible && (numBadTeam > 0 || reverseWithNoEnemies) && (!*delayBeforeReverse || timeSinceLastProgress >= *delayBeforeReverse)) { // decrease progress
-		if (VALIDSTRING(self->target3))
-			G_UseTargets2(self, NULL, self->target3);
+		if (VALIDSTRING(self->target3)) {
+			if (!*target3wait || !*lastTarget3 || level.time - *lastTarget3 >= *target3wait) {
+				G_UseTargets2(self, NULL, self->target3);
+				*lastTarget3 = level.time;
+			}
+		}
 		*progress -= timeSinceLastThink; // subtract the first guy's progress (or just progress for nobody being on it, if applicable)
 		int numExtraGuys = Com_Clampi(0, *maxPlayers > 0 ? *maxPlayers : MAX_CLIENTS, numBadTeam - 1);
 		for (i = 0; i < numExtraGuys; i++) // subtract additional progress for extra people
@@ -928,6 +946,9 @@ void InitControlPoint(gentity_t *ent) {
 	G_SpawnInt("reversewithnoenemies", "0", &ent->genericValue6);
 	G_SpawnInt("delaybeforereverse", "0", &ent->genericValue7);
 	G_SpawnInt("reversible", "1", &ent->genericValue8);
+	G_SpawnInt("target2wait", "0", &ent->genericValue9);
+	G_SpawnInt("target3wait", "0", &ent->genericValue10);
+	G_SpawnInt("target4wait", "0", &ent->genericValue11);
 
 	G_SpawnInt("delay", "0", &ent->delay);
 
