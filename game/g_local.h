@@ -1406,6 +1406,7 @@ typedef struct {
 	qboolean nmAuthEnabled;
 	publicKey_t publicKey;
 	secretKey_t secretKey;
+	char classLimits[MAX_STRING_CHARS];
 #endif
 
 } level_locals_t;
@@ -1894,6 +1895,7 @@ void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStringEdString(char *refSection, char *refName);
 #ifdef NEWMOD_SUPPORT
 void UpdateNewmodSiegeItems(void);
+void UpdateNewmodSiegeClassLimits(int clientNum);
 #endif
 
 //

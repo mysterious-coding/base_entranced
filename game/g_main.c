@@ -5025,6 +5025,44 @@ void CheckSpecInfo(void) {
 		trap_SendServerCommand(i, totalString);
 	}
 }
+
+void UpdateNewmodSiegeClassLimits(int clientNum) {
+	assert(clientNum >= -1 && clientNum < MAX_CLIENTS);
+	char *s = va("kls -1 -1 scli \"%s\"", level.classLimits[0] ? level.classLimits : "0");
+	if (clientNum == -1) { // everyone
+		int i;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (!g_entities[i].inuse || level.clients[i].pers.connected != CON_CONNECTED)
+				continue;
+			trap_SendServerCommand(i, s);
+		}
+	}
+	else { // single client
+		if (clientNum != -1 && (!g_entities[clientNum].inuse || level.clients[clientNum].pers.connected != CON_CONNECTED))
+			return;
+		trap_SendServerCommand(clientNum, s);
+	}
+}
+
+static void CheckNewmodSiegeClassLimits(void) {
+	// generate the current string
+	char newString[MAX_STRING_CHARS];
+	if (g_gametype.integer != GT_SIEGE || !g_classLimits.integer) {
+		Q_strncpyz(newString, "0", sizeof(newString));
+	}
+	else {
+		Q_strncpyz(newString, va("oa=%d oh=%d od=%d ot=%d os=%d oj=%d da=%d dh=%d dd=%d dt=%d ds=%d dj=%d",
+			oAssaultLimit.integer, oHWLimit.integer, oDemoLimit.integer, oTechLimit.integer, oScoutLimit.integer, oJediLimit.integer,
+			dAssaultLimit.integer, dHWLimit.integer, dDemoLimit.integer, dTechLimit.integer, dScoutLimit.integer, dJediLimit.integer),
+			sizeof(newString));
+	}
+
+	// compare to the old string
+	if (!level.classLimits[0] || Q_stricmp(level.classLimits, newString)) {
+		Q_strncpyz(level.classLimits, newString, sizeof(level.classLimits));
+		UpdateNewmodSiegeClassLimits(-1);
+	}
+}
 #endif
 
 void G_RunFrame( int levelTime ) {
@@ -5913,6 +5951,10 @@ void G_RunFrame( int levelTime ) {
 			}
 		}
 	}
+
+#ifdef NEWMOD_SUPPORT
+	CheckNewmodSiegeClassLimits();
+#endif
 
 	level.frameStartTime = trap_Milliseconds(); // accurate timer
 

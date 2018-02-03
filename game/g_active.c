@@ -4326,8 +4326,10 @@ void ClientEndFrame( gentity_t *ent ) {
 			ent->client->ps.eFlags |= EF_CONNECTION;
 	}
 	else {
-		if (ent->client->ps.eFlags & EF_CONNECTION || ent->client->isLagging)
-			G_BroadcastServerFeatureList(ent - g_entities); // he was lagging (or vid_restarted) but isn't anymore; send this again just to be sure
+		if (ent->client->ps.eFlags & EF_CONNECTION || ent->client->isLagging) { // he was lagging (or vid_restarted) but isn't anymore; send this stuff again just to be sure
+			G_BroadcastServerFeatureList(ent - g_entities);
+			UpdateNewmodSiegeClassLimits(ent - g_entities);
+		}
 		ent->client->isLagging = qfalse;
 		ent->client->ps.eFlags &= ~EF_CONNECTION;
 	}
