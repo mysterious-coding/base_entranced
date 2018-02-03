@@ -5038,7 +5038,7 @@ void UpdateNewmodSiegeClassLimits(int clientNum) {
 		}
 	}
 	else { // single client
-		if (clientNum != -1 && (!g_entities[clientNum].inuse || level.clients[clientNum].pers.connected != CON_CONNECTED))
+		if (!g_entities[clientNum].inuse || level.clients[clientNum].pers.connected != CON_CONNECTED)
 			return;
 		trap_SendServerCommand(clientNum, s);
 	}
