@@ -5613,7 +5613,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			else
 			{
 
-				if (client->jetPackOn)
+				if (client->jetPackOn && !(g_gametype.integer == GT_SIEGE && client->siegeClass != -1 && bgSiegeClasses[client->siegeClass].jetpackFreezeImmunity))
 				{ //disable jetpack temporarily
 					Jetpack_Off(targ);
 					client->jetPackToggleTime = level.time + Q_irand(3000, 10000);

@@ -1865,7 +1865,7 @@ qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, 
 	case 'h':	fileName = "mp/siege_hoth2";		prettyName = "Hoth";		break;
 	case 'n':	fileName = "siege_narshaddaa";		prettyName = "Nar";			break;
 	case 'c':	fileName = "siege_cargobarge2";		prettyName = "Cargo";		break;
-	case 'u':	fileName = "siege_urban_b6";		prettyName = "Urban";		break;
+	case 'u':	fileName = "siege_urban_b7";		prettyName = "Urban";		break;
 	case 'b':	fileName = "mp/siege_bespin";		prettyName = "Bespin";		break;
 	case 'a':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
 	case 'e':	fileName = "mp/siege_eat_shower";	prettyName = "Eat Shower";	break;
@@ -1889,7 +1889,7 @@ static char CharFromMapName(char *s) {
 		return 'n';
 	if (!Q_stricmp(s, "siege_cargobarge2"))
 		return 'c';
-	if (!Q_stricmp(s, "siege_urban_b6"))
+	if (!Q_stricmp(s, "siege_urban_b7"))
 		return 'u';
 	if (!Q_stricmp(s, "mp/siege_bespin"))
 		return 'b';

@@ -2843,6 +2843,33 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 
 }
 
+void Cmd_Changes_f(gentity_t *ent) {
+	static char changes[MAX_STRING_CHARS] = { 0 };
+	static qboolean lookedForChanges = qfalse;
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+
+	if (!lookedForChanges) {
+		lookedForChanges = qtrue;
+		fileHandle_t f;
+		size_t len = trap_FS_FOpenFile(va("maps/%s.changes", mapname.string), &f, FS_READ);
+		if (f) {
+			trap_FS_Read(changes, len, f);
+			trap_FS_FCloseFile(f);
+			if (len >= sizeof(changes))
+				G_LogPrintf("Warning: changelog for map %s is too long (%d chars, should be less than %d)\n", mapname.string, len, sizeof(changes));
+		}
+	}
+
+	if (!changes[0]) {
+		trap_SendServerCommand(ent - g_entities, va("print \"No changelog could be found for %s.\n\"", mapname.string));
+		return;
+	}
+
+	trap_SendServerCommand(ent - g_entities, va("print \"Changelog for %s"S_COLOR_WHITE":\n\"", mapname.string));
+	trap_SendServerCommand(ent - g_entities, va("print \"%s"S_COLOR_WHITE"\n\"", changes));
+}
+
 extern void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 
 /*
@@ -6401,7 +6428,7 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	227
+#define BUILDNUMBER	228
 
 void Cmd_Help_f(gentity_t *ent)
 {
@@ -6448,6 +6475,7 @@ void Cmd_Help_f(gentity_t *ent)
 	}
 	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS:^7   You can dynamically include some stats in your chat messages by writing these tokens:\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5$H^7 (health), ^5$A^7 (armor), ^5$F^7 (force), ^5$M^7 (ammo)\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2MAP CHANGELOG:^7   You can view the changelog to the current map (if available) by using ^5/changes^7.\n\""));
 }
 
 void Cmd_ServerStatus2_f(gentity_t *ent)
@@ -7237,9 +7265,9 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 
-	if (Q_stricmp (cmd, "give") == 0)
+	if (Q_stricmp(cmd, "give") == 0)
 	{
-		Cmd_Give_f (ent, 0);
+		Cmd_Give_f(ent, 0);
 	}
 	else if (Q_stricmp(cmd, "greendoors") == 0)
 	{
@@ -7253,19 +7281,19 @@ void ClientCommand( int clientNum ) {
 	{
 		Cmd_DuoTest_f(ent);
 	}
-	else if (Q_stricmp (cmd, "giveother") == 0)
+	else if (Q_stricmp(cmd, "giveother") == 0)
 	{ //for debugging pretty much
-		Cmd_Give_f (ent, 1);
+		Cmd_Give_f(ent, 1);
 	}
-	else if (Q_stricmp (cmd, "t_use") == 0 && CheatsOk(ent))
+	else if (Q_stricmp(cmd, "t_use") == 0 && CheatsOk(ent))
 	{ //debug use map object
 		if (trap_Argc() > 1)
 		{
 			char sArg[MAX_STRING_CHARS];
 			gentity_t *targ;
 
-			trap_Argv( 1, sArg, sizeof( sArg ) );
-			targ = G_Find( NULL, FOFS(targetname), sArg );
+			trap_Argv(1, sArg, sizeof(sArg));
+			targ = G_Find(NULL, FOFS(targetname), sArg);
 
 			while (targ)
 			{
@@ -7273,50 +7301,52 @@ void ClientCommand( int clientNum ) {
 				{
 					targ->use(targ, ent, ent);
 				}
-				targ = G_Find( targ, FOFS(targetname), sArg );
+				targ = G_Find(targ, FOFS(targetname), sArg);
 			}
 		}
 	}
-	else if (Q_stricmp (cmd, "god") == 0)
-		Cmd_God_f (ent);
-	else if (Q_stricmp (cmd, "notarget") == 0)
-		Cmd_Notarget_f (ent);
-	else if (Q_stricmp (cmd, "noclip") == 0)
-		Cmd_Noclip_f (ent);
-	else if ( Q_stricmp( cmd, "NPC" ) == 0 && CheatsOk(ent) )
+	else if (Q_stricmp(cmd, "god") == 0)
+		Cmd_God_f(ent);
+	else if (Q_stricmp(cmd, "notarget") == 0)
+		Cmd_Notarget_f(ent);
+	else if (Q_stricmp(cmd, "noclip") == 0)
+		Cmd_Noclip_f(ent);
+	else if (Q_stricmp(cmd, "NPC") == 0 && CheatsOk(ent))
 	{
-		Cmd_NPC_f( ent );
+		Cmd_NPC_f(ent);
 	}
-	else if (Q_stricmp (cmd, "kill") == 0)
-		Cmd_Kill_f (ent);
-	else if (Q_stricmp (cmd, "levelshot") == 0)
-		Cmd_LevelShot_f (ent);
-	else if (Q_stricmp (cmd, "follow") == 0)
-		Cmd_Follow_f (ent);
-	else if (Q_stricmp (cmd, "follownext") == 0)
-		Cmd_FollowCycle_f (ent, 1);
-	else if (Q_stricmp (cmd, "followprev") == 0)
-		Cmd_FollowCycle_f (ent, -1);
-	else if (Q_stricmp (cmd, "followflag") == 0)
-		Cmd_FollowFlag_f (ent);
+	else if (Q_stricmp(cmd, "kill") == 0)
+		Cmd_Kill_f(ent);
+	else if (Q_stricmp(cmd, "levelshot") == 0)
+		Cmd_LevelShot_f(ent);
+	else if (Q_stricmp(cmd, "follow") == 0)
+		Cmd_Follow_f(ent);
+	else if (Q_stricmp(cmd, "follownext") == 0)
+		Cmd_FollowCycle_f(ent, 1);
+	else if (Q_stricmp(cmd, "followprev") == 0)
+		Cmd_FollowCycle_f(ent, -1);
+	else if (Q_stricmp(cmd, "followflag") == 0)
+		Cmd_FollowFlag_f(ent);
 	else if (Q_stricmp(cmd, "followtarget") == 0)
 		Cmd_FollowTarget_f(ent);
-	else if (Q_stricmp (cmd, "team") == 0)
-		Cmd_Team_f (ent);
-	else if (Q_stricmp (cmd, "duelteam") == 0)
-		Cmd_DuelTeam_f (ent);
-	else if (Q_stricmp (cmd, "siegeclass") == 0)
-		Cmd_SiegeClass_f (ent);
+	else if (Q_stricmp(cmd, "team") == 0)
+		Cmd_Team_f(ent);
+	else if (Q_stricmp(cmd, "duelteam") == 0)
+		Cmd_DuelTeam_f(ent);
+	else if (Q_stricmp(cmd, "siegeclass") == 0)
+		Cmd_SiegeClass_f(ent);
 	else if (Q_stricmp(cmd, "class") == 0)
 		Cmd_Class_f(ent);
 	else if (Q_stricmp(cmd, "join") == 0)
 		Cmd_Join_f(ent);
-	else if (Q_stricmp (cmd, "forcechanged") == 0)
-		Cmd_ForceChanged_f (ent);
-	else if (Q_stricmp (cmd, "where") == 0)
-		Cmd_Where_f (ent);
+	else if (Q_stricmp(cmd, "forcechanged") == 0)
+		Cmd_ForceChanged_f(ent);
+	else if (Q_stricmp(cmd, "where") == 0)
+		Cmd_Where_f(ent);
 	else if (Q_stricmp(cmd, "targetinfo") == 0)
 		Cmd_TargetInfo_f(ent);
+	else if (Q_stricmp(cmd, "changes") == 0)
+		Cmd_Changes_f(ent);
 	else if (Q_stricmp(cmd, "killtarget") == 0)
 		Cmd_KillTarget_f(ent);
 	else if (Q_stricmp (cmd, "callvote") == 0)
