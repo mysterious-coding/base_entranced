@@ -3695,7 +3695,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s pug map: %s", g_multiVoteRNG.integer ? "Multivote for" : "Random", mapsString);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s pug map: %s", g_multiVoteRNG.integer ? "Random" : "Multivote for", mapsString);
 		Com_sprintf(level.voteString, sizeof(level.voteString), "randompugmap %s", eligibleMaps);
 	}
 	else if (!Q_stricmp(arg1, "newpug")) {
