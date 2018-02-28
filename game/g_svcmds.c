@@ -1758,7 +1758,7 @@ static void mapSelectedCallback( void *context, char *mapname ) {
 
 	if ( selection->announceMultiVote ) {
 		if ( selection->numSelected == 1 ) {
-			Q_strncpyz( selection->printMessage, "Vote for a map to increase its probability:", sizeof( selection->printMessage ) );
+			Q_strncpyz( selection->printMessage, va("Vote for a map%s:", g_multiVoteRNG.integer ? " to increase its probability" : ""), sizeof( selection->printMessage ) );
 		}
 
 		// try to print the full map name to players (if a full name doesn't appear, map has no .arena or isn't installed)
@@ -1906,7 +1906,7 @@ static char CharFromMapName(char *s) {
 
 void Svcmd_RandomPugMap_f()
 {
-	char maps[MAX_RANDOMPUGMAPS][64] = { 0 };
+	char maps[MAX_PUGMAPS][64] = { 0 };
 	int mapsToRandomize = 0;
 
 	if (trap_Argc() < 2) {
@@ -1916,7 +1916,7 @@ void Svcmd_RandomPugMap_f()
 	char theArg[64];
 	trap_Argv(1, theArg, sizeof(theArg));
 	int i, len = strlen(theArg);
-	for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+	for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
 		if (!LongMapNameFromChar(theArg[i], maps[i], sizeof(maps[i]), NULL, 0)) {
 			Com_Printf("Unrecognized map '%c'\n", tolower(theArg[i]));
 			return;
@@ -1972,7 +1972,7 @@ void Svcmd_RandomPugMap_f()
 }
 
 void Svcmd_NewPug_f(void) {
-	char arg[MAX_RANDOMPUGMAPS + 1] = { 0 };
+	char arg[MAX_PUGMAPS + 1] = { 0 };
 	if (trap_Argc() < 2) { // no arg
 		if (g_defaultPugMaps.string[0])
 			Q_strncpyz(arg, g_defaultPugMaps.string, sizeof(arg));
@@ -1990,7 +1990,7 @@ void Svcmd_NewPug_f(void) {
 	}
 
 	int i, len = strlen(arg);
-	for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+	for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
 		if (!LongMapNameFromChar(arg[i], NULL, 0, NULL, 0)) {
 			Com_Printf("Unrecognized map '%c'\n", tolower(arg[i]));
 			return;
@@ -2004,7 +2004,7 @@ void Svcmd_NewPug_f(void) {
 }
 
 void Svcmd_NextPug_f(void) {
-	char arg[MAX_RANDOMPUGMAPS + 1] = { 0 }, maps[MAX_RANDOMPUGMAPS + 1] = { 0 }, currentMap[64];
+	char arg[MAX_PUGMAPS + 1] = { 0 }, maps[MAX_PUGMAPS + 1] = { 0 }, currentMap[64];
 	trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
 	char played[MAX_STRING_CHARS], thisMapChar = CharFromMapName(currentMap);
 	Q_strncpyz(played, playedPugMaps.string, sizeof(played));
@@ -2136,16 +2136,41 @@ static void PickRandomMultiMap( const int *voteResults, const int numChoices, co
 
 		random = rand() % numChoices;
 	} else {
+		if (!g_multiVoteRNG.integer) {
+			// check if there is a single map with the most votes, in which case we simply choose that one
+			int numWithHighestVoteCount = 0, mapWithHighestVoteCount = -1;
+			for (i = 0; i < numChoices; i++) {
+				if (voteResults[i] == highestVoteCount) {
+					numWithHighestVoteCount++;
+					mapWithHighestVoteCount = i;
+				}
+			}
+			if (numWithHighestVoteCount == 1 && mapWithHighestVoteCount != -1) {
+				trap_Argv(mapWithHighestVoteCount + 1, out, outSize);
+				return;
+			}
+		}
+
 		// make it an array where each item appears as many times as they were voted, thus giving weight (0 votes = 0%)
 		int items = numVotes, currentItem = 0;
 		udf = malloc( sizeof( *udf ) * items );
 
 		for ( i = 0; i < numChoices; ++i ) {
-			if ( highestVoteCount - voteResults[i] > ( numVotingClients / 4 ) ) {
-				// rule out very low vote counts relatively to the highest one and the max voting clients
-				items -= voteResults[i];
-				udf = realloc( udf, sizeof( *udf ) * items );
-				continue;
+			if (g_multiVoteRNG.integer) {
+				if (highestVoteCount - voteResults[i] > (numVotingClients / 4)) {
+					// rule out very low vote counts relatively to the highest one and the max voting clients
+					items -= voteResults[i];
+					udf = realloc(udf, sizeof(*udf) * items);
+					continue;
+				}
+			}
+			else {
+				if (voteResults[i] < highestVoteCount) {
+					// rng is disabled; simply rule out vote counts that are not tied for most votes
+					items -= voteResults[i];
+					udf = realloc(udf, sizeof(*udf) * items);
+					continue;
+				}
 			}
 
 			int j;

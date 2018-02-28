@@ -3674,8 +3674,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		
 		int len = strlen(arg2), valid = 0;
-		char eligibleMaps[MAX_RANDOMPUGMAPS + 1] = { 0 }, mapsString[MAX_STRING_CHARS] = { 0 };
-		for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+		char eligibleMaps[MAX_PUGMAPS + 1] = { 0 }, mapsString[MAX_STRING_CHARS] = { 0 };
+		for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
 			char possibleMap[64] = { 0 }, possibleMapPrettyName[64] = { 0 };
 			if (LongMapNameFromChar(arg2[i], possibleMap, sizeof(possibleMap), possibleMapPrettyName, sizeof(possibleMapPrettyName))) {
 				Q_strcat(eligibleMaps, sizeof(eligibleMaps), va("%c", arg2[i]));
@@ -3695,7 +3695,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random pug map: %s", mapsString);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s pug map: %s", g_multiVoteRNG.integer ? "Multivote for" : "Random", mapsString);
 		Com_sprintf(level.voteString, sizeof(level.voteString), "randompugmap %s", eligibleMaps);
 	}
 	else if (!Q_stricmp(arg1, "newpug")) {
@@ -3711,7 +3711,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-		char maps[MAX_RANDOMPUGMAPS + 1] = { 0 };
+		char maps[MAX_PUGMAPS + 1] = { 0 };
 		if (arg2[0]) {
 			Q_strncpyz(maps, arg2, sizeof(maps));
 		}
@@ -3724,7 +3724,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		char thisMap[64] = { 0 }, mapsString[MAX_STRING_CHARS] = { 0 };
 		int len = strlen(maps);
-		for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+		for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
 			if (LongMapNameFromChar(maps[i], NULL, 0, thisMap, sizeof(thisMap))) {
 				if (i > 0)
 					Q_strcat(mapsString, sizeof(mapsString), ", ");
@@ -3736,7 +3736,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			}
 		}
 
-		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New random pug map rotation (%s)", mapsString);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "New %spug map rotation (%s)", g_multiVoteRNG.integer ? "random " : "", mapsString);
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, maps);
 	}
 	else if (!Q_stricmp(arg1, "nextpug")) {
@@ -3752,14 +3752,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-		char maps[MAX_RANDOMPUGMAPS + 1] = { 0 }, eligibleMaps[MAX_RANDOMPUGMAPS + 1] = { 0 }, currentMap[64];
+		char maps[MAX_PUGMAPS + 1] = { 0 }, eligibleMaps[MAX_PUGMAPS + 1] = { 0 }, currentMap[64];
 		if (desiredPugMaps.string[0])
 			Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
 		else
 			Q_strncpyz(maps, "hncu", sizeof(maps));
 		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
 		int i, len = strlen(maps);
-		for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+		for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
 			if (!strchr(playedPugMaps.string, maps[i])) {
 				char possibleMap[64] = { 0 };
 				LongMapNameFromChar(maps[i], possibleMap, sizeof(possibleMap), NULL, 0);
@@ -3785,7 +3785,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		else { // multiple maps are eligible
 			char mapsString[MAX_STRING_CHARS] = { 0 };
-			for (i = 0; i < MAX_RANDOMPUGMAPS && i < len; i++) {
+			for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
 				char thisMap[64];
 				if (LongMapNameFromChar(eligibleMaps[i], NULL, 0, thisMap, sizeof(thisMap))) {
 					if (i > 0)
@@ -3797,7 +3797,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 					return;
 				}
 			}
-			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Next random pug map (%s)", mapsString);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Next %spug map (%s)", g_multiVoteRNG.integer ? "random " : "", mapsString);
 			Com_sprintf(level.voteString, sizeof(level.voteString), arg1);
 		}
 	}
@@ -6478,142 +6478,79 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^2MAP CHANGELOG:^7   You can view the changelog to the current map (if available) by using ^5/changes^7.\n\""));
 }
 
+#define PrintCvar(cvar)		do { Com_sprintf(string, sizeof(string), #cvar); ServerCfgColor(string, cvar.integer, ent); } while (0)
 void Cmd_ServerStatus2_f(gentity_t *ent)
 {
 	char string[128] = { 0 };
 
-	Com_sprintf(string, sizeof(string), "autocfg_map");
-	ServerCfgColor(string, autocfg_map.integer, ent);
-	Com_sprintf(string, sizeof(string), "autocfg_unknown");
-	ServerCfgColor(string, autocfg_unknown.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_ready");
-	ServerCfgColor(string, g_allow_ready.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_cointoss");
-	ServerCfgColor(string, g_allow_vote_cointoss.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_customTeams");
-	ServerCfgColor(string, g_allow_vote_customTeams.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_forceclass");
-	ServerCfgColor(string, g_allow_vote_forceclass.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_fraglimit");
-	ServerCfgColor(string, g_allow_vote_fraglimit.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_gametype");
-	ServerCfgColor(string, g_allow_vote_gametype.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_kick");
-	ServerCfgColor(string, g_allow_vote_kick.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_killturrets");
-	ServerCfgColor(string, g_allow_vote_killturrets.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_lockteams");
-	ServerCfgColor(string, g_allow_vote_lockteams.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_map");
-	ServerCfgColor(string, g_allow_vote_map.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_maprandom");
-	ServerCfgColor(string, g_allow_vote_maprandom.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_nextpug");
-	ServerCfgColor(string, g_allow_vote_nextpug.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_netxmap");
-	ServerCfgColor(string, g_allow_vote_nextmap.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_pub");
-	ServerCfgColor(string, g_allow_vote_pub.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_pug");
-	ServerCfgColor(string, g_allow_vote_pug.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_q");
-	ServerCfgColor(string, g_allow_vote_q.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_randomcapts");
-	ServerCfgColor(string, g_allow_vote_randomcapts.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_randomteams");
-	ServerCfgColor(string, g_allow_vote_randomteams.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_restart");
-	ServerCfgColor(string, g_allow_vote_restart.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_timelimit");
-	ServerCfgColor(string, g_allow_vote_timelimit.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_warmup");
-	ServerCfgColor(string, g_allow_vote_warmup.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_allow_vote_zombies");
-	ServerCfgColor(string, g_allow_vote_zombies.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_antiCallvoteTakeover");
-	ServerCfgColor(string, g_antiCallvoteTakeover.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_antiHothCodesLiftLame");
-	ServerCfgColor(string, g_antiHothCodesLiftLame.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_antiHothHangarLiftLame");
-	ServerCfgColor(string, g_antiHothHangarLiftLame.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_antiHothInfirmaryLiftLame");
-	ServerCfgColor(string, g_antiHothInfirmaryLiftLame.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_autoKorribanFloatingItems");
-	ServerCfgColor(string, g_autoKorribanFloatingItems.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_autoKorribanSpam");
-	ServerCfgColor(string, g_autoKorribanSpam.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_autoStats");
-	ServerCfgColor(string, g_autoStats.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_antiLaming");
-	ServerCfgColor(string, g_antiLaming.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_autoResetCustomTeams");
-	ServerCfgColor(string, g_autoResetCustomTeams.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_botJumping");
-	ServerCfgColor(string, g_botJumping.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_dismember");
-	ServerCfgColor(string, g_dismember.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_enableCloak");
-	ServerCfgColor(string, g_enableCloak.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_siegeTiebreakEnd");
-	ServerCfgColor(string, g_siegeTiebreakEnd.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixEweb");
-	ServerCfgColor(string, g_fixEweb.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixFallingSounds");
-	ServerCfgColor(string, g_fixFallingSounds.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixGripKills");
-	ServerCfgColor(string, g_fixGripKills.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixHothBunkerLift");
-	ServerCfgColor(string, g_fixHothBunkerLift.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixHothDoorSounds");
-	ServerCfgColor(string, g_fixHothDoorSounds.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fitPitKills");
-	ServerCfgColor(string, g_fixPitKills.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixRancorCharge");
-	ServerCfgColor(string, g_fixRancorCharge.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixShield");
-	ServerCfgColor(string, g_fixShield.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixSiegeScoring");
-	ServerCfgColor(string, g_fixSiegeScoring.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_fixVoiceChat");
-	ServerCfgColor(string, g_fixVoiceChat.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_floatingItems");
-	ServerCfgColor(string, g_floatingItems.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_forceDTechItems");
-	ServerCfgColor(string, g_forceDTechItems.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_hothRebalance");
-	ServerCfgColor(string, g_hothRebalance.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_improvedTeamchat");
-	ServerCfgColor(string, g_improvedTeamchat.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_infiniteCharge");
-	ServerCfgColor(string, g_infiniteCharge.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_knockback");
-	ServerCfgColor(string, g_knockback.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_locationBasedDamage");
-	ServerCfgColor(string, g_locationBasedDamage.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_moreTaunts");
-	ServerCfgColor(string, g_moreTaunts.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_nextmapWarning");
-	ServerCfgColor(string, g_nextmapWarning.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_requireMoreCustomTeamVotes");
-	ServerCfgColor(string, g_requireMoreCustomTeamVotes.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_rocketSurfing");
-	ServerCfgColor(string, g_rocketSurfing.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_saberDamageScale");
-	ServerCfgColor(string, g_saberDamageScale.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_sexyDisruptor");
-	ServerCfgColor(string, g_sexyDisruptor.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_selfkillPenalty");
-	ServerCfgColor(string, g_selfkillPenalty.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_specInfo");
-	ServerCfgColor(string, g_specInfo.integer, ent);
-	Com_sprintf(string, sizeof(string), "g_swoopKillPoints");
-	ServerCfgColor(string, g_swoopKillPoints.integer, ent);
-	Com_sprintf(string, sizeof(string), "iLikeToDoorSpam");
-	ServerCfgColor(string, iLikeToDoorSpam.integer, ent);
-	Com_sprintf(string, sizeof(string), "iLikeToMineSpam");
-	ServerCfgColor(string, iLikeToMineSpam.integer, ent);
-	Com_sprintf(string, sizeof(string), "iLikeToShieldSpam");
-	ServerCfgColor(string, iLikeToShieldSpam.integer, ent);
+
+	PrintCvar(autocfg_map);
+	PrintCvar(autocfg_unknown);
+	PrintCvar(g_allow_ready);
+	PrintCvar(g_allow_vote_cointoss);
+	PrintCvar(g_allow_vote_customTeams);
+	PrintCvar(g_allow_vote_forceclass);
+	PrintCvar(g_allow_vote_fraglimit);
+	PrintCvar(g_allow_vote_gametype);
+	PrintCvar(g_allow_vote_kick);
+	PrintCvar(g_allow_vote_killturrets);
+	PrintCvar(g_allow_vote_lockteams);
+	PrintCvar(g_allow_vote_map);
+	PrintCvar(g_allow_vote_maprandom);
+	PrintCvar(g_allow_vote_nextpug);
+	PrintCvar(g_allow_vote_nextmap);
+	PrintCvar(g_allow_vote_pub);
+	PrintCvar(g_allow_vote_pug);
+	PrintCvar(g_allow_vote_q);
+	PrintCvar(g_allow_vote_randomcapts);
+	PrintCvar(g_allow_vote_randomteams);
+	PrintCvar(g_allow_vote_restart);
+	PrintCvar(g_allow_vote_timelimit);
+	PrintCvar(g_allow_vote_warmup);
+	PrintCvar(g_allow_vote_zombies);
+	PrintCvar(g_antiCallvoteTakeover);
+	PrintCvar(g_antiHothCodesLiftLame);
+	PrintCvar(g_antiHothHangarLiftLame);
+	PrintCvar(g_antiHothInfirmaryLiftLame);
+	PrintCvar(g_autoKorribanFloatingItems);
+	PrintCvar(g_autoKorribanSpam);
+	PrintCvar(g_autoStats);
+	PrintCvar(g_antiLaming);
+	PrintCvar(g_autoResetCustomTeams);
+	PrintCvar(g_botJumping);
+	PrintCvar(g_dismember);
+	PrintCvar(g_enableCloak);
+	PrintCvar(g_siegeTiebreakEnd);
+	PrintCvar(g_fixEweb);
+	PrintCvar(g_fixFallingSounds);
+	PrintCvar(g_fixGripKills);
+	PrintCvar(g_fixHothBunkerLift);
+	PrintCvar(g_fixHothDoorSounds);
+	PrintCvar(g_fixPitKills);
+	PrintCvar(g_fixRancorCharge);
+	PrintCvar(g_fixShield);
+	PrintCvar(g_fixSiegeScoring);
+	PrintCvar(g_fixVoiceChat);
+	PrintCvar(g_floatingItems);
+	PrintCvar(g_forceDTechItems);
+	PrintCvar(g_hothRebalance);
+	PrintCvar(g_improvedTeamchat);
+	PrintCvar(g_infiniteCharge);
+	PrintCvar(g_knockback);
+	PrintCvar(g_locationBasedDamage);
+	PrintCvar(g_moreTaunts);
+	PrintCvar(g_multiVoteRNG);
+	PrintCvar(g_nextmapWarning);
+	PrintCvar(g_requireMoreCustomTeamVotes);
+	PrintCvar(g_rocketSurfing);
+	PrintCvar(g_saberDamageScale);
+	PrintCvar(g_sexyDisruptor);
+	PrintCvar(g_selfkillPenalty);
+	PrintCvar(g_specInfo);
+	PrintCvar(g_swoopKillPoints);
+	PrintCvar(iLikeToDoorSpam);
+	PrintCvar(iLikeToMineSpam);
+	PrintCvar(iLikeToShieldSpam);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 

@@ -1833,7 +1833,7 @@ extern gentity_t *gJMSaberEnt;
 //
 // g_svcmds.c
 //
-#define MAX_RANDOMPUGMAPS 5
+#define MAX_PUGMAPS 5
 qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize);
 qboolean	ConsoleCommand( void );
 void G_ProcessGetstatusIPBans(void);
@@ -2403,6 +2403,7 @@ extern vmCvar_t    g_hothRebalance;
 extern vmCvar_t    g_fixShield;
 extern vmCvar_t    g_delayClassUpdate;
 extern vmCvar_t    g_defaultMap;
+extern vmCvar_t    g_multiVoteRNG;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;
