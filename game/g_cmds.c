@@ -4059,7 +4059,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		}
 		else { // no arguments; get numbers based on current ingame player counts
 			for (i = 0; i < MAX_CLIENTS; i++) {
-				if (level.clients[i].pers.connected != CON_CONNECTED)
+				if (level.clients[i].pers.connected == CON_DISCONNECTED)
 					continue;
 				if (level.clients[i].sess.sessionTeam == TEAM_RED)
 					team1Count++;
