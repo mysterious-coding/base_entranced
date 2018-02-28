@@ -822,7 +822,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_delayClassUpdate, "g_delayClassUpdate", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_defaultMap, "g_defaultMap", "", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_multiVoteRNG, "0", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_multiVoteRNG, "g_multiVoteRNG", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
