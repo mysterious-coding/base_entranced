@@ -1141,9 +1141,9 @@ void	Svcmd_ForceReady_f(void) {
 	if (argInt < 0) { // all players or all ingame players
 		int i;
 		for (i = 0; i < MAX_CLIENTS; i++) {
-			if (level.clients[i].pers.connected != CON_CONNECTED)
+			if (level.clients[i].pers.connected == CON_DISCONNECTED)
 				continue;
-			if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && argInt == -2)
+			if (GetRealTeam(&level.clients[i]) == TEAM_SPECTATOR && argInt == -2)
 				continue;
 			G_ChangePlayerReadiness(&level.clients[i], qtrue, qfalse);
 			affectedPlayers++;
@@ -1185,9 +1185,9 @@ void	Svcmd_ForceUnReady_f(void) {
 	if (argInt < 0) { // all players or all ingame players
 		int i;
 		for (i = 0; i < MAX_CLIENTS; i++) {
-			if (level.clients[i].pers.connected != CON_CONNECTED)
+			if (level.clients[i].pers.connected == CON_DISCONNECTED)
 				continue;
-			if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR && argInt == -2)
+			if (GetRealTeam(&level.clients[i]) == TEAM_SPECTATOR && argInt == -2)
 				continue;
 			G_ChangePlayerReadiness(&level.clients[i], qfalse, qfalse);
 			affectedPlayers++;
