@@ -709,6 +709,8 @@ typedef struct {
 	//special chat limit variables
 	int         chatSentCount;
 	int         chatSentTime;
+	int			teamChatSentCount;
+	int			teamChatSentTime;
 
 	//damage calculating
 	int			damageCaused;
@@ -2122,6 +2124,7 @@ extern  vmCvar_t	g_duelShields;
 extern	vmCvar_t	g_allowNPC;
 
 extern	vmCvar_t	g_chatLimit;
+extern	vmCvar_t	g_teamChatLimit;
 
 extern	vmCvar_t	g_armBreakage;
 
