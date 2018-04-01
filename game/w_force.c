@@ -3259,6 +3259,22 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		return;
 	}
 
+	// d jedi on urban gets pull1 if saber in air
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
+	if (isUrban == qtrue && pull && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE && self - g_entities < MAX_CLIENTS) {
+		powerLevel = self->client->ps.saberInFlight && self->client->ps.saberEntityNum ? FORCE_LEVEL_1 : FORCE_LEVEL_2;
+		pushPower = 256 * powerLevel;
+	}
+
 	// should definitely pull/push
 	if ( self && self->client ) {
 		if ( pull ) {

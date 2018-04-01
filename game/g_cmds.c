@@ -6438,11 +6438,9 @@ void ServerCfgColor(char *string, int integer, gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"%s %i\n\"", string, integer));
 }
 
-#define BUILDNUMBER	231
-
 void Cmd_Help_f(gentity_t *ent)
 {
-	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build %i\n\"", BUILDNUMBER));
+	trap_SendServerCommand(ent - g_entities, va("print \"^6base_entranced version: build %s - https://github.com/deathsythe47/base_entranced\n\"", MODBUILDNUMBER));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/WHOIS:^7   You can list everyone's client numbers and their most-used alias with ^5/whois^7. See a history of someone's most-used aliases with ^5/whois <name/id>^7. Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/TELL:^7   You can send private chats to another player with ^5/tell <player> <message>.^7 Partial player names or slot numbers are okay.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/tell pad enemy weak^7 will send Padawan a message saying 'enemy weak'\n\""));

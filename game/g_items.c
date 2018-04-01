@@ -105,12 +105,9 @@ static qhandle_t	shieldActivateSound=0;
 static qhandle_t	shieldDeactivateSound=0;
 static qhandle_t	shieldDamageSound=0;
 
-qboolean isATurret(gentity_t *ent)
-{
-	if (!ent)
-	{
-		return qfalse;
-	}
+// turrets and urban lando npc do not block shield
+qboolean EntityBlocksShields(int entNum) {
+	gentity_t *ent = &g_entities[entNum];
 
 	if ((
 			(ent->s.weapon && (ent->s.weapon == WP_EMPLACED_GUN || ent->s.weapon == WP_TURRET)) ||
@@ -119,10 +116,23 @@ qboolean isATurret(gentity_t *ent)
 		&& ent->s.eType != ET_NPC && ent->s.eType != ET_PLAYER
 		)
 	{
-		return qtrue;
+		return qfalse;
 	}
-	return qfalse;
 
+	vmCvar_t	mapname;
+	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	static qboolean isUrban = -1;
+	if (isUrban == -1) { // uninitialized
+		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+			isUrban = qtrue;
+		else
+			isUrban = qfalse;
+	}
+
+	if (isUrban == qtrue && ent->s.eType == ET_NPC && VALIDSTRING(ent->NPC_type) && tolower(*ent->NPC_type) == 'w')
+		return qfalse;
+
+	return qtrue;
 }
 
 void ShieldRemove(gentity_t *self)
@@ -274,7 +284,7 @@ void ShieldGoSolid(gentity_t *self)
 	}
 
 	trap_Trace(&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY);
-	if (tr.startsolid && !(&g_entities[tr.entityNum] && isATurret(&g_entities[tr.entityNum])))
+	if (tr.startsolid && EntityBlocksShields(tr.entityNum))
 	{	// gah, we can't activate yet
 		self->nextthink = level.time + 200;
 		self->think = ShieldGoSolid;
@@ -519,7 +529,7 @@ void CreateShield(gentity_t *ent)
 
 	// see if we're valid
 	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY);
-	if (tr.startsolid && !(&g_entities[tr.entityNum] && isATurret(&g_entities[tr.entityNum])))
+	if (tr.startsolid && EntityBlocksShields(tr.entityNum))
 	{	// Something in the way!
 		// make the shield non-solid very briefly
 		ent->r.contents = 0;
