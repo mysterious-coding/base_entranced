@@ -2853,31 +2853,49 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 
 }
 
+#define MAX_CHANGES_CHUNKS		4
+#define CHANGES_CHUNK_SIZE		1000
+#define MAX_CHANGES_SIZE		(MAX_CHANGES_CHUNKS * CHANGES_CHUNK_SIZE)
 void Cmd_Changes_f(gentity_t *ent) {
-	static char changes[MAX_STRING_CHARS] = { 0 };
+	static char changes[MAX_CHANGES_SIZE] = { 0 }, map[MAX_CVAR_VALUE_STRING] = { 0 };
 	static qboolean lookedForChanges = qfalse;
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+	static size_t len = 0;
 
 	if (!lookedForChanges) {
 		lookedForChanges = qtrue;
 		fileHandle_t f;
-		size_t len = trap_FS_FOpenFile(va("maps/%s.changes", mapname.string), &f, FS_READ);
+		vmCvar_t	mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		Q_strncpyz(map, mapname.string, sizeof(map));
+		len = trap_FS_FOpenFile(va("maps/%s.changes", mapname.string), &f, FS_READ);
 		if (f) {
 			trap_FS_Read(changes, len, f);
 			trap_FS_FCloseFile(f);
-			if (len >= sizeof(changes))
-				G_LogPrintf("Warning: changelog for map %s is too long (%d chars, should be less than %d)\n", mapname.string, len, sizeof(changes));
+			if (len >= MAX_CHANGES_SIZE)
+				G_LogPrintf("Warning: changelog for map %s is too long (%d chars, should be less than %d)\n", map, len, sizeof(changes));
 		}
 	}
 
-	if (!changes[0]) {
-		trap_SendServerCommand(ent - g_entities, va("print \"No changelog could be found for %s.\n\"", mapname.string));
+	if (!changes[0] || !len) {
+		trap_SendServerCommand(ent - g_entities, va("print \"No changelog could be found for %s.\n\"", map));
 		return;
 	}
 
-	trap_SendServerCommand(ent - g_entities, va("print \"Changelog for %s"S_COLOR_WHITE":\n\"", mapname.string));
-	trap_SendServerCommand(ent - g_entities, va("print \"%s"S_COLOR_WHITE"\n\"", changes));
+	trap_SendServerCommand(ent - g_entities, va("print \"Changelog for %s"S_COLOR_WHITE":\n\"", map));
+	if (len <= CHANGES_CHUNK_SIZE) { // no chunking necessary
+		trap_SendServerCommand(ent - g_entities, va("print \"%s"S_COLOR_WHITE"\n\"", changes));
+	}
+	else { // chunk it
+		int i, chunks = len / CHANGES_CHUNK_SIZE;
+		if (len % CHANGES_CHUNK_SIZE > 0)
+			chunks++;
+		for (i = 0; i < chunks && i < MAX_CHANGES_CHUNKS; i++) {
+			char thisChunk[CHANGES_CHUNK_SIZE + 1];
+			Q_strncpyz(thisChunk, changes + (i * CHANGES_CHUNK_SIZE), sizeof(thisChunk));
+			if (thisChunk[0])
+				trap_SendServerCommand(ent - g_entities, va("print \"%s%s\"", thisChunk, i == chunks - 1 ? S_COLOR_WHITE"\n" : "")); // add ^7 and line break for last one
+		}
+	}
 }
 
 extern void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
