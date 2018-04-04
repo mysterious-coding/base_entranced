@@ -3854,7 +3854,17 @@ void ClientSpawn(gentity_t *ent) {
 			}
 			else if (g_gametype.integer == GT_SIEGE && ent->client->sess.saberLevel > SS_STRONG)
 			{
-				ent->client->sess.saberLevel = SS_STRONG;
+				if (ent->client->sess.saberLevel == SS_DESANN || ent->client->sess.saberLevel == SS_TAVION)
+				{ // allow spawning with desann/tavion stance if the class has it
+					if (ent->client->siegeClass != -1 && !(bgSiegeClasses[ent->client->siegeClass].saberStance & (1 << ent->client->sess.saberLevel)))
+					{
+						ent->client->sess.saberLevel = SS_STRONG;
+					}
+				}
+				else
+				{
+					ent->client->sess.saberLevel = SS_STRONG;
+				}
 			}
 			else if (g_gametype.integer != GT_SIEGE && ent->client->sess.saberLevel > SS_STRONG && !SaberStyleIsValidNew(ent, ent->client->sess.saberLevel, ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE]))
 			{
@@ -3895,7 +3905,17 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		else if (g_gametype.integer == GT_SIEGE && ent->client->sess.saberLevel > SS_STRONG)
 		{
-			ent->client->sess.saberLevel = SS_STRONG;
+			if (ent->client->sess.saberLevel == SS_DESANN || ent->client->sess.saberLevel == SS_TAVION)
+			{ // allow spawning with desann/tavion stance if the class has it
+				if (ent->client->siegeClass != -1 && !(bgSiegeClasses[ent->client->siegeClass].saberStance & (1 << ent->client->sess.saberLevel)))
+				{
+					ent->client->sess.saberLevel = SS_STRONG;
+				}
+			}
+			else
+			{
+				ent->client->sess.saberLevel = SS_STRONG;
+			}
 		}
 		else if (g_gametype.integer != GT_SIEGE && ent->client->sess.saberLevel > SS_STRONG && !SaberStyleIsValidNew(ent, ent->client->sess.saberLevel, ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE]))
 		{

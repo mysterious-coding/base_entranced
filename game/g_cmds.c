@@ -2149,19 +2149,36 @@ static void WriteTextForToken( gentity_t *ent, const char token, char *buffer, s
 	}
 
 	gclient_t *cl = ent->client;
+	int value;
 
 	switch ( token ) {
 	case 'h': case 'H':
-		Com_sprintf( buffer, bufferSize, "%d", Com_Clampi( 0, 999, cl->ps.stats[STAT_HEALTH] ) );
+		if (g_gametype.integer == GT_SIEGE && cl->tempSpectate > level.time)
+			value = 0;
+		else
+			value = Com_Clampi(0, 999, cl->ps.stats[STAT_HEALTH]);
+		Com_sprintf( buffer, bufferSize, "%d", value );
 		break;
 	case 'a': case 'A':
-		Com_sprintf( buffer, bufferSize, "%d", Com_Clampi( 0, 999, cl->ps.stats[STAT_ARMOR] ) );
+		if (g_gametype.integer == GT_SIEGE && cl->tempSpectate > level.time)
+			value = 0;
+		else
+			value = Com_Clampi(0, 999, cl->ps.stats[STAT_ARMOR]);
+		Com_sprintf( buffer, bufferSize, "%d", value );
 		break;
 	case 'f': case 'F':
-		Com_sprintf( buffer, bufferSize, "%d", Com_Clampi( 0, 999, cl->ps.fd.forcePowersKnown == 0 ? 0 : cl->ps.fd.forcePower ) );
+		if (!cl->ps.fd.forcePowersKnown || (g_gametype.integer == GT_SIEGE && cl->tempSpectate > level.time))
+			value = 0;
+		else
+			value = Com_Clampi(0, 999, cl->ps.fd.forcePower);
+		Com_sprintf( buffer, bufferSize, "%d", value );
 		break;
 	case 'm': case 'M':
-		Com_sprintf( buffer, bufferSize, "%d", Com_Clampi( 0, 999, !weaponData[cl->ps.weapon].energyPerShot && !weaponData[cl->ps.weapon].energyPerShot ? 0 : cl->ps.ammo[weaponData[cl->ps.weapon].ammoIndex] ) );
+		if (!weaponData[cl->ps.weapon].energyPerShot && !weaponData[cl->ps.weapon].energyPerShot || cl->ps.stats[STAT_HEALTH] <= 0 || (g_gametype.integer == GT_SIEGE && cl->tempSpectate > level.time))
+			value = 0;
+		else
+			value = Com_Clampi(0, 999, cl->ps.ammo[weaponData[cl->ps.weapon].ammoIndex]);
+		Com_sprintf( buffer, bufferSize, "%d", value );
 		break;
 	case 'l': case 'L':
 		Team_GetLocation( ent, buffer, bufferSize );
