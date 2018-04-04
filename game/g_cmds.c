@@ -3599,6 +3599,24 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 				}
 			}
 		}
+		else if (!Q_stricmp(arg2, "siege_cargobarge3") || !Q_stricmp(arg2, "mp/siege_cargobarge3")) {
+			fileHandle_t f;
+			trap_FS_FOpenFile("maps/siege_cargobarge3.bsp", &f, FS_READ);
+			if (f) {
+				trap_FS_FCloseFile(f);
+				Q_strncpyz(arg2, "siege_cargobarge3", sizeof(arg2));
+			}
+			else { // get highest beta version
+				for (i = 99; i > 0; i--) {
+					trap_FS_FOpenFile(va("maps/siege_cargobarge3_b%d.bsp", i), &f, FS_READ);
+					if (f) {
+						trap_FS_FCloseFile(f);
+						Q_strncpyz(arg2, va("siege_cargobarge3_b%d", i), sizeof(arg2));
+						break;
+					}
+				}
+			}
+		}
 
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
 		if (result)
