@@ -407,7 +407,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2") && (!Q_stricmp(ent->target, "commandcenterdooractual") || !Q_stricmp(ent->target, "ccturrets")))
+	if (level.zombies && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) && (!Q_stricmp(ent->target, "commandcenterdooractual") || !Q_stricmp(ent->target, "ccturrets")))
 	{
 		return;
 	}
@@ -450,6 +450,7 @@ void Use_Multi( gentity_t *ent, gentity_t *other, gentity_t *activator )
 }
 
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
+extern void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator);
 
 void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace ) 
 {
@@ -519,7 +520,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2") && self->target && self->target[0] && (!Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
+	if (level.zombies && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) && self->target && self->target[0] && (!Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
 	{
 		return;
 	}
@@ -605,6 +606,18 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 
+		if (!Q_stricmpn(mapname.string, "siege_cargobarge3", 17) && VALIDSTRING(self->targetname) && !Q_stricmp(self->targetname, "halldoorhack")) {
+			gentity_t *door = G_Find(NULL, FOFS(targetname), "halldoor");
+			if (door && VALIDSTRING(door->classname) && !Q_stricmp(door->classname, "func_door") && door->moverState != MOVER_1TO2) {
+				qboolean locked = (door->spawnflags & 16) ? qtrue : qfalse;
+				if (locked)
+					door->spawnflags &= ~16; // MOVER_LOCKED
+				Use_BinaryMover(door, other, other);
+				if (locked)
+					door->spawnflags |= 16; // MOVER_LOCKED
+			}
+		}
+
 		if (self->genericValue7)
 		{ //we have to be holding the use key in this trigger for x milliseconds before firing
 			if (g_gametype.integer == GT_SIEGE &&
@@ -682,7 +695,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				other->client->isHacking = 0; //can't hack a client
 				other->client->ps.hackingTime = 0;
 				// cargo2 non-objective hacks
-				if (G_MapIs("siege_cargobarge2") && VALIDSTRING(self->target)) {
+				if ((G_MapIs("siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) && VALIDSTRING(self->target)) {
 					if (!Q_stricmp(self->target, "powernode2side") ||
 						!Q_stricmp(self->target, "holdeledoors") ||
 						!Q_stricmp(self->target, "tunneldoors") ||

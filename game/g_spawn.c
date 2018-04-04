@@ -1342,32 +1342,8 @@ void SP_worldspawn( void )
 	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
 	trap_Cvar_Set("g_forceOnNPCs", text);
 
-	G_SpawnString("mapversion", "", &text);
-
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (text && text[0])
-	{
-		Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "%s", text);
-	}
-	else
-	{
-		if (!Q_stricmp(mapname.string, "siege_cargobarge2") && Q_stricmp(text, "1.1"))
-		{
-			//hacky retcon so old cargo2 properly shows version number despite not being set in its worldspawn
-			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "1.1");
-		}
-		else if (!Q_stricmp(mapname.string, "mp/siege_hoth2") && Q_stricmp(text, "1.0"))
-		{
-			//hacky retcon so hoth2 properly shows version number despite not being set in its worldspawn
-			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "1.0");
-		}
-		else
-		{
-			Com_sprintf(level.mapVersion, sizeof(level.mapVersion), "");
-		}
-	}
 
 	// class limits: "1" setting for g_classLimits allows map/mod overrides
 	if (g_classLimits.integer == 1) {

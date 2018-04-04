@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"232"
+#define MODBUILDNUMBER			"233"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
@@ -1214,8 +1214,6 @@ typedef struct {
 #ifdef NEWMOD_SUPPORT
 	int			siegeItemUpdateTime;
 #endif
-
-	char		mapVersion[32];
 
 	int			startTime;				// level.time the map was started
 

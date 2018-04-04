@@ -2150,7 +2150,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				return qtrue;
 			}
 		}
-		else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+		else if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))
 		{
 			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
 				(!level.objectiveJustCompleted || (self->client->ps.origin[0] >= 6145 && self->client->ps.origin[0] <= 6525 &&
@@ -4735,7 +4735,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					} else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OFFDEMP : SIEGEMAPSTAT_NAR_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OFFGOTDEMPED : SIEGEMAPSTAT_NAR_DEFGOTDEMPED;
-					} else if (!Q_stricmp(mapname.string, "siege_cargobarge2")) {
+					} else if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OFFDEMP : SIEGEMAPSTAT_CARGO2_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OFFGOTDEMPED : SIEGEMAPSTAT_CARGO2_DEFGOTDEMPED;
 					} else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
@@ -5713,7 +5713,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION2DMG] += adjustedTake;
 		}
 		// cargo2
-		else if (!Q_stricmp(mapname.string, "siege_cargobarge2") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
+		else if ((!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "obj2_under_a_tack"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_ARRAYDMG] += adjustedTake;
 			else if (!Q_stricmp(targ->paintarget, "powernode1attack"))

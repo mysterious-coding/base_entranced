@@ -1545,7 +1545,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		level.hangarCompletedTime = level.time;
 	}
 
-	if (objective == 5 && !Q_stricmp(mapname.string, "siege_cargobarge2"))
+	if (objective == 5 && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)))
 	{
 		level.ccCompleted = qtrue;
 	}
@@ -1723,7 +1723,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			return;
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+	else if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))
 	{
 		if (ent->objective == 6)
 		{
@@ -2373,7 +2373,7 @@ void SiegeItemThink(gentity_t *ent)
 			}
 			else if (!Q_stricmp(map, "siege_narshaddaa"))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (!Q_stricmp(map, "siege_cargobarge2"))
+			else if (!Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (!Q_stricmpn(map, "mp/siege_bespin", 15))
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
@@ -2471,7 +2471,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
-	if (level.zombies && !Q_stricmp(mapname.string, "siege_cargobarge2"))
+	if (level.zombies && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)))
 	{
 		return;
 	}
@@ -2501,7 +2501,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	char map[MAX_QPATH] = { 0 };
 	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
+	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17) || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;

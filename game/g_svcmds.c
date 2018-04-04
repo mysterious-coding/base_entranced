@@ -1864,7 +1864,7 @@ qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, 
 	switch (tolower(c)) {
 	case 'h':	fileName = "mp/siege_hoth2";		prettyName = "Hoth";		break;
 	case 'n':	fileName = "siege_narshaddaa";		prettyName = "Nar";			break;
-	case 'c':	fileName = "siege_cargobarge2";		prettyName = "Cargo";		break;
+	case 'c':	fileName = "siege_cargobarge3_b1";	prettyName = "Cargo";		break;
 	case 'u':	fileName = "siege_urban_b8";		prettyName = "Urban";		break;
 	case 'b':	fileName = "mp/siege_bespin";		prettyName = "Bespin";		break;
 	case 'a':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
@@ -1887,7 +1887,7 @@ static char CharFromMapName(char *s) {
 		return 'h';
 	if (!Q_stricmp(s, "siege_narshaddaa"))
 		return 'n';
-	if (!Q_stricmp(s, "siege_cargobarge2"))
+	if (!Q_stricmp(s, "siege_cargobarge3_b1"))
 		return 'c';
 	if (!Q_stricmp(s, "siege_urban_b8"))
 		return 'u';
@@ -2412,7 +2412,7 @@ void Svcmd_Zombies_f()
 		trap_Cvar_Set("dScoutLimit", "0");
 		vmCvar_t	mapname;
 		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmp(mapname.string, "siege_cargobarge2")) {
+		if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) {
 			int i;
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];

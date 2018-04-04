@@ -6382,7 +6382,7 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 			desc = &NarDesc;
 			callback = &FillMapSpecificStats;
 		}
-		else if (map[0] && !Q_stricmp(map, "siege_cargobarge2")) {
+		else if (map[0] && (!Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17))) {
 			desc = &Cargo2Desc;
 			callback = &FillMapSpecificStats;
 		}
@@ -6425,7 +6425,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 			PrintStatsTo(ent, "general");
 			char map[MAX_QPATH] = { 0 };
 			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
+			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17) || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
 				PrintStatsTo(ent, "map");
 		}
 		else {

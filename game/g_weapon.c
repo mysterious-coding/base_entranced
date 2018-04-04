@@ -243,7 +243,6 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	int			numberOfDoorsFound = 0;
 	int			doorspamDistanceCheck = DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM;
 	//qboolean	aimingAtCargoHallDoor = qfalse;
-	int			versionAdjustment = 0;
 
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -264,58 +263,9 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorCopy(ent->client->ps.origin, start);
 			start[2] += ent->client->ps.viewheight;//By eyes
 
-			if (!Q_stricmp(mapname.string, "siege_cargobarge2"))
+			if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))
 			{
-				if (level.mapVersion && level.mapVersion[0])
-				{
-					//new way of doing map version numbers
-					//enables backward and forward compatibility between server mod and map
-					//also allows me to be lazy; i don't have to manually add every coordinate each time
-					//the coordinates themselves are from v1.1. i dragged the entire map to the right by 1536 units (arbitrary noticeable amount) in v1.2.
-					//if i make any more updates, i'll drag them to the right by additional increments of 1536 units.
-					if (!Q_stricmp(level.mapVersion, "1.2"))
-					{
-						versionAdjustment = 1536;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.2 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.3"))
-					{
-						versionAdjustment = 1536 * 2;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.3 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.4"))
-					{
-						versionAdjustment = 1536 * 3;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.4 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.5"))
-					{
-						versionAdjustment = 1536 * 4;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.5 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.6"))
-					{
-						versionAdjustment = 1536 * 5;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.6 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.7"))
-					{
-						versionAdjustment = 1536 * 6;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.7 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.8"))
-					{
-						versionAdjustment = 1536 * 7;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.8 detected!\n\""));
-					}
-					else if (!Q_stricmp(level.mapVersion, "1.9"))
-					{
-						versionAdjustment = 1536 * 8;
-						//trap_SendServerCommand(-1, va("print \"Debug: version 1.9 detected!\n\""));
-					}
-				}
-
-				if (ent->client->ps.origin[0] >= (302 + versionAdjustment) && ent->client->ps.origin[0] <= (1725 + versionAdjustment) && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+				if (ent->client->ps.origin[0] >= 1838 && ent->client->ps.origin[0] <= 3261 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 				{
 					//allow for more height fudging in the 2nd obj of cargo2 v1.1+
 					heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
@@ -323,7 +273,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					doorspamDistanceCheck = 1024;
 					//trap_SendServerCommand(-1, va("print \"Debug: 2nd obj\n\""));
 				}
-				else if (ent->client->ps.origin[0] >= (5134 + versionAdjustment) && ent->client->ps.origin[0] <= (5733 + versionAdjustment) && ent->client->ps.origin[1] >= 62 && ent->client->ps.origin[1] <= 708)
+				else if (ent->client->ps.origin[0] >= 6670 && ent->client->ps.origin[0] <= 7269 && ent->client->ps.origin[1] >= 62 && ent->client->ps.origin[1] <= 708)
 				{
 					//cargo2 v1.1+, station 1
 					heightUpperBound = (ent->client->ps.origin[2] + 99999); //huge
@@ -352,7 +302,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							continue; //miscellaneous checks
 						}
 
-						if (potentialEnemyInStation1->client->ps.origin[0] >= (5134 + versionAdjustment) && potentialEnemyInStation1->client->ps.origin[0] <= (5733 + versionAdjustment) && potentialEnemyInStation1->client->ps.origin[1] >= 62 && potentialEnemyInStation1->client->ps.origin[1] <= 708)
+						if (potentialEnemyInStation1->client->ps.origin[0] >= 6670 && potentialEnemyInStation1->client->ps.origin[0] <= 7269 && potentialEnemyInStation1->client->ps.origin[1] >= 62 && potentialEnemyInStation1->client->ps.origin[1] <= 708)
 						{
 							//there is an enemy in the station 1
 							numConfirmedEnemiesInStation1++;
@@ -370,17 +320,17 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 						//proceed normally
 					}
 				}
-				else if (ent->client->ps.origin[0] >= (5391 + versionAdjustment) && ent->client->ps.origin[0] <= (6035 + versionAdjustment) && ent->client->ps.origin[1] >= -1318 && ent->client->ps.origin[1] <= -588)
+				else if (ent->client->ps.origin[0] >= 6927 && ent->client->ps.origin[0] <= 7571 && ent->client->ps.origin[1] >= -1318 && ent->client->ps.origin[1] <= -588)
 				{
 					//cargo2 v1.1+, station 2
 					//trap_SendServerCommand(-1, va("print \"Debug: station 2\n\""));
 				}
-				else if (ent->client->ps.origin[0] >= (4952 + versionAdjustment) && ent->client->ps.origin[0] <= (5255 + versionAdjustment) && ent->client->ps.origin[1] >= -1313 && ent->client->ps.origin[1] <= -877)
+				else if (ent->client->ps.origin[0] >= 6488 && ent->client->ps.origin[0] <= 6791 && ent->client->ps.origin[1] >= -1313 && ent->client->ps.origin[1] <= -877)
 				{
 					//cargo2 v1.1+, vent shield room thing
 					//trap_SendServerCommand(-1, va("print \"Debug: vent shield room thing\n\""));
 				}
-				else if (ent->client->ps.origin[0] >= (4537 + versionAdjustment) && ent->client->ps.origin[0] <= (5020 + versionAdjustment) && ent->client->ps.origin[1] >= -299 && ent->client->ps.origin[1] <= 1047 && level.ccCompleted == qtrue)
+				else if (ent->client->ps.origin[0] >= 6073 && ent->client->ps.origin[0] <= 6556 && ent->client->ps.origin[1] >= -299 && ent->client->ps.origin[1] <= 1047 && level.ccCompleted == qtrue)
 				{
 					//cargo2 v1.1+, hallway near cc
 					//trap_SendServerCommand(-1, va("print \"Debug: hallway near cc\n\""));
