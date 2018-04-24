@@ -1576,7 +1576,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 
 	if (GetSiegeMap() == SIEGEMAP_CARGO)
 	{
-		if (level.totalObjectivesCompleted != 4) {
+		if (level.totalObjectivesCompleted != 3) {
 			int i;
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *sentry = &g_entities[i];

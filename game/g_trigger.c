@@ -569,7 +569,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (holdEleDoorsHacked && other->client && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmp(self->target, "holdelev") && GetSiegeMap() == SIEGEMAP_CARGO && other->client->ps.origin[2] >= 600) {
+	if (holdEleDoorsHacked && other && other->client && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmp(self->target, "holdelev") && GetSiegeMap() == SIEGEMAP_CARGO && other->client->ps.origin[2] >= 600) {
 		int i;
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			gentity_t *player = &g_entities[i];

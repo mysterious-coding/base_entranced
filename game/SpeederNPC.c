@@ -466,7 +466,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		parentPS->speed = speedMin;
 	}
 
-	if (parentPS && parentPS->electrifyTime > curTime && GetSiegeMap() == SIEGEMAP_URBAN)
+	if (parentPS && parentPS->electrifyTime > curTime && GetSiegeMap() != SIEGEMAP_URBAN)
 	{
 		parentPS->speed *= (pVeh->m_fTimeModifier/60.0f);
 	}
