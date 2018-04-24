@@ -6097,7 +6097,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		} 
 		else 
 		{
-			if ( g_debugMelee.integer || (GetSiegeMap() == SIEGEMAP_CARGO && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && targ->client->ps.weapon == WP_SABER))
+			if ( /*pm->debugMelee ||*/ (GetSiegeMap() == SIEGEMAP_CARGO && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && targ->client->ps.weapon == WP_SABER))
 			{//getting hurt makes you let go of the wall
 				if ( targ->client && (targ->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 				{

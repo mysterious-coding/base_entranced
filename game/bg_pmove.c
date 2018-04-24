@@ -1529,7 +1529,7 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 			return qfalse;
 			break;
 		}
-		if ( pm->debugMelee || (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
+		if ( /*pm->debugMelee ||*/ (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
 		{//uber-skillz
 			if (level.clients[pm->ps->clientNum].pushOffWallTime && level.time - level.clients[pm->ps->clientNum].pushOffWallTime <= 100) {
 				level.clients[pm->ps->clientNum].pushOffWallTime = 0;
@@ -7239,7 +7239,7 @@ static void PM_Weapon( void )
 		//Alternate between punches and use the anim length as weapon time.
 		if (!pm->ps->m_iVehicleNum)
 		{ //if riding a vehicle don't do this stuff at all
-			if (pm->debugMelee &&
+			if (/*pm->debugMelee*/0 &&
 				(pm->cmd.buttons & BUTTON_ATTACK) &&
 				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //ok, grapple time
@@ -7286,7 +7286,7 @@ static void PM_Weapon( void )
 	#endif
 #endif
 			}
-			else if (pm->debugMelee &&
+			else if (/*pm->debugMelee*/0 &&
 				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //kicks
 				if (!BG_KickingAnim(pm->ps->torsoAnim) &&
@@ -9704,13 +9704,6 @@ void PmoveSingle (pmove_t *pmove) {
 	int savedGravity = 0;
 
 	pm = pmove;
-
-	if (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER)
-		pm->debugMelee = qtrue;
-	else if (g_debugMelee.integer)
-		pm->debugMelee = qtrue;
-	else
-		pm->debugMelee = qfalse;
 
 	if (pm->ps->emplacedIndex)
 	{

@@ -3484,7 +3484,8 @@ void ClientThink_real( gentity_t *ent ) {
 	//rww end bgghoul2
 
 	pm.gametype = g_gametype.integer;
-	pm.debugMelee = g_debugMelee.integer;
+	//pm.debugMelee = g_debugMelee.integer;
+	pm.debugMelee = 0;
 	pm.stepSlideFix = g_stepSlideFix.integer;
 
 	pm.noSpecMove = g_noSpecMove.integer;

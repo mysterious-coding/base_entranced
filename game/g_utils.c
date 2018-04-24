@@ -2862,6 +2862,8 @@ siegeMap_t GetSiegeMap(void) {
 			map = SIEGEMAP_BESPIN;
 		else
 			map = SIEGEMAP_UNKNOWN;
+
+		trap_Cvar_Set("g_debugMelee", map == SIEGEMAP_CARGO ? "1" : "0");
 	}
 	return map;
 }
