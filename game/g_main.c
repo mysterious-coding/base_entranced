@@ -5161,12 +5161,19 @@ void G_RunFrame( int levelTime ) {
 				if (cl->ps.saberHolstered) {
 					cl->saberUnigniteTime += (level.time - lastTime);
 					if (cl->saberUnigniteTime >= 3000 && !notified[i]) {
-						gentity_t *te = G_TempEntity(cl->ps.origin, EV_TEAM_POWER);
-						te->s.eventParm = 2;
-						te->r.svFlags |= SVF_SINGLECLIENT;
-						te->r.svFlags |= SVF_BROADCAST;
-						te->r.singleClient = i;
-						WP_AddToClientBitflags(te, i);
+						int j;
+						for (j = 0; j < MAX_CLIENTS; j++) {
+							if (level.clients[j].pers.connected != CON_CONNECTED)
+								continue;
+							if (j != i && !(level.clients[j].sess.sessionTeam == TEAM_SPECTATOR && level.clients[j].sess.spectatorState == SPECTATOR_FOLLOW && level.clients[j].sess.spectatorClient == i))
+								continue;
+							gentity_t *te = G_TempEntity(cl->ps.origin, EV_TEAM_POWER);
+							te->s.eventParm = 2;
+							te->r.svFlags |= SVF_SINGLECLIENT;
+							te->r.svFlags |= SVF_BROADCAST;
+							te->r.singleClient = j;
+							WP_AddToClientBitflags(te, i);
+						}
 						notified[i] = qtrue;
 					}
 					saberOn[i] = qfalse;
