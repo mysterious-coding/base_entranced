@@ -9704,7 +9704,14 @@ void PmoveSingle (pmove_t *pmove) {
 	int savedGravity = 0;
 
 	pm = pmove;
-		
+
+	if (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER)
+		pm->debugMelee = qtrue;
+	else if (g_debugMelee.integer)
+		pm->debugMelee = qtrue;
+	else
+		pm->debugMelee = qfalse;
+
 	if (pm->ps->emplacedIndex)
 	{
 		if (pm->cmd.buttons & BUTTON_ALT_ATTACK)
