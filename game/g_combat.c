@@ -5930,6 +5930,12 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// do the damage
 	if (take) 
 	{
+		if (GetSiegeMap() == SIEGEMAP_CARGO && targ - g_entities < MAX_CLIENTS && targ->client &&
+			targ->client->ps.pm_flags & PMF_STUCK_TO_WALL && targ->client->sess.sessionTeam == TEAM_BLUE &&
+			targ->s.weapon == WP_SABER && targ->health > 0) {
+			targ->client->pushOffWallTime = level.time;
+		}
+
 		if (targ->client && targ->s.number < MAX_CLIENTS &&
 			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
 		{ //uh.. shock them or something. what the hell, I don't know.
