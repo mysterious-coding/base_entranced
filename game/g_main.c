@@ -148,7 +148,6 @@ vmCvar_t	g_dlURL;
 vmCvar_t	cl_allowDownload;
 vmCvar_t	g_logrcon;   
 vmCvar_t	g_flags_overboarding;
-vmCvar_t	g_selfkillPenalty;
 vmCvar_t    g_sexyDisruptor;
 vmCvar_t    g_fixSiegeScoring;
 vmCvar_t    g_fixFallingSounds;
@@ -784,7 +783,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &cl_allowDownload,	"cl_allowDownload"	, "0"	, CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_fixboon,	"g_fixboon"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_flags_overboarding, "g_flags_overboarding", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_selfkillPenalty, "g_selfkillPenalty", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_sexyDisruptor, "g_sexyDisruptor", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixSiegeScoring, "g_fixSiegeScoring", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixFallingSounds, "g_fixFallingSounds", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -2782,9 +2780,7 @@ void BeginIntermission( void ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(NULL, "obj");
 			PrintStatsTo(NULL, "general");
-			char map[MAX_QPATH] = { 0 };
-			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17) || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
+			if (GetSiegeMap() != SIEGEMAP_UNKNOWN)
 				PrintStatsTo(NULL, "map");
 		}
 		else if (g_gametype.integer == GT_CTF) {
@@ -5068,6 +5064,8 @@ static void CheckNewmodSiegeClassLimits(void) {
 }
 #endif
 
+extern void WP_AddToClientBitflags(gentity_t *ent, int entNum);
+
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -5141,6 +5139,53 @@ void G_RunFrame( int levelTime ) {
 		flagsSet = qtrue;
 	}
 #endif
+
+	if (GetSiegeMap() == SIEGEMAP_CARGO) {
+		static int lastTime = 0;
+		static qboolean saberOn[MAX_CLIENTS] = { qfalse }, notified[MAX_CLIENTS] = { qfalse };
+		if (lastTime) {
+			for (i = 0; i < MAX_CLIENTS; i++) {
+				gclient_t *cl = &level.clients[i];
+				if (cl->pers.connected != CON_CONNECTED ||
+					cl->sess.sessionTeam != TEAM_BLUE ||
+					cl->ps.stats[STAT_HEALTH] <= 0 ||
+					cl->tempSpectate > level.time ||
+					cl->ps.weapon != WP_SABER) {
+					cl->saberIgniteTime = 0;
+					cl->saberUnigniteTime = 0;
+					cl->saberBonusTime = 0;
+					saberOn[i] = qfalse;
+					notified[i] = qfalse;
+					continue;
+				}
+				if (cl->ps.saberHolstered) {
+					cl->saberUnigniteTime += (level.time - lastTime);
+					if (cl->saberUnigniteTime >= 3000 && !notified[i]) {
+						gentity_t *te = G_TempEntity(cl->ps.origin, EV_TEAM_POWER);
+						te->s.eventParm = 2;
+						te->r.svFlags |= SVF_SINGLECLIENT;
+						te->r.svFlags |= SVF_BROADCAST;
+						te->r.singleClient = i;
+						WP_AddToClientBitflags(te, i);
+						notified[i] = qtrue;
+					}
+					saberOn[i] = qfalse;
+				}
+				else {
+					if (!saberOn[i]) {
+						cl->saberIgniteTime = level.time;
+						if (cl->saberUnigniteTime >= 3000) {
+							cl->saberBonusTime = level.time;
+						}
+					}
+					saberOn[i] = qtrue;
+					notified[i] = qfalse;
+					cl->saberUnigniteTime = 0;
+				}
+			}
+		}
+		lastTime = level.time;
+	}
 
 	level.wallhackTracesDone = 0; // reset the traces for the next ClientThink wave
 
@@ -5912,16 +5957,7 @@ void G_RunFrame( int levelTime ) {
 		}
 	}
 
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
-	if (isUrban == qtrue) {
+	if (GetSiegeMap() == SIEGEMAP_URBAN) {
 		static gentity_t *swoop = NULL, *icon = NULL;
 		if (!swoop) {
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {

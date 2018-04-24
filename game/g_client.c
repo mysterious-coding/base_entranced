@@ -4463,7 +4463,7 @@ void ClientSpawn(gentity_t *ent) {
 				{ //Max his ammo out for all the weapons he has.
 					if (g_gametype.integer == GT_SIEGE && m == WP_ROCKET_LAUNCHER && !bgSiegeClasses[ent->client->siegeClass].ammorockets && !(bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)))
 					{
-						if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO) && Q_stricmp(mapname.string, "siege_cargobarge"))
+						if (bgSiegeClasses[ent->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO) && !Q_stricmp(mapname.string, "siege_cargobarge"))
 							//siege_cargobarge (the original one) needs a manual override due to oink being dumb
 							Add_Ammo(ent, AMMO_ROCKETS, 20);
 						else

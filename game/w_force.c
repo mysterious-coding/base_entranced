@@ -928,7 +928,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 		return qfalse;
 	}
 
-	if ( g_debugMelee.integer )
+	if ( g_debugMelee.integer || (GetSiegeMap() == SIEGEMAP_CARGO && self->client->sess.sessionTeam == TEAM_BLUE && self->client->ps.weapon == WP_SABER))
 	{
 		if ( (self->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 		{//no offensive force powers when stuck to wall
@@ -3260,17 +3260,8 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	}
 
 	// d jedi on urban gets pull1 if saber in air
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
 
-	if (isUrban == qtrue && pull && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE && self - g_entities < MAX_CLIENTS) {
+	if (GetSiegeMap() == SIEGEMAP_URBAN && pull && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE && self - g_entities < MAX_CLIENTS) {
 		powerLevel = self->client->ps.saberInFlight && self->client->ps.saberEntityNum ? FORCE_LEVEL_1 : FORCE_LEVEL_2;
 		pushPower = 256 * powerLevel;
 	}
@@ -3584,13 +3575,14 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				// we knocked that guy with push/pull, his run is invalid
 				push_list[x]->client->runInvalid = qtrue;
 
-				if ( g_debugMelee.integer )
+				if ( g_debugMelee.integer || (GetSiegeMap() == SIEGEMAP_CARGO && push_list[x] - g_entities < MAX_CLIENTS && push_list[x]->client->sess.sessionTeam == TEAM_BLUE && push_list[x]->client->ps.weapon == WP_SABER) )
 				{
 					if ( (push_list[x]->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 					{//no resistance if stuck to wall
 						//push/pull them off the wall
 						otherPushPower = 0;
 						G_LetGoOfWall( push_list[x] );
+						push_list[x]->client->pushOffWallTime = level.time;
 					}
 				}
 

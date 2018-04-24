@@ -176,7 +176,7 @@ qboolean OnValidMapForAntiSpam(qboolean doorSpam)
 	if (!Q_stricmp(mapname.string, "siege_codes") || !Q_stricmpn(mapname.string, "mp/siege_crystals", 17))
 		return qfalse;
 
-	if (doorSpam && !Q_stricmpn(mapname.string, "siege_urban", 11)) // workaround
+	if (doorSpam && GetSiegeMap() == SIEGEMAP_URBAN) // workaround
 		return qfalse;
 
 	return qtrue;
@@ -243,7 +243,6 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 	int			numberOfDoorsFound = 0;
 	int			doorspamDistanceCheck = DISTANCE_FROM_ENEMY_TO_DOOR_FOR_DOORSPAM;
 	//qboolean	aimingAtCargoHallDoor = qfalse;
-
 	vmCvar_t	mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
@@ -263,9 +262,9 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorCopy(ent->client->ps.origin, start);
 			start[2] += ent->client->ps.viewheight;//By eyes
 
-			if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))
+			if (GetSiegeMap() == SIEGEMAP_CARGO)
 			{
-				if (ent->client->ps.origin[0] >= 1838 && ent->client->ps.origin[0] <= 3261 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+				if (ent->client->ps.origin[0] >= 1846 && ent->client->ps.origin[0] <= 3269 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 				{
 					//allow for more height fudging in the 2nd obj of cargo2 v1.1+
 					heightUpperBound = (ent->client->ps.origin[2] + 296); //approximately height distance from codes main room floor to top of bunker
@@ -273,7 +272,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					doorspamDistanceCheck = 1024;
 					//trap_SendServerCommand(-1, va("print \"Debug: 2nd obj\n\""));
 				}
-				else if (ent->client->ps.origin[0] >= 6670 && ent->client->ps.origin[0] <= 7269 && ent->client->ps.origin[1] >= 62 && ent->client->ps.origin[1] <= 708)
+				else if (ent->client->ps.origin[0] >= 6678 && ent->client->ps.origin[0] <= 7277 && ent->client->ps.origin[1] >= 62 && ent->client->ps.origin[1] <= 708)
 				{
 					//cargo2 v1.1+, station 1
 					heightUpperBound = (ent->client->ps.origin[2] + 99999); //huge
@@ -302,7 +301,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 							continue; //miscellaneous checks
 						}
 
-						if (potentialEnemyInStation1->client->ps.origin[0] >= 6670 && potentialEnemyInStation1->client->ps.origin[0] <= 7269 && potentialEnemyInStation1->client->ps.origin[1] >= 62 && potentialEnemyInStation1->client->ps.origin[1] <= 708)
+						if (potentialEnemyInStation1->client->ps.origin[0] >= 6678 && potentialEnemyInStation1->client->ps.origin[0] <= 7277 && potentialEnemyInStation1->client->ps.origin[1] >= 62 && potentialEnemyInStation1->client->ps.origin[1] <= 708)
 						{
 							//there is an enemy in the station 1
 							numConfirmedEnemiesInStation1++;
@@ -320,17 +319,17 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 						//proceed normally
 					}
 				}
-				else if (ent->client->ps.origin[0] >= 6927 && ent->client->ps.origin[0] <= 7571 && ent->client->ps.origin[1] >= -1318 && ent->client->ps.origin[1] <= -588)
+				else if (ent->client->ps.origin[0] >= 6935 && ent->client->ps.origin[0] <= 7579 && ent->client->ps.origin[1] >= -1318 && ent->client->ps.origin[1] <= -588)
 				{
 					//cargo2 v1.1+, station 2
 					//trap_SendServerCommand(-1, va("print \"Debug: station 2\n\""));
 				}
-				else if (ent->client->ps.origin[0] >= 6488 && ent->client->ps.origin[0] <= 6791 && ent->client->ps.origin[1] >= -1313 && ent->client->ps.origin[1] <= -877)
+				else if (ent->client->ps.origin[0] >= 6496 && ent->client->ps.origin[0] <= 6799 && ent->client->ps.origin[1] >= -1313 && ent->client->ps.origin[1] <= -877)
 				{
 					//cargo2 v1.1+, vent shield room thing
 					//trap_SendServerCommand(-1, va("print \"Debug: vent shield room thing\n\""));
 				}
-				else if (ent->client->ps.origin[0] >= 6073 && ent->client->ps.origin[0] <= 6556 && ent->client->ps.origin[1] >= -299 && ent->client->ps.origin[1] <= 1047 && level.ccCompleted == qtrue)
+				else if (ent->client->ps.origin[0] >= 6081 && ent->client->ps.origin[0] <= 6564 && ent->client->ps.origin[1] >= -299 && ent->client->ps.origin[1] <= 1047 && level.ccCompleted == qtrue)
 				{
 					//cargo2 v1.1+, hallway near cc
 					//trap_SendServerCommand(-1, va("print \"Debug: hallway near cc\n\""));
@@ -342,6 +341,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					return qfalse;
 				}
 			}
+			
 			if (!Q_stricmp(mapname.string, "mp/siege_eat_shower") && weaponBeingUsed == WP_ROCKET_LAUNCHER)
 			{
 				if (level.objectiveJustCompleted == 3)
@@ -350,11 +350,11 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					return qfalse;
 				}
 			}
-			if ((!Q_stricmp(mapname.string, "siege_narshaddaa") || !Q_stricmpn(mapname.string, "mp/siege_hoth", 13) || !Q_stricmp(mapname.string, "mp/siege_desert")) && !level.totalObjectivesCompleted)
+			if ((GetSiegeMap() == SIEGEMAP_HOTH || GetSiegeMap() == SIEGEMAP_DESERT || GetSiegeMap() == SIEGEMAP_NAR) && !level.totalObjectivesCompleted)
 			{
 				return qfalse;
 			}
-			if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+			if (GetSiegeMap() == SIEGEMAP_KORRIBAN)
 			{
 				return qfalse;
 			}
@@ -444,7 +444,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 		else
 		{
 			//you are always allowed to minespam in the walker spawn areas
-			if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+			if (GetSiegeMap() == SIEGEMAP_HOTH)
 			{
 				if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
 				{
@@ -463,7 +463,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					heightLowerBound = (ent->client->ps.origin[2] - 9999); //we're standing near the top of the infirmary lift, so increase lower height detection(to detect throwing mines down on people)
 				}
 			}
-			else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
+			else if (GetSiegeMap() == SIEGEMAP_NAR) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
 			{
 				if (ent->client->ps.origin[0] >= -1660 && ent->client->ps.origin[0] <= -989 && ent->client->ps.origin[1] >= 7119 && ent->client->ps.origin[1] <= 7639)
 				{
@@ -572,7 +572,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 			{
-				if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+				if (GetSiegeMap() == SIEGEMAP_HOTH) {
 					if (level.totalObjectivesCompleted <= 2) { //allow walker to trigger "allow spam" for first 3 objs
 						thereIsAWalkerOrProtector = qtrue;
 						continue;
@@ -597,7 +597,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle && (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo
 				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 			{
-				if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+				if (GetSiegeMap() == SIEGEMAP_HOTH) {
 					if (level.totalObjectivesCompleted <= 2) { //allow walker to trigger "allow spam" for first 3 objs
 						thereIsAWalkerOrProtector = qtrue;
 						continue;
@@ -633,7 +633,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue; //spam victim must be on offense
 			}
 
-			if (ent->client->ps.origin[2] < 470 && potentialSpamVictim->client->ps.origin[2] >= 470 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+			if (ent->client->ps.origin[2] < 470 && potentialSpamVictim->client->ps.origin[2] >= 470 && GetSiegeMap() == SIEGEMAP_HOTH) {
 				continue; // fix for attackers in cc/short area triggering anti spam for defenders down below
 			}
 
@@ -727,7 +727,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 						else
 						{
 							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-							if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && ent->client->ps.origin[0] >= -3825 && ent->client->ps.origin[0] <= -1258 &&
+							if (GetSiegeMap() == SIEGEMAP_HOTH && ent->client->ps.origin[0] >= -3825 && ent->client->ps.origin[0] <= -1258 &&
 								ent->client->ps.origin[1] >= -570 && ent->client->ps.origin[1] <= 755 && ent->client->ps.origin[2] >= -295 && ent->client->ps.origin[2] <= 38)
 							{
 								//we are in the hangar on hoth
@@ -833,7 +833,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			return qfalse; //only affecting some weapons for now
 		}
 
-		if (Q_stricmp(mapname.string, "siege_narshaddaa"))
+		if (GetSiegeMap() != SIEGEMAP_NAR)
 		{
 			return qfalse; //only on nar
 		}
@@ -2120,16 +2120,7 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 			continue;
 		}
 
-		static qboolean isUrban = -1;
-		if (isUrban == -1) { // uninitialized
-			vmCvar_t mapname;
-			trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-			if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-				isUrban = qtrue;
-			else
-				isUrban = qfalse;
-		}
-		if (isUrban == qtrue && VALIDSTRING(gent->NPC_type) && tolower(*gent->NPC_type) == 'w')
+		if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(gent->NPC_type) && tolower(*gent->NPC_type) == 'w')
 			continue;
 
 		// find the distance from the edge of the bounding box
@@ -3537,11 +3528,8 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 		return; //primary mines
 	}
 
-	if (ent && ent->client && ent->client->sess.sessionTeam == TEAM_BLUE) {
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
-			ent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_MINESTHROWN]++;
+	if (ent && ent->client && ent->client->sess.sessionTeam == TEAM_BLUE && GetSiegeMap() == SIEGEMAP_KORRIBAN) {
+		ent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_MINESTHROWN]++;
 	}
 
 	foundLaserTraps[0] = ENTITYNUM_NONE;

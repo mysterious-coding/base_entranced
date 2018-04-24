@@ -1126,15 +1126,6 @@ Touch_DoorTrigger
 */
 void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
 
 	gentity_t *relockEnt = NULL;
 
@@ -1172,7 +1163,7 @@ void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 
 	if (ent->parent->spawnflags & MOVER_LOCKED)
 	{//don't even try to use the door if it's locked
-		if (isUrban && VALIDSTRING(ent->parent->targetname) &&
+		if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(ent->parent->targetname) &&
 			((level.totalObjectivesCompleted < 1 && !Q_stricmp(ent->parent->targetname, "obj1to2")) ||
 			(level.totalObjectivesCompleted < 2 && !Q_stricmp(ent->parent->targetname, "obj2to3")) ||
 				(level.totalObjectivesCompleted < 3 && !Q_stricmp(ent->parent->targetname, "obj3to4"))))

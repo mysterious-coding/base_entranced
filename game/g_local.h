@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"235"
+#define MODBUILDNUMBER			"237"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
@@ -1026,6 +1026,10 @@ struct gclient_s {
 
 	qboolean	runInvalid; // qtrue if external damage/force was used on this player. this invalidates ALL categories
 	qboolean	usedWeapon; // triggers the weapon capture record category
+	int			saberIgniteTime;
+	int			saberUnigniteTime;
+	int			saberBonusTime;
+	int			pushOffWallTime;
 
 #ifdef NEWMOD_SUPPORT
 	qboolean	isLagging; // mark lagger without actually changing EF_CONNECTION
@@ -1562,7 +1566,17 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
-qboolean G_MapIs(char *s);
+typedef enum {
+	SIEGEMAP_UNKNOWN = 0,
+	SIEGEMAP_HOTH,
+	SIEGEMAP_DESERT,
+	SIEGEMAP_KORRIBAN,
+	SIEGEMAP_NAR,
+	SIEGEMAP_CARGO,
+	SIEGEMAP_URBAN,
+	SIEGEMAP_BESPIN
+} siegeMap_t;
+siegeMap_t GetSiegeMap(void);
 qboolean G_ShieldSpamAllowed(team_t t);
 
 //
@@ -2364,7 +2378,6 @@ extern vmCvar_t    g_fixboon;
 extern vmCvar_t    g_maxstatusrequests;
 extern vmCvar_t	   g_logrcon;
 extern vmCvar_t	   g_flags_overboarding;
-extern vmCvar_t	   g_selfkillPenalty;
 extern vmCvar_t    g_sexyDisruptor;
 extern vmCvar_t    g_fixSiegeScoring;
 extern vmCvar_t    g_fixFallingSounds;

@@ -2150,6 +2150,7 @@ static void WriteTextForToken( gentity_t *ent, const char token, char *buffer, s
 
 	gclient_t *cl = ent->client;
 	int value;
+	char *s;
 
 	switch ( token ) {
 	case 'h': case 'H':
@@ -2182,6 +2183,28 @@ static void WriteTextForToken( gentity_t *ent, const char token, char *buffer, s
 		break;
 	case 'l': case 'L':
 		Team_GetLocation( ent, buffer, bufferSize );
+		break;
+	case 'w': case 'W':
+		switch (cl->ps.weapon) {
+		case WP_STUN_BATON:			s = "Stun Baton";			break;
+		case WP_MELEE:				s = "Melee";				break;
+		case WP_SABER:				s = "Saber";				break;
+		case WP_BRYAR_PISTOL:	case WP_BRYAR_OLD:				s = "Pistol";	break;
+		case WP_BLASTER:			s = "Blaster";				break;
+		case WP_DISRUPTOR:			s = "Disruptor";			break;
+		case WP_BOWCASTER:			s = "Bowcaster";			break;
+		case WP_REPEATER:			s = "Repeater";				break;
+		case WP_DEMP2:				s = "Demp";					break;
+		case WP_FLECHETTE:			s = "Golan";				break;
+		case WP_ROCKET_LAUNCHER:	s = "Rockets";	break;
+		case WP_THERMAL:			s = "Thermals";				break;
+		case WP_TRIP_MINE:			s = "Mines";				break;
+		case WP_DET_PACK:			s = "Detpacks";				break;
+		case WP_CONCUSSION:			s = "Concussion";			break;
+		case WP_EMPLACED_GUN:		s = "Emplaced";				break;
+		default:					s = "Jesus";				break;
+		}
+		Com_sprintf(buffer, bufferSize, s);
 		break;
 	default: return;
 	}
@@ -2328,7 +2351,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	}
 
-	if (mode == SAY_TEAM) {
+	if (mode == SAY_TEAM && ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		TokenizeTeamChat(ent, text, chatText, sizeof(text));
 	}
 	else {
@@ -3600,22 +3623,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			}
 		}
 		else if (!Q_stricmp(arg2, "siege_cargobarge3") || !Q_stricmp(arg2, "mp/siege_cargobarge3")) {
-			fileHandle_t f;
-			trap_FS_FOpenFile("maps/siege_cargobarge3.bsp", &f, FS_READ);
-			if (f) {
-				trap_FS_FCloseFile(f);
-				Q_strncpyz(arg2, "siege_cargobarge3", sizeof(arg2));
-			}
-			else { // get highest beta version
-				for (i = 99; i > 0; i--) {
-					trap_FS_FOpenFile(va("maps/siege_cargobarge3_b%d.bsp", i), &f, FS_READ);
-					if (f) {
-						trap_FS_FCloseFile(f);
-						Q_strncpyz(arg2, va("siege_cargobarge3_b%d", i), sizeof(arg2));
-						break;
-					}
-				}
-			}
+			Q_strncpyz(arg2, "siege_cargobarge3_b2", sizeof(arg2));
 		}
 
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
@@ -5363,7 +5371,6 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 		if (ent->client->ps.saberHolstered == 2)
 		{
 			ent->client->ps.saberHolstered = 0;
-
 			if (ent->client->saber[0].soundOn)
 			{
 				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
@@ -6399,38 +6406,38 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
 #endif
-		char map[MAX_QPATH] = { 0 };
-		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-		if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13))) {
+		switch (GetSiegeMap()) {
+		case SIEGEMAP_HOTH:
 			desc = &HothDesc;
 			callback = &FillMapSpecificStats;
-		}
-		else if (map[0] && !Q_stricmp(map, "mp/siege_desert")) {
+			break;
+		case SIEGEMAP_DESERT:
 			desc = &DesertDesc;
 			callback = &FillMapSpecificStats;
-		}
-		else if (map[0] && !Q_stricmp(map, "mp/siege_korriban")) {
+			break;
+		case SIEGEMAP_KORRIBAN:
 			desc = &KorriDesc;
 			callback = &FillMapSpecificStats;
-		}
-		else if (map[0] && !Q_stricmp(map, "siege_narshaddaa")) {
+			break;
+		case SIEGEMAP_NAR:
 			desc = &NarDesc;
 			callback = &FillMapSpecificStats;
-		}
-		else if (map[0] && (!Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17))) {
+			break;
+		case SIEGEMAP_CARGO:
 			desc = &Cargo2Desc;
 			callback = &FillMapSpecificStats;
-		}
-		else if (map[0] && !Q_stricmpn(map, "mp/siege_bespin", 15)) {
-			desc = &BespinDesc;
-			callback = &FillMapSpecificStats;
-		}
-		else if (map[0] && !Q_stricmpn(map, "siege_urban", 11)) {
+			break;
+		case SIEGEMAP_URBAN:
 			desc = &UrbanDesc;
 			callback = &FillMapSpecificStats;
-		}
-		else
+			break;
+		case SIEGEMAP_BESPIN:
+			desc = &BespinDesc;
+			callback = &FillMapSpecificStats;
+			break;
+		default:
 			return;
+		}
 	} else {
 		if ( id != -1 ) {
 			if (g_gametype.integer == GT_SIEGE)
@@ -6458,9 +6465,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(ent, "obj");
 			PrintStatsTo(ent, "general");
-			char map[MAX_QPATH] = { 0 };
-			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (map[0] && (!Q_stricmp(map, "mp/siege_hoth") || !Q_stricmp(map, "mp/siege_hoth2") || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17) || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
+			if (GetSiegeMap() != SIEGEMAP_UNKNOWN)
 				PrintStatsTo(ent, "map");
 		}
 		else {
@@ -6606,7 +6611,6 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_rocketSurfing);
 	PrintCvar(g_saberDamageScale);
 	PrintCvar(g_sexyDisruptor);
-	PrintCvar(g_selfkillPenalty);
 	PrintCvar(g_specInfo);
 	PrintCvar(g_swoopKillPoints);
 	PrintCvar(iLikeToDoorSpam);

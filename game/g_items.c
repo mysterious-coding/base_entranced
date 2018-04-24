@@ -119,17 +119,7 @@ qboolean EntityBlocksShields(int entNum) {
 		return qfalse;
 	}
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
-
-	if (isUrban == qtrue && ent->s.eType == ET_NPC && VALIDSTRING(ent->NPC_type) && tolower(*ent->NPC_type) == 'w')
+	if (GetSiegeMap() == SIEGEMAP_URBAN && ent->s.eType == ET_NPC && VALIDSTRING(ent->NPC_type) && (tolower(*ent->NPC_type) == 'w' || tolower(*ent->NPC_type) == 'p'))
 		return qfalse;
 
 	return qtrue;
@@ -1397,10 +1387,8 @@ void Jetpack_On(gentity_t *ent)
 	{ //too late!
 		return;
 	}
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-	if (level.zombies && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))) {
-		if (ent->client->ps.origin[0] >= 1838 && ent->client->ps.origin[0] <= 3261 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
+	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO) {
+		if (ent->client->ps.origin[0] >= 1846 && ent->client->ps.origin[0] <= 3269 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 			return;
 	}
 

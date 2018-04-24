@@ -1837,18 +1837,9 @@ void HealSomething(gentity_t *ent, gentity_t *target)
 
 qboolean TryHeal(gentity_t *ent, gentity_t *target)
 {
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
 
 	int max = target->maxHealth;
-	if (isUrban == qtrue && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
+	if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
 		static enum {
 			ONETHIRD = 0,
 			TWOTHIRDS,
@@ -2042,19 +2033,9 @@ void TryUse( gentity_t *ent )
 	}
 #endif
 
-	static int isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = 1;
-		else
-			isUrban = 0;
-	}
-
 	if (target && target->m_pVehicle && target->client &&
 		target->s.NPC_class == CLASS_VEHICLE &&
-		!ent->client->ps.zoomMode && !(isUrban == 1 && (level.totalObjectivesCompleted >= 4 || level.zombies)))
+		!ent->client->ps.zoomMode && !(GetSiegeMap() == SIEGEMAP_URBAN && (level.totalObjectivesCompleted >= 4 || level.zombies)))
 	{ //if target is a vehicle then perform appropriate checks
 		Vehicle_t *pVeh = target->m_pVehicle;
 		qboolean used = qfalse;
@@ -2860,13 +2841,29 @@ gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func filterFunc ) {
 	return found;
 }
 
-qboolean G_MapIs(char *s) {
-	char buf[MAX_QPATH] = { 0 };
-	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
-	if (buf[0] && !Q_stricmp(buf, s))
-		return qtrue;
-
-	return qfalse;
+siegeMap_t GetSiegeMap(void) {
+	static siegeMap_t map = -1;
+	if (map == -1) {
+		vmCvar_t mapname;
+		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
+		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+			map = SIEGEMAP_HOTH;
+		else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+			map = SIEGEMAP_DESERT;
+		else if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+			map = SIEGEMAP_KORRIBAN;
+		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+			map = SIEGEMAP_NAR;
+		else if (!Q_stricmp(mapname.string, "siege_urban_b8"))
+			map = SIEGEMAP_URBAN;
+		else if (!Q_stricmp(mapname.string, "siege_cargobarge3_b2") || !Q_stricmp(mapname.string, "siege_cargobarge2"))
+			map = SIEGEMAP_CARGO;
+		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15))
+			map = SIEGEMAP_BESPIN;
+		else
+			map = SIEGEMAP_UNKNOWN;
+	}
+	return map;
 }
 
 qboolean G_ShieldSpamAllowed(team_t t) {

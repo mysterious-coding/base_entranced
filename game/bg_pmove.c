@@ -1529,8 +1529,39 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 			return qfalse;
 			break;
 		}
-		if ( pm->debugMelee )
+		if ( pm->debugMelee || (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
 		{//uber-skillz
+			if (level.clients[pm->ps->clientNum].pushOffWallTime && level.time - level.clients[pm->ps->clientNum].pushOffWallTime <= 100) {
+				level.clients[pm->ps->clientNum].pushOffWallTime = 0;
+				ps->pm_flags &= ~PMF_STUCK_TO_WALL;
+				ps->velocity[0] = ps->velocity[1] = 0;
+				VectorScale(checkDir, -JUMP_OFF_WALL_SPEED, ps->velocity);
+				ps->velocity[2] = BG_ForceWallJumpStrength();
+				ps->pm_flags |= PMF_JUMP_HELD;
+				ps->fd.forceJumpSound = 1; //this is a stupid thing, i should fix it.
+				if (ps->origin[2] < ps->fd.forceJumpZStart)
+				{
+					ps->fd.forceJumpZStart = ps->origin[2];
+				}
+				//FIXME do I need this?
+
+				BG_ForcePowerDrain(ps, FP_LEVITATION, 10);
+				//no control for half a second
+				ps->pm_flags |= PMF_TIME_KNOCKBACK;
+				ps->pm_time = 500;
+				ucmd->forwardmove = 0;
+				ucmd->rightmove = 0;
+				ucmd->upmove = 0;
+
+				if (BG_InReboundHold(ps->legsAnim))
+				{//if was in hold pose, release now
+					PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRELEASE_FORWARD + (ps->legsAnim - BOTH_FORCEWALLHOLD_FORWARD), SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+				}
+				else
+				{
+					PM_SetAnim(SETANIM_LEGS, BOTH_FORCEJUMP1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART, 0);
+				}
+			}
 			if ( ucmd->upmove > 0 )
 			{//hold on until you let go manually
 				if ( BG_InReboundHold( ps->legsAnim ) )
@@ -1544,6 +1575,8 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 				{//if got to hold part of anim, play hold anim
 					if ( ps->legsTimer <= 300 )
 					{
+						if (!ps->saberHolstered && pm->ps->clientNum < MAX_CLIENTS)
+							G_Sound(&g_entities[pm->ps->clientNum], CHAN_AUTO, level.clients[pm->ps->clientNum].saber[0].soundOff);
 						ps->saberHolstered = 2;
 						PM_SetAnim( SETANIM_BOTH, BOTH_FORCEWALLRELEASE_FORWARD+(ps->legsAnim-BOTH_FORCEWALLHOLD_FORWARD), SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 						ps->legsTimer = ps->torsoTimer = 150;

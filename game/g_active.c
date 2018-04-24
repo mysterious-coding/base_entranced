@@ -2468,7 +2468,7 @@ void ClientThink_real( gentity_t *ent ) {
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (level.zombies && ent->client->jetPackOn) {
-		if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) {
+		if (GetSiegeMap() == SIEGEMAP_CARGO) {
 			if (ent->client->ps.origin[0] >= 1838 && ent->client->ps.origin[0] <= 3261 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 				ent->client->jetPackOn = qfalse;
 		}

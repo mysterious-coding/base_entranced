@@ -1537,25 +1537,22 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	trap_Cvar_Set(va("siege_r%i_obj%i", CurrentSiegeRound(), objective), va("%i", level.time - level.siegeRoundStartTime));
 	PrintObjStat(objective, 0);
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (objective == 5 && !Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	if (objective == 5 && GetSiegeMap() == SIEGEMAP_HOTH)
 	{
 		level.hangarCompletedTime = level.time;
 	}
 
-	if (objective == 5 && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)))
+	if (objective == 5 && GetSiegeMap() == SIEGEMAP_CARGO)
 	{
 		level.ccCompleted = qtrue;
 	}
 
-	if (objective == 2 && !Q_stricmp(mapname.string, "mp/siege_desert") && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
+	if (objective == 2 && GetSiegeMap() == SIEGEMAP_DESERT && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
 	{
 		client = level.killerOfLastDesertComputer->s.number;
 	}
 
-	if (!Q_stricmpn(mapname.string, "siege_urban", 11))
+	if (GetSiegeMap() == SIEGEMAP_URBAN)
 	{
 		if (objective == 2) {
 			int i;
@@ -1573,6 +1570,18 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 				gentity_t *sentry = &g_entities[i];
 				if (VALIDSTRING(sentry->classname) && !Q_stricmp(sentry->classname, "sentryGun") && level.time - sentry->genericValue8 < (TURRET_LIFETIME - 3000))
 						sentry->genericValue8 = level.time - (TURRET_LIFETIME - 3000); // explode in 3 seconds
+			}
+		}
+	}
+
+	if (GetSiegeMap() == SIEGEMAP_CARGO)
+	{
+		if (level.totalObjectivesCompleted != 4) {
+			int i;
+			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				gentity_t *sentry = &g_entities[i];
+				if (VALIDSTRING(sentry->classname) && !Q_stricmp(sentry->classname, "sentryGun") && level.time - sentry->genericValue8 < (TURRET_LIFETIME - 3000))
+					sentry->genericValue8 = level.time - (TURRET_LIFETIME - 3000); // explode in 3 seconds
 			}
 		}
 	}
@@ -1723,7 +1732,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			return;
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))
+	else if (GetSiegeMap() == SIEGEMAP_CARGO)
 	{
 		if (ent->objective == 6)
 		{
@@ -2355,13 +2364,11 @@ void SiegeItemThink(gentity_t *ent)
 		}
 		// update siege item carry time
 		else if (ent->siegeItemCarrierTime && carrier->client && carrier - g_entities >= 0 && carrier - g_entities < MAX_CLIENTS) {
-			char map[MAX_QPATH] = { 0 };
-			trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-			if (!Q_stricmpn(map, "mp/siege_hoth", 13))
+			if (GetSiegeMap() == SIEGEMAP_HOTH)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (!Q_stricmp(map, "mp/siege_desert"))
+			else if (GetSiegeMap() == SIEGEMAP_DESERT)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_PARTSTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (!Q_stricmp(map, "mp/siege_korriban") && VALIDSTRING(ent->goaltarget)) {
+			else if (GetSiegeMap() == SIEGEMAP_KORRIBAN && VALIDSTRING(ent->goaltarget)) {
 				if (!Q_stricmp(ent->goaltarget, "bluecrystaldelivery"))
 					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_BLUETIME] += (level.time - ent->siegeItemCarrierTime);
 				else if (!Q_stricmp(ent->goaltarget, "greencrystaldelivery"))
@@ -2371,13 +2378,13 @@ void SiegeItemThink(gentity_t *ent)
 				else if (!Q_stricmp(ent->goaltarget, "staffplace"))
 					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_SCEPTERTIME] += (level.time - ent->siegeItemCarrierTime);
 			}
-			else if (!Q_stricmp(map, "siege_narshaddaa"))
+			else if (GetSiegeMap() == SIEGEMAP_NAR)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (!Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(map, "siege_cargobarge3", 17))
+			else if (GetSiegeMap() == SIEGEMAP_CARGO)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (!Q_stricmpn(map, "mp/siege_bespin", 15))
+			else if (GetSiegeMap() == SIEGEMAP_BESPIN)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (!Q_stricmpn(map, "siege_urban", 11))
+			else if (GetSiegeMap() == SIEGEMAP_URBAN)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_MONEYTIME] += (level.time - ent->siegeItemCarrierTime);
 			ent->siegeItemCarrierTime = level.time;
 		}
@@ -2468,10 +2475,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (level.zombies && (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)))
+	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO)
 	{
 		return;
 	}
@@ -2499,9 +2503,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		G_Sound(other, CHAN_AUTO, self->noise_index);
 	}
 
-	char map[MAX_QPATH] = { 0 };
-	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-	if (map[0] && (!Q_stricmpn(map, "mp/siege_hoth", 13) || !Q_stricmp(map, "mp/siege_desert") || !Q_stricmp(map, "mp/siege_korriban") || !Q_stricmp(map, "siege_narshaddaa") || !Q_stricmp(map, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17) || !Q_stricmpn(map, "mp/siege_bespin", 15) || !Q_stricmpn(map, "siege_urban", 11)))
+	if (GetSiegeMap() != SIEGEMAP_UNKNOWN)
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;
@@ -2520,7 +2522,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if (self->target2 && self->target2[0] && (!self->genericValue4 || !self->genericValue5))
 	{ //fire the target for pickup, if it's set to fire every time, or set to only fire the first time and the first time has not yet occured.
-		if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(self->target2, "c3postolenprint"))
+		if (GetSiegeMap() == SIEGEMAP_DESERT && !Q_stricmp(self->target2, "c3postolenprint"))
 		{
 			//droid part on desert
 			char *part;

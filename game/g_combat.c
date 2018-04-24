@@ -2067,7 +2067,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 			return qtrue;
 		}
 
-		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+		if (GetSiegeMap() == SIEGEMAP_HOTH)
 		{
 			if (!level.objectiveJustCompleted && self->m_pVehicle &&
 				self->client->ps.origin[0] >= 4210 && self->client->ps.origin[0] <= 4454 &&
@@ -2127,7 +2127,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				return qtrue;
 			}
 		}
-		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+		else if (GetSiegeMap() == SIEGEMAP_NAR)
 		{
 			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED && (level.objectiveJustCompleted == 0 || level.objectiveJustCompleted == 1 || level.totalObjectivesCompleted == 4) &&
 				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER)
@@ -2150,7 +2150,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				return qtrue;
 			}
 		}
-		else if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17))
+		else if (GetSiegeMap() == SIEGEMAP_CARGO)
 		{
 			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
 				(!level.objectiveJustCompleted || (self->client->ps.origin[0] >= 6145 && self->client->ps.origin[0] <= 6525 &&
@@ -2188,7 +2188,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				return qtrue;
 			}
 		}
-		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
+		else if (GetSiegeMap() == SIEGEMAP_BESPIN) {
 			if (!level.totalObjectivesCompleted && self->client->sess.sessionTeam == TEAM_RED &&
 				self->client->ps.origin[0] >= 440 && self->client->ps.origin[0] <= 560 &&
 				self->client->ps.origin[1] >= -1775 && self->client->ps.origin[1] <= -1500 &&
@@ -2660,16 +2660,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	//Use any target we had
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
-	if (isUrban == qtrue && attacker && attacker - g_entities >= 0 && attacker - g_entities < MAX_CLIENTS && VALIDSTRING(self->NPC_type) && tolower(*self->NPC_type) == 'w')
+	if (GetSiegeMap() == SIEGEMAP_URBAN && attacker && attacker - g_entities >= 0 && attacker - g_entities < MAX_CLIENTS && VALIDSTRING(self->NPC_type) && tolower(*self->NPC_type) == 'w')
 		G_UseTargets(self, attacker);
 	else
 		G_UseTargets( self, self ); 
@@ -2887,7 +2878,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 			else
 			{
-                AddScore( attacker, self->r.currentOrigin, -g_selfkillPenalty.integer );
+				if (g_gametype.integer != GT_SIEGE)
+				   AddScore( attacker, self->r.currentOrigin, -1 );
 			}
 
 			if (g_gametype.integer == GT_JEDIMASTER)
@@ -2991,7 +2983,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 		else
 		{
-			AddScore( self, self->r.currentOrigin, -1 );
+			if (g_gametype.integer != GT_SIEGE)
+				AddScore( self, self->r.currentOrigin, -1 );
 		}
 	}
 
@@ -3037,7 +3030,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if ( MOD_TEAM_CHANGE == meansOfDeath )
 	{
 		// Give them back a point since they didn't really die.
-		AddScore( self, self->r.currentOrigin, g_selfkillPenalty.integer );
+		AddScore( self, self->r.currentOrigin, 1 );
 	}
 	else
 	{
@@ -4522,7 +4515,7 @@ void G_LocationBasedDamageModifier(gentity_t *inflictor, gentity_t *ent, vec3_t 
 {
 	int hitLoc = -1;
 
-	if (!g_locationBasedDamage.integer || (g_locationBasedDamage.integer == 2 && mod == MOD_SABER))
+	if (!g_locationBasedDamage.integer || (g_locationBasedDamage.integer != 1 && mod == MOD_SABER))
 	{ //then leave it alone
 		return;
 	}
@@ -4565,37 +4558,65 @@ void G_LocationBasedDamageModifier(gentity_t *inflictor, gentity_t *ent, vec3_t 
 		hitLoc = G_GetHitLocation( ent, point );
 	}
 
-	switch (hitLoc)
-	{
-	case HL_FOOT_RT:
-	case HL_FOOT_LT:
-		*damage *= 0.5;
-		break;
-	case HL_LEG_RT:
-	case HL_LEG_LT:
-		*damage *= 0.7;
-		break;
-	case HL_WAIST:
-	case HL_BACK_RT:
-	case HL_BACK_LT:
-	case HL_BACK:
-	case HL_CHEST_RT:
-	case HL_CHEST_LT:
-	case HL_CHEST:
-		break; //normal damage
-	case HL_ARM_RT:
-	case HL_ARM_LT:
-		*damage *= 0.85;
-		break;
-	case HL_HAND_RT:
-	case HL_HAND_LT:
-		*damage *= 0.6;
-		break;
-	case HL_HEAD:
-		*damage *= 1.3;
-break;
-	default:
-		break; //do nothing then
+	if (g_locationBasedDamage.integer == 3) {
+		switch (hitLoc) {
+		case HL_FOOT_RT:
+		case HL_FOOT_LT:
+		case HL_LEG_RT:
+		case HL_LEG_LT:
+			*damage *= 0.7;
+			break;
+		case HL_WAIST:
+		case HL_BACK_RT:
+		case HL_BACK_LT:
+		case HL_BACK:
+		case HL_CHEST_RT:
+		case HL_CHEST_LT:
+		case HL_CHEST:
+		case HL_ARM_RT:
+		case HL_ARM_LT:
+		case HL_HAND_RT:
+		case HL_HAND_LT:
+			break; //normal damage
+		case HL_HEAD:
+			*damage *= 1.3;
+			break;
+		default:
+			break; //do nothing then
+		}
+	}
+	else {
+		switch (hitLoc) {
+		case HL_FOOT_RT:
+		case HL_FOOT_LT:
+			*damage *= 0.5;
+			break;
+		case HL_LEG_RT:
+		case HL_LEG_LT:
+			*damage *= 0.7;
+			break;
+		case HL_WAIST:
+		case HL_BACK_RT:
+		case HL_BACK_LT:
+		case HL_BACK:
+		case HL_CHEST_RT:
+		case HL_CHEST_LT:
+		case HL_CHEST:
+			break; //normal damage
+		case HL_ARM_RT:
+		case HL_ARM_LT:
+			*damage *= 0.85;
+			break;
+		case HL_HAND_RT:
+		case HL_HAND_LT:
+			*damage *= 0.6;
+			break;
+		case HL_HEAD:
+			*damage *= 1.3;
+			break;
+		default:
+			break; //do nothing then
+		}
 	}
 }
 /*
@@ -4679,9 +4700,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	float		shieldAbsorbed = 0;
 	int			rng;
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
 	if (targ && targ->damageRedirect)
 	{
 		G_Damage(&g_entities[targ->damageRedirectTo], inflictor, attacker, dir, point, damage, dflags, mod);
@@ -4693,15 +4711,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	static qboolean isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = qtrue;
-		else
-			isUrban = qfalse;
-	}
-
-	if (attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w' && isUrban == qtrue) {
+	if (attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w' && GetSiegeMap() == SIEGEMAP_URBAN) {
 		return;
 	}
 
@@ -4726,19 +4736,19 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					attacker - g_entities < MAX_CLIENTS && targ - g_entities >= 0 && targ - g_entities < MAX_CLIENTS &&
 					(targ->client->sess.sessionTeam == TEAM_RED || targ->client->sess.sessionTeam == TEAM_BLUE) && targ->client->sess.sessionTeam == OtherTeam(attacker->client->sess.sessionTeam)) {
 					int freezeStatIndex = -1, frozenStatIndex = -1;
-					if (!Q_stricmp(mapname.string, "mp/siege_hoth2")) {
+					if (GetSiegeMap() == SIEGEMAP_HOTH) {
 						freezeStatIndex =  attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_HOTH_OFFDEMP : SIEGEMAPSTAT_HOTH_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_HOTH_OFFGOTDEMPED : SIEGEMAPSTAT_HOTH_DEFGOTDEMPED;
-					} else if (!Q_stricmp(mapname.string, "mp/siege_desert")) {
+					} else if (GetSiegeMap() == SIEGEMAP_DESERT) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_DESERT_OFFDEMP : SIEGEMAPSTAT_DESERT_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_DESERT_OFFGOTDEMPED : SIEGEMAPSTAT_DESERT_DEFGOTDEMPED;
-					} else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) {
+					} else if (GetSiegeMap() == SIEGEMAP_NAR) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OFFDEMP : SIEGEMAPSTAT_NAR_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OFFGOTDEMPED : SIEGEMAPSTAT_NAR_DEFGOTDEMPED;
-					} else if (!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) {
+					} else if (GetSiegeMap() == SIEGEMAP_CARGO) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OFFDEMP : SIEGEMAPSTAT_CARGO2_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OFFGOTDEMPED : SIEGEMAPSTAT_CARGO2_DEFGOTDEMPED;
-					} else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
+					} else if (GetSiegeMap() == SIEGEMAP_BESPIN) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OFFDEMP : SIEGEMAPSTAT_BESPIN_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OFFGOTDEMPED : SIEGEMAPSTAT_BESPIN_DEFGOTDEMPED;
 					}
@@ -4768,7 +4778,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			damage = 1;
 	}
 
-	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && !Q_stricmp(mapname.string, "mp/siege_desert") && !level.totalObjectivesCompleted)
+	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && GetSiegeMap() == SIEGEMAP_DESERT && !level.totalObjectivesCompleted)
 	{
 		//can't damage the stations until the game starts
 		return;
@@ -4936,7 +4946,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if ( !(dflags&DAMAGE_NO_HIT_LOC) )
 	{//see if we should modify it by damage location
-		if (!(targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w' && isUrban == qtrue)) {
+		if (!(targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w' && GetSiegeMap() == SIEGEMAP_URBAN)) {
 			if (targ->inuse && (targ->client || targ->s.eType == ET_NPC) &&
 				attacker && attacker->inuse && (attacker->client || attacker->s.eType == ET_NPC))
 			{ //check for location based damage stuff.
@@ -4995,7 +5005,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
-	if (isUrban == qtrue && targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo && targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER && VALIDSTRING(targ->m_pVehicle->m_pVehicleInfo->name) && !Q_stricmp(targ->m_pVehicle->m_pVehicleInfo->name, "swoop_urban")) {
+	if (GetSiegeMap() == SIEGEMAP_URBAN && targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo && targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER && VALIDSTRING(targ->m_pVehicle->m_pVehicleInfo->name) && !Q_stricmp(targ->m_pVehicle->m_pVehicleInfo->name, "swoop_urban")) {
 		knockback = 0;
 	}
 
@@ -5264,6 +5274,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	{ //this class is flagged to take less damage from physical attacks.
 		//For now I'm just decreasing against any client-based attack, this can be changed later I guess.
 		damage *= 0.5;
+	}
+
+	if (GetSiegeMap() == SIEGEMAP_CARGO && g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker - g_entities - MAX_CLIENTS &&
+		attacker->client->sess.sessionTeam == TEAM_BLUE && mod == MOD_SABER &&
+		attacker->client->saberBonusTime && level.time - attacker->client->saberBonusTime <= 1500 &&
+		targ && targ->client && targ - g_entities < MAX_CLIENTS && targ->client->sess.sessionTeam == TEAM_RED && targ->s.weapon != WP_SABER) {
+		damage = (int)(((float)damage) * 1.5f);
 	}
 
 	// check for completely getting out of the damage
@@ -5652,7 +5669,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int adjustedTake = Com_Clampi(take + asave, targ->health + asave, take + asave); // so damage dealt doesn't exceed the target's maximum health (e.g. rocketing someone with 1 hp == 1 damage)
 	if (attacker && attacker->client && targ) {
 		// hoth
-		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+		if (GetSiegeMap() == SIEGEMAP_HOTH) {
 			// atst
 			if (attacker->client->sess.sessionTeam == TEAM_BLUE && targ->s.NPC_class == CLASS_VEHICLE) {
 				if (!targ->atstKilled) { // don't credit if atst is already on fire
@@ -5672,7 +5689,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		// desert
-		else if (!Q_stricmp(mapname.string, "mp/siege_desert") && attacker->client->sess.sessionTeam == TEAM_RED) {
+		else if (GetSiegeMap() == SIEGEMAP_DESERT && attacker->client->sess.sessionTeam == TEAM_RED) {
 			if (VALIDSTRING(targ->paintarget)) {
 				if (!Q_stricmp(targ->paintarget, "wallattack"))
 					attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_WALLDMG] += adjustedTake;
@@ -5691,7 +5708,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_GATEDMG] += adjustedTake;
 		}
 		// korriban
-		else if (!Q_stricmp(mapname.string, "mp/siege_korriban")) {
+		else if (GetSiegeMap() == SIEGEMAP_KORRIBAN) {
 			if (attacker->client->sess.sessionTeam == TEAM_RED) {
 				if (VALIDSTRING(targ->paintarget)) {
 					if (!Q_stricmp(targ->paintarget, "firstgateattack"))
@@ -5706,14 +5723,14 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		// nar shaddaa
-		else if (!Q_stricmp(mapname.string, "siege_narshaddaa") && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
+		else if (GetSiegeMap() == SIEGEMAP_NAR && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "rstation1attacked"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION1DMG] += adjustedTake;
 			else if (!Q_stricmp(targ->paintarget, "rstation2attacked"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_STATION2DMG] += adjustedTake;
 		}
 		// cargo2
-		else if ((!Q_stricmp(mapname.string, "siege_cargobarge2") || !Q_stricmpn(mapname.string, "siege_cargobarge3", 17)) && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
+		else if (GetSiegeMap() == SIEGEMAP_CARGO && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->paintarget)) {
 			if (!Q_stricmp(targ->paintarget, "obj2_under_a_tack"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_ARRAYDMG] += adjustedTake;
 			else if (!Q_stricmp(targ->paintarget, "powernode1attack"))
@@ -5722,7 +5739,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_NODE2DMG] += adjustedTake;
 		}
 		// bespin
-		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15) && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->target)) {
+		else if (GetSiegeMap() == SIEGEMAP_BESPIN && attacker->client->sess.sessionTeam == TEAM_RED && VALIDSTRING(targ->target)) {
 			if (!Q_stricmp(targ->target, "UnlockDoor"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_LOCKDMG] += adjustedTake;
 			else if (!Q_stricmpn(targ->target, "breakpanel", 10))
@@ -5732,7 +5749,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			else if (!Q_stricmp(targ->target, "obj6"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_PODDMG] += adjustedTake;
 		}
-		else if (!Q_stricmpn(mapname.string, "siege_urban", 11) && attacker->client->sess.sessionTeam == TEAM_RED) {
+		else if (GetSiegeMap() == SIEGEMAP_URBAN && attacker->client->sess.sessionTeam == TEAM_RED) {
 			if (VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "spawnblueguy"))
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_BLUEDMG] += adjustedTake;
 			else if (VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "spawnredguy"))
@@ -6073,7 +6090,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		} 
 		else 
 		{
-			if ( g_debugMelee.integer )
+			if ( g_debugMelee.integer || (GetSiegeMap() == SIEGEMAP_CARGO && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && targ->client->ps.weapon == WP_SABER))
 			{//getting hurt makes you let go of the wall
 				if ( targ->client && (targ->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 				{

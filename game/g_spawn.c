@@ -1342,9 +1342,6 @@ void SP_worldspawn( void )
 	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
 	trap_Cvar_Set("g_forceOnNPCs", text);
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
 	// class limits: "1" setting for g_classLimits allows map/mod overrides
 	if (g_classLimits.integer == 1) {
 		int assaultLimit[2] = { 0 }, hwLimit[2] = { 0 }, demoLimit[2] = { 0 }, techLimit[2] = { 0 }, scoutLimit[2] = { 0 }, jediLimit[2] = { 0 };
@@ -1364,21 +1361,21 @@ void SP_worldspawn( void )
 		G_SpawnInt("dJediLimit", "", &jediLimit[1]);
 
 		// mod overrides
-		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13)) {
+		if (GetSiegeMap() == SIEGEMAP_HOTH) {
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (!Q_stricmp(mapname.string, "siege_narshaddaa")) {
+		else if (GetSiegeMap() == SIEGEMAP_NAR) {
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (!Q_stricmpn(mapname.string, "siege_cargobarge", 16)) {
+		else if (GetSiegeMap() == SIEGEMAP_CARGO) {
 			hwLimit[0] = 1;
 			assaultLimit[1] = 1;
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15)) {
+		else if (GetSiegeMap() == SIEGEMAP_BESPIN) {
 			hwLimit[1] = 1;
 		}
 

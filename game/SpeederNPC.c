@@ -457,16 +457,6 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		}
 	}
 
-	static int isUrban = -1;
-	if (isUrban == -1) { // uninitialized
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "siege_urban", 11))
-			isUrban = 1;
-		else
-			isUrban = 0;
-	}
-
 	if ( parentPS->speed > speedMax )
 	{
 		parentPS->speed = speedMax;
@@ -476,12 +466,12 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		parentPS->speed = speedMin;
 	}
 
-	if (parentPS && parentPS->electrifyTime > curTime && isUrban != 1)
+	if (parentPS && parentPS->electrifyTime > curTime && GetSiegeMap() == SIEGEMAP_URBAN)
 	{
 		parentPS->speed *= (pVeh->m_fTimeModifier/60.0f);
 	}
 
-	if (isUrban == 1 && (level.totalObjectivesCompleted >= 4 || level.zombies)) {
+	if (GetSiegeMap() == SIEGEMAP_URBAN && (level.totalObjectivesCompleted >= 4 || level.zombies)) {
 		parentPS->speed = 0.0f;
 		if (pVeh->m_pVehicleInfo && pVeh->m_pPilot && !pVeh->m_iBoarding) {
 			((gentity_t *)pVeh->m_pParentEntity)->alliedTeam = -1;
