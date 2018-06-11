@@ -128,6 +128,7 @@ qboolean G_NameInTriggerClassList(char *list, char *str)
 
 extern qboolean gSiegeRoundBegun;
 void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
+extern void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier);
 void multi_trigger( gentity_t *ent, gentity_t *activator ) 
 {
 	qboolean haltTrigger = qfalse;
@@ -427,6 +428,35 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
+	if (ent->recallSiegeItem && VALIDSTRING(ent->target)) {
+		int i;
+		gentity_t *item = NULL;
+		for (i = 0; i < MAX_GENTITIES; i++) {
+			gentity_t *maybeItem = &g_entities[i];
+			if (VALIDSTRING(maybeItem->classname) && VALIDSTRING(maybeItem->targetname) &&
+				!Q_stricmp(maybeItem->classname, "misc_siege_item") && !Q_stricmp(maybeItem->targetname, ent->target)) {
+				item = maybeItem;
+				break;
+			}
+		}
+		if (item && item->canPickUp && !(item->s.eFlags & EF_NODRAW) && !item->genericValue2 && !VectorInsideBox(item->r.currentOrigin, item->pos1[0], item->pos1[1], item->pos1[2], item->pos1[0], item->pos1[1], item->pos1[2], 64.0f)) {
+			item->siegeItemCarrierTime = 0;
+			if (item->specialIconTreatment)
+				item->s.eFlags |= EF_RADAROBJECT;
+			SiegeItemRespawnOnOriginalSpot(item, NULL);
+
+			if (VALIDSTRING(ent->recallTarget)) {
+				gentity_t *recallTarget = G_Find(NULL, FOFS(targetname), ent->recallTarget);
+				while (recallTarget) {
+					if (recallTarget->use && !(VALIDSTRING(recallTarget->classname) && !Q_stricmp(recallTarget->classname, "misc_siege_item"))) // sanity; don't use siege items
+						recallTarget->use(recallTarget, activator, activator);
+					recallTarget = G_Find(recallTarget, FOFS(targetname), ent->recallTarget);
+				}
+			}
+		}
+		return;
+	}
+
 	ent->activator = activator;
 
 	if(ent->delay && ent->painDebounceTime < (level.time + ent->delay) )
@@ -450,50 +480,50 @@ void Use_Multi( gentity_t *ent, gentity_t *other, gentity_t *activator )
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 extern void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator);
 
-void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace ) 
+void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 {
 	static qboolean holdEleDoorsHacked = qfalse;
 	short		i1, i2;
-	if( !other->client ) 
+	if (!other->client)
 	{
 		return;
 	}
 
-	if ( self->flags & FL_INACTIVE )
+	if (self->flags & FL_INACTIVE)
 	{//set by target_deactivate
 		return;
 	}
 
-	if( self->alliedTeam )
+	if (self->alliedTeam)
 	{
-		if ( other->client->sess.sessionTeam != self->alliedTeam )
+		if (other->client->sess.sessionTeam != self->alliedTeam)
 		{
 			return;
 		}
 	}
 
-	if ( self->spawnflags & 1 )
+	if (self->spawnflags & 1)
 	{
-		if ( other->s.eType == ET_NPC )
+		if (other->s.eType == ET_NPC)
 		{
 			return;
 		}
 	}
 	else
 	{
-		if ( self->spawnflags & 16 )
+		if (self->spawnflags & 16)
 		{//NPCONLY
-			if ( other->NPC == NULL )
+			if (other->NPC == NULL)
 			{
 				return;
 			}
 		}
 
-		if ( self->NPC_targetname && self->NPC_targetname[0] )
+		if (self->NPC_targetname && self->NPC_targetname[0])
 		{
-			if ( other->script_targetname && other->script_targetname[0] )
+			if (other->script_targetname && other->script_targetname[0])
 			{
-				if ( Q_stricmp( self->NPC_targetname, other->script_targetname ) != 0 )
+				if (Q_stricmp(self->NPC_targetname, other->script_targetname) != 0)
 				{//not the right guy to fire me off
 					return;
 				}
@@ -587,21 +617,21 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	if ( self->spawnflags & 2 )
+	if (self->spawnflags & 2)
 	{//FACING
 		vec3_t	forward;
 
-		AngleVectors( other->client->ps.viewangles, forward, NULL, NULL );
+		AngleVectors(other->client->ps.viewangles, forward, NULL, NULL);
 
-		if ( DotProduct( self->movedir, forward ) < 0.5 )
+		if (DotProduct(self->movedir, forward) < 0.5)
 		{//Not Within 45 degrees
 			return;
 		}
 	}
 
-	if ( self->spawnflags & 4 )
+	if (self->spawnflags & 4)
 	{//USE_BUTTON
-		if( !( other->client->pers.cmd.buttons & BUTTON_USE ) )
+		if (!(other->client->pers.cmd.buttons & BUTTON_USE))
 		{//not pressing use button
 			return;
 		}
@@ -643,8 +673,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 					i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
 					i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
 					if (i1 != i2)
-					if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
-						return;
+						if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
+							return;
 				}
 				else if (other->client->sess.sessionTeam == TEAM_BLUE && g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))
 				{
@@ -652,8 +682,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 					i1 = bgSiegeClasses[other->client->siegeClass].playerClass;
 					i2 = bgSiegeClasses[BG_SiegeFindClassIndexByName(self->idealclass)].playerClass;
 					if (i1 != i2)
-					if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
-						return;
+						if (bgSiegeClasses[other->client->siegeClass].playerClass != BG_SiegeFindClassIndexByName(self->idealclass))
+							return;
 				}
 				else if (!G_NameInTriggerClassList(bgSiegeClasses[other->client->siegeClass].name, self->idealclass))
 				{ //wasn't in the list
@@ -680,11 +710,11 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				other && other->client && other->client->siegeClass != -1 && bgSiegeClasses[other->client->siegeClass].playerClass == SPC_JEDI) {
 				return;
 			}
-			if (!G_PointInBounds( other->client->ps.origin, self->r.absmin, self->r.absmax ))
+			if (!G_PointInBounds(other->client->ps.origin, self->r.absmin, self->r.absmax))
 			{
 				return;
 			}
-			else if (other->client->isHacking != self->s.number && other->s.number < MAX_CLIENTS )
+			else if (other->client->isHacking != self->s.number && other->s.number < MAX_CLIENTS)
 			{ //start the hack
 				other->client->isHacking = self->s.number;
 				VectorCopy(other->client->ps.viewangles, other->client->hackingAngles);
@@ -719,7 +749,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 				return;
 			}
 		}
-		if (!Q_stricmp(self->target,"hangarplatbig1") && GetSiegeMap() == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer &&
+		if (!Q_stricmp(self->target, "hangarplatbig1") && GetSiegeMap() == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer &&
 			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && !level.hangarCompletedTime && (g_antiHothHangarLiftLame.integer == 1 || g_antiHothHangarLiftLame.integer == 3))
 		{
 			if (hangarHackTime && (level.time - hangarHackTime < 2000))
@@ -756,16 +786,16 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	if ( self->spawnflags & 8 )
+	if (self->spawnflags & 8)
 	{//FIRE_BUTTON
-		if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
-			!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
+		if (!(other->client->pers.cmd.buttons & BUTTON_ATTACK) &&
+			!(other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK))
 		{//not pressing fire button or altfire button
 			return;
 		}
 	}
 
-	if ( self->radius )
+	if (self->radius)
 	{
 		vec3_t	eyeSpot;
 
@@ -775,21 +805,21 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		VectorCopy(other->client->ps.origin, eyeSpot);
 		eyeSpot[2] += other->client->ps.viewheight;
 
-		if ( G_PointInBounds( eyeSpot, self->r.absmin, self->r.absmax ) )
+		if (G_PointInBounds(eyeSpot, self->r.absmin, self->r.absmax))
 		{
-			if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
-				!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
+			if (!(other->client->pers.cmd.buttons & BUTTON_ATTACK) &&
+				!(other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK))
 			{//not attacking, so hiding bonus
-				}
-				}
 			}
+		}
+	}
 
-	if ( self->spawnflags & 4 )
+	if (self->spawnflags & 4)
 	{//USE_BUTTON
 		if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
 			other->client->ps.torsoAnim != BOTH_CONSOLE1)
 		{
-			G_SetAnim( other, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim(other, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
 		}
 		else
 		{
@@ -797,8 +827,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 		other->client->ps.weaponTime = other->client->ps.torsoTimer;
 	}
-	
-	if ( self->think == trigger_cleared_fire )
+
+	if (self->think == trigger_cleared_fire)
 	{//We're waiting to fire our target2 first
 		self->nextthink = level.time + self->speed;
 		return;
@@ -809,7 +839,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		level.hangarLiftUsedByDefense = qtrue;
 	}
 
-	multi_trigger( self, other );
+	multi_trigger(self, other);
 }
 
 void trigger_cleared_fire (gentity_t *self)
@@ -1154,14 +1184,17 @@ void SP_trigger_multiple( gentity_t *ent )
 		ent->speed *= 1000;
 	}
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(ent->targetname, "partdeliverzone"))
+	if (GetSiegeMap() == SIEGEMAP_DESERT && !Q_stricmp(ent->targetname, "partdeliverzone"))
 	{
 		ent->wait = 0;
 		//bugfix for final objective getting broken when two parts are delivered within 1 second of each other
 	}
+
+	G_SpawnInt("recallsiegeitem", "0", &ent->recallSiegeItem);
+	if (ent->recallSiegeItem)
+		G_SpawnString("recalltarget", "", &ent->recallTarget);
+	else
+		ent->recallTarget = "";
 
 	ent->touch = Touch_Multi;
 	ent->use   = Use_Multi;

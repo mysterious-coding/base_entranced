@@ -3259,9 +3259,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		return;
 	}
 
-	// d jedi on urban gets pull1 if saber in air
+	// d jedi on ansion gets pull1 if saber in air
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN && pull && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE && self - g_entities < MAX_CLIENTS) {
+	if (GetSiegeMap() == SIEGEMAP_ANSION && pull && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE && self - g_entities < MAX_CLIENTS) {
 		powerLevel = self->client->ps.saberInFlight && self->client->ps.saberEntityNum ? FORCE_LEVEL_1 : FORCE_LEVEL_2;
 		pushPower = 256 * powerLevel;
 	}

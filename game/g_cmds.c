@@ -6315,6 +6315,15 @@ static const StatsDesc UrbanDesc = {
 	}
 };
 
+static const StatsDesc AnsionDesc = {
+	{
+		"CODESTIME"
+	},
+	{
+		STAT_DURATION
+	}
+};
+
 static void FillMapSpecificStats(gclient_t *cl, Stat *values) {
 	int i;
 	for (i = 0; i < MAX_STATS; i++) {
@@ -6406,37 +6415,17 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 		if (level.siegeStage != SIEGESTAGE_ROUND1POSTGAME && level.siegeStage != SIEGESTAGE_ROUND2POSTGAME && id >= 0 && id < MAX_CLIENTS && &g_entities[id].client && g_entities[id].client->sess.sessionTeam != TEAM_SPECTATOR)
 			return;
 #endif
+		callback = &FillMapSpecificStats;
 		switch (GetSiegeMap()) {
-		case SIEGEMAP_HOTH:
-			desc = &HothDesc;
-			callback = &FillMapSpecificStats;
-			break;
-		case SIEGEMAP_DESERT:
-			desc = &DesertDesc;
-			callback = &FillMapSpecificStats;
-			break;
-		case SIEGEMAP_KORRIBAN:
-			desc = &KorriDesc;
-			callback = &FillMapSpecificStats;
-			break;
-		case SIEGEMAP_NAR:
-			desc = &NarDesc;
-			callback = &FillMapSpecificStats;
-			break;
-		case SIEGEMAP_CARGO:
-			desc = &Cargo2Desc;
-			callback = &FillMapSpecificStats;
-			break;
-		case SIEGEMAP_URBAN:
-			desc = &UrbanDesc;
-			callback = &FillMapSpecificStats;
-			break;
-		case SIEGEMAP_BESPIN:
-			desc = &BespinDesc;
-			callback = &FillMapSpecificStats;
-			break;
-		default:
-			return;
+		case SIEGEMAP_HOTH:			desc = &HothDesc;		break;
+		case SIEGEMAP_DESERT:		desc = &DesertDesc;		break;
+		case SIEGEMAP_KORRIBAN:		desc = &KorriDesc;		break;
+		case SIEGEMAP_NAR:			desc = &NarDesc;		break;
+		case SIEGEMAP_CARGO:		desc = &Cargo2Desc;		break;
+		case SIEGEMAP_URBAN:		desc = &UrbanDesc;		break;
+		case SIEGEMAP_BESPIN:		desc = &BespinDesc;		break;
+		case SIEGEMAP_ANSION:		desc = &AnsionDesc;		break;
+		default:					return;
 		}
 	} else {
 		if ( id != -1 ) {

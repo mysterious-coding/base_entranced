@@ -2935,13 +2935,14 @@ void SP_func_breakable(gentity_t *self)
 
 	//NOTE: g_spawn.c does this automatically now
 
-	if (self->spawnflags & 16) // saber only
-	{
-		self->flags |= FL_DMG_BY_SABER_ONLY;
+	if (GetSiegeMap() == SIEGEMAP_ANSION && self->spawnflags & 48) {
+		self->flags |= (FL_DMG_BY_SABER_ONLY | FL_DMG_BY_HEAVY_WEAP_ONLY);
 	}
-	else if (self->spawnflags & 32) // heavy weap
-	{
-		self->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
+	else {
+		if (self->spawnflags & 16) // saber only
+			self->flags |= FL_DMG_BY_SABER_ONLY;
+		else if (self->spawnflags & 32)
+			self->flags |= FL_DMG_BY_HEAVY_WEAP_ONLY;
 	}
 
 	if (self->health)

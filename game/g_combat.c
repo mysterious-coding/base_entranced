@@ -4657,6 +4657,35 @@ void G_Knockdown(gentity_t *victim)
 	}
 }
 
+static qboolean IsHeavyDamage(meansOfDeath_t mod, qboolean heavyMelee) {
+	switch (mod) {
+	case MOD_REPEATER_ALT:
+	case MOD_ROCKET:
+	case MOD_FLECHETTE_ALT_SPLASH:
+	case MOD_ROCKET_HOMING:
+	case MOD_THERMAL:
+	case MOD_THERMAL_SPLASH:
+	case MOD_TRIP_MINE_SPLASH:
+	case MOD_TIMED_MINE_SPLASH:
+	case MOD_DET_PACK_SPLASH:
+	case MOD_VEHICLE:
+	case MOD_CONC:
+	case MOD_CONC_ALT:
+	case MOD_SABER:
+	case MOD_TURBLAST:
+	case MOD_SUICIDE:
+	case MOD_FALLING:
+	case MOD_CRUSH:
+	case MOD_TELEFRAG:
+	case MOD_TRIGGER_HURT:
+		return qtrue;
+	case MOD_MELEE:
+		return heavyMelee;
+	default:
+		return qfalse;
+	}
+}
+
 /*
 ============
 T_Damage
@@ -4712,9 +4741,12 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if (attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w' && GetSiegeMap() == SIEGEMAP_URBAN) {
+	if (GetSiegeMap() == SIEGEMAP_URBAN && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w') {
 		return;
 	}
+
+	if (GetSiegeMap() == SIEGEMAP_ANSION && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && (!Q_stricmp(attacker->NPC_type, "Alpha") || !Q_stricmp(attacker->NPC_type, "Onasi")))
+		return;
 
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
@@ -4790,9 +4822,15 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if ((targ->flags & FL_DMG_BY_SABER_ONLY) && mod != MOD_SABER)
-	{ //saber-only damage
-		return;
+	if (GetSiegeMap() == SIEGEMAP_ANSION && targ->flags & (FL_DMG_BY_SABER_ONLY | FL_DMG_BY_HEAVY_WEAP_ONLY)) {
+		if (mod != MOD_SABER && !IsHeavyDamage(mod, G_HeavyMelee(attacker)))
+			return;
+	}
+	else {
+		if ((targ->flags & FL_DMG_BY_SABER_ONLY) && mod != MOD_SABER)
+			return;
+		if (targ->flags & FL_DMG_BY_HEAVY_WEAP_ONLY && !IsHeavyDamage(mod, G_HeavyMelee(attacker)))
+			return;
 	}
 
 	if (targ->client)
@@ -4811,35 +4849,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						return;
 					}
 				}
-			}
-		}
-	}
-
-	if ((targ->flags & FL_DMG_BY_HEAVY_WEAP_ONLY))
-	{ //only take damage from explosives and such
-		if (mod != MOD_REPEATER_ALT &&
-			mod != MOD_ROCKET &&
-			mod != MOD_FLECHETTE_ALT_SPLASH &&
-			mod != MOD_ROCKET_HOMING &&
-			mod != MOD_THERMAL &&
-			mod != MOD_THERMAL_SPLASH &&
-			mod != MOD_TRIP_MINE_SPLASH &&
-			mod != MOD_TIMED_MINE_SPLASH &&
-			mod != MOD_DET_PACK_SPLASH &&
-			mod != MOD_VEHICLE &&
-			mod != MOD_CONC &&
-			mod != MOD_CONC_ALT &&
-			mod != MOD_SABER &&
-			mod != MOD_TURBLAST &&
-			mod != MOD_SUICIDE &&
-			mod != MOD_FALLING &&
-			mod != MOD_CRUSH &&
-			mod != MOD_TELEFRAG &&
-			mod != MOD_TRIGGER_HURT)
-		{
-			if (mod != MOD_MELEE || !G_HeavyMelee(attacker))
-			{ //let classes with heavy melee ability damage heavy wpn dmg doors with fists
-				return;
 			}
 		}
 	}
@@ -5387,6 +5396,14 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				}
 			}
 		}
+	}
+
+	// urban o hw no self-damage with rockets
+	if (GetSiegeMap() == SIEGEMAP_URBAN && mod >= MOD_ROCKET && mod <= MOD_ROCKET_HOMING_SPLASH &&
+		targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
+		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_HEAVY_WEAPONS &&
+		attacker && attacker == targ) {
+		return;
 	}
 
 	// battlesuit protects from all radius damage (but takes knockback)

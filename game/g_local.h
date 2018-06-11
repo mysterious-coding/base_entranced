@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"242"
+#define MODBUILDNUMBER			"243"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
@@ -383,6 +383,8 @@ struct gentity_s {
 	int			genericValue15;
 	int			genericValue16;
 	int			genericValue17;
+	int			recallSiegeItem;
+	char		*recallTarget;
 
 	int			removeFromOwnerOnUse;
 	int			removeFromGameOnUse;
@@ -560,6 +562,9 @@ enum {
 	SIEGEMAPSTAT_URBAN_MONEYTIME = 0,
 	SIEGEMAPSTAT_URBAN_BLUEDMG,
 	SIEGEMAPSTAT_URBAN_REDDMG
+};
+enum {
+	SIEGEMAPSTAT_ANSION_CODESTIME = 0
 };
 
 // client data that stays across multiple levels or tournament restarts
@@ -1574,10 +1579,12 @@ typedef enum {
 	SIEGEMAP_NAR,
 	SIEGEMAP_CARGO,
 	SIEGEMAP_URBAN,
-	SIEGEMAP_BESPIN
+	SIEGEMAP_BESPIN,
+	SIEGEMAP_ANSION
 } siegeMap_t;
 siegeMap_t GetSiegeMap(void);
 qboolean G_ShieldSpamAllowed(team_t t);
+qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2, float y2, float z2, float wiggleRoom);
 
 //
 // g_saga.c

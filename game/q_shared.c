@@ -1407,3 +1407,15 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 //====================================================================
 
 
+char *stristr(char *str, char *charset) {
+	int i;
+
+	while (*str) {
+		for (i = 0; charset[i] && str[i]; i++) {
+			if (toupper(charset[i]) != toupper(str[i])) break;
+		}
+		if (!charset[i]) return str;
+		str++;
+	}
+	return NULL;
+}

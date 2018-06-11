@@ -2216,7 +2216,7 @@ static void SiegeItemRespawnEffect(gentity_t *ent, vec3_t newOrg)
 	G_PlayEffectID(ent->genericValue10, newOrg, upAng);
 }
 
-static void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier)
+void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier)
 {
 	SiegeItemRespawnEffect(ent, ent->pos1);
 	G_SetOrigin(ent, ent->pos1);
@@ -2386,6 +2386,8 @@ void SiegeItemThink(gentity_t *ent)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			else if (GetSiegeMap() == SIEGEMAP_URBAN)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_MONEYTIME] += (level.time - ent->siegeItemCarrierTime);
+			else if (GetSiegeMap() == SIEGEMAP_ANSION)
+				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_ANSION_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			ent->siegeItemCarrierTime = level.time;
 		}
 	}
@@ -2873,6 +2875,8 @@ void SP_misc_siege_item (gentity_t *ent)
 	}
 	
 	ent->s.modelindex = G_ModelIndex(ent->model);
+	G_SpawnInt("modelscale", "100", &ent->s.iModelScale);
+	ent->s.iModelScale = Com_Clampi(0, 1023, ent->s.iModelScale);
 
 	//Is the model a ghoul2 model?
 	if (!Q_stricmp(&ent->model[strlen(ent->model) - 4], ".glm"))

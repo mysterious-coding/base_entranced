@@ -3172,4 +3172,7 @@ enum {
 #define STRIP_COLOUR	(0x00000001)
 #define STRIP_EXTASCII	(0x00000002)
 void Q_CleanString(char *string, int flags);
+
+char *stristr(char *str, char *charset);
+
 #endif	// __Q_SHARED_H

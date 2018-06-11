@@ -2860,6 +2860,8 @@ siegeMap_t GetSiegeMap(void) {
 			map = SIEGEMAP_CARGO;
 		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15))
 			map = SIEGEMAP_BESPIN;
+		else if (stristr(mapname.string, "ansion"))
+			map = SIEGEMAP_ANSION;
 		else
 			map = SIEGEMAP_UNKNOWN;
 
@@ -2881,4 +2883,39 @@ qboolean G_ShieldSpamAllowed(team_t t) {
 		return qtrue;
 
 	return qfalse;
+}
+
+qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2, float y2, float z2, float wiggleRoom) {
+	if (!v)
+		return qfalse;
+	int axis;
+	for (axis = 0; axis < 3; axis++) {
+		float f1, f2;
+		switch (axis) {
+		case 0:	f1 = x1; f2 = x2; break;
+		case 1: f1 = y1; f2 = y2; break;
+		case 2: f1 = z1; f2 = z2; break;
+		}
+		if (f1 > f2) {
+			f1 += wiggleRoom;
+			f2 -= wiggleRoom;
+			if (v[axis] > f1)
+				return qfalse;
+			else if (v[axis] < f2)
+				return qfalse;
+		}
+		else if (f1 < f2) {
+			f1 -= wiggleRoom;
+			f2 += wiggleRoom;
+			if (v[axis] > f2)
+				return qfalse;
+			else if (v[axis] < f1)
+				return qfalse;
+		}
+		else {
+			if (fabs(f1 - v[axis]) > wiggleRoom)
+				return qfalse;
+		}
+	}
+	return qtrue;
 }
