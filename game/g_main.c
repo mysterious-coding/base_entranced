@@ -376,9 +376,13 @@ vmCvar_t	g_autoSendScores;
 vmCvar_t	g_autoGenerateLocations;
 
 vmCvar_t	g_breakRNG;
+vmCvar_t	g_siegeReflectionFix;
 
 vmCvar_t	g_randomConeReflection;
 vmCvar_t	g_coneReflectAngle;
+
+vmCvar_t	z_debug1;
+vmCvar_t	z_debug2;
 
 vmCvar_t	g_saveCaptureRecords;
 
@@ -717,9 +721,13 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_autoGenerateLocations, "g_autoGenerateLocations", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_breakRNG, "g_breakRNG", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_siegeReflectionFix, "g_siegeReflectionFix", "1", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_randomConeReflection , "g_randomConeReflection", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_randomConeReflection , "g_randomConeReflection", "-1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_coneReflectAngle , "g_coneReflectAngle", "30", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &z_debug1, "z_debug1", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &z_debug2, "z_debug2", "", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saveCaptureRecords, "g_saveCaptureRecords", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 

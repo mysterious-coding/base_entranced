@@ -6603,6 +6603,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_antiLaming);
 	PrintCvar(g_autoResetCustomTeams);
 	PrintCvar(g_botJumping);
+	PrintCvar(g_breakRNG);
+	PrintCvar(g_coneReflectAngle);
 	PrintCvar(g_dismember);
 	PrintCvar(g_enableCloak);
 	PrintCvar(g_siegeTiebreakEnd);
@@ -6626,10 +6628,12 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_moreTaunts);
 	PrintCvar(g_multiVoteRNG);
 	PrintCvar(g_nextmapWarning);
+	PrintCvar(g_randomConeReflection);
 	PrintCvar(g_requireMoreCustomTeamVotes);
 	PrintCvar(g_rocketSurfing);
 	PrintCvar(g_saberDamageScale);
 	PrintCvar(g_sexyDisruptor);
+	PrintCvar(g_siegeReflectionFix);
 	PrintCvar(g_specInfo);
 	PrintCvar(g_swoopKillPoints);
 	PrintCvar(iLikeToDoorSpam);

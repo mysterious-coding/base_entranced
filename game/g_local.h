@@ -2343,6 +2343,9 @@ extern vmCvar_t		g_autoGenerateLocations;
 #define BROKEN_RNG_REFLECT	(1<<2) // intentionally break rng for projectile reflection
 
 extern vmCvar_t		g_breakRNG;
+extern vmCvar_t     g_siegeReflectionFix;
+#define SIEGEREFLECTIONFIX_MIN	0.4f
+#define SIEGEREFLECTIONFIX_MAX	1.0f
 
 // flags for g_randomConeReflection
 #define CONE_REFLECT_PUSH	(1<<0) // toggle cone based random reflection when pushing projectiles
@@ -2350,6 +2353,9 @@ extern vmCvar_t		g_breakRNG;
 
 extern vmCvar_t		g_randomConeReflection;
 extern vmCvar_t		g_coneReflectAngle;
+
+extern vmCvar_t		z_debug1;
+extern vmCvar_t		z_debug2;
 
 extern vmCvar_t		g_saveCaptureRecords;
 

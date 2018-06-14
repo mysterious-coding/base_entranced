@@ -94,6 +94,10 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward, qbool
 				( ( ( rotationAxis[2] * rotationAxis[1] * ( 1 - cr ) ) + ( rotationAxis[0] * sr ) ) * zCenteredDirection[1] ) +
 				( ( cr + ( rotationAxis[2] * rotationAxis[2] * ( 1 - cr ) ) ) * zCenteredDirection[2] );
 		}
+
+		if (g_gametype.integer == GT_SIEGE && g_siegeReflectionFix.integer) {
+			bounce_dir[2] = RandFloat(SIEGEREFLECTIONFIX_MIN, SIEGEREFLECTIONFIX_MAX, breakRng);
+		}
 	} else {
 		// basejka behavior: if owner is present, it's roughly sent back at him
 		if ( &g_entities[missile->r.ownerNum] && missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART && !isOwner ) {
@@ -110,7 +114,16 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward, qbool
 		}
 
 		for ( i = 0; i < 3; i++ ) {
-			bounce_dir[i] += RandFloat( -0.2f, 0.2f, breakRng ); // *CHANGE 10a* bigger deflect angles
+			float lowerBound, upperBound;
+			if (i == 2 && g_gametype.integer == GT_SIEGE && g_siegeReflectionFix.integer) {
+				lowerBound = SIEGEREFLECTIONFIX_MIN;
+				upperBound = SIEGEREFLECTIONFIX_MAX;
+			}
+			else {
+				lowerBound = -0.2f;
+				upperBound = 0.2f;
+			}
+			bounce_dir[i] += RandFloat( lowerBound, upperBound, breakRng ); // *CHANGE 10a* bigger deflect angles
 		}
 	}
 
@@ -166,7 +179,16 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 
 	for ( i = 0; i < 3; i++ )
 	{
-		bounce_dir[i] += RandFloat( -1.0f, 1.0f, g_breakRNG.integer & BROKEN_RNG_DEFLECT );// *CHANGE 10b* bigger deflect angles
+		float lowerBound, upperBound;
+		if (i == 2 && g_gametype.integer == GT_SIEGE && g_siegeReflectionFix.integer) {
+			lowerBound = SIEGEREFLECTIONFIX_MIN;
+			upperBound = SIEGEREFLECTIONFIX_MAX;
+		}
+		else {
+			lowerBound = -1.0f;
+			upperBound = 1.0f;
+		}
+		bounce_dir[i] += RandFloat( lowerBound, upperBound, g_breakRNG.integer & BROKEN_RNG_DEFLECT );// *CHANGE 10b* bigger deflect angles
 	}
 
 	VectorNormalize( bounce_dir );
