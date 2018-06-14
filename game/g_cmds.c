@@ -3622,6 +3622,36 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 				}
 			}
 		}
+		else if (!Q_stricmp(arg2, "siege_ansion") || !Q_stricmp(arg2, "mp/siege_ansion")) {
+			fileHandle_t f;
+			trap_FS_FOpenFile("maps/siege_ansion.bsp", &f, FS_READ);
+			if (f) {
+				trap_FS_FCloseFile(f);
+				Q_strncpyz(arg2, "siege_ansion", sizeof(arg2));
+			}
+			else { // get highest version
+				qboolean found = qfalse;
+				for (i = 99; i > 0; i--) {
+					trap_FS_FOpenFile(va("maps/siege_ansion_v%d.bsp", i), &f, FS_READ);
+					if (f) {
+						trap_FS_FCloseFile(f);
+						Q_strncpyz(arg2, va("siege_ansion_v%d", i), sizeof(arg2));
+						found = qtrue;
+						break;
+					}
+				}
+				if (!found) {
+					for (i = 99; i > 0; i--) {
+						trap_FS_FOpenFile(va("maps/siege_ansion_beta%d.bsp", i), &f, FS_READ);
+						if (f) {
+							trap_FS_FCloseFile(f);
+							Q_strncpyz(arg2, va("siege_ansion_beta%d", i), sizeof(arg2));
+							break;
+						}
+					}
+				}
+			}
+		}
 		else if (!Q_stricmp(arg2, "siege_cargobarge3") || !Q_stricmp(arg2, "mp/siege_cargobarge3")) {
 			Q_strncpyz(arg2, "siege_cargobarge3_b2", sizeof(arg2));
 		}
@@ -3756,7 +3786,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 				valid++;
 			}
 			else {
-				trap_SendServerCommand(ent - g_entities, va("print \"Invalid map name '%c'.\nEligible maps: h = Hoth, n = Nar Shaddaa, c = Cargo Barge, u = Urban, b = Bespin, a = Alzoc III, e = Eat Shower, d = Desert, k = Korriban\n\"", arg2[i]));
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid map name '%c'.\nEligible maps: h = Hoth, n = Nar Shaddaa, c = Cargo Barge, u = Urban, b = Bespin, a = Ansion, z = Alzoc III, e = Eat Shower, d = Desert, k = Korriban\n\"", arg2[i]));
 				return;
 			}
 		}

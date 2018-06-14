@@ -176,7 +176,7 @@ qboolean OnValidMapForAntiSpam(qboolean doorSpam)
 	if (!Q_stricmp(mapname.string, "siege_codes") || !Q_stricmpn(mapname.string, "mp/siege_crystals", 17))
 		return qfalse;
 
-	if (doorSpam && GetSiegeMap() == SIEGEMAP_URBAN) // workaround
+	if (doorSpam && (GetSiegeMap() == SIEGEMAP_URBAN || GetSiegeMap() == SIEGEMAP_ANSION)) // workaround
 		return qfalse;
 
 	return qtrue;
@@ -2121,6 +2121,8 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 		}
 
 		if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(gent->NPC_type) && tolower(*gent->NPC_type) == 'w')
+			continue;
+		if (GetSiegeMap() == SIEGEMAP_ANSION && VALIDSTRING(gent->NPC_type) && (!Q_stricmp(gent->NPC_type, "Alpha") || !Q_stricmp(gent->NPC_type, "Onasi")))
 			continue;
 
 		// find the distance from the edge of the bounding box

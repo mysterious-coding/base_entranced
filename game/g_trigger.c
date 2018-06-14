@@ -539,7 +539,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 	}
 
-	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO && self->target && self->target[0] && (!Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
+	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO && VALIDSTRING(self->target) && (!Q_stricmp(self->target, "thecodes") || !Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
 	{
 		return;
 	}

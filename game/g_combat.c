@@ -2662,6 +2662,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	//Use any target we had
 	if (GetSiegeMap() == SIEGEMAP_URBAN && attacker && attacker - g_entities >= 0 && attacker - g_entities < MAX_CLIENTS && VALIDSTRING(self->NPC_type) && tolower(*self->NPC_type) == 'w')
 		G_UseTargets(self, attacker);
+	else if (GetSiegeMap() == SIEGEMAP_ANSION && attacker && attacker - g_entities >= 0 && attacker - g_entities < MAX_CLIENTS && VALIDSTRING(self->NPC_type) && (!Q_stricmp(self->NPC_type, "Alpha") || !Q_stricmp(self->NPC_type, "Onasi")))
+		G_UseTargets(self, attacker);
 	else
 		G_UseTargets( self, self ); 
 
@@ -4717,6 +4719,18 @@ int gPainMOD = 0;
 int gPainHitLoc = -1;
 vec3_t gPainPoint;
 
+static qboolean IsNonLocationBasedDamageEligibleNPC(gentity_t *ent) {
+	if (!ent || ent->s.eType != ET_NPC || !VALIDSTRING(ent->NPC_type))
+		return qfalse;
+
+	if (GetSiegeMap() == SIEGEMAP_ANSION && (!Q_stricmp(ent->NPC_type, "Alpha") || !Q_stricmp(ent->NPC_type, "Onasi")))
+		return qtrue;
+	if (GetSiegeMap() == SIEGEMAP_URBAN && tolower(*ent->NPC_type) == 'w')
+		return qtrue;
+
+	return qfalse;
+}
+
 void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	vec3_t dir, vec3_t point, int damage, int dflags, int mod) {
 	gclient_t	*client;
@@ -4956,7 +4970,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if ( !(dflags&DAMAGE_NO_HIT_LOC) )
 	{//see if we should modify it by damage location
-		if (!(targ->s.eType == ET_NPC && VALIDSTRING(targ->NPC_type) && tolower(*targ->NPC_type) == 'w' && GetSiegeMap() == SIEGEMAP_URBAN)) {
+		if (!IsNonLocationBasedDamageEligibleNPC(targ)) {
 			if (targ->inuse && (targ->client || targ->s.eType == ET_NPC) &&
 				attacker && attacker->inuse && (attacker->client || attacker->s.eType == ET_NPC))
 			{ //check for location based damage stuff.

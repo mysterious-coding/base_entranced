@@ -541,9 +541,7 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 
 		if (parentPS->electrifyTime > pm->cmd.serverTime)
 		{ //do some crazy stuff
-			vmCvar_t mapname;
-			trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-			if (Q_stricmpn(mapname.string, "siege_urban", 11))
+			if (GetSiegeMap() != SIEGEMAP_URBAN)
 				pVeh->m_vOrientation[YAW] += (sin(pm->cmd.serverTime/1000.0f)*3.0f)*pVeh->m_fTimeModifier;
 		}
 	}
