@@ -2308,6 +2308,17 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 					g_entities[i].client->pers.teamState.assists++;
 					g_entities[i].client->ps.persistant[PERS_ASSIST_COUNT]++;
 					g_entities[i].client->rewardTime = level.time + REWARD_SPRITE_TIME;
+					int assistStatIndex = -1;
+					switch (GetSiegeMap()) {
+					case SIEGEMAP_HOTH: assistStatIndex = g_entities[i].client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_HOTH_OASSIST : SIEGEMAPSTAT_HOTH_DASSIST;			break;
+					case SIEGEMAP_DESERT: assistStatIndex = g_entities[i].client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_DESERT_OASSIST : SIEGEMAPSTAT_DESERT_DASSIST;		break;
+					case SIEGEMAP_NAR: assistStatIndex = g_entities[i].client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_NAR_OASSIST : SIEGEMAPSTAT_NAR_DASSIST;				break;
+					case SIEGEMAP_CARGO: assistStatIndex = g_entities[i].client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_CARGO2_OASSIST : SIEGEMAPSTAT_CARGO2_DASSIST;		break;
+					case SIEGEMAP_BESPIN: assistStatIndex = g_entities[i].client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OASSIST : SIEGEMAPSTAT_BESPIN_DASSIST;		break;
+					case SIEGEMAP_URBAN: assistStatIndex = g_entities[i].client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_URBAN_OASSIST : SIEGEMAPSTAT_URBAN_DASSIST;		break;
+					}
+					if (assistStatIndex != -1)
+						g_entities[i].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][assistStatIndex]++;
 					return qtrue;
 				}
 			}
@@ -4798,6 +4809,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					} else if (GetSiegeMap() == SIEGEMAP_BESPIN) {
 						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OFFDEMP : SIEGEMAPSTAT_BESPIN_DEFDEMP;
 						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_BESPIN_OFFGOTDEMPED : SIEGEMAPSTAT_BESPIN_DEFGOTDEMPED;
+					} else if (GetSiegeMap() == SIEGEMAP_URBAN) {
+						freezeStatIndex = attacker->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_URBAN_OFFDEMP : SIEGEMAPSTAT_URBAN_DEFDEMP;
+						frozenStatIndex = targ->client->sess.sessionTeam == TEAM_RED ? SIEGEMAPSTAT_URBAN_OFFGOTDEMPED : SIEGEMAPSTAT_URBAN_DEFGOTDEMPED;
 					}
 					if (freezeStatIndex != -1 && frozenStatIndex != -1 && frozenStatIndex != freezeStatIndex) {
 						attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][freezeStatIndex] += rng;

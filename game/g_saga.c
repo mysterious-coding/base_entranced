@@ -850,8 +850,22 @@ void SiegeTeamSwitch(int winTeam, int winTime)
 	}
 }
 
+static void ComputeSiegePlayTimes(void) {
+	int i;
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED || (cl->sess.sessionTeam != TEAM_RED && cl->sess.sessionTeam != TEAM_BLUE))
+			continue;
+		if (cl->sess.sessionTeam == TEAM_RED)
+			cl->sess.siegeStats.oTime[GetSiegeStatRound()] = level.time - cl->pers.enterTime;
+		else
+			cl->sess.siegeStats.dTime[GetSiegeStatRound()] = level.time - cl->pers.enterTime;
+	}
+}
+
 void G_SiegeRoundComplete(int winningteam, int winningclient)
 {
+	ComputeSiegePlayTimes();
 
 	vec3_t nomatter;
 	char teamstr[1024];
@@ -1338,6 +1352,8 @@ void SiegeBeginRound(int entNum)
 			level.clients[j].sess.siegeStats.maxes[i - 1] = 0;
 			level.clients[j].sess.siegeStats.maxed[i - 1] = 0;
 			level.clients[j].sess.siegeStats.selfkills[i - 1] = 0;
+			level.clients[j].sess.siegeStats.oTime[i - 1] = 0;
+			level.clients[j].sess.siegeStats.dTime[i - 1] = 0;
 			memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
 		}
 	}

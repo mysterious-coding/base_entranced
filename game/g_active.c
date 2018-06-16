@@ -4247,9 +4247,15 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	}
     else
     {
-        if (level.pause.state != PAUSE_NONE) {
-            int time_delta = level.time - level.previousTime;
+		int time_delta = level.time - level.previousTime;
+		qboolean increasedEnterTime = qfalse;
+		if (level.intermissiontime) {
 			ent->client->pers.enterTime += time_delta;
+			increasedEnterTime = qtrue;
+		}
+        if (level.pause.state != PAUSE_NONE) {
+            if (!increasedEnterTime) // don't do it twice
+				ent->client->pers.enterTime += time_delta;
             ent->client->sess.inactivityTime += time_delta;
         }
     }
@@ -4318,31 +4324,38 @@ void ClientEndFrame( gentity_t *ent ) {
                     ent->client->ps.powerups[i] = 0;
     }
 
-    //OSP: pause
-    //      If we're paused, make sure other timers stay in sync
+	int time_delta = level.time - level.previousTime;
+	qboolean increasedEnterTime = qfalse;
+	if (level.intermissiontime) {
+		ent->client->pers.enterTime += time_delta;
+		increasedEnterTime = qtrue;
+	}
     if ( level.pause.state != PAUSE_NONE ) {
-            int i, time_delta = level.time - level.previousTime;
+		//OSP: pause
+		//      If we're paused, make sure other timers stay in sync
+        int i;
 
-            ent->client->airOutTime += time_delta;
-            ent->client->sess.inactivityTime += time_delta;
-            ent->client->pers.enterTime += time_delta;
-            ent->client->pers.teamState.lastreturnedflag += time_delta;
-            ent->client->pers.teamState.lasthurtcarrier += time_delta;
-            ent->client->pers.teamState.lastfraggedcarrier += time_delta;
-			ent->client->pers.teamState.flagsince.startTime += time_delta; // base_enhanced
-			ent->client->pers.protsince += time_delta; // force stats
-            ent->client->respawnTime += time_delta;
-            ent->pain_debounce_time += time_delta;
-            ent->client->ps.fd.forcePowerRegenDebounceTime += time_delta;
-			if (ent->client->tempSpectate)
-			{
-				ent->client->tempSpectate += time_delta;
-			}
-			// update force powers durations
-			for(i=0;i < NUM_FORCE_POWERS;++i) {
-				if (ent->client->ps.fd.forcePowerDuration[i])
-					ent->client->ps.fd.forcePowerDuration[i] += time_delta;
-			}
+        ent->client->airOutTime += time_delta;
+        ent->client->sess.inactivityTime += time_delta;
+		if (!increasedEnterTime) // don't do it twice
+			ent->client->pers.enterTime += time_delta;
+        ent->client->pers.teamState.lastreturnedflag += time_delta;
+        ent->client->pers.teamState.lasthurtcarrier += time_delta;
+        ent->client->pers.teamState.lastfraggedcarrier += time_delta;
+		ent->client->pers.teamState.flagsince.startTime += time_delta; // base_enhanced
+		ent->client->pers.protsince += time_delta; // force stats
+        ent->client->respawnTime += time_delta;
+        ent->pain_debounce_time += time_delta;
+        ent->client->ps.fd.forcePowerRegenDebounceTime += time_delta;
+		if (ent->client->tempSpectate)
+		{
+			ent->client->tempSpectate += time_delta;
+		}
+		// update force powers durations
+		for(i=0;i < NUM_FORCE_POWERS;++i) {
+			if (ent->client->ps.fd.forcePowerDuration[i])
+				ent->client->ps.fd.forcePowerDuration[i] += time_delta;
+		}
 			
     }
 

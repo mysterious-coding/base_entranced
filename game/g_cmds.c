@@ -5883,6 +5883,7 @@ void Cmd_WhoIs_f( gentity_t* ent )
 typedef enum {
 	STAT_NONE = 0, // types are this are RIGHT aligned
 	STAT_BLANK, // only serves as caption, no value
+	STAT_FLOAT,
 	STAT_INT,
 	STAT_INT_LOWERBETTER,
 	STAT_DURATION,
@@ -5905,10 +5906,14 @@ typedef struct {
 } StatsDesc;
 
 typedef struct {
-	int num;
+	union {
+		int		iValue;
+		float	fValue;
+	};
 	char *forceColor;
 } Stat;
 
+#define FORMAT_FLOAT( i )				va( "%0.1f", *(float *)&i ) /*hackerman*/
 #define FORMAT_INT( i )					va( "%d", i )
 #define FORMAT_PAIRED_INT( i )			va( "%d"S_COLOR_WHITE"/", i )
 #define FORMAT_MINS_SECS( m, s )		va( "%d:%02d", m, s )
@@ -5918,6 +5923,7 @@ typedef struct {
 
 static char* GetFormattedValue( int value, StatType type ) {
 	switch ( type ) {
+	case STAT_FLOAT: return FORMAT_FLOAT( value );
 	case STAT_INT: case STAT_INT_LOWERBETTER: return FORMAT_INT( value );
 	case STAT_INT_PAIR1: case STAT_INT_PAIR1_LOWERBETTER: return FORMAT_PAIRED_INT( value );
 	case STAT_INT_PAIR2: case STAT_INT_PAIR2_LOWERBETTER: return FORMAT_INT( value );
@@ -5968,13 +5974,13 @@ static void PrintClientStats( const int id, const char *name, StatsDesc desc, St
 			continue;
 		char overrideStr[MAX_STRING_CHARS] = { 0 };
 		if (desc.types[i] == STAT_OBJ_DURATION && VALIDSTRING(stats[i].forceColor) && !Q_stricmp(stats[i].forceColor, S_COLOR_RED)) {
-			G_ParseMilliseconds(stats[i].num, overrideStr, sizeof(overrideStr));
+			G_ParseMilliseconds(stats[i].iValue, overrideStr, sizeof(overrideStr));
 			Q_strncpyz(overrideStr, va("%s (DNF)", overrideStr), sizeof(overrideStr));
 		}
 		Q_strcat( s, sizeof( s ), va( desc.types[i] > STAT_LEFT_ALIGNED ? "%s%-*s" : " %s%*s",
-			VALIDSTRING(stats[i].forceColor) ? stats[i].forceColor : (TypeIsLowerBetter(desc.types[i]) ? GetStatColorZeroOkay(stats[i].num, bestStats[i].num) : GetStatColor( stats[i].num, bestStats[i].num )), // green if the best, white otherwise
+			VALIDSTRING(stats[i].forceColor) ? stats[i].forceColor : (TypeIsLowerBetter(desc.types[i]) ? GetStatColorZeroOkay(stats[i].iValue, bestStats[i].iValue) : (desc.types[i] == STAT_FLOAT ? GetStatColor(stats[i].fValue, bestStats[i].fValue) : GetStatColor( stats[i].iValue, bestStats[i].iValue ))), // green if the best, white otherwise
 			Q_PrintStrlen( desc.cols[i] ) + ( TypeIsPair1(desc.types[i]) ? 3 : 0 ), // add 3 for the ^7/ of PAIR1 types
-			desc.types[i] == STAT_OBJ_DURATION ? (overrideStr[0] ? overrideStr : (stats[i].num ? GetFormattedValue(stats[i].num, desc.types[i]) : "")) : GetFormattedValue( stats[i].num, desc.types[i] ) ) // string-ified version of the type, will contain the slash for PAIR1
+			desc.types[i] == STAT_OBJ_DURATION ? (overrideStr[0] ? overrideStr : (stats[i].iValue ? GetFormattedValue(stats[i].iValue, desc.types[i]) : "")) : GetFormattedValue( stats[i].iValue, desc.types[i] ) ) // string-ified version of the type, will contain the slash for PAIR1
 			);
 	}
 
@@ -6000,7 +6006,7 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 			for (j = 0; j < MAX_STATS; ++j) {
 				if (desc.types[j] == STAT_NONE)
 					continue;
-				bestStats[j].num = 0x7FFFFFFF;
+				bestStats[j].iValue = 0x7FFFFFFF;
 			}
 		}
 		for (i = 1; i <= siegeRound; i++) {
@@ -6019,8 +6025,8 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 				nameLen = Q_PrintStrlen(desc.cols[j]);
 				if (nameLen > maxNameLen) // highlight faster times
 					maxNameLen = nameLen;
-				if (bestStats[j].num > stats[i][j].num)
-					bestStats[j].num = stats[i][j].num;
+				if (bestStats[j].iValue > stats[i][j].iValue)
+					bestStats[j].iValue = stats[i][j].iValue;
 			}
 		}
 		// in round 2, force green highlight if you completed an objective that the other round didn't
@@ -6028,10 +6034,10 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 			for (j = 0; j < MAX_STATS; ++j) {
 				if (desc.types[j] == STAT_NONE)
 					continue;
-				if (!stats[1][j].num && stats[2][j].num)
-					bestStats[j].num = stats[2][j].num;
-				else if (!stats[2][j].num && stats[1][j].num)
-					bestStats[j].num = stats[1][j].num;
+				if (!stats[1][j].iValue && stats[2][j].iValue)
+					bestStats[j].iValue = stats[2][j].iValue;
+				else if (!stats[2][j].iValue && stats[1][j].iValue)
+					bestStats[j].iValue = stats[1][j].iValue;
 			}
 			// sanity check: the winning team's time should always be in green, but nobody should be green if it's a tie
 			if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND1OFFENSE || level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND2OFFENSE) {
@@ -6048,7 +6054,7 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 			int heldForMaxAt = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxat", i));
 			if (heldForMaxAt) {
 				int incomplete = G_FirstIncompleteObjective(i);
-				stats[i][incomplete - 1].num = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxtime", i));
+				stats[i][incomplete - 1].iValue = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxtime", i));
 				stats[i][incomplete - 1].forceColor = S_COLOR_RED;
 			}
 		}
@@ -6056,7 +6062,7 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 	else { // normal stats
 		for (j = 0; j < MAX_STATS; ++j) {
 			if (TypeIsLowerBetter(desc.types[j]))
-				bestStats[j].num = 0x7FFFFFFF;
+				bestStats[j].iValue = 0x7FFFFFFF;
 		}
 		for (i = 0; i < level.maxclients; ++i) {
 			if (!g_entities[i].inuse || !g_entities[i].client || g_entities[i].client->pers.connected != CON_CONNECTED) {
@@ -6085,13 +6091,17 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 			for (j = 0; j < MAX_STATS; ++j) {
 				if (desc.types[j] == STAT_NONE)
 					continue;
-				if (TypeIsLowerBetter(desc.types[j])) {
-					if (bestStats[j].num > stats[i][j].num)
-						bestStats[j].num = stats[i][j].num;
+				if (desc.types[j] == STAT_FLOAT) {
+					if (bestStats[j].fValue < stats[i][j].fValue)
+						bestStats[j].fValue = stats[i][j].fValue;
+				}
+				else if (TypeIsLowerBetter(desc.types[j])) {
+					if (bestStats[j].iValue > stats[i][j].iValue)
+						bestStats[j].iValue = stats[i][j].iValue;
 				}
 				else {
-					if (bestStats[j].num < stats[i][j].num)
-						bestStats[j].num = stats[i][j].num;
+					if (bestStats[j].iValue < stats[i][j].iValue)
+						bestStats[j].iValue = stats[i][j].iValue;
 				}
 			}
 		}
@@ -6157,7 +6167,8 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 	}
 }
 
-#define FillValue(v)	do { values[i].num = v; i++; } while (0)
+#define FillValueInt(v)		do { values[i].iValue = v; i++; } while (0)
+#define FillValueFloat(v)	do { values[i].fValue = v; i++; } while (0)
 
 static const StatsDesc CtfStatsDesc = {
 	{
@@ -6172,19 +6183,19 @@ static const StatsDesc CtfStatsDesc = {
 
 static void FillCtfStats( gclient_t *cl, Stat *values ) {
 	int i = 0;
-	FillValue(cl->ps.persistant[PERS_SCORE]);
-	FillValue(cl->ps.persistant[PERS_CAPTURES]);
-	FillValue(cl->ps.persistant[PERS_ASSIST_COUNT]);
-	FillValue(cl->ps.persistant[PERS_DEFEND_COUNT]);
-	FillValue(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0);
-	FillValue(cl->pers.teamState.fragcarrier);
-	FillValue(cl->pers.teamState.flagrecovery);
-	FillValue(cl->pers.teamState.boonPickups);
-	FillValue(cl->pers.teamState.flaghold);
-	FillValue(cl->pers.teamState.longestFlaghold);
-	FillValue(cl->pers.teamState.saves);
-	FillValue(cl->pers.damageCaused);
-	FillValue(cl->pers.damageTaken);
+	FillValueInt(cl->ps.persistant[PERS_SCORE]);
+	FillValueInt(cl->ps.persistant[PERS_CAPTURES]);
+	FillValueInt(cl->ps.persistant[PERS_ASSIST_COUNT]);
+	FillValueInt(cl->ps.persistant[PERS_DEFEND_COUNT]);
+	FillValueInt(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0);
+	FillValueInt(cl->pers.teamState.fragcarrier);
+	FillValueInt(cl->pers.teamState.flagrecovery);
+	FillValueInt(cl->pers.teamState.boonPickups);
+	FillValueInt(cl->pers.teamState.flaghold);
+	FillValueInt(cl->pers.teamState.longestFlaghold);
+	FillValueInt(cl->pers.teamState.saves);
+	FillValueInt(cl->pers.damageCaused);
+	FillValueInt(cl->pers.damageTaken);
 }
 
 static const StatsDesc ForceStatsDesc = {
@@ -6200,14 +6211,14 @@ static const StatsDesc ForceStatsDesc = {
 
 static void FillForceStats( gclient_t *cl, Stat *values ) {
 	int i = 0;
-	FillValue(cl->pers.push);
-	FillValue(cl->pers.pull);
-	FillValue(cl->pers.healed);
-	FillValue(cl->pers.energizedAlly);
-	FillValue(cl->pers.energizedEnemy);
-	FillValue(cl->pers.absorbed);
-	FillValue(cl->pers.protDmgAvoided);
-	FillValue(cl->pers.protTimeUsed);
+	FillValueInt(cl->pers.push);
+	FillValueInt(cl->pers.pull);
+	FillValueInt(cl->pers.healed);
+	FillValueInt(cl->pers.energizedAlly);
+	FillValueInt(cl->pers.energizedEnemy);
+	FillValueInt(cl->pers.absorbed);
+	FillValueInt(cl->pers.protDmgAvoided);
+	FillValueInt(cl->pers.protTimeUsed);
 }
 
 static const StatsDesc ObjStatsDesc = {
@@ -6227,51 +6238,81 @@ static const StatsDesc ObjStatsDesc = {
 static void FillObjStats(gclient_t *cl, Stat *values) {
 	int i, roundNum = cl - level.clients;
 	for (i = 0; i < MAX_STATS - 1; i++) {
-		values[i].num = G_ObjectiveTimeDifference(i + 1, roundNum);
+		values[i].iValue = G_ObjectiveTimeDifference(i + 1, roundNum);
 	}
-	values[MAX_STATS - 1].num = trap_Cvar_VariableIntegerValue(va("siege_r%i_total", roundNum));
+	values[MAX_STATS - 1].iValue = trap_Cvar_VariableIntegerValue(va("siege_r%i_total", roundNum));
 }
 
 static const StatsDesc SiegeGeneralDesc = {
 	{
-		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN",
-		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "MAXES", "GOTMAXED",
-		"SK",
+		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN", "OKPM"
+		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "DKPM",
+		"MAXES", "GOTMAXED", "SK",
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
-		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_INT, STAT_INT_LOWERBETTER,
-		STAT_INT
+		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_FLOAT,
+		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_FLOAT,
+		STAT_INT, STAT_INT_LOWERBETTER, STAT_INT
 	}
 };
 
 static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 	int i = 0;
-	FillValue(cl->sess.siegeStats.caps[0] + cl->sess.siegeStats.caps[1]);
-	FillValue(cl->sess.siegeStats.saves[0] + cl->sess.siegeStats.saves[1]);
-	FillValue(cl->sess.siegeStats.oKills[0] + cl->sess.siegeStats.oKills[1]);
-	FillValue(cl->sess.siegeStats.oDamageDealt[0] + cl->sess.siegeStats.oDamageDealt[1]);
-	FillValue(cl->sess.siegeStats.oDeaths[0] + cl->sess.siegeStats.oDeaths[1]);
-	FillValue(cl->sess.siegeStats.oDamageTaken[0] + cl->sess.siegeStats.oDamageTaken[1]);
-	FillValue(cl->sess.siegeStats.dKills[0] + cl->sess.siegeStats.dKills[1]);
-	FillValue(cl->sess.siegeStats.dDamageDealt[0] + cl->sess.siegeStats.dDamageDealt[1]);
-	FillValue(cl->sess.siegeStats.dDeaths[0] + cl->sess.siegeStats.dDeaths[1]);
-	FillValue(cl->sess.siegeStats.dDamageTaken[0] + cl->sess.siegeStats.dDamageTaken[1]);
-	FillValue(cl->sess.siegeStats.maxes[0] + cl->sess.siegeStats.maxes[1]);
-	FillValue(cl->sess.siegeStats.maxed[0] + cl->sess.siegeStats.maxed[1]);
-	FillValue(cl->sess.siegeStats.selfkills[0] + cl->sess.siegeStats.selfkills[1]);
+	FillValueInt(cl->sess.siegeStats.caps[0] + cl->sess.siegeStats.caps[1]);
+	FillValueInt(cl->sess.siegeStats.saves[0] + cl->sess.siegeStats.saves[1]);
+	FillValueInt(cl->sess.siegeStats.oKills[0] + cl->sess.siegeStats.oKills[1]);
+	FillValueInt(cl->sess.siegeStats.oDamageDealt[0] + cl->sess.siegeStats.oDamageDealt[1]);
+	FillValueInt(cl->sess.siegeStats.oDeaths[0] + cl->sess.siegeStats.oDeaths[1]);
+	FillValueInt(cl->sess.siegeStats.oDamageTaken[0] + cl->sess.siegeStats.oDamageTaken[1]);
+
+	float oKills = (float)(cl->sess.siegeStats.oKills[0] + cl->sess.siegeStats.oKills[1]);
+	float oTime = (float)(cl->sess.siegeStats.oTime[0] + cl->sess.siegeStats.oTime[1]);
+	if (oTime) {
+#ifdef SCOREBOARDTIME_BASED_KPM
+		FillValueFloat(oKills / ((int)oTime / 60000));
+#else
+		FillValueFloat((oKills / oTime) * 60000.0f);
+#endif
+	}
+	else {
+		FillValueFloat(0.0f);
+	}
+
+	FillValueInt(cl->sess.siegeStats.dKills[0] + cl->sess.siegeStats.dKills[1]);
+	FillValueInt(cl->sess.siegeStats.dDamageDealt[0] + cl->sess.siegeStats.dDamageDealt[1]);
+	FillValueInt(cl->sess.siegeStats.dDeaths[0] + cl->sess.siegeStats.dDeaths[1]);
+	FillValueInt(cl->sess.siegeStats.dDamageTaken[0] + cl->sess.siegeStats.dDamageTaken[1]);
+
+	float dKills = (float)(cl->sess.siegeStats.dKills[0] + cl->sess.siegeStats.dKills[1]);
+	float dTime = (float)(cl->sess.siegeStats.dTime[0] + cl->sess.siegeStats.dTime[1]);
+	if (dTime) {
+#ifdef SCOREBOARDTIME_BASED_KPM
+		FillValueFloat(dKills / ((int)dTime / 60000));
+#else
+		FillValueFloat((dKills / dTime) * 60000.0f);
+#endif
+	}
+	else {
+		FillValueFloat(0.0f);
+	}
+
+	FillValueInt(cl->sess.siegeStats.maxes[0] + cl->sess.siegeStats.maxes[1]);
+	FillValueInt(cl->sess.siegeStats.maxed[0] + cl->sess.siegeStats.maxed[1]);
+	FillValueInt(cl->sess.siegeStats.selfkills[0] + cl->sess.siegeStats.selfkills[1]);
 }
 
 static const StatsDesc HothDesc = {
 	{
 		"GENDMG", "CODESTIME", "CCDMG", "TECHMAX", "KILL",
 		"ATSTKILL", "ATSTDMG", "SHIELD", "UPTIME",
-		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN",
+		"OASSIST", "DASSIST"
 	},
 	{
 		STAT_INT, STAT_DURATION, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2,
 		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION,
-		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER,
+		STAT_INT, STAT_INT
 	}
 };
 
@@ -6279,12 +6320,14 @@ static const StatsDesc DesertDesc = {
 	{
 		"WALLDMG", "STATION1DMG", "STATION2DMG", "STATION3DMG", "GATEDMG",
 		"PARTS", "PARTSTIME",
-		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN",
+		"OASSIST", "DASSIST"
 	},
 	{
 		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT,
 		STAT_INT, STAT_DURATION,
-		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER,
+		STAT_INT, STAT_INT
 	}
 };
 
@@ -6305,43 +6348,53 @@ static const StatsDesc NarDesc = {
 	{
 		"STATION1DMG", "STATION2DMG", "CODESTIME", "TECHMAX", "KILL",
 		"SHIELDS", "SHIELDUPTIME",
-		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN",
+		"OASSIST", "DASSIST"
 	},
 	{
 		STAT_INT, STAT_INT, STAT_DURATION, STAT_INT_PAIR1, STAT_INT_PAIR2,
 		STAT_INT, STAT_DURATION,
-		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER,
+		STAT_INT, STAT_INT
 	}
 };
 
 static const StatsDesc Cargo2Desc = {
 	{
 		"ARRAYDMG", "NODE1DMG", "NODE2DMG", "CODESTIME", "HACKS",
-		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN",
+		"OASSIST", "DASSIST"
 	},
 	{
 		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_INT,
-		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER,
+		STAT_INT, STAT_INT
 	}
 };
 
 static const StatsDesc BespinDesc = {
 	{
 		"LOCKDMG", "PANELDMG", "GENDMG", "CODESTIME", "PODDMG",
-		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN"
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN",
+		"OASSIST", "DASSIST"
 	},
 	{
 		STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_INT,
-		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER,
+		STAT_INT, STAT_INT
 	}
 };
 
 static const StatsDesc UrbanDesc = {
 	{
-		"MONEYTIME", "BLUEDMG", "REDDMG"
+		"MONEYTIME", "BLUEDMG", "REDDMG",
+		"OFFFREEZE", "OFFGOTFROZEN", "DEFFREEZE", "DEFGOTFROZEN",
+		"OASSIST", "DASSIST"
 	},
 	{
-		STAT_DURATION, STAT_INT, STAT_INT
+		STAT_DURATION, STAT_INT, STAT_INT,
+		STAT_DURATION, STAT_DURATION_LOWERBETTER, STAT_DURATION, STAT_DURATION_LOWERBETTER,
+		STAT_INT, STAT_INT
 	}
 };
 
@@ -6357,7 +6410,7 @@ static const StatsDesc AnsionDesc = {
 static void FillMapSpecificStats(gclient_t *cl, Stat *values) {
 	int i;
 	for (i = 0; i < MAX_STATS; i++) {
-		values[i].num = cl->sess.siegeStats.mapSpecific[0][i] + cl->sess.siegeStats.mapSpecific[1][i];
+		values[i].iValue = cl->sess.siegeStats.mapSpecific[0][i] + cl->sess.siegeStats.mapSpecific[1][i];
 	}
 }
 
