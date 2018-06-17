@@ -624,6 +624,13 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		}
 	}
 
+	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
+		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
+		if (timeSinceRespawn < 1000) {
+			return;
+		}
+	}
+
 	ent->flags &= ~FL_GODMODE;
 	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
 	player_die (ent, ent, ent, 100000, MOD_SUICIDE);
@@ -1606,6 +1613,14 @@ void Cmd_Join_f(gentity_t *ent)
 		return;
 	}
 
+	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
+		if (timeSinceRespawn < 1000) {
+			return;
+		}
+	}
+
 	SetSiegeClass(ent, siegeClass->name);
 }
 
@@ -1707,6 +1722,13 @@ void Cmd_Class_f(gentity_t *ent)
 	{
 		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
 		return;
+	}
+
+	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
+		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
+		if (timeSinceRespawn < 1000) {
+			return;
+		}
 	}
 
 	SetSiegeClass(ent, siegeClass->name);
@@ -6650,6 +6672,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_antiHothCodesLiftLame);
 	PrintCvar(g_antiHothHangarLiftLame);
 	PrintCvar(g_antiHothInfirmaryLiftLame);
+	PrintCvar(g_antiSelfMax);
 	PrintCvar(g_autoKorribanFloatingItems);
 	PrintCvar(g_autoKorribanSpam);
 	PrintCvar(g_autoStats);
