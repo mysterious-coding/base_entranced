@@ -7351,25 +7351,31 @@ void ClientCommand( int clientNum ) {
 	}
 
 	// ignore all other commands when at intermission
-	if (level.intermissiontime)
-	{
+	if (level.intermissiontime) {
 		if (!Q_stricmp(cmd, "forcechanged"))
 		{ //special case: still update force change
 			Cmd_ForceChanged_f (ent);
-			return;
 		}
 		else if ( !Q_stricmp( cmd, "ctfstats" ) || !Q_stricmp(cmd, "stats") || !Q_stricmp(cmd, "siegestats"))
 		{ // special case: we want people to read their other stats as suggested
 			Cmd_PrintStats_f( ent );
-			return;
 		}
 #ifdef NEWMOD_SUPPORT
 		else if (Q_stricmp(cmd, "svauth") == 0 && ent->client->sess.auth > PENDING && ent->client->sess.auth < AUTHENTICATED) {
 			Cmd_Svauth_f(ent);
-			return;
 		}
 #endif
-
+		else if (Q_stricmp(cmd, "changes") == 0)
+			Cmd_Changes_f(ent);
+		else if (Q_stricmp(cmd, "whois") == 0)
+			Cmd_WhoIs_f(ent);
+		else if (Q_stricmp(cmd, "ignore") == 0)
+			Cmd_Ignore_f(ent);
+		else if (Q_stricmp(cmd, "serverstatus2") == 0)
+			Cmd_ServerStatus2_f(ent);
+		else if (Q_stricmp(cmd, "info") == 0)
+			Cmd_Help_f(ent);
+		else
 			trap_SendServerCommand( clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd ) );
 		return;
 	}
