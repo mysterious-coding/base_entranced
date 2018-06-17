@@ -7373,7 +7373,7 @@ void ClientCommand( int clientNum ) {
 			Cmd_Ignore_f(ent);
 		else if (Q_stricmp(cmd, "serverstatus2") == 0)
 			Cmd_ServerStatus2_f(ent);
-		else if (Q_stricmp(cmd, "info") == 0)
+		else if (Q_stricmp(cmd, "info") == 0 || Q_stricmp(cmd, "help") == 0 || Q_stricmp(cmd, "rules") == 0)
 			Cmd_Help_f(ent);
 		else
 			trap_SendServerCommand( clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd ) );
