@@ -1876,7 +1876,7 @@ extern gentity_t *gJMSaberEnt;
 //
 // g_svcmds.c
 //
-#define MAX_PUGMAPS 5
+#define MAX_PUGMAPS 6
 qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize);
 qboolean	ConsoleCommand( void );
 void G_ProcessGetstatusIPBans(void);

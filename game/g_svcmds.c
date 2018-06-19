@@ -1867,7 +1867,7 @@ qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, 
 	case 'c':	fileName = "siege_cargobarge3_b2";	prettyName = "Cargo";		break;
 	case 'u':	fileName = "siege_urban_b8";		prettyName = "Urban";		break;
 	case 'b':	fileName = "mp/siege_bespin";		prettyName = "Bespin";		break;
-	case 'a':	fileName = "siege_ansion_beta1";	prettyName = "Ansion";		break;
+	case 'a':	fileName = "siege_ansion_beta2";	prettyName = "Ansion";		break;
 	case 'z':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
 	case 'e':	fileName = "mp/siege_eat_shower";	prettyName = "Eat Shower";	break;
 	case 'd':	fileName = "mp/siege_desert";		prettyName = "Desert";		break;
@@ -1894,7 +1894,7 @@ static char CharFromMapName(char *s) {
 		return 'u';
 	if (!Q_stricmp(s, "mp/siege_bespin"))
 		return 'b';
-	if (!Q_stricmp(s, "siege_ansion_beta1"))
+	if (!Q_stricmp(s, "siege_ansion_beta2"))
 		return 'a';
 	if (!Q_stricmp(s, "mp/siege_alzocIII"))
 		return 'z';
@@ -2014,7 +2014,7 @@ void Svcmd_NextPug_f(void) {
 	if (desiredPugMaps.string[0])
 		Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
 	else
-		Q_strncpyz(maps, "hncu", sizeof(maps));
+		Q_strncpyz(maps, "hncub", sizeof(maps));
 
 	// add the current map to the cvar
 	if (thisMapChar && !strchr(played, thisMapChar)) {
@@ -3214,15 +3214,11 @@ qboolean	ConsoleCommand( void ) {
 			trap_Argv(1,durationStr,sizeof(durationStr));
 			duration = atoi(durationStr);
 				
-			if (duration == 0) // 2 minutes default
-				duration = 2*60;
-			else if (duration < 0) // second minimum
-				duration = 1;
-			else if ( duration > 5*60) // 5 minutes max
-				duration = 5*60;
+			if (duration <= 0 || duration > 300) // 5 minutes default/max
+				duration = 300;
 
             level.pause.state = PAUSE_PAUSED;
-			level.pause.time = level.time + duration*1000; // 5 seconds
+			level.pause.time = level.time + duration*1000;
 		//}
 
         return qtrue;

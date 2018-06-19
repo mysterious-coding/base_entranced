@@ -3887,7 +3887,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		if (desiredPugMaps.string[0])
 			Q_strncpyz(maps, desiredPugMaps.string, sizeof(maps));
 		else
-			Q_strncpyz(maps, "hncu", sizeof(maps));
+			Q_strncpyz(maps, "hncub", sizeof(maps));
 		trap_Cvar_VariableStringBuffer("mapname", currentMap, sizeof(currentMap));
 		int i, len = strlen(maps);
 		for (i = 0; i < MAX_PUGMAPS && i < len; i++) {
@@ -4340,12 +4340,16 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} 
 	else if ( !Q_stricmp( arg1, "pause" )) 
 	{
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s 150", arg1);
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s 300", arg1);
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Pause Game" );
 
 	}
 	else if ( !Q_stricmp( arg1, "unpause" )) 
 	{
+		if (level.pause.state == PAUSE_NONE) {
+			trap_SendServerCommand(ent - g_entities, "print \"The game is not currently paused.\n\"");
+			return;
+		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s", arg1 );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Unpause Game" );
 	}
@@ -4460,7 +4464,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		return;
 	}
 	if ( !(ent->client->mGameFlags & PSG_CANVOTE) ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", "You haven't been in game during vote call. You can't vote.") );
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", "You were not in-game when the vote was called. You cannot vote.") );
 		return;
 	}
 
@@ -4477,14 +4481,17 @@ void Cmd_Vote_f( gentity_t *ent ) {
 
 	if ( !level.multiVoting ) {
 		// not a special multi vote, use legacy behavior
-		if ( msg[0] == 'y' || msg[1] == 'Y' || msg[1] == '1' ) {
+		if ( tolower(msg[0]) == 'y' ) {
 			G_LogPrintf( "Client %i (%s) voted YES\n", ent - g_entities, ent->client->pers.netname );
 			level.voteYes++;
 			trap_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
-		} else {
+		} else if ( tolower(msg[0]) == 'n' ) {
 			G_LogPrintf( "Client %i (%s) voted NO\n", ent - g_entities, ent->client->pers.netname );
 			level.voteNo++;
 			trap_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
+		} else {
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid choice, please use /vote y or /vote n.\n\"");
+			return;
 		}
 	} else {
 		// multi map vote, only allow voting for valid choice ids
@@ -4851,11 +4858,11 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		return;
 	}
 	if (ent->client->sess.sessionTeam == TEAM_RED && !(ent->client->mGameFlags & PSG_CANTEAMVOTERED)) {
-		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", "You haven't been in this team during vote call. You can't vote."));
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", "You were not in-game and in this team when the vote was called. You cannot vote."));
 		return;
 	}
 	if (ent->client->sess.sessionTeam == TEAM_BLUE && !(ent->client->mGameFlags & PSG_CANTEAMVOTEBLUE)) {
-		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", "You haven't been in this team during vote call. You can't vote."));
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", "You were not in-game and in this team when the vote was called. You cannot vote."));
 		return;
 	}
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
@@ -4871,7 +4878,24 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		return;
 	}
 
-	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLTEAMVOTECAST")) );
+	trap_Argv( 1, msg, sizeof( msg ) );
+
+	if ( tolower(msg[0]) == 'y' ) {
+		G_LogPrintf("Client %i (%s) teamvoted YES\n", ent - g_entities, ent->client->pers.netname);
+		level.teamVoteYes[cs_offset]++;
+		trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va("%i", level.teamVoteYes[cs_offset] ) );
+	} else if ( tolower(msg[0]) == 'n' ) {
+		G_LogPrintf("Client %i (%s) teamvoted NO\n", ent - g_entities, ent->client->pers.netname);
+		level.teamVoteNo[cs_offset]++;
+		trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset] ) );	
+	} else {
+		trap_SendServerCommand(ent - g_entities, "print \"Invalid choice, please use /teamvote y or /teamvote n.\n\"");
+		return;
+	}
+
+	// if we got here, the vote attempt was successful
+
+	trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLTEAMVOTECAST")));
 
 	if (ent->client->sess.sessionTeam == TEAM_RED)
 	{
@@ -4880,18 +4904,6 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 	else
 	{
 		ent->client->mGameFlags |= PSG_TEAMVOTEDBLUE;
-	}
-
-	trap_Argv( 1, msg, sizeof( msg ) );
-
-	if ( msg[0] == 'y' || msg[1] == 'Y' || msg[1] == '1' ) {
-		G_LogPrintf("Client %i (%s) teamvoted YES\n", ent - g_entities, ent->client->pers.netname);
-		level.teamVoteYes[cs_offset]++;
-		trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va("%i", level.teamVoteYes[cs_offset] ) );
-	} else {
-		G_LogPrintf("Client %i (%s) teamvoted NO\n", ent - g_entities, ent->client->pers.netname);
-		level.teamVoteNo[cs_offset]++;
-		trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset] ) );	
 	}
 
 	if (g_teamVoteFix.integer)

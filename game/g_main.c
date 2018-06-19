@@ -859,7 +859,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &playedPugMaps, "playedPugMaps", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &desiredPugMaps, "desiredPugMaps", "", CVAR_ARCHIVE | CVAR_ROM, 0 , qfalse },
-	{ &g_defaultPugMaps, "g_defaultPugMaps", "hncu", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_defaultPugMaps, "g_defaultPugMaps", "hncub", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &debug_shieldLog, "debug_shieldLog", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_duoTest, "debug_duoTest", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -4643,6 +4643,8 @@ extern void thermalThinkStandard(gentity_t *ent);
 extern void thermalThinkPrimaryAntiSpam(gentity_t *ent);
 extern void ShieldThink(gentity_t *ent);
 extern void ShieldGoSolid(gentity_t *ent);
+extern void turretG2_base_think(gentity_t *self);
+extern void turret_base_think(gentity_t *self);
 
 void G_RunThink(gentity_t *ent) {
 	int	thinktime;
@@ -4650,32 +4652,45 @@ void G_RunThink(gentity_t *ent) {
 	//OSP: pause
 	//      If paused, push nextthink
 	if (level.pause.state != PAUSE_NONE) {
+		int dt = level.time - level.previousTime;
 		if (ent - g_entities >= g_maxclients.integer && ent->nextthink > level.time)
-			ent->nextthink += level.time - level.previousTime;
+			ent->nextthink += dt;
 
 		// special case, mines need update here
 		if (ent->think == proxMineThink && ent->genericValue15 > level.time)
-			ent->genericValue15 += level.time - level.previousTime;
+			ent->genericValue15 += dt;
 
 		// another special case, siege items need respawn timer update
 		if (ent->think == SiegeItemThink && ent->genericValue9 > level.time)
-			ent->genericValue9 += level.time - level.previousTime;
+			ent->genericValue9 += dt;
 
 		// more special cases, sentry
 		if (ent->think == pas_think)
-			ent->genericValue8 += level.time - level.previousTime;
+			ent->genericValue8 += dt;
 
 		// another special case, thermal primaries
 		if (ent->think == thermalThinkStandard || ent->think == thermalThinkPrimaryAntiSpam)
-			ent->genericValue5 += level.time - level.previousTime;
+			ent->genericValue5 += dt;
 		
 		// siege item carry time stat
 		if (ent->think == SiegeItemThink && ent->siegeItemCarrierTime)
-			ent->siegeItemCarrierTime += level.time - level.previousTime;
+			ent->siegeItemCarrierTime += dt;
 
 		// siege shield uptime stat
 		if (ent->siegeItemSpawnTime && (ent->think == ShieldThink || ent->think == ShieldGoSolid))
-			ent->siegeItemSpawnTime += level.time - level.previousTime;
+			ent->siegeItemSpawnTime += dt;
+
+		// turrets
+		if (ent->think == turretG2_base_think || ent->think == turret_base_think) {
+			ent->bounceCount += dt;
+			ent->last_move_time += dt;
+			ent->attackDebounceTime += dt;
+			ent->painDebounceTime += dt;
+			ent->setTime += dt;
+			ent->fly_sound_debounce_time += dt;
+			ent->aimDebounceTime += dt;
+			ent->s.apos.trType = TR_STATIONARY;
+		}
 	}
 
 	thinktime = ent->nextthink;
