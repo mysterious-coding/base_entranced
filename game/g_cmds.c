@@ -6287,7 +6287,7 @@ static void FillObjStats(gclient_t *cl, Stat *values) {
 
 static const StatsDesc SiegeGeneralDesc = {
 	{
-		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN", "OKPM"
+		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN", "OKPM",
 		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "DKPM",
 		"MAXES", "GOTMAXED", "SK",
 	},
