@@ -1572,6 +1572,14 @@ void Cmd_Join_f(gentity_t *ent)
 		}
 	}
 
+	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
+		if (timeSinceRespawn < 1000) {
+			return;
+		}
+	}
+
 	if ((className[0] >= '0') && (className[0] <= '9'))
 	{
 		classNumber = atoi(className);
@@ -1621,14 +1629,6 @@ void Cmd_Join_f(gentity_t *ent)
 		return;
 	}
 
-	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
-		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
-		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000) {
-			return;
-		}
-	}
-
 	SetSiegeClass(ent, siegeClass->name);
 }
 
@@ -1672,6 +1672,13 @@ void Cmd_Class_f(gentity_t *ent)
 		{
 			timeRemaining = ((ent->forcedClassTime - level.time + 500) / 1000);
 			trap_SendServerCommand(ent - g_entities, va("print \"You are currently being forced to a class. You will be able to change classes in %i seconds.\n\"", timeRemaining));
+			return;
+		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
+		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
+		if (timeSinceRespawn < 1000) {
 			return;
 		}
 	}
@@ -1730,13 +1737,6 @@ void Cmd_Class_f(gentity_t *ent)
 	{
 		trap_SendServerCommand(ent - g_entities, "print \"Usage: class <number> or class <first letter of class name> (e.g. '^5class a^7' for assault)\n\"");
 		return;
-	}
-
-	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
-		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000) {
-			return;
-		}
 	}
 
 	SetSiegeClass(ent, siegeClass->name);
