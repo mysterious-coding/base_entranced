@@ -1077,6 +1077,7 @@ idealclass	-	Can only be used by this class/these classes. You can specify use b
 				multiple classes with the use of |, e.g.:
 				"Imperial Medic|Imperial Assassin|Imperial Demolitionist"
 */
+
 void SP_trigger_multiple( gentity_t *ent ) 
 {
 	int isControlPoint;
@@ -1190,9 +1191,17 @@ void SP_trigger_multiple( gentity_t *ent )
 		//bugfix for final objective getting broken when two parts are delivered within 1 second of each other
 	}
 
+	static char recalltargets[MAX_GENTITIES][32] = { 0 };
 	G_SpawnInt("recallsiegeitem", "0", &ent->recallSiegeItem);
-	if (ent->recallSiegeItem)
-		G_SpawnString("recalltarget", "", &ent->recallTarget);
+	if (ent->recallSiegeItem) {
+		s = NULL;
+		if (G_SpawnString("recalltarget", "", &s) && VALIDSTRING(s)) {
+			if (strlen(s) >= sizeof(recalltargets[0]))
+				G_LogPrintf("misc_siege_item: recalltarget '%s' is too long! (should be %d digits or less)\n", s, sizeof(recalltargets[0]) - 1);
+			Q_strncpyz(recalltargets[ent - g_entities], s, sizeof(recalltargets[0]));
+			ent->recallTarget = recalltargets[ent - g_entities];
+		}
+	}
 	else
 		ent->recallTarget = "";
 
