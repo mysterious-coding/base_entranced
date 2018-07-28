@@ -405,6 +405,9 @@ vmCvar_t    g_minVotersForEvenVotersCount;
 
 vmCvar_t	g_maxNameLength;
 
+vmCvar_t	g_droppedFlagSpawnProtectionRadius;
+vmCvar_t	g_droppedFlagSpawnProtectionDuration;
+
 #ifdef NEWMOD_SUPPORT
 vmCvar_t	g_netUnlock;
 vmCvar_t	g_nmFlags;
@@ -760,6 +763,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_minVotersForEvenVotersCount, "g_minVotersForEvenVotersCount", "7", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_maxNameLength, "g_maxNameLength", "35", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_droppedFlagSpawnProtectionRadius, "g_droppedFlagSpawnProtectionRadius", "768", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_droppedFlagSpawnProtectionDuration, "g_droppedFlagSpawnProtectionDuration", "10000", CVAR_ARCHIVE, 0, qtrue },
 
 #ifdef NEWMOD_SUPPORT
 	{ &g_netUnlock, "g_netUnlock", "1", CVAR_ARCHIVE, 0, qtrue },
