@@ -626,9 +626,9 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000) {
+		int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+		if (timeSinceRespawn < 1000 || (timeSinceRespawn >= oneSecBeforeRespawn))
 			return;
-		}
 	}
 
 	ent->flags &= ~FL_GODMODE;
@@ -1503,9 +1503,9 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000) {
+		int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+		if (timeSinceRespawn < 1000 || (timeSinceRespawn >= oneSecBeforeRespawn))
 			return;
-		}
 	}
 
 	SetSiegeClass(ent, className);
@@ -1575,9 +1575,9 @@ void Cmd_Join_f(gentity_t *ent)
 	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000) {
+		int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+		if (timeSinceRespawn < 1000 || (timeSinceRespawn >= oneSecBeforeRespawn))
 			return;
-		}
 	}
 
 	if ((className[0] >= '0') && (className[0] <= '9'))
@@ -1678,9 +1678,9 @@ void Cmd_Class_f(gentity_t *ent)
 
 	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000) {
+		int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+		if (timeSinceRespawn < 1000 || (timeSinceRespawn >= oneSecBeforeRespawn))
 			return;
-		}
 	}
 
 	if ((className[0] >= '0') && (className[0] <= '9'))
