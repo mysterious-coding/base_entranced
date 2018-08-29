@@ -3850,27 +3850,52 @@ void drop_charge (gentity_t *self, vec3_t start, vec3_t dir)
 	VectorSet(bolt->s.apos.trDelta, 300, 0, 0 );
 	bolt->s.apos.trTime = level.time;
 
+	bolt->siegeItemSpawnTime = level.time;
+
 	trap_LinkEntity(bolt);
 }
 
-void BlowDetpacks(gentity_t *ent)
+void BlowDetpacks(gentity_t *ent, qboolean death)
 {
 	gentity_t *found = NULL;
 
 	if ( ent->client->ps.hasDetPackPlanted )
 	{
-		while ( (found = G_Find( found, FOFS(classname), "detpack") ) != NULL )
-		{//loop through all ents and blow the crap out of them!
-			if ( found->parent == ent )
-			{
-				VectorCopy( found->r.currentOrigin, found->s.origin );
-				found->think = DetPackBlow;
-				found->nextthink = level.time + 100 + random() * 200; //TEST, BLOW BETWEEN THIS AND NEXT FRAME, MUHAHA
+		if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_ANSION && ent->client->sess.sessionTeam == TEAM_BLUE && death) {
+			qboolean oneSurvived = qfalse;
+			while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
+			{//loop through all ents and blow the crap out of them!
+				if (found->parent == ent)
+				{
+					if (level.time - found->siegeItemSpawnTime >= 1000) {
+						VectorCopy(found->r.currentOrigin, found->s.origin);
+						found->think = DetPackBlow;
+						found->nextthink = level.time + 100 + random() * 200; //TEST, BLOW BETWEEN THIS AND NEXT FRAME, MUHAHA
 
-				G_Sound( found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav") );
+						G_Sound(found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav"));
+					}
+					else {
+						oneSurvived = qtrue;
+					}
+				}
 			}
+			if (!oneSurvived)
+				ent->client->ps.hasDetPackPlanted = qfalse;
 		}
-		ent->client->ps.hasDetPackPlanted = qfalse;
+		else {
+			while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
+			{//loop through all ents and blow the crap out of them!
+				if (found->parent == ent)
+				{
+					VectorCopy(found->r.currentOrigin, found->s.origin);
+					found->think = DetPackBlow;
+					found->nextthink = level.time + 100 + random() * 200; //TEST, BLOW BETWEEN THIS AND NEXT FRAME, MUHAHA
+
+					G_Sound(found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav"));
+				}
+			}
+			ent->client->ps.hasDetPackPlanted = qfalse;
+		}
 	}
 }
 
@@ -3917,62 +3942,64 @@ void WP_DropDetPack( gentity_t *ent, qboolean alt_fire )
 		return;
 	}
 
-	//limit to 10 placed at any one time
-	//see how many there are now
-	while ( (found = G_Find( found, FOFS(classname), "detpack" )) != NULL )
-	{
-		if ( found->parent != ent )
+	if (!alt_fire) {
+		//limit to 10 placed at any one time
+		//see how many there are now
+		while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
 		{
-			continue;
-		}
-		foundDetPacks[trapcount++] = found->s.number;
-	}
-	//now remove first ones we find until there are only 9 left
-	found = NULL;
-	trapcount_org = trapcount;
-	lowestTimeStamp = level.time;
-	while ( trapcount > 9 )
-	{
-		removeMe = -1;
-		for ( i = 0; i < trapcount_org; i++ )
-		{
-			if ( foundDetPacks[i] == ENTITYNUM_NONE )
+			if (found->parent != ent)
 			{
 				continue;
 			}
-			found = &g_entities[foundDetPacks[i]];
-			if ( found->setTime < lowestTimeStamp )
-			{
-				removeMe = i;
-				lowestTimeStamp = found->setTime;
-			}
+			foundDetPacks[trapcount++] = found->s.number;
 		}
-		if ( removeMe != -1 )
+		//now remove first ones we find until there are only 9 left
+		found = NULL;
+		trapcount_org = trapcount;
+		lowestTimeStamp = level.time;
+		while (trapcount > 9)
 		{
-			//remove it... or blow it?
-			if ( &g_entities[foundDetPacks[removeMe]] == NULL )
+			removeMe = -1;
+			for (i = 0; i < trapcount_org; i++)
 			{
-				break;
+				if (foundDetPacks[i] == ENTITYNUM_NONE)
+				{
+					continue;
+				}
+				found = &g_entities[foundDetPacks[i]];
+				if (found->setTime < lowestTimeStamp)
+				{
+					removeMe = i;
+					lowestTimeStamp = found->setTime;
+				}
+			}
+			if (removeMe != -1)
+			{
+				//remove it... or blow it?
+				if (&g_entities[foundDetPacks[removeMe]] == NULL)
+				{
+					break;
+				}
+				else
+				{
+					if (!CheatsOn())
+					{ //Let them have unlimited if cheats are enabled
+						G_FreeEntity(&g_entities[foundDetPacks[removeMe]]);
+					}
+				}
+				foundDetPacks[removeMe] = ENTITYNUM_NONE;
+				trapcount--;
 			}
 			else
 			{
-				if (!CheatsOn())
-				{ //Let them have unlimited if cheats are enabled
-					G_FreeEntity( &g_entities[foundDetPacks[removeMe]] );
-				}
+				break;
 			}
-			foundDetPacks[removeMe] = ENTITYNUM_NONE;
-			trapcount--;
-		}
-		else
-		{
-			break;
 		}
 	}
 
 	if ( alt_fire  )
 	{
-		BlowDetpacks(ent);
+		BlowDetpacks(ent, qfalse);
 	}
 	else
 	{

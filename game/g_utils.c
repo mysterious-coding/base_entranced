@@ -2176,8 +2176,11 @@ tryJetPack:
 		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
 		AngleVectors(fAng, fwd, 0, 0);
 
-		VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);
-		trap_Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
+		vec3_t start;
+		VectorSet(start, ent->client->ps.origin[0], ent->client->ps.origin[1], ent->client->ps.origin[2] + ent->client->ps.viewheight);
+		VectorMA(start, 16.0f, fwd, fwd);
+
+		trap_Trace(&trToss, start, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
 		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
 		{
 			ItemUse_UseDisp(ent, HI_HEALTHDISP);
@@ -2196,8 +2199,11 @@ tryJetPack:
 		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
 		AngleVectors(fAng, fwd, 0, 0);
 
-        VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);		
-		trap_Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
+		vec3_t start;
+		VectorSet(start, ent->client->ps.origin[0], ent->client->ps.origin[1], ent->client->ps.origin[2] + ent->client->ps.viewheight);
+        VectorMA(start, 16.0f, fwd, fwd);
+
+		trap_Trace(&trToss, start, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
 		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
 		{
 			ItemUse_UseDisp(ent, HI_AMMODISP);

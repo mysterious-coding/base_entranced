@@ -1892,7 +1892,7 @@ void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce);
 // g_weapon.c
 //
 void FireWeapon( gentity_t *ent, qboolean altFire );
-void BlowDetpacks(gentity_t *ent);
+void BlowDetpacks(gentity_t *ent, qboolean death);
 void RemoveDetpacks(gentity_t *ent);
 
 //

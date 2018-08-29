@@ -2261,7 +2261,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 				}
 			}
 		}
-		else if (!Q_stricmpn(mapname.string, "siege_urban", 11)) {
+		else if (GetSiegeMap() == SIEGEMAP_URBAN) {
 			if (self->client->isHacking && self->client->ps.hackingTime > level.time && self->client->ps.hackingTime - level.time <= 500 && self->client->sess.sessionTeam == TEAM_RED &&
 				(!level.totalObjectivesCompleted || (level.totalObjectivesCompleted == 1 && self->client->ps.origin[1] >= 900 && self->client->holdingObjectiveItem) || (level.totalObjectivesCompleted == 2 && self->client->ps.origin[1] >= 1000))) {
 				// killed while hacking
@@ -2717,7 +2717,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         && (self->client->sess.siegeDesiredTeam != self->client->sess.sessionTeam) )
 		RemoveDetpacks( self );
 	else
-		BlowDetpacks(self); //blow detpacks if they're planted
+		BlowDetpacks(self, qtrue); //blow detpacks if they're planted
 
 	self->client->ps.fd.forceDeactivateAll = 1;
 
@@ -4767,6 +4767,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	if (GetSiegeMap() == SIEGEMAP_URBAN && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w') {
+		return;
+	}
+
+	if (GetSiegeMap() == SIEGEMAP_BESPIN && attacker && attacker->s.eType == ET_NPC && targ && targ - g_entities < MAX_CLIENTS &&
+		targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && VALIDSTRING(attacker->NPC_type) && *attacker->NPC_type == 'C') {
 		return;
 	}
 
