@@ -1983,8 +1983,6 @@ static float GetDistanceFromNearestSiegeitem(gentity_t *ent, int onlyItemsToucha
 
 static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *attacker, int mod)
 {
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	int i;
 
 	switch (reward)
@@ -2028,7 +2026,7 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 			}
 		}
 
-		if (self->client->sess.sessionTeam == TEAM_RED && level.totalObjectivesCompleted == 3 && !Q_stricmpn(mapname.string, "siege_urban", 11)) {
+		if (self->client->sess.sessionTeam == TEAM_RED && level.totalObjectivesCompleted == 3 && GetSiegeMap() == SIEGEMAP_URBAN) {
 			// check if killed while on or close to swoop
 			int i;
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
