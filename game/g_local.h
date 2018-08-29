@@ -1518,6 +1518,7 @@ void SaveRegisteredItems( void );
 //
 // g_utils.c
 //
+#define USE_DISTANCE	64.0f
 const char *	G_PrintClient(int clientNum);
 int		G_ModelIndex( const char *name );
 int		G_SoundIndex( const char *name );
@@ -1605,6 +1606,10 @@ typedef enum {
 siegeMap_t GetSiegeMap(void);
 qboolean G_ShieldSpamAllowed(team_t t);
 qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2, float y2, float z2, float wiggleRoom);
+
+qboolean TryTossHealthPack(gentity_t *ent, qboolean doChecks);
+qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks);
+qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks);
 
 //
 // g_saga.c

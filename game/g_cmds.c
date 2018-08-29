@@ -5254,6 +5254,84 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent - g_entities, "print \""S_COLOR_WHITE"Use "S_COLOR_YELLOW"/toptimes maplist "S_COLOR_WHITE"for an overview of top records on all maps\n\"" );
 }
 
+void Cmd_UsePack_f(gentity_t *ent) {
+	if (!(ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)))
+		return;
+
+	if (ent->client->jetPackOn || ent->client->ps.groundEntityNum == ENTITYNUM_NONE) {
+		ItemUse_Jetpack(ent);
+	}
+}
+
+void Cmd_UseDispenser_f(gentity_t *ent) {
+	if (!TryTossHealthPack(ent, qtrue))
+		TryTossAmmoPack(ent, qtrue);
+}
+
+#if 0
+void Cmd_UseHealing_f(gentity_t *ent) {
+	trace_t		trace;
+	vec3_t		src, dest, vf;
+	vec3_t		viewspot;
+
+	VectorCopy(ent->client->ps.origin, viewspot);
+	viewspot[2] += ent->client->ps.viewheight;
+
+	VectorCopy(viewspot, src);
+	AngleVectors(ent->client->ps.viewangles, vf, NULL, NULL);
+
+	VectorMA(src, USE_DISTANCE, vf, dest);
+
+	//Trace ahead to find a valid target
+	trap_Trace(&trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE | CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_ITEM | CONTENTS_CORPSE);
+
+	//fixed bug when using client with slot 0, it skips needed part
+	if (trace.fraction == 1.0f || trace.entityNum == ENTITYNUM_NONE)
+	{
+		return;
+	}
+
+	TryHealingSomething(ent, &g_entities[trace.entityNum], qtrue);
+}
+#endif
+
+void Cmd_UseAnyBacta_f(gentity_t *ent) {
+#if 0
+	if ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG)) && G_ItemUsable(&ent->client->ps, HI_MEDPAC_BIG) &&
+		(ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) && G_ItemUsable(&ent->client->ps, HI_MEDPAC)) {
+		int health = ent->client->ps.stats[STAT_HEALTH], maxHealth;
+		if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].maxhealth)
+			maxHealth = bgSiegeClasses[ent->client->siegeClass].maxhealth;
+		else
+			maxHealth = 100;
+		if (maxHealth - health >= 50) {
+			ItemUse_MedPack_Big(ent);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_MEDPAC_BIG, 0);
+			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC_BIG);
+		}
+		else {
+			ItemUse_MedPack(ent);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_MEDPAC, 0);
+			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC);
+		}
+	}
+	else {
+#endif
+		if ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG)) && G_ItemUsable(&ent->client->ps, HI_MEDPAC_BIG)) {
+			ItemUse_MedPack_Big(ent);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_MEDPAC_BIG, 0);
+			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC_BIG);
+		}
+		else if ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) && G_ItemUsable(&ent->client->ps, HI_MEDPAC)) {
+			ItemUse_MedPack(ent);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_MEDPAC, 0);
+			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC);
+		}
+#if 0
+	}
+#endif
+}
+
 /*
 =================
 Cmd_Stats_f
@@ -7512,6 +7590,16 @@ void ClientCommand( int clientNum ) {
 		Cmd_TestCmd_f( ent );
 	else if ( !Q_stricmp(cmd, "toptimes") || !Q_stricmp( cmd, "fastcaps" ) )
 		Cmd_TopTimes_f( ent );
+	else if (!Q_stricmp(cmd, "use_pack"))
+		Cmd_UsePack_f(ent);
+	else if (!Q_stricmp(cmd, "use_dispenser"))
+		Cmd_UseDispenser_f(ent);
+#if 0
+	else if (!Q_stricmp(cmd, "use_healing"))
+		Cmd_UseHealing_f(ent);
+#endif
+	else if (!Q_stricmp(cmd, "use_anybacta"))
+		Cmd_UseAnyBacta_f(ent);
 #ifdef NEWMOD_SUPPORT
 	else if ( Q_stricmp( cmd, "svauth" ) == 0 && ent->client->sess.auth > PENDING && ent->client->sess.auth < AUTHENTICATED )
 		Cmd_Svauth_f( ent );

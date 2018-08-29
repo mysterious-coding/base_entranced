@@ -1921,12 +1921,212 @@ Try and use an entity in the world, directly ahead of us
 ==============
 */
 
-#define USE_DISTANCE	64.0f
-
 extern void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace );
 extern qboolean gSiegeRoundBegun;
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
+
+// qtrue if tossed
+qboolean TryTossHealthPack(gentity_t *ent, qboolean doChecks) {
+	if (doChecks) {
+		if (g_gametype.integer == GT_SIEGE &&
+			!gSiegeRoundBegun)
+		{ //nothing can be used til the round starts.
+			return qfalse;
+		}
+
+		if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != BOTH_CONSOLE1) || ent->health < 1 ||
+			(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
+			(ent->client->ps.forceHandExtend != HANDEXTEND_NONE && ent->client->ps.forceHandExtend != HANDEXTEND_DRAGGING))
+		{
+			return qfalse;
+		}
+
+		if (ent->client->ps.emplacedIndex)
+		{ //on an emplaced gun or using a vehicle, don't do anything when hitting use key
+			return qfalse;
+		}
+
+		if (ent->s.number < MAX_CLIENTS && ent->client && ent->client->ps.m_iVehicleNum)
+		{
+			gentity_t *currentVeh = &g_entities[ent->client->ps.m_iVehicleNum];
+			if (currentVeh->inuse && currentVeh->m_pVehicle)
+			{
+				return qfalse;
+			}
+		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].dispenseHealthpaks && (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)))
+	{ // toss a healthpak
+		trace_t trToss;
+		vec3_t fAng;
+		vec3_t fwd;
+
+		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
+		AngleVectors(fAng, fwd, 0, 0);
+
+		vec3_t start;
+		VectorSet(start, ent->client->ps.origin[0], ent->client->ps.origin[1], ent->client->ps.origin[2] + ent->client->ps.viewheight);
+		VectorMA(start, 16.0f, fwd, fwd);
+
+		trap_Trace(&trToss, start, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
+		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
+		{
+			ItemUse_UseDisp(ent, HI_HEALTHDISP);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_HEALTHDISP, 0);
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
+qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks) {
+	if (doChecks) {
+		if (g_gametype.integer == GT_SIEGE &&
+			!gSiegeRoundBegun)
+		{ //nothing can be used til the round starts.
+			return qfalse;
+		}
+
+		if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != BOTH_CONSOLE1) || ent->health < 1 ||
+			(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
+			(ent->client->ps.forceHandExtend != HANDEXTEND_NONE && ent->client->ps.forceHandExtend != HANDEXTEND_DRAGGING))
+		{
+			return qfalse;
+		}
+
+		if (ent->client->ps.emplacedIndex)
+		{ //on an emplaced gun or using a vehicle, don't do anything when hitting use key
+			return qfalse;
+		}
+
+		if (ent->s.number < MAX_CLIENTS && ent->client && ent->client->ps.m_iVehicleNum)
+		{
+			gentity_t *currentVeh = &g_entities[ent->client->ps.m_iVehicleNum];
+			if (currentVeh->inuse && currentVeh->m_pVehicle)
+			{
+				return qfalse;
+			}
+		}
+	}
+
+	if ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) /*&&
+																		  G_ItemUsable(&ent->client->ps, HI_AMMODISP)*/)
+	{ //if you used nothing, then try spewing out some ammo
+		trace_t trToss;
+		vec3_t fAng;
+		vec3_t fwd;
+
+		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
+		AngleVectors(fAng, fwd, 0, 0);
+
+		vec3_t start;
+		VectorSet(start, ent->client->ps.origin[0], ent->client->ps.origin[1], ent->client->ps.origin[2] + ent->client->ps.viewheight);
+		VectorMA(start, 16.0f, fwd, fwd);
+
+		trap_Trace(&trToss, start, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
+		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
+		{
+			ItemUse_UseDisp(ent, HI_AMMODISP);
+			G_AddEvent(ent, EV_USE_ITEM0 + HI_AMMODISP, 0);
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
+// qtrue if heal
+qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks) {
+	if (doChecks) {
+		if (g_gametype.integer == GT_SIEGE &&
+			!gSiegeRoundBegun)
+		{ //nothing can be used til the round starts.
+			return qfalse;
+		}
+
+		if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != BOTH_CONSOLE1) || ent->health < 1 ||
+			(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
+			(ent->client->ps.forceHandExtend != HANDEXTEND_NONE && ent->client->ps.forceHandExtend != HANDEXTEND_DRAGGING))
+		{
+			return qfalse;
+		}
+
+		if (ent->client->ps.emplacedIndex)
+		{ //on an emplaced gun or using a vehicle, don't do anything when hitting use key
+			return qfalse;
+		}
+
+		if (ent->s.number < MAX_CLIENTS && ent->client && ent->client->ps.m_iVehicleNum)
+		{
+			gentity_t *currentVeh = &g_entities[ent->client->ps.m_iVehicleNum];
+			if (currentVeh->inuse && currentVeh->m_pVehicle)
+			{
+				return qfalse;
+			}
+		}
+	}
+
+	if (!target || !target->m_pVehicle || (target->s.NPC_class != CLASS_VEHICLE))
+	{
+#if 0 //ye olde method
+		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] > 0 &&
+			bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giType == IT_HOLDABLE)
+		{
+			if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_HEALTHDISP ||
+				bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_AMMODISP)
+			{ //has a dispenser item selected
+				if (target && target->client && target->health > 0 && OnSameTeam(ent, target) &&
+					G_CanUseDispOn(target, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag))
+				{ //a live target that's on my team, we can use him
+					G_UseDispenserOn(ent, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag, target);
+					//for now, we will use the standard use anim
+					if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD)
+					{ //extend the time
+						ent->client->ps.torsoTimer = 500;
+					}
+					else
+					{
+						G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+					}
+					ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
+					return;
+				}
+			}
+		}
+#else  
+		if (((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) || (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP))) &&
+			target && target->inuse && target->client && target->health > 0 && OnSameTeam(ent, target) &&
+			(G_CanUseDispOn(target, HI_HEALTHDISP) || G_CanUseDispOn(target, HI_AMMODISP)))
+		{ //a live target that's on my team, we can use him
+			if (G_CanUseDispOn(target, HI_HEALTHDISP))
+			{
+				G_UseDispenserOn(ent, HI_HEALTHDISP, target);
+			}
+			if (G_CanUseDispOn(target, HI_AMMODISP))
+			{
+				G_UseDispenserOn(ent, HI_AMMODISP, target);
+			}
+
+			//for now, we will use the standard use anim
+			if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD)
+			{ //extend the time
+				ent->client->ps.torsoTimer = 500;
+			}
+			else
+			{
+				G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+			}
+			ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
+			return qtrue;
+		}
+
+#endif
+	}
+
+	return qfalse;
+}
+
 void TryUse( gentity_t *ent )
 {
 	gentity_t	*target;
@@ -2066,62 +2266,8 @@ void TryUse( gentity_t *ent )
 		}
 	}
 
-	if (!target || !target->m_pVehicle || (target->s.NPC_class != CLASS_VEHICLE))
-	{
-#if 0 //ye olde method
-		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] > 0 &&
-			bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giType == IT_HOLDABLE)
-		{
-			if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_HEALTHDISP ||
-				bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_AMMODISP)
-			{ //has a dispenser item selected
-				if (target && target->client && target->health > 0 && OnSameTeam(ent, target) &&
-					G_CanUseDispOn(target, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag))
-				{ //a live target that's on my team, we can use him
-					G_UseDispenserOn(ent, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag, target);
-					//for now, we will use the standard use anim
-					if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD)
-					{ //extend the time
-						ent->client->ps.torsoTimer = 500;
-					}
-					else
-					{
-						G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
-					}
-					ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
-					return;
-	}
-			}
-		}
-#else  
-		if (((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) || (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP))) &&
-			target && target->inuse && target->client && target->health > 0 && OnSameTeam(ent, target) &&
-			(G_CanUseDispOn(target, HI_HEALTHDISP) || G_CanUseDispOn(target, HI_AMMODISP)))
-		{ //a live target that's on my team, we can use him
-			if (G_CanUseDispOn(target, HI_HEALTHDISP))
-			{
-				G_UseDispenserOn(ent, HI_HEALTHDISP, target);
-			}
-			if (G_CanUseDispOn(target, HI_AMMODISP))
-			{
-				G_UseDispenserOn(ent, HI_AMMODISP, target);
-			}
-
-			//for now, we will use the standard use anim
-			if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD)
-			{ //extend the time
-				ent->client->ps.torsoTimer = 500;
-			}
-			else
-			{
-				G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
-			}
-			ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
-			return;
-		}
-
-#endif
-	}
+	if (TryHealingSomething(ent, target, qfalse))
+		return;
 
 	//Check for a use command
 	if ( ValidUseTarget( target ) 
@@ -2167,50 +2313,10 @@ tryJetPack:
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].dispenseHealthpaks && (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)))
-	{ // toss a healthpak
-		trace_t trToss;
-		vec3_t fAng;
-		vec3_t fwd;
-
-		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
-		AngleVectors(fAng, fwd, 0, 0);
-
-		vec3_t start;
-		VectorSet(start, ent->client->ps.origin[0], ent->client->ps.origin[1], ent->client->ps.origin[2] + ent->client->ps.viewheight);
-		VectorMA(start, 16.0f, fwd, fwd);
-
-		trap_Trace(&trToss, start, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
-		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
-		{
-			ItemUse_UseDisp(ent, HI_HEALTHDISP);
-			G_AddEvent(ent, EV_USE_ITEM0 + HI_HEALTHDISP, 0);
-			return;
-		}
-	}
-	
-	if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) /*&&
-		G_ItemUsable(&ent->client->ps, HI_AMMODISP)*/ )
-	{ //if you used nothing, then try spewing out some ammo
-		trace_t trToss;
-		vec3_t fAng;
-		vec3_t fwd;
-
-		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
-		AngleVectors(fAng, fwd, 0, 0);
-
-		vec3_t start;
-		VectorSet(start, ent->client->ps.origin[0], ent->client->ps.origin[1], ent->client->ps.origin[2] + ent->client->ps.viewheight);
-        VectorMA(start, 16.0f, fwd, fwd);
-
-		trap_Trace(&trToss, start, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask);
-		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
-		{
-			ItemUse_UseDisp(ent, HI_AMMODISP);
-			G_AddEvent(ent, EV_USE_ITEM0+HI_AMMODISP, 0);
-			return;
-		}
-	}
+	if (TryTossHealthPack(ent, qfalse))
+		return;
+	if (TryTossAmmoPack(ent, qfalse))
+		return;
 }
 
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs )
