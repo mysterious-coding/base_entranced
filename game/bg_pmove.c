@@ -6446,7 +6446,7 @@ static void PM_Weapon( void )
 		{
 			int timeDif = (pm->cmd.serverTime - pm->ps->weaponChargeTime);
 
-			if (timeDif > MAX_WEAPON_CHARGE_TIME)
+			if (g_infiniteCharge.integer != 2 && timeDif > MAX_WEAPON_CHARGE_TIME)
 			{
 				pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 			}
@@ -6456,7 +6456,7 @@ static void PM_Weapon( void )
 		{
 			int timeDif = (pm->cmd.serverTime - pm->ps->weaponChargeTime);
 
-			if (timeDif > MAX_WEAPON_CHARGE_TIME)
+			if (g_infiniteCharge.integer != 2 && timeDif > MAX_WEAPON_CHARGE_TIME)
 			{
 				pm->cmd.buttons &= ~BUTTON_ATTACK;
 			}
