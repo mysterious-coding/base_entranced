@@ -4498,7 +4498,9 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		int voteId = -1;
 		char *choiceStr;
 		if (isdigit(*msg)) { // number
-			choiceStr = va("%c", *msg); // we only take the first digit
+			char choiceBuf[MAX_QPATH] = { 0 };
+			Q_strncpyz(choiceBuf, va("%c", *msg), sizeof(choiceBuf));
+			choiceStr = choiceBuf;
 			int i;
 			for (i = 0; i < MAX_PUGMAPS; i++) {
 				if (*msg == level.multiVoteMapChars[i]) {
