@@ -1278,7 +1278,9 @@ int G_TeamForSiegeClass(const char *clName)
 
 // if the proposed class change would not violate any limits, returns 0
 // else, returns the limit of the class
-int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical) {
+// can optionally write the current number of the class if currentOut is specified
+int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical, int clientNum, int *currentOut) {
+	assert(clientNum < MAX_CLIENTS);
 	if (!g_classLimits.integer)
 		return 0;
 
@@ -1311,12 +1313,15 @@ int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical) {
 	if (limit <= 0)
 		return 0;
 
-	int current = G_SiegeClassCount(team, classType, qfalse);
+	int current = G_SiegeClassCount(team, classType, qfalse, clientNum >= 0 ? clientNum : -1);
 	if (hypothetical)
-		current += 1;
+		current++;
 
-	if (current > limit)
+	if (current > limit) {
+		if (currentOut)
+			*currentOut = current;
 		return limit;
+	}
 
 	return 0;
 }
@@ -1337,12 +1342,86 @@ void *G_SiegeClassFromName(char *s) {
 	return NULL;
 }
 
+#ifdef NEWMOD_SUPPORT
+static void SendNewmodClassChange(int clientNum, qboolean switchedToFullClass, int limit, qboolean startedAsSpec, int current) {
+	assert(g_gametype.integer == GT_SIEGE);
+	assert(clientNum >= 0 && clientNum < MAX_CLIENTS);
+
+	static int lastClass[MAX_CLIENTS] = { -1 }, lastTeam[MAX_CLIENTS] = { -1 };
+
+	gclient_t *changedCl = &level.clients[clientNum];
+
+	char *changedToStr;
+	if (changedCl->siegeClass == -1) {
+		changedToStr = "?";
+	}
+	else {
+		switch (bgSiegeClasses[changedCl->siegeClass].playerClass) {
+		case SPC_INFANTRY:		changedToStr = "Assault";		break;
+		case SPC_VANGUARD:		changedToStr = "Scout";			break;
+		case SPC_SUPPORT:		changedToStr = "Tech";			break;
+		case SPC_JEDI:			changedToStr = "Jedi";			break;
+		case SPC_DEMOLITIONIST:	changedToStr = "Demolitions";	break;
+		case SPC_HEAVY_WEAPONS:	changedToStr = "Heavy Weapons";	break;
+		default:				changedToStr = "?";				break;
+		}
+	}
+
+	team_t team;
+	if (changedCl->sess.sessionTeam == TEAM_RED || changedCl->sess.sessionTeam == TEAM_BLUE) {
+		team = changedCl->sess.sessionTeam;
+	}
+	else if ((level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2 || startedAsSpec/*needed at moment of countdown finish*/) && changedCl->sess.sessionTeam == TEAM_SPECTATOR && (changedCl->sess.siegeDesiredTeam == TEAM_RED || changedCl->sess.siegeDesiredTeam == TEAM_BLUE)) {
+		team = changedCl->sess.siegeDesiredTeam;
+	}
+	else {
+		assert(qfalse);
+		return; // ???
+	}
+
+	// if already ingame, don't broadcast the exact same thing consecutively (e.g. someone pressing "red jedi" bind while already a red jedi)
+	if (!startedAsSpec && changedCl->siegeClass == lastClass[clientNum] && team == lastTeam[clientNum])
+		return;
+
+	lastClass[clientNum] = changedCl->siegeClass;
+	lastTeam[clientNum] = team;
+
+	// example: client 3 (on red team) switched to hw but it's full
+	// sclc 3 1 "Heavy Weapons" "x"
+	char buf[MAX_STRING_CHARS];
+	Q_strncpyz(buf, va("kls -1 -1 sclc %d %d \"%s\"%s", clientNum, team, changedToStr, switchedToFullClass ? va(" \"lim=%d\" \"cur=%d\"", limit, current) : ""), sizeof(buf));
+
+	int i;
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *sendCl = &level.clients[i];
+#if 0
+		// so i only have to boot up one jka to test this
+		if (i == clientNum)
+			continue;
+#endif
+		if (sendCl->pers.connected != CON_CONNECTED)
+			continue;
+		if (sendCl->sess.sessionTeam == OtherTeam(team))
+			continue;
+		if (level.inSiegeCountdown && sendCl->sess.siegeDesiredTeam && sendCl->sess.siegeDesiredTeam != team)
+			continue; // in countdown and not destined for the same team
+		trap_SendServerCommand(i, buf);
+#ifdef _DEBUG
+		Com_Printf("Sent to client %d: %s\n", i, buf);
+#endif
+	}
+}
+#endif
+
 void SetSiegeClass(gentity_t *ent, char* className)
 {
 	qboolean doDelay = qtrue;
 	qboolean startedAsSpec = qfalse;
 	int team = 0;
 	int preScore;
+	int limit = 0;
+	qboolean switchedToFullClass = qfalse;
+	int current = 0;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
@@ -1372,7 +1451,7 @@ void SetSiegeClass(gentity_t *ent, char* className)
 	
 	if (g_classLimits.integer) {
 		siegeClass_t *scl = (siegeClass_t *)G_SiegeClassFromName(className);
-		int limit = scl ? G_WouldExceedClassLimit(team, scl->playerClass, qtrue) : 0;
+		limit = scl ? G_WouldExceedClassLimit(team, scl->playerClass, qtrue, ent - g_entities, &current) : 0;
 		if (scl && limit) {
 			if (level.inSiegeCountdown || ent->client->sess.sessionTeam == team) { // countdown, or ingame and already on the desired team
 				trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full. You will be switched if there %s more than %i.\n\"", limit == 1 ? "is" : "are", limit));
@@ -1380,6 +1459,7 @@ void SetSiegeClass(gentity_t *ent, char* className)
 				level.tryChangeClass[ent - g_entities].team = team;
 				level.tryChangeClass[ent - g_entities].time = level.time;
 				doDelay = qfalse;
+				switchedToFullClass = qtrue;
 			}
 			else {
 				trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full (limit: %i).\n\"", limit));
@@ -1446,6 +1526,11 @@ void SetSiegeClass(gentity_t *ent, char* className)
 			ClientBegin(ent->s.number, qfalse);
 		}
 	}
+
+#ifdef NEWMOD_SUPPORT
+	SendNewmodClassChange(ent->s.number, switchedToFullClass, limit, startedAsSpec, limit ? current : 0);
+#endif
+
 	//set it back after we do all the stuff
 	ent->client->ps.persistant[PERS_SCORE] = preScore;
 

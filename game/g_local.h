@@ -1751,7 +1751,7 @@ void TossClientCubes( gentity_t *self );
 void ExplodeDeath( gentity_t *self );
 void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, int deathAnim, qboolean postDeath);
 extern int gGAvoidDismember;
-int G_SiegeClassCount(int team, int classType, qboolean mustBeAlive);
+int G_SiegeClassCount(int team, int classType, qboolean mustBeAlive, int ignoreClientNum);
 
 
 // damage flags
@@ -1912,7 +1912,7 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 // g_cmds.c
 //
 char* NM_SerializeUIntToColor(const unsigned int n);
-int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical);
+int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical, int clientNum, int *diffOut);
 void *G_SiegeClassFromName(char *s);
 //
 // g_pweapon.c

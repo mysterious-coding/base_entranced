@@ -1094,7 +1094,7 @@ void G_ChangePlayerFromExceededClass(gentity_t *ent) {
 
 	// first, see if we can change back to our previous class
 	siegeClass_t *new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(lastLegit));
-	if (new && lastLegit != -1 && !G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, lastLegit, qtrue)) {
+	if (new && lastLegit != -1 && !G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, lastLegit, qtrue, -1, NULL)) {
 		trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full. You were automatically changed back to %s.\n\"", classNames[Com_Clampi(SPC_INFANTRY, SPC_MAX, new->playerClass)]));
 		SetSiegeClass(ent, new->name);
 		return;
@@ -1103,7 +1103,7 @@ void G_ChangePlayerFromExceededClass(gentity_t *ent) {
 		int i, classPreferenceOrder[] = { SPC_INFANTRY, SPC_HEAVY_WEAPONS, SPC_DEMOLITIONIST, SPC_SUPPORT, SPC_VANGUARD, SPC_JEDI };
 		for (i = 0; i < 6; i++) {
 			new = BG_SiegeGetClass(ent->client->sess.siegeDesiredTeam, GetStupidClassNumber(classPreferenceOrder[i]));
-			if (!new || new->playerClass == current || G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, new->playerClass, qtrue))
+			if (!new || new->playerClass == current || G_WouldExceedClassLimit(ent->client->sess.siegeDesiredTeam, new->playerClass, qtrue, -1, NULL))
 				continue;
 			// we found a valid target to switch to
 			trap_SendServerCommand(ent - g_entities, va("print \"The class you selected is full. You were automatically changed to %s.\n\"", classNames[Com_Clampi(SPC_INFANTRY, SPC_MAX, new->playerClass)]));
@@ -1120,7 +1120,7 @@ static void CheckForClassesExceedingLimits(team_t team) {
 	int i;
 	for (i = 0; i < SPC_MAX; i++) {
 		int tries = 0;
-		while (G_WouldExceedClassLimit(team, i, qfalse)) {
+		while (G_WouldExceedClassLimit(team, i, qfalse, -1, NULL)) {
 			// this class's limit is exceeded; switch one player at a time to another class until the limit is no longer exceeded.
 
 			if (tries > MAX_CLIENTS) // avoid infinite loop
@@ -1193,7 +1193,7 @@ static void CheckForClassesExceedingLimits(team_t team) {
 
 	// sanity check; make sure that we actually resolved everything (i.e., that we didn't just shift everyone around to other limited classes)
 	for (i = 0; i < SPC_MAX; i++) {
-		if (G_WouldExceedClassLimit(team, i, qfalse))
+		if (G_WouldExceedClassLimit(team, i, qfalse, -1, NULL))
 			Com_Error(ERR_DROP, va("CheckForClassesExceedingLimits: unable to resolve class limits for team %s, class %s!", team == TEAM_RED ? "red" : "blue", classNames[i]));
 	}
 }
