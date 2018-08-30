@@ -6781,6 +6781,7 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS:^7   You can dynamically include some stats in your chat messages by writing these tokens:\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5$H^7 (health), ^5$A^7 (armor), ^5$F^7 (force), ^5$M^7 (ammo)\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2MAP CHANGELOG:^7   You can view the changelog to the current map (if available) by using ^5/changes^7.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/USE_PACK, USE_DISPENSER, USE_ANYBACTA:^7   New commands to use jetpack, ammo dispenser, or any bacta you have\n\""));
 }
 
 #define PrintCvar(cvar)		do { Com_sprintf(string, sizeof(string), #cvar); ServerCfgColor(string, cvar.integer, ent); } while (0)
