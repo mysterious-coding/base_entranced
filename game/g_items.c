@@ -786,6 +786,17 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue; //don't target people who are piloting walkers or fighters
 		}
 
+#if 0
+		// this might break stuff, just use the hack for now
+		if (self->alliedTeam && self->alliedTeam == target->alliedTeam)
+			continue;
+#else
+		if (GetSiegeMap() == SIEGEMAP_ANSION && g_gametype.integer == GT_SIEGE && target->s.eType == ET_NPC &&
+			VALIDSTRING(target->NPC_type) && (!Q_stricmp(target->NPC_type, "Alpha") || !Q_stricmp(target->NPC_type, "Onasi"))) {
+			continue;
+		}
+#endif
+
 		if ( target->client )
 		{
 			VectorCopy( target->client->ps.origin, org );
