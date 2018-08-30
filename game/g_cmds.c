@@ -4498,6 +4498,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		int voteId = -1;
 		char *choiceStr;
 		if (isdigit(*msg)) { // number
+			choiceStr = va("%c", *msg); // we only take the first digit
 			int i;
 			for (i = 0; i < MAX_PUGMAPS; i++) {
 				if (*msg == level.multiVoteMapChars[i]) {
@@ -4524,7 +4525,18 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		}
 
 		if ( voteId <= 0 || voteId > level.multiVoteChoices ) {
-			trap_SendServerCommand( ent - g_entities, va( "print \"Invalid choice, please use /vote [letter] or /vote [number from 1-%d] from console\n\"", level.multiVoteChoices ) );
+			qboolean thereIsANumberMap = qfalse;
+			int i;
+			for (i = 0; i < MAX_PUGMAPS; i++) {
+				if (level.multiVoteMapChars[i] >= '0' && level.multiVoteMapChars[i] <= '9') {
+					thereIsANumberMap = qtrue;
+					break;
+				}
+			}
+			if (thereIsANumberMap)
+				trap_SendServerCommand( ent - g_entities, va( "print \"Invalid choice, please use /vote [letter] or /vote [number from 1-%d] in the console\n\"", level.multiVoteChoices ) );
+			else
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid choice, please use /vote [letter] in the console\n\"", level.multiVoteChoices));
 			return;
 		}
 
