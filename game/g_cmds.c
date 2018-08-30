@@ -5561,10 +5561,12 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		return;
 	}
 
-	if (TryTossHealthPack(ent, qtrue))
-		return;
-	if (TryTossAmmoPack(ent, qtrue))
-		return;
+	if (ent->client->ps.weapon != WP_SABER) {
+		if (TryTossHealthPack(ent, qtrue))
+			return;
+		if (TryTossAmmoPack(ent, qtrue))
+			return;
+	}
 
 	if (ent->client->saber[0].model[0] && ent->client->saber[1].model[0])
 	{ //no cycling for akimbo
