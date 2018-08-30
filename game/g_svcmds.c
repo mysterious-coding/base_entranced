@@ -1894,7 +1894,7 @@ static char CharFromMapName(char *s) {
 		return 'u';
 	if (!Q_stricmp(s, "mp/siege_bespin"))
 		return 'b';
-	if (!Q_stricmp(s, "siege_ansion_beta2"))
+	if (!Q_stricmp(s, "siege_ansion_beta7"))
 		return 'a';
 	if (!Q_stricmp(s, "mp/siege_alzocIII"))
 		return 'z';
