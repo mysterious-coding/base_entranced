@@ -1387,7 +1387,7 @@ static void SendNewmodClassChange(int clientNum, qboolean switchedToFullClass, i
 	lastTeam[clientNum] = team;
 
 	// example: client 3 (on red team) switched to hw but it's full
-	// sclc 3 1 "Heavy Weapons" "x"
+	// sclc 3 1 "Heavy Weapons" "lim=1" "cur=2"
 	char buf[MAX_STRING_CHARS];
 	Q_strncpyz(buf, va("kls -1 -1 sclc %d %d \"%s\"%s", clientNum, team, changedToStr, switchedToFullClass ? va(" \"lim=%d\" \"cur=%d\"", limit, current) : ""), sizeof(buf));
 
