@@ -1331,6 +1331,8 @@ typedef struct {
 	qboolean	multiVoting; // bypass some stuff if this is true (ie, cant vote yes/no)
 	int			multiVoteChoices;
 	int			multiVotes[MAX_CLIENTS]; // the id of the choice they voted for
+#define MAX_PUGMAPS 6
+	char		multiVoteMapChars[MAX_PUGMAPS];
 
 	// spawn variables
 	qboolean	spawning;				// the G_Spawn*() functions are valid
@@ -1881,7 +1883,6 @@ extern gentity_t *gJMSaberEnt;
 //
 // g_svcmds.c
 //
-#define MAX_PUGMAPS 6
 qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize);
 qboolean	ConsoleCommand( void );
 void G_ProcessGetstatusIPBans(void);

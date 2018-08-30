@@ -4495,15 +4495,41 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		}
 	} else {
 		// multi map vote, only allow voting for valid choice ids
-		int voteId = atoi( msg );
+		int voteId = -1;
+		char *choiceStr;
+		if (isdigit(*msg)) { // number
+			int i;
+			for (i = 0; i < MAX_PUGMAPS; i++) {
+				if (*msg == level.multiVoteMapChars[i]) {
+					voteId = i + 1;
+					break;
+				}
+			}
+		}
+		else if (tolower(*msg) >= 'a' && tolower(*msg) <= 'z') { // letter representing a map name
+			char prettyName[MAX_QPATH] = { 0 };
+			if (LongMapNameFromChar(*msg, NULL, 0, prettyName, sizeof(prettyName))) {
+				choiceStr = prettyName;
+				int i;
+				for (i = 0; i < MAX_PUGMAPS; i++) {
+					if (*msg == level.multiVoteMapChars[i]) {
+						voteId = i + 1;
+						break;
+					}
+				}
+			}
+			else {
+				voteId = -1; // this will make it invalid below
+			}
+		}
 
 		if ( voteId <= 0 || voteId > level.multiVoteChoices ) {
-			trap_SendServerCommand( ent - g_entities, va( "print \"Invalid choice, please use /vote 1-%d from console\n\"", level.multiVoteChoices ) );
+			trap_SendServerCommand( ent - g_entities, va( "print \"Invalid choice, please use /vote [letter] or /vote [number from 1-%d] from console\n\"", level.multiVoteChoices ) );
 			return;
 		}
 
 		// we maintain an internal array of choice ids, and only use voteYes to show how many people voted
-		G_LogPrintf( "Client %i (%s) voted for choice %d\n", ent - g_entities, ent->client->pers.netname, voteId );
+		G_LogPrintf( "Client %i (%s) voted for choice %s\n", ent - g_entities, ent->client->pers.netname, choiceStr );
 		level.multiVotes[ent - g_entities] = voteId;
 		level.voteYes++;
 		trap_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );

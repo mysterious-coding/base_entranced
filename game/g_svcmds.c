@@ -1703,6 +1703,54 @@ void Svcmd_AccountPrintAll_f(){
 }
 */
 
+qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize) {
+	char *fileName, *prettyName;
+	switch (tolower(c)) {
+	case 'h':	fileName = "mp/siege_hoth2";		prettyName = "Hoth";		break;
+	case 'n':	fileName = "siege_narshaddaa";		prettyName = "Nar";			break;
+	case 'c':	fileName = "siege_cargobarge3_b2";	prettyName = "Cargo";		break;
+	case 'u':	fileName = "siege_urban_b8";		prettyName = "Urban";		break;
+	case 'b':	fileName = "mp/siege_bespin";		prettyName = "Bespin";		break;
+	case 'a':	fileName = "siege_ansion_beta7";	prettyName = "Ansion";		break;
+	case 'z':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
+	case 'e':	fileName = "mp/siege_eat_shower";	prettyName = "Eat Shower";	break;
+	case 'd':	fileName = "mp/siege_desert";		prettyName = "Desert";		break;
+	case 'k':	fileName = "mp/siege_korriban";		prettyName = "Korri";		break;
+	default:	return qfalse;
+	}
+	if (outFileName && outFileNameSize > 0)
+		Q_strncpyz(outFileName, fileName, outFileNameSize);
+	if (outPrettyName && outPrettyNameSize > 0)
+		Q_strncpyz(outPrettyName, prettyName, outPrettyNameSize);
+	return qtrue;
+}
+
+static char CharFromMapName(char *s) {
+	if (!s)
+		return '\0';
+	if (!Q_stricmp(s, "mp/siege_hoth2"))
+		return 'h';
+	if (!Q_stricmp(s, "siege_narshaddaa"))
+		return 'n';
+	if (!Q_stricmp(s, "siege_cargobarge3_b2"))
+		return 'c';
+	if (!Q_stricmp(s, "siege_urban_b8"))
+		return 'u';
+	if (!Q_stricmp(s, "mp/siege_bespin"))
+		return 'b';
+	if (!Q_stricmp(s, "siege_ansion_beta7"))
+		return 'a';
+	if (!Q_stricmp(s, "mp/siege_alzocIII"))
+		return 'z';
+	if (!Q_stricmp(s, "mp/siege_eat_shower"))
+		return 'e';
+	if (!Q_stricmp(s, "mp/siege_desert"))
+		return 'd';
+	if (!Q_stricmp(s, "mp/siege_korriban"))
+		return 'k';
+	return '\0';
+}
+
 extern void fixVoters();
 
 // starts a multiple choices vote using some of the binary voting logic
@@ -1774,9 +1822,20 @@ static void mapSelectedCallback( void *context, char *mapname ) {
 			mapDisplayName = mapname;
 		}
 
-		Q_strcat( selection->printMessage, sizeof( selection->printMessage ),
-			va( "\n"S_COLOR_CYAN"/vote %d "S_COLOR_WHITE" - %s", selection->numSelected, mapDisplayName )
-		);
+		char mapChar = CharFromMapName(mapname);
+		if (mapChar) {
+			level.multiVoteMapChars[selection->numSelected - 1] = mapChar;
+			Q_strcat(selection->printMessage, sizeof(selection->printMessage),
+				va("\n"S_COLOR_CYAN"/vote %c "S_COLOR_WHITE" - %s", mapChar, mapDisplayName)
+			);
+		}
+		else {
+			assert(MAX_PUGMAPS < 10 && selection->numSelected < 10);
+			level.multiVoteMapChars[selection->numSelected - 1] = (char)selection->numSelected + '0';
+			Q_strcat(selection->printMessage, sizeof(selection->printMessage),
+				va("\n"S_COLOR_CYAN"/vote %d "S_COLOR_WHITE" - %s", selection->numSelected, mapDisplayName)
+			);
+		}
 	}
 }
 
@@ -1832,7 +1891,7 @@ void Svcmd_MapRandom_f()
 
 		context.announceMultiVote = qtrue;
 	}
-
+	memset(&level.multiVoteMapChars, 0, sizeof(level.multiVoteMapChars));
 	if ( G_CfgDbSelectMapsFromPool( pool, currentMap, mapsToRandomize, mapSelectedCallback, &context ) )
     {
 		if ( context.numSelected != mapsToRandomize ) {
@@ -1857,54 +1916,6 @@ void Svcmd_MapRandom_f()
     }
 
     G_Printf( "Map pool '%s' not found\n", pool );
-}
-
-qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize) {
-	char *fileName, *prettyName;
-	switch (tolower(c)) {
-	case 'h':	fileName = "mp/siege_hoth2";		prettyName = "Hoth";		break;
-	case 'n':	fileName = "siege_narshaddaa";		prettyName = "Nar";			break;
-	case 'c':	fileName = "siege_cargobarge3_b2";	prettyName = "Cargo";		break;
-	case 'u':	fileName = "siege_urban_b8";		prettyName = "Urban";		break;
-	case 'b':	fileName = "mp/siege_bespin";		prettyName = "Bespin";		break;
-	case 'a':	fileName = "siege_ansion_beta7";	prettyName = "Ansion";		break;
-	case 'z':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
-	case 'e':	fileName = "mp/siege_eat_shower";	prettyName = "Eat Shower";	break;
-	case 'd':	fileName = "mp/siege_desert";		prettyName = "Desert";		break;
-	case 'k':	fileName = "mp/siege_korriban";		prettyName = "Korri";		break;
-	default:	return qfalse;
-	}
-	if (outFileName && outFileNameSize > 0)
-		Q_strncpyz(outFileName, fileName, outFileNameSize);
-	if (outPrettyName && outPrettyNameSize > 0)
-		Q_strncpyz(outPrettyName, prettyName, outPrettyNameSize);
-	return qtrue;
-}
-
-static char CharFromMapName(char *s) {
-	if (!s)
-		return '\0';
-	if (!Q_stricmp(s, "mp/siege_hoth2"))
-		return 'h';
-	if (!Q_stricmp(s, "siege_narshaddaa"))
-		return 'n';
-	if (!Q_stricmp(s, "siege_cargobarge3_b2"))
-		return 'c';
-	if (!Q_stricmp(s, "siege_urban_b8"))
-		return 'u';
-	if (!Q_stricmp(s, "mp/siege_bespin"))
-		return 'b';
-	if (!Q_stricmp(s, "siege_ansion_beta7"))
-		return 'a';
-	if (!Q_stricmp(s, "mp/siege_alzocIII"))
-		return 'z';
-	if (!Q_stricmp(s, "mp/siege_eat_shower"))
-		return 'e';
-	if (!Q_stricmp(s, "mp/siege_desert"))
-		return 'd';
-	if (!Q_stricmp(s, "mp/siege_korriban"))
-		return 'k';
-	return '\0';
 }
 
 void Svcmd_RandomPugMap_f()
@@ -1954,7 +1965,7 @@ void Svcmd_RandomPugMap_f()
 
 		context.announceMultiVote = qtrue;
 	}
-
+	memset(&level.multiVoteMapChars, 0, sizeof(level.multiVoteMapChars));
 	for (i = 0; i < mapsToRandomize; i++)
 		mapSelectedCallback(&context, maps[i]);
 
