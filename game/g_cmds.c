@@ -1089,16 +1089,90 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.standheight = DEFAULT_MAXS_2;
 }
 
+#ifdef NEWMOD_SUPPORT
+static void SendNewmodClassChange(int clientNum, qboolean switchedToFullClass, int limit, qboolean startedAsSpec, int current) {
+	assert(g_gametype.integer == GT_SIEGE);
+	assert(clientNum >= 0 && clientNum < MAX_CLIENTS);
+
+	static int lastClass[MAX_CLIENTS] = { -1 }, lastTeam[MAX_CLIENTS] = { -1 };
+
+	gclient_t *changedCl = &level.clients[clientNum];
+
+	char *changedToStr;
+	if (changedCl->siegeClass == -1) {
+		changedToStr = "?";
+	}
+	else {
+		switch (bgSiegeClasses[changedCl->siegeClass].playerClass) {
+		case SPC_INFANTRY:		changedToStr = "Assault";		break;
+		case SPC_VANGUARD:		changedToStr = "Scout";			break;
+		case SPC_SUPPORT:		changedToStr = "Tech";			break;
+		case SPC_JEDI:			changedToStr = "Jedi";			break;
+		case SPC_DEMOLITIONIST:	changedToStr = "Demolitions";	break;
+		case SPC_HEAVY_WEAPONS:	changedToStr = "Heavy Weapons";	break;
+		default:				changedToStr = "?";				break;
+		}
+	}
+
+	team_t team;
+	if (changedCl->sess.sessionTeam == TEAM_RED || changedCl->sess.sessionTeam == TEAM_BLUE) {
+		team = changedCl->sess.sessionTeam;
+	}
+	else if (changedCl->sess.siegeDesiredTeam == TEAM_RED || changedCl->sess.siegeDesiredTeam == TEAM_BLUE) {
+		team = changedCl->sess.siegeDesiredTeam;
+	}
+	else {
+		// debug print to help me find weird edge cases
+		G_LogPrintf("SendNewmodClassChange: failed to determine team for client %d! Misc. data: %d %d %d %d %d %d\n", clientNum, switchedToFullClass, limit, startedAsSpec, current, changedCl->sess.sessionTeam, changedCl->sess.siegeDesiredTeam);
+		assert(qfalse);
+		return; // ???
+	}
+
+	// if already ingame, don't broadcast the exact same thing consecutively (e.g. someone pressing "red jedi" bind while already a red jedi)
+	if (!startedAsSpec && changedCl->siegeClass == lastClass[clientNum] && team == lastTeam[clientNum])
+		return;
+
+	lastClass[clientNum] = changedCl->siegeClass;
+	lastTeam[clientNum] = team;
+
+	// example: client 3 (on red team) switched to hw but it's full
+	// sclc 3 1 "Heavy Weapons" "lim=1" "cur=2"
+	char buf[MAX_STRING_CHARS];
+	Q_strncpyz(buf, va("kls -1 -1 sclc %d %d \"%s\"%s", clientNum, team, changedToStr, switchedToFullClass ? va(" \"lim=%d\" \"cur=%d\"", limit, current) : ""), sizeof(buf));
+
+	int i;
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *sendCl = &level.clients[i];
+		if (sendCl->pers.connected != CON_CONNECTED)
+			continue;
+		// if client i is the changer himself, or is a spec with no desired team,
+		// skip all the other checks because he gets to see this change
+		if (!(i == clientNum || (sendCl->sess.sessionTeam == TEAM_SPECTATOR && sendCl->sess.siegeDesiredTeam != TEAM_RED && sendCl->sess.siegeDesiredTeam != TEAM_BLUE))) {
+			if ((team == TEAM_RED && sendCl->sess.sessionTeam == TEAM_BLUE) ||
+				(team == TEAM_BLUE && sendCl->sess.sessionTeam == TEAM_RED))
+				continue; // on the opposite team
+			if ((team == TEAM_RED && sendCl->sess.siegeDesiredTeam == TEAM_BLUE) ||
+				(team == TEAM_BLUE && sendCl->sess.siegeDesiredTeam == TEAM_RED))
+				continue; // in countdown and destined for the opposite team
+		}
+		trap_SendServerCommand(i, buf);
+#if 0
+		Com_Printf("Sent to client %d: %s\n", i, buf);
+#endif
+	}
+}
+#endif
+
 /*
 =================
 Cmd_Team_f
 =================
 */
 void Cmd_Team_f( gentity_t *ent ) {
-	int			oldTeam;
 	char		s[MAX_TOKEN_CHARS];
 
-	oldTeam = ent->client->sess.sessionTeam;
+	int oldTeam = ent->client->sess.sessionTeam;
+	int oldDesiredTeam = ent->client->sess.siegeDesiredTeam;
 
 	if ( trap_Argc() != 2 ) {		
 		switch ( oldTeam ) {
@@ -1148,8 +1222,18 @@ void Cmd_Team_f( gentity_t *ent ) {
 	
 	SetTeam( ent, s , qfalse);
 
-	if (oldTeam != ent->client->sess.sessionTeam) // *CHANGE 16* team change actually happend
+	if (oldTeam != ent->client->sess.sessionTeam) { // *CHANGE 16* team change actually happened
 		ent->client->switchTeamTime = level.time + 5000;
+	}
+
+#ifdef NEWMOD_SUPPORT
+	// just go ahead and broadcast for a team change with /team command, regardless of full class
+	if (g_gametype.integer == GT_SIEGE &&
+		(ent->client->sess.siegeDesiredTeam == TEAM_RED || ent->client->sess.siegeDesiredTeam == TEAM_BLUE) &&
+		(oldTeam != ent->client->sess.sessionTeam || oldDesiredTeam != ent->client->sess.siegeDesiredTeam)) {
+		SendNewmodClassChange(ent - g_entities, qfalse, 0, qtrue, 0);
+	}
+#endif
 }
 
 /*
@@ -1341,77 +1425,6 @@ void *G_SiegeClassFromName(char *s) {
 
 	return NULL;
 }
-
-#ifdef NEWMOD_SUPPORT
-static void SendNewmodClassChange(int clientNum, qboolean switchedToFullClass, int limit, qboolean startedAsSpec, int current) {
-	assert(g_gametype.integer == GT_SIEGE);
-	assert(clientNum >= 0 && clientNum < MAX_CLIENTS);
-
-	static int lastClass[MAX_CLIENTS] = { -1 }, lastTeam[MAX_CLIENTS] = { -1 };
-
-	gclient_t *changedCl = &level.clients[clientNum];
-
-	char *changedToStr;
-	if (changedCl->siegeClass == -1) {
-		changedToStr = "?";
-	}
-	else {
-		switch (bgSiegeClasses[changedCl->siegeClass].playerClass) {
-		case SPC_INFANTRY:		changedToStr = "Assault";		break;
-		case SPC_VANGUARD:		changedToStr = "Scout";			break;
-		case SPC_SUPPORT:		changedToStr = "Tech";			break;
-		case SPC_JEDI:			changedToStr = "Jedi";			break;
-		case SPC_DEMOLITIONIST:	changedToStr = "Demolitions";	break;
-		case SPC_HEAVY_WEAPONS:	changedToStr = "Heavy Weapons";	break;
-		default:				changedToStr = "?";				break;
-		}
-	}
-
-	team_t team;
-	if (changedCl->sess.sessionTeam == TEAM_RED || changedCl->sess.sessionTeam == TEAM_BLUE) {
-		team = changedCl->sess.sessionTeam;
-	}
-	else if ((level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2 || startedAsSpec/*needed at moment of countdown finish*/) && changedCl->sess.sessionTeam == TEAM_SPECTATOR && (changedCl->sess.siegeDesiredTeam == TEAM_RED || changedCl->sess.siegeDesiredTeam == TEAM_BLUE)) {
-		team = changedCl->sess.siegeDesiredTeam;
-	}
-	else {
-		assert(qfalse);
-		return; // ???
-	}
-
-	// if already ingame, don't broadcast the exact same thing consecutively (e.g. someone pressing "red jedi" bind while already a red jedi)
-	if (!startedAsSpec && changedCl->siegeClass == lastClass[clientNum] && team == lastTeam[clientNum])
-		return;
-
-	lastClass[clientNum] = changedCl->siegeClass;
-	lastTeam[clientNum] = team;
-
-	// example: client 3 (on red team) switched to hw but it's full
-	// sclc 3 1 "Heavy Weapons" "lim=1" "cur=2"
-	char buf[MAX_STRING_CHARS];
-	Q_strncpyz(buf, va("kls -1 -1 sclc %d %d \"%s\"%s", clientNum, team, changedToStr, switchedToFullClass ? va(" \"lim=%d\" \"cur=%d\"", limit, current) : ""), sizeof(buf));
-
-	int i;
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		gclient_t *sendCl = &level.clients[i];
-#if 0
-		// so i only have to boot up one jka to test this
-		if (i == clientNum)
-			continue;
-#endif
-		if (sendCl->pers.connected != CON_CONNECTED)
-			continue;
-		if (sendCl->sess.sessionTeam == OtherTeam(team))
-			continue;
-		if (level.inSiegeCountdown && sendCl->sess.siegeDesiredTeam && sendCl->sess.siegeDesiredTeam != team)
-			continue; // in countdown and not destined for the same team
-		trap_SendServerCommand(i, buf);
-#ifdef _DEBUG
-		Com_Printf("Sent to client %d: %s\n", i, buf);
-#endif
-	}
-}
-#endif
 
 void SetSiegeClass(gentity_t *ent, char* className)
 {
