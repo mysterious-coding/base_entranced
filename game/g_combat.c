@@ -6297,11 +6297,26 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 		radius = 1;
 	}
 
-	if (attacker && attacker->client && attacker->client->sess.skillBoost) {
-		switch (attacker->client->sess.skillBoost) {
-		case 1:		radius += (radius * SKILLBOOST_LEVEL1_SPLASHRADIUSBONUS);		break;
-		case 2:		radius += (radius * SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS);		break;
-		default:	radius += (radius * SKILLBOOST_LEVEL3_SPLASHRADIUSBONUS);		break;
+	if (attacker && attacker->inuse && attacker->client) {
+		gentity_t *maybeBoosted;
+		if (attacker->s.eType == ET_NPC && attacker->s.NPC_class == CLASS_VEHICLE && attacker->m_pVehicle) {
+			if (attacker->m_pVehicle->m_pPilot)
+				maybeBoosted = (gentity_t *)attacker->m_pVehicle->m_pPilot;
+			else if (attacker->lastPilot && attacker->lastPilot - g_entities < MAX_CLIENTS)
+				maybeBoosted = attacker->lastPilot;
+			else
+				maybeBoosted = attacker;
+		}
+		else {
+			maybeBoosted = attacker;
+		}
+
+		if (maybeBoosted && maybeBoosted - g_entities < MAX_CLIENTS && maybeBoosted->client && maybeBoosted->client->sess.skillBoost) {
+			switch (maybeBoosted->client->sess.skillBoost) {
+			case 1:		radius += (radius * SKILLBOOST_LEVEL1_SPLASHRADIUSBONUS);		break;
+			case 2:		radius += (radius * SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS);		break;
+			default:	radius += (radius * SKILLBOOST_LEVEL3_SPLASHRADIUSBONUS);		break;
+			}
 		}
 	}
 
