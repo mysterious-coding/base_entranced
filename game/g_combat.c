@@ -4777,6 +4777,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (GetSiegeMap() == SIEGEMAP_ANSION && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && (!Q_stricmp(attacker->NPC_type, "Alpha") || !Q_stricmp(attacker->NPC_type, "Onasi")))
 		return;
 
+	if (GetSiegeMap() == SIEGEMAP_ANSION && targ && targ->maxHealth == 2000 &&
+		attacker && attacker->client && attacker->client->ps.origin[0] <= 4000 &&
+		VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "ansion_obj2_part2") &&
+		VALIDSTRING(targ->classname) && !Q_stricmp(targ->classname, "func_breakable")) {
+		return;
+	}
+
 	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
 	{
 		if (targ->client->ps.electrifyTime < level.time)

@@ -2906,7 +2906,7 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^1!client\n\""));
 	}
 
-	if (traceEnt->classname && traceEnt->classname[0])
+	if (VALIDSTRING(traceEnt->classname))
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"classname == %s\n\"", traceEnt->classname));
 		if (!Q_stricmp(traceEnt->classname, "func_door"))
@@ -2930,8 +2930,16 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 		}
 	}
 
-	if (traceEnt->targetname && traceEnt->targetname[0])
-	trap_SendServerCommand(ent - g_entities, va("print \"targetname == %s\n\"", traceEnt->targetname));
+	if (VALIDSTRING(traceEnt->targetname)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"targetname: %s\n\"", traceEnt->targetname));
+	}
+
+	if (VALIDSTRING(traceEnt->target)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"target: %s\n\"", traceEnt->target));
+	}
+
+	trap_SendServerCommand(ent - g_entities, va("print \"health: %d\n\"", traceEnt->health));
+	trap_SendServerCommand(ent - g_entities, va("print \"maxHealth: %d\n\"", traceEnt->maxHealth));
 
 	if (traceEnt->client && traceEnt->client->ewebIndex)
 	{
