@@ -1398,9 +1398,7 @@ void Svcmd_Skillboost_f(void) {
 	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() <= 2) {
-		Com_Printf("Usage:   skillboost [client num or partial name] [amount]    Use positive number to boost bad players; negative number to handicap good players (use zero to reset).\n");
-		Com_Printf("Example: ^5skillboost baddie 0.25^7    (gives baddie +20 percent damage output)\n");
-		Com_Printf("Example: ^5skillboost goodie -0.5^7    (gives goodie -50 percent damage output)\n");
+		Com_Printf("Usage:   skillboost [client num or partial name] [level from 1 to 3]     (use level 0 to reset).\n");
 		int i;
 		qboolean wrotePreface = qfalse;
 		for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1409,8 +1407,8 @@ void Svcmd_Skillboost_f(void) {
 					Com_Printf("Currently skillboosted players:\n");
 					wrotePreface = qtrue;
 				}
-				Com_Printf("^7%s^7 has a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output).\n",
-					g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost, g_entities[i].client->sess.skillBoost > 0 ? "^2+" : "^1", g_entities[i].client->sess.skillBoost * 100);
+				Com_Printf("^7%s^7 has a level ^5%d^7 skillboost.\n",
+					g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost);
 			}
 		}
 		if (!wrotePreface)
@@ -1423,25 +1421,25 @@ void Svcmd_Skillboost_f(void) {
 	found = G_FindClient(str);
 	if (!found || !found->client) {
 		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
-		Com_Printf("Usage:  rename [name or client number] [forced name] <optional duration in seconds>\nExample:  rename pad lamer 60\n");
+		Com_Printf("Usage:   skillboost [client num or partial name] [level from 1 to 3]     (use level 0 to reset).\n");
 		return;
 	}
 
 	cl = found->client;
 
 	trap_Argv(2, str, sizeof(str));
-	float newValue = atof(str);
+	int newValue = Com_Clampi(0, 3, atoi(str));
 
 	// notify everyone
 	if (!newValue) {
 		if (!found->client->sess.skillBoost)
-			Com_Printf("Client '%s'^7 already has a skillboost of zero.\n");
+			Com_Printf("Client '%s'^7 already has a skillboost of zero.\n", found->client->pers.netname);
 		else
-			trap_SendServerCommand(-1, va("print \"^7%s^7's skillboost was reset to zero (default damage output).\n\"", found->client->pers.netname));
+			trap_SendServerCommand(-1, va("print \"^7%s^7's skillboost was reset to zero.\n\"", found->client->pers.netname));
 	}
 	else
-		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a skillboost of ^5%.6g^7 (%s%.6g percent^7 damage output).\n\"",
-			found->client->pers.netname, newValue, newValue > 0 ? "^2+" : "^1", newValue * 100));
+		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a level ^5%d^7 skillboost.\n\"",
+			found->client->pers.netname, newValue));
 
 	found->client->sess.skillBoost = newValue;
 }

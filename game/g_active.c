@@ -2688,6 +2688,13 @@ void ClientThink_real( gentity_t *ent ) {
 		{
 			// set speed
 			client->ps.speed = g_speed.value;
+			if (client->sess.skillBoost) {
+				switch (client->sess.skillBoost) {
+				case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
+				case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
+				case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+				}
+			}
 
 			//Check for a siege class speed multiplier
 			if (g_gametype.integer == GT_SIEGE &&
@@ -2937,11 +2944,25 @@ void ClientThink_real( gentity_t *ent ) {
 					//valid siege class
 					ent->client->ps.speed = g_speed.value;
 					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+					if (ent->client->sess.skillBoost) {
+						switch (client->sess.skillBoost) {
+						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
+						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
+						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						}
+					}
 					ent->client->ps.basespeed = client->ps.speed;
 				}
 				else
 				{
 					ent->client->ps.speed = g_speed.value;
+					if (ent->client->sess.skillBoost) {
+						switch (client->sess.skillBoost) {
+						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
+						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
+						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						}
+					}
 					ent->client->ps.basespeed = client->ps.speed;
 				}
 			}
@@ -2997,11 +3018,25 @@ void ClientThink_real( gentity_t *ent ) {
 					//valid siege class
 					ent->client->ps.speed = g_speed.value;
 					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
+					if (ent->client->sess.skillBoost) {
+						switch (client->sess.skillBoost) {
+						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
+						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
+						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						}
+					}
 					ent->client->ps.basespeed = client->ps.speed;
 				}
 				else
 				{
 					ent->client->ps.speed = g_speed.value;
+					if (ent->client->sess.skillBoost) {
+						switch (client->sess.skillBoost) {
+						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
+						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
+						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						}
+					}
 					ent->client->ps.basespeed = client->ps.speed;
 				}
 

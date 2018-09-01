@@ -5692,6 +5692,17 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				WP_ForcePowerRegenerate(self, holoregen);
 			}
 
+			int regenTime = g_forceRegenTime.integer;
+			if (self->client->sess.skillBoost) {
+				float forceRegenReductionFactor;
+				switch (self->client->sess.skillBoost) {
+				case 1:		forceRegenReductionFactor = SKILLBOOST_LEVEL1_FORCEREGENBONUS;		break;
+				case 2:		forceRegenReductionFactor = SKILLBOOST_LEVEL2_FORCEREGENBONUS;		break;
+				default:	forceRegenReductionFactor = SKILLBOOST_LEVEL3_FORCEREGENBONUS;		break;
+				}
+				regenTime -= (int)((float)regenTime * forceRegenReductionFactor);
+			}
+
 			if (g_gametype.integer == GT_SIEGE)
 			{
 				if (self->client->holdingObjectiveItem &&
@@ -5703,11 +5714,11 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				else if (self->client->siegeClass != -1 &&
 					(bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_FASTFORCEREGEN)))
 				{ //if this is siege and our player class has the fast force regen ability, then recharge with 1/5th the usual delay
-					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*0.2);
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (regenTime*0.2);
 				}
 				else
 				{
-					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + regenTime;
 				}
 			}
 			else
@@ -5716,17 +5727,17 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				{
 					if ( g_duel_fraglimit.integer )
 					{
-						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*
+						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (regenTime*
 							(0.6 + (.3 * (float)self->client->sess.wins / (float)g_duel_fraglimit.integer)));
 					}
 					else
 					{
-						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*0.7);
+						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (regenTime*0.7);
 					}
 				}
 				else
 				{
-					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + regenTime;
 				}
 			}
 		}

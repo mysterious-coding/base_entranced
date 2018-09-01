@@ -4790,7 +4790,17 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			else if (targ->s.NPC_class != CLASS_VEHICLE
 				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER))
 			{//don't do this to fighters
-				rng = Q_irand(300, 800);
+				int maxFreezeTime = 800;
+				if (targ->client->sess.skillBoost) {
+					float maxFreezeReductionFactor;
+					switch (targ->client->sess.skillBoost) {
+					case 1:		maxFreezeReductionFactor = SKILLBOOST_LEVEL1_DEMPMAXFROZENTIMEREDUCTION;		break;
+					case 2:		maxFreezeReductionFactor = SKILLBOOST_LEVEL2_DEMPMAXFROZENTIMEREDUCTION;		break;
+					default:	maxFreezeReductionFactor = SKILLBOOST_LEVEL3_DEMPMAXFROZENTIMEREDUCTION;		break;
+					}
+					maxFreezeTime -= (int)((float)maxFreezeTime * maxFreezeReductionFactor);
+				}
+				rng = Q_irand(300, maxFreezeTime);
 				targ->client->ps.electrifyTime = level.time + rng;
 
 				// siege freezing stats
@@ -4837,10 +4847,31 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	int originalDamage = damage;
 
-	if (attacker && attacker->client && attacker->client->sess.skillBoost && !(targ && targ == attacker)) { // attacker has a skillboost
-		damage += (int)((float)damage * attacker->client->sess.skillBoost);
-		if (damage <= 0 && originalDamage >= 1) // make sure we at least do some damage...
-			damage = 1;
+	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself
+		if (attacker && attacker->client && attacker->client->sess.skillBoost && targ) { // attacker has a skillboost
+			float damageMultiplier;
+			switch (attacker->client->sess.skillBoost) { // increase damage dealt
+			case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DMGDEALTBONUS;		break;
+			case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DMGDEALTBONUS;		break;
+			default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGDEALTBONUS;		break;
+			}
+			damage += (int)((float)damage * damageMultiplier);
+			if (damage <= 0 && originalDamage >= 1) // make sure we at least do some damage...
+				damage = 1;
+		}
+		if (targ && targ->client && targ->client->sess.skillBoost) { // target has a skillboost
+			float damageMultiplier;
+			if (targ == attacker) { // reduce damage intake
+				switch (attacker->client->sess.skillBoost) {
+				case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DMGTKNREDUCTION;		break;
+				case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DMGTKNREDUCTION;		break;
+				default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGTKNREDUCTION;		break;
+				}
+				damage -= (int)((float)damage * damageMultiplier);
+				if (damage <= 0 && originalDamage >= 1) // make sure we at least do some damage...
+					damage = 1;
+			}
+		}
 	}
 
 	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && GetSiegeMap() == SIEGEMAP_DESERT && !level.totalObjectivesCompleted)
@@ -5466,7 +5497,16 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( targ == attacker && !(dflags & DAMAGE_NO_SELF_PROTECTION)) {
 		if ( g_gametype.integer == GT_SIEGE )
 		{
-			damage *= 1.5;
+			if (targ->client && targ->client->sess.skillBoost) { // reduce damage intake
+				switch (attacker->client->sess.skillBoost) {
+				case 1:		damage *= SKILLBOOST_LEVEL1_SELFDAMAGEFACTOROVERRIDE;		break;
+				case 2:		damage *= SKILLBOOST_LEVEL2_SELFDAMAGEFACTOROVERRIDE;		break;
+				default:	damage *= SKILLBOOST_LEVEL3_SELFDAMAGEFACTOROVERRIDE;		break;
+				}
+			}
+			else {
+				damage *= 1.5;
+			}
 		}
 		else
 		{
@@ -6255,6 +6295,14 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 
 	if ( radius < 1 ) {
 		radius = 1;
+	}
+
+	if (attacker && attacker->client && attacker->client->sess.skillBoost) {
+		switch (attacker->client->sess.skillBoost) {
+		case 1:		radius += (radius * SKILLBOOST_LEVEL1_SPLASHRADIUSBONUS);		break;
+		case 2:		radius += (radius * SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS);		break;
+		default:	radius += (radius * SKILLBOOST_LEVEL3_SPLASHRADIUSBONUS);		break;
+		}
 	}
 
 	for ( i = 0 ; i < 3 ; i++ ) {
