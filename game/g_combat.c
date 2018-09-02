@@ -4863,8 +4863,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGDEALTBONUS;		break;
 			}
 			damage += (int)((float)damage * damageMultiplier);
-			if (damage <= 0 && originalDamage >= 1) // make sure we at least do some damage...
-				damage = 1;
 		}
 		if (targ && targ->client && targ->client->sess.skillBoost) { // target has a skillboost
 			float damageMultiplier;
@@ -4875,8 +4873,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGTKNREDUCTION;		break;
 				}
 				damage -= (int)((float)damage * damageMultiplier);
-				if (damage <= 0 && originalDamage >= 1) // make sure we at least do some damage...
-					damage = 1;
 			}
 		}
 	}
