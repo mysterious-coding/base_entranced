@@ -2436,6 +2436,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (self - g_entities >= 0 && self - g_entities < MAX_CLIENTS)
 		level.sentriesUsedThisLife[self - g_entities] = 0;
 
+	if (meansOfDeath == MOD_CRUSH && GetSiegeMap() == SIEGEMAP_CARGO && attacker &&
+		VALIDSTRING(attacker->classname) && !Q_stricmp(attacker->classname, "func_rotating")) {
+		if (self->client->ps.otherKillerTime >= level.time && g_entities[self->client->ps.otherKiller].inuse && g_entities[self->client->ps.otherKiller].client)
+			customObituary = CUSTOMOBITUARY_CARGO_CHOPPED;
+		else
+			customObituary = CUSTOMOBITUARY_CARGO_CHOPPED_SELF;
+	}
+
 	if (self->s.eType == ET_NPC &&
 		self->s.NPC_class == CLASS_VEHICLE &&
 		self->m_pVehicle &&
@@ -2777,8 +2785,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		else
 			customObituary = CUSTOMOBITUARY_ANSION_POISONED;
 	}
-
-	if (meansOfDeath == MOD_SPECIAL_SENTRYBOMB) {
+	else if (meansOfDeath == MOD_SPECIAL_SENTRYBOMB) {
 		meansOfDeath = MOD_UNKNOWN;
 		if (!attacker || attacker == self)
 			customObituary = CUSTOMOBITUARY_GENERIC_SENTRYBOMBED_SELF;

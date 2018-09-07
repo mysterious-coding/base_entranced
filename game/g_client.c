@@ -3091,19 +3091,25 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"\"sentry-bombed $\" %d",
 		CUSTOMOBITUARY_GENERIC_SENTRYBOMBED,
 		CUSTOMOBITUARY_GENERIC_SENTRYBOMBED_SELF));
-	if (GetSiegeMap() == SIEGEMAP_URBAN) {
+	if (GetSiegeMap() == SIEGEMAP_CARGO) {
 		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
-			"\"was dumpstered by\" %d"
-			"\"dumpstered $\" %d"
-			"\"was burned to a crisp by\" %d"
-			"\"burned $ to a crisp\" %d",
+			"\"was minced by\" %d "
+			"\"minced $\" %d ",
+			CUSTOMOBITUARY_CARGO_CHOPPED, CUSTOMOBITUARY_CARGO_CHOPPED_SELF));
+	}
+	else if (GetSiegeMap() == SIEGEMAP_URBAN) {
+		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
+			"\"was dumpstered by\" %d "
+			"\"dumpstered $\" %d "
+			"\"was burned to a crisp by\" %d "
+			"\"burned $ to a crisp\" %d ",
 			CUSTOMOBITUARY_URBAN_DUMPSTERED, CUSTOMOBITUARY_URBAN_DUMPSTERED_SELF,
 			CUSTOMOBITUARY_URBAN_BURNED, CUSTOMOBITUARY_URBAN_BURNED_SELF));
 	}
 	else if (GetSiegeMap() == SIEGEMAP_ANSION) {
 		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
-			"\"was poisoned by\" %d"
-			"\"poisoned $\" %d",
+			"\"was poisoned by\" %d "
+			"\"poisoned $\" %d ",
 			CUSTOMOBITUARY_ANSION_POISONED, CUSTOMOBITUARY_ANSION_POISONED_SELF));
 	}
 	trap_SetConfigstring(CS_CUSTOMOBITUARIES, customObituariesString);
