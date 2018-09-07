@@ -5,6 +5,7 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_strap.h"
+#include "bg_saga.h"
 
 #ifdef QAGAME
 #include "g_local.h"
@@ -2278,8 +2279,16 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_ARMOR:
-		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH]/* * item->giTag*/ ) {
-			return qfalse;
+		if (gametype == GT_SIEGE && ps->clientNum < MAX_CLIENTS &&
+			level.clients[ps->clientNum].siegeClass != -1) {
+			if (ps->stats[STAT_ARMOR] >= bgSiegeClasses[level.clients[ps->clientNum].siegeClass].maxarmor) {
+				return qfalse;
+			}
+		}
+		else {
+			if (ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH]/* * item->giTag*/) {
+				return qfalse;
+			}
 		}
 		return qtrue;
 

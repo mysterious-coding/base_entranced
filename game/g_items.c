@@ -2572,10 +2572,16 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) 
 {
+	int maxArmor;
+	if (g_gametype.integer == GT_SIEGE && other->client->siegeClass != -1)
+		maxArmor = bgSiegeClasses[other->client->siegeClass].maxarmor;
+	else
+		maxArmor = other->client->ps.stats[STAT_MAX_HEALTH];
+
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
-	if ( other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * ent->item->giTag ) 
+	if ( other->client->ps.stats[STAT_ARMOR] > maxArmor * ent->item->giTag ) 
 	{
-		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * ent->item->giTag;
+		other->client->ps.stats[STAT_ARMOR] = maxArmor * ent->item->giTag;
 	}
 
 	return adjustRespawnTime(RESPAWN_ARMOR, ent->item->giType, ent->item->giTag);

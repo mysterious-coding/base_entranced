@@ -432,7 +432,10 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 			trap_Argv( 2+baseArg, arg, sizeof( arg ) );
 			ent->client->ps.stats[STAT_ARMOR] = atoi(arg);
 		} else {
-			ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
+			if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1)
+				ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].maxarmor;
+			else
+				ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
 		}
 
 		if (!give_all)
