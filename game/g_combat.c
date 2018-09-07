@@ -2410,6 +2410,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	qboolean	wasJediMaster = qfalse;
 	int			sPMType = 0;
 	qboolean	gaveAward = qfalse;
+	int			customObituary = 0;
 
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -2735,6 +2736,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	{
 		attacker = &g_entities[self->client->ps.otherKiller];
 		meansOfDeath = MOD_FALLING;
+		if (GetSiegeMap() == SIEGEMAP_URBAN) {
+			if (self->client && self->client->ps.origin[1] >= 9800)
+				customObituary = CUSTOMOBITUARY_URBAN_BURNED;
+			else
+				customObituary = CUSTOMOBITUARY_URBAN_DUMPSTERED;
+		}
 		if (g_fixFallingSounds.integer == 1)
 		{
 			G_EntitySound(self, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
@@ -2748,6 +2755,35 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if (attacker && VALIDSTRING(attacker->classname) && !Q_stricmp(attacker->classname, "trigger_hurt"))
 				attacker = self;
 		}
+	}
+
+	if (meansOfDeath == MOD_TRIGGER_HURT && GetSiegeMap() == SIEGEMAP_URBAN) {
+		if (!attacker || attacker == self || (VALIDSTRING(attacker->classname) && !Q_stricmp(attacker->classname, "trigger_hurt"))) {
+			if (self->client && self->client->ps.origin[1] >= 9800)
+				customObituary = CUSTOMOBITUARY_URBAN_BURNED_SELF;
+			else
+				customObituary = CUSTOMOBITUARY_URBAN_DUMPSTERED_SELF;
+		}
+		else {
+			if (self->client && self->client->ps.origin[1] >= 9800)
+				customObituary = CUSTOMOBITUARY_URBAN_BURNED;
+			else
+				customObituary = CUSTOMOBITUARY_URBAN_DUMPSTERED;
+		}
+	}
+	else if (meansOfDeath == MOD_TRIGGER_HURT && GetSiegeMap() == SIEGEMAP_ANSION && self->client && self->client->ps.origin[2] >= 24) {
+		if (!attacker || attacker == self || (VALIDSTRING(attacker->classname) && !Q_stricmp(attacker->classname, "trigger_hurt")))
+			customObituary = CUSTOMOBITUARY_ANSION_POISONED_SELF;
+		else
+			customObituary = CUSTOMOBITUARY_ANSION_POISONED;
+	}
+
+	if (meansOfDeath == MOD_SPECIAL_SENTRYBOMB) {
+		meansOfDeath = MOD_UNKNOWN;
+		if (!attacker || attacker == self)
+			customObituary = CUSTOMOBITUARY_GENERIC_SENTRYBOMBED_SELF;
+		else
+			customObituary = CUSTOMOBITUARY_GENERIC_SENTRYBOMBED;
 	}
 
 	if (level.zombies && meansOfDeath != MOD_SUICIDE && self && self->client && self->client->sess.sessionTeam == TEAM_BLUE)
@@ -2829,6 +2865,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		ent->s.otherEntityNum2 = killer;
 		ent->r.svFlags = SVF_BROADCAST;	// send to everyone
 		ent->s.isJediMaster = wasJediMaster;
+		assert(customObituary >= 0 && customObituary < MAX_CUSTOMOBITUARIES);
+		ent->s.emplacedOwner = customObituary;
 	}
 
 	self->enemy = attacker;

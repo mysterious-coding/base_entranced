@@ -1153,7 +1153,7 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	VectorSet( self->s.angles, 0, 0, 1 );
 
 	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->r.currentOrigin, self->s.angles);
-	G_RadiusDamage(self->r.currentOrigin, &g_entities[self->genericValue3], 30, 256, self, self, MOD_UNKNOWN);
+	G_RadiusDamage(self->r.currentOrigin, &g_entities[self->genericValue3], 30, 256, self, self, MOD_SPECIAL_SENTRYBOMB);
 
 	if (self->genericValue3 >= 0 && self->genericValue3 < MAX_CLIENTS) {
 		level.sentriesDeployed[self->genericValue3]--;

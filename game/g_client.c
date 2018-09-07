@@ -3052,7 +3052,8 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"fqs "
 		"ccid "
 		"accs "
-		"tnt2";
+		"tnt2 "
+		"cobt";
 
 	static char commandListCmd[MAX_TOKEN_CHARS] =
 		"kls -1 -1 cmds "
@@ -3083,6 +3084,29 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	trap_SendServerCommand( clientNum, commandListCmd );
 	if ( level.locations.enhanced.numUnique )
 		trap_SetConfigstring(CS_ENHANCEDLOCATIONS, locationsListConfigString);
+
+	static char customObituariesString[MAX_TOKEN_CHARS] = "cobt ";
+	Q_strcat(customObituariesString, sizeof(customObituariesString), va(
+		"\"was sentry-bombed by\" %d"
+		"\"sentry-bombed $\" %d",
+		CUSTOMOBITUARY_GENERIC_SENTRYBOMBED,
+		CUSTOMOBITUARY_GENERIC_SENTRYBOMBED_SELF));
+	if (GetSiegeMap() == SIEGEMAP_URBAN) {
+		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
+			"\"was dumpstered by\" %d"
+			"\"dumpstered $\" %d"
+			"\"was burned to a crisp by\" %d"
+			"\"burned $ to a crisp\" %d",
+			CUSTOMOBITUARY_URBAN_DUMPSTERED, CUSTOMOBITUARY_URBAN_DUMPSTERED_SELF,
+			CUSTOMOBITUARY_URBAN_BURNED, CUSTOMOBITUARY_URBAN_BURNED_SELF));
+	}
+	else if (GetSiegeMap() == SIEGEMAP_ANSION) {
+		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
+			"\"was poisoned by\" %d"
+			"\"poisoned $\" %d",
+			CUSTOMOBITUARY_ANSION_POISONED, CUSTOMOBITUARY_ANSION_POISONED_SELF));
+	}
+	trap_SetConfigstring(CS_CUSTOMOBITUARIES, customObituariesString);
 }
 #endif
 

@@ -87,6 +87,7 @@
 #define CS_CLIENT_DUELISTS		30		// client numbers for both current duelists. Needed for a number of client-side things.
 #define CS_CLIENT_DUELHEALTHS	31		// nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
 #define CS_GLOBAL_AMBIENT_SET	32
+#define CS_CUSTOMOBITUARIES		33
 
 #define CS_AMBIENT_SET			37
 
@@ -1099,7 +1100,8 @@ typedef enum {
 	//make sure he actually lost points, there may be cases where you don't lose points on changing teams
 	//or suiciding, and so you would actually be giving him a point) -Rich
 	// I put it back in for now, if it becomes a problem we'll work around it later (it shouldn't though)...
-	MOD_MAX
+	MOD_MAX,
+	MOD_SPECIAL_SENTRYBOMB
 } meansOfDeath_t;
 
 
