@@ -2742,9 +2742,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 	else {
 		// duo: fix for "was killed by" ==> "was thrown to their doom by" as well as "died." ==> "fell to their death"
-		vmCvar_t	mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (meansOfDeath == MOD_TRIGGER_HURT && (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) || !Q_stricmp(mapname.string, "siege_narshaddaa") || !Q_stricmpn(mapname.string, "mp/siege_bespin", 15))) {
+		if (meansOfDeath == MOD_TRIGGER_HURT && (GetSiegeMap() == SIEGEMAP_HOTH || GetSiegeMap() == SIEGEMAP_NAR || GetSiegeMap() == SIEGEMAP_BESPIN ||
+			(GetSiegeMap() == SIEGEMAP_ANSION && self->client && self->client->ps.origin[2] < 24))) {
 			meansOfDeath = MOD_FALLING;
 			if (attacker && VALIDSTRING(attacker->classname) && !Q_stricmp(attacker->classname, "trigger_hurt"))
 				attacker = self;
