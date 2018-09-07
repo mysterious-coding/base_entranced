@@ -818,7 +818,9 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].forcedSkin[0] = 0;
+	  // duo: set to "default" if none found
+		Q_strncpyz(bgSiegeClasses[bgNumSiegeClasses].forcedSkin, "default", sizeof(bgSiegeClasses[bgNumSiegeClasses].forcedSkin));
+		//bgSiegeClasses[bgNumSiegeClasses].forcedSkin[0] = 0;
 	}
 
 	//Parse first saber
