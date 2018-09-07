@@ -432,10 +432,14 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 			trap_Argv( 2+baseArg, arg, sizeof( arg ) );
 			ent->client->ps.stats[STAT_ARMOR] = atoi(arg);
 		} else {
-			if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1)
-				ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].maxarmor;
-			else
+			if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1) {
+				int maxArmor = bgSiegeClasses[ent->client->siegeClass].maxarmor;
+				if (maxArmor)
+					ent->client->ps.stats[STAT_ARMOR] = maxArmor;
+			}
+			else {
 				ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
+			}
 		}
 
 		if (!give_all)
@@ -1736,7 +1740,7 @@ void Cmd_Join_f(gentity_t *ent)
 void Cmd_Class_f(gentity_t *ent)
 {
 	char className[16];
-	int classNumber = 0;
+	stupidSiegeClassNum_t classNumber = 0;
 	siegeClass_t* siegeClass = 0;
 	int	timeRemaining = 0;
 
@@ -1795,27 +1799,27 @@ void Cmd_Class_f(gentity_t *ent)
 		switch (tolower(className[0]))
 		{
 		case 'a':
-			classNumber = 1;
+			classNumber = SSCN_ASSAULT;
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Assault\n\""));
 			break;
 		case 'h':
-			classNumber = 2;
+			classNumber = SSCN_HW;
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Heavy Weapons\n\""));
 			break;
 		case 'd':
-			classNumber = 3;
+			classNumber = SSCN_DEMO;
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Demolitions\n\""));
 			break;
 		case 's':
-			classNumber = 4;
+			classNumber = SSCN_SCOUT;
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Scout\n\""));
 			break;
 		case 't':
-			classNumber = 5;
+			classNumber = SSCN_TECH;
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Tech\n\""));
 			break;
 		case 'j':
-			classNumber = 6;
+			classNumber = SSCN_JEDI;
 			trap_SendServerCommand(ent - g_entities, va("print \"Changing to Jedi\n\""));
 			break;
 		default:

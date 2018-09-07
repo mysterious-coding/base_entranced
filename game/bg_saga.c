@@ -160,6 +160,19 @@ stringID_table_t PowerupTable[] =
 	{"", -1}
 };
 
+// this crap was done inconsistently so i have to resort to this
+stupidSiegeClassNum_t SiegeClassEnumToStupidClassNumber(siegePlayerClassFlags_t scl) {
+	switch (scl) {
+	case SPC_INFANTRY:			return SSCN_ASSAULT;
+	case SPC_HEAVY_WEAPONS:		return SSCN_HW;
+	case SPC_DEMOLITIONIST:		return SSCN_DEMO;
+	case SPC_VANGUARD:			return SSCN_SCOUT;
+	case SPC_SUPPORT:			return SSCN_TECH;
+	case SPC_JEDI:				return SSCN_JEDI;
+	default:					return -1;
+	}
+}
+
 
 //======================================
 //Parsing functions
@@ -1329,7 +1342,7 @@ siegeClass_t *BG_SiegeFindClassByName(const char *classname)
 	return NULL;
 }
 
-siegeClass_t* BG_SiegeGetClass(int team, int classNumber)
+siegeClass_t* BG_SiegeGetClass(int team, stupidSiegeClassNum_t classNumber)
 {
 	siegeTeam_t* siegeTeam = 0;
 	if (team == SIEGETEAM_TEAM1)

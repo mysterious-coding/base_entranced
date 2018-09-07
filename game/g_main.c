@@ -5050,21 +5050,43 @@ void CheckSpecInfo(void) {
 	}
 }
 
+static int GetMaxArmor(team_t team, stupidSiegeClassNum_t classNum) {
+	assert(team == TEAM_RED || team == TEAM_BLUE);
+	siegeClass_t *found = BG_SiegeGetClass(team, classNum);
+	if (found)
+		return found->maxarmor;
+	else
+		return 100;
+}
+
 void UpdateNewmodSiegeClassLimits(int clientNum) {
+	if (g_gametype.integer != GT_SIEGE)
+		return;
 	assert(clientNum >= -1 && clientNum < MAX_CLIENTS);
-	char *s = va("kls -1 -1 scli \"%s\"", level.classLimits[0] ? level.classLimits : "0");
+	char *limitsString = va("kls -1 -1 scli \"%s\"", level.classLimits[0] ? level.classLimits : "0");
+	static char armorString[MAX_STRING_CHARS] = { 0 };
+	if (!armorString[0]) {
+		Q_strncpyz(armorString, va("kls -1 -1 scma \"oa=%d oh=%d od=%d ot=%d os=%d oj=%d da=%d dh=%d dd=%d dt=%d ds=%d dj=%d\"",
+			GetMaxArmor(TEAM_RED, SSCN_ASSAULT), GetMaxArmor(TEAM_RED, SSCN_HW), GetMaxArmor(TEAM_RED, SSCN_DEMO),
+			GetMaxArmor(TEAM_RED, SSCN_TECH), GetMaxArmor(TEAM_RED, SSCN_SCOUT), GetMaxArmor(TEAM_RED, SSCN_JEDI),
+			GetMaxArmor(TEAM_BLUE, SSCN_ASSAULT), GetMaxArmor(TEAM_BLUE, SSCN_HW), GetMaxArmor(TEAM_BLUE, SSCN_DEMO),
+			GetMaxArmor(TEAM_BLUE, SSCN_TECH), GetMaxArmor(TEAM_BLUE, SSCN_SCOUT), GetMaxArmor(TEAM_BLUE, SSCN_JEDI)),
+			sizeof(armorString));
+	}
 	if (clientNum == -1) { // everyone
 		int i;
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			if (!g_entities[i].inuse || level.clients[i].pers.connected != CON_CONNECTED)
 				continue;
-			trap_SendServerCommand(i, s);
+			trap_SendServerCommand(i, limitsString);
+			trap_SendServerCommand(i, armorString);
 		}
 	}
 	else { // single client
 		if (!g_entities[clientNum].inuse || level.clients[clientNum].pers.connected != CON_CONNECTED)
 			return;
-		trap_SendServerCommand(clientNum, s);
+		trap_SendServerCommand(clientNum, limitsString);
+		trap_SendServerCommand(clientNum, armorString);
 	}
 }
 

@@ -35,6 +35,18 @@ typedef enum
 	SPC_MAX
 } siegePlayerClassFlags_t;
 
+// raven did some things inconsistently from the above enum, so this is unfortunately necessary
+typedef enum {
+	SSCN_ASSAULT = 1,
+	SSCN_HW,
+	SSCN_DEMO,
+	SSCN_SCOUT,
+	SSCN_TECH,
+	SSCN_JEDI
+} stupidSiegeClassNum_t;
+
+stupidSiegeClassNum_t SiegeClassEnumToStupidClassNumber(siegePlayerClassFlags_t scl);
+
 typedef enum
 {
 	CFL_MORESABERDMG = 0,
@@ -122,7 +134,7 @@ void BG_SiegeLoadTeams(void);
 siegeTeam_t *BG_SiegeFindThemeForTeam(int team);
 void BG_PrecacheSabersForSiegeTeam(int team);
 siegeClass_t *BG_SiegeFindClassByName(const char *classname);
-siegeClass_t *BG_SiegeGetClass(int team, int classNumber);
+siegeClass_t *BG_SiegeGetClass(int team, stupidSiegeClassNum_t classNumber);
 qboolean BG_SiegeCheckClassLegality(int team, char *classname);
 void BG_SiegeSetTeamTheme(int team, char *themeName, char *backup);
 int BG_SiegeFindClassIndexByName(const char *classname);

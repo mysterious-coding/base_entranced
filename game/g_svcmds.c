@@ -959,7 +959,7 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 	char		enteredClass[MAX_TOKEN_CHARS];
 	char		desiredClassLetter[16];
 	char		desiredClassName[16];
-	int			destinedClassNumber;
+	stupidSiegeClassNum_t destinedClassNumber;
 	int			funnyClassNumber;
 	siegeClass_t* siegeClass = 0;
 
@@ -1012,37 +1012,37 @@ void	Svcmd_ForceClass_f(int specifiedClientNum, char *specifiedClassLetter) {
 		if (!Q_stricmp(desiredClassLetter, "a"))
 		{
 			Com_sprintf(desiredClassName, sizeof(desiredClassName), "assault");
-			destinedClassNumber = 1;
+			destinedClassNumber = SSCN_ASSAULT;
 			funnyClassNumber = 0;
 		}
 		else if (!Q_stricmp(desiredClassLetter, "h"))
 		{
 			Com_sprintf(desiredClassName, sizeof(desiredClassName), "HW");
-			destinedClassNumber = 2;
+			destinedClassNumber = SSCN_HW;
 			funnyClassNumber = 5;
 		}
 		else if (!Q_stricmp(desiredClassLetter, "t"))
 		{
 			Com_sprintf(desiredClassName, sizeof(desiredClassName), "tech");
-			destinedClassNumber = 5;
+			destinedClassNumber = SSCN_TECH;
 			funnyClassNumber = 2;
 		}
 		else if (!Q_stricmp(desiredClassLetter, "d"))
 		{
 			Com_sprintf(desiredClassName, sizeof(desiredClassName), "demo");
-			destinedClassNumber = 3;
+			destinedClassNumber = SSCN_DEMO;
 			funnyClassNumber = 4;
 		}
 		else if (!Q_stricmp(desiredClassLetter, "j"))
 		{
 			Com_sprintf(desiredClassName, sizeof(desiredClassName), "jedi");
-			destinedClassNumber = 6;
+			destinedClassNumber = SSCN_JEDI;
 			funnyClassNumber = 3;
 		}
 		else if (!Q_stricmp(desiredClassLetter, "s"))
 		{
 			Com_sprintf(desiredClassName, sizeof(desiredClassName), "scout");
-			destinedClassNumber = 4;
+			destinedClassNumber = SSCN_SCOUT;
 			funnyClassNumber = 1;
 		}
 	}
