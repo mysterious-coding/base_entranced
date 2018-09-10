@@ -3065,8 +3065,27 @@ void Cmd_Changes_f(gentity_t *ent) {
 	}
 
 	trap_SendServerCommand(ent - g_entities, va("print \"Changelog for %s"S_COLOR_WHITE":\n\"", map));
+
+	char fixed[MAX_CHANGES_SIZE] = { 0 };
+	char *r = changes, *w = fixed;
+	int remaining = MAX_CHANGES_SIZE - 1;
+	while (*r) {
+		if (*r == '%' && remaining > 7) {
+			Q_strncpyz(w, "percent", remaining);
+			remaining -= 7;
+			w += 7;
+		}
+		else {
+			*w = *r;
+			remaining--;
+			w++;
+		}
+		r++;
+	}
+	len = strlen(fixed);
+
 	if (len <= CHANGES_CHUNK_SIZE) { // no chunking necessary
-		trap_SendServerCommand(ent - g_entities, va("print \"%s"S_COLOR_WHITE"\n\"", changes));
+		trap_SendServerCommand(ent - g_entities, va("print \"%s"S_COLOR_WHITE"\n\"", fixed));
 	}
 	else { // chunk it
 		int i, chunks = len / CHANGES_CHUNK_SIZE;
@@ -3074,7 +3093,7 @@ void Cmd_Changes_f(gentity_t *ent) {
 			chunks++;
 		for (i = 0; i < chunks && i < MAX_CHANGES_CHUNKS; i++) {
 			char thisChunk[CHANGES_CHUNK_SIZE + 1];
-			Q_strncpyz(thisChunk, changes + (i * CHANGES_CHUNK_SIZE), sizeof(thisChunk));
+			Q_strncpyz(thisChunk, fixed + (i * CHANGES_CHUNK_SIZE), sizeof(thisChunk));
 			if (thisChunk[0])
 				trap_SendServerCommand(ent - g_entities, va("print \"%s%s\"", thisChunk, i == chunks - 1 ? S_COLOR_WHITE"\n" : "")); // add ^7 and line break for last one
 		}
