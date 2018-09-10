@@ -4898,6 +4898,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	int originalDamage = damage;
 
+	qboolean enableJediSplashDamageReduction = qtrue;
 	if (GetSiegeMap() == SIEGEMAP_URBAN && targ && targ->client && targ->client->siegeClass != -1) {
 		if (bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_JEDI && targ->client->sess.sessionTeam == TEAM_BLUE) {
 			switch (mod) {
@@ -4913,7 +4914,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			case MOD_TRIP_MINE_SPLASH:
 			case MOD_TIMED_MINE_SPLASH:
 			case MOD_DET_PACK_SPLASH:
-				damage += (int)((float)damage * 0.3f);
+				enableJediSplashDamageReduction = qfalse;
+				break;
 			}
 		}
 		else if (bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY && targ->client->sess.sessionTeam == TEAM_RED) {
@@ -4921,6 +4923,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			case MOD_DEMP2:
 			case MOD_DEMP2_ALT:
 				damage -= (int)((float)damage * 0.3f);
+				break;
 			}
 		}
 	}
@@ -5380,8 +5383,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( (g_trueJedi.integer || g_gametype.integer == GT_SIEGE)
 		&& client )
 	{//less explosive damage for jedi, more saber damage for non-jedi
-		if ( client->ps.trueJedi 
-			|| (g_gametype.integer == GT_SIEGE&&client->ps.weapon == WP_SABER))
+		if (enableJediSplashDamageReduction && (client->ps.trueJedi
+			|| (g_gametype.integer == GT_SIEGE&&client->ps.weapon == WP_SABER)))
 		{//if the target is a trueJedi, reduce splash and explosive damage to 1/2
 			switch ( mod )
 			{
