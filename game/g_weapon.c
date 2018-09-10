@@ -75,6 +75,7 @@ static	vec3_t	muzzle;
 // Golan Arms Flechette
 //---------
 #define FLECHETTE_SHOTS				5
+#define FLECHETTE_SHOTS_URBAN		10
 #define FLECHETTE_SHOTS_ALT			2
 #define FLECHETTE_SPREAD			4.0f
 #define FLECHETTE_DAMAGE			12//15
@@ -2339,7 +2340,8 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 	gentity_t	*missile;
 	int i;
 
-	for (i = 0; i < FLECHETTE_SHOTS; i++ )
+	const int numShots = GetSiegeMap() == SIEGEMAP_URBAN ? FLECHETTE_SHOTS_URBAN : FLECHETTE_SHOTS;
+	for (i = 0; i < numShots; i++ )
 	{
 		vectoangles( forward, angs );
 
@@ -2528,7 +2530,8 @@ static void WP_FlechetteAltFire( gentity_t *self )
 		VectorCopy( angs, dir );
 
 		dir[PITCH] -= random() * 4 + 8; // make it fly upwards
-		dir[YAW] += crandom() * 2;
+		if (GetSiegeMap() != SIEGEMAP_URBAN)
+			dir[YAW] += crandom() * 2;
 		AngleVectors( dir, fwd, NULL, NULL );
 
 		WP_CreateFlechetteBouncyThing( start, fwd, self );
@@ -5432,7 +5435,7 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 		) 
 	{
 		if( ent->s.weapon == WP_FLECHETTE ) {
-			ent->client->accuracy_shots += altFire ? FLECHETTE_SHOTS_ALT : FLECHETTE_SHOTS;
+			ent->client->accuracy_shots += altFire ? FLECHETTE_SHOTS_ALT : (GetSiegeMap() == SIEGEMAP_URBAN ?  FLECHETTE_SHOTS_URBAN : FLECHETTE_SHOTS);
 		} else {
 			ent->client->accuracy_shots++;
 		}
