@@ -1398,9 +1398,14 @@ void Jetpack_On(gentity_t *ent)
 	{ //too late!
 		return;
 	}
+
 	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO) {
 		if (ent->client->ps.origin[0] >= 1846 && ent->client->ps.origin[0] <= 3269 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 			return;
+	}
+
+	if (GetSiegeMap() == SIEGEMAP_URBAN && ent->client->ps.jetpackFuel < 100) {
+		return;
 	}
 
 	G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/boba/JETON"));

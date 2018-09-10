@@ -384,6 +384,8 @@ vmCvar_t	g_coneReflectAngle;
 
 vmCvar_t	z_debug1;
 vmCvar_t	z_debug2;
+vmCvar_t	z_debug3;
+vmCvar_t	z_debug4;
 
 vmCvar_t	g_saveCaptureRecords;
 
@@ -729,6 +731,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &z_debug1, "z_debug1", "", CVAR_ARCHIVE, 0, qtrue },
 	{ &z_debug2, "z_debug2", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &z_debug3, "z_debug3", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &z_debug4, "z_debug4", "", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saveCaptureRecords, "g_saveCaptureRecords", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
@@ -5672,33 +5676,30 @@ void G_RunFrame( int levelTime ) {
 
 #define JETPACK_DEFUEL_RATE		200 //approx. 20 seconds of idle use from a fully charged fuel amt
 #define JETPACK_REFUEL_RATE		150 //seems fair
-			if (ent->client->jetPackOn && level.pause.state == PAUSE_NONE)
-			{ //using jetpack, drain fuel
-				if (ent->client->jetPackDebReduce < level.time)
-				{
-					if (ent->client->pers.cmd.upmove > 0)
-					{ //take more if they're thrusting
-						ent->client->ps.jetpackFuel -= 2;
-					}
+			if (ent->client->jetPackOn && level.pause.state == PAUSE_NONE) { //using jetpack, drain fuel
+				if (ent->client->jetPackDebReduce < level.time) {
+					if (GetSiegeMap() == SIEGEMAP_URBAN)
+						ent->client->ps.jetpackFuel -= 3;
 					else
-					{
-						ent->client->ps.jetpackFuel--;
-					}
+						ent->client->ps.jetpackFuel -= (ent->client->pers.cmd.upmove > 0) ? 2 : 1; // take more if they're thrusting
 					
-					if (ent->client->ps.jetpackFuel <= 0)
-					{ //turn it off
+					if (ent->client->ps.jetpackFuel <= 0) { // turn it off
 						ent->client->ps.jetpackFuel = 0;
 						Jetpack_Off(ent);
 					}
-					ent->client->jetPackDebReduce = level.time + JETPACK_DEFUEL_RATE;
+					if (GetSiegeMap() == SIEGEMAP_URBAN)
+						ent->client->jetPackDebReduce = level.time + 14;
+					else
+						ent->client->jetPackDebReduce = level.time + JETPACK_DEFUEL_RATE;
 				}
 			}
-			else if (ent->client->ps.jetpackFuel < 100 && level.pause.state == PAUSE_NONE)
-			{ //recharge jetpack
-				if (ent->client->jetPackDebRecharge < level.time)
-				{
+			else if (ent->client->ps.jetpackFuel < 100 && level.pause.state == PAUSE_NONE) { //recharge jetpack
+				if (ent->client->jetPackDebRecharge < level.time) {
 					ent->client->ps.jetpackFuel++;
-					ent->client->jetPackDebRecharge = level.time + JETPACK_REFUEL_RATE;
+					if (GetSiegeMap() == SIEGEMAP_URBAN)
+						ent->client->jetPackDebRecharge = level.time + (JETPACK_REFUEL_RATE / 2);
+					else
+						ent->client->jetPackDebRecharge = level.time + JETPACK_REFUEL_RATE;
 				}
 			}
 
