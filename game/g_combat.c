@@ -4931,10 +4931,19 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself
 		if (attacker && attacker->client && attacker->client->sess.skillBoost && targ) { // attacker has a skillboost
 			float damageMultiplier;
-			switch (attacker->client->sess.skillBoost) { // increase damage dealt
-			case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DMGDEALTBONUS;		break;
-			case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DMGDEALTBONUS;		break;
-			default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGDEALTBONUS;		break;
+			if (mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) {
+				switch (attacker->client->sess.skillBoost) { // increase damage dealt
+				case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DEMPDMGDEALTBONUS;		break;
+				case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DEMPDMGDEALTBONUS;		break;
+				default:	damageMultiplier = SKILLBOOST_LEVEL3_DEMPDMGDEALTBONUS;		break;
+				}
+			}
+			else {
+				switch (attacker->client->sess.skillBoost) { // increase damage dealt
+				case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DMGDEALTBONUS;			break;
+				case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DMGDEALTBONUS;			break;
+				default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGDEALTBONUS;			break;
+				}
 			}
 			damage += (int)((float)damage * damageMultiplier);
 		}
