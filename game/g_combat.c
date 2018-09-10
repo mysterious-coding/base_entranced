@@ -4838,8 +4838,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				rng = Q_irand(3000, 4000);
 				targ->client->ps.electrifyTime = level.time + rng;
 			}
-			else if (targ->s.NPC_class != CLASS_VEHICLE
-				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER))
+			else if ((targ->s.NPC_class != CLASS_VEHICLE
+				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER)) && !(GetSiegeMap() == SIEGEMAP_URBAN && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY))
 			{//don't do this to fighters
 				int maxFreezeTime = 800;
 				if (targ->client->sess.skillBoost) {
@@ -4898,22 +4898,30 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	int originalDamage = damage;
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE &&
-		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_JEDI) {
-		switch (mod) {
-		case MOD_REPEATER_ALT:
-		case MOD_REPEATER_ALT_SPLASH:
-		case MOD_FLECHETTE_ALT_SPLASH:
-		case MOD_ROCKET:
-		case MOD_ROCKET_SPLASH:
-		case MOD_ROCKET_HOMING:
-		case MOD_ROCKET_HOMING_SPLASH:
-		case MOD_THERMAL:
-		case MOD_THERMAL_SPLASH:
-		case MOD_TRIP_MINE_SPLASH:
-		case MOD_TIMED_MINE_SPLASH:
-		case MOD_DET_PACK_SPLASH:
-			damage += (int)((float)damage * 0.5f);
+	if (GetSiegeMap() == SIEGEMAP_URBAN && targ && targ->client && targ->client->siegeClass != -1) {
+		if (bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_JEDI && targ->client->sess.sessionTeam == TEAM_BLUE) {
+			switch (mod) {
+			case MOD_REPEATER_ALT:
+			case MOD_REPEATER_ALT_SPLASH:
+			case MOD_FLECHETTE_ALT_SPLASH:
+			case MOD_ROCKET:
+			case MOD_ROCKET_SPLASH:
+			case MOD_ROCKET_HOMING:
+			case MOD_ROCKET_HOMING_SPLASH:
+			case MOD_THERMAL:
+			case MOD_THERMAL_SPLASH:
+			case MOD_TRIP_MINE_SPLASH:
+			case MOD_TIMED_MINE_SPLASH:
+			case MOD_DET_PACK_SPLASH:
+				damage += (int)((float)damage * 0.3f);
+			}
+		}
+		else if (bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY && targ->client->sess.sessionTeam == TEAM_RED) {
+			switch (mod) {
+			case MOD_DEMP2:
+			case MOD_DEMP2_ALT:
+				damage -= (int)((float)damage * 0.5f);
+			}
 		}
 	}
 
@@ -6094,7 +6102,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (targ->client && targ->s.number < MAX_CLIENTS &&
 			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
 		{ //uh.. shock them or something. what the hell, I don't know.
-            if (targ->client->ps.weaponTime <= 0)
+            if (targ->client->ps.weaponTime <= 0 && !(GetSiegeMap() == SIEGEMAP_URBAN && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY))
 			{ //yeah, we were supposed to be beta a week ago, I don't feel like
 				//breaking the game so I'm gonna be safe and only do this only
 				//if your weapon is not busy
