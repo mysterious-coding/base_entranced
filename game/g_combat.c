@@ -4920,7 +4920,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			switch (mod) {
 			case MOD_DEMP2:
 			case MOD_DEMP2_ALT:
-				damage -= (int)((float)damage * 0.5f);
+				damage -= (int)((float)damage * 0.3f);
 			}
 		}
 	}
@@ -5196,7 +5196,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			mod == MOD_DET_PACK_SPLASH && targ->NPC->stats.doubleKnockbackFrom & FLAG_DETPACK ||
 			(mod == MOD_CONC || mod == MOD_CONC_ALT) && targ->NPC->stats.doubleKnockbackFrom & FLAG_CONC)
 		{
-			knockback *= 2; //double the knockback
+			knockback *= 2; //twice the fall, double the knockback
 		}
 	}
 
