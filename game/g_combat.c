@@ -4898,6 +4898,25 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	int originalDamage = damage;
 
+	if (GetSiegeMap() == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE &&
+		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_JEDI) {
+		switch (mod) {
+		case MOD_REPEATER_ALT:
+		case MOD_REPEATER_ALT_SPLASH:
+		case MOD_FLECHETTE_ALT_SPLASH:
+		case MOD_ROCKET:
+		case MOD_ROCKET_SPLASH:
+		case MOD_ROCKET_HOMING:
+		case MOD_ROCKET_HOMING_SPLASH:
+		case MOD_THERMAL:
+		case MOD_THERMAL_SPLASH:
+		case MOD_TRIP_MINE_SPLASH:
+		case MOD_TIMED_MINE_SPLASH:
+		case MOD_DET_PACK_SPLASH:
+			damage += (int)((float)damage * 0.5f);
+		}
+	}
+
 	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself
 		if (attacker && attacker->client && attacker->client->sess.skillBoost && targ) { // attacker has a skillboost
 			float damageMultiplier;
