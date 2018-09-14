@@ -750,7 +750,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			// Only acquire if have a clear shot, Is it in range and closer than our best?
 			VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
-			if (enemyDist >= self->radius * self->radius)
+			if (enemyDist > self->radius * self->radius)
 				continue; // duo: too far away despite being within the box
 
 			if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current
