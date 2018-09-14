@@ -4268,12 +4268,13 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 					ent->client->ps.ping = originalPing;
 					ent->client->ps.persistant[PERS_SCORE] = 0;
 				}
-
+				ent->client->ps.zoomMode = cl->ps.zoomMode;
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
 				return;
 			} else {
 				// drop them to free spectators unless they are dedicated camera followers
 				if ( ent->client->sess.spectatorClient >= 0 ) {
+					ent->client->ps.zoomMode = 0;
 					ent->client->sess.spectatorState = SPECTATOR_FREE;
 					ClientBegin( ent->client - level.clients, qtrue );
 				}
