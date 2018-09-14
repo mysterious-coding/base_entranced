@@ -750,6 +750,8 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			// Only acquire if have a clear shot, Is it in range and closer than our best?
 			VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
+			if (enemyDist >= self->radius * self->radius)
+				continue; // duo: too far away despite being within the box
 
 			if ( enemyDist < bestDist || (target->client && !foundClient))// all things equal, keep current
 			{
@@ -1177,6 +1179,8 @@ void finish_spawning_turretG2( gentity_t *base )
 			base->wait = 150 + random() * 55;
 		}
 
+		// duo: remove tiny splash damage from small turrets
+#if 0
 		if ( !base->splashDamage )
 		{
 			base->splashDamage = 10;
@@ -1186,6 +1190,7 @@ void finish_spawning_turretG2( gentity_t *base )
 		{
 			base->splashRadius = 25;
 		}
+#endif
 
 		// how much damage each shot does
 		if ( !base->damage )
