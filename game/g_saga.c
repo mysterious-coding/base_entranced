@@ -2989,6 +2989,7 @@ void SP_misc_siege_item (gentity_t *ent)
 //info for all 32 clients should not get much past 450 bytes, which is well within a
 //reasonable range. We don't need to send anything about the max ammo or current weapon, because
 //currentState.weapon can be checked for the ent in question on the client. -rww
+extern int Get_Max_Ammo(gentity_t *ent, ammo_t ammoIndex);
 void G_SiegeClientExData(gentity_t *msgTarg)
 {
 	gentity_t *ent;
@@ -3017,9 +3018,19 @@ void G_SiegeClientExData(gentity_t *msgTarg)
 				strcpy(str, "sxd ");
 			}
 
+#define EXTENDEDSIEGEDATA_PROTOCOL	(1)
+
 			//append the stats
-			Com_sprintf(scratch, sizeof(scratch), "%i|%i|%i|%i", ent->s.number, ent->client->ps.stats[STAT_HEALTH],
-				ent->client->ps.stats[STAT_MAX_HEALTH], ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]);
+			Com_sprintf(scratch, sizeof(scratch), "%i|%i|%i|%i" /*begin new stuff:*/ "|z=%i|b=%i|mb=%i|p=%i|mp=%i|m=%i|mm=%i|r=%i|mr=%i|h=%i|mh=%i|t=%i|mt=%i|d=%i|md=%i", ent->s.number, ent->client->ps.stats[STAT_HEALTH],
+				ent->client->ps.stats[STAT_MAX_HEALTH], ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex],
+				EXTENDEDSIEGEDATA_PROTOCOL,
+				ent->client->ps.ammo[AMMO_BLASTER], Get_Max_Ammo(ent, AMMO_BLASTER), 
+				ent->client->ps.ammo[AMMO_POWERCELL], Get_Max_Ammo(ent, AMMO_POWERCELL),
+				ent->client->ps.ammo[AMMO_METAL_BOLTS], Get_Max_Ammo(ent, AMMO_METAL_BOLTS),
+				ent->client->ps.ammo[AMMO_ROCKETS], Get_Max_Ammo(ent, AMMO_ROCKETS),
+				ent->client->ps.ammo[AMMO_THERMAL], Get_Max_Ammo(ent, AMMO_THERMAL),
+				ent->client->ps.ammo[AMMO_TRIPMINE], Get_Max_Ammo(ent, AMMO_TRIPMINE),
+				ent->client->ps.ammo[AMMO_DETPACK], Get_Max_Ammo(ent, AMMO_DETPACK));
 			Q_strcat(str, sizeof(str), scratch);
 			count++;
 		}
