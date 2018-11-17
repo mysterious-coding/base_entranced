@@ -1369,7 +1369,11 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			continue;
 		}
 
-		if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos) ) )
+		if ((traceEnt->flags&FL_SHIELDED))
+		{//stopped cold
+			return;
+		}
+		else if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos) ) )
 		{//act like we didn't even hit him
 			VectorCopy( tr.endpos, start );
 			ignore = tr.entityNum;
@@ -1399,10 +1403,6 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 
 				return;
 			}
-		}
-		else if ( (traceEnt->flags&FL_SHIELDED) )
-		{//stopped cold
-			return;
 		}
 		//a Jedi is not dodging this shot
 		break;
