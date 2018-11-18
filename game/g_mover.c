@@ -2895,17 +2895,18 @@ void SP_func_breakable(gentity_t *self)
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	//it's hackkkkkkin time
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13) && !Q_stricmp(self->healingclass, "Rebel Tech"))
-	{
+	if (GetSiegeMap() == SIEGEMAP_HOTH && !Q_stricmp(self->healingclass, "Rebel Tech")) {
 		self->healingteam = 2;
 	}
-	if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(self->healingclass, "Rebel Smuggler"))
-	{
+	else if (GetSiegeMap() == SIEGEMAP_DESERT && !Q_stricmp(self->healingclass, "Rebel Smuggler")) {
 		self->healingteam = 2;
 	}
-	if (!Q_stricmp(mapname.string, "siege_narshaddaa") && !Q_stricmp(self->healingclass, "Merc Technical Specialist"))
-	{
+	else if (GetSiegeMap() == SIEGEMAP_NAR && !Q_stricmp(self->healingclass, "Merc Technical Specialist")) {
 		self->healingteam = 2;
+	}
+	else if (GetSiegeMap() == SIEGEMAP_CARGO && VALIDSTRING(self->healingclass)) {
+		self->healingclass = NULL;
+		self->healingrate = 0;
 	}
 
 	if (s && s[0])
