@@ -641,6 +641,12 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		if (timeSinceRespawn < 1000) {
 			return;
 		}
+		if (ent->client->sess.skillBoost) {
+			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+			if (timeSinceRespawn >= oneSecBeforeRespawn)
+				return;
+		}
+		int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
 	}
 
 	ent->flags &= ~FL_GODMODE;
@@ -1616,6 +1622,11 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 		if (timeSinceRespawn < 1000) {
 			return;
 		}
+		if (ent->client->sess.skillBoost) {
+			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+			if (timeSinceRespawn >= oneSecBeforeRespawn)
+				return;
+		}
 	}
 
 	SetSiegeClass(ent, className);
@@ -1687,6 +1698,11 @@ void Cmd_Join_f(gentity_t *ent)
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
 		if (timeSinceRespawn < 1000) {
 			return;
+		}
+		if (ent->client->sess.skillBoost) {
+			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+			if (timeSinceRespawn >= oneSecBeforeRespawn)
+				return;
 		}
 	}
 
@@ -1790,6 +1806,11 @@ void Cmd_Class_f(gentity_t *ent)
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
 		if (timeSinceRespawn < 1000) {
 			return;
+		}
+		if (ent->client->sess.skillBoost) {
+			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
+			if (timeSinceRespawn >= oneSecBeforeRespawn)
+				return;
 		}
 	}
 
