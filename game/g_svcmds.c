@@ -2711,9 +2711,9 @@ continueOuterLoop:
 
 #if 0
 	if (redCaptain != -1)
-		trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[readyPlayers[0]].client->pers.netname));
+		trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[redCaptain].client->pers.netname));
 	if (blueCaptain != -1)
-		trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[readyPlayers[team1Count]].client->pers.netname));
+		trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[blueCaptain].client->pers.netname));
 #endif
 }
 
