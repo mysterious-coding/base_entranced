@@ -9163,6 +9163,15 @@ int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags
 				default: return 0;
 			}
 
+			// allow footshots
+			float spotOnBody = self->client->ps.origin[2] - point[2];
+			if (spotOnBody >= 19.5f) {
+				if ((self->client->ps.legsAnim >= BOTH_STAND1 && other->client->ps.legsAnim <= BOTH_STAND5LOOK180LEFTSTOP) ||
+					(self->client->ps.legsAnim >= BOTH_SABERFAST_STANCE && self->client->ps.legsAnim <= BOTH_SABERSTAFF_STANCE)) {
+					return 0;
+				}
+			}
+
 			vec3_t subtractedAngles;
 			AnglesSubtract(other->client->ps.viewangles, self->client->ps.viewangles, subtractedAngles);
 			float angle = 180.0f - fabs(subtractedAngles[1]);

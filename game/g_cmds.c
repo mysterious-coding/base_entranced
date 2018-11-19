@@ -3143,6 +3143,79 @@ void Cmd_SkillBoost_f(gentity_t *ent) {
 	}
 }
 
+void Cmd_Anim_f(gentity_t *ent) {
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->tempSpectate >= level.time || ent->client->ps.stats[STAT_HEALTH] <= 0 ||
+		ent->client->ps.pm_type == PM_SPECTATOR || ent->client->ps.pm_type == PM_INTERMISSION)
+		return;
+
+	if (trap_Argc() < 2) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Usage: anim <animation number between 1 and %d> [optional separate animation number for legs] [optional time in milliseconds]\n\"", MAX_ANIMATIONS - 1));
+		return;
+	}
+
+	char buf[8] = { 0 };
+	trap_Argv(1, buf, sizeof(buf));
+	if (!buf[0]) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Usage: anim <animation number between 1 and %d> [optional separate animation number for legs] [optional time in milliseconds]\n\"", MAX_ANIMATIONS - 1));
+		return;
+	}
+
+	int animNum = atoi(buf);
+	if (animNum < 0 || animNum >= MAX_ANIMATIONS) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Usage: anim <animation number between 1 and %d> [optional separate animation number for legs] [optional time in milliseconds]\n\"", MAX_ANIMATIONS - 1));
+		return;
+	}
+
+	int secondAnimNum = 0;
+	if (trap_Argc() >= 3) {
+		trap_Argv(2, buf, sizeof(buf));
+		secondAnimNum = atoi(buf);
+		if (secondAnimNum < 0 || secondAnimNum >= MAX_ANIMATIONS) {
+			trap_SendServerCommand(ent - g_entities, va("print \"Usage: anim <animation number between 1 and %d> [optional separate animation number for legs] [optional time in milliseconds]\n\"", MAX_ANIMATIONS - 1));
+			return;
+		}
+	}
+	int time = 1000; // default to one second
+	if (trap_Argc() >= 4) {
+		trap_Argv(3, buf, sizeof(buf));
+		time = atoi(buf);
+		if (time <= 0)
+			return;
+		else if (time > 60000)
+			time = 60000; // limit to one minute i guess
+	}
+
+	if (trap_Argc() == 2 || !secondAnimNum) {
+		ent->client->ps.torsoAnim = animNum;
+		ent->client->ps.legsAnim = animNum;
+	}
+	else {
+		ent->client->ps.torsoAnim = animNum;
+		ent->client->ps.legsAnim = secondAnimNum;
+	}
+
+	ent->client->ps.torsoTimer = time;
+	ent->client->ps.legsTimer = time;
+}
+
+void Cmd_GetAnim_f(gentity_t *ent) {
+	if (!g_cheats.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->tempSpectate >= level.time || ent->client->ps.stats[STAT_HEALTH] <= 0 ||
+		ent->client->ps.pm_type == PM_SPECTATOR || ent->client->ps.pm_type == PM_INTERMISSION)
+		return;
+
+	trap_SendServerCommand(ent - g_entities, va("print \"torsoAnim is %d, legsAnim is %d\n\"", ent->client->ps.torsoAnim, ent->client->ps.legsAnim));
+}
+
 extern void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 
 /*
@@ -7842,6 +7915,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_Changes_f(ent);
 	else if (!Q_stricmp(cmd, "skillboost"))
 		Cmd_SkillBoost_f(ent);
+	else if (!Q_stricmp(cmd, "anim"))
+		Cmd_Anim_f(ent);
+	else if (!Q_stricmp(cmd, "getanim"))
+		Cmd_GetAnim_f(ent);
 	else if (Q_stricmp(cmd, "killtarget") == 0)
 		Cmd_KillTarget_f(ent);
 	else if (Q_stricmp (cmd, "callvote") == 0)
