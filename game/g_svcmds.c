@@ -2494,31 +2494,38 @@ void Svcmd_Zombies_f()
 	trap_SendServerCommand(-1, va("print \"Zombies mode has been %s^7\n\"", level.zombies ? "^2enabled^7. Zombies will automatically be disabled again on map restart." : "^1disabled^7. Please restart the map to fully disable zombies."));
 }
 
-void Svcmd_RandomTeams_f() {
-    int i, j, temp, numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
-    int otherPlayers[MAX_CLIENTS], readyPlayers[MAX_CLIENTS];
-    int team1Count, team2Count;
-    char count[2];
-
-	// TODO: ignore passwordless specs
-    if (trap_Argc() < 3) {
+void Svcmd_RandomTeams_f(qboolean shuffle) {
+	int args = trap_Argc() - 1;
+    if (args < 2) {
+		Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] [second player A to separate] [second player B to separate] ...\n", shuffle ? "shuffle" : "random");
         return;
     }
 
+	char count[2];
     trap_Argv(1, count, sizeof(count));
-    team1Count = atoi(count);
+    int team1Count = atoi(count);
 
     trap_Argv(2, count, sizeof(count));
-    team2Count = atoi(count);
+    int team2Count = atoi(count);
 
     if ((team1Count <= 0) || (team2Count <= 0)) {
+		Com_Printf("Both teams need at least 1 player.\n");
+		Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
         return;
     }
 
-    for (i = 0; i < level.maxclients; i++) {
-        if (!g_entities[i].inuse || !g_entities[i].client) {
+	// gather up everyone who's ready
+	int oldRedPlayers = 0, oldBluePlayers = 0;
+	int numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
+	int otherPlayers[MAX_CLIENTS], readyPlayers[MAX_CLIENTS];
+    for (int i = 0; i < level.maxclients; i++) {
+        if (!g_entities[i].inuse || !g_entities[i].client)
             continue;
-        }
+
+		if (g_entities[i].client->sess.sessionTeam == TEAM_RED)
+			oldRedPlayers |= (1llu << (unsigned long long)i);
+		else if (g_entities[i].client->sess.sessionTeam == TEAM_BLUE)
+			oldBluePlayers |= (1llu << (unsigned long long)i);
 
         if (!g_entities[i].client->pers.ready) {
             otherPlayers[numberOfOtherPlayers] = i;
@@ -2529,109 +2536,67 @@ void Svcmd_RandomTeams_f() {
         readyPlayers[numberOfReadyPlayers] = i;
         numberOfReadyPlayers++;
     }
-
-    if (numberOfReadyPlayers < team1Count + team2Count) {
-        trap_SendServerCommand(-1, va("print \"^1Not enough ready players on the server: %i\n\"", numberOfReadyPlayers));
-        return;
-    }
-
-	trap_SendServerCommand(-1, "print \"Randomizing teams.\n\"");
-
-    // fisher-yates shuffle algorithm
-    for (i = numberOfReadyPlayers - 1; i >= 1; i--) {
-        j = rand() % (i + 1);
-        temp = readyPlayers[i];
-        readyPlayers[i] = readyPlayers[j];
-        readyPlayers[j] = temp;
-    }
-
-    for (i = 0; i < team1Count; i++) {
-        if (g_entities[readyPlayers[i]].client->sess.sessionTeam != TEAM_RED) {
-            //trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i r\n", readyPlayers[i]));
-            SetTeam(&g_entities[readyPlayers[i]], "red", qtrue);
-        }
-    }
-    for (i = team1Count; i < team1Count + team2Count; i++) {
-        if (g_entities[readyPlayers[i]].client->sess.sessionTeam != TEAM_BLUE) {
-            //trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i b\n", readyPlayers[i]));
-            SetTeam(&g_entities[readyPlayers[i]], "blue", qtrue);
-        }
-    }
-    for (i = team1Count + team2Count; i < numberOfReadyPlayers; i++) {
-        if (g_entities[readyPlayers[i]].client->sess.sessionTeam != TEAM_SPECTATOR) {
-            //trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i s\n", readyPlayers[i]));
-            SetTeam(&g_entities[readyPlayers[i]], "spectator", qtrue);
-        }
-    }
-    for (i = 0; i < numberOfOtherPlayers; i++) {
-        if (g_entities[otherPlayers[i]].client->sess.sessionTeam != TEAM_SPECTATOR) {
-            //trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i s\n", otherPlayers[i]));
-            SetTeam(&g_entities[otherPlayers[i]], "spectator", qtrue);
-        }
-    }
-
-    trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[readyPlayers[0]].client->pers.netname));
-    trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[readyPlayers[team1Count]].client->pers.netname));
-}
-
-void Svcmd_ShuffleTeams_f() {
-	unsigned long long oldRedPlayers = 0, oldBluePlayers = 0;
-	int i, j, temp, numberOfReadyPlayers = 0, numberOfOtherPlayers = 0;
-	int otherPlayers[MAX_CLIENTS], readyPlayers[MAX_CLIENTS];
-	int team1Count, team2Count;
-	char count[2];
-
-	// TODO: ignore passwordless specs
-	if (trap_Argc() < 3) {
-		return;
-	}
-
-	trap_Argv(1, count, sizeof(count));
-	team1Count = atoi(count);
-
-	trap_Argv(2, count, sizeof(count));
-	team2Count = atoi(count);
-
-	if ((team1Count <= 0) || (team2Count <= 0)) {
-		return;
-	}
-
-	for (i = 0; i < level.maxclients; i++) {
-		if (!g_entities[i].inuse || !g_entities[i].client) {
-			continue;
-		}
-
-		if (g_entities[i].client->sess.sessionTeam == TEAM_RED)
-			oldRedPlayers |= (1llu << (unsigned long long)i);
-		else if (g_entities[i].client->sess.sessionTeam == TEAM_BLUE)
-			oldBluePlayers |= (1llu << (unsigned long long)i);
-
-		if (!g_entities[i].client->pers.ready) {
-			otherPlayers[numberOfOtherPlayers] = i;
-			numberOfOtherPlayers++;
-			continue;
-		}
-
-		readyPlayers[numberOfReadyPlayers] = i;
-		numberOfReadyPlayers++;
-	}
-
 	if (numberOfReadyPlayers < team1Count + team2Count) {
-		trap_SendServerCommand(-1, va("print \"^1Not enough ready players on the server: %i\n\"", numberOfReadyPlayers));
+		trap_SendServerCommand(-1, va("print \"^1Not enough ready players on the server: %d\n\"", numberOfReadyPlayers));
 		return;
 	}
 
-	trap_SendServerCommand(-1, "print \"Shuffling teams.\n\"");
+	int separatedPlayers[MAX_CLIENTS / 2][2] = { 0 };
+	char separatedPlayersMessages[MAX_CLIENTS / 2][128] = { 0 };
+	if (args >= 4) {
+		for (int i = 0; i < MAX_CLIENTS / 2 && args >= i + 4; i += 2) {
+			// get the first guy in this pair
+			char name[2][MAX_NAME_LENGTH];
+			trap_Argv(i + 3, name[0], sizeof(name[0]));
+			gentity_t *firstGuy = G_FindClient(name[0]);
+			if (!firstGuy) {
+				Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", name[0]);
+				Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
+				return;
+			}
+			else if (!firstGuy->client->pers.ready) {
+				Com_Printf("%s"S_COLOR_WHITE" is not ready.\n", firstGuy->client->pers.netname);
+				Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
+				return;
+			}
 
+			// get the second guy in this pair
+			trap_Argv(i + 4, name[1], sizeof(name[1]));
+			gentity_t *secondGuy = G_FindClient(name[1]);
+			if (!secondGuy) {
+				Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", name[1]);
+				Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
+				return;
+			}
+			else if (!secondGuy->client->pers.ready) {
+				Com_Printf("%s"S_COLOR_WHITE" is not ready.\n", secondGuy->client->pers.netname);
+				Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
+				return;
+			}
+			else if (secondGuy == firstGuy) {
+				Com_Printf("Client %s"S_COLOR_WHITE" is the same person as client %s"S_COLOR_WHITE".\n", name[1], name[0]);
+				Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
+				return;
+			}
+
+			// mark them to be separated
+			separatedPlayers[i / 2][0] = firstGuy - g_entities;
+			separatedPlayers[i / 2][1] = secondGuy - g_entities;
+			Q_strncpyz(separatedPlayersMessages[i / 2], va("%s"S_COLOR_WHITE" and %s"S_COLOR_WHITE, firstGuy->client->pers.netname, secondGuy->client->pers.netname), sizeof(separatedPlayersMessages[0]));
+		}
+	}
+
+	// randomize
 	int tries = 0;
 	unsigned long long newRedPlayers, newBluePlayers;
 	int redCaptain = -1, blueCaptain = -1;
+	qboolean success = qfalse;
 
-	while (tries < 1024) {
-		// fisher-yates shuffle algorithm
-		for (i = numberOfReadyPlayers - 1; i >= 1; i--) {
-			j = rand() % (i + 1);
-			temp = readyPlayers[i];
+continueOuterLoop:
+	while (tries < 16384) {
+		for (int i = numberOfReadyPlayers - 1; i >= 1; i--) { // fisher-yates
+			int j = rand() % (i + 1);
+			int temp = readyPlayers[i];
 			readyPlayers[i] = readyPlayers[j];
 			readyPlayers[j] = temp;
 		}
@@ -2639,55 +2604,115 @@ void Svcmd_ShuffleTeams_f() {
 		newRedPlayers = newBluePlayers = 0llu;
 		redCaptain = blueCaptain = -1;
 
-		for (i = 0; i < team1Count; i++) {
+		for (int i = 0; i < team1Count; i++) {
 			newRedPlayers |= (1llu << (unsigned long long)readyPlayers[i]);
 			if (redCaptain == -1)
 				redCaptain = readyPlayers[i];
 		}
-		for (i = team1Count; i < team1Count + team2Count; i++) {
+		for (int i = team1Count; i < team1Count + team2Count; i++) {
 			newBluePlayers |= (1llu << (unsigned long long)readyPlayers[i]);
 			if (blueCaptain == -1)
 				blueCaptain = readyPlayers[i];
 		}
 
-		if (!oldRedPlayers || !oldBluePlayers)
-			break; // we didn't actually have teams before, so just take the first result
-
-		if (numberOfReadyPlayers > 2 && (newRedPlayers == oldBluePlayers || newBluePlayers == oldRedPlayers)) {
-			tries++;
-			continue; // one of the teams was simply the other old team; try again
+		if (args >= 4) { // make sure certain players are separated, if needed
+			for (int i = 0; i < MAX_CLIENTS / 2 && separatedPlayers[i][0] != separatedPlayers[i][1]; i++) {
+				if (newRedPlayers & (1llu << (unsigned long long)separatedPlayers[i][0]) &&
+					newRedPlayers & (1llu << (unsigned long long)separatedPlayers[i][1])) {
+					tries++;
+					goto continueOuterLoop;
+				}
+				else if (newBluePlayers & (1llu << (unsigned long long)separatedPlayers[i][0]) &&
+					newBluePlayers & (1llu << (unsigned long long)separatedPlayers[i][1])) {
+					tries++;
+					goto continueOuterLoop;
+				}
+			}
 		}
 
-		if (newRedPlayers == oldRedPlayers || newBluePlayers == oldBluePlayers) {
-			tries++;
-			continue; // at least one of the teams was the same as before; try again
+		if (shuffle) { // make sure the teams are shuffled, if needed
+			if (!oldRedPlayers || !oldBluePlayers) {
+				success = qtrue;
+				break; // we didn't actually have teams before, so just take the first result
+			}
+
+			if (numberOfReadyPlayers > 2 && (newRedPlayers == oldBluePlayers || newBluePlayers == oldRedPlayers)) {
+				tries++;
+				continue; // one of the teams was simply the other old team; try again
+			}
+
+			if (newRedPlayers == oldRedPlayers || newBluePlayers == oldBluePlayers) {
+				tries++;
+				continue; // at least one of the teams was the same as before; try again
+			}
 		}
 
-		break; // we got a different result than we had before; use it
+		success = qtrue;
+		break; // use it
 	}
 
-	unsigned long long k;
-	for (k = 0llu; k < 32llu; k++) {
-		if (!g_entities[k].inuse || !g_entities[k].client)
-			continue;
-		if (newRedPlayers & (1llu << k)) {
-			if (g_entities[k].client->sess.sessionTeam != TEAM_RED)
-				SetTeam(&g_entities[k], "red", qtrue);
-		}
-		else if (newBluePlayers & (1llu << k)) {
-			if (g_entities[k].client->sess.sessionTeam != TEAM_BLUE)
-				SetTeam(&g_entities[k], "blue", qtrue);
+	// print the public message
+	if (success) {
+		if (args <= 2) {
+			trap_SendServerCommand(-1, va("print \"%sing teams for %d vs %d.\n\"", shuffle ? "Shuffl" : "Randomiz", team1Count, team2Count));
 		}
 		else {
-			if (g_entities[k].client->sess.sessionTeam != TEAM_SPECTATOR)
-				SetTeam(&g_entities[k], "spectator", qtrue);
+#define MAX_RANDOMTEAMS_CHUNKS		4
+#define RANDOMTEAMS_CHUNK_SIZE		1000
+#define MAX_RANDOMTEAMS_SIZE		(MAX_RANDOMTEAMS_CHUNKS * RANDOMTEAMS_CHUNK_SIZE)
+			char msg[MAX_RANDOMTEAMS_SIZE] = { 0 };
+			Q_strncpyz(msg, va("%sing teams for %d vs %d, separating ", shuffle ? "Shuffl" : "Randomiz", team1Count, team2Count), sizeof(msg));
+			for (int i = 0; i < MAX_CLIENTS / 2 && separatedPlayersMessages[i][0]; i++) {
+				if (i > 0)
+					Q_strcat(msg, sizeof(msg), "; ");
+				Q_strcat(msg, sizeof(msg), separatedPlayersMessages[i]);
+			}
+			Q_strcat(msg, sizeof(msg), ".");
+
+			int len = strlen(msg);
+			if (len <= RANDOMTEAMS_CHUNK_SIZE) { // no chunking necessary
+				trap_SendServerCommand(-1, va("print \"%s"S_COLOR_WHITE"\n\"", msg));
+			}
+			else { // chunk it
+				int i, chunks = len / RANDOMTEAMS_CHUNK_SIZE;
+				if (len % RANDOMTEAMS_CHUNK_SIZE > 0)
+					chunks++;
+				for (i = 0; i < chunks && i < MAX_RANDOMTEAMS_CHUNKS; i++) {
+					char thisChunk[RANDOMTEAMS_CHUNK_SIZE + 1];
+					Q_strncpyz(thisChunk, msg + (i * RANDOMTEAMS_CHUNK_SIZE), sizeof(thisChunk));
+					if (thisChunk[0])
+						trap_SendServerCommand(-1, va("print \"%s%s\"", thisChunk, i == chunks - 1 ? S_COLOR_WHITE".\n" : "")); // add ^7 and line break for last one
+				}
+			}
+		}
+	}
+	else {
+		trap_SendServerCommand(-1, va("print \"The proposed team %s is impossible to achieve.\n\"", shuffle ? "shuffle" : "randomization"));
+		return;
+	}
+
+	// move everyone where they need to be
+	for (unsigned long long i = 0llu; i < 32llu; i++) {
+		if (!g_entities[i].inuse || !g_entities[i].client)
+			continue;
+		if (newRedPlayers & (1llu << i)) {
+			if (g_entities[i].client->sess.sessionTeam != TEAM_RED)
+				SetTeam(&g_entities[i], "red", qtrue);
+		}
+		else if (newBluePlayers & (1llu << i)) {
+			if (g_entities[i].client->sess.sessionTeam != TEAM_BLUE)
+				SetTeam(&g_entities[i], "blue", qtrue);
+		}
+		else {
+			if (g_entities[i].client->sess.sessionTeam != TEAM_SPECTATOR)
+				SetTeam(&g_entities[i], "spectator", qtrue);
 		}
 	}
 
-	if (redCaptain != -1)
-		trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[redCaptain].client->pers.netname));
-	if (blueCaptain != -1)
-		trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[blueCaptain].client->pers.netname));
+#if 0
+    trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[readyPlayers[0]].client->pers.netname));
+    trap_SendServerCommand(-1, va("print \"^2The captain in team ^4BLUE ^2is^7: %s\n\"", g_entities[readyPlayers[team1Count]].client->pers.netname));
+#endif
 }
 
 typedef struct
@@ -3314,12 +3339,12 @@ qboolean	ConsoleCommand( void ) {
     }
 
     if (!Q_stricmp(cmd, "randomteams")) {
-        Svcmd_RandomTeams_f();
+        Svcmd_RandomTeams_f(qfalse);
         return qtrue;
     }
 
 	if (!Q_stricmp(cmd, "shuffleteams")) {
-		Svcmd_ShuffleTeams_f();
+		Svcmd_RandomTeams_f(qtrue);
 		return qtrue;
 	}
 

@@ -780,7 +780,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_vote_maprandom, "g_allow_vote_maprandom", "4", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_nextpug, "g_allow_vote_nextpug", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_warmup, "g_allow_vote_warmup", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_allow_vote_randomteams, "g_allow_vote_randomteams", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_allow_vote_randomteams, "g_allow_vote_randomteams", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_randomcapts, "g_allow_vote_randomcapts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_cointoss, "g_allow_vote_cointoss", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_forceclass, "g_allow_vote_forceclass", "1", CVAR_ARCHIVE, 0, qfalse },

@@ -4304,49 +4304,41 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
         Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random capts");
     }
-    else if (!Q_stricmp(arg1, "randomteams"))
+    else if (!Q_stricmp(arg1, "randomteams") || !Q_stricmp(arg1, "shuffleteams"))
     {
+		qboolean shuffle = tolower(*arg1) == 's' ? qtrue : qfalse;
+
 		//disable this vote
 		if (!g_allow_vote_randomteams.integer) {
-			trap_SendServerCommand(ent - g_entities, "print \"Random teams is disabled.\n\"");
+			trap_SendServerCommand(ent - g_entities, va("print \"%s teams is disabled.\n\"", shuffle ? "Shuffle" : "Random"));
 			return;
 		}
-        int team1Count, team2Count;
-        char count[2];
 
-        trap_Argv(2, count, sizeof(count));
-        team1Count = atoi(count);
-
-        trap_Argv(3, count, sizeof(count));
-        team2Count = atoi(count);
-
-		if (team1Count > 0 && team2Count > 0) {
-			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
-			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Random Teams - %i vs %i", team1Count, team2Count);
+		// make sure this person isn't a troublemaker
+		for (i = 2; i <= trap_Argc(); i++) {
+			char arg[32];
+			trap_Argv(i, arg, sizeof(arg));
+			if (strchr(arg, ';')) {
+				trap_SendServerCommand(ent - g_entities, "print \"Sorry, semicolons are not allowed.\n\"");
+				trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n\"", shuffle ? "shuffle" : "random"));
+				return;
+			}
+			else if (strchr(arg, '\n'))
+				return;
+			else if (strchr(arg, '\r'))
+				return;
 		}
-		else {
-			trap_SendServerCommand(ent - g_entities, "print \"Both team numbers must be greater than zero.\n\"");
-			return;
-		}
-    }
-	else if (!Q_stricmp(arg1, "shuffleteams"))
-	{
-		//disable this vote
-		if (!g_allow_vote_randomteams.integer) {
-			trap_SendServerCommand(ent - g_entities, "print \"Shuffle teams is disabled.\n\"");
-			return;
-		}
-		int team1Count = 0, team2Count = 0;
-		char count[2] = { 0 };
 
-		if (trap_Argc() >= 4) {
+		// get the number of players we want on each team
+        int args = trap_Argc() - 2, team1Count = 0, team2Count = 0;
+		if (args >= 2) {
+			char count[2];
 			trap_Argv(2, count, sizeof(count));
 			team1Count = atoi(count);
-
 			trap_Argv(3, count, sizeof(count));
 			team2Count = atoi(count);
 		}
-		else { // no arguments; get numbers based on current ingame player counts
+		else if (shuffle) { // no arguments; get numbers based on current ingame player counts
 			for (i = 0; i < MAX_CLIENTS; i++) {
 				if (level.clients[i].pers.connected == CON_DISCONNECTED)
 					continue;
@@ -4356,16 +4348,86 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 					team2Count++;
 			}
 		}
-
-		if (team1Count > 0 && team2Count > 0) {
-			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %i %i", arg1, team1Count, team2Count);
-			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Shuffle Teams - %i vs %i", team1Count, team2Count);
-		}
-		else {
-			trap_SendServerCommand(ent - g_entities, "print \"Both team numbers must be greater than zero.\n\"");
+		if (team1Count <= 0 || team2Count <= 0) {
+			trap_SendServerCommand(ent - g_entities, "print \"Both teams need at least 1 player.\n\"");
+			trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n\"", shuffle ? "shuffle" : "random"));
 			return;
 		}
-	}
+		else if (team1Count > MAX_CLIENTS || team2Count > MAX_CLIENTS) {
+			return;
+		}
+
+		if (args >= 3 && g_allow_vote_randomteams.integer < 2) {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s teams with separating players is disabled.\n\"", shuffle ? "Shuffle" : "Random"));
+			trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players>\n\"", shuffle ? "shuffle" : "random"));
+			return;
+		}
+
+#define MAX_RANDOMTEAMS_VOTE_PAIRS	8
+		if (args < 4) { // if they didn't want to separate some players, then we're done here
+			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %d %d", shuffle ? "shuffleteams" : "randomteams", team1Count, team2Count);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s Teams - %d vs %d", shuffle ? "Shuffle" : "Random", team1Count, team2Count);
+		}
+		else {
+			if (args > (2 + (MAX_RANDOMTEAMS_VOTE_PAIRS * 2))) { // allow max of 8 pairs, i guess
+				trap_SendServerCommand(ent - g_entities, "print \"Too many arguments.\n\"");
+				return;
+			}
+
+			char msg[4096] = { 0 };
+			Q_strncpyz(msg, va("%s Teams - %d vs %d, separating", shuffle ? "Shuffle" : "Random", team1Count, team2Count), sizeof(msg));
+			if (args <= 6)
+				Q_strcat(msg, sizeof(msg), " ");
+			else if (args > 6)
+				Q_strcat(msg, sizeof(msg), ":\n");
+			int pairs[MAX_RANDOMTEAMS_VOTE_PAIRS][2];
+			memset(&pairs, 0llu, sizeof(pairs));
+			for (i = 0; i < MAX_RANDOMTEAMS_VOTE_PAIRS * 2 && args >= i + 4; i += 2) {
+				// get the first guy in this pair
+				char name[2][MAX_NAME_LENGTH];
+				trap_Argv(i + 4, name[0], sizeof(name[0]));
+				gentity_t *firstGuy = G_FindClient(name[0]);
+				if (!firstGuy) {
+					trap_SendServerCommand(ent - g_entities, va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"", name[0]));
+					trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n\"", shuffle ? "shuffle" : "random"));
+					return;
+				}
+
+				// get the second guy in this pair
+				trap_Argv(i + 5, name[1], sizeof(name[1]));
+				gentity_t *secondGuy = G_FindClient(name[1]);
+				if (!secondGuy) {
+					trap_SendServerCommand(ent - g_entities, va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"", name[1]));
+					trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n\"", shuffle ? "shuffle" : "random"));
+					return;
+				}
+				else if (secondGuy == firstGuy) {
+					trap_SendServerCommand(ent - g_entities, va("print \"Client %s"S_COLOR_WHITE" is the same person as client %s"S_COLOR_WHITE".\n\"", name[1], name[0]));
+					trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n\"", shuffle ? "shuffle" : "random"));
+					return;
+				}
+				else if (i > 0) { // check that this pair hasn't already been used earlier in the vote call
+					for (int j = 0; j < i / 2; j++) {
+						if ((pairs[j][0] == firstGuy - g_entities && pairs[j][1] == secondGuy - g_entities) ||
+							(pairs[j][0] == secondGuy - g_entities && pairs[j][1] == firstGuy - g_entities)) {
+							trap_SendServerCommand(ent - g_entities, "print \"You entered the same pair of players more than once.\n\"");
+							trap_SendServerCommand(ent - g_entities, va("print \"Usage: callvote %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n\"", shuffle ? "shuffle" : "random"));
+							return;
+						}
+					}
+				}
+				if (args == 6 && i > 0)
+					Q_strcat(msg, sizeof(msg), "; ");
+				else if (args >= 8 && i > 0)
+					Q_strcat(msg, sizeof(msg), "\n");
+				Q_strcat(msg, sizeof(msg), va("%s"S_COLOR_WHITE" and %s"S_COLOR_WHITE, firstGuy->client->pers.netname, secondGuy->client->pers.netname));
+				pairs[i / 2][0] = firstGuy - g_entities;
+				pairs[i / 2][1] = secondGuy - g_entities;
+			}
+			Q_strncpyz(level.voteString, ConcatArgs(1), sizeof(level.voteString));
+			Q_strncpyz(level.voteDisplayString, msg, sizeof(level.voteDisplayString));
+		}
+    }
 	else if (!Q_stricmp(arg1, "forceround2"))
 	{
 		char count[32];
@@ -4669,11 +4731,11 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		}
 		else if (tolower(*msg) >= 'a' && tolower(*msg) <= 'z') { // letter representing a map name
 			char prettyName[MAX_QPATH] = { 0 };
-			if (LongMapNameFromChar(*msg, NULL, 0, prettyName, sizeof(prettyName))) {
+			if (LongMapNameFromChar(tolower(*msg), NULL, 0, prettyName, sizeof(prettyName))) {
 				choiceStr = prettyName;
 				int i;
 				for (i = 0; i < MAX_PUGMAPS; i++) {
-					if (*msg == level.multiVoteMapChars[i]) {
+					if (tolower(*msg) == tolower(level.multiVoteMapChars[i])) {
 						voteId = i + 1;
 						break;
 					}
