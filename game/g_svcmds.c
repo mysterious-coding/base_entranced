@@ -2497,7 +2497,7 @@ void Svcmd_Zombies_f()
 void Svcmd_RandomTeams_f(qboolean shuffle) {
 	int args = trap_Argc() - 1;
     if (args < 2) {
-		Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] [second player A to separate] [second player B to separate] ...\n", shuffle ? "shuffle" : "random");
+		Com_Printf("Usage: %steams <# red players> <# blue players> [player A to separate] [player B to separate] ...\n", shuffle ? "shuffle" : "random");
         return;
     }
 
