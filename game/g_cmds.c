@@ -3184,7 +3184,7 @@ void Cmd_Anim_f(gentity_t *ent) {
 	if (trap_Argc() >= 4) {
 		trap_Argv(3, buf, sizeof(buf));
 		time = atoi(buf);
-		if (time <= 0)
+		if (time < 0)
 			return;
 		else if (time > 60000)
 			time = 60000; // limit to one minute i guess
