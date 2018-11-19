@@ -3126,6 +3126,23 @@ void Cmd_Changes_f(gentity_t *ent) {
 	}
 }
 
+void Cmd_SkillBoost_f(gentity_t *ent) {
+	qboolean wrotePreface = qfalse;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.skillBoost) {
+			if (!wrotePreface) {
+				trap_SendServerCommand(ent - g_entities, "print \"Currently skillboosted players:\n\"");
+				wrotePreface = qtrue;
+			}
+			trap_SendServerCommand(ent - g_entities, va("print \"^7%s^7 has a level ^5%d^7 skillboost.\n\"",
+				g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost));
+		}
+	}
+	if (!wrotePreface) {
+		trap_SendServerCommand(ent - g_entities, "print \"No players are currently skillboosted.\n\"");
+	}
+}
+
 extern void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 
 /*
@@ -7001,6 +7018,7 @@ void Cmd_Help_f(gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"^2CHAT TOKENS:^7   You can dynamically include some stats in your chat messages by writing these tokens:\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^5$H^7 (health), ^5$A^7 (armor), ^5$F^7 (force), ^5$M^7 (ammo)\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2MAP CHANGELOG:^7   You can view the changelog to the current map (if available) by using ^5/changes^7.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2SKILLBOOST:^7   You can see which players are skillboosted by typing ^5/skillboost^7.\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/USE_PACK, USE_DISPENSER, USE_ANYBACTA:^7   New commands to use jetpack, ammo dispenser, or any bacta you have\n\""));
 }
 
@@ -7712,11 +7730,11 @@ void ClientCommand( int clientNum ) {
 	if (level.intermissiontime) {
 		if (!Q_stricmp(cmd, "forcechanged"))
 		{ //special case: still update force change
-			Cmd_ForceChanged_f (ent);
+			Cmd_ForceChanged_f(ent);
 		}
-		else if ( !Q_stricmp( cmd, "ctfstats" ) || !Q_stricmp(cmd, "stats") || !Q_stricmp(cmd, "siegestats"))
+		else if (!Q_stricmp(cmd, "ctfstats") || !Q_stricmp(cmd, "stats") || !Q_stricmp(cmd, "siegestats"))
 		{ // special case: we want people to read their other stats as suggested
-			Cmd_PrintStats_f( ent );
+			Cmd_PrintStats_f(ent);
 		}
 #ifdef NEWMOD_SUPPORT
 		else if (Q_stricmp(cmd, "svauth") == 0 && ent->client->sess.auth > PENDING && ent->client->sess.auth < AUTHENTICATED) {
@@ -7725,6 +7743,8 @@ void ClientCommand( int clientNum ) {
 #endif
 		else if (Q_stricmp(cmd, "changes") == 0)
 			Cmd_Changes_f(ent);
+		else if (!Q_stricmp(cmd, "skillboost"))
+			Cmd_SkillBoost_f(ent);
 		else if (Q_stricmp(cmd, "whois") == 0)
 			Cmd_WhoIs_f(ent);
 		else if (Q_stricmp(cmd, "ignore") == 0)
@@ -7820,6 +7840,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_TargetInfo_f(ent);
 	else if (Q_stricmp(cmd, "changes") == 0)
 		Cmd_Changes_f(ent);
+	else if (!Q_stricmp(cmd, "skillboost"))
+		Cmd_SkillBoost_f(ent);
 	else if (Q_stricmp(cmd, "killtarget") == 0)
 		Cmd_KillTarget_f(ent);
 	else if (Q_stricmp (cmd, "callvote") == 0)
