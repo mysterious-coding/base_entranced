@@ -646,7 +646,6 @@ void Cmd_Kill_f( gentity_t *ent ) {
 			if (timeSinceRespawn >= oneSecBeforeRespawn)
 				return;
 		}
-		int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
 	}
 
 	ent->flags &= ~FL_GODMODE;
