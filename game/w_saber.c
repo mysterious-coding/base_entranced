@@ -6367,7 +6367,7 @@ void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other
 {
 	saberOwner->client->ps.saberEntityNum = 0; //still stored in client->saberStoredIndex
 	if (g_improvedDisarm.integer)
-		saberOwner->client->saberKnockedTime = level.time + (SABER_RETRIEVE_DELAY / 2);
+		saberOwner->client->saberKnockedTime = level.time + 2000;
 	else
 		saberOwner->client->saberKnockedTime = level.time + SABER_RETRIEVE_DELAY;
 

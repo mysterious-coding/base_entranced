@@ -1725,6 +1725,11 @@ char *GetNewestMapVersion(siegeMap_t map) {
 		}
 	}
 
+	if (map == SIEGEMAP_BESPIN) {
+		Q_strncpyz(bespinBuf, "mp/siege_bespin", sizeof(bespinBuf));
+		return bespinBuf;
+	}
+
 	assert(qfalse);
 	return "";
 }
