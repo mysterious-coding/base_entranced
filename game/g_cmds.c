@@ -3881,57 +3881,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			}
 		}
 
-		if (!Q_stricmp(arg2, "siege_urban") || !Q_stricmp(arg2, "mp/siege_urban")) {
-			fileHandle_t f;
-			trap_FS_FOpenFile("maps/siege_urban.bsp", &f, FS_READ);
-			if (f) {
-				trap_FS_FCloseFile(f);
-				Q_strncpyz(arg2, "siege_urban", sizeof(arg2));
-			}
-			else { // get highest beta version
-				for (i = 99; i > 0; i--) {
-					trap_FS_FOpenFile(va("maps/siege_urban_b%d.bsp", i), &f, FS_READ);
-					if (f) {
-						trap_FS_FCloseFile(f);
-						Q_strncpyz(arg2, va("siege_urban_b%d", i), sizeof(arg2));
-						break;
-					}
-				}
-			}
-		}
-		else if (!Q_stricmp(arg2, "siege_ansion") || !Q_stricmp(arg2, "mp/siege_ansion")) {
-			fileHandle_t f;
-			trap_FS_FOpenFile("maps/siege_ansion.bsp", &f, FS_READ);
-			if (f) {
-				trap_FS_FCloseFile(f);
-				Q_strncpyz(arg2, "siege_ansion", sizeof(arg2));
-			}
-			else { // get highest version
-				qboolean found = qfalse;
-				for (i = 99; i > 0; i--) {
-					trap_FS_FOpenFile(va("maps/siege_ansion_v%d.bsp", i), &f, FS_READ);
-					if (f) {
-						trap_FS_FCloseFile(f);
-						Q_strncpyz(arg2, va("siege_ansion_v%d", i), sizeof(arg2));
-						found = qtrue;
-						break;
-					}
-				}
-				if (!found) {
-					for (i = 99; i > 0; i--) {
-						trap_FS_FOpenFile(va("maps/siege_ansion_beta%d.bsp", i), &f, FS_READ);
-						if (f) {
-							trap_FS_FCloseFile(f);
-							Q_strncpyz(arg2, va("siege_ansion_beta%d", i), sizeof(arg2));
-							break;
-						}
-					}
-				}
-			}
-		}
-		else if (!Q_stricmp(arg2, "siege_cargobarge3") || !Q_stricmp(arg2, "mp/siege_cargobarge3")) {
-			Q_strncpyz(arg2, "siege_cargobarge3_b2", sizeof(arg2));
-		}
+		if (!Q_stricmp(arg2, "siege_urban") || !Q_stricmp(arg2, "mp/siege_urban"))
+			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_URBAN), sizeof(arg2));
+		else if (!Q_stricmp(arg2, "siege_ansion") || !Q_stricmp(arg2, "mp/siege_ansion"))
+			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_ANSION), sizeof(arg2));
+		else if (!Q_stricmp(arg2, "siege_cargobarge3") || !Q_stricmp(arg2, "mp/siege_cargobarge3"))
+			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_CARGO), sizeof(arg2));
 
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
 		if (result)

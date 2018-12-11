@@ -1701,19 +1701,48 @@ void Svcmd_AccountPrintAll_f(){
 }
 */
 
+char *GetNewestMapVersion(siegeMap_t map) {
+	static char cargoBuf[MAX_QPATH] = { 0 }, urbanBuf[MAX_QPATH] = { 0 }, ansionBuf[MAX_QPATH] = { 0 }, bespinBuf[MAX_QPATH] = { 0 };
+	char *mapBuf, *prefix;
+
+	switch (map) {
+	case SIEGEMAP_CARGO:	mapBuf = cargoBuf;		prefix = "siege_cargobarge3_b";		break;
+	case SIEGEMAP_URBAN:	mapBuf = urbanBuf;		prefix = "siege_urban_b";			break;
+	case SIEGEMAP_ANSION:	mapBuf = ansionBuf;		prefix = "siege_ansion_beta";		break;
+	case SIEGEMAP_BESPIN:	mapBuf = bespinBuf;		prefix = "mp/siege_bespin_b";		break;
+	default:				assert(qfalse);			return "";
+	}
+	if (*mapBuf)
+		return mapBuf;
+
+	fileHandle_t f;
+	for (int i = 99; i > 0; i--) {
+		trap_FS_FOpenFile(va("maps/%s%d.bsp", prefix, i), &f, FS_READ);
+		if (f) {
+			trap_FS_FCloseFile(f);
+			Q_strncpyz(mapBuf, va("%s%d", prefix, i), MAX_QPATH);
+			return mapBuf;
+		}
+	}
+
+	assert(qfalse);
+	return "";
+}
+
 qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize) {
 	char *fileName, *prettyName;
 	switch (tolower(c)) {
-	case 'h':	fileName = "mp/siege_hoth2";		prettyName = "Hoth";		break;
-	case 'n':	fileName = "siege_narshaddaa";		prettyName = "Nar";			break;
-	case 'c':	fileName = "siege_cargobarge3_b2";	prettyName = "Cargo";		break;
-	case 'u':	fileName = "siege_urban_b8";		prettyName = "Urban";		break;
-	case 'b':	fileName = "mp/siege_bespin";		prettyName = "Bespin";		break;
-	case 'a':	fileName = "siege_ansion_beta9";	prettyName = "Ansion";		break;
-	case 'z':	fileName = "mp/siege_alzocIII";		prettyName = "Alzoc";		break;
-	case 'e':	fileName = "mp/siege_eat_shower";	prettyName = "Eat Shower";	break;
-	case 'd':	fileName = "mp/siege_desert";		prettyName = "Desert";		break;
-	case 'k':	fileName = "mp/siege_korriban";		prettyName = "Korri";		break;
+	case 'h':	fileName = "mp/siege_hoth2";						prettyName = "Hoth";		break;
+	case 'n':	fileName = "siege_narshaddaa";						prettyName = "Nar";			break;
+	case 'c':	fileName = GetNewestMapVersion(SIEGEMAP_CARGO);		prettyName = "Cargo";		break;
+	case 'u':	fileName = GetNewestMapVersion(SIEGEMAP_URBAN);		prettyName = "Urban";		break;
+	case 'b':	fileName = GetNewestMapVersion(SIEGEMAP_BESPIN);	prettyName = "Bespin";		break;
+	case 'a':	fileName = GetNewestMapVersion(SIEGEMAP_ANSION);	prettyName = "Ansion";		break;
+	case 'z':	fileName = "mp/siege_alzocIII";						prettyName = "Alzoc";		break;
+	case 'e':	fileName = "mp/siege_eat_shower";					prettyName = "Eat Shower";	break;
+	case 'd':	fileName = "mp/siege_desert";						prettyName = "Desert";		break;
+	case 'k':	fileName = "mp/siege_korriban";						prettyName = "Korri";		break;
+	case 'o':	fileName = "siege_codes";							prettyName = "Codes";		break;
 	default:	return qfalse;
 	}
 	if (outFileName && outFileNameSize > 0)
@@ -1726,17 +1755,17 @@ qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, 
 static char CharFromMapName(char *s) {
 	if (!s)
 		return '\0';
-	if (!Q_stricmp(s, "mp/siege_hoth2"))
+	if (!Q_stricmpn(s, "mp/siege_hoth", 13))
 		return 'h';
 	if (!Q_stricmp(s, "siege_narshaddaa"))
 		return 'n';
-	if (!Q_stricmp(s, "siege_cargobarge3_b2"))
+	if (stristr(s, "siege_cargobarge3") || stristr(s, "siege_cargobarge2"))
 		return 'c';
-	if (!Q_stricmp(s, "siege_urban_b8"))
+	if (stristr(s, "siege_urban"))
 		return 'u';
-	if (!Q_stricmp(s, "mp/siege_bespin"))
+	if (stristr(s, "mp/siege_bespin"))
 		return 'b';
-	if (!Q_stricmp(s, "siege_ansion_beta9"))
+	if (stristr(s, "siege_ansion"))
 		return 'a';
 	if (!Q_stricmp(s, "mp/siege_alzocIII"))
 		return 'z';
@@ -1746,6 +1775,8 @@ static char CharFromMapName(char *s) {
 		return 'd';
 	if (!Q_stricmp(s, "mp/siege_korriban"))
 		return 'k';
+	if (!Q_stricmp(s, "siege_codes"))
+		return 'o';
 	return '\0';
 }
 

@@ -2966,13 +2966,13 @@ siegeMap_t GetSiegeMap(void) {
 			map = SIEGEMAP_KORRIBAN;
 		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
 			map = SIEGEMAP_NAR;
-		else if (!Q_stricmp(mapname.string, "siege_urban_b8"))
+		else if (stristr(mapname.string, "siege_urban"))
 			map = SIEGEMAP_URBAN;
-		else if (!Q_stricmp(mapname.string, "siege_cargobarge3_b2") || !Q_stricmp(mapname.string, "siege_cargobarge2"))
+		else if (stristr(mapname.string, "siege_cargobarge3") || stristr(mapname.string, "siege_cargobarge2"))
 			map = SIEGEMAP_CARGO;
-		else if (!Q_stricmpn(mapname.string, "mp/siege_bespin", 15))
+		else if (stristr(mapname.string, "mp/siege_bespin"))
 			map = SIEGEMAP_BESPIN;
-		else if (stristr(mapname.string, "ansion"))
+		else if (stristr(mapname.string, "siege_ansion"))
 			map = SIEGEMAP_ANSION;
 		else
 			map = SIEGEMAP_UNKNOWN;
