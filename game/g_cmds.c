@@ -7108,6 +7108,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_floatingItems);
 	PrintCvar(g_forceDTechItems);
 	PrintCvar(g_hothRebalance);
+	PrintCvar(g_improvedDisarm);
 	PrintCvar(g_improvedTeamchat);
 	PrintCvar(g_infiniteCharge);
 	PrintCvar(g_knockback);

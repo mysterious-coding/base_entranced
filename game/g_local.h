@@ -2521,6 +2521,7 @@ extern vmCvar_t    g_delayClassUpdate;
 extern vmCvar_t    g_defaultMap;
 extern vmCvar_t    g_multiVoteRNG;
 extern vmCvar_t    g_antiSelfMax;
+extern vmCvar_t    g_improvedDisarm;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

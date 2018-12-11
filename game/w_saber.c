@@ -6366,7 +6366,10 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
 void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
 {
 	saberOwner->client->ps.saberEntityNum = 0; //still stored in client->saberStoredIndex
-	saberOwner->client->saberKnockedTime = level.time + SABER_RETRIEVE_DELAY;
+	if (g_improvedDisarm.integer)
+		saberOwner->client->saberKnockedTime = level.time + (SABER_RETRIEVE_DELAY / 2);
+	else
+		saberOwner->client->saberKnockedTime = level.time + SABER_RETRIEVE_DELAY;
 
 	saberent->clipmask = MASK_SOLID;
 	saberent->r.contents = CONTENTS_TRIGGER;
@@ -9151,7 +9154,7 @@ int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags
 			return 0;
 		}
 
-		if ( g_fixSaberDefense.integer && other && other->client ) {
+		if ( g_gametype.integer == GT_SIEGE && g_fixSaberDefense.integer && other && other->client ) {
 			// disruptor Ghoul2 based block detection is disabled -- use a completely different method
 			// (if enabled, the base method below remains unchanged)
 
