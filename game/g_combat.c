@@ -6397,7 +6397,7 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			maybeBoosted = attacker;
 		}
 
-		if (maybeBoosted && maybeBoosted - g_entities < MAX_CLIENTS && maybeBoosted->client && maybeBoosted->client->sess.skillBoost) {
+		if (mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TIMED_MINE_SPLASH && maybeBoosted && maybeBoosted - g_entities < MAX_CLIENTS && maybeBoosted->client && maybeBoosted->client->sess.skillBoost) {
 			switch (maybeBoosted->client->sess.skillBoost) {
 			case 1:		radius += (radius * SKILLBOOST_LEVEL1_SPLASHRADIUSBONUS);		break;
 			case 2:		radius += (radius * SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS);		break;
