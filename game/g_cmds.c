@@ -2154,6 +2154,8 @@ void Cmd_FollowTarget_f(gentity_t *ent) {
 			continue;
 		if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW && ent->client->sess.spectatorClient == i)
 			continue; // already following this guy
+		if (level.clients[i].ps.stats[STAT_HEALTH] <= 0 || level.clients[i].ps.pm_type == PM_SPECTATOR || level.clients[i].tempSpectate >= level.time)
+			continue; // this guy is dead
 		valid[i] = qtrue;
 		gotValid = qtrue;
 	}
