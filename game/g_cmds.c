@@ -4462,9 +4462,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 						}
 					}
 				}
-				if (args == 6 && i > 0)
-					Q_strcat(msg, sizeof(msg), "; ");
-				else if (args >= 8 && i > 0)
+				if (args >= 6 && i > 0)
 					Q_strcat(msg, sizeof(msg), "\n");
 				Q_strcat(msg, sizeof(msg), va("%s"S_COLOR_WHITE" and %s"S_COLOR_WHITE, firstGuy->client->pers.netname, secondGuy->client->pers.netname));
 				pairs[i / 2][0] = firstGuy - g_entities;
