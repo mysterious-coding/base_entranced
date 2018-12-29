@@ -5875,6 +5875,11 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 				assert(pm->ps->weapon > WP_NONE);
 				BG_AddPredictableEventToPlayerstate(EV_WEAPON_CHARGE_ALT, pm->ps->weapon, pm->ps);
+				if (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->weapon == WP_DEMP2) {
+					level.clients[pm->ps->clientNum].dangerTime = level.time;
+					level.clients[pm->ps->clientNum].ps.eFlags &= ~EF_INVULNERABLE;
+					level.clients[pm->ps->clientNum].invulnerableTimer = 0;
+				}
 			}
 
 			if ( vehicleRocketLock )
