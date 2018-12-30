@@ -199,6 +199,7 @@ vmCvar_t	g_defaultMap;
 vmCvar_t	g_multiVoteRNG;
 vmCvar_t	g_antiSelfMax;
 vmCvar_t	g_improvedDisarm;
+vmCvar_t	g_flechetteSpread;
 
 vmCvar_t	g_classLimits;
 vmCvar_t	oAssaultLimit;
@@ -850,6 +851,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_multiVoteRNG, "g_multiVoteRNG", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiSelfMax, "g_antiSelfMax", "1", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_improvedDisarm, "g_improvedDisarm", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_flechetteSpread, "g_flechetteSpread", "-1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },

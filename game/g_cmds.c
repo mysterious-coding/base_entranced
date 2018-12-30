@@ -7105,6 +7105,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_fixShield);
 	PrintCvar(g_fixSiegeScoring);
 	PrintCvar(g_fixVoiceChat);
+	PrintCvar(g_flechetteSpread);
 	PrintCvar(g_floatingItems);
 	PrintCvar(g_forceDTechItems);
 	PrintCvar(g_hothRebalance);
