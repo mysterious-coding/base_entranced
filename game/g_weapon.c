@@ -2343,19 +2343,30 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 	{
 		vectoangles( forward, angs );
 
-		if (g_flechetteSpread.integer == -1) {
-			if (i != 0) { //do nothing on the first shot, it will hit the crosshairs
-				angs[PITCH] += crandom() * FLECHETTE_SPREAD;
-				angs[YAW] += crandom() * FLECHETTE_SPREAD;
+		if (g_flechetteSpread.integer) {
+			switch (i) {
+			case 1:
+				angs[PITCH] -= random() * FLECHETTE_SPREAD;
+				angs[YAW] -= random() * FLECHETTE_SPREAD;
+				break;
+			case 2:
+				angs[PITCH] -= random() * FLECHETTE_SPREAD;
+				angs[YAW] += random() * FLECHETTE_SPREAD;
+				break;
+			case 3:
+				angs[PITCH] += random() * FLECHETTE_SPREAD;
+				angs[YAW] -= random() * FLECHETTE_SPREAD;
+				break;
+			case 4:
+				angs[PITCH] += random() * FLECHETTE_SPREAD;
+				angs[YAW] += random() * FLECHETTE_SPREAD;
+				break;
 			}
 		}
 		else {
-			switch (i) {
-			case 1:		angs[PITCH] -= g_flechetteSpread.value;	angs[YAW] -= g_flechetteSpread.value;		break;
-			case 2:		angs[PITCH] -= g_flechetteSpread.value;	angs[YAW] += g_flechetteSpread.value;		break;
-			case 3:		angs[PITCH] += g_flechetteSpread.value;	angs[YAW] -= g_flechetteSpread.value;		break;
-			case 4:		angs[PITCH] += g_flechetteSpread.value;	angs[YAW] += g_flechetteSpread.value;		break;
-			default:	break;
+			if (i != 0) { //do nothing on the first shot, it will hit the crosshairs
+				angs[PITCH] += crandom() * FLECHETTE_SPREAD;
+				angs[YAW] += crandom() * FLECHETTE_SPREAD;
 			}
 		}
 
