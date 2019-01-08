@@ -627,6 +627,18 @@ gentity_t *G_PickTarget (char *targetname)
 
 void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
+#ifdef _DEBUG
+	char *selfClassname = self && VALIDSTRING(self->classname) ? self->classname : "";
+	char *selfTargetname = self && VALIDSTRING(self->targetname) ? self->targetname : "";
+	char *otherClassname = other && VALIDSTRING(other->classname) ? other->classname : "";
+	char *otherTargetname = other && VALIDSTRING(other->targetname) ? other->targetname : "";
+	char *activatorClassname = activator && VALIDSTRING(activator->classname) ? activator->classname : "";
+	char *activatorTargetname = activator && VALIDSTRING(activator->targetname) ? activator->targetname : "";
+
+	Com_Printf("GlobalUse: self %s \"%s\" other %s \"%s\" activator %s \"%s\"\n",
+		selfClassname, selfTargetname, otherClassname, otherTargetname, activatorClassname, activatorTargetname);
+#endif
+
 	if (!self || (self->flags & FL_INACTIVE))
 	{
 		return;

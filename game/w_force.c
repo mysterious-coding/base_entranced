@@ -4918,7 +4918,7 @@ void SeekerDroneUpdate(gentity_t *self)
 		{
 			self->client->ps.genericEnemyIndex = ENTITYNUM_NONE;
 		}
-		else if (en->health < 1)
+		else if (en->health < 1 || en->client->ps.pm_type == PM_SPECTATOR || en->client->ps.pm_type == PM_INTERMISSION)
 		{
 			self->client->ps.genericEnemyIndex = ENTITYNUM_NONE;
 		}

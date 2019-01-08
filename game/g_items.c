@@ -749,7 +749,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 	{
 		target = entity_list[i];
 
-		if ( !target->client )
+		if ( !target->client || target->client->ps.pm_type == PM_SPECTATOR || target->client->ps.pm_type == PM_INTERMISSION )
 		{
 			continue;
 		}
@@ -1004,7 +1004,7 @@ void pas_think( gentity_t *ent )
 		{
 			ent->enemy = NULL;
 		}
-		else if (ent->enemy->health < 1)
+		else if (ent->enemy->health < 1 || ent->enemy->client->ps.pm_type == PM_SPECTATOR || ent->enemy->client->ps.pm_type == PM_INTERMISSION)
 		{
 			ent->enemy = NULL;
 		}
