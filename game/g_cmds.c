@@ -4679,6 +4679,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	level.voteNo = 0;
 	level.lastVotingClient = ent-g_entities;
 	level.multiVoting = qfalse;
+	level.inRunoff = qfalse;
 	level.multiVoteChoices = 0;
 	memset( &( level.multiVotes ), 0, sizeof( level.multiVotes ) );
 
@@ -7120,6 +7121,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_randomConeReflection);
 	PrintCvar(g_requireMoreCustomTeamVotes);
 	PrintCvar(g_rocketSurfing);
+	PrintCvar(g_runoffVote);
 	PrintCvar(g_saberDamageScale);
 	PrintCvar(g_sexyDisruptor);
 	PrintCvar(g_siegeReflectionFix);

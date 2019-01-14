@@ -197,6 +197,7 @@ vmCvar_t	g_fixShield;
 vmCvar_t	g_delayClassUpdate;
 vmCvar_t	g_defaultMap;
 vmCvar_t	g_multiVoteRNG;
+vmCvar_t	g_runoffVote;
 vmCvar_t	g_antiSelfMax;
 vmCvar_t	g_improvedDisarm;
 vmCvar_t	g_flechetteSpread;
@@ -849,6 +850,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_delayClassUpdate, "g_delayClassUpdate", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_defaultMap, "g_defaultMap", "", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_multiVoteRNG, "g_multiVoteRNG", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_runoffVote, "g_runoffVote", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiSelfMax, "g_antiSelfMax", "1", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_improvedDisarm, "g_improvedDisarm", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_flechetteSpread, "g_flechetteSpread", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -4395,10 +4397,22 @@ void CheckVote( void ) {
 		free( voteResults );
 
 		// the vote ends when a map has >50% majority, when everyone voted, or when the vote timed out
-		if ( highestVoteCount >= ( ( level.numVotingClients / 2 ) + 1 ) || numVotes >= level.numVotingClients || level.time - level.voteTime >= VOTE_TIME ) {
-			G_LogPrintf( "Multi vote ended (%d voters)\n", numVotes );
+		if (level.time - level.voteTime >= VOTE_TIME && !DoRunoff()) {
+			G_LogPrintf("Multi vote ended due to time (%d voters)\n", numVotes);
 			level.voteExecuteTime = level.time; // in this special case, execute it now. the delay is done in the svcmd
-		} else {
+			level.inRunoff = qfalse;
+		}
+		else if ( highestVoteCount >= ( ( level.numVotingClients / 2 ) + 1 )) {
+			G_LogPrintf( "Multi vote ended due to majority vote (%d voters)\n", numVotes );
+			level.voteExecuteTime = level.time; // in this special case, execute it now. the delay is done in the svcmd
+			level.inRunoff = qfalse;
+		}
+		else if (numVotes >= level.numVotingClients && !DoRunoff()) {
+			G_LogPrintf("Multi vote ended due to everyone voted, no majority, and no runoff (%d voters)\n", numVotes);
+			level.voteExecuteTime = level.time; // in this special case, execute it now. the delay is done in the svcmd
+			level.inRunoff = qfalse;
+		}
+		else {
 			return;
 		}
 
@@ -5660,7 +5674,7 @@ void G_RunFrame( int levelTime ) {
 				//keep him in the "use" anim
 				if (ent->client->ps.torsoAnim != BOTH_CONSOLE1)
 				{
-					G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+					G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
 				}
 				else
 				{

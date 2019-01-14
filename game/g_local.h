@@ -1381,6 +1381,7 @@ typedef struct {
 
 	// b_e multi voting
 	qboolean	multiVoting; // bypass some stuff if this is true (ie, cant vote yes/no)
+	qboolean	inRunoff;
 	int			multiVoteChoices;
 	int			multiVotes[MAX_CLIENTS]; // the id of the choice they voted for
 #define MAX_PUGMAPS 6
@@ -1463,6 +1464,7 @@ typedef struct {
 
 	struct {
 		char cmd[MAX_STRING_CHARS];
+		char cmdUnique[MAX_CLIENTS][MAX_STRING_CHARS];
 		int sendUntilTime;
 		int lastSentTime;
 		qboolean prioritized;
@@ -1641,6 +1643,7 @@ qboolean G_ClientCanBeSeenByClient(gentity_t *seen, gentity_t *seer);
 
 void UpdateGlobalCenterPrint( const int levelTime );
 void G_GlobalTickedCenterPrint( const char *msg, int milliseconds, qboolean prioritized );
+void G_UniqueTickedCenterPrint(const void *msgs, size_t msgSize, int milliseconds, qboolean prioritized);
 void G_ResetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gentity_t *trigger );
 int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gentity_t *trigger );
 
@@ -1945,6 +1948,7 @@ qboolean getIpPortFromString( const char* from, unsigned int* ip, int* port );
 void getStringFromIp( unsigned int ip, char* buffer, int size );
 void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce);
 char *GetNewestMapVersion(siegeMap_t map);
+qboolean DoRunoff(void);
 
 
 //
@@ -2520,6 +2524,7 @@ extern vmCvar_t    g_fixShield;
 extern vmCvar_t    g_delayClassUpdate;
 extern vmCvar_t    g_defaultMap;
 extern vmCvar_t    g_multiVoteRNG;
+extern vmCvar_t    g_runoffVote;
 extern vmCvar_t    g_antiSelfMax;
 extern vmCvar_t    g_improvedDisarm;
 extern vmCvar_t    g_flechetteSpread;

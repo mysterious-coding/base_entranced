@@ -1786,7 +1786,7 @@ static char CharFromMapName(char *s) {
 }
 
 extern void fixVoters();
-
+static char reinstateVotes[MAX_CLIENTS] = { 0 }, removedVotes[MAX_CLIENTS] = { 0 };
 // starts a multiple choices vote using some of the binary voting logic
 static void StartMultiMapVote( const int numMaps, const char *listOfMaps ) {
 	if ( level.voteTime ) {
@@ -1801,12 +1801,32 @@ static void StartMultiMapVote( const int numMaps, const char *listOfMaps ) {
 	Com_sprintf( level.voteString, sizeof( level.voteString ), "map_multi_vote %s", listOfMaps );
 	Q_strncpyz( level.voteDisplayString, S_COLOR_RED"Vote for a map in console", sizeof( level.voteDisplayString ) );
 	level.voteTime = level.time;
+	if (g_runoffVote.integer)
+		level.voteTime -= 15000; // shorter vote time for runoff rounds
 	level.voteYes = 0;
 	level.voteNo = 0;
 	// we don't set lastVotingClient since this isn't a "normal" vote
 	level.multiVoting = qtrue;
+	level.inRunoff = qfalse;
 	level.multiVoteChoices = numMaps;
 	memset( &( level.multiVotes ), 0, sizeof( level.multiVotes ) );
+
+	// now reinstate votes, if needed
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (!reinstateVotes[i] || level.clients[i].pers.connected != CON_CONNECTED ||
+			(g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL && level.clients[i].sess.sessionTeam == TEAM_SPECTATOR) ||
+			g_entities[i].r.svFlags & SVF_BOT || G_ClientIsOnProbation(i) || (g_lockdown.integer && G_ClientIsWhitelisted(i)))
+			continue;
+		int index = strchr(level.multiVoteMapChars, reinstateVotes[i]) - level.multiVoteMapChars;
+		if (index >= 0 && index < level.multiVoteChoices) {
+			level.multiVotes[i] = (strchr(level.multiVoteMapChars, reinstateVotes[i]) - level.multiVoteMapChars) + 1;
+			G_LogPrintf("Client %d (%s) auto-voted for choice %c\n", i, level.clients[i].pers.netname, reinstateVotes[i]);
+			level.voteYes++;
+			trap_SetConfigstring(CS_VOTE_YES, va("%i", level.voteYes));
+			level.clients[i].mGameFlags |= PSG_VOTED;
+		}
+	}
+	memset(&reinstateVotes, 0, sizeof(reinstateVotes));
 
 	fixVoters();
 
@@ -1818,10 +1838,11 @@ static void StartMultiMapVote( const int numMaps, const char *listOfMaps ) {
 
 typedef struct {
 	char listOfMaps[MAX_STRING_CHARS];
-	char printMessage[MAX_STRING_CHARS];
+	char printMessage[MAX_CLIENTS][MAX_STRING_CHARS]; // everyone gets a unique message
 	qboolean announceMultiVote;
 	int numSelected;
 } MapSelectionContext;
+static unsigned long long runoffSurvivors = 0llu, runoffLosers = 0llu;
 
 extern const char *G_GetArenaInfoByMap( const char *map );
 
@@ -1840,7 +1861,20 @@ static void mapSelectedCallback( void *context, char *mapname ) {
 
 	if ( selection->announceMultiVote ) {
 		if ( selection->numSelected == 1 ) {
-			Q_strncpyz( selection->printMessage, va("Vote for a map%s:", g_multiVoteRNG.integer ? " to increase its probability" : ""), sizeof( selection->printMessage ) );
+			for (int i = 0; i < MAX_CLIENTS; i++) {
+				if (runoffSurvivors & (1llu << (unsigned long long)i)) {
+					Q_strncpyz(selection->printMessage[i], va("Runoff vote: waiting for other players to vote...\nMaps still in contention:"), sizeof(selection->printMessage[i]));
+				}
+				else if (runoffLosers & (1llu << (unsigned long long)i)) {
+					char map[MAX_QPATH] = { 0 };
+					if (removedVotes[i] && LongMapNameFromChar(removedVotes[i], NULL, 0, map, sizeof(map)))
+						Q_strncpyz(selection->printMessage[i], va("Runoff vote:\n"S_COLOR_RED"%s"S_COLOR_RED" was eliminated\n"S_COLOR_YELLOW"Please re-vote for a map."S_COLOR_WHITE, map), sizeof(selection->printMessage[i]));
+					else
+						Q_strncpyz(selection->printMessage[i], va("Runoff vote: "S_COLOR_YELLOW"please re-vote for a map"S_COLOR_WHITE), sizeof(selection->printMessage[i]));
+				}
+				else
+					Q_strncpyz(selection->printMessage[i], va("%sote for a map%s:", level.inRunoff ? "Runoff v" : "V", g_multiVoteRNG.integer ? " to increase its probability" : ""), sizeof(selection->printMessage[i]));
+			}
 		}
 
 		// try to print the full map name to players (if a full name doesn't appear, map has no .arena or isn't installed)
@@ -1859,16 +1893,34 @@ static void mapSelectedCallback( void *context, char *mapname ) {
 		char mapChar = CharFromMapName(mapname);
 		if (mapChar) {
 			level.multiVoteMapChars[selection->numSelected - 1] = mapChar;
-			Q_strcat(selection->printMessage, sizeof(selection->printMessage),
-				va("\n"S_COLOR_CYAN"/vote %c "S_COLOR_WHITE" - %s", mapChar, mapDisplayName)
-			);
+			for (int i = 0; i < MAX_CLIENTS; i++) {
+				if (runoffSurvivors & (1llu << (unsigned long long)i)) {
+					Q_strcat(selection->printMessage[i], sizeof(selection->printMessage[i]),
+						va("\n"S_COLOR_WHITE"%c - %s", mapChar, mapDisplayName)
+					);
+				}
+				else {
+					Q_strcat(selection->printMessage[i], sizeof(selection->printMessage[i]),
+						va("\n"S_COLOR_CYAN"/vote %c "S_COLOR_WHITE" - %s", mapChar, mapDisplayName)
+					);
+				}
+			}
 		}
 		else {
 			assert(MAX_PUGMAPS < 10 && selection->numSelected < 10);
 			level.multiVoteMapChars[selection->numSelected - 1] = (char)selection->numSelected + '0';
-			Q_strcat(selection->printMessage, sizeof(selection->printMessage),
-				va("\n"S_COLOR_CYAN"/vote %d "S_COLOR_WHITE" - %s", selection->numSelected, mapDisplayName)
-			);
+			for (int i = 0; i < MAX_CLIENTS; i++) {
+				if (runoffSurvivors & (1llu << (unsigned long long)i)) {
+					Q_strcat(selection->printMessage[i], sizeof(selection->printMessage[i]),
+						va("\n"S_COLOR_WHITE"%d - %s", selection->numSelected, mapDisplayName)
+					);
+				}
+				else {
+					Q_strcat(selection->printMessage[i], sizeof(selection->printMessage[i]),
+						va("\n"S_COLOR_CYAN"/vote %d "S_COLOR_WHITE" - %s", selection->numSelected, mapDisplayName)
+					);
+				}
+			}
 		}
 	}
 }
@@ -1932,11 +1984,11 @@ void Svcmd_MapRandom_f()
 			G_Printf( "Could not randomize this many maps! Expected %d, but randomized %d\n", mapsToRandomize, context.numSelected );
 		}
 
-		if ( VALIDSTRING( context.printMessage ) ) {
-			// print in console and do a global prioritized center print
-			trap_SendServerCommand( -1, va( "print \"%s\n\"", context.printMessage ) );
-			G_GlobalTickedCenterPrint( context.printMessage, 10000, qtrue ); // give them 10s to see the options
+		// print in console and do a global prioritized center print
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			trap_SendServerCommand(i, va("print \"%s\n\"", context.printMessage[i]));
 		}
+		G_UniqueTickedCenterPrint( &context.printMessage, sizeof(context.printMessage[0]), 15000, qtrue ); // give them 15s to see the options
 
 		if ( context.numSelected > 1 ) {
 			// we are going to need another vote for this...
@@ -2003,11 +2055,11 @@ void Svcmd_RandomPugMap_f()
 	for (i = 0; i < mapsToRandomize; i++)
 		mapSelectedCallback(&context, maps[i]);
 
-	if (VALIDSTRING(context.printMessage)) {
-		// print in console and do a global prioritized center print
-		trap_SendServerCommand(-1, va("print \"%s\n\"", context.printMessage));
-		G_GlobalTickedCenterPrint(context.printMessage, 10000, qtrue); // give them 10s to see the options
+	// print in console and do a global prioritized center print
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		trap_SendServerCommand(i, va("print \"%s\n\"", context.printMessage[i]));
 	}
+	G_UniqueTickedCenterPrint(&context.printMessage, sizeof(context.printMessage[0]), 15000, qtrue); // give them 15s to see the options
 
 	if (context.numSelected > 1) {
 		// we are going to need another vote for this...
@@ -2045,9 +2097,11 @@ void Svcmd_NewPug_f(void) {
 		}
 	}
 
-	trap_SendServerCommand(-1, va("print \"Starting a new pug%s.\n\"", strlen(playedPugMaps.string) ? "; clearing list of played maps" : ""));
-	trap_Cvar_Set("playedPugMaps", "");
-	trap_Cvar_Set("desiredPugMaps", arg);
+	if (!level.inRunoff) { // only change the cvars for the first vote; otherwise weird things will happen
+		trap_SendServerCommand(-1, va("print \"Starting a new pug%s.\n\"", strlen(playedPugMaps.string) ? "; clearing list of played maps" : ""));
+		trap_Cvar_Set("playedPugMaps", "");
+		trap_Cvar_Set("desiredPugMaps", arg);
+	}
 	trap_SendConsoleCommand(EXEC_APPEND, va("randompugmap %s\n", arg));
 }
 
@@ -2125,6 +2179,187 @@ void Svcmd_GreenDoors_f(qboolean announce)
 	{
 		trap_SendServerCommand(-1, va("print \"Doors greened.\n\""));
 	}
+}
+
+qboolean DoRunoff(void) {
+	if (!g_runoffVote.integer && !level.inRunoff)
+		return qfalse;
+
+	runoffSurvivors = runoffLosers = 0llu;
+
+	// count the votes
+	qboolean gotAnyVote = qfalse;
+	int numVotesForMap[64] = { 0 };
+	for (int i = 0; i < MAX_CLIENTS; ++i) {
+		int voteId = level.multiVotes[i];
+		if (voteId > 0 && voteId <= level.multiVoteChoices) {
+			numVotesForMap[voteId - 1]++;
+			gotAnyVote = qtrue;
+		}
+	}
+
+	if (!gotAnyVote)
+		return qfalse; // nobody has voted whatsoever; don't do anything
+
+	// determine the highest and lowest numbers
+	int lowestNumVotes = 0x7FFFFFFF, highestNumVotes = 0;
+	for (int i = 0; i < level.multiVoteChoices; i++) {
+		if (numVotesForMap[i] > 0 && numVotesForMap[i] < lowestNumVotes)
+			lowestNumVotes = numVotesForMap[i];
+		if (numVotesForMap[i] > highestNumVotes)
+			highestNumVotes = numVotesForMap[i];
+	}
+
+	// determine which maps are tied for highest/lowest/zero
+	int numMapsTiedForFirst = 0, numMapsNOTTiedForFirst = 0, numMapsTiedForLast = 0;
+	for (int i = 0; i < level.multiVoteChoices; i++) {
+		if (numVotesForMap[i] == highestNumVotes)
+			numMapsTiedForFirst++;
+		else if (numVotesForMap[i] > 0 && numVotesForMap[i] < highestNumVotes) {
+			numMapsNOTTiedForFirst++;
+			if (numVotesForMap[i] == lowestNumVotes) {
+				numMapsTiedForLast++;
+			}
+		}
+	}
+
+	if (!numMapsNOTTiedForFirst && numMapsTiedForFirst == 2) {
+		// it's a tie between two maps; let rng decide
+		return qfalse;
+	}
+
+	if (numMapsTiedForFirst == 1 && numMapsNOTTiedForFirst <= 1) {
+		// exactly one map is in first place AND exactly one map is in last place
+		// or exactly one map got votes
+		// let the normal routine pick the first place map as winner
+		return qfalse;
+	}
+
+	// if we got here, at least one map will be eliminated
+	// determine which maps made the cut and which will be eliminated
+	char newMapChars[MAX_PUGMAPS + 1] = { 0 }, choppingBlock[MAX_PUGMAPS + 1] = { 0 };
+	for (int i = 0; i < level.multiVoteChoices; i++) {
+		if (numVotesForMap[i] <= 0) { // this map has exactly 0 votes; remove it
+			continue;
+		}
+		else if (highestNumVotes == lowestNumVotes) { // a tie; add this one to the chopping block
+			char buf[2] = { 0 };
+			buf[0] = level.multiVoteMapChars[i];
+			Q_strcat(choppingBlock, sizeof(choppingBlock), buf);
+		}
+		else if (numVotesForMap[i] >= highestNumVotes) { // this map is tied for first; add it
+			char buf[2] = { 0 };
+			buf[0] = level.multiVoteMapChars[i];
+			Q_strcat(newMapChars, sizeof(newMapChars), buf);
+		}
+		else if (numVotesForMap[i] == lowestNumVotes) { // this map is non-zero and tied for last
+			if (numMapsTiedForLast <= 1) { // only one map is tied for last; remove it
+				continue;
+			}
+			else { // multiple maps are tied for last; add this one to the chopping block
+				char buf[2] = { 0 };
+				buf[0] = level.multiVoteMapChars[i];
+				Q_strcat(choppingBlock, sizeof(choppingBlock), buf);
+			}
+		}
+	}
+
+	// if needed, randomly remove one map from the chopping block and add the others
+	int numOnChoppingBlock = strlen(choppingBlock);
+	if (numOnChoppingBlock > 0) {
+		for (int i = numOnChoppingBlock - 1; i >= 1; i--) { // fisher-yates
+			int j = rand() % (i + 1);
+			int temp = choppingBlock[i];
+			choppingBlock[i] = choppingBlock[j];
+			choppingBlock[j] = temp;
+		}
+		choppingBlock[numOnChoppingBlock - 1] = '\0';
+		Q_strcat(newMapChars, sizeof(newMapChars), choppingBlock);
+	}
+
+	// re-order the remaining maps to match the original order
+	// and note which maps got eliminated (including ones with zero votes)
+	int numOldMaps = strlen(level.multiVoteMapChars);
+	char temp[MAX_PUGMAPS + 1] = { 0 }, eliminatedMaps[MAX_PUGMAPS + 1] = { 0 };
+	for (int i = 0; i < numOldMaps; i++) {
+		char *p = strchr(newMapChars, level.multiVoteMapChars[i]), buf[2] = { 0 };
+		if (VALIDSTRING(p)) { // this map made the cut
+			buf[0] = level.multiVoteMapChars[i];
+			Q_strcat(temp, sizeof(temp), buf);
+		}
+		else { // this map was eliminated
+			buf[0] = level.multiVoteMapChars[i];
+			Q_strcat(eliminatedMaps, sizeof(eliminatedMaps), buf);
+			G_LogPrintf("Choice %c was eliminated from contention.\n", buf[0]);
+		}
+	}
+	if (temp[0])
+		memcpy(newMapChars, temp, sizeof(newMapChars));
+
+	// determine which people will be happy or sad
+	// mark still-valid choices as needing to be reinstated in the next round
+	memset(&reinstateVotes, 0, sizeof(reinstateVotes));
+	memset(&removedVotes, 0, sizeof(removedVotes));
+	int numRunoffLosers = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		int voteId = level.multiVotes[i];
+		if (level.clients[i].pers.connected == CON_CONNECTED && voteId > 0 && voteId <= level.multiVoteChoices) {
+			if (!strchr(newMapChars, level.multiVoteMapChars[voteId - 1])) { // this guy's map was removed
+				level.clients[i].mGameFlags &= ~PSG_VOTED;
+				runoffLosers |= (1llu << (unsigned long long)i);
+				removedVotes[i] = level.multiVoteMapChars[level.multiVotes[i] - 1];
+				numRunoffLosers++;
+				G_LogPrintf("Client %d (%s) had their \"%c\" vote removed.\n", i, level.clients[i].pers.netname, level.multiVoteMapChars[voteId - 1]);
+			}
+			else { // this guy's map survived; his vote will be reinstated
+				reinstateVotes[i] = level.multiVoteMapChars[level.multiVotes[i] - 1];
+				runoffSurvivors |= (1llu << (unsigned long long)i);
+			}
+		}
+		level.multiVotes[i] = 0; // reset everyone's vote
+	}
+
+	// notify players which map(s) got removed
+	int numEliminatedMaps = strlen(eliminatedMaps);
+	if (numEliminatedMaps > 0) {
+		// create the string containing the eliminated map names
+		char removedMapNamesStr[MAX_STRING_CHARS] = { 0 };
+		for (int i = 0; i < numEliminatedMaps; i++) {
+			char buf[MAX_QPATH] = { 0 };
+			if (LongMapNameFromChar(eliminatedMaps[i], NULL, 0, buf, sizeof(buf))) {
+				if (numEliminatedMaps == 2 && i == 1) {
+					Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), " and ");
+				}
+				else if (numEliminatedMaps > 2 && i > 0) {
+					Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), ", ");
+					if (i == numEliminatedMaps - 1)
+						Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), "and ");
+				}
+				Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), buf);
+			}
+		}
+		Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), numEliminatedMaps == 1 ? " was" : " were");
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected != CON_CONNECTED || g_entities[i].r.svFlags & SVF_BOT)
+				continue;
+			if (runoffLosers & (1llu << (unsigned long long)i)) {
+				if (numRunoffLosers == 1)
+					trap_SendServerCommand(i, va("print \"%s eliminated from contention. You may re-vote.\n\"", removedMapNamesStr));
+				else
+					trap_SendServerCommand(i, va("print \"%s eliminated from contention. You and %d other player%s may re-vote.\n\"", removedMapNamesStr, numRunoffLosers - 1, numRunoffLosers - 1 == 1 ? "" : "s"));
+			}
+			else {
+				trap_SendServerCommand(i, va("print \"%s eliminated from contention. %d player%s may re-vote.\n\"", removedMapNamesStr, numRunoffLosers, numRunoffLosers == 1 ? "" : "s"));
+			}
+		}
+	}
+
+	// start the next round of voting
+	level.multiVoting = qfalse;
+	level.inRunoff = qtrue;
+	trap_SendConsoleCommand(EXEC_APPEND, va("newpug \"%s\"\n", newMapChars));
+
+	return qtrue;
 }
 
 // allocates an array of length numChoices containing the sorted results from level.multiVoteChoices
@@ -2291,8 +2526,10 @@ void Svcmd_MapMultiVote_f() {
 	Q_strncpyz( level.voteString, va( "map %s", selectedMapname ), sizeof( level.voteString ) );
 	level.voteExecuteTime = level.time + 3000;
 	level.multiVoting = qfalse;
+	level.inRunoff = qfalse;
 	level.multiVoteChoices = 0;
-	memset( level.multiVotes, 0, sizeof( level.multiVotes ) );
+	memset(&level.multiVotes, 0, sizeof( level.multiVotes ) );
+	memset(&level.multiVoteMapChars, 0, sizeof(level.multiVoteMapChars));
 }
 
 void Svcmd_SpecAll_f() {
