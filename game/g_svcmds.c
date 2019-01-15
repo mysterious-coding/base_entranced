@@ -1801,8 +1801,12 @@ static void StartMultiMapVote( const int numMaps, const char *listOfMaps ) {
 	Com_sprintf( level.voteString, sizeof( level.voteString ), "map_multi_vote %s", listOfMaps );
 	Q_strncpyz( level.voteDisplayString, S_COLOR_RED"Vote for a map in console", sizeof( level.voteDisplayString ) );
 	level.voteTime = level.time;
+#ifdef _DEBUG
+	level.voteTime += 15000; // for testing
+#else
 	if (g_runoffVote.integer)
 		level.voteTime -= 15000; // shorter vote time for runoff rounds
+#endif
 	level.voteYes = 0;
 	level.voteNo = 0;
 	// we don't set lastVotingClient since this isn't a "normal" vote
@@ -1986,7 +1990,8 @@ void Svcmd_MapRandom_f()
 
 		// print in console and do a global prioritized center print
 		for (int i = 0; i < MAX_CLIENTS; i++) {
-			trap_SendServerCommand(i, va("print \"%s\n\"", context.printMessage[i]));
+			if (!level.inRunoff) // don't spam the console for non-first rounds
+				trap_SendServerCommand(i, va("print \"%s\n\"", context.printMessage[i]));
 		}
 		G_UniqueTickedCenterPrint( &context.printMessage, sizeof(context.printMessage[0]), 15000, qtrue ); // give them 15s to see the options
 
@@ -2057,7 +2062,8 @@ void Svcmd_RandomPugMap_f()
 
 	// print in console and do a global prioritized center print
 	for (int i = 0; i < MAX_CLIENTS; i++) {
-		trap_SendServerCommand(i, va("print \"%s\n\"", context.printMessage[i]));
+		if (!level.inRunoff) // don't spam the console for non-first rounds
+			trap_SendServerCommand(i, va("print \"%s\n\"", context.printMessage[i]));
 	}
 	G_UniqueTickedCenterPrint(&context.printMessage, sizeof(context.printMessage[0]), 15000, qtrue); // give them 15s to see the options
 
@@ -2262,6 +2268,11 @@ qboolean DoRunoff(void) {
 				Q_strcat(choppingBlock, sizeof(choppingBlock), buf);
 			}
 		}
+		else { // this map is non-zero, not in first place, but not in last place; add it
+			char buf[2] = { 0 };
+			buf[0] = level.multiVoteMapChars[i];
+			Q_strcat(newMapChars, sizeof(newMapChars), buf);
+		}
 	}
 
 	// if needed, randomly remove one map from the chopping block and add the others
@@ -2295,6 +2306,7 @@ qboolean DoRunoff(void) {
 	}
 	if (temp[0])
 		memcpy(newMapChars, temp, sizeof(newMapChars));
+	int numRemainingMaps = strlen(newMapChars);
 
 	// determine which people will be happy or sad
 	// mark still-valid choices as needing to be reinstated in the next round
@@ -2316,50 +2328,57 @@ qboolean DoRunoff(void) {
 				runoffSurvivors |= (1llu << (unsigned long long)i);
 			}
 		}
-		level.multiVotes[i] = 0; // reset everyone's vote
+		if (numRemainingMaps > 1)
+			level.multiVotes[i] = 0; // if there will be another round, reset everyone's vote (some will be reinstated anyway)
 	}
 
 	// notify players which map(s) got removed
-	int numEliminatedMaps = strlen(eliminatedMaps);
-	if (numEliminatedMaps > 0) {
-		// create the string containing the eliminated map names
-		char removedMapNamesStr[MAX_STRING_CHARS] = { 0 };
-		for (int i = 0; i < numEliminatedMaps; i++) {
-			char buf[MAX_QPATH] = { 0 };
-			if (LongMapNameFromChar(eliminatedMaps[i], NULL, 0, buf, sizeof(buf))) {
-				if (numEliminatedMaps == 2 && i == 1) {
-					Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), " and ");
+	if (numRemainingMaps > 1) {
+		int numEliminatedMaps = strlen(eliminatedMaps);
+		if (numEliminatedMaps > 0) {
+			// create the string containing the eliminated map names
+			char removedMapNamesStr[MAX_STRING_CHARS] = { 0 };
+			for (int i = 0; i < numEliminatedMaps; i++) {
+				char buf[MAX_QPATH] = { 0 };
+				if (LongMapNameFromChar(eliminatedMaps[i], NULL, 0, buf, sizeof(buf))) {
+					if (numEliminatedMaps == 2 && i == 1) {
+						Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), " and ");
+					}
+					else if (numEliminatedMaps > 2 && i > 0) {
+						Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), ", ");
+						if (i == numEliminatedMaps - 1)
+							Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), "and ");
+					}
+					Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), buf);
 				}
-				else if (numEliminatedMaps > 2 && i > 0) {
-					Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), ", ");
-					if (i == numEliminatedMaps - 1)
-						Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), "and ");
+			}
+			Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), numEliminatedMaps == 1 ? " was" : " were");
+			for (int i = 0; i < MAX_CLIENTS; i++) {
+				if (level.clients[i].pers.connected != CON_CONNECTED || g_entities[i].r.svFlags & SVF_BOT)
+					continue;
+				if (runoffLosers & (1llu << (unsigned long long)i)) {
+					if (numRunoffLosers == 1)
+						trap_SendServerCommand(i, va("print \"%s eliminated from contention. You may re-vote.\n\"", removedMapNamesStr));
+					else
+						trap_SendServerCommand(i, va("print \"%s eliminated from contention. You and %d other player%s may re-vote.\n\"", removedMapNamesStr, numRunoffLosers - 1, numRunoffLosers - 1 == 1 ? "" : "s"));
 				}
-				Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), buf);
+				else {
+					trap_SendServerCommand(i, va("print \"%s eliminated from contention. %d player%s may re-vote.\n\"", removedMapNamesStr, numRunoffLosers, numRunoffLosers == 1 ? "" : "s"));
+				}
 			}
 		}
-		Q_strcat(removedMapNamesStr, sizeof(removedMapNamesStr), numEliminatedMaps == 1 ? " was" : " were");
-		for (int i = 0; i < MAX_CLIENTS; i++) {
-			if (level.clients[i].pers.connected != CON_CONNECTED || g_entities[i].r.svFlags & SVF_BOT)
-				continue;
-			if (runoffLosers & (1llu << (unsigned long long)i)) {
-				if (numRunoffLosers == 1)
-					trap_SendServerCommand(i, va("print \"%s eliminated from contention. You may re-vote.\n\"", removedMapNamesStr));
-				else
-					trap_SendServerCommand(i, va("print \"%s eliminated from contention. You and %d other player%s may re-vote.\n\"", removedMapNamesStr, numRunoffLosers - 1, numRunoffLosers - 1 == 1 ? "" : "s"));
-			}
-			else {
-				trap_SendServerCommand(i, va("print \"%s eliminated from contention. %d player%s may re-vote.\n\"", removedMapNamesStr, numRunoffLosers, numRunoffLosers == 1 ? "" : "s"));
-			}
-		}
+		// start the next round of voting
+		level.multiVoting = qfalse;
+		level.inRunoff = qtrue;
+		trap_SendConsoleCommand(EXEC_APPEND, va("newpug \"%s\"\n", newMapChars));
+		return qtrue;
 	}
-
-	// start the next round of voting
-	level.multiVoting = qfalse;
-	level.inRunoff = qtrue;
-	trap_SendConsoleCommand(EXEC_APPEND, va("newpug \"%s\"\n", newMapChars));
-
-	return qtrue;
+	else {
+		char buf[MAX_QPATH] = { 0 };
+		if (LongMapNameFromChar(newMapChars[0], NULL, 0, buf, sizeof(buf)))
+			trap_SendServerCommand(-1, va("print \"%s won the vote.\n\"", buf));
+		return qfalse;
+	}
 }
 
 // allocates an array of length numChoices containing the sorted results from level.multiVoteChoices
