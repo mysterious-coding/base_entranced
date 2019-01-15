@@ -2374,9 +2374,8 @@ qboolean DoRunoff(void) {
 		return qtrue;
 	}
 	else {
-		char buf[MAX_QPATH] = { 0 };
-		if (LongMapNameFromChar(newMapChars[0], NULL, 0, buf, sizeof(buf)))
-			trap_SendServerCommand(-1, va("print \"%s won the vote.\n\"", buf));
+		// everything was eliminated except one map
+		// let the normal routine select it as the winner
 		return qfalse;
 	}
 }
