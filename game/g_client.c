@@ -2574,7 +2574,7 @@ void ClientUserinfoChanged( int clientNum ) {
 				G_SendConfigstring( clientNum, CS_SYSTEMINFO, NULL, qfalse );
 			}
 		}
-		totalHash = ((unsigned long long int) ipHash) << 32 | guidHash;
+		totalHash = ((unsigned long long int) ipHash) << 32 | (((unsigned long long int) guidHash) & 0xFFFFFFFF);
 		level.clientUniqueIds[clientNum] = totalHash;
 		G_LogPrintf( "Client %d (%s) has unique id %llu%s\n", clientNum, client->pers.netname, totalHash, G_ClientIsWhitelisted(clientNum) ? " (whitelisted)" : " (NOT whitelisted)");
 		if (G_ClientIsOnProbation(clientNum)) {
