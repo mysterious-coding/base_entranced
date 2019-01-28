@@ -246,6 +246,54 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 	*/
 #endif
 
+	const char *message = ent->message;
+
+	if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_CARGO) {
+		static qboolean topHacked = qfalse, node1Hacked = qfalse;
+		qboolean topOrNode1HackedThisFrame = qfalse;
+		if (!Q_stricmp(ent->targetname, "node2hacked")) {
+			RemoveIconsWithTargetname("node2hackicon");
+			RemoveIconsWithTargetname("node1hackicon");
+			RemoveIconsWithTargetname("powernode2sideicon");
+			SetUsableFromTargetname("node2greenhacktexture", qtrue);
+			SetUsableFromTargetname("node2redhacktexture", qfalse);
+			SetUsableFromTargetname("node1greenhacktexture", qtrue);
+			SetUsableFromTargetname("node1redhacktexture", qfalse);
+			SetUsableFromTargetname("topgreenhacktexture", qtrue);
+			SetUsableFromTargetname("topredhacktexture", qfalse);
+			if (topHacked && !node1Hacked)
+				message = "Tunnel doors unlocked!";
+			else if (node1Hacked && !topHacked)
+				message = "Node 2 vent lock overridden!";
+			else
+				message = "Tunnel and node 2 vent unlocked!";
+		}
+		else if (!Q_stricmp(ent->targetname, "tophacked")) {
+			topHacked = qtrue;
+			topOrNode1HackedThisFrame = qtrue;
+			SetUsableFromTargetname("topgreenhacktexture", qtrue);
+			SetUsableFromTargetname("topredhacktexture", qfalse);
+			RemoveIconsWithTargetname("powernode2sideicon");
+		}
+		else if (!Q_stricmp(ent->targetname, "node1hacked")) {
+			node1Hacked = qtrue;
+			topOrNode1HackedThisFrame = qtrue;
+			SetUsableFromTargetname("node1greenhacktexture", qtrue);
+			SetUsableFromTargetname("node1redhacktexture", qfalse);
+			RemoveIconsWithTargetname("node1hackicon");
+		}
+
+		if (topOrNode1HackedThisFrame && topHacked && node1Hacked) {
+			RemoveIconsWithTargetname("node2hackicon");
+			SetUsableFromTargetname("topgreenhacktexture", qtrue);
+			SetUsableFromTargetname("topredhacktexture", qfalse);
+			SetUsableFromTargetname("node2greenhacktexture", qtrue);
+			SetUsableFromTargetname("node2redhacktexture", qfalse);
+			SetUsableFromTargetname("node1greenhacktexture", qtrue);
+			SetUsableFromTargetname("node1redhacktexture", qfalse);
+		}
+	}
+
 	G_ActivateBehavior(ent,BSET_USE);
 	if ( ( ent->spawnflags & 4 ) ) 
 	{//private, to one client only
@@ -257,11 +305,11 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 		{//make sure there's a valid client ent to send it to
 			if (ent->message[0] == '@' && ent->message[1] != '@')
 			{
-				trap_SendServerCommand( activator-g_entities, va("cps \"%s\"", ent->message ));
+				trap_SendServerCommand( activator-g_entities, va("cps \"%s\"", message ));
 			}
 			else
 			{
-				trap_SendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message ));
+				trap_SendServerCommand( activator-g_entities, va("cp \"%s\"", message));
 			}
 		}
 		//NOTE: change in functionality - if there *is* no valid client ent, it won't send it to anyone at all
@@ -272,21 +320,21 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 		if ( ent->spawnflags & 1 ) {
 			if (ent->message[0] == '@' && ent->message[1] != '@')
 			{
-				G_TeamCommand( TEAM_RED, va("cps \"%s\"", ent->message) );
+				G_TeamCommand( TEAM_RED, va("cps \"%s\"", message) );
 			}
 			else
 			{
-				G_TeamCommand( TEAM_RED, va("cp \"%s\"", ent->message) );
+				G_TeamCommand( TEAM_RED, va("cp \"%s\"", message) );
 			}
 		}
 		if ( ent->spawnflags & 2 ) {
 			if (ent->message[0] == '@' && ent->message[1] != '@')
 			{
-				G_TeamCommand( TEAM_BLUE, va("cps \"%s\"", ent->message) );
+				G_TeamCommand( TEAM_BLUE, va("cps \"%s\"", message) );
 			}
 			else
 			{
-				G_TeamCommand( TEAM_BLUE, va("cp \"%s\"", ent->message) );
+				G_TeamCommand( TEAM_BLUE, va("cp \"%s\"", message) );
 			}
 		}
 		return;
@@ -294,11 +342,11 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 	if (ent->message[0] == '@' && ent->message[1] != '@')
 	{
-		trap_SendServerCommand( -1, va("cps \"%s\"", ent->message ));
+		trap_SendServerCommand( -1, va("cps \"%s\"", message));
 	}
 	else
 	{
-		trap_SendServerCommand( -1, va("cp \"%s\"", ent->message ));
+		trap_SendServerCommand( -1, va("cp \"%s\"", message));
 	}
 }
 

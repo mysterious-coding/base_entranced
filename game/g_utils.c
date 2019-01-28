@@ -956,6 +956,57 @@ static void G_SpewEntList(void)
 #endif
 }
 
+void RemoveIconsWithTargetname(char *targetname) {
+	if (!VALIDSTRING(targetname))
+		return;
+	if (g_gametype.integer != GT_SIEGE)
+		return;
+
+	for (int i = 0; i < MAX_GENTITIES; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (Q_stricmp(ent->classname, "info_siege_radaricon"))
+			continue;
+		if (Q_stricmp(ent->targetname, targetname))
+			continue;
+#ifdef _DEBUG
+		Com_Printf("RemoveIconsWithTargetname: removing ent %d with targetname %s\n", i, ent->targetname);
+#endif
+		ent->s.eFlags &= ~EF_RADAROBJECT;
+		G_FreeEntity(ent);
+	}
+}
+
+extern void func_wait_return_solid(gentity_t *self);
+void SetUsableFromTargetname(char *targetname, qboolean enable) {
+	if (!VALIDSTRING(targetname))
+		return;
+	if (g_gametype.integer != GT_SIEGE)
+		return;
+
+	for (int i = 0; i < MAX_GENTITIES; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (Q_stricmp(ent->classname, "func_usable"))
+			continue;
+		if (Q_stricmp(ent->targetname, targetname))
+			continue;
+#ifdef _DEBUG
+		Com_Printf("SetUsableFromTargetname: %sing ent %d with targetname %s\n", enable ? "enabl" : "disabl", i, ent->targetname);
+#endif
+		if (enable) {
+			ent->count = 1;
+			func_wait_return_solid(ent);
+		}
+		else {
+			ent->s.solid = 0;
+			ent->r.contents = 0;
+			ent->clipmask = 0;
+			ent->r.svFlags |= SVF_NOCLIENT;
+			ent->s.eFlags |= EF_NODRAW;
+			ent->count = 0;
+		}
+	}
+}
+
 void SetIconFromClassname(char *typeOfGen, int number, qboolean activate)
 {
 	//turns on or off the icon for something based on a classname (ammo/shield/health generators, siege items, etc)

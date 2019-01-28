@@ -1706,7 +1706,7 @@ char *GetNewestMapVersion(siegeMap_t map) {
 	char *mapBuf, *prefix;
 
 	switch (map) {
-	case SIEGEMAP_CARGO:	mapBuf = cargoBuf;		prefix = "siege_cargobarge3_b";		break;
+	case SIEGEMAP_CARGO:	mapBuf = cargoBuf;		prefix = "siege_cargobarge3_v";		break;
 	case SIEGEMAP_URBAN:	mapBuf = urbanBuf;		prefix = "siege_urban_b";			break;
 	case SIEGEMAP_ANSION:	mapBuf = ansionBuf;		prefix = "siege_ansion_beta";		break;
 	case SIEGEMAP_BESPIN:	mapBuf = bespinBuf;		prefix = "mp/siege_bespin_b";		break;
@@ -1872,9 +1872,9 @@ static void mapSelectedCallback( void *context, char *mapname ) {
 				else if (runoffLosers & (1llu << (unsigned long long)i)) {
 					char map[MAX_QPATH] = { 0 };
 					if (removedVotes[i] && LongMapNameFromChar(removedVotes[i], NULL, 0, map, sizeof(map)))
-						Q_strncpyz(selection->printMessage[i], va("Runoff vote:\n"S_COLOR_RED"%s"S_COLOR_RED" was eliminated\n"S_COLOR_YELLOW"Please re-vote for a map."S_COLOR_WHITE, map), sizeof(selection->printMessage[i]));
+						Q_strncpyz(selection->printMessage[i], va("Runoff vote:\n"S_COLOR_RED"%s"S_COLOR_RED" was eliminated\n"S_COLOR_YELLOW"Please vote again"S_COLOR_WHITE, map), sizeof(selection->printMessage[i]));
 					else
-						Q_strncpyz(selection->printMessage[i], va("Runoff vote: "S_COLOR_YELLOW"please re-vote for a map"S_COLOR_WHITE), sizeof(selection->printMessage[i]));
+						Q_strncpyz(selection->printMessage[i], va("Runoff vote: "S_COLOR_YELLOW"please vote again"S_COLOR_WHITE), sizeof(selection->printMessage[i]));
 				}
 				else
 					Q_strncpyz(selection->printMessage[i], va("%sote for a map%s:", level.inRunoff ? "Runoff v" : "V", g_multiVoteRNG.integer ? " to increase its probability" : ""), sizeof(selection->printMessage[i]));

@@ -733,14 +733,21 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 				other->client->ps.hackingTime = 0;
 				// cargo2 non-objective hacks
 				if (GetSiegeMap() == SIEGEMAP_CARGO && VALIDSTRING(self->target)) {
-					if (!Q_stricmp(self->target, "powernode2side") ||
+					int numHackedOfNode1AndTop = 0;
+					if (!Q_stricmp(self->target, "tophacked") ||
 						!Q_stricmp(self->target, "holdeledoors") ||
 						!Q_stricmp(self->target, "tunneldoors") ||
 						!Q_stricmp(self->target, "topdoor") ||
-						!Q_stricmp(self->target, "ccturrets")) {
+						!Q_stricmp(self->target, "ccturrets") ||
+						!Q_stricmp(self->target, "node1hacked")) {
 						other->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_HACKS]++;
+						if (!Q_stricmp(self->target, "tophacked") || !Q_stricmp(self->target, "node1hacked"))
+							numHackedOfNode1AndTop++;
 						if (!Q_stricmp(self->target, "holdeledoors"))
 							holdEleDoorsHacked = qtrue;
+					}
+					else if (!Q_stricmp(self->target, "node2hacked")) {
+						other->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_HACKS] += (2 - numHackedOfNode1AndTop); // can be 2
 					}
 				}
 			}
