@@ -1558,9 +1558,16 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		level.hangarCompletedTime = level.time;
 	}
 
-	if (objective == 5 && GetSiegeMap() == SIEGEMAP_CARGO)
-	{
+	if (objective == 5 && GetSiegeMap() == SIEGEMAP_CARGO) {
 		level.ccCompleted = qtrue;
+		for (int i = 0; i < MAX_GENTITIES; i++) { // re-lock 2nd obj inner doors
+			gentity_t *door = &g_entities[i];
+			if (Q_stricmp(door->target, "2ndobjdoordummy") && !Q_stricmp(door->classname, "func_door"))
+				continue;
+			door->spawnflags |= 16; // MOVER_LOCKED
+			door->s.eFlags |= EF_SHADER_ANIM;
+			door->s.frame = 0;
+		}
 	}
 
 	if (objective == 2 && GetSiegeMap() == SIEGEMAP_DESERT && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
