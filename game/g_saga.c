@@ -1561,12 +1561,16 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	if (objective == 5 && GetSiegeMap() == SIEGEMAP_CARGO) {
 		level.ccCompleted = qtrue;
 		for (int i = 0; i < MAX_GENTITIES; i++) { // re-lock 2nd obj inner doors
-			gentity_t *door = &g_entities[i];
-			if (Q_stricmp(door->target, "2ndobjdoordummy") && !Q_stricmp(door->classname, "func_door"))
-				continue;
-			door->spawnflags |= 16; // MOVER_LOCKED
-			door->s.eFlags |= EF_SHADER_ANIM;
-			door->s.frame = 0;
+			gentity_t *ent = &g_entities[i];
+			if (!Q_stricmp(ent->target, "2ndobjdoordummy") && !Q_stricmp(ent->classname, "func_door")) {
+				ent->spawnflags |= 16; // MOVER_LOCKED
+				ent->s.eFlags |= EF_SHADER_ANIM;
+				ent->s.frame = 0;
+			}
+			else if (!Q_stricmp(ent->targetname, "ccreached")) {
+				if (ent->use)
+					ent->use(ent, NULL, NULL);
+			}
 		}
 	}
 

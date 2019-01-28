@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"270"
+#define MODBUILDNUMBER			"271"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
