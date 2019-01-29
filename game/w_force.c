@@ -2778,6 +2778,23 @@ qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qbool
 	return qtrue;
 }
 
+static int FootstepIndexFromMaterial(int material) {
+	switch (material) {
+	case MATERIAL_SOLIDMETAL:
+	case MATERIAL_HOLLOWMETAL:
+		return G_SoundIndex(va("sound/player/footsteps/metal_run%d.wav", Q_irand(1, 4)));
+		break;
+	case MATERIAL_SOLIDWOOD:
+	case MATERIAL_HOLLOWWOOD:
+		return G_SoundIndex(va("sound/player/footsteps/wood_run%d.wav", Q_irand(1, 4)));
+		break;
+	default:
+		return G_SoundIndex(va("sound/player/footsteps/stone_run%d.wav", Q_irand(1, 4)));
+		break;
+	}
+}
+#define CARGO_MINDTRICK_COST	(20)
+extern qboolean SE_IsPlayerCrouching(const gentity_t *ent);
 void ForceTelepathy(gentity_t *self)
 {
 	trace_t tr;
@@ -2818,6 +2835,92 @@ void ForceTelepathy(gentity_t *self)
 
 	if ( !WP_ForcePowerUsable( self, FP_TELEPATHY ) )
 	{
+		return;
+	}
+
+	// special mind trick power on cargo
+	if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_CARGO &&
+		self - g_entities < MAX_CLIENTS && self->client && self->client->sess.sessionTeam == TEAM_BLUE &&
+		self->client->ps.fd.forcePower >= CARGO_MINDTRICK_COST) {
+		vec3_t start, end, forward;
+		VectorCopy(self->client->ps.origin, start);
+		AngleVectors(self->client->ps.viewangles, forward, NULL, NULL);
+		VectorMA(start, 16384, forward, end);
+		start[2] += self->client->ps.viewheight;
+		trap_G2Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+
+		int soundIndex = 0;
+		if (self->client->pers.cmd.buttons & BUTTON_WALKING || SE_IsPlayerCrouching(self)) {
+			soundIndex = FootstepIndexFromMaterial(tr.surfaceFlags & MATERIAL_MASK);
+		}
+		else if (self->client->pers.cmd.buttons & BUTTON_USE || !self->client->ps.saberHolstered) {
+			int classes = 0;
+			for (siegeClassFlags_t scl = SPC_INFANTRY; scl < SPC_MAX; scl++) {
+				if (G_SiegeClassCount(TEAM_BLUE, (int)scl, qtrue, self - g_entities))
+					classes |= (1 << (int)scl);
+			}
+			int tries = 0, classNum;
+			qboolean success = qfalse;
+			while (tries < 64) {
+				classNum = Q_irand(SPC_INFANTRY, SPC_MAX - 1);
+				if (classes & (1 << classNum)) {
+					success = qtrue;
+					break;
+				}
+				tries++;
+			}
+			if (success) {
+				if (classNum == SPC_INFANTRY)
+					soundIndex = G_SoundIndex("sound/weapons/repeater/alt_fire.mp3");
+				else if (classNum == SPC_HEAVY_WEAPONS)
+					soundIndex = G_SoundIndex("sound/weapons/rocket/fire.mp3");
+				else if (classNum == SPC_SUPPORT)
+					soundIndex = G_SoundIndex(va("sound/weapons/demp2/%sfire.wav", Q_irand(0, 1) ? "alt" : ""));
+				else if (classNum == SPC_DEMOLITIONIST)
+					soundIndex = G_SoundIndex("sound/weapons/thermal/charge.mp3");
+				else if (classNum == SPC_JEDI)
+					soundIndex = self->client->saber[0].soundOn;
+				else if (classNum == SPC_VANGUARD)
+					soundIndex = G_SoundIndex("sound/weapons/disruptor/fire.mp3");
+			}
+			else {
+				soundIndex = FootstepIndexFromMaterial(tr.surfaceFlags & MATERIAL_MASK);
+			}
+		}
+		else {
+			soundIndex = self->client->saber[0].soundOn;
+		}
+
+		if (!soundIndex) { // ???
+			return;
+		}
+
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			if (!g_entities[i].inuse)
+				continue;
+			gentity_t *te;
+			te = G_TempEntity(tr.endpos, EV_GENERAL_SOUND);
+			te->s.eventParm = soundIndex;
+			te->s.saberEntityNum = CHAN_BODY;
+			te->r.svFlags |= SVF_SINGLECLIENT | SVF_BROADCAST;
+			te->r.singleClient = i;
+			if (te->s.eventParm == self->client->saber[0].soundOn) { // add loop sound if saber
+				gentity_t *te2;
+				te2 = G_TempEntity(tr.endpos, EV_GENERAL_SOUND);
+				te2->s.eventParm = self->client->saber[0].soundLoop;
+				te2->s.saberEntityNum = CHAN_BODY;
+				te2->r.svFlags |= SVF_SINGLECLIENT | SVF_BROADCAST;
+				te2->r.singleClient = i;
+			}
+		}
+
+		self->client->ps.forceAllowDeactivateTime = level.time + 500;
+		self->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH;
+		self->client->ps.forceHandExtendTime = level.time + 500;
+		self->client->ps.fd.forcePower -= CARGO_MINDTRICK_COST;
+		if (self->client->ps.fd.forcePower < 0)
+			self->client->ps.fd.forcePower = 0;
+
 		return;
 	}
 

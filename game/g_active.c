@@ -1204,7 +1204,7 @@ static qboolean SE_RenderPlayerChecks( const gentity_t *self, const vec3_t playe
 }
 
 
-static qboolean SE_IsPlayerCrouching( const gentity_t *ent ) {
+qboolean SE_IsPlayerCrouching( const gentity_t *ent ) {
 	const playerState_t *ps = &ent->client->ps;
 
 	// FIXME: This is no proper way to determine if a client is actually in a crouch position, we want to do this in
