@@ -2850,7 +2850,7 @@ void ForceTelepathy(gentity_t *self)
 		trap_G2Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
 
 		int soundIndex = 0;
-		if (self->client->pers.cmd.buttons & BUTTON_WALKING || SE_IsPlayerCrouching(self)) {
+		if (self->client->pers.cmd.buttons & BUTTON_WALKING) {
 			soundIndex = FootstepIndexFromMaterial(tr.surfaceFlags & MATERIAL_MASK);
 		}
 		else if (self->client->pers.cmd.buttons & BUTTON_USE || !self->client->ps.saberHolstered) {
@@ -2895,23 +2895,18 @@ void ForceTelepathy(gentity_t *self)
 			return;
 		}
 
-		for (int i = 0; i < MAX_CLIENTS; i++) {
-			if (!g_entities[i].inuse)
-				continue;
-			gentity_t *te;
-			te = G_TempEntity(tr.endpos, EV_GENERAL_SOUND);
-			te->s.eventParm = soundIndex;
-			te->s.saberEntityNum = CHAN_BODY;
-			te->r.svFlags |= SVF_SINGLECLIENT | SVF_BROADCAST;
-			te->r.singleClient = i;
-			if (te->s.eventParm == self->client->saber[0].soundOn) { // add loop sound if saber
-				gentity_t *te2;
-				te2 = G_TempEntity(tr.endpos, EV_GENERAL_SOUND);
-				te2->s.eventParm = self->client->saber[0].soundLoop;
-				te2->s.saberEntityNum = CHAN_BODY;
-				te2->r.svFlags |= SVF_SINGLECLIENT | SVF_BROADCAST;
-				te2->r.singleClient = i;
-			}
+		gentity_t *te;
+		te = G_TempEntity(tr.endpos, EV_GENERAL_SOUND);
+		te->s.eventParm = soundIndex;
+		te->s.saberEntityNum = CHAN_AUTO;
+		te->r.svFlags |= SVF_BROADCAST;
+
+		if (te->s.eventParm == self->client->saber[0].soundOn) { // add loop sound if saber
+			gentity_t *te2;
+			te2 = G_TempEntity(tr.endpos, EV_GENERAL_SOUND);
+			te2->s.eventParm = self->client->saber[0].soundLoop;
+			te2->s.saberEntityNum = CHAN_AUTO;
+			te2->r.svFlags |= SVF_BROADCAST;
 		}
 
 		self->client->ps.forceAllowDeactivateTime = level.time + 500;
