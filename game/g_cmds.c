@@ -2403,11 +2403,16 @@ static qboolean ChatLimitExceeded(gentity_t *ent, int mode) {
 		return qfalse;
 
 	int *sentTime, *sentCount, *limit;
-	if (mode == SAY_TEAM && ent->client->sess.canJoin && GetRealTeam(ent->client) != TEAM_SPECTATOR) { // an in-game player using teamchat
+
+	if ( mode == -1 && ent->client->sess.canJoin ) { // -1 is voice chat
+		sentTime = &ent->client->pers.voiceChatSentTime;
+		sentCount = &ent->client->pers.voiceChatSentCount;
+		limit = &g_voiceChatLimit.integer;
+	} else if (mode == SAY_TEAM && ent->client->sess.canJoin && GetRealTeam(ent->client) != TEAM_SPECTATOR) { // an in-game player using teamchat
 		sentTime = &ent->client->pers.teamChatSentTime;
 		sentCount = &ent->client->pers.teamChatSentCount;
 		limit = &g_teamChatLimit.integer;
-	} else {
+	} else { // using all chat OR private chat (or anything for passwordless)
 		sentTime = &ent->client->pers.chatSentTime;
 		sentCount = &ent->client->pers.chatSentCount;
 		limit = &g_chatLimit.integer;
@@ -2998,6 +3003,10 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 
 	if (i == MAX_CUSTOM_SIEGE_SOUNDS || !bg_customSiegeSoundNames[i])
 	{ //didn't find it in the list
+		return;
+	}
+
+	if (ChatLimitExceeded(ent, -1)) {
 		return;
 	}
 
