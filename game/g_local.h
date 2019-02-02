@@ -1109,7 +1109,7 @@ struct gclient_s {
 	int			saberBonusTime;
 	int			pushOffWallTime;
 	qboolean	jumpedOrCrouched; // invalidates the walk category
-	qboolean	usedForward; // invalidates the backwards category
+	qboolean	usedForwardOrBackward; // invalidates the ad category
 
 #ifdef NEWMOD_SUPPORT
 	qboolean	isLagging; // mark lagger without actually changing EF_CONNECTION
@@ -1219,7 +1219,7 @@ typedef enum {
 	CAPTURE_RECORD_STANDARD = 0, // restrictive category from which the other rules derivate
 	CAPTURE_RECORD_WEAPONS, // self weapon damage is allowed (except dets/mines)
 	CAPTURE_RECORD_WALK, // no jump, no roll
-	CAPTURE_RECORD_NOFORWARD, // no +forward
+	CAPTURE_RECORD_AD, // no +forward
 
 	CAPTURE_RECORD_NUM_TYPES,
 	CAPTURE_RECORD_INVALID
