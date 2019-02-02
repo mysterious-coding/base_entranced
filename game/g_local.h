@@ -1226,7 +1226,8 @@ typedef enum {
 } CaptureRecordType;
 
 typedef struct {
-	qboolean enabled; // qtrue if globally enabled (toggled by cvar or mid game by changing movement settings)
+	qboolean enabled; // qtrue if cvar-enabled
+	qboolean readonly; // qtrue if new times won't be recorded (non standard movement cvars for example)
 	qboolean changed; // qtrue if at least one record changed, which means the whole struct is saved when map ends
 	char mapname[MAX_MAP_NAME]; // the current map used as a context for loading/saving from db
 	CaptureRecord records[CAPTURE_RECORD_NUM_TYPES][MAX_SAVED_RECORDS]; // all the records pulled from db when level starts
@@ -2485,6 +2486,7 @@ extern vmCvar_t     g_allow_vote_zombies;
 extern vmCvar_t     g_allow_vote_lockteams;
 
 extern vmCvar_t     g_allow_ready;
+extern vmCvar_t     g_restart_countdown;
 
 extern vmCvar_t	g_accounts;
 extern vmCvar_t	g_accountsFile;
