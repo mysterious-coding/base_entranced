@@ -5165,6 +5165,9 @@ void G_RunFrame( int levelTime ) {
 	static int lastMsgTime = 0;
 
 #ifdef NEWMOD_SUPPORT
+	for (i = 0; i < MAX_CLIENTS; i++)
+		level.clients[i].realPing = level.clients[i].ps.ping;
+
 	if (g_gametype.integer == GT_SIEGE) {
 		if (!level.siegeItemUpdateTime || level.siegeItemUpdateTime <= level.time) {
 			level.siegeItemUpdateTime = level.time + SIEGEITEM_UPDATE_INTERVAL;

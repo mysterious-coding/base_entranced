@@ -1110,6 +1110,7 @@ struct gclient_s {
 
 #ifdef NEWMOD_SUPPORT
 	qboolean	isLagging; // mark lagger without actually changing EF_CONNECTION
+	int			realPing;
 #endif
 
 };
