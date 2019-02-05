@@ -27,16 +27,7 @@ base_entranced is icensed under GPLv2 as free software. You are free to use, mod
 
 # Notice to server admins
 
-base_entranced is intended to be fully usable "out of the box." Most cvars default to their ideal/recommended setting for a pug server, as far as the Siege community is concerned. You shouldn't really need to change anything to get your server running, although the cvars are nevertheless there for you to change if you would like to customize your server to your liking. I do recommend that you download the "Droid lame fix" PK3 (see "Downloads" section below).
-
-# Downloads
-
-#### Download base_entranced
-To download base_entranced, please find the "releases" button on the Github Repo, or simply go to [https://github.com/deathsythe47/base_entranced/releases](https://github.com/deathsythe47/base_entranced/releases)
-
-#### Droid lame fix
-[[download]](https://sites.google.com/site/duosjk3siegemods/home/serverstuff)
-base_entranced fixes `teamnodmg`, so for example, defense on Hoth cannot attack the droid. Unfortunately, this allows defense to lame the droid by knockbacking it into pits, unreachable spots, etc. This patch, which disables knockbacking the droid, is only required serverside.
+base_entranced is intended to be fully usable "out of the box." Most cvars default to their ideal/recommended setting for a pug server, as far as the Siege community is concerned. You shouldn't really need to change anything to get your server running, although the cvars are nevertheless there for you to change if you would like to customize your server to your liking.
 
 # base_entranced features
 These are unique features for base_entranced.

@@ -5263,6 +5263,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
+	// prevent laming the droid on hoth
+	if (GetSiegeMap() == SIEGEMAP_HOTH && targ->s.eType == ET_NPC && g_gametype.integer == GT_SIEGE && !Q_stricmp(targ->targetname, "droidhead"))
+		knockback = 0;
 
 	// figure momentum add, even if the damage won't be taken
 	if ( knockback && targ->client ) {
