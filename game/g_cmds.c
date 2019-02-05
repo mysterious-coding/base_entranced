@@ -3132,7 +3132,12 @@ void Cmd_Changes_f(gentity_t *ent) {
 	char *r = changes, *w = fixed;
 	int remaining = MAX_CHANGES_SIZE - 1;
 	while (*r) {
-		if (*r == '%' && remaining > 7) {
+		if (*r == '%' && r - changes && isdigit(*(r - 1)) && remaining > 8) {
+			Q_strncpyz(w, " percent", remaining);
+			remaining -= 8;
+			w += 8;
+		}
+		else if (*r == '%' && remaining > 7) {
 			Q_strncpyz(w, "percent", remaining);
 			remaining -= 7;
 			w += 7;
