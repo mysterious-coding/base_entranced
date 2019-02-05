@@ -813,9 +813,9 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 	} else if ( g_gametype.integer >= GT_TEAM ) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
+		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) || !Q_stricmp(s, "o") ) {
 			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
+		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) || !Q_stricmp(s, "d")) {
 			team = TEAM_BLUE;
 		} else {
 			// pick the team with the least number of players
@@ -1667,11 +1667,26 @@ void Cmd_Join_f(gentity_t *ent)
 	}
 
 	trap_Argv(1, input, sizeof(input));
-	if (!input || !input[0] || !input[1] || input[2])
+	if (!input[0] || (input[1] && input[2]))
 	{
 		trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
 		return;
 	}
+
+	if (!input[1]) {
+		switch (tolower(input[0])) {
+		case 'r': case 'o': case 'b': case 'd': case 's':
+			Cmd_Team_f(ent);
+			break;
+		default:
+			trap_SendServerCommand(ent - g_entities, "print \"Usage: join <team letter><first letter of class name> (no spaces)  example: '^5join rj^7' for red jedi)\n\"");
+			break;
+		}
+		return;
+	}
+
+	if (g_gametype.integer != GT_SIEGE)
+		return;
 
 	desiredTeam[0] = input[0];
 	className[0] = input[1];
@@ -1706,7 +1721,7 @@ void Cmd_Join_f(gentity_t *ent)
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+	if (g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
 		if (timeSinceRespawn < 1000) {
@@ -1778,7 +1793,7 @@ void Cmd_Class_f(gentity_t *ent)
 	siegeClass_t* siegeClass = 0;
 	int	timeRemaining = 0;
 
-	if (!ent || !ent->client)
+	if (!ent || !ent->client || g_gametype.integer != GT_SIEGE)
 	{
 		return;
 	}
@@ -1815,7 +1830,7 @@ void Cmd_Class_f(gentity_t *ent)
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
+	if (g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
 		if (timeSinceRespawn < 1000) {
 			return;
