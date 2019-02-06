@@ -1336,8 +1336,8 @@ void SP_worldspawn( void )
 
 	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
-	G_SpawnString( "gravity", "800", &text );
-	trap_Cvar_Set( "g_gravity", text );
+	//G_SpawnString( "gravity", "800", &text );
+	//trap_Cvar_Set( "g_gravity", text );
 
 	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
 	trap_Cvar_Set("g_forceOnNPCs", text);
