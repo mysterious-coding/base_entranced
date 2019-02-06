@@ -311,6 +311,152 @@ void G_LogDbUnload()
     sqlite3_close(db);
 }
 
+static int Clean_FileToMemory(void) {
+	int rc = sqlite3_open_v2(":memory:", &db, SQLITE_OPEN_READWRITE, 0);
+	if (rc == SQLITE_OK) {
+		sqlite3_backup *backup = sqlite3_backup_init(db, "main", fileDb, "main");
+		if (backup) {
+			int rc = sqlite3_backup_step(backup, -1);
+			sqlite3_backup_finish(backup);
+			return rc == SQLITE_DONE ? SQLITE_OK : SQLITE_ERROR;
+		}
+		else {
+			return SQLITE_ERROR;
+		}
+	}
+	else {
+		return SQLITE_ERROR;
+	}
+}
+
+static int Clean_MemoryToFile(void) {
+	if (!db || !fileDb)
+		return SQLITE_ERROR;
+	sqlite3_backup *backup = sqlite3_backup_init(fileDb, "main", db, "main");
+	if (backup) {
+		int rc = sqlite3_backup_step(backup, -1);
+		sqlite3_backup_finish(backup);
+		return rc == SQLITE_DONE ? SQLITE_OK : SQLITE_ERROR;
+	}
+	else {
+		return SQLITE_ERROR;
+	}
+}
+
+void G_LogDbClean(void) {
+	Com_Printf("Opening database file %s...", logDbFileName);
+	sqlite3_initialize();
+	int rc = sqlite3_open_v2(logDbFileName, &fileDb, SQLITE_OPEN_READWRITE, 0);
+	if (rc != SQLITE_OK) {
+		Com_Printf("failed!\n");
+		return;
+	}
+	rc = Clean_FileToMemory();
+	if (rc != SQLITE_OK) {
+		Com_Printf("failed to open in memory!\n");
+		return;
+	}
+	Com_Printf("done.\n");
+
+	char *query = "SELECT COUNT(*) FROM nicknames;";
+	sqlite3_stmt* statement = NULL;
+	sqlite3_prepare(db, query, -1, &statement, 0);
+	rc = sqlite3_step(statement);
+	if (rc != SQLITE_ROW) {
+		Com_Printf("No rows found!\n");
+		return;
+	}
+	const int initial = sqlite3_column_int(statement, 0);
+	int existing = initial;
+	Com_Printf("%d rows before cleaning.\n", existing);
+
+	sqlite3_reset(statement);
+	query = "SELECT COUNT(*) FROM nicknames WHERE ip_int = 0;";
+	sqlite3_prepare(db, query, -1, &statement, 0);
+	rc = sqlite3_step(statement);
+	if (rc != SQLITE_ROW) {
+		Com_Printf("No rows found!\n");
+		return;
+	}
+	int bots = sqlite3_column_int(statement, 0);
+	if (bots) {
+		query = "DELETE FROM nicknames WHERE ip_int = 0;";
+		sqlite3_exec(db, query, 0, 0, 0);
+		Com_Printf("Bot pass: deleted %d bot rows.\n", bots);
+		existing -= bots;
+	}
+	else {
+		Com_Printf("Bot pass: no bot rows detected.\n");
+	}
+
+	int pass = 1;
+	while (1) {
+		int offset = 0;
+		while (1) {
+			sqlite3_reset(statement);
+			query = va("SELECT * FROM nicknames LIMIT 1 OFFSET %i;", offset);
+			sqlite3_prepare(db, query, -1, &statement, 0);
+			rc = sqlite3_step(statement);
+			if (rc != SQLITE_ROW) {
+				sqlite3_reset(statement);
+				query = "SELECT COUNT(*) FROM nicknames;";
+				sqlite3_prepare(db, query, -1, &statement, 0);
+				rc = sqlite3_step(statement);
+				assert(rc == SQLITE_ROW);
+				int current = sqlite3_column_int(statement, 0);
+				int deleted = existing - current;
+				if (deleted) {
+					Com_Printf("Pass %d: deleted %d row%s.\n", pass, deleted, deleted == 1 ? "" : "s");
+					existing = current;
+					pass++;
+					break;
+				}
+				else {
+					int percentDeleted = (int)(100 - ((100 * ((double)current / (double)initial)) + 0.5));
+					Com_Printf("Cleaning complete: took %d passes, deleted a total of %d rows (%d percent of the table) for a new total of %d row%s.\n", pass - 1, initial - current, percentDeleted, current, current == 1 ? "" : "s");
+					sqlite3_finalize(statement);
+					Com_Printf("Saving database to disk...");
+					rc = Clean_MemoryToFile();
+					if (rc != SQLITE_OK) {
+						Com_Printf("failed!\n");
+						return;
+					}
+					Com_Printf("Done.\n");
+					return;
+				}
+			}
+			int ip = sqlite3_column_int(statement, 0);
+			char name[64] = { 0 };
+			strcpy(name, (char *)sqlite3_column_text(statement, 1));
+			char cuid[64] = { 0 };
+			if (sqlite3_column_text(statement, 3))
+				strcpy(cuid, (char *)sqlite3_column_text(statement, 3));
+			sqlite3_reset(statement);
+			if (cuid[0])
+				query = va("SELECT SUM(duration) FROM nicknames WHERE ip_int = %i AND name = \"%s\" AND cuid_hash2 = \"%s\";", ip, name, cuid);
+			else
+				query = va("SELECT SUM(duration) FROM nicknames WHERE ip_int = %i AND name = \"%s\" AND cuid_hash2 IS NULL;", ip, name);
+			sqlite3_prepare(db, query, -1, &statement, 0);
+			rc = sqlite3_step(statement);
+			if (rc == SQLITE_ROW) {
+				int totalDuration = sqlite3_column_int(statement, 0);
+				if (cuid[0])
+					query = va("DELETE FROM nicknames WHERE ip_int = %i AND name = \"%s\" AND cuid_hash2 = \"%s\";", ip, name, cuid);
+				else
+					query = va("DELETE FROM nicknames WHERE ip_int = %i AND name = \"%s\" AND cuid_hash2 IS NULL;", ip, name);
+				sqlite3_exec(db, query, 0, 0, 0);
+				if (cuid[0])
+					query = va("INSERT INTO nicknames (ip_int, name, duration, cuid_hash2) VALUES (%i, \"%s\", %i, \"%s\");", ip, name, totalDuration, cuid);
+				else
+					query = va("INSERT INTO nicknames (ip_int, name, duration) VALUES (%i, \"%s\", %i);", ip, name, totalDuration);
+				sqlite3_exec(db, query, 0, 0, 0);
+			}
+			sqlite3_reset(statement);
+			offset++;
+		}
+	}
+}
+
 //
 //  G_LogDbLogLevelStart
 // 

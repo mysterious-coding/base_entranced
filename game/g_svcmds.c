@@ -3318,6 +3318,25 @@ void Svcmd_PoolMapRemove_f()
 
 }
 
+extern void G_LogDbClean(void);
+static void Svcmd_CleanDB_f(void) {
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (level.clients[i].pers.connected) {
+			Com_Printf("Server must be empty to clean db. Try using rcon remotely with /rconaddress from the main menu.\n");
+			return;
+		}
+	}
+	static qboolean attempted = qfalse;
+	if (!attempted) {
+		attempted = qtrue;
+		Com_Printf("Warning: cleaning the db can take a long time (up to a minute or longer). The server may appear to be unresponsive until cleaning is complete. If you are sure you want to clean the db, please enter /cleandb again. This message is only shown once.\n");
+		return;
+	}
+	G_LogDbUnload();
+	G_LogDbClean();
+	G_LogDbLoad();
+}
+
 char	*ConcatArgs( int start );
 
 /*
@@ -3668,6 +3687,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if ( !Q_stricmp( cmd, "shadowmute" ) ) {
 		Svcmd_ShadowMute_f();
+		return qtrue;
+	}
+
+	if (!Q_stricmp(cmd, "cleandb")) {
+		Svcmd_CleanDB_f();
 		return qtrue;
 	}
 
