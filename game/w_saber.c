@@ -6295,6 +6295,15 @@ void DownedSaberThink(gentity_t *saberent)
 		pullBack = qtrue;
 	}
 
+	// duo: bug workaround; don't call back saber if piloting a walker or fighter
+	if (pullBack && saberOwn->client->ps.m_iVehicleNum && saberOwn->client->ps.m_iVehicleNum != ENTITYNUM_NONE) {
+		gentity_t *vehEnt = &g_entities[saberOwn->client->ps.m_iVehicleNum];
+		if (vehEnt->m_pVehicle && vehEnt->m_pVehicle->m_pVehicleInfo &&
+			vehEnt->m_pVehicle->m_pVehicleInfo->hideRider) {
+			pullBack = qfalse;
+		}
+	}
+
 	if (pullBack)
 	{ //Get going back to the owner.
 		saberOwn->client->ps.saberEntityNum = saberOwn->client->saberStoredIndex;
