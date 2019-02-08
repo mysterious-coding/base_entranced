@@ -3055,7 +3055,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"tnt2 "
 		"cobt "
 		"sccc "
-		"isd";
+		"isd2";
 
 	static char commandListCmd[MAX_TOKEN_CHARS] =
 		"kls -1 -1 cmds "
