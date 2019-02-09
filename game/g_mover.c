@@ -165,8 +165,7 @@ Returns qfalse if the move is blocked
 qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **blocker) {
 	vec3_t		matrix[3], transpose[3];
 	vec3_t		org, org2, move2;
-	gentity_t	*block, *blockingPlayer = NULL;
-
+	gentity_t	*block, *confirmedBlocker = NULL;
 	*blocker = NULL;
 
 	//This was only serverside not to mention it was never set.
@@ -221,7 +220,7 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 
 	block = G_TestEntityPosition(check);
 	if (block) {
-		blockingPlayer = block;
+		confirmedBlocker = block;
 	}
 	else {
 		// pushed ok
@@ -260,8 +259,8 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	}
 
 	// blocked
-	if (blockingPlayer && blockingPlayer - g_entities < MAX_CLIENTS)
-		*blocker = blockingPlayer;
+	if (confirmedBlocker)
+		*blocker = confirmedBlocker;
 	return qfalse;
 }
 
@@ -1051,24 +1050,30 @@ Blocked_Door
 */
 void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy)
 {
-	vmCvar_t mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmp(mapname.string, "mp/siege_hoth") && !Q_stricmp(ent->target, "droptheclip") && !Q_stricmp(ent->targetname, "bridge"))
-	{
-		G_Damage(other, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH);
+	static qboolean fixedHothBridge = qfalse;
+	if (GetSiegeMap() == SIEGEMAP_HOTH && !fixedHothBridge && !Q_stricmp(ent->target, "droptheclip") && !Q_stricmp(ent->targetname, "bridge")) {
+		ent->damage = 9999;
+		ent->spawnflags |= MOVER_CRUSHER;
+		fixedHothBridge = qtrue;
 	}
-	else if (ent->damage) {
+	
+	if (ent->damage) {
 		// duo: properly credit liftkills
-		if (blockedBy && blockedBy - g_entities < MAX_CLIENTS && blockedBy->client && blockedBy->client->pers.connected != CON_DISCONNECTED &&
-			other && other - g_entities < MAX_CLIENTS && other->client && other->client->pers.connected != CON_DISCONNECTED && !(g_gametype.integer >= GT_TEAM && !g_friendlyFire.integer && other->client->sess.sessionTeam == blockedBy->client->sess.sessionTeam))
-			G_Damage(other, blockedBy, blockedBy, NULL, NULL, ent->damage, 0, MOD_CRUSH);
-		else
+		if (blockedBy && other && other - g_entities < MAX_CLIENTS) {
+			if (blockedBy - g_entities < MAX_CLIENTS)
+				G_Damage(other, blockedBy, blockedBy, NULL, NULL, ent->damage, 0, MOD_CRUSH); // killed by player
+			else if (blockedBy->parent && blockedBy->parent - g_entities < MAX_CLIENTS)
+				G_Damage(other, blockedBy->parent, blockedBy->parent, NULL, NULL, ent->damage, 0, MOD_CRUSH); // killed by something owned by a player
+			else
+				G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		}
+		else {
 			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		}
 	}
 
 
-	if (ent->spawnflags & MOVER_CRUSHER || (!Q_stricmp(mapname.string, "mp/siege_hoth") && (!Q_stricmp(ent->target, "droptheclip") && !Q_stricmp(ent->targetname, "bridge")))) { //dirty hack to fix hoth bridge crusher
+	if (ent->spawnflags & MOVER_CRUSHER) {
 		return;		// crushers don't reverse
 	}
 
