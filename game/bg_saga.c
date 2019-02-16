@@ -767,7 +767,20 @@ char *classTitles[SPC_MAX] =
 "heavy_weapons",	// SPC_HEAVY_WEAPONS
 };
 
+typedef enum {
+	SIEGEMAP_UNKNOWN = 0,
+	SIEGEMAP_HOTH,
+	SIEGEMAP_DESERT,
+	SIEGEMAP_KORRIBAN,
+	SIEGEMAP_NAR,
+	SIEGEMAP_CARGO,
+	SIEGEMAP_URBAN,
+	SIEGEMAP_BESPIN,
+	SIEGEMAP_ANSION
+} siegeMap_t;
+extern siegeMap_t GetSiegeMap(void);
 
+extern vmCvar_t g_hothRebalance;
 void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 {
 	fileHandle_t f;
@@ -789,6 +802,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 
 	classInfo[len] = 0;
 
+#if 0
 	//first get the description if we have a buffer for it
 	if (descBuffer)
 	{
@@ -801,13 +815,19 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		//SIEGE_CLASS_DESC_LEN.
 		assert(strlen(descBuffer->desc) < SIEGE_CLASS_DESC_LEN);
 	}
+#endif
+
+	siegeClass_t *scl = &bgSiegeClasses[bgNumSiegeClasses];
+	// duo: added to send to clients
+	if (BG_SiegeGetPairedValue(classInfo, "description", parseBuf));
+		Q_strncpyz(scl->description, parseBuf, sizeof(scl->description));
 
 	BG_SiegeGetValueGroup(classInfo, "ClassInfo", classInfo);
 
 	//Parse name
 	if (BG_SiegeGetPairedValue(classInfo, "name", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].name, parseBuf);
+		strcpy(scl->name, parseBuf);
 	}
 	else
 	{
@@ -817,90 +837,94 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	//Parse forced model
 	if (BG_SiegeGetPairedValue(classInfo, "model", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].forcedModel, parseBuf);
+		strcpy(scl->forcedModel, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].forcedModel[0] = 0;
+		scl->forcedModel[0] = 0;
 	}
 
 	//Parse forced skin
 	if (BG_SiegeGetPairedValue(classInfo, "skin", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].forcedSkin, parseBuf);
+		strcpy(scl->forcedSkin, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
 	  // duo: set to "default" if none found
-		Q_strncpyz(bgSiegeClasses[bgNumSiegeClasses].forcedSkin, "default", sizeof(bgSiegeClasses[bgNumSiegeClasses].forcedSkin));
+		Q_strncpyz(scl->forcedSkin, "default", sizeof(scl->forcedSkin));
 		//bgSiegeClasses[bgNumSiegeClasses].forcedSkin[0] = 0;
 	}
 
 	//Parse first saber
 	if (BG_SiegeGetPairedValue(classInfo, "saber1", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].saber1, parseBuf);
+		strcpy(scl->saber1, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].saber1[0] = 0;
+		scl->saber1[0] = 0;
 	}
 
 	//Parse second saber
 	if (BG_SiegeGetPairedValue(classInfo, "saber2", parseBuf))
 	{
-		strcpy(bgSiegeClasses[bgNumSiegeClasses].saber2, parseBuf);
+		strcpy(scl->saber2, parseBuf);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].saber2[0] = 0;
+		scl->saber2[0] = 0;
 	}
 
 	//Parse forced saber stance
 	if (BG_SiegeGetPairedValue(classInfo, "saberstyle", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].saberStance = BG_SiegeTranslateGenericTable(parseBuf, StanceTable, qtrue);
+		scl->saberStance = BG_SiegeTranslateGenericTable(parseBuf, StanceTable, qtrue);
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].saberStance = 0;
+		scl->saberStance = 0;
 	}
 
 	//Parse forced saber color
 	if (BG_SiegeGetPairedValue(classInfo, "sabercolor", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].forcedSaberColor = atoi(parseBuf);
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaberColor = qtrue;
+		scl->forcedSaberColor = atoi(parseBuf);
+		scl->hasForcedSaberColor = qtrue;
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaberColor = qfalse;
+		scl->hasForcedSaberColor = qfalse;
 	}
 
 	//Parse forced saber2 color
 	if (BG_SiegeGetPairedValue(classInfo, "saber2color", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].forcedSaber2Color = atoi(parseBuf);
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaber2Color = qtrue;
+		scl->forcedSaber2Color = atoi(parseBuf);
+		scl->hasForcedSaber2Color = qtrue;
 	}
 	else
 	{ //It's ok if there isn't one, it's optional.
-		bgSiegeClasses[bgNumSiegeClasses].hasForcedSaber2Color = qfalse;
+		scl->hasForcedSaber2Color = qfalse;
 	}
 
 	//Parse weapons
 	if (BG_SiegeGetPairedValue(classInfo, "weapons", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].weapons = BG_SiegeTranslateGenericTable(parseBuf, WPTable, qtrue);
+		scl->weapons = BG_SiegeTranslateGenericTable(parseBuf, WPTable, qtrue);
 	}
 	else
 	{
 		Com_Error(ERR_DROP, "Siege class without weapons entry");
 	}
 
-	if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & (1 << WP_SABER)))
+	// hoth rebalancing
+	if (!strcmp(scl->name, "Rocket Trooper") && g_hothRebalance.integer & (1 << 1))
+		scl->weapons |= (1 << WP_BLASTER);
+
+	if (!(scl->weapons & (1 << WP_SABER)))
 	{ //make sure it has melee if there's no saber
-		bgSiegeClasses[bgNumSiegeClasses].weapons |= (1 << WP_MELEE);
+		scl->weapons |= (1 << WP_MELEE);
 
 		//always give them this too if they are not a saber user
 	}
@@ -908,194 +932,199 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	//Parse forcepowers
 	if (BG_SiegeGetPairedValue(classInfo, "forcepowers", parseBuf))
 	{
-		BG_SiegeTranslateForcePowers(parseBuf, &bgSiegeClasses[bgNumSiegeClasses]);
+		BG_SiegeTranslateForcePowers(parseBuf, scl);
 	}
 	else
 	{ //fine, clear out the powers.
 		i = 0;
 		while (i < NUM_FORCE_POWERS)
 		{
-			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[i] = 0;
+			scl->forcePowerLevels[i] = 0;
 			i++;
 		}
 	}
 
+	// hoth rebalancing
+	if (!strcmp(scl->name, "Jedi Guardian") && g_hothRebalance.integer & (1 << 2))
+		scl->forcePowerLevels[FP_HEAL] = 3;
+
 	//Parse classflags
 	if (BG_SiegeGetPairedValue(classInfo, "classflags", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].classflags = BG_SiegeTranslateGenericTable(parseBuf, bgSiegeClassFlagNames, qtrue);
+		scl->classflags = BG_SiegeTranslateGenericTable(parseBuf, bgSiegeClassFlagNames, qtrue);
 	}
 	else
 	{ //fine, we'll 0 it.
-		bgSiegeClasses[bgNumSiegeClasses].classflags = 0;
+		scl->classflags = 0;
 	}
 
 	//Parse maxhealth
 	if (BG_SiegeGetPairedValue(classInfo, "maxhealth", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].maxhealth = atoi(parseBuf);
+		scl->maxhealth = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 100 then.
-		bgSiegeClasses[bgNumSiegeClasses].maxhealth = 100;
+		scl->maxhealth = 100;
 	}
 
 	//Parse starthealth
 	if (BG_SiegeGetPairedValue(classInfo, "starthealth", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].starthealth = atoi(parseBuf);
+		scl->starthealth = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 100 then.
-		bgSiegeClasses[bgNumSiegeClasses].starthealth = bgSiegeClasses[bgNumSiegeClasses].maxhealth;
+		scl->starthealth = scl->maxhealth;
 	}
 
 	//Parse ammoblaster
 	if (BG_SiegeGetPairedValue(classInfo, "ammoblaster", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammoblaster = atoi(parseBuf);
+		scl->ammoblaster = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammoblaster = 0;
+		scl->ammoblaster = 0;
 	}
 
 	//Parse ammopowercell
 	if (BG_SiegeGetPairedValue(classInfo, "ammopowercell", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammopowercell = atoi(parseBuf);
+		scl->ammopowercell = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammopowercell = 0;
+		scl->ammopowercell = 0;
 	}
 
 	//Parse ammometallicbolts
 	if (BG_SiegeGetPairedValue(classInfo, "ammometallicbolts", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammometallicbolts = atoi(parseBuf);
+		scl->ammometallicbolts = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammometallicbolts = 0;
+		scl->ammometallicbolts = 0;
 	}
 
 	//Parse ammorockets
 	if (BG_SiegeGetPairedValue(classInfo, "ammorockets", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammorockets = atoi(parseBuf);
+		scl->ammorockets = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammorockets = 0;
+		scl->ammorockets = 0;
 	}
 
 	//Parse ammothermals
 	if (BG_SiegeGetPairedValue(classInfo, "ammothermals", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammothermals = atoi(parseBuf);
+		scl->ammothermals = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammothermals = 0;
+		scl->ammothermals = 0;
 	}
 
 	//Parse ammotripmines
 	if (BG_SiegeGetPairedValue(classInfo, "ammotripmines", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammotripmines = atoi(parseBuf);
+		scl->ammotripmines = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammotripmines = 0;
+		scl->ammotripmines = 0;
 	}
 
 	//Parse ammodetpacks
 	if (BG_SiegeGetPairedValue(classInfo, "ammodetpacks", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = atoi(parseBuf);
+		scl->ammodetpacks = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].ammodetpacks = 0;
+		scl->ammodetpacks = 0;
 	}
 
 	//Parse dispensehealthpaks
 	if (BG_SiegeGetPairedValue(classInfo, "dispensehealthpaks", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].dispenseHealthpaks = atoi(parseBuf);
+		scl->dispenseHealthpaks = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].dispenseHealthpaks = 0;
+		scl->dispenseHealthpaks = 0;
 	}
 
 	//Parse jetpackfreezeimmunity
 	if (BG_SiegeGetPairedValue(classInfo, "jetpackfreezeimmunity", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].jetpackFreezeImmunity = atoi(parseBuf);
+		scl->jetpackFreezeImmunity = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].jetpackFreezeImmunity = 0;
+		scl->jetpackFreezeImmunity = 0;
 	}
 
 	//Parse maxsentries
 	if (BG_SiegeGetPairedValue(classInfo, "maxsentries", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].maxSentries = atoi(parseBuf);
+		scl->maxSentries = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].maxSentries = 0;
+		scl->maxSentries = 0;
 	}
 
 	//Parse startarmor
 	if (BG_SiegeGetPairedValue(classInfo, "maxarmor", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].maxarmor = atoi(parseBuf);
+		scl->maxarmor = atoi(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 0 then.
-		bgSiegeClasses[bgNumSiegeClasses].maxarmor = 0;
+		scl->maxarmor = 0;
 	}
 
 	//Parse startarmor
 	if (BG_SiegeGetPairedValue(classInfo, "startarmor", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].startarmor = atoi(parseBuf);
-		if (!bgSiegeClasses[bgNumSiegeClasses].maxarmor)
+		scl->startarmor = atoi(parseBuf);
+		if (!scl->maxarmor)
 		{ //if they didn't specify a damn max armor then use this.
-			bgSiegeClasses[bgNumSiegeClasses].maxarmor = bgSiegeClasses[bgNumSiegeClasses].startarmor;
+			scl->maxarmor = scl->startarmor;
 		}
 	}
 	else
 	{ //default to maxarmor.
-		bgSiegeClasses[bgNumSiegeClasses].startarmor = bgSiegeClasses[bgNumSiegeClasses].maxarmor;
+		scl->startarmor = scl->maxarmor;
 	}
 
 	//Parse speed (this is a multiplier value)
 	if (BG_SiegeGetPairedValue(classInfo, "speed", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].speed = atof(parseBuf);
+		scl->speed = atof(parseBuf);
 	}
 	else
 	{ //It's alright, just default to 1 then.
-		bgSiegeClasses[bgNumSiegeClasses].speed = 1.0f;
+		scl->speed = 1.0f;
 	}
 
 	//Parse shader for ui to use
 	if (BG_SiegeGetPairedValue(classInfo, "uishader", parseBuf))
 	{
 #ifdef QAGAME
-		bgSiegeClasses[bgNumSiegeClasses].uiPortraitShader = 0;
-		memset(bgSiegeClasses[bgNumSiegeClasses].uiPortrait,0,sizeof(bgSiegeClasses[bgNumSiegeClasses].uiPortrait));
+		scl->uiPortraitShader = 0;
+		//memset(bgSiegeClasses[bgNumSiegeClasses].uiPortrait,0,sizeof(bgSiegeClasses[bgNumSiegeClasses].uiPortrait));
+		Q_strncpyz(scl->uiPortrait, parseBuf, sizeof(scl->uiPortrait)); // duo: added to send to clients
 #elif defined CGAME
-		bgSiegeClasses[bgNumSiegeClasses].uiPortraitShader = 0;
-		memset(bgSiegeClasses[bgNumSiegeClasses].uiPortrait,0,sizeof(bgSiegeClasses[bgNumSiegeClasses].uiPortrait));
+		scl->uiPortraitShader = 0;
+		memset(scl->uiPortrait,0,sizeof(scl->uiPortrait));
 #else //ui
-		bgSiegeClasses[bgNumSiegeClasses].uiPortraitShader = trap_R_RegisterShaderNoMip(parseBuf);
-		memcpy(bgSiegeClasses[bgNumSiegeClasses].uiPortrait,parseBuf,sizeof(bgSiegeClasses[bgNumSiegeClasses].uiPortrait));
+		scl->uiPortraitShader = trap_R_RegisterShaderNoMip(parseBuf);
+		memcpy(scl->uiPortrait,parseBuf,sizeof(scl->uiPortrait));
 #endif
 	}
 	else
@@ -1107,13 +1136,14 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	if (BG_SiegeGetPairedValue(classInfo, "class_shader", parseBuf))
 	{
 #ifdef QAGAME
-		bgSiegeClasses[bgNumSiegeClasses].classShader = 0;
+		scl->classShader = 0;
+		Q_strncpyz(scl->classShaderBuf, parseBuf, sizeof(scl->classShaderBuf)); // duo: added to send to clients
 #else //cgame, ui
-		bgSiegeClasses[bgNumSiegeClasses].classShader = trap_R_RegisterShaderNoMip(parseBuf);
-		assert( bgSiegeClasses[bgNumSiegeClasses].classShader );
-		if ( !bgSiegeClasses[bgNumSiegeClasses].classShader )
+		scl->classShader = trap_R_RegisterShaderNoMip(parseBuf);
+		assert( scl->classShader );
+		if ( !scl->classShader )
 		{
-			Com_Printf( "ERROR: could not find class_shader %s for class %s\n", parseBuf, bgSiegeClasses[bgNumSiegeClasses].name );
+			Com_Printf( "ERROR: could not find class_shader %s for class %s\n", parseBuf, scl->name );
 		}
 		// A very hacky way to determine class . . . 
 		else
@@ -1136,7 +1166,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 				holdBuf = parseBuf + ( titleLength - arrayTitleLength);
 				if (!strcmp(holdBuf,classTitles[i]))
 				{
-					bgSiegeClasses[bgNumSiegeClasses].playerClass = i;
+					scl->playerClass = i;
 					break;
 				}
 			}
@@ -1144,33 +1174,39 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			// In case the icon name doesn't match up
 			if (i>=SPC_MAX)
 			{
-				bgSiegeClasses[bgNumSiegeClasses].playerClass = SPC_INFANTRY;
+				scl->playerClass = SPC_INFANTRY;
 			}
 		}
 	}
 	else
 	{ //No entry!  Bad bad bad
-		Com_Printf( "ERROR: no class_shader defined for class %s\n", bgSiegeClasses[bgNumSiegeClasses].name );
+		Com_Printf( "ERROR: no class_shader defined for class %s\n", scl->name );
 	}
 
 	//Parse holdable items to use
 	if (BG_SiegeGetPairedValue(classInfo, "holdables", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].invenItems = BG_SiegeTranslateGenericTable(parseBuf, HoldableTable, qtrue);
+		scl->invenItems = BG_SiegeTranslateGenericTable(parseBuf, HoldableTable, qtrue);
 	}
 	else
 	{ //Just don't start out with any then.
-		bgSiegeClasses[bgNumSiegeClasses].invenItems = 0;
+		scl->invenItems = 0;
 	}
+
+	// hoth rebalancing
+	if (!strcmp(scl->name, "Imperial Snowtrooper") && g_hothRebalance.integer & (1 << 0))
+		scl->invenItems |= (1 << HI_MEDPAC_BIG);
+	else if (!strcmp(scl->name, "Rocket Trooper") && g_hothRebalance.integer & (1 << 1))
+		scl->invenItems |= (1 << HI_MEDPAC);
 
 	//Parse powerups to use
 	if (BG_SiegeGetPairedValue(classInfo, "powerups", parseBuf))
 	{
-		bgSiegeClasses[bgNumSiegeClasses].powerups = BG_SiegeTranslateGenericTable(parseBuf, PowerupTable, qtrue);
+		scl->powerups = BG_SiegeTranslateGenericTable(parseBuf, PowerupTable, qtrue);
 	}
 	else
 	{ //Just don't start out with any then.
-		bgSiegeClasses[bgNumSiegeClasses].powerups = 0;
+		scl->powerups = 0;
 	}
 
 	//A successful read.

@@ -2003,6 +2003,7 @@ void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStringEdString(char *refSection, char *refName);
 #ifdef NEWMOD_SUPPORT
+void UpdateNewmodSiegeClassInfo(int clientNum);
 void UpdateNewmodSiegeItems(void);
 void UpdateNewmodSiegeClassLimits(int clientNum);
 #endif

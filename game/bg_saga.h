@@ -73,6 +73,7 @@ typedef struct
 typedef struct
 {
 	char		name[512];
+	char		description[/*SIEGE_CLASS_DESC_LEN*/1024];
 	char		forcedModel[256];
 	char		forcedSkin[256];
 	char		saber1[64];
@@ -95,6 +96,7 @@ typedef struct
 	int			uiPortraitShader;
 	char		uiPortrait[256];
 	int			classShader;
+	char		classShaderBuf[256];
 	short		playerClass;		// SPC_INFANTRY . .. 
 	int			ammoblaster;
 	int			ammopowercell;
