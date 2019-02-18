@@ -1124,6 +1124,168 @@ void StopFollowing( gentity_t *ent ) {
 }
 
 #ifdef NEWMOD_SUPPORT
+static char *SiegeClassInfoForcePowersString(siegeClass_t *scl) {
+	if (!scl) {
+		assert(qfalse);
+		return NULL;
+	}
+
+	static char forceBuf[64] = { 0 };
+	memset(&forceBuf, 0, sizeof(forceBuf));
+	for (forcePowers_t f = FP_HEAL; f < NUM_FORCE_POWERS; f++) {
+		if (scl->forcePowerLevels[f] > 0) {
+			char c;
+			switch (f) {
+			case FP_HEAL:			c = 'h';	break;
+			case FP_LEVITATION:		c = 'j';	break;
+			case FP_SPEED:			c = 's';	break;
+			case FP_PUSH:			c = 'x';	break;
+			case FP_PULL:			c = 'u';	break;
+			case FP_TELEPATHY:		c = 'm';	break;
+			case FP_GRIP:			c = 'g';	break;
+			case FP_LIGHTNING:		c = 'l';	break;
+			case FP_RAGE:			c = 'r';	break;
+			case FP_PROTECT:		c = 'p';	break;
+			case FP_ABSORB:			c = 'a';	break;
+			case FP_TEAM_HEAL:		c = 't';	break;
+			case FP_TEAM_FORCE:		c = 'e';	break;
+			case FP_DRAIN:			c = 'd';	break;
+			case FP_SEE:			c = 'v';	break;
+			case FP_SABER_OFFENSE:	c = 'o';	break;
+			case FP_SABER_DEFENSE:	c = 'f';	break;
+			case FP_SABERTHROW:		c = 'w';	break;
+			}
+			Q_strcat(forceBuf, sizeof(forceBuf), va("%c%d", c, Com_Clampi(1, 3, scl->forcePowerLevels[f])));
+		}
+	}
+	return forceBuf;
+}
+
+static char *SiegeClassInfoClassShaderString(siegeClass_t *scl) {
+	if (!scl || !scl->classShaderBuf[0])
+		return NULL;
+
+	// save some bytes by just sending an abbreviated form
+	if (!Q_stricmp(scl->classShaderBuf, "gfx/mp/c_icon_infantry"))
+		return "a";
+	else if (!Q_stricmp(scl->classShaderBuf, "gfx/mp/c_icon_heavy_weapons"))
+		return "h";
+	else if (!Q_stricmp(scl->classShaderBuf, "gfx/mp/c_icon_demolitionist"))
+		return "d";
+	else if (!Q_stricmp(scl->classShaderBuf, "gfx/mp/c_icon_support"))
+		return "t";
+	else if (!Q_stricmp(scl->classShaderBuf, "gfx/mp/c_icon_vanguard"))
+		return "s";
+	else if (!Q_stricmp(scl->classShaderBuf, "gfx/mp/c_icon_jedi_general"))
+		return "j";
+	else
+		return scl->classShaderBuf;
+}
+
+static char *FilterChars(char *s) {
+	if (!VALIDSTRING(s))
+		return s;
+
+	for (char *p = s; *p; p++) { // filter chars that might break parsing
+		if (*p == '"')
+			*p = '\'';
+		else if (*p == '=')
+			*p = ':';
+	}
+
+	return s;
+}
+
+#define AddIntegerToClassInfo(key, value)						\
+	do {														\
+		if (value) {											\
+			Q_strcat(s, size, va(" \"%s=%d\"", key, value));	\
+		}														\
+	} while (0)
+
+#define AddFloatToClassInfo(key, value)							\
+	do {														\
+		if (value) {											\
+			Q_strcat(s, size, va(" \"%s=%.3f\"", key, value));	\
+		}														\
+	} while (0)
+
+#define AddStringToClassInfo(key, string)						\
+	do {														\
+		if (VALIDSTRING(string)) {								\
+			Q_strcat(s, size, va(" \"%s=%s\"", key, string));	\
+		}														\
+	} while (0)
+
+void Cmd_Sci_f(gentity_t *ent) {
+	if (g_gametype.integer != GT_SIEGE)
+		return;
+
+	char arg[MAX_STRING_CHARS];
+	trap_Argv(1, arg, sizeof(arg));
+	team_t desiredTeam = atoi(arg);
+	if (desiredTeam != TEAM_RED && desiredTeam != TEAM_BLUE)
+		return;
+
+	static qboolean initialized = qfalse;
+	static char string[2][6][MAX_STRING_CHARS] = { 0 };
+
+	if (!initialized) {
+		initialized = qtrue;
+		for (team_t team = TEAM_RED; team <= TEAM_BLUE; team++) {
+			for (int i = 0; i < 6; i++) {
+				siegeClass_t *scl = BG_SiegeGetClass(team, i + 1);
+				if (!scl)
+					continue;
+
+				char *s = string[team - 1][i];
+				size_t size = sizeof(string[0][0]);
+				Com_sprintf(s, size, "kls -1 -1 sci %d %d", team, i);
+
+				AddStringToClassInfo("nm", FilterChars(scl->name));
+				AddIntegerToClassInfo("ss", scl->saberStance);
+				AddIntegerToClassInfo("wp", scl->weapons);
+				AddStringToClassInfo("s1", FilterChars(scl->saber1));
+				AddStringToClassInfo("s2", FilterChars(scl->saber2));
+				AddIntegerToClassInfo("in", scl->invenItems);
+				char *forcePowersString = SiegeClassInfoForcePowersString(scl);
+				AddStringToClassInfo("fp", forcePowersString);
+				AddIntegerToClassInfo("cf", scl->classflags);
+				AddIntegerToClassInfo("mh", scl->maxhealth);
+				AddIntegerToClassInfo("sh", scl->starthealth);
+				AddIntegerToClassInfo("ab", scl->ammoblaster);
+				AddIntegerToClassInfo("ap", scl->ammopowercell);
+				AddIntegerToClassInfo("am", scl->ammometallicbolts);
+				AddIntegerToClassInfo("ar", scl->ammorockets);
+				AddIntegerToClassInfo("ah", scl->ammothermals);
+				AddIntegerToClassInfo("at", scl->ammotripmines);
+				AddIntegerToClassInfo("ad", scl->ammodetpacks);
+				AddIntegerToClassInfo("ma", scl->maxarmor);
+				AddIntegerToClassInfo("sa", scl->startarmor);
+				AddFloatToClassInfo("sp", scl->speed);
+				AddStringToClassInfo("ps", FilterChars(scl->uiPortrait));
+				char *classShaderString = SiegeClassInfoClassShaderString(scl);
+				AddStringToClassInfo("cs", FilterChars(classShaderString));
+				AddStringToClassInfo("de", FilterChars(scl->description));
+
+				if (strlen(s) >= (MAX_STRING_CHARS - 1) && *(s + (MAX_STRING_CHARS - 1)) != '\"') {
+					G_LogPrintf("SiegeClassInfo warning: class %d on team %d (%s)'s info is too long!", i, team, scl->name);
+					*s = '\0';
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < 6; i++) {
+		if (string[desiredTeam - 1][i][0]) {
+#ifdef _DEBUG
+			Com_Printf("%s\n", string[desiredTeam - 1][i]);
+#endif
+			trap_SendServerCommand(ent - g_entities, string[desiredTeam - 1][i]);
+		}
+	}
+}
+
 static void SendNewmodClassChange(int clientNum, qboolean switchedToFullClass, int limit, qboolean startedAsSpec, int current) {
 	assert(g_gametype.integer == GT_SIEGE);
 	assert(clientNum >= 0 && clientNum < MAX_CLIENTS);
@@ -7829,6 +7991,9 @@ void ClientCommand( int clientNum ) {
 		else if (Q_stricmp(cmd, "svauth") == 0 && ent->client->sess.auth > PENDING && ent->client->sess.auth < AUTHENTICATED) {
 			Cmd_Svauth_f(ent);
 		}
+		else if (!Q_stricmp(cmd, "sci")) {
+			Cmd_Sci_f(ent);
+		}
 #endif
 		else if (Q_stricmp(cmd, "changes") == 0)
 			Cmd_Changes_f(ent);
@@ -7986,6 +8151,8 @@ void ClientCommand( int clientNum ) {
 #ifdef NEWMOD_SUPPORT
 	else if ( Q_stricmp( cmd, "svauth" ) == 0 && ent->client->sess.auth > PENDING && ent->client->sess.auth < AUTHENTICATED )
 		Cmd_Svauth_f( ent );
+	else if (!Q_stricmp(cmd, "sci"))
+		Cmd_Sci_f(ent);
 #endif
 		
 	//for convenient powerduel testing in release

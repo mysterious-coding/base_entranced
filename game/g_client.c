@@ -3055,7 +3055,8 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"tnt2 "
 		"cobt "
 		"sccc "
-		"isd2";
+		"isd2 "
+		"sci";
 
 	static char commandListCmd[MAX_TOKEN_CHARS] =
 		"kls -1 -1 cmds "
@@ -3365,7 +3366,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 #ifdef NEWMOD_SUPPORT
 	G_BroadcastServerFeatureList( clientNum );
 	UpdateNewmodSiegeClassLimits(clientNum);
-	UpdateNewmodSiegeClassInfo(clientNum);
 
 	if ( ent->client->sess.auth == PENDING ) {
 		trap_SendServerCommand( clientNum, va( "kls -1 -1 \"clannounce\" %d \"%s\"", NM_AUTH_PROTOCOL, level.publicKey.keyHex ) );
