@@ -1107,14 +1107,13 @@ void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce) {
 
 	cl->pers.ready = ready;
 	cl->pers.readyTime = level.time;
-
 	if (announce) {
 		if (cl->pers.ready) {
-			trap_SendServerCommand(-1, va("print \"%s "S_COLOR_GREEN"is ready\n\"", cl->pers.netname));
+			trap_SendServerCommand(-1, va("print \"%s%s "S_COLOR_GREEN"is ready\n\"", NM_SerializeUIntToColor(cl - level.clients), cl->pers.netname));
 			trap_SendServerCommand(cl - level.clients, va("cp \""S_COLOR_GREEN"You are ready\""));
 		}
 		else {
-			trap_SendServerCommand(-1, va("print \"%s "S_COLOR_RED"is NOT ready\n\"", cl->pers.netname));
+			trap_SendServerCommand(-1, va("print \"%s%s "S_COLOR_RED"is NOT ready\n\"", NM_SerializeUIntToColor(cl - level.clients), cl->pers.netname));
 			trap_SendServerCommand(cl - level.clients, va("cp \""S_COLOR_RED"You are NOT ready\""));
 		}
 	}
