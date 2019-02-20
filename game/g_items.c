@@ -304,7 +304,7 @@ void ShieldGoSolid(gentity_t *self)
 void ShieldGoNotSolid(gentity_t *self)
 {
 	// update shield uptime stat
-	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+	if (g_gametype.integer == GT_SIEGE && !level.intermissiontime && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
 		if (GetSiegeMap() == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		else if (GetSiegeMap() == SIEGEMAP_NAR)
