@@ -144,13 +144,10 @@ void ShieldRemove(gentity_t *self)
 void ShieldThink(gentity_t *self)
 {
 	// update shield uptime stat
-	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		char map[MAX_QPATH] = { 0 };
-		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+	if (!level.intermissiontime && g_gametype.integer == GT_SIEGE && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		if (GetSiegeMap() == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		}
-		else if (!Q_stricmp(map, "siege_narshaddaa"))
+		else if (GetSiegeMap() == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = level.time;
 	}
@@ -193,13 +190,10 @@ void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 		return;
 	}
 	// update shield uptime stat
-	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		char map[MAX_QPATH] = { 0 };
-		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+	if (g_gametype.integer == GT_SIEGE && !level.intermissiontime && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		if (GetSiegeMap() == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		}
-		else if (!Q_stricmp(map, "siege_narshaddaa"))
+		else if (GetSiegeMap() == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = 0;
 	}
@@ -247,13 +241,10 @@ void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 void ShieldGoSolid(gentity_t *self)
 {
 	// update shield uptime stat
-	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		char map[MAX_QPATH] = { 0 };
-		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+	if (g_gametype.integer == GT_SIEGE && !level.intermissiontime && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
+		if (GetSiegeMap() == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		}
-		else if (!Q_stricmp(map, "siege_narshaddaa"))
+		else if (GetSiegeMap() == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = level.time;
 	}
@@ -314,12 +305,9 @@ void ShieldGoNotSolid(gentity_t *self)
 {
 	// update shield uptime stat
 	if (self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		char map[MAX_QPATH] = { 0 };
-		trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-		if (!Q_stricmpn(map, "mp/siege_hoth", 13)) {
+		if (GetSiegeMap() == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		}
-		else if (!Q_stricmp(map, "siege_narshaddaa"))
+		else if (GetSiegeMap() == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = level.time;
 	}
