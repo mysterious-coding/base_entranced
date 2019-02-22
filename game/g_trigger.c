@@ -739,7 +739,8 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 						!Q_stricmp(self->target, "tunneldoors") ||
 						!Q_stricmp(self->target, "topdoor") ||
 						!Q_stricmp(self->target, "ccturrets") ||
-						!Q_stricmp(self->target, "node1hacked")) {
+						!Q_stricmp(self->target, "node1hacked") ||
+						!Q_stricmp(self->target, "obj2ramp")) {
 						other->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_HACKS]++;
 						if (!Q_stricmp(self->target, "tophacked") || !Q_stricmp(self->target, "node1hacked"))
 							numHackedOfNode1AndTop++;

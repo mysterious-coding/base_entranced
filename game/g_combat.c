@@ -4828,7 +4828,14 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if (mod == MOD_DEMP2 && targ && targ->inuse && targ->client)
+	qboolean isUrbanOrCargoOAssault = qfalse;
+	if ((mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && (GetSiegeMap() == SIEGEMAP_URBAN || GetSiegeMap() == SIEGEMAP_CARGO) &&
+		targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
+		attacker && attacker->client && attacker->client->sess.sessionTeam != TEAM_RED &&
+		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY) {
+		isUrbanOrCargoOAssault = qtrue;
+	}
+	if (mod == MOD_DEMP2 && !isUrbanOrCargoOAssault && targ && targ->inuse && targ->client)
 	{
 		if (targ->client->ps.electrifyTime < level.time)
 		{//electrocution effect
@@ -4839,7 +4846,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				targ->client->ps.electrifyTime = level.time + rng;
 			}
 			else if ((targ->s.NPC_class != CLASS_VEHICLE
-				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER)) && !(GetSiegeMap() == SIEGEMAP_URBAN && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY))
+				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER)))
 			{//don't do this to fighters
 				int maxFreezeTime = 800;
 				if (targ->client->sess.skillBoost) {
@@ -4918,15 +4925,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				break;
 			}
 		}
-		else if (bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY && targ->client->sess.sessionTeam == TEAM_RED) {
-			switch (mod) {
-			case MOD_DEMP2:
-			case MOD_DEMP2_ALT:
-				damage -= (int)((float)damage * 0.3f);
-				break;
-			}
-		}
 	}
+
+	if (isUrbanOrCargoOAssault && (mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
+		damage -= (int)((float)damage * 0.3f);
 
 	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself
 		if (attacker && attacker->client && attacker->client->sess.skillBoost && targ) { // attacker has a skillboost
@@ -6117,7 +6119,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (targ->client && targ->s.number < MAX_CLIENTS &&
 			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
 		{ //uh.. shock them or something. what the hell, I don't know.
-            if (targ->client->ps.weaponTime <= 0 && !(GetSiegeMap() == SIEGEMAP_URBAN && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY))
+            if (targ->client->ps.weaponTime <= 0 && !isUrbanOrCargoOAssault)
 			{ //yeah, we were supposed to be beta a week ago, I don't feel like
 				//breaking the game so I'm gonna be safe and only do this only
 				//if your weapon is not busy
