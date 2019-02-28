@@ -172,47 +172,50 @@ const char* const sqlDeleteNMPlayerFromWhitelist =
 const char* const sqlDeletePlayerFromWhitelist =
 "DELETE FROM playerwhitelist WHERE unique_id = ?1";
 
-const char* const sqlCreateFastcapsTable =
-"CREATE TABLE IF NOT EXISTS fastcaps (                                          "
+const char* const sqlCreateFastcapsV2Table =
+"CREATE TABLE IF NOT EXISTS fastcapsV2 (                                        "
 "    [fastcap_id] INTEGER PRIMARY KEY AUTOINCREMENT,                            "
 "    [mapname] TEXT,                                                            "
 "    [type] INTEGER,                                                            "
 "    [player_name] TEXT,                                                        "
 "    [player_ip_int] INTEGER,                                                   "
 "    [player_cuid_hash2] TEXT,                                                  "
-"    [match_id] TEXT,                                                           "
-"    [client_id] INTEGER,                                                       "
 "    [capture_time] INTEGER,                                                    "
 "    [whose_flag] INTEGER,                                                      "
+"    [max_speed] INTEGER,                                                       "
+"    [avg_speed] INTEGER,                                                       "
+"    [date] INTEGER,                                                            "
+"    [match_id] TEXT,                                                           "
+"    [client_id] INTEGER,                                                       "
 "    [pickup_time] INTEGER);                                                    ";
 
-const char* const sqlAddFastcap =
-"INSERT INTO fastcaps (mapname, type, player_name,           "
-"player_ip_int, player_cuid_hash2, match_id, client_id,      "
-"capture_time, whose_flag, pickup_time)                      "
-"VALUES (?,?,?,?,?,?,?,?,?,?)                                ";
+const char* const sqlAddFastcapV2 =
+"INSERT INTO fastcapsV2 (                                                       "
+"    mapname, type, player_name, player_ip_int, player_cuid_hash2,              "
+"    capture_time, whose_flag, max_speed, avg_speed, date, match_id,            "
+"    client_id, pickup_time)                                                    "
+"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)                                             ";
 
-const char* const sqlremoveFastcaps =
-"DELETE FROM fastcaps       "
-"WHERE mapname = ?          ";
+const char* const sqlremoveFastcapsV2 =
+"DELETE FROM fastcapsV2 WHERE mapname = ?                                       ";
 
-const char* const sqlGetFastcaps =
-"SELECT player_name, player_ip_int, player_cuid_hash2,                 "
-"match_id, client_id, capture_time, whose_flag, pickup_time            "
-"FROM fastcaps                                                         "
-"WHERE fastcaps.mapname = ?1 AND fastcaps.type = ?2                    "
-"ORDER BY capture_time                                                 "
-"LIMIT ?3                                                              ";
+const char* const sqlGetFastcapsV2 =
+"SELECT player_name, player_ip_int, player_cuid_hash2, capture_time,            "
+"whose_flag, max_speed, avg_speed, date, match_id, client_id, pickup_time       "
+"FROM fastcapsV2                                                                "
+"WHERE fastcapsV2.mapname = ?1 AND fastcapsV2.type = ?2                         "
+"ORDER BY capture_time                                                          "
+"LIMIT ?3                                                                       ";
 
-const char* const sqlListBestFastcaps =
-"SELECT mapname, player_name, player_ip_int,                           "
-"player_cuid_hash2, MIN( capture_time ) AS best_time                   "
-"FROM fastcaps                                                         "
-"WHERE fastcaps.type = ?1                                              "
-"GROUP BY mapname                                                      "
-"ORDER BY mapname                                                      "
-"LIMIT ?2                                                              "
-"OFFSET ?3                                                             ";
+const char* const sqlListBestFastcapsV2 =
+"SELECT mapname, player_name, player_ip_int, player_cuid_hash2,                 "
+"MIN( capture_time ) AS best_time, date                                         "
+"FROM fastcapsV2                                                                "
+"WHERE fastcapsV2.type = ?1                                                       "
+"GROUP BY mapname                                                               "
+"ORDER BY mapname ASC, date ASC                                                 "
+"LIMIT ?2                                                                       "
+"OFFSET ?3                                                                      ";
 
 //
 //  G_LogDbLoad
@@ -273,7 +276,7 @@ void G_LogDbLoad()
 		}
 
 		// create the database IF NEEDED, since it might have been created before the feature was added
-		sqlite3_exec( fileDb, sqlCreateFastcapsTable, 0, 0, 0 );
+		sqlite3_exec( fileDb, sqlCreateFastcapsV2Table, 0, 0, 0 );
 	}
 	else {
 		G_LogPrintf("Couldn't find log database %s, creating a new one\n", logDbFileName);
@@ -281,7 +284,7 @@ void G_LogDbLoad()
         rc = sqlite3_open_v2( logDbFileName, &fileDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0 );
 
         sqlite3_exec( fileDb, sqlCreateLogDb, 0, 0, 0 );
-		sqlite3_exec( fileDb, sqlCreateFastcapsTable, 0, 0, 0 );
+		sqlite3_exec( fileDb, sqlCreateFastcapsV2Table, 0, 0, 0 );
     }
 	
 	// open in memory
@@ -787,7 +790,7 @@ void G_LogDbLoadCaptureRecords( const char *mapname,
 	sqlite3_stmt* statement;
 	int i, rc = -1, loaded = 0;
 
-	rc = sqlite3_prepare( db, sqlGetFastcaps, -1, &statement, 0 );
+	rc = sqlite3_prepare( db, sqlGetFastcapsV2, -1, &statement, 0 );
 
 	for ( i = 0; i < CAPTURE_RECORD_NUM_TYPES; ++i ) {
 		sqlite3_reset( statement );
@@ -805,11 +808,14 @@ void G_LogDbLoadCaptureRecords( const char *mapname,
 			const char *player_name = ( const char* )sqlite3_column_text( statement, 0 );
 			const unsigned int player_ip_int = sqlite3_column_int( statement, 1 );
 			const char *player_cuid_hash2 = ( const char* )sqlite3_column_text( statement, 2 );
-			const char *match_id = ( const char* )sqlite3_column_text( statement, 3 );
-			const int client_id = sqlite3_column_int( statement, 4 );
-			const int capture_time = sqlite3_column_int( statement, 5 );
-			const int whose_flag = sqlite3_column_int( statement, 6 );
-			const int pickup_time = sqlite3_column_int( statement, 7 );
+			const int capture_time = sqlite3_column_int( statement, 3 );
+			const int whose_flag = sqlite3_column_int( statement, 4 );
+			const int max_speed = sqlite3_column_int( statement, 5 );
+			const int avg_speed = sqlite3_column_int( statement, 6 );
+			const time_t date = sqlite3_column_int64( statement, 7 );
+			const char *match_id = ( const char* )sqlite3_column_text( statement, 8 );
+			const int client_id = sqlite3_column_int( statement, 9 );
+			const int pickup_time = sqlite3_column_int( statement, 10 );
 
 			// write them to the record
 			CaptureRecord *record = &recordsToLoad->records[i][j];
@@ -821,13 +827,17 @@ void G_LogDbLoadCaptureRecords( const char *mapname,
 				Q_strncpyz( record->recordHolderCuid, player_cuid_hash2, sizeof( record->recordHolderCuid ) );
 			}
 
+			record->captureTime = capture_time;
+			record->whoseFlag = whose_flag;
+			record->maxSpeed = max_speed;
+			record->avgSpeed = avg_speed;
+			record->date = date;
+
 			if ( VALIDSTRING( match_id ) ) {
 				Q_strncpyz( record->matchId, match_id, sizeof( record->matchId ) );
 			}
 
 			record->recordHolderClientId = client_id;
-			record->captureTime = capture_time;
-			record->whoseFlag = whose_flag;
 			record->pickupLevelTime = pickup_time;
 
 			rc = sqlite3_step( statement );
@@ -851,7 +861,7 @@ void G_LogDbListBestCaptureRecords( CaptureRecordType type,
 	void *context )
 {
 	sqlite3_stmt* statement;
-	int rc = sqlite3_prepare( db, sqlListBestFastcaps, -1, &statement, 0 );
+	int rc = sqlite3_prepare( db, sqlListBestFastcapsV2, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, type );
 	sqlite3_bind_int( statement, 2, limit );
@@ -864,8 +874,9 @@ void G_LogDbListBestCaptureRecords( CaptureRecordType type,
 		const unsigned int player_ip_int = sqlite3_column_int( statement, 2 );
 		const char *player_cuid_hash2 = ( const char* )sqlite3_column_text( statement, 3 );
 		const int best_time = sqlite3_column_int( statement, 4 );
+		const time_t date = sqlite3_column_int64( statement, 5 );
 
-		callback( context, mapname, type, player_name, player_ip_int, player_cuid_hash2, best_time );
+		callback( context, mapname, type, player_name, player_ip_int, player_cuid_hash2, best_time, date );
 
 		rc = sqlite3_step( statement );
 	}
@@ -882,13 +893,13 @@ void G_LogDbSaveCaptureRecords( CaptureRecordList *recordsToSave )
 	sqlite3_stmt* statement;
 
 	// first, delete all of the old records for this map, even those that didn't change
-	sqlite3_prepare( db, sqlremoveFastcaps, -1, &statement, 0 );
+	sqlite3_prepare( db, sqlremoveFastcapsV2, -1, &statement, 0 );
 	sqlite3_bind_text( statement, 1, recordsToSave->mapname, -1, 0 );
 	sqlite3_step( statement );
 	sqlite3_finalize( statement );
 
 	// rewrite everything
-	sqlite3_prepare( db, sqlAddFastcap, -1, &statement, 0 );
+	sqlite3_prepare( db, sqlAddFastcapV2, -1, &statement, 0 );
 
 	int i, j, saved = 0;
 	for ( i = 0; i < CAPTURE_RECORD_NUM_TYPES; ++i ) {
@@ -913,16 +924,21 @@ void G_LogDbSaveCaptureRecords( CaptureRecordList *recordsToSave )
 				sqlite3_bind_null( statement, 5 );
 			}
 
+			sqlite3_bind_int( statement, 6, record->captureTime );
+			sqlite3_bind_int( statement, 7, record->whoseFlag );
+			sqlite3_bind_int( statement, 8, record->maxSpeed );
+			sqlite3_bind_int( statement, 9, record->avgSpeed );
+			sqlite3_bind_int64( statement, 10, record->date );
+
 			if ( VALIDSTRING( record->matchId ) ) {
-				sqlite3_bind_text( statement, 6, record->matchId, -1, 0 );
-			} else {
-				sqlite3_bind_null( statement, 6 );
+				sqlite3_bind_text( statement, 11, record->matchId, -1, 0 );
+			}
+			else {
+				sqlite3_bind_null( statement, 11 );
 			}
 
-			sqlite3_bind_int( statement, 7, record->recordHolderClientId );
-			sqlite3_bind_int( statement, 8, record->captureTime );
-			sqlite3_bind_int( statement, 9, record->whoseFlag );
-			sqlite3_bind_int( statement, 10, record->pickupLevelTime);
+			sqlite3_bind_int( statement, 12, record->recordHolderClientId );
+			sqlite3_bind_int( statement, 13, record->pickupLevelTime);
 
 			sqlite3_step( statement );
 			++saved;
@@ -934,7 +950,7 @@ void G_LogDbSaveCaptureRecords( CaptureRecordList *recordsToSave )
 	G_Printf( "Saved %d capture time records to database\n", saved );
 }
 
-// this function assumes the arrays in currentRecords are sorted by captureTime
+// this function assumes the arrays in currentRecords are sorted by captureTime and date
 // returns 0 if this is not a record, or the newly assigned rank otherwise (1 = 1st, 2 = 2nd...)
 int G_LogDbCaptureTime( unsigned int ipInt,
 	const char *netname,
@@ -943,6 +959,9 @@ int G_LogDbCaptureTime( unsigned int ipInt,
 	const char *matchId,
 	const int captureTime,
 	const team_t whoseFlag,
+	const int maxSpeed,
+	const int avgSpeed,
+	const time_t date,
 	const int pickupLevelTime,
 	const CaptureRecordType type,
 	CaptureRecordList *currentRecords )
@@ -991,7 +1010,7 @@ int G_LogDbCaptureTime( unsigned int ipInt,
 
 			for ( ; newIndex > 0; --newIndex ) {
 				if ( recordArray[newIndex - 1].captureTime && recordArray[newIndex - 1].captureTime <= captureTime ) {
-					break; // this one is better, so use the index after it
+					break; // this one is better or equal, so use the index after it
 				}
 			}
 
@@ -1004,7 +1023,7 @@ int G_LogDbCaptureTime( unsigned int ipInt,
 		// this player doesn't have a record in this category yet, so find an index by comparing times from the worst to the best
 		for ( newIndex = MAX_SAVED_RECORDS; newIndex > 0; --newIndex ) {
 			if ( recordArray[newIndex - 1].captureTime && recordArray[newIndex - 1].captureTime <= captureTime ) {
-				break; // this one is better, so use the index after it
+				break; // this one is better or equal, so use the index after it
 			}
 		}
 
@@ -1025,6 +1044,9 @@ int G_LogDbCaptureTime( unsigned int ipInt,
 	newElement->recordHolderIpInt = ipInt;
 	newElement->captureTime = captureTime;
 	newElement->whoseFlag = whoseFlag;
+	newElement->maxSpeed = maxSpeed;
+	newElement->avgSpeed = avgSpeed;
+	newElement->date = date;
 	newElement->recordHolderClientId = clientId;
 	newElement->pickupLevelTime = pickupLevelTime;
 
