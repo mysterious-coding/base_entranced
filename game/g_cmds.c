@@ -6636,7 +6636,7 @@ void Cmd_WhoIs_f( gentity_t* ent )
 #define STATS_ROW_SEPARATOR	"-"
 
 typedef enum {
-	STAT_NONE = 0, // types are this are RIGHT aligned
+	STAT_NONE = 0, // types after this are RIGHT aligned
 	STAT_BLANK, // only serves as caption, no value
 	STAT_FLOAT,
 	STAT_INT,
@@ -6927,40 +6927,50 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 
 static const StatsDesc CtfStatsDesc = {
 	{
-		"SCORE", "CAP", "ASS", "DEF", "ACC", "FCKIL", "RET",
-		"BOON", "TTLHOLD", "MAXHOLD", "SAVES", "DMGDLT", "DMGTKN"
+		"SCORE", "CAP", "ASS", "DEF", "ACC", "FCKIL", "RET", "BOON", "TTLHOLD", "MAXHOLD",
+		"SAVES", "DMGDLT", "DMGTKN", "TOPSPD", "AVGSPD"
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT,
-		STAT_INT, STAT_DURATION, STAT_DURATION, STAT_INT, STAT_INT, STAT_INT
+		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_DURATION, STAT_DURATION,
+		STAT_INT, STAT_INT, STAT_INT, STAT_INT, STAT_INT
 	}
 };
 
-static void FillCtfStats( gclient_t *cl, Stat *values ) {
-	int i = 0;
-	FillValueInt(cl->ps.persistant[PERS_SCORE]);
-	FillValueInt(cl->ps.persistant[PERS_CAPTURES]);
-	FillValueInt(cl->ps.persistant[PERS_ASSIST_COUNT]);
-	FillValueInt(cl->ps.persistant[PERS_DEFEND_COUNT]);
-	FillValueInt(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0);
-	FillValueInt(cl->pers.teamState.fragcarrier);
-	FillValueInt(cl->pers.teamState.flagrecovery);
-	FillValueInt(cl->pers.teamState.boonPickups);
-	FillValueInt(cl->pers.teamState.flaghold);
-	FillValueInt(cl->pers.teamState.longestFlaghold);
-	FillValueInt(cl->pers.teamState.saves);
-	FillValueInt(cl->pers.damageCaused);
-	FillValueInt(cl->pers.damageTaken);
+static void FillCtfStats(gclient_t *cl, int *values) {
+	*values++ = cl->ps.persistant[PERS_SCORE];
+	*values++ = cl->ps.persistant[PERS_CAPTURES];
+	*values++ = cl->ps.persistant[PERS_ASSIST_COUNT];
+	*values++ = cl->ps.persistant[PERS_DEFEND_COUNT];
+	*values++ = cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0;
+	*values++ = cl->pers.teamState.fragcarrier;
+	*values++ = cl->pers.teamState.flagrecovery;
+	*values++ = cl->pers.teamState.boonPickups;
+	*values++ = cl->pers.teamState.flaghold;
+	*values++ = cl->pers.teamState.longestFlaghold;
+	*values++ = cl->pers.teamState.saves;
+	*values++ = cl->pers.damageCaused;
+	*values++ = cl->pers.damageTaken;
+
+	int maxSpeed = (int)(cl->pers.topSpeed + 0.5f);
+	int avgSpeed;
+
+	if (cl->pers.displacementSamples) {
+		avgSpeed = (int)floorf(((cl->pers.displacement * g_svfps.value) / cl->pers.displacementSamples) + 0.5f);
+	}
+	else {
+		avgSpeed = maxSpeed;
+	}
+
+	*values++ = maxSpeed;
+	*values++ = avgSpeed;
 }
 
 static const StatsDesc ForceStatsDesc = {
 	{
-		"PUSH", "PULL", "HEALED", "NRGSED ALLY", "ENEMY",
-		"ABSRBD", "PROTDMG", "PROTTIME"
+		"PUSH", "PULL", "HEALED", "NRGSED ALLY", "ENEMY", "ABSRBD", "PROTDMG", "PROTTIME"
 	},
 	{
-		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2,
-		STAT_INT, STAT_INT, STAT_DURATION
+		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT, STAT_INT, STAT_DURATION
 	}
 };
 
