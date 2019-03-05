@@ -658,6 +658,7 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 			{ //fall back to default and restart, should always be there
 				p = SaberParms;
 				COM_BeginParseSession("saberinfo");
+				token = COM_ParseExt(&p, qtrue); // duo: make sure the first line gets parsed
 				strcpy(useSaber, DEFAULT_SABER);
 				triedDefault = qtrue;
 			}
