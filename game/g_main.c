@@ -4953,14 +4953,14 @@ void UpdateSiegeStatus()
 #ifdef NEWMOD_SUPPORT
 #define SIEGEITEM_UPDATE_INTERVAL	1000
 void UpdateNewmodSiegeItems(void) {
-	int i;
-	team_t currentTeam;
+	if (g_gametype.integer == GT_SIEGE && (level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2))
+		return;
 
 	// loop through each team (red and red-followers only gets red carriers, blue and blue-followers only gets blue carriers, freespecs get all carriers)
-	for (currentTeam = TEAM_RED; currentTeam <= TEAM_SPECTATOR; currentTeam++) {
+	for (team_t currentTeam = TEAM_RED; currentTeam <= TEAM_SPECTATOR; currentTeam++) {
 		int modelIndices[MAX_CLIENTS];
 		qboolean foundAny = qfalse;
-		for (i = 0; i < MAX_CLIENTS; i++) { // get list of clients with siege items
+		for (int i = 0; i < MAX_CLIENTS; i++) { // get list of clients with siege items
 			if (!(&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected == CON_CONNECTED && g_entities[i].client->holdingObjectiveItem &&
 				g_entities[i].health > 0 && g_entities[i].client->tempSpectate < level.time && g_entities[i].client->ps.pm_type != PM_SPECTATOR &&
 				(currentTeam != TEAM_SPECTATOR && g_entities[i].client->sess.sessionTeam == currentTeam || currentTeam == TEAM_SPECTATOR && (g_entities[i].client->sess.sessionTeam == TEAM_RED || g_entities[i].client->sess.sessionTeam == TEAM_BLUE)) &&
@@ -4976,7 +4976,7 @@ void UpdateNewmodSiegeItems(void) {
 		Q_strncpyz(command, "si", sizeof(command));
 
 		if (!foundAny) { // didn't find any; send empty message
-			for (i = 0; i < MAX_CLIENTS; i++) {
+			for (int i = 0; i < MAX_CLIENTS; i++) {
 				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].sess.sessionTeam == currentTeam) {
 					trap_SendServerCommand(i, va("lchat %s", command));
 					//Com_Printf("Sent no siege item to client %i\n", i);
@@ -4986,7 +4986,7 @@ void UpdateNewmodSiegeItems(void) {
 		}
 
 		foundAny = qfalse;
-		for (i = 0; i < MAX_CLIENTS; i++) { // build the string we will send out
+		for (int i = 0; i < MAX_CLIENTS; i++) { // build the string we will send out
 			if (modelIndices[i] >= 0) { // this player has an item; add him to the string as "clientNumber modelIndex"
 				Q_strncpyz(command, va("%s %i %i", command, i, modelIndices[i]), sizeof(command));
 				foundAny = qtrue;
@@ -4996,7 +4996,7 @@ void UpdateNewmodSiegeItems(void) {
 		if (!foundAny)
 			continue;
 
-		for (i = 0; i < MAX_CLIENTS; i++) {
+		for (int i = 0; i < MAX_CLIENTS; i++) {
 			if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].sess.sessionTeam == currentTeam) {
 				trap_SendServerCommand(i, va("kls -1 -1 %s", command)); // send it
 				//Com_Printf("Sent siege item command to client %i: %s\n", i, command);
@@ -5014,6 +5014,9 @@ void CheckSpecInfo(void) {
 	static int lastUpdate = 0;
 	int updateRate = Com_Clampi(1, 1000, g_teamOverlayUpdateRate.integer);
 	if (lastUpdate && level.time - lastUpdate <= updateRate)
+		return;
+
+	if (g_gametype.integer == GT_SIEGE && (level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2))
 		return;
 
 	// see if anyone is spec

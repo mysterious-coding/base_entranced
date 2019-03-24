@@ -2608,8 +2608,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	trap_SetConfigstring(CS_PLAYERS + clientNum, s); // set it on the server
 	if (g_gametype.integer == GT_SIEGE && g_delayClassUpdate.integer && !(ent->r.svFlags & SVF_BOT)) {
-		int i;
-		for (i = 0; i < MAX_CLIENTS; i++) {
+		for (int i = 0; i < MAX_CLIENTS; i++) {
 			if (level.clients[i].pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT)
 				continue;
 			qboolean pregame = (level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2) ? qtrue : qfalse;
@@ -3042,6 +3041,26 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 #ifdef NEWMOD_SUPPORT
 
 void G_BroadcastServerFeatureList( int clientNum ) {
+	static char commandListCmd[MAX_TOKEN_CHARS] =
+		"kls -1 -1 cmds "
+		"whois \"Shows the most used names\" "
+		"rules \"Displays server rules\" "
+		"mappool \"Lists server map pools and their content\" "
+		"ready \"Marks yourself as ready to be part of random teams\" "
+		"stats \"Shows stats for the current game\" "
+		"siegestats \"Shows stats for the current game\" "
+		"join \"Changes Siege class on a specified team\" "
+		"class \"Changes Siege class on current team\" "
+		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
+
+	trap_SendServerCommand(clientNum, commandListCmd);
+
+	static qboolean didGlobal = qfalse;
+	if (didGlobal)
+		return;
+
+	didGlobal = qtrue;
+
 	static char featureListConfigString[MAX_TOKEN_CHARS] =
 		"sfl "
 		"oid "
@@ -3057,35 +3076,16 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"sccc "
 		"isd2 "
 		"sci";
-
-	static char commandListCmd[MAX_TOKEN_CHARS] =
-		"kls -1 -1 cmds "
-		"whois \"Shows the most used names\" "
-		"rules \"Displays server rules\" "
-		"mappool \"Lists server map pools and their content\" "
-		"ready \"Marks yourself as ready to be part of random teams\" "
-		"stats \"Shows stats for the current game\" "
-		"siegestats \"Shows stats for the current game\" "
-		"join \"Changes Siege class on a specified team\" "
-		"class \"Changes Siege class on current team\" "
-		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
+	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
 	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };
-
-	// lazy initialization of the locations strings
-
-	if ( level.locations.enhanced.numUnique && !*locationsListConfigString ) {
-		Q_strncpyz( locationsListConfigString, "locs", sizeof( locationsListConfigString ) );
-
-		int i;
-		for ( i = 0; i < level.locations.enhanced.numUnique; ++i ) {
-			Q_strcat( locationsListConfigString, sizeof( locationsListConfigString ), va( " \"%s\" %d", level.locations.enhanced.data[i].message, level.locations.enhanced.data[i].teamowner ) );
+	if (level.locations.enhanced.numUnique && !*locationsListConfigString) {
+		Q_strncpyz(locationsListConfigString, "locs", sizeof(locationsListConfigString));
+		for (int i = 0; i < level.locations.enhanced.numUnique; ++i) {
+			Q_strcat(locationsListConfigString, sizeof(locationsListConfigString), va(" \"%s\" %d", level.locations.enhanced.data[i].message, level.locations.enhanced.data[i].teamowner));
 		}
 	}
-
-	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
-	trap_SendServerCommand( clientNum, commandListCmd );
-	if ( level.locations.enhanced.numUnique )
+	if (level.locations.enhanced.numUnique)
 		trap_SetConfigstring(CS_ENHANCEDLOCATIONS, locationsListConfigString);
 
 	static char customObituariesString[MAX_TOKEN_CHARS] = "cobt ";
