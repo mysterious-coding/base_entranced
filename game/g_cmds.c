@@ -3000,8 +3000,8 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 		return;
 	}
 
-	// always allow "air support" bind to be heard by enemies so you can gloat after mad airs
-	qboolean airSupport = !Q_stricmp(s, "*spot_air") ? qtrue : qfalse;
+	// always allow "air support" and "emplaced guns" binds to be heard by enemies so you can gloat after mad airs or taunt corner securers
+	qboolean airSupport = (!Q_stricmp(s, "*spot_air") || !Q_stricmp(s, "*spot_emplaced")) ? qtrue : qfalse;
 
 	for (n = 0; n < level.maxclients; n++) {
 		if (level.clients[n].pers.connected == CON_DISCONNECTED ||
