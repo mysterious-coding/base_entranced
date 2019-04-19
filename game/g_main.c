@@ -193,6 +193,7 @@ vmCvar_t	g_teamOverlayUpdateRate;
 vmCvar_t	g_lockdown;
 vmCvar_t	siegeStatus;
 vmCvar_t	g_hothRebalance;
+vmCvar_t	g_hothHangarHack;
 vmCvar_t	g_fixShield;
 vmCvar_t	g_delayClassUpdate;
 vmCvar_t	g_defaultMap;
@@ -855,10 +856,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_runoffVote, "g_runoffVote", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiSelfMax, "g_antiSelfMax", "1", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_improvedDisarm, "g_improvedDisarm", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_flechetteSpread, "g_flechetteSpread", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_flechetteSpread, "g_flechetteSpread", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
-	{ &g_hothRebalance, "g_hothRebalance", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_hothRebalance, "g_hothRebalance", "-1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_hothHangarHack, "g_hothHangarHack", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixShield, "g_fixShield", "1", CVAR_ARCHIVE, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },

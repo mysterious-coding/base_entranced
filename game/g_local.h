@@ -2524,6 +2524,9 @@ extern vmCvar_t    g_probation;
 extern vmCvar_t    g_teamOverlayUpdateRate;
 extern vmCvar_t    g_lockdown;
 extern vmCvar_t    g_hothRebalance;
+#define HOTHHANGARHACK_5SECONDS		(1 << 0)
+#define HOTHHANGARHACK_ANYCLASS		(1 << 1)
+extern vmCvar_t    g_hothHangarHack;
 extern vmCvar_t    g_fixShield;
 extern vmCvar_t    g_delayClassUpdate;
 extern vmCvar_t    g_defaultMap;
