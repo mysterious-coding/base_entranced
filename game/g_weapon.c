@@ -1288,6 +1288,24 @@ DISRUPTOR
 
 ======================================================================
 */
+
+qboolean G_CanDisruptify(gentity_t *ent)
+{
+	if (!ent || !ent->inuse || !ent->client || ent->s.eType != ET_NPC ||
+		ent->s.NPC_class != CLASS_VEHICLE || !ent->m_pVehicle)
+	{ //not vehicle
+		return qtrue;
+	}
+
+	if (ent->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
+	{ //animal is only type that can be disintigeiteigerated
+		return qtrue;
+	}
+
+	//don't do it to any other veh
+	return qfalse;
+}
+
 //---------------------------------------------------------
 static void WP_DisruptorMainFire( gentity_t *ent )
 //---------------------------------------------------------
@@ -1428,6 +1446,18 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 				hits++;
 			}
 
+			vec3_t preAng;
+			int preHealth = traceEnt->health;
+			int preLegs = 0;
+			int preTorso = 0;
+			VectorSet(preAng, 0, 0, 0);
+
+			if (g_sexyDisruptor.integer == 2 && traceEnt->client) {
+				preLegs = traceEnt->client->ps.legsAnim;
+				preTorso = traceEnt->client->ps.torsoAnim;
+				VectorCopy(traceEnt->client->ps.viewangles, preAng);
+			}
+
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NORMAL, MOD_DISRUPTOR );
 			
 			tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
@@ -1435,6 +1465,22 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			if (traceEnt->client)
 			{
 				tent->s.weapon = 1;
+				if (g_sexyDisruptor.integer == 2 && preHealth > 0 && traceEnt->health <= 0 && G_CanDisruptify(traceEnt)) {
+					VectorCopy(preAng, traceEnt->client->ps.viewangles);
+
+					traceEnt->client->ps.eFlags |= EF_DISINTEGRATION;
+					VectorCopy(tr.endpos, traceEnt->client->ps.lastHitLoc);
+
+					traceEnt->client->ps.legsAnim = preLegs;
+					traceEnt->client->ps.torsoAnim = preTorso;
+
+					traceEnt->client->ps.legsTimer = 0;
+					traceEnt->client->ps.torsoTimer = 0;
+
+					traceEnt->r.contents = 0;
+
+					VectorClear(traceEnt->client->ps.velocity);
+				}
 			}
 		}
 		else 
@@ -1462,24 +1508,6 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		}
 		ent->client->accuracy_hits++;
 	}
-}
-
-
-qboolean G_CanDisruptify(gentity_t *ent)
-{
-	if (!ent || !ent->inuse || !ent->client || ent->s.eType != ET_NPC ||
-		ent->s.NPC_class != CLASS_VEHICLE || !ent->m_pVehicle)
-	{ //not vehicle
-		return qtrue;
-	}
-
-	if (ent->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
-	{ //animal is only type that can be disintigeiteigerated
-		return qtrue;
-	}
-
-	//don't do it to any other veh
-	return qfalse;
 }
 
 //---------------------------------------------------------
