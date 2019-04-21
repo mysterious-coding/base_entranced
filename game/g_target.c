@@ -818,7 +818,12 @@ void target_random_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 	}
 
 	//FIXME: need a seed
-	pick = Q_irand(1, t_count);
+	if (self->spawnflags & 2) {
+		int seed = trap_Milliseconds() % 256;
+		pick = (int)((Q_random(&seed)*t_count) + 1);
+	}
+	else
+		pick = Q_irand(1, t_count);
 	t_count = 0;
 	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
 	{
