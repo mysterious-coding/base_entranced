@@ -6922,8 +6922,8 @@ static void PrintTeamStats( const int id, const team_t team, const char teamColo
 	}
 }
 
-#define FillValueInt(v)		do { values[i].iValue = v; i++; } while (0)
-#define FillValueFloat(v)	do { values[i].fValue = v; i++; } while (0)
+#define FillValueInt(v)		do { values[i++].iValue = v; } while (0)
+#define FillValueFloat(v)	do { values[i++].fValue = v; } while (0)
 
 static const StatsDesc CtfStatsDesc = {
 	{
@@ -6936,21 +6936,21 @@ static const StatsDesc CtfStatsDesc = {
 	}
 };
 
-static void FillCtfStats(gclient_t *cl, int *values) {
-	*values++ = cl->ps.persistant[PERS_SCORE];
-	*values++ = cl->ps.persistant[PERS_CAPTURES];
-	*values++ = cl->ps.persistant[PERS_ASSIST_COUNT];
-	*values++ = cl->ps.persistant[PERS_DEFEND_COUNT];
-	*values++ = cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0;
-	*values++ = cl->pers.teamState.fragcarrier;
-	*values++ = cl->pers.teamState.flagrecovery;
-	*values++ = cl->pers.teamState.boonPickups;
-	*values++ = cl->pers.teamState.flaghold;
-	*values++ = cl->pers.teamState.longestFlaghold;
-	*values++ = cl->pers.teamState.saves;
-	*values++ = cl->pers.damageCaused;
-	*values++ = cl->pers.damageTaken;
-
+static void FillCtfStats(gclient_t *cl, Stat *values) {
+	int i = 0;
+	FillValueInt(cl->ps.persistant[PERS_SCORE]);
+	FillValueInt(cl->ps.persistant[PERS_CAPTURES]);
+	FillValueInt(cl->ps.persistant[PERS_ASSIST_COUNT]);
+	FillValueInt(cl->ps.persistant[PERS_DEFEND_COUNT]);
+	FillValueInt(cl->accuracy_shots ? cl->accuracy_hits * 100 / cl->accuracy_shots : 0);
+	FillValueInt(cl->pers.teamState.fragcarrier);
+	FillValueInt(cl->pers.teamState.flagrecovery);
+	FillValueInt(cl->pers.teamState.boonPickups);
+	FillValueInt(cl->pers.teamState.flaghold);
+	FillValueInt(cl->pers.teamState.longestFlaghold);
+	FillValueInt(cl->pers.teamState.saves);
+	FillValueInt(cl->pers.damageCaused);
+	FillValueInt(cl->pers.damageTaken);
 	int maxSpeed = (int)(cl->pers.topSpeed + 0.5f);
 	int avgSpeed;
 
@@ -6961,8 +6961,8 @@ static void FillCtfStats(gclient_t *cl, int *values) {
 		avgSpeed = maxSpeed;
 	}
 
-	*values++ = maxSpeed;
-	*values++ = avgSpeed;
+	FillValueInt(maxSpeed);
+	FillValueInt(avgSpeed);
 }
 
 static const StatsDesc ForceStatsDesc = {
