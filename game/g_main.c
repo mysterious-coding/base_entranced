@@ -565,7 +565,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_RMG, "RMG", "0", 0, 0, qtrue },
 
-	{ &g_svfps, "sv_fps", "20", CVAR_SERVERINFO, 0, qtrue },
+	{ &g_svfps, "sv_fps", "30", CVAR_SERVERINFO, 0, qtrue },
 
 	{ &g_forceRegenTime, "g_forceRegenTime", "200", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
 
@@ -653,7 +653,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse },
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qtrue },
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qtrue },
-	{ &pmove_float, "pmove_float", "0", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qtrue },
+	{ &pmove_float, "pmove_float", "1", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_dismember, "g_dismember", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_forceDodge, "g_forceDodge", "1", 0, 0, qtrue },
