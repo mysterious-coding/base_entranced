@@ -2769,8 +2769,20 @@ static void SiegeItemRespawnEffect(gentity_t *ent, vec3_t newOrg)
 
 void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier)
 {
-	SiegeItemRespawnEffect(ent, ent->pos1);
-	G_SetOrigin(ent, ent->pos1);
+	qboolean didRespawn = qfalse;
+	if (VALIDSTRING(ent->recallOrigin)) { // see if we need to spawn somewhere in particular
+		gentity_t *overrideOriginEnt = G_Find(NULL, FOFS(targetname), ent->recallOrigin);
+		if (overrideOriginEnt) {
+			SiegeItemRespawnEffect(ent, overrideOriginEnt->r.currentOrigin);
+			G_SetOrigin(ent, overrideOriginEnt->r.currentOrigin);
+			didRespawn = qtrue;
+			ent->recallOrigin = "";
+		}
+	}
+	if (!didRespawn) {
+		SiegeItemRespawnEffect(ent, ent->pos1);
+		G_SetOrigin(ent, ent->pos1);
+	}
 	SiegeItemRemoveOwner(ent, carrier);
 	
 	// Stop the item from flashing on the radar

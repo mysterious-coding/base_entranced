@@ -385,6 +385,7 @@ struct gentity_s {
 	int			genericValue17;
 	int			recallSiegeItem;
 	char		*recallTarget;
+	char		*recallOrigin;
 
 	int			removeFromOwnerOnUse;
 	int			removeFromGameOnUse;

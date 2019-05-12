@@ -439,10 +439,14 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 				break;
 			}
 		}
-		if (item && item->canPickUp && !(item->s.eFlags & EF_NODRAW) && !item->genericValue2 && !VectorInsideBox(item->r.currentOrigin, item->pos1[0], item->pos1[1], item->pos1[2], item->pos1[0], item->pos1[1], item->pos1[2], 64.0f)) {
+		// must be visible, able to be picked up, not being carried by someone
+		// commented-out check for being in OG spawn point
+		if (item && item->canPickUp && !(item->s.eFlags & EF_NODRAW) && !item->genericValue2 /*&& !VectorInsideBox(item->r.currentOrigin, item->pos1[0], item->pos1[1], item->pos1[2], item->pos1[0], item->pos1[1], item->pos1[2], 64.0f)*/) {
 			item->siegeItemCarrierTime = 0;
 			if (item->specialIconTreatment)
 				item->s.eFlags |= EF_RADAROBJECT;
+			if (VALIDSTRING(ent->recallOrigin)) // see if a custom recall origin was specified, too
+				item->recallOrigin = VALIDSTRING(ent->recallOrigin) ? ent->recallOrigin : "";
 			SiegeItemRespawnOnOriginalSpot(item, NULL);
 
 			if (VALIDSTRING(ent->recallTarget)) {
@@ -1205,6 +1209,7 @@ void SP_trigger_multiple( gentity_t *ent )
 	}
 
 	static char recalltargets[MAX_GENTITIES][32] = { 0 };
+	static char recallorigins[MAX_GENTITIES][32] = { 0 };
 	G_SpawnInt("recallsiegeitem", "0", &ent->recallSiegeItem);
 	if (ent->recallSiegeItem) {
 		s = NULL;
@@ -1214,9 +1219,16 @@ void SP_trigger_multiple( gentity_t *ent )
 			Q_strncpyz(recalltargets[ent - g_entities], s, sizeof(recalltargets[0]));
 			ent->recallTarget = recalltargets[ent - g_entities];
 		}
+		if (G_SpawnString("recallorigin", "", &s) && VALIDSTRING(s)) {
+			if (strlen(s) >= sizeof(recallorigins[0]))
+				G_LogPrintf("misc_siege_item: recalltarget '%s' is too long! (should be %d digits or less)\n", s, sizeof(recallorigins[0]) - 1);
+			Q_strncpyz(recallorigins[ent - g_entities], s, sizeof(recallorigins[0]));
+			ent->recallOrigin = recallorigins[ent - g_entities];
+		}
 	}
-	else
-		ent->recallTarget = "";
+	else {
+		ent->recallTarget = ent->recallOrigin = "";
+	}
 
 	ent->touch = Touch_Multi;
 	ent->use   = Use_Multi;
