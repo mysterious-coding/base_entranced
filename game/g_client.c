@@ -3094,13 +3094,13 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"\"sentry-bombed $\" %d ",
 		CUSTOMOBITUARY_GENERIC_SENTRYBOMBED,
 		CUSTOMOBITUARY_GENERIC_SENTRYBOMBED_SELF));
-	if (GetSiegeMap() == SIEGEMAP_CARGO) {
+	if (level.siegeMap == SIEGEMAP_CARGO) {
 		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
 			"\"was minced by\" %d "
 			"\"minced $\" %d ",
 			CUSTOMOBITUARY_CARGO_CHOPPED, CUSTOMOBITUARY_CARGO_CHOPPED_SELF));
 	}
-	else if (GetSiegeMap() == SIEGEMAP_URBAN) {
+	else if (level.siegeMap == SIEGEMAP_URBAN) {
 		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
 			"\"was dumpstered by\" %d "
 			"\"dumpstered $\" %d "
@@ -3109,7 +3109,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 			CUSTOMOBITUARY_URBAN_DUMPSTERED, CUSTOMOBITUARY_URBAN_DUMPSTERED_SELF,
 			CUSTOMOBITUARY_URBAN_BURNED, CUSTOMOBITUARY_URBAN_BURNED_SELF));
 	}
-	else if (GetSiegeMap() == SIEGEMAP_ANSION) {
+	else if (level.siegeMap == SIEGEMAP_ANSION) {
 		Q_strcat(customObituariesString, sizeof(customObituariesString), va(
 			"\"was poisoned by\" %d "
 			"\"poisoned $\" %d ",
@@ -3144,6 +3144,8 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	gentity_t	*tent;
 	int			flags, i;
 	char		userinfo[MAX_INFO_VALUE], *modelname;
+
+	memset(&level.siegeTopTimes[clientNum], 0, sizeof(level.siegeTopTimes[0]));
 
 	ent = g_entities + clientNum;
 #ifdef NEWMOD_SUPPORT
@@ -3779,13 +3781,27 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
-	if (index >= 0 && index < MAX_CLIENTS)
+	if (index >= 0 && index < MAX_CLIENTS) {
+		if (g_gametype.integer == GT_SIEGE) {
+			if (client->sess.sessionTeam == TEAM_BLUE) {
+				level.siegeTopTimes[ent - g_entities].hasChangedTeams = qtrue;
+				SpeedRunModeRuined("ClientSpawn: spawned on blue");
+			}
+			int numOnRedTeam = 0;
+			for (i = 0; i < MAX_CLIENTS; i++) {
+				if (level.clients[i].pers.connected == CON_CONNECTED && level.clients[i].sess.sessionTeam == TEAM_RED)
+					numOnRedTeam++;
+			}
+			if (numOnRedTeam > 2)
+				SpeedRunModeRuined("ClientSpawn: spawned with >2 on red");
+		}
 		level.sentriesUsedThisLife[index] = 0;
+	}
 
 	if (ent->s.number < MAX_CLIENTS) {
 		//duo: this stuff should be reset on spawn...
-		memset(&ent->m_pVehicle, 0, sizeof(ent->m_pVehicle));
-		ent->s.owner = 0;
+		ent->m_pVehicle = NULL;
+		ent->s.owner = ENTITYNUM_NONE;
 		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && !(ent->client->ps.pm_flags & PMF_FOLLOW))
 			ent->s.eFlags &= ~EF_NODRAW;
 	}
@@ -4779,6 +4795,22 @@ void ClientDisconnect( int clientNum ) {
 	ent = g_entities + clientNum;
 	if ( !ent->client ) {
 		return;
+	}
+
+	memset(&level.siegeTopTimes[clientNum], 0, sizeof(level.siegeTopTimes[0]));
+
+	// auto-pause if someone disconnects during a live pug
+	if (g_autoPauseDisconnect.integer && g_gametype.integer == GT_SIEGE && ent->client->sess.sessionTeam != TEAM_SPECTATOR && level.isLivePug == ISLIVEPUG_YES &&
+		(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) && level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= LIVEPUG_AUTOPAUSE_TIME) {
+
+		// only reset the pause time back up to maximum if we're not already paused
+		if (level.pause.state != PAUSE_PAUSED)
+			level.pause.time = level.time + 300000;
+
+		// always update the reason string
+		Q_strncpyz(level.pause.reason, va("%s^7 disconnected\n", ent->client->pers.netname), sizeof(level.pause.reason));
+
+		level.pause.state = PAUSE_PAUSED;
 	}
 
     G_LogDbLogNickname( ent->client->sess.ip, ent->client->pers.netname, (getGlobalTime() - ent->client->sess.nameChangeTime ) / 1000, ent->client->sess.auth == AUTHENTICATED ? ent->client->sess.cuidHash : "");

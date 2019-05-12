@@ -248,7 +248,7 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 	const char *message = ent->message;
 
-	if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_CARGO) {
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO) {
 		static qboolean topHacked = qfalse, node1Hacked = qfalse;
 		qboolean topOrNode1HackedThisFrame = qfalse;
 		if (!Q_stricmp(ent->targetname, "node2hacked")) {

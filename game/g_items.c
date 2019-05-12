@@ -119,7 +119,7 @@ qboolean EntityBlocksShields(int entNum) {
 		return qfalse;
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN && ent->s.eType == ET_NPC && VALIDSTRING(ent->NPC_type) && (tolower(*ent->NPC_type) == 'w' || tolower(*ent->NPC_type) == 'p'))
+	if (level.siegeMap == SIEGEMAP_URBAN && ent->s.eType == ET_NPC && VALIDSTRING(ent->NPC_type) && (tolower(*ent->NPC_type) == 'w' || tolower(*ent->NPC_type) == 'p'))
 		return qfalse;
 
 	return qtrue;
@@ -145,9 +145,9 @@ void ShieldThink(gentity_t *self)
 {
 	// update shield uptime stat
 	if (!level.intermissiontime && g_gametype.integer == GT_SIEGE && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		if (GetSiegeMap() == SIEGEMAP_HOTH)
+		if (level.siegeMap == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		else if (GetSiegeMap() == SIEGEMAP_NAR)
+		else if (level.siegeMap == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = level.time;
 	}
@@ -191,9 +191,9 @@ void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	}
 	// update shield uptime stat
 	if (g_gametype.integer == GT_SIEGE && !level.intermissiontime && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		if (GetSiegeMap() == SIEGEMAP_HOTH)
+		if (level.siegeMap == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		else if (GetSiegeMap() == SIEGEMAP_NAR)
+		else if (level.siegeMap == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = 0;
 	}
@@ -242,9 +242,9 @@ void ShieldGoSolid(gentity_t *self)
 {
 	// update shield uptime stat
 	if (g_gametype.integer == GT_SIEGE && !level.intermissiontime && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		if (GetSiegeMap() == SIEGEMAP_HOTH)
+		if (level.siegeMap == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		else if (GetSiegeMap() == SIEGEMAP_NAR)
+		else if (level.siegeMap == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = level.time;
 	}
@@ -305,9 +305,9 @@ void ShieldGoNotSolid(gentity_t *self)
 {
 	// update shield uptime stat
 	if (g_gametype.integer == GT_SIEGE && !level.intermissiontime && self->siegeItemSpawnTime && self->parent && self->parent->client && self->parent - g_entities >= 0 && self->parent - g_entities < MAX_CLIENTS) {
-		if (GetSiegeMap() == SIEGEMAP_HOTH)
+		if (level.siegeMap == SIEGEMAP_HOTH)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
-		else if (GetSiegeMap() == SIEGEMAP_NAR)
+		else if (level.siegeMap == SIEGEMAP_NAR)
 			self->parent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_SHIELDUPTIME] += (level.time - self->siegeItemSpawnTime);
 		self->siegeItemSpawnTime = level.time;
 	}
@@ -779,7 +779,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 		if (self->alliedTeam && self->alliedTeam == target->alliedTeam)
 			continue;
 #else
-		if (GetSiegeMap() == SIEGEMAP_ANSION && g_gametype.integer == GT_SIEGE && target->s.eType == ET_NPC &&
+		if (level.siegeMap == SIEGEMAP_ANSION && g_gametype.integer == GT_SIEGE && target->s.eType == ET_NPC &&
 			VALIDSTRING(target->NPC_type) && (!Q_stricmp(target->NPC_type, "Alpha") || !Q_stricmp(target->NPC_type, "Onasi"))) {
 			continue;
 		}
@@ -1387,12 +1387,12 @@ void Jetpack_On(gentity_t *ent)
 		return;
 	}
 
-	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO) {
+	if (level.zombies && level.siegeMap == SIEGEMAP_CARGO) {
 		if (ent->client->ps.origin[0] >= 1846 && ent->client->ps.origin[0] <= 3269 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 			return;
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN && ent->client->ps.jetpackFuel < 100) {
+	if (level.siegeMap == SIEGEMAP_URBAN && ent->client->ps.jetpackFuel < 100) {
 		return;
 	}
 
@@ -2337,7 +2337,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 	// picking up any of those invalidates the run
 	if ( ent->item->giTag >= PW_FORCE_ENLIGHTENED_LIGHT && ent->item->giTag <= PW_YSALAMIRI ) {
-		other->client->runInvalid = qtrue;
+		//other->client->runInvalid = qtrue;
 	}
 
 	return RESPAWN_POWERUP;

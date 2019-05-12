@@ -356,6 +356,11 @@ typedef unsigned short		word;
 typedef unsigned long		ulong;
 
 typedef enum {qfalse, qtrue}	qboolean;
+#ifdef _DEBUG
+#define IsDebugBuild	(qtrue)
+#else
+#define IsDebugBuild	(qfalse)
+#endif
 #ifdef _XBOX
 #define	qboolean	int		//don't want strict type checking on the qboolean
 #endif
@@ -3174,5 +3179,7 @@ enum {
 void Q_CleanString(char *string, int flags);
 
 char *stristr(char *str, char *charset);
+
+#include "collections.h"
 
 #endif	// __Q_SHARED_H

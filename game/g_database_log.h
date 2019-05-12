@@ -55,39 +55,16 @@ int G_DbPlayerWhitelisted(unsigned long long uniqueID, const char* cuidHash);
 void G_DbStorePlayerInWhitelist(unsigned long long uniqueID, const char* cuidHash, const char* name);
 void G_DbRemovePlayerFromWhitelist(unsigned long long uniqueID, const char* cuidHash);
 
-void G_LogDbLoadCaptureRecords( const char *mapname,
-	CaptureRecordList *recordsToLoad );
+void G_LogDbLoadCaptureRecords(const char *mapname, CaptureCategoryFlags flags, qboolean strict, CaptureRecordsForCategory *out);
 
-typedef void( *ListBestCapturesCallback )( void *context,
-	const char *mapname,
-	const CaptureRecordType type,
-	const char *recordHolderName,
-	unsigned int recordHolderIpInt,
-	const char *recordHolderCuid,
-	int bestTime,
-	time_t bestTimeDate );
+typedef void( *ListAllMapsCapturesCallback )(void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
+	const char *recordHolder1Name, unsigned int recordHolder1IpInt, const char *recordHolder1Cuid,
+	const char *recordHolder2Name, unsigned int recordHolder2IpInt, const char *recordHolder2Cuid,
+	int bestTime, time_t bestTimeDate);
 
-void G_LogDbListBestCaptureRecords( CaptureRecordType type,
-	int limit,
-	int offset,
-	ListBestCapturesCallback callback,
-	void *context );
+void G_LogDbListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int offset, ListAllMapsCapturesCallback callback, void *context );
 
-void G_LogDbSaveCaptureRecords( CaptureRecordList *recordsToSave );
-
-int G_LogDbCaptureTime( unsigned int ipInt,
-	const char *netname,
-	const char *cuid,
-	const int clientId,
-	const char *matchId,
-	const int captureTime,
-	const team_t whoseFlag,
-	const int maxSpeed,
-	const int avgSpeed,
-	const time_t date,
-	const int pickupLevelTime,
-	const CaptureRecordType type,
-	CaptureRecordList *currentRecords );
+void G_LogDbSaveCaptureRecords( CaptureRecordsContext *context );
 
 #endif //G_DATABASE_H
 

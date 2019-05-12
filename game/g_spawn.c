@@ -1361,24 +1361,24 @@ void SP_worldspawn( void )
 		G_SpawnInt("dJediLimit", "", &jediLimit[1]);
 
 		// mod overrides
-		if (GetSiegeMap() == SIEGEMAP_HOTH) {
+		if (level.siegeMap == SIEGEMAP_HOTH) {
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (GetSiegeMap() == SIEGEMAP_NAR) {
+		else if (level.siegeMap == SIEGEMAP_NAR) {
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (GetSiegeMap() == SIEGEMAP_CARGO) {
+		else if (level.siegeMap == SIEGEMAP_CARGO) {
 			hwLimit[0] = 1;
 			assaultLimit[1] = 1;
 			hwLimit[1] = 1;
 			techLimit[1] = 1;
 		}
-		else if (GetSiegeMap() == SIEGEMAP_BESPIN) {
+		else if (level.siegeMap == SIEGEMAP_BESPIN) {
 			hwLimit[1] = 1;
 		}
-		else if (GetSiegeMap() == SIEGEMAP_ANSION) {
+		else if (level.siegeMap == SIEGEMAP_ANSION) {
 			hwLimit[1] = 1;
 		}
 

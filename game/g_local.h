@@ -812,6 +812,9 @@ typedef struct {
 	float		topSpeed;
 	float		displacement;
 	int			displacementSamples;
+	float		totalTopSpeed;
+	float		totalDisplacement;
+	int			totalDisplacementSamples;
 	float		fastcapTopSpeed;
 	float		fastcapDisplacement;
 	int			fastcapDisplacementSamples;
@@ -1212,39 +1215,71 @@ typedef struct
 #define SV_UNIQUEID_LEN		17 // 2 concatenated hex 4 bytes ints, so 2*8 chars + NULL
 #define MAX_SAVED_RECORDS	5 // records saved per mode
 
-typedef struct {
-	char recordHolderName[MAX_NETNAME]; // fallback name in case we can't find it with ip
-	unsigned int recordHolderIpInt; // used to find who it is with name db
-	char recordHolderCuid[CRYPTO_HASH_HEX_SIZE]; // make it easier to find clients with cuid, but optional (may be empty)
+typedef int CaptureCategoryFlags;
+typedef int CombinedObjNumber;
 
-	int captureTime; // capture time in ms
-	team_t whoseFlag; // the team that owns the flag that was captured
-	int maxSpeed; // max speed in ups
-	int avgSpeed; // average speed in ups
+#define MAX_SAVED_OBJECTIVES	(9)
+typedef struct {
+	char recordHolder1Name[MAX_NETNAME]; // fallback name in case we can't find it with ip
+	unsigned int recordHolder1IpInt; // used to find who it is with name db
+	char recordHolder1Cuid[CRYPTO_HASH_HEX_SIZE]; // make it easier to find clients with cuid, but optional (may be empty)
+
+	char recordHolder2Name[MAX_NETNAME]; // fallback name in case we can't find it with ip
+	unsigned int recordHolder2IpInt; // used to find who it is with name db
+	char recordHolder2Cuid[CRYPTO_HASH_HEX_SIZE]; // make it easier to find clients with cuid, but optional (may be empty)
+
+	int totalTime; // total time in ms
+	int objTimes[MAX_SAVED_OBJECTIVES]; // time for each obj in ms
+	int maxSpeed1; // max speed in ups
+	int avgSpeed1; // average speed in ups
 	time_t date; // epoch time of the record (seconds)
 
 	char matchId[SV_UNIQUEID_LEN]; // used to link to the game on demoarchive, but requires special OpenJK (may be empty)
-	int recordHolderClientId; // client id assigned when the record took place
-	int pickupLevelTime; // level.time when flag was picked up
+	int recordHolder1ClientId; // client id assigned when the record took place
+	int recordHolder2ClientId; // client id assigned when the record took place
+
+	CaptureCategoryFlags flags; // flags for this specific capture (needed because of inexact matching)
 } CaptureRecord;
 
-typedef enum {
-	CAPTURE_RECORD_STANDARD = 0, // restrictive category from which the other rules derivate
-	CAPTURE_RECORD_WEAPONS, // self weapon damage is allowed (except dets/mines)
-	CAPTURE_RECORD_WALK, // no jump, no roll
-	CAPTURE_RECORD_AD, // no +forward
-
-	CAPTURE_RECORD_NUM_TYPES,
-	CAPTURE_RECORD_INVALID
-} CaptureRecordType;
+#define CAPTURERECORDFLAG_FULLMAP		(1 << 0)
+#define CAPTURERECORDFLAG_OBJ1			(1 << 1) // the obj number flags must all be kept as (1 << obj number)
+#define CAPTURERECORDFLAG_OBJ2			(1 << 2)
+#define CAPTURERECORDFLAG_OBJ3			(1 << 3)
+#define CAPTURERECORDFLAG_OBJ4			(1 << 4)
+#define CAPTURERECORDFLAG_OBJ5			(1 << 5)
+#define CAPTURERECORDFLAG_OBJ6			(1 << 6)
+#define CAPTURERECORDFLAG_OBJ7			(1 << 7)
+#define CAPTURERECORDFLAG_OBJ8			(1 << 8)
+#define CAPTURERECORDFLAG_OBJ9			(1 << 9)
+#define CAPTURERECORDFLAG_LIVEPUG		(1 << 10)
+#define CAPTURERECORDFLAG_SPEEDRUN		(1 << 11)
+#define CAPTURERECORDFLAG_ANYPERCENT	(1 << 12)
+#define CAPTURERECORDFLAG_SOLO			(1 << 13)
+// all flags below here are only subsets of the speedrun category (can't be combined with livepug or any%)
+#define CAPTURERECORDFLAG_COOP			(1 << 14)
+#define CAPTURERECORDFLAG_ONESHOT		(1 << 15)
+#define CAPTURERECORDFLAG_ASSAULT		(1 << 16)
+#define CAPTURERECORDFLAG_HW			(1 << 17)
+#define CAPTURERECORDFLAG_DEMO			(1 << 18)
+#define CAPTURERECORDFLAG_TECH			(1 << 19)
+#define CAPTURERECORDFLAG_SCOUT			(1 << 20)
+#define CAPTURERECORDFLAG_JEDI			(1 << 21)
 
 typedef struct {
-	qboolean enabled; // qtrue if cvar-enabled
+	node_t node;
+	CaptureCategoryFlags flags; // what type of records these are
+	CaptureRecord records[MAX_SAVED_RECORDS]; // the records themselves
+} CaptureRecordsForCategory;
+
+typedef struct {
+	int CaptureCategoryFlags; // which attributes it has (coop, assault-only, etc.)
 	qboolean readonly; // qtrue if new times won't be recorded (non standard movement cvars for example)
+	qboolean speedRunModeRuined; // if qfalse, use set spawnpoints and save records as being speedruns (otherwise, they are "any%" records)
+	CombinedObjNumber lastCombinedObjCompleted; // the number last combined obj that was completed (0 if none completed yet)
 	qboolean changed; // qtrue if at least one record changed, which means the whole struct is saved when map ends
 	char mapname[MAX_MAP_NAME]; // the current map used as a context for loading/saving from db
-	CaptureRecord records[CAPTURE_RECORD_NUM_TYPES][MAX_SAVED_RECORDS]; // all the records pulled from db when level starts
-} CaptureRecordList;
+	list_t captureRecordsList;
+} CaptureRecordsContext;
 
 #define MAX_LOCATION_CHARS 32
 
@@ -1267,6 +1302,43 @@ typedef struct {
 	int time;
 } changeClass_t;
 
+typedef enum {
+	SIEGEMAP_UNKNOWN = 0,
+	SIEGEMAP_HOTH,
+	SIEGEMAP_DESERT,
+	SIEGEMAP_KORRIBAN,
+	SIEGEMAP_NAR,
+	SIEGEMAP_CARGO,
+	SIEGEMAP_URBAN,
+	SIEGEMAP_BESPIN,
+	SIEGEMAP_ANSION
+} siegeMap_t;
+
+// check this many milliseconds into the game (not including siege countdown) whether or not the pug is live
+#define LIVEPUG_CHECK_TIME							(5000)
+
+// check every this many milliseconds whether or not teams are correct (>= 2 per team, equal numbers)
+#define LIVEPUG_TEAMBALANCE_CHECK_INTERVAL			(5000)
+
+// if the team balance check failed, then they have this many milliseconds to correct it before the pug is no longer live
+#define LIVEPUG_TEAMBALANCE_FAILEDCHECK_INTERVAL	(20000)
+
+// enable auto-pause in live pugs after this many milliseconds (not including siege countdown) have elapsed
+#define LIVEPUG_AUTOPAUSE_TIME						(10000)
+
+// the minimum number of players on each team required for a pug to be considered live
+#ifdef _DEBUG
+#define LIVEPUG_MINIMUM_PLAYERS						(1)
+#else
+#define LIVEPUG_MINIMUM_PLAYERS						(2)
+#endif
+
+typedef enum isLivePug_s {
+	ISLIVEPUG_UNKNOWN = 0,
+	ISLIVEPUG_NO,
+	ISLIVEPUG_YES
+} isLivePug_t;
+
 typedef struct {
 	struct gclient_s	*clients;		// [maxclients]
 
@@ -1276,13 +1348,19 @@ typedef struct {
 
 	int			warmupTime;			// restart match at this time
 
+	char			mapname[MAX_STRING_CHARS];
+	siegeMap_t		siegeMap;
+
 	fileHandle_t	logFile;
 	fileHandle_t	hackLogFile;
 	fileHandle_t	DBLogFile;
 	fileHandle_t	rconLogFile;
 
 	//match log
-	qboolean    initialChecked;
+	qboolean	wasRestarted;
+	isLivePug_t	isLivePug;
+	qboolean	movedAtStart[MAX_CLIENTS];
+	qboolean	selfKilledAtStart[MAX_CLIENTS];
 	qboolean    initialConditionsMatch;
 	rosterData	initialBlueRoster[16];
 	rosterData	initialRedRoster[16];
@@ -1317,6 +1395,7 @@ typedef struct {
 #endif
 
 	int			startTime;				// level.time the map was started
+	int			teamBalanceCheckTime;
 
 	int			teamScores[TEAM_NUM_TEAMS];
 	int			lastTeamLocationTime;		// last time of client team location update
@@ -1470,6 +1549,7 @@ typedef struct {
     struct {
             int state;              //OSP: paused state of the match
             int time;
+			char reason[128];
     } pause;
 
     /*struct
@@ -1491,7 +1571,18 @@ typedef struct {
 	} globalCenterPrint;
 
 	int frameStartTime; // accurate timer
-	CaptureRecordList mapCaptureRecords;
+	CaptureRecordsContext mapCaptureRecords;
+	int			forceCheckClassTime; // force a re-check of your siege class at this time
+	struct {
+		qboolean	attackedByNonTeammate;
+		qboolean	hasDied;
+		qboolean	hasChangedTeams;
+		qboolean	hasChangedClassTotal;
+		int			classOnFileTotal;
+		qboolean	hasChangedClass;
+		int			classOnFile;
+		int			lastSiegeClassWhileAlive;
+	} siegeTopTimes[MAX_CLIENTS];
 
 	struct {
 		struct {
@@ -1549,6 +1640,9 @@ void Cmd_Help_f( gentity_t *ent );
 void Cmd_FollowFlag_f( gentity_t *ent );
 void Cmd_FollowTarget_f(gentity_t *ent);
 gentity_t *G_GetDuelWinner(gclient_t *client);
+const char *GetLongNameForRecordFlags(const char *mapname, CaptureCategoryFlags flags, qboolean forceSoloIfSpeedrunAndNonCoop);
+CaptureRecordsForCategory *CaptureRecordsForCategoryFromFlags(CaptureCategoryFlags flags);
+void PartitionedTimer(const int time, int *mins, int *secs, int *millis);
 
 //
 // g_items.c
@@ -1671,24 +1765,13 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
-typedef enum {
-	SIEGEMAP_UNKNOWN = 0,
-	SIEGEMAP_HOTH,
-	SIEGEMAP_DESERT,
-	SIEGEMAP_KORRIBAN,
-	SIEGEMAP_NAR,
-	SIEGEMAP_CARGO,
-	SIEGEMAP_URBAN,
-	SIEGEMAP_BESPIN,
-	SIEGEMAP_ANSION
-} siegeMap_t;
-siegeMap_t GetSiegeMap(void);
 qboolean G_ShieldSpamAllowed(team_t t);
 qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2, float y2, float z2, float wiggleRoom);
 
 qboolean TryTossHealthPack(gentity_t *ent, qboolean doChecks);
 qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks);
 qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks);
+char *ChopString(char *in, size_t targetLen);
 
 //
 // g_saga.c
@@ -1700,6 +1783,8 @@ int G_FirstIncompleteObjective(int round);
 int G_FirstCompleteObjective(int round);
 int G_PreviousObjective(int objective, int round, int timeOverride);
 void G_SiegeRoundComplete(int winningteam, int winningclient);
+void SpeedRunModeRuined(const char *reason);
+void LivePugRuined(const char *reason, qboolean announce);
 
 //
 // g_object.c
@@ -2021,6 +2106,7 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStringEdString(char *refSection, char *refName);
+void GetPlayerCounts(qboolean includeBots, qboolean realTeam, int *numRedOut, int *numBlueOut, int *numSpecOut, int *numFreeOut);
 #ifdef NEWMOD_SUPPORT
 void UpdateNewmodSiegeItems(void);
 void UpdateNewmodSiegeClassLimits(int clientNum);
@@ -2476,6 +2562,9 @@ extern vmCvar_t		z_debug3;
 extern vmCvar_t		z_debug4;
 
 extern vmCvar_t		g_saveCaptureRecords;
+extern vmCvar_t     g_notifyNotLive;
+extern vmCvar_t     g_autoPause999;
+extern vmCvar_t     g_autoPauseDisconnect;
 
 extern vmCvar_t     g_allow_vote_gametype;
 extern vmCvar_t     g_allow_vote_kick;
@@ -2640,7 +2729,7 @@ extern vmCvar_t	   g_callvotemaplimit;
 extern vmCvar_t	   sv_privateclients;
 extern vmCvar_t    sv_passwordlessSpectators;
 
-extern vmCvar_t	   g_wasRestarted;
+extern vmCvar_t	   g_wasIntermission;
 
 int validateAccount(const char* username, const char* password, int num);
 void unregisterUser(const char* username);

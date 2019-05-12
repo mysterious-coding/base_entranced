@@ -466,12 +466,12 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		parentPS->speed = speedMin;
 	}
 
-	if (parentPS && parentPS->electrifyTime > curTime && GetSiegeMap() != SIEGEMAP_URBAN)
+	if (parentPS && parentPS->electrifyTime > curTime && level.siegeMap != SIEGEMAP_URBAN)
 	{
 		parentPS->speed *= (pVeh->m_fTimeModifier/60.0f);
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN && (level.totalObjectivesCompleted >= 4 || level.zombies)) {
+	if (level.siegeMap == SIEGEMAP_URBAN && (level.totalObjectivesCompleted >= 4 || level.zombies)) {
 		parentPS->speed = 0.0f;
 		if (pVeh->m_pVehicleInfo && pVeh->m_pPilot && !pVeh->m_iBoarding) {
 			((gentity_t *)pVeh->m_pParentEntity)->alliedTeam = -1;
@@ -541,7 +541,7 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 
 		if (parentPS->electrifyTime > pm->cmd.serverTime)
 		{ //do some crazy stuff
-			if (GetSiegeMap() != SIEGEMAP_URBAN)
+			if (level.siegeMap != SIEGEMAP_URBAN)
 				pVeh->m_vOrientation[YAW] += (sin(pm->cmd.serverTime/1000.0f)*3.0f)*pVeh->m_fTimeModifier;
 		}
 	}

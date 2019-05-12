@@ -1009,13 +1009,19 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		g_dontPenalizeTeam = qtrue;
 		player_die (ent, ent, ent, 100000, MOD_TEAM_CHANGE);
 		g_dontPenalizeTeam = qfalse;
-
 	}
 	// they go to the end of the line for tournements
 	if ( team == TEAM_SPECTATOR ) {
 		if ( (g_gametype.integer != GT_DUEL) || (oldTeam != TEAM_SPECTATOR) )	{//so you don't get dropped to the bottom of the queue for changing skins, etc.
 			client->sess.spectatorTime = level.time;
 		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE && ent - g_entities < MAX_CLIENTS &&
+		team != TEAM_SPECTATOR && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
+		// joining a non-spectator team mid-game breaks speedrun mode
+		level.siegeTopTimes[ent - g_entities].hasChangedTeams = qtrue;
+		SpeedRunModeRuined("SetTeam: joined non-spectator team mid-game");
 	}
 
 	client->sess.sessionTeam = team;
@@ -1564,6 +1570,17 @@ int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical, int 
 	assert(clientNum < MAX_CLIENTS);
 	if (!g_classLimits.integer)
 		return 0;
+
+	// no class limits for speedruns, as long as < 3 on red team and nobody on blue team
+	// teams have to be checked here because speedrun mode is still preserved during countdown even with "bad" teams, and
+	// only becomes ruined at the moment the round proper starts
+	// checking teams here allows warnings to be printed during the countdown
+	if (g_saveCaptureRecords.integer && !level.mapCaptureRecords.speedRunModeRuined && level.isLivePug != ISLIVEPUG_YES && team == TEAM_RED) {
+		int numRed = 0, numBlue = 0;
+		GetPlayerCounts(IsDebugBuild, qtrue, &numRed, &numBlue, NULL, NULL);
+		if (numRed < 3 && !numBlue)
+			return 0;
+	}
 
 	int limit;
 	if (team == TEAM_RED) {
@@ -3458,7 +3475,7 @@ Debug command to kill whatever we are aiming at
 void Cmd_KillTarget_f(gentity_t *ent)
 {
 
-	if (!ent->client)
+	if (!ent || !ent->client)
 		return;
 
 	if (!g_cheats.integer) {
@@ -4033,9 +4050,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	if ( level.voteExecuteTime ) {
 		level.voteExecuteTime = 0;
 
+		/*
 		if (!Q_stricmpn(level.voteString,"map_restart",11)){
 			trap_Cvar_Set("g_wasRestarted", "1");
 		}
+		*/
 
 		trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.voteString ) );
 	}
@@ -5546,11 +5565,11 @@ Cmd_TopTimes_f
 =================
 */
 
-static void FormatLocalDateFromEpoch( char* buf, size_t bufSize, time_t epochSecs ) {
+static void FormatLocalDateFromEpoch( char* buf, size_t bufSize, time_t epochSecs, qboolean today ) {
 	struct tm * timeinfo;
 	timeinfo = localtime( &epochSecs );
 
-	strftime( buf, bufSize, "%d/%m/%y %I:%M %p", timeinfo );
+	strftime( buf, bufSize, today ? "Today %I:%M %p" : "%d %b %y %I:%M %p", timeinfo );
 }
 
 // if one parameter is NULL, its value is added to the next non NULL parameter
@@ -5581,44 +5600,299 @@ void PartitionedTimer( const int time, int *mins, int *secs, int *millis ) {
 	}
 }
 
-const char* GetLongNameForRecordType( CaptureRecordType type ) {
-	switch ( type ) {
-	case CAPTURE_RECORD_STANDARD: return "Standard";
-	case CAPTURE_RECORD_WEAPONS: return "Weapons";
-	case CAPTURE_RECORD_WALK: return "Walk";
-	case CAPTURE_RECORD_AD: return "A/D";
-	default: return "Unknown";
+typedef struct {
+	const char *mapname;
+	const char *altMapname;
+	qboolean matchMapNameExactly;
+	int numObjs;
+	char *objName[MAX_SAVED_OBJECTIVES];
+} FancyObjNameData;
+
+static const FancyObjNameData fancyObjNameData[] = {
+	{ "siege_cargobarge3", "siege_cargobarge2", qfalse, 6,
+		{ "HoldLock", "CommArray", "Nodes", "CC", "Codes", "Escape" } },
+	{ "siege_urban", NULL, qfalse, 5,
+		{"Crack", "LiquorStore", "Prostitute", "Bike", "Witnesses" } },
+	{ "mp/siege_hoth", "mp/siege_hoth2", qtrue, 6,
+		{ "Trench", "Bridge", "ShieldGen", "Codes", "Hangar", "CC" } },
+	{ "siege_narshaddaa", NULL, qtrue, 5,
+		{ "Entrance", "Checkpoint", "Stations", "Bridge", "Codes" } },
+	{ "siege_ansion", NULL, qfalse, 5,
+		{ "Forcefield", "Stations", "NPCs", "FirstCodes", "SecondCodes"} },
+	{ "mp/siege_desert", NULL, qtrue, 5,
+		{ "Wall", "Stations", "Arena", "Tower", "Parts" } },
+	{ "mp/siege_korriban", NULL, qtrue, 4,
+		{ "Gate", "Crystals", "Scepter", "Coffin" } },
+	{ "siege_cargobarge", NULL, qtrue, 5,
+		{ "Hold", "CommArray", "Nodes", "CC", "Codes" } },
+	{ "mp/siege_eat_shower", NULL, qtrue, 6,
+		{ "Water", "Button", "Consoles", "FirstTP", "SecondTP", "Codes" } },
+	{ "mp/siege_destroyer", NULL, qtrue, 2,
+		{ "Defenses", "TractorBeam" } },
+	{ "mp/siege_bespin", NULL, qfalse, 6,
+		{ "Door", "Consoles", "PowerGen", "Codes", "Lift", "TwinPod" } },
+	{ NULL }
+};
+
+static void RemoveSpaces(char* s) {
+	char *i = s, *j = s;
+	while (*j) {
+		*i = *j++;
+		if (*i != ' ')
+			i++;
 	}
+	*i = '\0';
 }
 
-const char* GetShortNameForRecordType( CaptureRecordType type ) {
-	switch ( type ) {
-		case CAPTURE_RECORD_STANDARD: return "std";
-		case CAPTURE_RECORD_WEAPONS: return "wpn";
-		case CAPTURE_RECORD_WALK: return "walk";
-		case CAPTURE_RECORD_AD: return "ad";
-		default: return "unknown";
+static char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj) {
+	for (const FancyObjNameData *data = &fancyObjNameData[0]; VALIDSTRING(data->mapname); data++) {
+		if (data->matchMapNameExactly) {
+			if (Q_stricmp(data->mapname, mapname) &&
+				!(VALIDSTRING(data->altMapname) && !Q_stricmp(data->altMapname, mapname))) {
+				continue;
+			}
+		}
+		else {
+			if (Q_stricmpn(data->mapname, mapname, strlen(data->mapname)) &&
+				!(VALIDSTRING(data->altMapname) && !Q_stricmpn(data->altMapname, mapname, strlen(data->altMapname)))) {
+				continue;
+			}
+		}
+		if (obj > 0 && obj <= data->numObjs) {
+			assert(VALIDSTRING(data->objName[obj - 1]));
+			return data->objName[obj - 1];
+		}
+		assert(qfalse);
+		break;
 	}
+	return va("Obj %d", obj);
 }
 
-CaptureRecordType GetRecordTypeForShortName( const char *name ) {
-	if ( !Q_stricmpn( name, "s", 1 ) ) {
-		return CAPTURE_RECORD_STANDARD;
+#define RECORDTYPE_LONGNAME_BUFFERS		(8)
+#define RECORDTYPE_LONGNAME_BUFSIZE		(64)
+const char *GetLongNameForRecordFlags(const char *mapname, CaptureCategoryFlags flags, qboolean forceSoloIfSpeedrunAndNonCoop) {
+	static char string[RECORDTYPE_LONGNAME_BUFFERS][RECORDTYPE_LONGNAME_BUFSIZE];	// in case va is called by nested functions
+	static int index = -1;
+	char *buf = (char *)&string[++index % RECORDTYPE_LONGNAME_BUFFERS];
+	const int size = RECORDTYPE_LONGNAME_BUFSIZE;
+	memset(buf, 0, RECORDTYPE_LONGNAME_BUFSIZE);
+
+	if (flags & CAPTURERECORDFLAG_ANYPERCENT || flags & CAPTURERECORDFLAG_LIVEPUG) {
+		Q_strncpyz(buf, flags & CAPTURERECORDFLAG_LIVEPUG ? "LivePug" : "Any'/.", size);
+		if (flags & CAPTURERECORDFLAG_FULLMAP) {
+			Q_strcat(buf, size, " FullMap");
+		}
+		else {
+			for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+				if (flags & (1 << i)) {
+					Q_strcat(buf, size, va(" %s", ProperObjectiveName(mapname, i)));
+					break;
+				}
+			}
+		}
+	}
+	else if (flags & CAPTURERECORDFLAG_SPEEDRUN) {
+		Q_strcat(buf, size, "Speedrun");
+		if (flags & CAPTURERECORDFLAG_COOP)
+			Q_strcat(buf, size, " Co-op");
+		else if (flags & CAPTURERECORDFLAG_SOLO || forceSoloIfSpeedrunAndNonCoop)
+			Q_strcat(buf, size, " Solo");
+
+		if (flags & CAPTURERECORDFLAG_ASSAULT)
+			Q_strcat(buf, size, " Assault");
+		else if (flags & CAPTURERECORDFLAG_HW)
+			Q_strcat(buf, size, " HW");
+		else if (flags & CAPTURERECORDFLAG_DEMO)
+			Q_strcat(buf, size, " Demo");
+		else if (flags & CAPTURERECORDFLAG_TECH)
+			Q_strcat(buf, size, " Tech");
+		else if (flags & CAPTURERECORDFLAG_SCOUT)
+			Q_strcat(buf, size, " Scout");
+		else if (flags & CAPTURERECORDFLAG_JEDI)
+			Q_strcat(buf, size, " Jedi");
+		if (flags & CAPTURERECORDFLAG_FULLMAP) {
+			Q_strcat(buf, size, " FullMap");
+			if (flags & CAPTURERECORDFLAG_ONESHOT)
+				Q_strcat(buf, size, " OneShot");
+		}
+		else {
+			for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+				if (flags & (1 << i)) {
+					Q_strcat(buf, size, va(" %s", ProperObjectiveName(mapname, i)));
+					break;
+				}
+			}
+		}
+	}
+	else {
+		return "?"; // dafuq? shouldn't happen
 	}
 
-	if ( !Q_stricmpn( name, "we", 2 ) || !Q_stricmpn( name, "wp", 2 ) ) {
-		return CAPTURE_RECORD_WEAPONS;
+	return buf;
+}
+
+#define OBJ_NAME_PARTIALMATCH_LENGTH	(4)
+// note that it's possible for this function to return categories that are speedrun but neither co-op nor solo
+// this is intentional for the printing of stats, despite the fact that such runs are impossible to specifically generate ingame
+CaptureCategoryFlags GetRecordFlagsForString(const char *mapname, char *s, qboolean *displayBothSpeedRunAndLivePugVariants, qboolean mustBeFullMap, qboolean forceSoloIfSpeedrunAndNonCoop) {
+	if (displayBothSpeedRunAndLivePugVariants)
+		*displayBothSpeedRunAndLivePugVariants = qfalse;
+	if (!VALIDSTRING(s))
+		return 0;
+
+	qboolean manuallySpecifiedMainCategory;
+	CaptureCategoryFlags flags = 0;
+	if (stristr(s, "speed") || stristr(s, "run")) {
+		flags |= CAPTURERECORDFLAG_SPEEDRUN;
+		manuallySpecifiedMainCategory = qtrue;
+	}
+	else if (stristr(s, "live") || stristr(s, "pug")) {
+		flags |= CAPTURERECORDFLAG_LIVEPUG;
+		manuallySpecifiedMainCategory = qtrue;
+	}
+	else if (stristr(s, "any") || stristr(s, "perc") || stristr(s, "pct")) {
+		flags |= CAPTURERECORDFLAG_ANYPERCENT;
+		manuallySpecifiedMainCategory = qtrue;
+	}
+	else {
+		flags |= CAPTURERECORDFLAG_SPEEDRUN; // default to speedruns
+		manuallySpecifiedMainCategory = qfalse;
+	}
+	
+	// check for partially matching an obj name, e.g. "stat" for "stations"
+	qboolean gotObjNumber = qfalse;
+	if (mustBeFullMap) {
+		flags |= CAPTURERECORDFLAG_FULLMAP;
+		gotObjNumber = qtrue;
+	}
+	else {
+		for (const FancyObjNameData *data = &fancyObjNameData[0]; VALIDSTRING(data->mapname); data++) {
+			if (data->matchMapNameExactly) {
+				if (Q_stricmp(data->mapname, mapname) &&
+					!(VALIDSTRING(data->altMapname) && !Q_stricmp(data->altMapname, mapname))) {
+					continue;
+				}
+			}
+			else {
+				if (Q_stricmpn(data->mapname, mapname, strlen(data->mapname)) &&
+					!(VALIDSTRING(data->altMapname) && !Q_stricmpn(data->altMapname, mapname, strlen(data->altMapname)))) {
+					continue;
+				}
+			}
+			for (CombinedObjNumber i = 1; i <= data->numObjs; i++) {
+				assert(VALIDSTRING(data->objName[i - 1]));
+				char buf[OBJ_NAME_PARTIALMATCH_LENGTH + 1];
+				Q_strncpyz(buf, data->objName[i - 1], sizeof(buf));
+				RemoveSpaces(buf);
+				if (stristr(s, buf)) {
+					flags |= (1 << i);
+					gotObjNumber = qtrue;
+					break;
+				}
+			}
+			break;
+		}
 	}
 
-	if ( !Q_stricmpn( name, "wa", 2 ) ) {
-		return CAPTURE_RECORD_WALK;
+	qboolean isSubsetOfSpeedrunsOnly = qfalse;
+	if (!gotObjNumber) {
+		if (flags & CAPTURERECORDFLAG_SPEEDRUN && (stristr(s, "1shot") || stristr(s, "shot"))) {
+			flags |= CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_ONESHOT;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (stristr(s, "full") || stristr(s, "map"))
+			flags |= CAPTURERECORDFLAG_FULLMAP;
+		else if (strchr(s, '1'))
+			flags |= CAPTURERECORDFLAG_OBJ1;
+		else if (strchr(s, '2'))
+			flags |= CAPTURERECORDFLAG_OBJ2;
+		else if (strchr(s, '3'))
+			flags |= CAPTURERECORDFLAG_OBJ3;
+		else if (strchr(s, '4'))
+			flags |= CAPTURERECORDFLAG_OBJ4;
+		else if (strchr(s, '5'))
+			flags |= CAPTURERECORDFLAG_OBJ5;
+		else if (strchr(s, '6'))
+			flags |= CAPTURERECORDFLAG_OBJ6;
+		else if (strchr(s, '7'))
+			flags |= CAPTURERECORDFLAG_OBJ7;
+		else if (strchr(s, '8'))
+			flags |= CAPTURERECORDFLAG_OBJ8;
+		else if (strchr(s, '9'))
+			flags |= CAPTURERECORDFLAG_OBJ9;
+		else
+			flags |= CAPTURERECORDFLAG_FULLMAP;
 	}
 
-	if ( !Q_stricmpn( name, "a", 1 ) ) {
-		return CAPTURE_RECORD_AD;
+	// <class>-only, co-op, and one-shot are subsets of ONLY speedruns; they can't coexist with livepug or any%
+	if (flags & CAPTURERECORDFLAG_SPEEDRUN) {
+		if (stristr(s, "assa")) {
+			flags |= CAPTURERECORDFLAG_ASSAULT;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (stristr(s, "hw")) {
+			flags |= CAPTURERECORDFLAG_HW;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (stristr(s, "demo")) {
+			flags |= CAPTURERECORDFLAG_DEMO;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (stristr(s, "tech")) {
+			flags |= CAPTURERECORDFLAG_TECH;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (stristr(s, "scout")) {
+			flags |= CAPTURERECORDFLAG_SCOUT;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (stristr(s, "jedi")) {
+			flags |= CAPTURERECORDFLAG_JEDI;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+
+		if (stristr(s, "coop") || stristr(s, "co-op")) {
+			flags |= CAPTURERECORDFLAG_COOP;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
+		else if (forceSoloIfSpeedrunAndNonCoop || stristr(s, "solo")) {
+			flags |= CAPTURERECORDFLAG_SOLO;
+			isSubsetOfSpeedrunsOnly = qtrue;
+		}
 	}
 
-	return CAPTURE_RECORD_INVALID;
+	/*
+	if:
+		- we didn't manually specify speedrun/livepug/any%
+		- we aren't using a subset of speedruns such as <class>-only or co-op
+	then:
+		- we can display the requested category in both speedrun AND livepug variants
+	*/
+	// if:we didn't manually specify speedrun/livepug/any%, we aren't using
+	if (!manuallySpecifiedMainCategory && !isSubsetOfSpeedrunsOnly && displayBothSpeedRunAndLivePugVariants) {
+		flags &= ~CAPTURERECORDFLAG_SOLO; // if they didn't specify solo, allow co-op to be shown so that we can also show live pug
+		*displayBothSpeedRunAndLivePugVariants = qtrue;
+	}
+
+	return flags;
+}
+
+static qboolean FlagsMatch(genericNode_t *node, void *userData) {
+	const CaptureRecordsForCategory *candidate = (const CaptureRecordsForCategory *)node;
+	const CaptureCategoryFlags flags = *((CaptureCategoryFlags *)userData);
+	if (candidate->flags == flags)
+		return qtrue;
+	return qfalse;
+}
+
+CaptureRecordsForCategory *CaptureRecordsForCategoryFromFlags(CaptureCategoryFlags flags) {
+	CaptureRecordsForCategory *records = ListFind(&level.mapCaptureRecords.captureRecordsList, FlagsMatch, &flags, NULL);
+	if (records)
+		return records;
+	records = ListAdd(&level.mapCaptureRecords.captureRecordsList, sizeof(CaptureRecordsForCategory));
+	G_LogDbLoadCaptureRecords(level.mapCaptureRecords.mapname, flags, qtrue, records);
+	records->flags = flags;
+	return records;
 }
 
 static void copyTopNameCallback( void* context, const char* name, int duration ) {
@@ -5630,256 +5904,319 @@ typedef struct {
 	qboolean hasPrinted;
 } BestTimeContext;
 
-static void printBestTimeCallback( void *context, const char *mapname, const CaptureRecordType type, const char *recordHolderName, unsigned int recordHolderIpInt, const char *recordHolderCuid, int bestTime, time_t bestTimeDate ) {
+#define NAME_PRINT_LENGTH	(30)
+
+static void printBestTimeCallback( void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
+	const char *recordHolder1Name, unsigned int recordHolder1IpInt, const char *recordHolder1Cuid,
+	const char *recordHolder2Name, unsigned int recordHolder2IpInt, const char *recordHolder2Cuid,
+	int bestTime, time_t bestTimeDate ) {
 	BestTimeContext* thisContext = ( BestTimeContext* )context;
 
 	// if we are printing the current map, since we only save new records at the end of the round, check if we beat the top time during this session
 	// and print that one instead (the record in DB will stay outdated until round ends)
 	if ( !Q_stricmp( mapname, level.mapCaptureRecords.mapname ) ) {
-		const CaptureRecord *currentRecord = &level.mapCaptureRecords.records[type][0];
+		CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
+		const CaptureRecord *currentRecord = &recordsPtr->records[0];
 
-		if ( currentRecord->captureTime && currentRecord->captureTime < bestTime ) {
-			recordHolderName = currentRecord->recordHolderName;
-			recordHolderIpInt = currentRecord->recordHolderIpInt;
-			recordHolderCuid = currentRecord->recordHolderCuid;
-			bestTime = currentRecord->captureTime;
+		if ( currentRecord->totalTime && currentRecord->totalTime < bestTime ) {
+			recordHolder1Name = currentRecord->recordHolder1Name;
+			recordHolder2Name = currentRecord->recordHolder1Name;
+			recordHolder1IpInt = currentRecord->recordHolder1IpInt;
+			recordHolder1Cuid = currentRecord->recordHolder1Cuid;
+			recordHolder2Cuid = currentRecord->recordHolder2Cuid;
+			bestTime = currentRecord->totalTime;
 			bestTimeDate = currentRecord->date;
 		}
 	}
 
 	if ( !thisContext->hasPrinted ) {
 		// first time printing, show a header
-		trap_SendServerCommand( thisContext->entNum, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category:\n"S_COLOR_CYAN"           Map               Time           Date                 Name\n\"", GetLongNameForRecordType( type ) ) );
+		trap_SendServerCommand( thisContext->entNum, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-30s  %-18s  %-38s\n\"", GetLongNameForRecordFlags( mapname, flags, qfalse ), "Map", "Time", "Name", "Date", "Category" ) );
 	}
 
-	char identifier[MAX_NETNAME + 1] = { 0 };
-	G_CfgDbListAliases( recordHolderIpInt, ( unsigned int )0xFFFFFFFF, 1, copyTopNameCallback, &identifier, recordHolderCuid );
+	char identifier1[MAX_NETNAME + 1] = { 0 }, identifier2[MAX_NETNAME + 1] = { 0 };
+	G_CfgDbListAliases( recordHolder1IpInt, ( unsigned int )0xFFFFFFFF, 1, copyTopNameCallback, &identifier1, recordHolder1Cuid );
+	if (VALIDSTRING(recordHolder2Cuid))
+		G_CfgDbListAliases(recordHolder2IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifier2, recordHolder2Cuid);
 
 	// no name in db for this guy, use the one we stored
-	if ( !VALIDSTRING( identifier ) ) {
-		Q_strncpyz( identifier, recordHolderName, sizeof( identifier ) );
+	if ( !VALIDSTRING( identifier1 ) )
+		Q_strncpyz( identifier1, recordHolder1Name, sizeof( identifier1 ) );
+	if ( VALIDSTRING(recordHolder2Name) && !VALIDSTRING( identifier2 ) )
+		Q_strncpyz( identifier2, recordHolder2Name, sizeof( identifier2 ) );
+
+	char combinedNameString[64] = { 0 };
+	Q_strncpyz(combinedNameString, identifier1, sizeof(combinedNameString));
+	if (identifier2[0])
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", identifier2));
+
+	{ // pad the name string with spaces here because printf padding will ignore colors
+		int spacesToAdd = g_maxNameLength.integer - Q_PrintStrlen(combinedNameString);
+		for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
+			if (combinedNameString[j] == '\0') {
+				combinedNameString[j] = ' '; // replace null terminators with spaces
+				--spacesToAdd;
+			}
+		}
+		combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
+		Q_strncpyz(combinedNameString, ChopString(combinedNameString, NAME_PRINT_LENGTH), sizeof(combinedNameString));
 	}
 
-	int secs, millis;
-	PartitionedTimer( bestTime, NULL, &secs, &millis );
+	int mins, secs, millis;
+	PartitionedTimer( bestTime, &mins, &secs, &millis );
 
-	char timeString[8];
-	if ( secs > 999 ) Com_sprintf( timeString, sizeof( timeString ), "  >999 " );
-	else Com_sprintf( timeString, sizeof( timeString ), "%3d.%03d", secs, millis );
+	char timeString[10] = { 0 };
+	if ( mins > 0 )
+		Com_sprintf( timeString, sizeof( timeString ), "%d:%2d.%03d", mins, secs, millis);
+	else
+		Com_sprintf( timeString, sizeof( timeString ), "%2d.%03d", secs, millis );
 
-	char date[20];
+	char *dateColor;
+	char date[19] = { 0 };
 	time_t now = time( NULL );
-	if ( now - bestTimeDate < 60 * 60 * 24 ) Q_strncpyz( date, S_COLOR_GREEN, sizeof( date ) );
-	else Q_strncpyz( date, S_COLOR_WHITE, sizeof( date ) );
-	FormatLocalDateFromEpoch( date + 2, sizeof( date ) - 2, bestTimeDate );
+	if (now - bestTimeDate < 60 * 60 * 24) {
+		dateColor = "^2";
+		FormatLocalDateFromEpoch(date, sizeof(date), bestTimeDate, qtrue);
+	}
+	else {
+		dateColor = "^7";
+		FormatLocalDateFromEpoch(date, sizeof(date), bestTimeDate, qfalse);
+	}
 
 	trap_SendServerCommand( thisContext->entNum, va(
-		"print \""S_COLOR_WHITE"%-25s  "S_COLOR_YELLOW"%s   %s   "S_COLOR_WHITE"%s\n\"", mapname, timeString, date, identifier
-	) );
+		"print \"^7%-26s^7  ^5%-9s^7  ^7%s  %s%-18s  ^7%-38s\n\"", mapname, timeString, identifier1, dateColor, date, GetLongNameForRecordFlags(mapname, thisRecordFlags, qtrue)) );
 
 	thisContext->hasPrinted = qtrue;
 }
 
+#define MAPLIST_MAPS_PER_PAGE		(15)
+#define MAX_CATEGORIES_TO_PRINT		(4)
 #define DEMOARCHIVE_BASE_MATCH_URL	"http://demos.jactf.com/match.html#rpc=lookup&id=%s"
-#define MAPLIST_MAPS_PER_PAGE		15
+#define TOPTIMES_HELPMSG			"For [category], enter any combination of terms (such as obj1, obj2, map, jedi, tech, solo, coop, speedrun, anypercent, oneshot) without spaces.\nExamples:    map     solo     obj5pug     obj2anypercent    codesjedi    coopscoutoneshot"
+
+static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
+	if (!flags)
+		return qfalse;
+	CaptureRecordsForCategory localRecords = { 0 };
+	G_LogDbLoadCaptureRecords(level.mapCaptureRecords.mapname, flags, qfalse, &localRecords);
+	if (!localRecords.records[0].totalTime) // there is no first record for that category
+		return qfalse;
+
+	const char* categoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qfalse);
+
+	// prepend a newline and print the header
+	trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-30s  %-9s  %-6s  %-6s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "TopSpd", "AvgSpd", "Date", "Category"));
+
+	// print each record for this category as a row
+	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
+		CaptureRecord *record = &localRecords.records[i];
+
+		if (!record->totalTime) {
+			continue;
+		}
+
+		char nameString1[64] = { 0 }, nameString2[64] = { 0 };
+		G_CfgDbListAliases(record->recordHolder1IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString1, record->recordHolder1Cuid);
+		if (record->recordHolder2Cuid[0])
+			G_CfgDbListAliases(record->recordHolder2IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString2, record->recordHolder2Cuid);
+
+		// no name in db for this guy, use the one we stored
+		if (!VALIDSTRING(nameString1))
+			Q_strncpyz(nameString1, record->recordHolder1Name, sizeof(nameString1));
+		if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
+			Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
+
+		char combinedNameString[64] = { 0 };
+		Q_strncpyz(combinedNameString, nameString1, sizeof(combinedNameString));
+		if (nameString2[0])
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", nameString2));
+
+		{ // pad the name string with spaces here because printf padding will ignore colors
+			int spacesToAdd = g_maxNameLength.integer - Q_PrintStrlen(combinedNameString);
+			for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
+				if (combinedNameString[j] == '\0') {
+					combinedNameString[j] = ' '; // replace null terminators with spaces
+					--spacesToAdd;
+				}
+			}
+			combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
+			Q_strncpyz(combinedNameString, ChopString(combinedNameString, NAME_PRINT_LENGTH), sizeof(combinedNameString));
+		}
+
+		int mins, secs, millis;
+		PartitionedTimer(record->totalTime, &mins, &secs, &millis);
+
+		char timeString[10] = { 0 };
+		if (mins > 0)
+			Com_sprintf(timeString, sizeof(timeString), "%d:%2d.%03d", mins, secs, millis);
+		else
+			Com_sprintf(timeString, sizeof(timeString), "%2d.%03d", secs, millis);
+
+		char *dateColor;
+		char date[19] = { 0 };
+		time_t now = time(NULL);
+		if (now - record->date < 60 * 60 * 24) {
+			dateColor = "^2";
+			FormatLocalDateFromEpoch(date, sizeof(date), record->date, qtrue);
+		}
+		else {
+			dateColor = "^7";
+			FormatLocalDateFromEpoch(date, sizeof(date), record->date, qfalse);
+		}
+
+		char *rankColor;
+		switch (i + 1) {
+		case 1: rankColor = S_COLOR_YELLOW; break;
+		case 2: rankColor = S_COLOR_GREY; break;
+		case 3: rankColor = S_COLOR_ORANGE; break;
+		default: rankColor = S_COLOR_RED; break;
+		}
+
+		trap_SendServerCommand(ent - g_entities, va(
+			"print \"%s%d: ^7%s  ^7%-9s  ^7%-6d  ^7%-6d  %s%-18s  ^7%-38s\n\"",
+			rankColor, i + 1, combinedNameString, timeString, Com_Clampi(1, 99999999, record->maxSpeed1), Com_Clampi(1, 9999999, record->avgSpeed1), dateColor, date, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, record->flags, qtrue)));
+	}
+	return qtrue;
+}
 
 void Cmd_TopTimes_f( gentity_t *ent ) {
-	if ( !ent || !ent->client ) {
+	if ( !ent || !ent->client || g_gametype.integer != GT_SIEGE) {
 		return;
 	}
 
-	if ( !level.mapCaptureRecords.enabled ) {
+	if (!g_saveCaptureRecords.integer) {
 		trap_SendServerCommand( ent - g_entities, "print \"Capture records are disabled.\n\"" );
 		return;
 	}
 
+	if (!level.mapCaptureRecords.speedRunModeRuined)
+		trap_SendServerCommand(ent - g_entities, "print \"^5Current run conditions: ^3Speedrun^7\n\"");
+	else if (level.isLivePug == ISLIVEPUG_YES)
+		trap_SendServerCommand(ent - g_entities, "print \"^5Current run conditions: ^2Live Pug^7\n\"");
+	else
+		trap_SendServerCommand(ent - g_entities, "print \"^5Current run conditions: ^1Any'/.^7\n\"");
+
 	if ( level.mapCaptureRecords.readonly ) {
-		trap_SendServerCommand( ent - g_entities, "print \""S_COLOR_YELLOW"WARNING: Server settings are non standard, new times won't be recorded!\n\"" );
+		trap_SendServerCommand( ent - g_entities, "print \""S_COLOR_YELLOW"WARNING: Server settings are non-standard, new times won't be recorded!\n\"" );
 	}
 
-	// assume standard by default
-	CaptureRecordType category = CAPTURE_RECORD_STANDARD;
+	CaptureCategoryFlags flags = 0;
+	qboolean manuallySpecifiedFlags = qfalse, displayBothSpeedRunAndLivePugVariants = qfalse;
 
 	if ( trap_Argc() > 1 ) {
 		char buf[32];
 		trap_Argv( 1, buf, sizeof( buf ) );
 
 		if ( !Q_stricmp( buf, "maplist" ) ) {
-
-			// special logic for maplist subcommand
-
 			int page = 1;
-
 			if ( trap_Argc() > 2 ) {
 				trap_Argv( 2, buf, sizeof( buf ) );
 
-				// is the 2nd argument directly the page number?
-				if ( Q_isanumber( buf ) ) {
-					page = atoi( buf );
-					if ( page < 1 ) page = 1;
-				} else {
-					// a movement type is being specified as 2nd argument
-					category = GetRecordTypeForShortName( buf );
-
-					if ( category == CAPTURE_RECORD_INVALID ) {
-						trap_SendServerCommand( ent - g_entities, "print \"Invalid category. Usage: /toptimes maplist [std | wpn | walk | ad] [page]\n\"" );
+				if ( Q_isanumber( buf ) ) { // is the 2nd argument a page number?...
+					page = Com_Clampi(1, 999, atoi( buf ));
+				} else { // 2nd argument isn't a page number, so it must be a category
+					// prevent maplist with flags pertaining to a specific obj...
+					// what's the point of getting the fastest obj 1 time on multiple maps?
+					flags = GetRecordFlagsForString( NULL, buf, NULL, qtrue, qfalse );
+					if (!flags) {
+						trap_SendServerCommand( ent - g_entities, va("print \"Invalid category. Usage: /toptimes maplist [category]\n%s\n\"", TOPTIMES_HELPMSG));
 						return;
 					}
 
-					if ( trap_Argc() > 3 ) {
-						// 3rd argument must be the page number
+					if ( trap_Argc() > 3 ) { // 3rd argument must be the page number
 						trap_Argv( 3, buf, sizeof( buf ) );
-						page = atoi( buf );
-						if ( page < 1 ) page = 1;
+						page = Com_Clampi(1, 999, atoi(buf));
 					}
 				}
 			}
 
+			if (!flags) {
+				flags = CAPTURERECORDFLAG_SPEEDRUN | CAPTURERECORDFLAG_FULLMAP; // default to entire-map speedruns
+				trap_SendServerCommand(ent - g_entities, "print \"No category specified; defaulting to Speedrun FullMap.\n\"");
+			}
 			BestTimeContext context;
 			context.entNum = ent - g_entities;
 			context.hasPrinted = qfalse;
-			G_LogDbListBestCaptureRecords( category, MAPLIST_MAPS_PER_PAGE, ( page - 1 ) * MAPLIST_MAPS_PER_PAGE, printBestTimeCallback, &context );
+			G_LogDbListAllMapsCaptureRecords( flags, MAPLIST_MAPS_PER_PAGE, ( page - 1 ) * MAPLIST_MAPS_PER_PAGE, printBestTimeCallback, &context );
 			
-			if ( context.hasPrinted ) {
-				trap_SendServerCommand( ent - g_entities, va( "print \"Viewing page %d.\nUsage: /toptimes maplist [std | wpn | walk | ad] [page]\n\"", page ) );
-			} else {
-				trap_SendServerCommand( ent - g_entities, "print \"There aren't this many records! Try a lower page number.\nUsage: /toptimes maplist [std | wpn | walk | ad] [page]\n\"" );
-			}
+			if ( context.hasPrinted )
+				trap_SendServerCommand( ent - g_entities, va( "print \"Viewing page %d.\nUsage: /toptimes maplist [category] [page]\n%s\n\"", page, TOPTIMES_HELPMSG) );
+			else
+				trap_SendServerCommand( ent - g_entities, va("print \"There aren't this many records! Try a lower page number.\nUsage: /toptimes maplist [category] [page]\n%s\n\"", TOPTIMES_HELPMSG));
 
 			return;
-		} else if ( !Q_stricmp( buf, "rules" ) ) {
-
-			// special logic for rules subcommand
-
-			char *text;
-
-			if ( trap_Argc() > 2 ) {
-				trap_Argv( 2, buf, sizeof( buf ) );
-				category = GetRecordTypeForShortName( buf );
-
-				switch ( category ) {
-					case CAPTURE_RECORD_STANDARD:
-						text =
-							S_COLOR_WHITE"Standard type:\n"
-							S_COLOR_RED"* No self dmg (except from falling)\n"
-							S_COLOR_RED"* No dmg or force powers from others (except alt sniping)\n"
-							S_COLOR_GREEN"* All force powers allowed\n"
-							S_COLOR_CYAN"NB: Stand idle and wait to regen to 100 force to start over with no category";
-						break;
-					case CAPTURE_RECORD_WEAPONS:
-						text =
-							S_COLOR_WHITE"Weapons type:\n"
-							S_COLOR_GREEN"* Self dmg allowed (except dets/mines)\n"
-							S_COLOR_RED"* No dmg or force powers from others (except alt sniping)\n"
-							S_COLOR_GREEN"* All force powers allowed\n"
-							S_COLOR_CYAN"NB: Stand idle and wait to regen to 100 force to start over with no category";
-						break;
-					case CAPTURE_RECORD_WALK:
-						text =
-							S_COLOR_WHITE"Walk type:\n"
-							S_COLOR_RED"* No self dmg (except from falling)\n"
-							S_COLOR_RED"* No dmg or force powers from others (except alt sniping)\n"
-							S_COLOR_RED"* No jumping or rolling\n"
-							S_COLOR_GREEN"* All force powers allowed (except jump)\n"
-							S_COLOR_CYAN"NB: Stand idle and wait to regen to 100 force to start over with no category";
-						break;
-					case CAPTURE_RECORD_AD:
-						text =
-							S_COLOR_WHITE"A/D type:\n"
-							S_COLOR_RED"* No self dmg (except from falling)\n"
-							S_COLOR_RED"* No dmg or force powers from others (except alt sniping)\n"
-							S_COLOR_RED"* No moving with forward/backward\n"
-							S_COLOR_GREEN"* All force powers allowed\n"
-							S_COLOR_CYAN"NB: Stand idle and wait to regen to 100 force to start over with no category";
-						break;
-				}
-			} else {
-				text = "Usage: /toptimes rules <std | wpn | walk | ad>";
-			}
-
-			trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", text ) );
-
+		} else if ( !Q_stricmp( buf, "rules" ) || !Q_stricmp(buf, "help") || !Q_stricmp(buf, "info") ) {
+			char *text =
+				"Rules:\n"
+				"Objectives that can be completed simultaneously (e.g. stations) are combined.\n\n"
+				"^3Speedrun^7 runs require there to be no other players ingame, and you may not change teams after joining red.\n"
+				"While these conditions are intact, for consistent timings, you will spawn only at predetermined spawn points.\n"
+				"^3Live pug^7 runs are for live pugs (even teams, etc.)\n"
+				"Runs that don't qualify for either of these two categories, or were done with skillboost, fall into the ^3Any'/.^7 category.\n\n"
+				"^3Co-op^7 runs use the same rules as the ^3Speedrun^7 category, but with two people on red team.\n\n"
+				"^3<class>-Only^7 runs require playing only one class for the entire obj/map.\n"
+				"You may, however, change class within 500ms of completing an obj and still count as <new class>-only for the next obj.\n\n"
+				"^3One-shot^7 runs require completing the entire map in one life (no dying/selfkilling/changing class).";
+			trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", text ) );
 			return;
 		} else {
-
-			// not a subcommand, 1st argument is the movement type
-
-			category = GetRecordTypeForShortName( buf );
-
-			if ( category == CAPTURE_RECORD_INVALID ) {
-				trap_SendServerCommand( ent - g_entities, "print \"Invalid category. Usage: /toptimes maplist [std | wpn | walk | ad] [page]\n\"" );
+			// they typed an arg, but it wasn't "maplist" or "rules"; assume it's a category on the current map
+			flags = GetRecordFlagsForString( level.mapCaptureRecords.mapname, buf, &displayBothSpeedRunAndLivePugVariants, qfalse, qfalse);
+			if ( !flags) {
+				trap_SendServerCommand( ent - g_entities, va("print \"Invalid category. Usage: /toptimes maplist [category]\n%s\n\"", TOPTIMES_HELPMSG));
 				return;
 			}
+			manuallySpecifiedFlags = qtrue;
 		}
 	}
 
-	const char* categoryName = GetLongNameForRecordType( category );
-
-	if ( !level.mapCaptureRecords.records[category][0].captureTime ) {
-		// there is no first record for that category
-		trap_SendServerCommand( ent - g_entities, va( "print \"No record for the %s category on this map yet!\n\"", categoryName ) );
-		return;
+	// determine which categories to print
+	CaptureCategoryFlags categoriesToPrint[MAX_CATEGORIES_TO_PRINT] = { 0 };
+	if (manuallySpecifiedFlags) { // the user specified a specific category they want to see
+		if (displayBothSpeedRunAndLivePugVariants) { // if applicable, display both the speedrun and livepug variants of the specified category
+			categoriesToPrint[0] = (flags | CAPTURERECORDFLAG_SPEEDRUN) & ~CAPTURERECORDFLAG_LIVEPUG;
+			categoriesToPrint[1] = (flags | CAPTURERECORDFLAG_LIVEPUG) & ~CAPTURERECORDFLAG_SPEEDRUN;
+		}
+		else { // otherwise, just show the exact specified category
+			categoriesToPrint[0] = flags;
+		}
+	}
+	else { // no specific category specified; show four: current obj (both speedrun and livepug) and fullmap (both speedrun and livepug)
+		CombinedObjNumber currentObjNum = level.mapCaptureRecords.lastCombinedObjCompleted + 1;
+		if (currentObjNum >= 1 && currentObjNum <= MAX_SAVED_OBJECTIVES) { // double-check that the current obj number is valid
+			categoriesToPrint[0] = (1 << currentObjNum) | CAPTURERECORDFLAG_SPEEDRUN;
+			categoriesToPrint[1] = (1 << currentObjNum) | CAPTURERECORDFLAG_LIVEPUG;
+			categoriesToPrint[2] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_SPEEDRUN;
+			categoriesToPrint[3] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_LIVEPUG;
+		}
+		else { // invalid obj number somehow; just print fullmap
+			categoriesToPrint[0] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_SPEEDRUN;
+			categoriesToPrint[1] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_LIVEPUG;
+		}
 	}
 
-	trap_SendServerCommand( ent - g_entities, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"             Name              Time    Flag    Topspeed     Average           Date\n\"", categoryName, level.mapCaptureRecords.mapname ) );
-
-	int i;
-
-	// print each record as a row
-	for ( i = 0; i < MAX_SAVED_RECORDS; ++i ) {
-		CaptureRecord *record = &level.mapCaptureRecords.records[category][i];
-
-		if ( !record->captureTime ) {
+	// do the printing
+	qboolean atLeastOneCategoryValid = qfalse;
+	for (int i = 0; i < MAX_CATEGORIES_TO_PRINT; i++) {
+		if (!categoriesToPrint[i])
 			continue;
-		}
-
-		char nameString[64] = { 0 };
-		G_CfgDbListAliases( record->recordHolderIpInt, ( unsigned int )0xFFFFFFFF, 1, copyTopNameCallback, &nameString, record->recordHolderCuid );
-
-		// no name in db for this guy, use the one we stored
-		if ( !VALIDSTRING( nameString ) ) {
-			Q_strncpyz( nameString, record->recordHolderName, sizeof( nameString ) );
-		}
-
-		{
-			// pad the name string with spaces here because printf padding will ignore colors
-
-			int spacesToAdd = g_maxNameLength.integer - Q_PrintStrlen( nameString );
-			int i;
-
-			for ( i = 0; i < sizeof( nameString ) && spacesToAdd > 0; ++i ) {
-				if ( nameString[i] == '\0' ) {
-					nameString[i] = ' '; // replace null terminators with spaces
-					--spacesToAdd;
-				}
-			}
-
-			nameString[sizeof( nameString ) - 1] = '\0'; // make sure it's still null terminated
-		}
-
-		int secs, millis;
-		PartitionedTimer( record->captureTime, NULL, &secs, &millis );
-
-		char timeString[8];
-		if ( secs > 999 ) Com_sprintf( timeString, sizeof( timeString ), "  >999 " );
-		else Com_sprintf( timeString, sizeof( timeString ), "%3d.%03d", secs, millis );
-
-		char flagString[7];
-		Com_sprintf( flagString, sizeof( flagString ), "%s%s", TeamColorString( record->whoseFlag ), TeamName( record->whoseFlag ) );
-
-		char date[20];
-		time_t now = time( NULL );
-		if ( now - record->date < 60 * 60 * 24 ) Q_strncpyz( date, S_COLOR_GREEN, sizeof( date ) );
-		else Q_strncpyz( date, S_COLOR_WHITE, sizeof( date ) );
-		FormatLocalDateFromEpoch( date + 2, sizeof( date ) - 2, record->date );
-
-		trap_SendServerCommand( ent - g_entities, va(
-			"print \""S_COLOR_CYAN"%d"S_COLOR_WHITE""S_COLOR_YELLOW": "S_COLOR_WHITE"%s  "S_COLOR_YELLOW"%s   %-4s      "S_COLOR_YELLOW"%-6d      %-6d     %s\n\"",
-			i + 1, nameString, timeString, flagString, Com_Clampi( 1, 99999999, record->maxSpeed ), Com_Clampi( 1, 9999999, record->avgSpeed ), date
-		) );
+		if (PrintCategory(categoriesToPrint[i], ent))
+			atLeastOneCategoryValid = qtrue;
 	}
 
-	trap_SendServerCommand( ent - g_entities, "print \"For a list of records on all maps: /toptimes maplist [std | wpn | walk | ad] [page]\nFor category rules: /toptimes rules <std | wpn | walk | ad>\n\"" );
+	// confirm that we printed at least one
+	if (!atLeastOneCategoryValid) {
+		if (manuallySpecifiedFlags) {
+			const char* categoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qfalse);
+			trap_SendServerCommand(ent - g_entities, va("print \"No records for the ^3%s^7 category on this map yet!\n\"", categoryName));
+		}
+		else {
+			trap_SendServerCommand(ent - g_entities, "print \"No speedrun or live pug records for the current objective/map yet!\n\"");
+		}
+	}
+
+	// display a little extra help message so they know other possibilities with this command
+	trap_SendServerCommand( ent - g_entities, va("print \"\nFor a list of records on all maps: /toptimes maplist [category]\n%s\nFor rules: /toptimes rules\n\"", TOPTIMES_HELPMSG));
 }
 
 void Cmd_UsePack_f(gentity_t *ent) {
@@ -7264,7 +7601,7 @@ void PrintStatsTo( gentity_t *ent, const char *type ) {
 			return;
 #endif
 		callback = &FillMapSpecificStats;
-		switch (GetSiegeMap()) {
+		switch (level.siegeMap) {
 		case SIEGEMAP_HOTH:			desc = &HothDesc;		break;
 		case SIEGEMAP_DESERT:		desc = &DesertDesc;		break;
 		case SIEGEMAP_KORRIBAN:		desc = &KorriDesc;		break;
@@ -7302,7 +7639,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(ent, "obj");
 			PrintStatsTo(ent, "general");
-			if (GetSiegeMap() != SIEGEMAP_UNKNOWN)
+			if (level.siegeMap != SIEGEMAP_UNKNOWN)
 				PrintStatsTo(ent, "map");
 		}
 		else {
@@ -7420,6 +7757,8 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_antiSelfMax);
 	PrintCvar(g_autoKorribanFloatingItems);
 	PrintCvar(g_autoKorribanSpam);
+	PrintCvar(g_autoPause999);
+	PrintCvar(g_autoPauseDisconnect);
 	PrintCvar(g_autoStats);
 	PrintCvar(g_antiLaming);
 	PrintCvar(g_autoResetCustomTeams);
@@ -7452,6 +7791,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_moreTaunts);
 	PrintCvar(g_multiVoteRNG);
 	PrintCvar(g_nextmapWarning);
+	PrintCvar(g_notifyNotLive);
 	PrintCvar(g_randomConeReflection);
 	PrintCvar(g_requireMoreCustomTeamVotes);
 	PrintCvar(g_rocketSurfing);

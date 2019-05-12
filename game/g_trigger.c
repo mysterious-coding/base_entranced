@@ -217,7 +217,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 					{ //The carrier of the item is not on the team which disallows objective scoring for it
 						if (objItem->target3 && objItem->target3[0])
 						{ //if it has a target3, fire it off instead of using the trigger
-							if (GetSiegeMap() == SIEGEMAP_DESERT && !Q_stricmp(objItem->target3, "c3podeliverprint"))
+							if (level.siegeMap == SIEGEMAP_DESERT && !Q_stricmp(objItem->target3, "c3podeliverprint"))
 							{
 								//droid part on desert
 								char *part = NULL;
@@ -406,12 +406,12 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	if (level.zombies && (GetSiegeMap() == SIEGEMAP_CARGO) && (!Q_stricmp(ent->target, "commandcenterdooractual") || !Q_stricmp(ent->target, "ccturrets")))
+	if (level.zombies && (level.siegeMap == SIEGEMAP_CARGO) && (!Q_stricmp(ent->target, "commandcenterdooractual") || !Q_stricmp(ent->target, "ccturrets")))
 	{
 		return;
 	}
 
-	if (activator && activator->client && GetSiegeMap() == SIEGEMAP_NAR && !Q_stricmp(ent->target, "station2breached")) {
+	if (activator && activator->client && level.siegeMap == SIEGEMAP_NAR && !Q_stricmp(ent->target, "station2breached")) {
 		if (activator->client->ps.origin[1] < 8500 && !level.narStationBreached[0]) {
 			trap_SendServerCommand(-1, "cp \"Research station 1 breached!\n\"");
 			level.narStationBreached[0] = qtrue;
@@ -527,7 +527,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 				{//not the right guy to fire me off
 					return;
 				}
-				if (GetSiegeMap() == SIEGEMAP_URBAN && other->m_pVehicle && (!other->m_pVehicle->m_pPilot || ((gentity_t *)other->m_pVehicle->m_pPilot)->health <= 0))
+				if (level.siegeMap == SIEGEMAP_URBAN && other->m_pVehicle && (!other->m_pVehicle->m_pPilot || ((gentity_t *)other->m_pVehicle->m_pPilot)->health <= 0))
 				{
 					return; // must have pilot
 				}
@@ -539,12 +539,12 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 	}
 
-	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO && VALIDSTRING(self->target) && (!Q_stricmp(self->target, "thecodes") || !Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
+	if (level.zombies && level.siegeMap == SIEGEMAP_CARGO && VALIDSTRING(self->target) && (!Q_stricmp(self->target, "thecodes") || !Q_stricmp(self->target, "breachcommandcenter") || !Q_stricmp(self->target, "node1breached") || !Q_stricmp(self->target, "breachednode2") || !Q_stricmp(self->target, "ccturrets")))
 	{
 		return;
 	}
 
-	if (!Q_stricmp(self->target, "hangarplatbig1") && !level.hangarCompletedTime && other->client->sess.sessionTeam == TEAM_BLUE && GetSiegeMap() == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
+	if (!Q_stricmp(self->target, "hangarplatbig1") && !level.hangarCompletedTime && other->client->sess.sessionTeam == TEAM_BLUE && level.siegeMap == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 2)
 	{
 		gentity_t	*entity_list[MAX_GENTITIES], *liftLameTarget;
 		vec3_t		liftOrigin;
@@ -590,16 +590,16 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 	}
 	//d can use lift once, and it must be within 15 seconds of infirmary being breached
-	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompletedTime && (level.hangarLiftUsedByDefense || level.time >= level.hangarCompletedTime + 15000) && other->client->sess.sessionTeam == TEAM_BLUE && GetSiegeMap() == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 4)
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompletedTime && (level.hangarLiftUsedByDefense || level.time >= level.hangarCompletedTime + 15000) && other->client->sess.sessionTeam == TEAM_BLUE && level.siegeMap == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer && g_antiHothHangarLiftLame.integer >= 4)
 	{
 		return;
 	}
 
-	if (!Q_stricmp(self->target, "medlabplatb") && other->client->ps.origin[2] >= 365 && g_antiHothInfirmaryLiftLame.integer && GetSiegeMap() == SIEGEMAP_HOTH && level.hangarCompletedTime) {
+	if (!Q_stricmp(self->target, "medlabplatb") && other->client->ps.origin[2] >= 365 && g_antiHothInfirmaryLiftLame.integer && level.siegeMap == SIEGEMAP_HOTH && level.hangarCompletedTime) {
 		return;
 	}
 
-	if (holdEleDoorsHacked && other && other->client && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmp(self->target, "holdelev") && GetSiegeMap() == SIEGEMAP_CARGO && other->client->ps.origin[2] >= 600) {
+	if (holdEleDoorsHacked && other && other->client && other->client->sess.sessionTeam == TEAM_BLUE && !Q_stricmp(self->target, "holdelev") && level.siegeMap == SIEGEMAP_CARGO && other->client->ps.origin[2] >= 600) {
 		int i;
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			gentity_t *player = &g_entities[i];
@@ -643,7 +643,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 			return;
 		}
 
-		if (GetSiegeMap() == SIEGEMAP_CARGO && VALIDSTRING(self->targetname) && !Q_stricmp(self->targetname, "halldoorhack")) {
+		if (level.siegeMap == SIEGEMAP_CARGO && VALIDSTRING(self->targetname) && !Q_stricmp(self->targetname, "halldoorhack")) {
 			gentity_t *door = G_Find(NULL, FOFS(targetname), "halldoor");
 			if (door && VALIDSTRING(door->classname) && !Q_stricmp(door->classname, "func_door") && door->moverState != MOVER_1TO2) {
 				qboolean locked = (door->spawnflags & 16) ? qtrue : qfalse;
@@ -657,7 +657,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 
 		if (self->genericValue7)
 		{ 
-			if (GetSiegeMap() == SIEGEMAP_HOTH && !Q_stricmp(self->target, "t712")) {
+			if (level.siegeMap == SIEGEMAP_HOTH && !Q_stricmp(self->target, "t712")) {
 				self->genericValue7 = g_hothHangarHack.integer & HOTHHANGARHACK_5SECONDS ? 5000 : 10000;
 				self->idealclass[0] = g_hothHangarHack.integer & HOTHHANGARHACK_ANYCLASS ? '\0' : 'I';
 			}
@@ -711,7 +711,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 					return;
 				}
 			}
-			if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(self->target) && !Q_stricmp(self->target, "obj2backdoorlockbox") &&
+			if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(self->target) && !Q_stricmp(self->target, "obj2backdoorlockbox") &&
 				other && other->client && other->client->siegeClass != -1 && bgSiegeClasses[other->client->siegeClass].playerClass == SPC_JEDI) {
 				return;
 			}
@@ -737,7 +737,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 				other->client->isHacking = 0; //can't hack a client
 				other->client->ps.hackingTime = 0;
 				// cargo2 non-objective hacks
-				if (GetSiegeMap() == SIEGEMAP_CARGO && VALIDSTRING(self->target)) {
+				if (level.siegeMap == SIEGEMAP_CARGO && VALIDSTRING(self->target)) {
 					int numHackedOfNode1AndTop = 0;
 					if (!Q_stricmp(self->target, "tophacked") ||
 						!Q_stricmp(self->target, "holdeledoors") ||
@@ -762,7 +762,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 				return;
 			}
 		}
-		if (!Q_stricmp(self->target, "hangarplatbig1") && GetSiegeMap() == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer &&
+		if (!Q_stricmp(self->target, "hangarplatbig1") && level.siegeMap == SIEGEMAP_HOTH && g_antiHothHangarLiftLame.integer &&
 			bgSiegeClasses[other->client->siegeClass].playerClass == 2 && other->client->sess.sessionTeam == TEAM_BLUE && !level.hangarCompletedTime && (g_antiHothHangarLiftLame.integer == 1 || g_antiHothHangarLiftLame.integer == 3))
 		{
 			if (hangarHackTime && (level.time - hangarHackTime < 2000))
@@ -847,7 +847,7 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 		return;
 	}
 
-	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompletedTime && !level.hangarLiftUsedByDefense && other->client->sess.sessionTeam == TEAM_BLUE && GetSiegeMap() == SIEGEMAP_HOTH)
+	if (!Q_stricmp(self->target, "hangarplatbig1") && level.hangarCompletedTime && !level.hangarLiftUsedByDefense && other->client->sess.sessionTeam == TEAM_BLUE && level.siegeMap == SIEGEMAP_HOTH)
 	{
 		level.hangarLiftUsedByDefense = qtrue;
 	}
@@ -1198,7 +1198,7 @@ void SP_trigger_multiple( gentity_t *ent )
 		ent->speed *= 1000;
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_DESERT && !Q_stricmp(ent->targetname, "partdeliverzone"))
+	if (level.siegeMap == SIEGEMAP_DESERT && !Q_stricmp(ent->targetname, "partdeliverzone"))
 	{
 		ent->wait = 0;
 		//bugfix for final objective getting broken when two parts are delivered within 1 second of each other
@@ -1351,7 +1351,7 @@ void SP_trigger_once( gentity_t *ent )
 	}
 
 	G_SpawnInt("usetime", "0", &ent->genericValue7);
-	if (GetSiegeMap() == SIEGEMAP_CARGO && ent->genericValue7 > 5000 && !Q_stricmp(ent->target, "holdeledoors"))
+	if (level.siegeMap == SIEGEMAP_CARGO && ent->genericValue7 > 5000 && !Q_stricmp(ent->target, "holdeledoors"))
 		ent->genericValue7 = 5000;
 
 	//For siege gametype
@@ -1882,7 +1882,7 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 		self->activator = NULL;
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(self->targetname) && !Q_stricmp(self->targetname, "barrelsdead"))
+	if (level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(self->targetname) && !Q_stricmp(self->targetname, "barrelsdead"))
 		self->activator = NULL;
 
 	G_ActivateBehavior(self,BSET_USE);

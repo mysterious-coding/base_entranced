@@ -11,6 +11,7 @@
  *****************************************************************************/
 #include "g_local.h"
 #include "bg_saga.h"
+#include "g_database_log.h"
 
 #define SIEGEITEM_STARTOFFRADAR 8
 
@@ -299,7 +300,7 @@ void InitSiegeMode(void)
 
 	if (g_autoKorribanFloatingItems.integer)
 	{
-		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+		if (level.siegeMap == SIEGEMAP_KORRIBAN)
 		{
 			trap_Cvar_Set("g_floatingItems", "1");
 		}
@@ -311,7 +312,7 @@ void InitSiegeMode(void)
 
 	if (g_autoKorribanSpam.integer)
 	{
-		if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
+		if (level.siegeMap == SIEGEMAP_KORRIBAN)
 		{
 			trap_Cvar_Set("iLikeToDoorSpam", "1");
 			trap_Cvar_Set("iLikeToMineSpam", "1");
@@ -863,6 +864,423 @@ static void ComputeSiegePlayTimes(void) {
 	}
 }
 
+static int NumPlayersOnTeam(team_t team) {
+	assert(team >= TEAM_FREE && team < TEAM_NUM_TEAMS);
+	int num = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		if (cl->pers.connected && GetRealTeam(cl) == team)
+			num++;
+	}
+	return num;
+}
+
+static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *client2, CombinedObjNumber objNum) {
+	if (!g_saveCaptureRecords.integer || level.mapCaptureRecords.readonly || g_gametype.integer != GT_SIEGE ||
+		client1->sess.sessionTeam != TEAM_RED || (client2 && client2->sess.sessionTeam != TEAM_RED))
+		return 0;
+
+	CaptureCategoryFlags flags = 0;
+	int numOnRed = NumPlayersOnTeam(TEAM_RED), numOnBlue = NumPlayersOnTeam(TEAM_BLUE);
+	if (!level.mapCaptureRecords.speedRunModeRuined && !client1->runInvalid && !level.siegeTopTimes[client1 - level.clients].attackedByNonTeammate &&
+		!level.siegeTopTimes[client1 - level.clients].hasChangedTeams &&
+		!numOnBlue && (numOnRed == 1 || numOnRed == 2)) {
+		if (!client2)
+			flags |= CAPTURERECORDFLAG_SPEEDRUN;
+		else { // only speedruns can have co-op
+			if ( !client2->runInvalid && !level.siegeTopTimes[client2 - level.clients].attackedByNonTeammate &&
+				!level.siegeTopTimes[client2 - level.clients].hasChangedTeams) {
+				flags |= CAPTURERECORDFLAG_SPEEDRUN;
+				flags |= CAPTURERECORDFLAG_COOP;
+			}
+			else {
+				if (level.isLivePug == ISLIVEPUG_YES)
+					flags |= CAPTURERECORDFLAG_LIVEPUG;
+				else
+					flags |= CAPTURERECORDFLAG_ANYPERCENT;
+			}
+		}
+	}
+	else if (level.isLivePug == ISLIVEPUG_YES)
+		flags |= CAPTURERECORDFLAG_LIVEPUG;
+	else
+		flags |= CAPTURERECORDFLAG_ANYPERCENT;
+
+	qboolean skillboosted = !!(client1->sess.skillBoost || (flags & CAPTURERECORDFLAG_COOP && client2 && client2->sess.skillBoost));
+	if (skillboosted) { // skillboosted guys can only register any% runs
+		flags |= CAPTURERECORDFLAG_ANYPERCENT;
+		flags &= ~(CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_LIVEPUG | CAPTURERECORDFLAG_SPEEDRUN);
+	}
+
+	if (objNum == -1)
+		flags |= CAPTURERECORDFLAG_FULLMAP;
+	else if (objNum >= 1 && objNum <= MAX_SAVED_OBJECTIVES)
+		flags |= (1 << objNum);
+	else {
+		assert(qfalse);
+		return 0;
+	}
+
+	if (flags & CAPTURERECORDFLAG_SPEEDRUN) { // only speedruns can have <class>-only or oneshot
+		if (!level.siegeTopTimes[client1 - level.clients].hasChangedClass && // hasn't changed class for this obj
+			!(flags & CAPTURERECORDFLAG_FULLMAP && level.siegeTopTimes[client1 - level.clients].hasChangedClassTotal) &&  // if entire-map, hasn't changed class ever
+			level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive != -1 && // has/had a valid class
+			!(flags & CAPTURERECORDFLAG_COOP && (level.siegeTopTimes[client2 - level.clients].hasChangedClass || // player 2 hasn't changed class for this obj
+			(flags & CAPTURERECORDFLAG_FULLMAP && level.siegeTopTimes[client1 - level.clients].hasChangedClassTotal) ||  // if entire-map, player 2 hasn't changed class ever
+				level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive != level.siegeTopTimes[client2 - level.clients].lastSiegeClassWhileAlive || // player 2 has/had the same class
+				level.siegeTopTimes[client2 - level.clients].lastSiegeClassWhileAlive == -1))) { // player 2 has/had a valid class
+			switch (bgSiegeClasses[level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive].playerClass) {
+			case SPC_INFANTRY: flags |= CAPTURERECORDFLAG_ASSAULT; break;
+			case SPC_HEAVY_WEAPONS: flags |= CAPTURERECORDFLAG_HW; break;
+			case SPC_DEMOLITIONIST: flags |= CAPTURERECORDFLAG_DEMO; break;
+			case SPC_SUPPORT: flags |= CAPTURERECORDFLAG_TECH; break;
+			case SPC_VANGUARD: flags |= CAPTURERECORDFLAG_SCOUT; break;
+			case SPC_JEDI: flags |= CAPTURERECORDFLAG_JEDI; break;
+			}
+		}
+
+		if (flags & CAPTURERECORDFLAG_FULLMAP &&
+			!level.siegeTopTimes[client1 - level.clients].hasDied && !(flags & CAPTURERECORDFLAG_COOP && level.siegeTopTimes[client2 - level.clients].hasDied)) {
+			flags |= CAPTURERECORDFLAG_ONESHOT;
+		}
+
+		if (!(flags & CAPTURERECORDFLAG_COOP))
+			flags |= CAPTURERECORDFLAG_SOLO;
+	}
+
+	return flags;
+}
+
+// this function assumes the arrays in currentRecords are sorted by captureTime and date
+// returns 0 if this is not a record, or the newly assigned rank otherwise (1 = 1st, 2 = 2nd...)
+static int LogCaptureTime(
+	unsigned int ipInt1,
+	unsigned int ipInt2,
+	const char *netname1,
+	const char *netname2,
+	const char *cuid1,
+	const char *cuid2,
+	const int client1Id,
+	const int client2Id,
+	const char *matchId,
+	const int totalTime,
+	const int maxSpeed1,
+	const int avgSpeed1,
+	const time_t date,
+	const CaptureCategoryFlags flags,
+	CaptureRecordsForCategory *recordsPtr,
+	CombinedObjNumber objNum)
+{
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags) {
+		return 0;
+	}
+
+	CaptureRecord *recordArray = &recordsPtr->records[0];
+	int newIndex;
+
+	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
+	for (newIndex = 0; newIndex < MAX_SAVED_RECORDS; ++newIndex) {
+		if (!recordArray[newIndex].totalTime) {
+			continue; // not a valid record
+		}
+
+		// don't mix the two types of lookup
+		if (!(flags & CAPTURERECORDFLAG_COOP)) { // solo type
+			if (VALIDSTRING(cuid1)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid))
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt)
+					break;
+			}
+		}
+		else { // co-op type
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid) &&
+					VALIDSTRING(recordArray[newIndex].recordHolder2Cuid) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolder2Cuid))
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt && ipInt2 == recordArray[newIndex].recordHolder2IpInt)
+					break;
+			}
+		}
+	}
+
+	if (newIndex < MAX_SAVED_RECORDS) {
+		// we found an existing record for this player, so just use its index to overwrite it if it's better
+		if (totalTime >= recordArray[newIndex].totalTime) {
+			return 0; // our existing record is better, so don't save anything to avoid record spam
+		}
+
+		// we know we have AT LEAST done better than our current record, so we will save something in any case
+		// now, if we didn't already have the top record, check if we did less than the better records
+		if (newIndex > 0) {
+			const int currentRecordIndex = newIndex;
+
+			for (; newIndex > 0; --newIndex) {
+				if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime <= totalTime) {
+					break; // this one is better or equal, so use the index after it
+				}
+			}
+
+			if (newIndex != currentRecordIndex) {
+				// we indeed did less than a record which was better than our former record. use its index and shift the array
+				memmove(recordArray + newIndex + 1, recordArray + newIndex, (currentRecordIndex - newIndex) * sizeof(*recordArray));
+			}
+		}
+	}
+	else {
+		// this player doesn't have a record in this category yet, so find an index by comparing times from the worst to the best
+		for (newIndex = MAX_SAVED_RECORDS; newIndex > 0; --newIndex) {
+			if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime <= totalTime) {
+				break; // this one is better or equal, so use the index after it
+			}
+		}
+
+		// if the worst time is better, the index will point past the array, so don't bother
+		if (newIndex >= MAX_SAVED_RECORDS) {
+			return 0;
+		}
+
+		// shift the array to the right unless this is already the last element
+		if (newIndex < MAX_SAVED_RECORDS - 1) {
+			memmove(recordArray + newIndex + 1, recordArray + newIndex, (MAX_SAVED_RECORDS - newIndex - 1) * sizeof(*recordArray));
+		}
+	}
+
+	// overwrite the selected element with the new record
+	CaptureRecord *newElement = &recordArray[newIndex];
+	if (VALIDSTRING(netname1))
+		Q_strncpyz(newElement->recordHolder1Name, netname1, sizeof(newElement->recordHolder1Name));
+	else
+		newElement->recordHolder1Name[0] = '\0';
+	if (flags & CAPTURERECORDFLAG_COOP && VALIDSTRING(netname2))
+		Q_strncpyz(newElement->recordHolder2Name, netname2, sizeof(newElement->recordHolder2Name));
+	else
+		newElement->recordHolder2Name[0] = '\0';
+
+	newElement->recordHolder1IpInt = ipInt1;
+	newElement->recordHolder2IpInt = ipInt2;
+	newElement->totalTime = totalTime;
+	newElement->maxSpeed1 = maxSpeed1;
+	newElement->avgSpeed1 = avgSpeed1;
+	newElement->date = date;
+	newElement->recordHolder1ClientId = client1Id;
+	newElement->recordHolder2ClientId = client2Id;
+
+	static int objTimes[MAX_SAVED_OBJECTIVES] = { -1 };
+	if (!(flags & CAPTURERECORDFLAG_FULLMAP) && objNum >= 1 && objNum <= MAX_SAVED_OBJECTIVES) {
+		objTimes[objNum - 1] = totalTime;
+	}
+	else if (flags & CAPTURERECORDFLAG_FULLMAP) {
+		memcpy(&(newElement->objTimes), objTimes, sizeof(newElement->objTimes));
+	}
+
+	// cuid is optional, empty for clients without one
+	if (VALIDSTRING(cuid1))
+		Q_strncpyz(newElement->recordHolder1Cuid, cuid1, sizeof(newElement->recordHolder1Cuid));
+	else
+		newElement->recordHolder1Cuid[0] = '\0';
+	if (flags & CAPTURERECORDFLAG_COOP && VALIDSTRING(cuid2))
+		Q_strncpyz(newElement->recordHolder2Cuid, cuid2, sizeof(newElement->recordHolder2Cuid));
+	else
+		newElement->recordHolder2Cuid[0] = '\0';
+
+	// match id is optional, empty if sv_uniqueid is not implemented in this OpenJK version
+	if (VALIDSTRING(matchId) && strlen(matchId) == SV_UNIQUEID_LEN - 1) {
+		Q_strncpyz(newElement->matchId, matchId, sizeof(newElement->matchId));
+	}
+	else {
+		newElement->matchId[0] = '\0';
+	}
+
+	// save the changes later in db
+	level.mapCaptureRecords.changed = qtrue;
+
+	return newIndex + 1;
+}
+
+void SpeedRunModeRuined(const char *reason) {
+	if (level.mapCaptureRecords.speedRunModeRuined)
+		return;
+	level.mapCaptureRecords.speedRunModeRuined = qtrue;
+#ifdef _DEBUG
+	Com_Printf("^1Speed run mode ruined! Reason: %s^7\n", reason);
+#endif
+}
+
+void LivePugRuined(const char *reason, qboolean announce) {
+	Com_Printf(va("Pug is not live (reason: %s)\n", reason)); // always print the reason to the server console
+	if (level.isLivePug == ISLIVEPUG_NO) // prevent spamming people with messages; once is enough
+		return;
+
+	level.isLivePug = ISLIVEPUG_NO;
+	if (!g_notifyNotLive.integer || !announce)
+		return;
+
+	trap_SendServerCommand(-1, va("print \"^1Pug is not live:^7 %s^7\n\"", reason));
+	trap_SendServerCommand(-1, va("cp \"^1Pug is not live:^7\n%s^7\n\"", reason));
+}
+
+// if fullmap completion, objective == -1
+static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, int clientNumOverride) {
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer) {
+		// reset EVERYONE's speed/displacement stats
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			gclient_t *cl = &level.clients[i];
+			cl->pers.displacement = cl->pers.displacementSamples = cl->pers.topSpeed = 0;
+		}
+		return;
+	}
+
+	gclient_t *client1 = NULL, *client2 = NULL;
+	if (clientNumOverride >= 0 && clientNumOverride < MAX_CLIENTS) {
+		client1 = &level.clients[clientNumOverride];
+	}
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED)
+			continue;
+		if (cl->sess.sessionTeam != TEAM_RED)
+			continue;
+		if (client1 == cl)
+			continue;
+		if (!client1) {
+			client1 = cl;
+		} else if (!client2) {
+			client2 = cl;
+		} else {
+			client2 = NULL;
+			break;
+		}
+	}
+	if (!client1)
+		return; // nobody is on red...?
+
+	const CaptureCategoryFlags flags = CaptureFlagsForRun(client1, client2, objective);
+	if (!flags)
+		return; // invalid
+	if (!(flags & CAPTURERECORDFLAG_COOP) || !(flags & CAPTURERECORDFLAG_SPEEDRUN))
+		client2 = NULL; // sanity check: non-coop or non-speedruns cannot have client2
+
+	char matchId[SV_UNIQUEID_LEN];
+	trap_Cvar_VariableStringBuffer("sv_uniqueid", matchId, sizeof(matchId)); // this requires a custom OpenJK build
+
+	// store per-obj speeds for calculating the entire-map speeds later
+	float *displacementPtr[2], *topSpeedPtr[2];
+	int *displacementSamplesPtr[2];
+	if (flags & CAPTURERECORDFLAG_FULLMAP) {
+		displacementPtr[0] = &client1->pers.totalDisplacement;
+		topSpeedPtr[0] = &client1->pers.totalTopSpeed;
+		displacementSamplesPtr[0] = &client1->pers.totalDisplacementSamples;
+		if (client2) {
+			displacementPtr[1] = &client2->pers.totalDisplacement;
+			topSpeedPtr[1] = &client2->pers.totalTopSpeed;
+			displacementSamplesPtr[1] = &client2->pers.totalDisplacementSamples;
+		}
+	}
+	else {
+		client1->pers.totalDisplacement += client1->pers.displacement;
+		client1->pers.totalDisplacementSamples += client1->pers.displacementSamples;
+		if (client1->pers.topSpeed > client1->pers.totalTopSpeed)
+			client1->pers.totalTopSpeed = client1->pers.topSpeed;
+		displacementPtr[0] = &client1->pers.displacement;
+		topSpeedPtr[0] = &client1->pers.topSpeed;
+		displacementSamplesPtr[0] = &client1->pers.displacementSamples;
+		if (client2) {
+			client2->pers.totalDisplacement += client2->pers.displacement;
+			client2->pers.totalDisplacementSamples += client2->pers.displacementSamples;
+			if (client2->pers.topSpeed > client2->pers.totalTopSpeed)
+				client2->pers.totalTopSpeed = client2->pers.topSpeed;
+			displacementPtr[1] = &client2->pers.displacement;
+			topSpeedPtr[1] = &client2->pers.topSpeed;
+			displacementSamplesPtr[1] = &client2->pers.displacementSamples;
+		}
+	}
+
+	int maxSpeed, avgSpeed;
+	if (client2) {
+		int maxSpeed1 = (int)(*(topSpeedPtr[0]) + 0.5f);
+		int maxSpeed2 = (int)(*(topSpeedPtr[1]) + 0.5f);
+		maxSpeed = maxSpeed1 > maxSpeed2 ? maxSpeed1 : maxSpeed2;
+		if (*(displacementSamplesPtr[0]) && *(displacementSamplesPtr[1]))
+			avgSpeed = (int)((((*(displacementPtr[0]) * g_svfps.value) + (*(displacementPtr[1]) * g_svfps.value)) / (*(displacementSamplesPtr[0]) + *(displacementSamplesPtr[1]))) + 0.5f);
+		else
+			avgSpeed = 0;
+	}
+	else {
+		maxSpeed = (int)(*(topSpeedPtr[0]) + 0.5f);
+		if (*(displacementSamplesPtr[0]))
+			avgSpeed = (*(displacementPtr[0]) * g_svfps.value) / *(displacementSamplesPtr[0]);
+		else
+			avgSpeed = 0;
+	}
+
+	// reset EVERYONE's speed/displacement stats
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		cl->pers.displacement = cl->pers.displacementSamples = cl->pers.topSpeed = 0;
+	}
+	
+	CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
+	if (!recordsPtr) {
+		assert(qfalse);
+		return; // ???
+	}
+
+	const int recordRank = LogCaptureTime(client1->sess.ip,
+		client2 ? client2->sess.ip : 0,
+		client1->pers.netname,
+		client2 ? client2->pers.netname : "",
+		client1->sess.auth == AUTHENTICATED ? client1->sess.cuidHash : "",
+		client2 && client2->sess.auth == AUTHENTICATED ? client2->sess.cuidHash : "",
+		client1 - level.clients,
+		client2 ? client2 - level.clients : -1,
+		matchId, timeInMilliseconds, maxSpeed, avgSpeed,
+		time(NULL), flags, recordsPtr, objective);
+
+	char combinedNameString[64] = { 0 };
+	Q_strncpyz(combinedNameString, client1->pers.netname, sizeof(combinedNameString));
+	if (client2)
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", client2->pers.netname));
+
+	int mins, secs, millis;
+	PartitionedTimer(timeInMilliseconds, &mins, &secs, &millis);
+	char timeString[16] = { 0 };
+	if (mins > 0)
+		Com_sprintf(timeString, sizeof(timeString), "%d:%2d.%03d", mins, secs, millis);
+	else
+		Com_sprintf(timeString, sizeof(timeString), "%2d.%03d", secs, millis);
+
+	if (recordRank) {
+		// we just did a new capture record, broadcast it
+
+		char rankString[16];
+		switch (recordRank) {
+		case 1: Com_sprintf(rankString, sizeof(rankString), S_COLOR_YELLOW"Rank: GOLD"); break;
+		case 2: Com_sprintf(rankString, sizeof(rankString), S_COLOR_CYAN"Rank: "S_COLOR_GREY"SILVER"); break;
+		case 3: Com_sprintf(rankString, sizeof(rankString), S_COLOR_CYAN"Rank: "S_COLOR_ORANGE"BRONZE"); break;
+		default: Com_sprintf(rankString, sizeof(rankString), S_COLOR_CYAN"Rank: "S_COLOR_RED"%d", recordRank);
+		}
+
+		trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+			combinedNameString, rankString, GetLongNameForRecordFlags(level.mapname, flags, qtrue), maxSpeed, avgSpeed, timeString));
+
+		// update the in-memory db so that toptimes can reflect this change
+		G_LogDbSaveCaptureRecords(&level.mapCaptureRecords);
+	}
+	else if (!(flags & CAPTURERECORDFLAG_LIVEPUG)) {
+		// we didn't make a new record, but that was still a valid run. show them what time they did
+		char *msg = va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+			GetLongNameForRecordFlags(level.mapname, flags, qtrue), maxSpeed, avgSpeed, timeString, qtrue);
+		trap_SendServerCommand(client1 - level.clients, msg);
+		if (client2)
+			trap_SendServerCommand(client2 - level.clients, msg);
+	}
+}
+
 void G_SiegeRoundComplete(int winningteam, int winningclient)
 {
 	ComputeSiegePlayTimes();
@@ -873,6 +1291,7 @@ void G_SiegeRoundComplete(int winningteam, int winningclient)
 
 	level.antiLamingTime = 0;
 	level.siegeRoundComplete = qtrue;
+	int totalRoundTime = 0;
 
 	if (level.siegeStage == SIEGESTAGE_ROUND1) {
 		level.siegeStage = SIEGESTAGE_ROUND1POSTGAME;
@@ -885,12 +1304,14 @@ void G_SiegeRoundComplete(int winningteam, int winningclient)
 			if (realTime < 1)
 				realTime = 1;
 		}
-		trap_Cvar_Set("siege_r1_total", va("%i", realTime ? realTime : abs(level.time - level.siegeRoundStartTime)));
+		totalRoundTime = realTime ? realTime : abs(level.time - level.siegeRoundStartTime);
+		trap_Cvar_Set("siege_r1_total", va("%i", realTime));
 	}
 	else if (level.siegeStage == SIEGESTAGE_ROUND2) {
 		level.siegeStage = SIEGESTAGE_ROUND2POSTGAME;
 		if (!level.siegeMatchWinner)
 			level.siegeMatchWinner = OtherTeam(winningteam);
+		totalRoundTime = abs(level.time - level.siegeRoundStartTime);
 		trap_Cvar_Set("siege_r2_total", va("%i", abs(level.time - level.siegeRoundStartTime)));
 	}
 
@@ -901,6 +1322,9 @@ void G_SiegeRoundComplete(int winningteam, int winningclient)
 	{ //this person just won the round for the other team..
 		winningclient = ENTITYNUM_NONE;
 	}
+
+	if (winningteam == TEAM_RED)
+		CheckTopTimes(totalRoundTime, -1, winningclient >= 0 && winningclient < MAX_CLIENTS ? winningclient : -1);
 
 	VectorClear(nomatter);
 
@@ -1031,6 +1455,8 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		G_ValidateSiegeClassForTeam(ent, team);
+		if (team == TEAM_BLUE)
+			SpeedRunModeRuined("SetTeamQuick: blue");
 	}
 
 	ent->client->sess.sessionTeam = team;
@@ -1261,6 +1687,7 @@ void SiegeBeginRound(int entNum)
 
 		// determine who needs to be spawned
 		qboolean spawnEnt[MAX_CLIENTS] = { qfalse };
+		int numBeingSpawnedOnRedTeam = 0;
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			ent = &g_entities[i];
 
@@ -1271,7 +1698,16 @@ void SiegeBeginRound(int entNum)
 					(ent->client->sess.siegeDesiredTeam == TEAM_RED || ent->client->sess.siegeDesiredTeam == TEAM_BLUE))
 					spawnEnt[i] = qtrue; //spectator but has a desired team
 			}
+
+			if (spawnEnt[i]) {
+				if (ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					numBeingSpawnedOnRedTeam++;
+				else if (ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					SpeedRunModeRuined("SiegeBeginRound: blue");
+			}
 		}
+		if (numBeingSpawnedOnRedTeam > 2)
+			SpeedRunModeRuined("SiegeBeginRound: >2 red");
 
 		// switch people off classes that are exceeding their limits
 		if (g_classLimits.integer) {
@@ -1295,23 +1731,20 @@ void SiegeBeginRound(int entNum)
 		}
 	}
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmp(mapname.string, "siege_codes"))
+	if (!Q_stricmp(level.mapname, "siege_codes"))
 	{
 		//hacky fix to remove icons for useless ammo generators that shouldn't be in the map
 		SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
 		SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
 	}
-	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	else if (!Q_stricmp(level.mapname, "siege_narshaddaa"))
 	{
 		SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
 		SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
 		SetIconFromClassname("misc_shield_floor_unit", 2, qfalse);
 		SetIconFromClassname("misc_shield_floor_unit", 3, qfalse);
 	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	else if (!Q_stricmp(level.mapname, "mp/siege_desert"))
 	{
 		SetIconFromClassname("misc_ammo_floor_unit", 2, qfalse);
 		SetIconFromClassname("misc_ammo_floor_unit", 3, qfalse);
@@ -1553,12 +1986,12 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	trap_Cvar_Set(va("siege_r%i_obj%i", CurrentSiegeRound(), objective), va("%i", level.time - level.siegeRoundStartTime));
 	PrintObjStat(objective, 0);
 
-	if (objective == 5 && GetSiegeMap() == SIEGEMAP_HOTH)
+	if (objective == 5 && level.siegeMap == SIEGEMAP_HOTH)
 	{
 		level.hangarCompletedTime = level.time;
 	}
 
-	if (objective == 5 && GetSiegeMap() == SIEGEMAP_CARGO) {
+	if (objective == 5 && level.siegeMap == SIEGEMAP_CARGO) {
 		level.ccCompleted = qtrue;
 		for (int i = 0; i < MAX_GENTITIES; i++) { // re-lock 2nd obj inner doors
 			gentity_t *ent = &g_entities[i];
@@ -1574,12 +2007,12 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		}
 	}
 
-	if (objective == 2 && GetSiegeMap() == SIEGEMAP_DESERT && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
+	if (objective == 2 && level.siegeMap == SIEGEMAP_DESERT && level.killerOfLastDesertComputer != NULL && level.killerOfLastDesertComputer->client && level.killerOfLastDesertComputer->client->sess.sessionTeam == TEAM_RED)
 	{
 		client = level.killerOfLastDesertComputer->s.number;
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN)
+	if (level.siegeMap == SIEGEMAP_URBAN)
 	{
 		if (objective == 2) {
 			int i;
@@ -1601,7 +2034,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		}
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_CARGO)
+	if (level.siegeMap == SIEGEMAP_CARGO)
 	{
 		if (level.totalObjectivesCompleted != 3) {
 			int i;
@@ -1662,6 +2095,95 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		goals_completed = rebel_goals_completed;
 		goals_required = rebel_goals_required;
 	}
+
+	// check top times for this objective
+	int ms = G_ObjectiveTimeDifference(objective, CurrentSiegeRound());
+	CombinedObjNumber topTimesObjNum = objective;
+	// duoTODO: clean this crap up
+	if (level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_NAR) {
+		if (objective == 3 || objective == 4) {
+			static int firstStationTime = -1;
+			if (firstStationTime == -1) { // first one destroyed
+				firstStationTime = ms;
+				topTimesObjNum = 0; // don't run toptimes on this obj
+			}
+			else { // second one destroyed
+				ms += firstStationTime;
+				topTimesObjNum = 3;
+			}
+		}
+		else if (objective > 4) {
+			topTimesObjNum--;
+		}
+	}
+	else if (level.siegeMap == SIEGEMAP_ANSION || !Q_stricmp(level.mapCaptureRecords.mapname, "siege_alzocIII")) {
+		if (objective == 2 || objective == 3) {
+			static int firstStationTime = -1;
+			if (firstStationTime == -1) { // first one destroyed
+				firstStationTime = ms;
+				topTimesObjNum = 0; // don't run toptimes on this obj
+			}
+			else { // second one destroyed
+				ms += firstStationTime;
+				topTimesObjNum = 2;
+			}
+		}
+		else if (objective > 3) {
+			topTimesObjNum--;
+		}
+	}
+	else if (!Q_stricmp(level.mapCaptureRecords.mapname, "mp/siege_destroyer")) {
+		if (objective < 6) { // this janky map has FIVE objectives combined into one, wtf
+			static int crystalCaptureNumber = 1;
+			static int crystalsTime = 0;
+			if (crystalCaptureNumber++ <= 4) { // first/second/third/fourth one captured
+				crystalsTime += ms;
+				topTimesObjNum = 0; // don't run toptimes on this obj
+			}
+			else { // fifth one captured
+				ms += crystalsTime;
+				topTimesObjNum = 1;
+			}
+		}
+		else {
+			topTimesObjNum -= 2;
+		}
+	}
+	else if (level.siegeMap == SIEGEMAP_KORRIBAN) {
+		if (objective == 2 || objective == 3 || objective == 4) {
+			static int crystalCaptureNumber = 1;
+			static int crystalsTime = 0;
+			if (crystalCaptureNumber++ <= 2) { // first/second one captured
+				crystalsTime += ms;
+				topTimesObjNum = 0; // don't run toptimes on this obj
+			}
+			else { // third one captured
+				ms += crystalsTime;
+				topTimesObjNum = 2;
+			}
+		}
+		else if (objective > 4) {
+			topTimesObjNum -= 2;
+		}
+	}
+	else if (level.siegeMap == SIEGEMAP_URBAN) {
+		if (objective == 5 || objective == 6) {
+			static int firstStationTime = -1;
+			if (firstStationTime == -1) { // first one destroyed
+				firstStationTime = ms;
+				topTimesObjNum = 0; // don't run toptimes on this obj
+			}
+			else { // second one destroyed
+				ms += firstStationTime;
+				topTimesObjNum = 5;
+			}
+		}
+	}
+	if (topTimesObjNum >= 1 && topTimesObjNum <= MAX_SAVED_OBJECTIVES) {
+		CheckTopTimes(ms, topTimesObjNum, client >= 0 && client < MAX_CLIENTS ? client : -1);
+		level.mapCaptureRecords.lastCombinedObjCompleted = topTimesObjNum;
+	}
+
 	if (final == 1 || goals_completed >= goals_required || (g_siegeTiebreakEnd.integer && g_siegePersistant.beatingTime && g_siegeTeamSwitch.integer && siege_r2_objscompleted.integer >= siege_r1_objscompleted.integer))
 	{
 		SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
@@ -1671,6 +2193,13 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	{
 		BroadcastObjectiveCompletion(team, objective, final, client);
 	}
+
+	// reset "has changed class" bool for each obj
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		level.siegeTopTimes[i].hasChangedClass = qfalse;
+		level.siegeTopTimes[i].classOnFile = 0;
+	}
+	level.forceCheckClassTime = level.time + 500;
 }
 
 void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
@@ -1692,10 +2221,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	if (level.siegeRoundComplete) // no completing objs while the round is already over
 		return;
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	if (level.siegeMap == SIEGEMAP_HOTH)
 	{
 		if (ent->objective <= 5)
 		{
@@ -1709,7 +2235,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			}
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	else if (level.siegeMap == SIEGEMAP_NAR)
 	{
 		if (ent->objective == 1 || ent->objective == 4 || ent->objective == 5)
 		{
@@ -1739,7 +2265,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			}
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	else if (level.siegeMap == SIEGEMAP_DESERT)
 	{
 		if (ent->objective == 1)
 		{
@@ -1759,7 +2285,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			return;
 		}
 	}
-	else if (GetSiegeMap() == SIEGEMAP_CARGO)
+	else if (level.siegeMap == SIEGEMAP_CARGO)
 	{
 		if (ent->objective == 6)
 		{
@@ -1795,7 +2321,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	char *roundCvar = va("siege_r%i_objscompleted", CurrentSiegeRound());
 	trap_Cvar_Set(roundCvar, va("%i", trap_Cvar_VariableIntegerValue(roundCvar) + 1));
 
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	if (level.siegeMap == SIEGEMAP_HOTH)
 	{
 		if (ent->objective == 1)
 		{
@@ -1821,7 +2347,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			SetIconFromClassname("misc_ammo_floor_unit", 3, qtrue);
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	else if (level.siegeMap == SIEGEMAP_NAR)
 	{
 		if (ent->objective == 1)
 		{
@@ -1846,7 +2372,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			SetIconFromClassname("misc_shield_floor_unit", 3, qtrue);
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	else if (level.siegeMap == SIEGEMAP_DESERT)
 	{
 		if (ent->objective == 1)
 		{
@@ -1945,7 +2471,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		}
 	}
 
-	if (ent->objective == 1 && !Q_stricmp(mapname.string, "mp/siege_desert"))
+	if (ent->objective == 1 && level.siegeMap == SIEGEMAP_DESERT)
 	{
 		//second obj icon should always be disabled
 		SetIconFromClassname("info_siege_objective", 2, qfalse);
@@ -1963,8 +2489,6 @@ STARTOFFRADAR - start not displaying on radar, don't display until used.
 void SP_info_siege_objective(gentity_t *ent)
 {
 	char* s;
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (!siege_valid || g_gametype.integer != GT_SIEGE)
 	{
@@ -1986,7 +2510,7 @@ void SP_info_siege_objective(gentity_t *ent)
 	if (!level.numSiegeObjectivesOnMap || ent->objective > level.numSiegeObjectivesOnMap)
 		level.numSiegeObjectivesOnMap = ent->objective;
 
-	if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
+	if (level.siegeMap == SIEGEMAP_HOTH)
 	{
 		if (ent->objective == 1)
 		{
@@ -1999,7 +2523,7 @@ void SP_info_siege_objective(gentity_t *ent)
 			ent->s.eFlags &= ~EF_RADAROBJECT;
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	else if (level.siegeMap == SIEGEMAP_NAR)
 	{
 		if (ent->objective == 1)
 		{
@@ -2012,7 +2536,7 @@ void SP_info_siege_objective(gentity_t *ent)
 			ent->s.eFlags &= ~EF_RADAROBJECT;
 		}
 	}
-	else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
+	else if (level.siegeMatchWinner == SIEGEMAP_DESERT)
 	{
 		//they all start off radar
 		//(obj 1 uses separate icons for each (left/right) wall segment
@@ -2320,41 +2844,14 @@ void SiegeItemThink(gentity_t *ent)
 		else if (carrier->health < 1)
 		{ //The carrier died so pop out where he is (unless in nodrop).
 			ent->siegeItemCarrierTime = 0;
-			if (ent->target6 && ent->target6[0])
-			{
-				vmCvar_t mapname;
-				trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-				if (!Q_stricmp(mapname.string, "mp/siege_desert") && !Q_stricmp(ent->target6, "c3podroppedprint"))
-				{
-					//droid part on desert
-					char *part;
-					if (ent->model && ent->model[0])
-					{
-						if (strstr(ent->model, "arm"))
-						{
-							part = "arm";
-						}
-						else if (strstr(ent->model, "head"))
-						{
-							part = "head";
-						}
-						else if (strstr(ent->model, "leg"))
-						{
-							part = "leg";
-						}
-						else if (strstr(ent->model, "torso"))
-						{
-							part = "torso";
-						}
-					}
-					if (part && part[0])
-					{
-						trap_SendServerCommand(-1, va("cp \"Protocol droid %s has been dropped!\n\"", part));
-					}
-					else
-					{
-						G_UseTargets2(ent, ent, ent->target6);
-					}
+			if (VALIDSTRING(ent->target6)) {
+				if (level.siegeMap == SIEGEMAP_DESERT && !Q_stricmp(ent->target6, "c3podroppedprint") && VALIDSTRING(ent->model)) { // droid parts on desert get unique messages
+					char *part = "part";
+					if (stristr(ent->model, "arm")) part = "arm";
+					else if (stristr(ent->model, "head")) part = "head";
+					else if (stristr(ent->model, "leg")) part = "leg";
+					else if (stristr(ent->model, "torso")) part = "torso";
+					trap_SendServerCommand(-1, va("cp \"Protocol droid %s has been dropped!\n\"", part));
 				}
 				else
 				{
@@ -2391,11 +2888,11 @@ void SiegeItemThink(gentity_t *ent)
 		}
 		// update siege item carry time
 		else if (ent->siegeItemCarrierTime && carrier->client && carrier - g_entities >= 0 && carrier - g_entities < MAX_CLIENTS) {
-			if (GetSiegeMap() == SIEGEMAP_HOTH)
+			if (level.siegeMap == SIEGEMAP_HOTH)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (GetSiegeMap() == SIEGEMAP_DESERT)
+			else if (level.siegeMap == SIEGEMAP_DESERT)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_DESERT_PARTSTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (GetSiegeMap() == SIEGEMAP_KORRIBAN && VALIDSTRING(ent->goaltarget)) {
+			else if (level.siegeMap == SIEGEMAP_KORRIBAN && VALIDSTRING(ent->goaltarget)) {
 				if (!Q_stricmp(ent->goaltarget, "bluecrystaldelivery"))
 					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_BLUETIME] += (level.time - ent->siegeItemCarrierTime);
 				else if (!Q_stricmp(ent->goaltarget, "greencrystaldelivery"))
@@ -2405,15 +2902,15 @@ void SiegeItemThink(gentity_t *ent)
 				else if (!Q_stricmp(ent->goaltarget, "staffplace"))
 					carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_SCEPTERTIME] += (level.time - ent->siegeItemCarrierTime);
 			}
-			else if (GetSiegeMap() == SIEGEMAP_NAR)
+			else if (level.siegeMap == SIEGEMAP_NAR)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (GetSiegeMap() == SIEGEMAP_CARGO)
+			else if (level.siegeMap == SIEGEMAP_CARGO)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_CARGO2_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (GetSiegeMap() == SIEGEMAP_BESPIN)
+			else if (level.siegeMap == SIEGEMAP_BESPIN)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_BESPIN_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (GetSiegeMap() == SIEGEMAP_URBAN)
+			else if (level.siegeMap == SIEGEMAP_URBAN)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_URBAN_MONEYTIME] += (level.time - ent->siegeItemCarrierTime);
-			else if (GetSiegeMap() == SIEGEMAP_ANSION)
+			else if (level.siegeMap == SIEGEMAP_ANSION)
 				carrier->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_ANSION_CODESTIME] += (level.time - ent->siegeItemCarrierTime);
 			ent->siegeItemCarrierTime = level.time;
 		}
@@ -2504,7 +3001,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (level.zombies && GetSiegeMap() == SIEGEMAP_CARGO)
+	if (level.zombies && level.siegeMap == SIEGEMAP_CARGO)
 	{
 		return;
 	}
@@ -2532,7 +3029,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		G_Sound(other, CHAN_AUTO, self->noise_index);
 	}
 
-	if (GetSiegeMap() != SIEGEMAP_UNKNOWN)
+	if (level.siegeMap != SIEGEMAP_UNKNOWN)
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;
@@ -2551,7 +3048,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if (self->target2 && self->target2[0] && (!self->genericValue4 || !self->genericValue5))
 	{ //fire the target for pickup, if it's set to fire every time, or set to only fire the first time and the first time has not yet occured.
-		if (GetSiegeMap() == SIEGEMAP_DESERT && !Q_stricmp(self->target2, "c3postolenprint"))
+		if (level.siegeMap == SIEGEMAP_DESERT && !Q_stricmp(self->target2, "c3postolenprint"))
 		{
 			//droid part on desert
 			char *part;
@@ -2606,10 +3103,7 @@ void SiegeItemPain(gentity_t *self, gentity_t *attacker, int damage)
 
 void SiegeItemDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmp(mapname.string, "mp/siege_desert") && self->model && self->model[0] && strstr(self->model, "vjun/control_station"))
+	if (level.siegeMap == SIEGEMAP_DESERT && self->model && self->model[0] && strstr(self->model, "vjun/control_station"))
 	{
 		//killed a desert computer; note the client so we can give him points
 		if (attacker && attacker->client && attacker->s.number < MAX_CLIENTS && attacker->client->sess.sessionTeam == TEAM_RED)
@@ -2776,10 +3270,7 @@ void SP_misc_siege_item (gentity_t *ent)
 
 	G_SpawnInt("noradar", "0", &noradar);
 
-	vmCvar_t	mapname;
-	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-
-	if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
+	if (level.siegeMap == SIEGEMAP_NAR)
 	{
 		//start off with icon hidden for nar shaddaa codes
 		ent->s.eFlags &= ~EF_RADAROBJECT;

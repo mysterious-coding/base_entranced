@@ -772,29 +772,8 @@ Team_DroppedFlagThink
 static vec3_t	minFlagRange = { 50, 36, 36 };
 static vec3_t	maxFlagRange = { 44, 36, 36 };
 
-static CaptureRecordType FindCaptureTypeForRun( gclient_t *client ) {
-	if ( !level.mapCaptureRecords.enabled || level.mapCaptureRecords.readonly || client->runInvalid ) {
-		return CAPTURE_RECORD_INVALID;
-	}
-
-	if ( client->usedWeapon ) {
-		return CAPTURE_RECORD_WEAPONS;
-	}
-
-	if ( !client->jumpedOrCrouched ) {
-		return CAPTURE_RECORD_WALK;
-	}
-
-	if ( !client->usedForwardOrBackward ) {
-		return CAPTURE_RECORD_AD;
-	}
-
-	return CAPTURE_RECORD_STANDARD;
-}
-
 int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team );
 extern void PartitionedTimer( const int time, int *mins, int *secs, int *millis );
-extern const char* GetShortNameForRecordType( CaptureRecordType type );
 
 int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	int			i;
@@ -897,48 +876,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	}
 
 	PrintCTFMessage( other->s.number, team, CTFMESSAGE_PLAYER_CAPTURED_FLAG );
-
-	const CaptureRecordType captureRecordType = FindCaptureTypeForRun( other->client );
-
-	if ( captureRecordType != CAPTURE_RECORD_INVALID ) {
-		char matchId[SV_UNIQUEID_LEN];
-		trap_Cvar_VariableStringBuffer( "sv_uniqueid", matchId, sizeof( matchId ) ); // this requires a custom OpenJK build
-
-		int thisRunMaxSpeed = ( int )( other->client->pers.fastcapTopSpeed + 0.5f );
-		int thisRunAvgSpeed;
-
-		if ( other->client->pers.fastcapDisplacementSamples ) {
-			thisRunAvgSpeed = ( int )floorf( ( ( other->client->pers.fastcapDisplacement * g_svfps.value ) / other->client->pers.fastcapDisplacementSamples ) + 0.5f );
-		} else {
-			thisRunAvgSpeed = thisRunMaxSpeed;
-		}
-
-		const int recordRank = G_LogDbCaptureTime( other->client->sess.ip, other->client->pers.netname,
-			other->client->sess.auth == AUTHENTICATED ? other->client->sess.cuidHash : "", other - g_entities,
-			matchId, thisFlaghold, OtherTeam( team ), thisRunMaxSpeed, thisRunAvgSpeed, time( NULL ),
-			initialStealTime - level.startTime, captureRecordType, &level.mapCaptureRecords
-		);
-
-		int secs, millis;
-		PartitionedTimer( thisFlaghold, NULL, &secs, &millis );
-
-		if ( recordRank ) {
-			// we just did a new capture record, broadcast it
-
-			char rankString[16];
-			if ( recordRank == 1 ) Com_sprintf( rankString, sizeof( rankString ), S_COLOR_RED"rank:1" );
-			else Com_sprintf( rankString, sizeof( rankString ), S_COLOR_CYAN"rank:"S_COLOR_YELLOW"%d", recordRank );
-
-			trap_SendServerCommand( -1, va( "print \""S_COLOR_CYAN"New capture record by "S_COLOR_WHITE"%s"S_COLOR_CYAN"!    %s    "S_COLOR_CYAN"type:"S_COLOR_YELLOW"%s    "S_COLOR_CYAN"topspeed:"S_COLOR_YELLOW"%d    "S_COLOR_CYAN"avg:"S_COLOR_YELLOW"%d    "S_COLOR_CYAN"time:"S_COLOR_YELLOW"%d.%03d\n\"",
-				other->client->pers.netname, rankString, GetShortNameForRecordType( captureRecordType ), thisRunMaxSpeed, thisRunAvgSpeed, secs, millis
-			) );
-		} else {
-			// we didn't make a new record, but that was still a valid run. show them what time they did
-			trap_SendServerCommand( other - g_entities, va( "print \""S_COLOR_WHITE"No capture record beaten.    "S_COLOR_WHITE"type:"S_COLOR_YELLOW"%s    "S_COLOR_WHITE"topspeed:"S_COLOR_YELLOW"%d    "S_COLOR_WHITE"avg:"S_COLOR_YELLOW"%d    "S_COLOR_WHITE"time:"S_COLOR_YELLOW"%d.%03d\n\"",
-				GetShortNameForRecordType( captureRecordType ), thisRunMaxSpeed, thisRunAvgSpeed, secs, millis
-			) );
-		}
-	}
 
 	cl->ps.powerups[enemy_flag] = 0;
 	
@@ -1067,7 +1004,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 		}
 	} else {
 		// this guy picked up a dropped flag, thus his run is invalid
-		other->client->runInvalid = qtrue;
+		//other->client->runInvalid = qtrue;
 	}
 
 	// reset the speed stats for this run
@@ -1359,6 +1296,91 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClas
 	return spots[ selection ];
 }
 
+gentity_t *SelectSiegeSpeedrunSpawnPoint(void) {
+	static int lastTimeFirstSpotUsed = 0;
+	static gentity_t *firstSpot = NULL;
+	gentity_t	*spot = NULL;
+	gentity_t	*nearestSpot = NULL, *secondNearestSpot = NULL;
+	float		nearestDistance = 999999.0f, secondNearestDistance = 999999.0f;
+	int			count = 0;
+
+	// see if there's an objective we can measure the distance to
+	gentity_t *obj = NULL;
+	qboolean gotObj = qfalse;
+	while ((obj = G_Find(obj, FOFS(classname), "info_siege_objective")) != NULL) {
+		if (obj->objective != level.totalObjectivesCompleted + 1)
+			continue;
+		gotObj = qtrue;
+		break;
+	}
+
+	if (gotObj) {
+		while ((spot = G_Find(spot, FOFS(classname), "info_player_siegeteam1")) != NULL) {
+			// allow telefrags to prevent cheesing respawn spots by intentionally blocking them
+			/*if (SpotWouldTelefrag(spot))
+				continue;*/
+
+			if (!spot->genericValue1)
+				continue; // must be enabled
+
+			vec3_t diff;
+			VectorSubtract(spot->s.origin, obj->s.origin, diff);
+			diff[2] = 0.0f;
+			float distance = VectorLength(diff);
+			if (distance < nearestDistance) {
+				nearestDistance = distance;
+				nearestSpot = spot;
+			}
+		}
+		while ((spot = G_Find(spot, FOFS(classname), "info_player_siegeteam1")) != NULL) {
+			if (!spot->genericValue1)
+				continue; // must be enabled
+			if (spot == nearestSpot)
+				continue;
+
+			vec3_t diff;
+			VectorSubtract(spot->s.origin, obj->s.origin, diff);
+			float distance = VectorLength(diff);
+			if (distance < secondNearestDistance) {
+				secondNearestDistance = distance;
+				secondNearestSpot = spot;
+			}
+		}
+		if (nearestSpot && (level.time - lastTimeFirstSpotUsed > 0 || firstSpot != nearestSpot)) { // take the spot nearest the obj if it hasn't been used this tick
+			firstSpot = nearestSpot;
+			lastTimeFirstSpotUsed = level.time;
+			return nearestSpot;
+		}
+		if (secondNearestSpot)
+			return secondNearestSpot;
+	}
+	else {
+		while ((spot = G_Find(spot, FOFS(classname), "info_player_siegeteam1")) != NULL) {
+			// allow telefrags to prevent cheesing respawn spots by intentionally blocking them
+			/*if (SpotWouldTelefrag(spot))
+				continue;*/
+
+		if (!spot->genericValue1)
+			continue; // must be enabled
+
+			if (!count++) {
+				if (level.time - lastTimeFirstSpotUsed > 0 || firstSpot != spot) { // take the first spot if it hasn't been used this tick
+					firstSpot = spot;
+					lastTimeFirstSpotUsed = level.time;
+					return spot;
+				}
+				continue;
+			}
+			return spot; // take the second spot
+		}
+	}
+
+	// if we got here, somehow there was no valid spot???
+	assert(qfalse);
+	SpeedRunModeRuined("SelectSiegeSpeedrunSpawnPoint: no valid spawnpoint");
+	return G_Find(NULL, FOFS(classname), "info_player_siegeteam1");
+}
+
 
 /*
 ===========
@@ -1390,10 +1412,20 @@ SelectSiegeSpawnPoint
 */
 gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
 	gentity_t	*spot;
-
-	spot = SelectRandomTeamSpawnPoint ( teamstate, team, siegeClass );
+	
+	if (team == TEAM_RED && !level.mapCaptureRecords.speedRunModeRuined) {
+		spot = SelectSiegeSpeedrunSpawnPoint();
+	}
+	else if (team == TEAM_BLUE) {
+		SpeedRunModeRuined("SelectSiegeSpawnPoint: blue");
+		spot = SelectRandomTeamSpawnPoint(teamstate, team, siegeClass);
+	}
+	else {
+		spot = SelectRandomTeamSpawnPoint(teamstate, team, siegeClass);
+	}
 
 	if (!spot) {
+		SpeedRunModeRuined("SelectSiegeSpawnPoint: !spot");
 		return SelectSpawnPoint( vec3_origin, origin, angles, team );
 	}
 

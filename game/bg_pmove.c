@@ -1529,7 +1529,7 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 			return qfalse;
 			break;
 		}
-		if ( /*pm->debugMelee ||*/ (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
+		if ( /*pm->debugMelee ||*/ (level.siegeMap == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
 		{//uber-skillz
 			if (level.clients[pm->ps->clientNum].pushOffWallTime && level.time - level.clients[pm->ps->clientNum].pushOffWallTime <= 100) {
 				level.clients[pm->ps->clientNum].pushOffWallTime = 0;
@@ -5875,7 +5875,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 				assert(pm->ps->weapon > WP_NONE);
 				BG_AddPredictableEventToPlayerstate(EV_WEAPON_CHARGE_ALT, pm->ps->weapon, pm->ps);
-				if (GetSiegeMap() == SIEGEMAP_CARGO && pm->ps->weapon == WP_DEMP2) {
+				if (level.siegeMap == SIEGEMAP_CARGO && pm->ps->weapon == WP_DEMP2) {
 					level.clients[pm->ps->clientNum].dangerTime = level.time;
 					level.clients[pm->ps->clientNum].ps.eFlags &= ~EF_INVULNERABLE;
 					level.clients[pm->ps->clientNum].invulnerableTimer = 0;

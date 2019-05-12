@@ -41,7 +41,7 @@ qboolean gDuelExit = qfalse;
 
 vmCvar_t	g_trueJedi;
 
-vmCvar_t	g_wasRestarted;
+vmCvar_t	g_wasIntermission;
 
 vmCvar_t	g_gametype;
 vmCvar_t	g_MaxHolocronCarry;
@@ -400,6 +400,9 @@ vmCvar_t	z_debug3;
 vmCvar_t	z_debug4;
 
 vmCvar_t	g_saveCaptureRecords;
+vmCvar_t	g_notifyNotLive;
+vmCvar_t	g_autoPause999;
+vmCvar_t	g_autoPauseDisconnect;
 
 vmCvar_t    g_enforceEvenVotersCount;
 vmCvar_t    g_minVotersForEvenVotersCount;
@@ -484,7 +487,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
 	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 	{ &siegeStatus, "siegeStatus", "", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_wasRestarted, "g_wasRestarted", "0", CVAR_ROM, 0, qfalse  },
+	{ &g_wasIntermission, "g_wasIntermission", "0", CVAR_ROM, 0, qfalse  },
 
 	// latched vars
 	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
@@ -759,6 +762,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &z_debug4, "z_debug4", "", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saveCaptureRecords, "g_saveCaptureRecords", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_notifyNotLive, "g_notifyNotLive", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoPause999, "g_autoPause999", "3", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoPauseDisconnect, "g_autoPauseDisconnect", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_minimumVotesCount, "g_minimumVotesCount", "0", CVAR_ARCHIVE, 0, qtrue },
 
@@ -869,7 +875,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "-1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_hothHangarHack, "g_hothHangarHack", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_hothHangarHack, "g_hothHangarHack", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixShield, "g_fixShield", "1", CVAR_ARCHIVE, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &debug_testHeight2, "debug_testHeight2", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -1365,13 +1371,170 @@ void G_UpdateCvars( void ) {
 	}
 }
 
+void GetPlayerCounts(qboolean includeBots, qboolean realTeam, int *numRedOut, int *numBlueOut, int *numSpecOut, int *numFreeOut) {
+	int numRed = 0, numBlue = 0, numSpec = 0, numFree = 0;
+	for (gclient_t *cl = &level.clients[0]; cl - level.clients < MAX_CLIENTS; cl++) {
+		if (cl->pers.connected != CON_CONNECTED)
+			continue;
+		if (!includeBots && g_entities[cl - level.clients].r.svFlags & SVF_BOT)
+			continue;
+		team_t playerTeam;
+		if (realTeam)
+			playerTeam = GetRealTeam(cl);
+		else
+			playerTeam = cl->sess.sessionTeam;
+		switch (playerTeam) {
+		case TEAM_RED: numRed++; break;
+		case TEAM_BLUE: numBlue++; break;
+		case TEAM_SPECTATOR: numSpec++; break;
+		default: numFree++; break;
+		}
+	}
+	if (numRedOut)
+		*numRedOut = numRed;
+	if (numBlueOut)
+		*numBlueOut = numBlue;
+	if (numSpecOut)
+		*numSpecOut = numSpec;
+	if (numFreeOut)
+		*numFreeOut = numFree;
+}
+
+static isLivePug_t CheckLivePug(char **reasonOut) {
+	if (!level.wasRestarted || level.isLivePug == ISLIVEPUG_NO) {
+		*reasonOut = "not restarted or already confirmed not live";
+		return ISLIVEPUG_NO;
+	}
+#ifndef _DEBUG
+	if (g_cheats.integer || g_siegeRespawn.integer != 20) {
+		*reasonOut = "cheats enabled or non-standard respawn time";
+		return ISLIVEPUG_NO;
+	}
+#endif
+	if (g_speed.integer != 250 || g_forceRegenTime.integer != 200 || !pmove_float.integer || g_saberDamageScale.value != 1.0f || g_gravity.integer != 760 || (level.siegeMap == SIEGEMAP_KORRIBAN && g_knockback.integer) || g_knockback.integer != 1000) {
+		*reasonOut = "non-standard speed, force regen time, pmove_float, saber damage scale, gravity, or knockback";
+		return ISLIVEPUG_NO;
+	}
+
+	int numRed = 0, numBlue = 0;
+	for (gclient_t *cl = &level.clients[0]; cl - level.clients < MAX_CLIENTS; cl++) {
+		if (cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam == TEAM_SPECTATOR)
+			continue;
+#ifndef _DEBUG
+		if (g_entities[cl - level.clients].r.svFlags & SVF_BOT)
+			continue;
+#endif
+		if (cl->sess.sessionTeam == TEAM_RED) {
+			numRed++;
+		}
+		else if (cl->sess.sessionTeam == TEAM_BLUE) {
+			numBlue++;
+			SpeedRunModeRuined("CheckLivePug: blue team");
+		}
+	}
+
+	if (numRed != numBlue || numRed < LIVEPUG_MINIMUM_PLAYERS || numBlue < LIVEPUG_MINIMUM_PLAYERS) {
+		*reasonOut = "unequal, or too low # players on teams";
+		return ISLIVEPUG_NO;
+	}
+
+	enum {
+		CLIENTNUMAFK_MULTIPLE = -2,
+		CLIENTNUMAFK_NONE = -1
+	} clientNumAfk = CLIENTNUMAFK_NONE;
+	enum {
+		CLIENTNUMSELFKILLED_MULTIPLE = -2,
+		CLIENTNUMSELFKILLED_NONE = -1
+	} clientNumSelfkilled = CLIENTNUMSELFKILLED_NONE;
+	for (gclient_t *cl = &level.clients[0]; cl - level.clients < MAX_CLIENTS; cl++) {
+		if (cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam == TEAM_SPECTATOR)
+			continue;
+#ifndef _DEBUG
+		if (g_entities[cl - level.clients].r.svFlags & SVF_BOT)
+			continue;
+#endif
+
+		if (!level.movedAtStart[cl - level.clients]) {
+			if (clientNumAfk == CLIENTNUMAFK_NONE) {
+				clientNumAfk = cl - level.clients;
+			}
+			else {
+				clientNumAfk = CLIENTNUMAFK_MULTIPLE;
+				break;
+			}
+		}
+		if (level.selfKilledAtStart[cl - level.clients]) {
+			if (clientNumSelfkilled == CLIENTNUMSELFKILLED_NONE) {
+				clientNumSelfkilled = cl - level.clients;
+			}
+			else {
+				clientNumSelfkilled = CLIENTNUMSELFKILLED_MULTIPLE;
+				break;
+			}
+		}
+	}
+
+	if (clientNumAfk != CLIENTNUMAFK_NONE) {
+		if (clientNumAfk == CLIENTNUMAFK_MULTIPLE)
+			LivePugRuined("Multiple players are AFK", qtrue);
+		else
+			LivePugRuined(va("%s^7 is AFK", level.clients[clientNumAfk].pers.netname), qtrue);
+		*reasonOut = "AFK";
+		return ISLIVEPUG_NO;
+	}
+
+	if (clientNumSelfkilled != CLIENTNUMSELFKILLED_NONE) {
+		if (clientNumSelfkilled == CLIENTNUMSELFKILLED_MULTIPLE)
+			LivePugRuined("Multiple players selfkilled", qtrue);
+		else
+			LivePugRuined(va("%s^7 selfkilled", level.clients[clientNumSelfkilled].pers.netname), qtrue);
+		*reasonOut = "selfkill";
+		return ISLIVEPUG_NO;
+	}
+
+	return ISLIVEPUG_YES;
+}
+
+// this function is called periodically ONLY if the pug is already considered live
+static void CheckBadTeamNumbers(void) {
+	static qboolean lastCheckWasBadTeamNumbers = qfalse;
+	if (!level.teamBalanceCheckTime) {
+		level.teamBalanceCheckTime = level.time + LIVEPUG_TEAMBALANCE_CHECK_INTERVAL;
+	}
+	else if (level.time >= level.teamBalanceCheckTime) {
+		int numRed = 0, numBlue = 0;
+		GetPlayerCounts(IsDebugBuild, qfalse, &numRed, &numBlue, NULL, NULL);
+		if (numRed != numBlue || numRed < LIVEPUG_MINIMUM_PLAYERS || numBlue < LIVEPUG_MINIMUM_PLAYERS) {
+			if (lastCheckWasBadTeamNumbers) {
+				// failed two consecutive checks; now the pug is no longer live
+				// might as well announce it, even though people will likely already realize it
+				if (numRed < LIVEPUG_MINIMUM_PLAYERS || numBlue < LIVEPUG_MINIMUM_PLAYERS)
+					LivePugRuined("Not enough players ingame", qtrue);
+				else
+					LivePugRuined("Unequal #s of players on each team", qtrue);
+			}
+			else {
+				// warn the idiots that teams are uneven before it's too late
+				lastCheckWasBadTeamNumbers = qtrue;
+				trap_SendServerCommand(-1, "cp \"^3Warning:^7 unequal #s of players\n\"");
+				trap_SendServerCommand(-1, "print \"^3Warning:^7 unequal #s of players\n\"");
+				level.teamBalanceCheckTime = level.time + LIVEPUG_TEAMBALANCE_FAILEDCHECK_INTERVAL; // longer delay
+			}
+		}
+		else {
+			lastCheckWasBadTeamNumbers = qfalse;
+			level.teamBalanceCheckTime = level.time + LIVEPUG_TEAMBALANCE_CHECK_INTERVAL;
+		}
+	}
+}
+
 void initMatch(){
 	int i;
 	gentity_t	*ent;
 
 	//G_LogPrintf("initMatch()\n");
 
-	if (!g_wasRestarted.integer)
+	if (!level.wasRestarted)
 		return;
 
 	level.initialConditionsMatch = qfalse;
@@ -1512,6 +1675,32 @@ qboolean G_ClientIsOnProbation(int clientNum) {
 	return qfalse;
 }
 
+static void InitializeMapName(void) {
+	trap_Cvar_VariableStringBuffer("mapname", level.mapname, sizeof(level.mapname));
+	Q_strlwr(level.mapname);
+	Q_strncpyz(level.mapCaptureRecords.mapname, level.mapname, sizeof(level.mapCaptureRecords.mapname));
+	if (!Q_stricmpn(level.mapname, "mp/siege_hoth", 13))
+		level.siegeMap = SIEGEMAP_HOTH;
+	else if (!Q_stricmp(level.mapname, "mp/siege_desert"))
+		level.siegeMap = SIEGEMAP_DESERT;
+	else if (!Q_stricmp(level.mapname, "mp/siege_korriban"))
+		level.siegeMap = SIEGEMAP_KORRIBAN;
+	else if (!Q_stricmp(level.mapname, "siege_narshaddaa"))
+		level.siegeMap = SIEGEMAP_NAR;
+	else if (stristr(level.mapname, "siege_urban"))
+		level.siegeMap = SIEGEMAP_URBAN;
+	else if (stristr(level.mapname, "siege_cargobarge3") || stristr(level.mapname, "siege_cargobarge2"))
+		level.siegeMap = SIEGEMAP_CARGO;
+	else if (stristr(level.mapname, "mp/siege_bespin"))
+		level.siegeMap = SIEGEMAP_BESPIN;
+	else if (stristr(level.mapname, "siege_ansion"))
+		level.siegeMap = SIEGEMAP_ANSION;
+	else
+		level.siegeMap = SIEGEMAP_UNKNOWN;
+
+	trap_Cvar_Set("g_debugMelee", level.siegeMap == SIEGEMAP_CARGO ? "1" : "0");
+}
+
 char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE];
 
 #include "namespace_begin.h"
@@ -1577,6 +1766,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
 	level.startTime = levelTime;
+
+	InitializeMapName();
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
@@ -1646,10 +1837,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 #endif
 
-	if (!restart)
-	{
-		trap_Cvar_Set("g_wasRestarted", "0");
-	}
+	if (restart && !g_wasIntermission.integer)
+		level.wasRestarted = qtrue;
+	trap_Cvar_Set("g_wasIntermission", "0");
 
 #ifdef NEWMOD_SUPPORT
 	level.nmAuthEnabled = qfalse;
@@ -1832,8 +2022,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
     G_LogDbLoad();
     //level.db.levelId = G_LogDbLogLevelStart(restart);
 
-	// cache the capture records for this map
-	G_LogDbLoadCaptureRecords( mapname.string, &level.mapCaptureRecords );
+#ifdef _DEBUG
+	Com_Printf("Build date: %s %s\n", __DATE__, __TIME__);
+#endif
 }
 
 
@@ -1928,8 +2119,7 @@ void G_ShutdownGame( int restart ) {
 	// accounts system
 	//cleanDB();
 
-	// save the capture records for this map
-	G_LogDbSaveCaptureRecords( &level.mapCaptureRecords );
+	ListClear(&level.mapCaptureRecords.captureRecordsList);
 
     //G_LogDbLogLevelEnd(level.db.levelId);
 
@@ -2772,7 +2962,7 @@ void BeginIntermission( void ) {
 		return;		// already active
 	}
 
-	trap_Cvar_Set("g_wasRestarted", "0");
+	trap_Cvar_Set("g_wasIntermission", "1");
 
 	// if in tournement mode, change the wins / losses
 	if ( g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL ) {
@@ -2825,7 +3015,7 @@ void BeginIntermission( void ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(NULL, "obj");
 			PrintStatsTo(NULL, "general");
-			if (GetSiegeMap() != SIEGEMAP_UNKNOWN)
+			if (level.siegeMap != SIEGEMAP_UNKNOWN)
 				PrintStatsTo(NULL, "map");
 		}
 		else if (g_gametype.integer == GT_CTF) {
@@ -4195,9 +4385,11 @@ void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
 		level.voteExecuteTime = 0;
 
+		/*
 		if (!Q_stricmpn(level.voteString,"map_restart",11)){
 			trap_Cvar_Set("g_wasRestarted", "1");
 		}
+		*/
 
         if (!Q_stricmpn(level.voteString, "clientkick", 10)){
             int id = atoi(&level.voteString[11]);
@@ -4209,7 +4401,9 @@ void CheckVote( void ) {
                     trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i s\n", id));
                 }
 
-                trap_SendServerCommand(-1, va("print \"%s^1 may not be kicked.\n\"", g_entities[id].client->pers.netname));
+                trap_SendServerCommand(-1, va("print \"%s^1 may not be kicked.^7\n\"", g_entities[id].client->pers.netname));
+				trap_SendServerCommand(id, "cp \"^1There's a reason people voted to kick you.\nPlease reconsider your behavior.\nPeople aren't happy with it.^7\n\"");
+				trap_SendServerCommand(id, "print \"^1There's a reason people voted to kick you.\nPlease reconsider your behavior.\nPeople aren't not happy with it.^7\n\"");
                 return;
             }
         }
@@ -5240,7 +5434,7 @@ void G_RunFrame( int levelTime ) {
 	}
 #endif
 
-	if (GetSiegeMap() == SIEGEMAP_CARGO) {
+	if (level.siegeMap == SIEGEMAP_CARGO) {
 		static int lastTime = 0;
 		static qboolean saberOn[MAX_CLIENTS] = { qfalse }, notified[MAX_CLIENTS] = { qfalse };
 		if (lastTime) {
@@ -5299,13 +5493,15 @@ void G_RunFrame( int levelTime ) {
 	UpdateGlobalCenterPrint( levelTime );
 
 	// check for modified physics and disable capture times if non standard
-	if ( level.mapCaptureRecords.enabled && !level.mapCaptureRecords.readonly && level.time > 1000 ) { // wat. it seems that sv_cheats = 1 on first frame... so don't check until 1000ms i guess
-		if ( g_cheats.integer != 0 ) {
-			G_Printf( S_COLOR_YELLOW"Cheats are enabled. Capture records won't be tracked during this map.\n" );
-			level.mapCaptureRecords.readonly = qtrue;
-		} else if ( !pmove_float.integer ) {
+	if (g_saveCaptureRecords.integer && !level.mapCaptureRecords.readonly && level.time > 1000 ) { // wat. it seems that sv_cheats = 1 on first frame... so don't check until 1000ms i guess
+		if ( !pmove_float.integer ) {
 			G_Printf( S_COLOR_YELLOW"pmove_float is not enabled. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
+#ifndef _DEBUG
+		} else if (g_cheats.integer != 0) {
+			G_Printf(S_COLOR_YELLOW"Cheats are enabled. Capture records won't be tracked during this map.\n");
+			level.mapCaptureRecords.readonly = qtrue;
+#endif
 		} else if ( g_svfps.integer != 30 ) {
 			G_Printf( S_COLOR_YELLOW"Server FPS is not standard. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
@@ -5315,11 +5511,22 @@ void G_RunFrame( int levelTime ) {
 		} else if ( g_gravity.value != 760 ) {
 			G_Printf( S_COLOR_YELLOW"Gravity is not standard. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
-		} else if ( g_knockback.value != 1000 ) {
-			G_Printf( S_COLOR_YELLOW"Knockback is not standard. Capture records won't be tracked during this map.\n" );
+		} else if ((level.siegeMap == SIEGEMAP_KORRIBAN && g_knockback.integer) || g_knockback.integer != 1000) {
+			G_Printf(S_COLOR_YELLOW"Knockback is not standard. Capture records won't be tracked during this map.\n");
 			level.mapCaptureRecords.readonly = qtrue;
-		} else if ( g_forceRegenTime.value != 231 ) {
+		} else if ( g_saberDamageScale.value != 1.0f) {
+			G_Printf( S_COLOR_YELLOW"Saber damage scale is not standard. Capture records won't be tracked during this map.\n" );
+			level.mapCaptureRecords.readonly = qtrue;
+		} else if ( g_forceRegenTime.value != 200 ) {
 			G_Printf( S_COLOR_YELLOW"Force regen is not standard. Capture records won't be tracked during this map.\n" );
+			level.mapCaptureRecords.readonly = qtrue;
+#ifndef _DEBUG
+		} else if ( g_siegeRespawn.integer != 20 ) {
+			G_Printf( S_COLOR_YELLOW"Respawn time is not standard. Capture records won't be tracked during this map.\n" );
+			level.mapCaptureRecords.readonly = qtrue;
+#endif
+		} else if (level.siegeMap == SIEGEMAP_HOTH && (g_hothHangarHack.integer != HOTHHANGARHACK_5SECONDS || g_hothRebalance.integer != -1)) {
+			G_Printf(S_COLOR_YELLOW"Hoth settings are not standard. Capture records won't be tracked during this map.\n");
 			level.mapCaptureRecords.readonly = qtrue;
 		}
 	}
@@ -5455,6 +5662,9 @@ void G_RunFrame( int levelTime ) {
 				trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
 		}
 
+		if (level.teamBalanceCheckTime)
+			level.teamBalanceCheckTime += dt;
+
 		if (g_gametype.integer == GT_SIEGE)
 		{
 			static int accumulatedDt = 0;
@@ -5498,7 +5708,13 @@ void G_RunFrame( int levelTime ) {
 	if (level.pause.state == PAUSE_PAUSED)
 	{
 		if (lastMsgTime < level.time - 1000) {
-			trap_SendServerCommand(-1, va("cp \"Match has been paused. (%.0f)\n\"", ceil((level.pause.time - level.time) / 1000.0f)));
+			int pauseSecondsRemaining = (int)ceilf((level.pause.time - level.time) / 1000.0f);
+			if (level.pause.reason[0])
+				trap_SendServerCommand(-1, va("cp \"The match has been auto-paused. (%s%d^7)\n%s\n\"",
+					pauseSecondsRemaining <= 10 ? S_COLOR_RED : S_COLOR_WHITE, pauseSecondsRemaining, level.pause.reason));
+			else
+				trap_SendServerCommand(-1, va("cp \"The match has been paused. (%s%d^7)\n\"",
+					pauseSecondsRemaining <= 10 ? S_COLOR_RED : S_COLOR_WHITE, pauseSecondsRemaining));
 			lastMsgTime = level.time;
 		}
 
@@ -5508,14 +5724,16 @@ void G_RunFrame( int levelTime ) {
 	}
 	if (level.pause.state == PAUSE_UNPAUSING)
 	{
+		level.pause.reason[0] = '\0';
 		if (lastMsgTime < level.time - 500) {
-			trap_SendServerCommand(-1, va("cp \"MATCH IS UNPAUSING\nin %.0f...\n\"", ceil((level.pause.time - level.time) / 1000.0f)));
+			int pauseSecondsRemaining = (int)ceilf((level.pause.time - level.time) / 1000.0f);
+			trap_SendServerCommand(-1, va("cp \"^1MATCH IS UNPAUSING^7\nin %d^7...\n\"", pauseSecondsRemaining));
 			lastMsgTime = level.time;
 		}
 
 		if (level.time > level.pause.time) {
 			level.pause.state = PAUSE_NONE;
-			trap_SendServerCommand(-1, "cp \"Go!\n\"");
+			trap_SendServerCommand(-1, "cp \"^2Go!^7\n\"");
 		}
 	}
 
@@ -5733,7 +5951,7 @@ void G_RunFrame( int levelTime ) {
 #define JETPACK_REFUEL_RATE		150 //seems fair
 			if (ent->client->jetPackOn && level.pause.state == PAUSE_NONE) { //using jetpack, drain fuel
 				if (ent->client->jetPackDebReduce < level.time) {
-					if (GetSiegeMap() == SIEGEMAP_URBAN)
+					if (level.siegeMap == SIEGEMAP_URBAN)
 						ent->client->ps.jetpackFuel -= 3;
 					else
 						ent->client->ps.jetpackFuel -= (ent->client->pers.cmd.upmove > 0) ? 2 : 1; // take more if they're thrusting
@@ -5742,7 +5960,7 @@ void G_RunFrame( int levelTime ) {
 						ent->client->ps.jetpackFuel = 0;
 						Jetpack_Off(ent);
 					}
-					if (GetSiegeMap() == SIEGEMAP_URBAN)
+					if (level.siegeMap == SIEGEMAP_URBAN)
 						ent->client->jetPackDebReduce = level.time + 14;
 					else
 						ent->client->jetPackDebReduce = level.time + JETPACK_DEFUEL_RATE;
@@ -5751,7 +5969,7 @@ void G_RunFrame( int levelTime ) {
 			else if (ent->client->ps.jetpackFuel < 100 && level.pause.state == PAUSE_NONE) { //recharge jetpack
 				if (ent->client->jetPackDebRecharge < level.time) {
 					ent->client->ps.jetpackFuel++;
-					if (GetSiegeMap() == SIEGEMAP_URBAN)
+					if (level.siegeMap == SIEGEMAP_URBAN)
 						ent->client->jetPackDebRecharge = level.time + (JETPACK_REFUEL_RATE / 2);
 					else
 						ent->client->jetPackDebRecharge = level.time + JETPACK_REFUEL_RATE;
@@ -5816,8 +6034,8 @@ void G_RunFrame( int levelTime ) {
 				WP_SaberPositionUpdate(ent, &ent->client->pers.cmd);
 				WP_SaberStartMissileBlockCheck(ent, &ent->client->pers.cmd);
 
-				{
-					// this client is in game, update speed stats
+				if (ent->client->ps.pm_type != PM_SPECTATOR && ent->health > 0) {
+					// this client is in game and not dead, update speed stats
 
 					float xyspeed = 0;
 					if ( ent->client->ps.m_iVehicleNum ) {
@@ -5835,20 +6053,6 @@ void G_RunFrame( int levelTime ) {
 
 					if ( xyspeed > ent->client->pers.topSpeed ) {
 						ent->client->pers.topSpeed = xyspeed;
-					}
-
-					// if they carry a flag, also update fastcap speed stats
-					if ( ent->playerState->powerups[PW_REDFLAG] || ent->playerState->powerups[PW_BLUEFLAG] ) {
-						ent->client->pers.fastcapDisplacement += xyspeed / g_svfps.value;
-						ent->client->pers.fastcapDisplacementSamples++;
-
-						if ( xyspeed > ent->client->pers.fastcapTopSpeed ) {
-							ent->client->pers.fastcapTopSpeed = xyspeed;
-						}
-					} else {
-						ent->client->pers.fastcapDisplacement = 0;
-						ent->client->pers.fastcapTopSpeed = 0;
-						ent->client->pers.fastcapDisplacementSamples = 0;
 					}
 				}
 			}
@@ -5976,11 +6180,28 @@ void G_RunFrame( int levelTime ) {
 	}
 #endif
 
-	//initMatch
-	if (!level.initialChecked &&
-		(level.time - level.startTime > 5000)){
-		initMatch();
-		level.initialChecked = qtrue;
+	static qboolean checkedLivePug = qfalse;
+	if (g_gametype.integer == GT_SIEGE && level.isLivePug != ISLIVEPUG_NO && /*it might have already been non-lived by admin command*/
+		(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) && level.siegeRoundStartTime) {
+		if (!checkedLivePug && level.time - level.siegeRoundStartTime >= LIVEPUG_CHECK_TIME) {
+
+			// check whether live pug conditions are met
+			char *notLiveReason = NULL;
+			level.isLivePug = CheckLivePug(&notLiveReason);
+			if (level.isLivePug == ISLIVEPUG_YES) {
+				Com_Printf("Pug is live\n");
+				SpeedRunModeRuined("G_RunFrame: CheckLivePug");
+			}
+			else {
+				Com_Printf("Pug is not live (reason: %s)\n", notLiveReason);
+			}
+			checkedLivePug = qtrue;
+		}
+
+		// check periodically whether team #s are correct
+		if (level.isLivePug == ISLIVEPUG_YES && !level.pause.state) {
+			CheckBadTeamNumbers();
+		}
 	}
 
     // report time wrapping 20 minutes ahead
@@ -6103,7 +6324,7 @@ void G_RunFrame( int levelTime ) {
 		}
 	}
 
-	if (GetSiegeMap() == SIEGEMAP_URBAN) {
+	if (level.siegeMap == SIEGEMAP_URBAN) {
 		static gentity_t *swoop = NULL, *icon = NULL;
 		if (!swoop) {
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
@@ -6140,6 +6361,20 @@ void G_RunFrame( int levelTime ) {
 #ifdef NEWMOD_SUPPORT
 	CheckNewmodSiegeClassLimits();
 #endif
+
+	// duo: fix inconsistent atst spawning on hoth by always spawning it 5 seconds after round start
+	static qboolean didFirstAtstSpawn = qfalse;
+	if (!didFirstAtstSpawn && g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_HOTH && !didFirstAtstSpawn &&
+		(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+		level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= 5000) {
+		didFirstAtstSpawn = qtrue;
+		gentity_t *atst = G_Find(NULL, FOFS(targetname), "atst_1");
+		if (atst && !Q_stricmp(atst->classname, "npc_vehicle")) {
+			atst->delay = 0;
+			GlobalUse(atst, NULL, NULL);
+			atst->delay = 10000;
+		}
+	}
 
 	level.frameStartTime = trap_Milliseconds(); // accurate timer
 

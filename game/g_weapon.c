@@ -176,7 +176,7 @@ qboolean OnValidMapForAntiSpam(qboolean doorSpam)
 	if (!Q_stricmp(mapname.string, "siege_codes") || !Q_stricmpn(mapname.string, "mp/siege_crystals", 17))
 		return qfalse;
 
-	if (doorSpam && (GetSiegeMap() == SIEGEMAP_URBAN || GetSiegeMap() == SIEGEMAP_ANSION)) // workaround
+	if (doorSpam && (level.siegeMap == SIEGEMAP_URBAN || level.siegeMap == SIEGEMAP_ANSION)) // workaround
 		return qfalse;
 
 	return qtrue;
@@ -262,7 +262,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			VectorCopy(ent->client->ps.origin, start);
 			start[2] += ent->client->ps.viewheight;//By eyes
 
-			if (GetSiegeMap() == SIEGEMAP_CARGO)
+			if (level.siegeMap == SIEGEMAP_CARGO)
 			{
 				if (ent->client->ps.origin[0] >= 1846 && ent->client->ps.origin[0] <= 3269 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 				{
@@ -350,11 +350,11 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					return qfalse;
 				}
 			}
-			if ((GetSiegeMap() == SIEGEMAP_HOTH || GetSiegeMap() == SIEGEMAP_DESERT || GetSiegeMap() == SIEGEMAP_NAR) && !level.totalObjectivesCompleted)
+			if ((level.siegeMap == SIEGEMAP_HOTH || level.siegeMap == SIEGEMAP_DESERT || level.siegeMap == SIEGEMAP_NAR) && !level.totalObjectivesCompleted)
 			{
 				return qfalse;
 			}
-			if (GetSiegeMap() == SIEGEMAP_KORRIBAN)
+			if (level.siegeMap == SIEGEMAP_KORRIBAN)
 			{
 				return qfalse;
 			}
@@ -444,7 +444,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 		else
 		{
 			//you are always allowed to minespam in the walker spawn areas
-			if (GetSiegeMap() == SIEGEMAP_HOTH)
+			if (level.siegeMap == SIEGEMAP_HOTH)
 			{
 				if (ent->client->ps.origin[0] >= 6549 && ent->client->ps.origin[0] <= 8204 && ent->client->ps.origin[1] >= -1394 && ent->client->ps.origin[1] <= 762)
 				{
@@ -463,7 +463,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 					heightLowerBound = (ent->client->ps.origin[2] - 9999); //we're standing near the top of the infirmary lift, so increase lower height detection(to detect throwing mines down on people)
 				}
 			}
-			else if (GetSiegeMap() == SIEGEMAP_NAR) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
+			else if (level.siegeMap == SIEGEMAP_NAR) //nar station 1 obj room exception. mine placement is okay if you are in the obj room and there are no enemies in the station
 			{
 				if (ent->client->ps.origin[0] >= -1660 && ent->client->ps.origin[0] <= -989 && ent->client->ps.origin[1] >= 7119 && ent->client->ps.origin[1] <= 7639)
 				{
@@ -572,7 +572,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 
 			if (potentialSpamVictim->s.eType && potentialSpamVictim->s.eType == ET_NPC && potentialSpamVictim->m_pVehicle && (potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || potentialSpamVictim->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 			{
-				if (GetSiegeMap() == SIEGEMAP_HOTH) {
+				if (level.siegeMap == SIEGEMAP_HOTH) {
 					if (level.totalObjectivesCompleted <= 2) { //allow walker to trigger "allow spam" for first 3 objs
 						thereIsAWalkerOrProtector = qtrue;
 						continue;
@@ -597,7 +597,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle && (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo
 				&& (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type && ((&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || (&g_entities[potentialSpamVictim->client->ps.m_iVehicleNum])->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER))
 			{
-				if (GetSiegeMap() == SIEGEMAP_HOTH) {
+				if (level.siegeMap == SIEGEMAP_HOTH) {
 					if (level.totalObjectivesCompleted <= 2) { //allow walker to trigger "allow spam" for first 3 objs
 						thereIsAWalkerOrProtector = qtrue;
 						continue;
@@ -633,7 +633,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 				continue; //spam victim must be on offense
 			}
 
-			if (ent->client->ps.origin[2] < 470 && potentialSpamVictim->client->ps.origin[2] >= 470 && GetSiegeMap() == SIEGEMAP_HOTH) {
+			if (ent->client->ps.origin[2] < 470 && potentialSpamVictim->client->ps.origin[2] >= 470 && level.siegeMap == SIEGEMAP_HOTH) {
 				continue; // fix for attackers in cc/short area triggering anti spam for defenders down below
 			}
 
@@ -727,7 +727,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 						else
 						{
 							//trap_SendServerCommand(-1, va("print \"Debug: distanceBetweenMeAndVictim %f ^1LESS THAN^7 distanceBetweenMeAndDoor %f\n\"", VectorLength(distanceBetweenMeAndVictim), VectorLength(distanceBetweenMeAndDoor)));
-							if (GetSiegeMap() == SIEGEMAP_HOTH && ent->client->ps.origin[0] >= -3825 && ent->client->ps.origin[0] <= -1258 &&
+							if (level.siegeMap == SIEGEMAP_HOTH && ent->client->ps.origin[0] >= -3825 && ent->client->ps.origin[0] <= -1258 &&
 								ent->client->ps.origin[1] >= -570 && ent->client->ps.origin[1] <= 755 && ent->client->ps.origin[2] >= -295 && ent->client->ps.origin[2] <= 38)
 							{
 								//we are in the hangar on hoth
@@ -833,7 +833,7 @@ qboolean CheckIfIAmAFilthySpammer(gentity_t *ent, qboolean checkDoorspam, qboole
 			return qfalse; //only affecting some weapons for now
 		}
 
-		if (GetSiegeMap() != SIEGEMAP_NAR)
+		if (level.siegeMap != SIEGEMAP_NAR)
 		{
 			return qfalse; //only on nar
 		}
@@ -2148,9 +2148,9 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 			continue;
 		}
 
-		if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(gent->NPC_type) && tolower(*gent->NPC_type) == 'w')
+		if (level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(gent->NPC_type) && tolower(*gent->NPC_type) == 'w')
 			continue;
-		if (GetSiegeMap() == SIEGEMAP_ANSION && VALIDSTRING(gent->NPC_type) && (!Q_stricmp(gent->NPC_type, "Alpha") || !Q_stricmp(gent->NPC_type, "Onasi")))
+		if (level.siegeMap == SIEGEMAP_ANSION && VALIDSTRING(gent->NPC_type) && (!Q_stricmp(gent->NPC_type, "Alpha") || !Q_stricmp(gent->NPC_type, "Onasi")))
 			continue;
 
 		// find the distance from the edge of the bounding box
@@ -3579,7 +3579,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 		return; //primary mines
 	}
 
-	if (ent && ent->client && ent->client->sess.sessionTeam == TEAM_BLUE && GetSiegeMap() == SIEGEMAP_KORRIBAN) {
+	if (ent && ent->client && ent->client->sess.sessionTeam == TEAM_BLUE && level.siegeMap == SIEGEMAP_KORRIBAN) {
 		ent->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_KORRI_MINESTHROWN]++;
 	}
 
@@ -3910,7 +3910,7 @@ void BlowDetpacks(gentity_t *ent, qboolean death)
 
 	if ( ent->client->ps.hasDetPackPlanted )
 	{
-		if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_ANSION && ent->client->sess.sessionTeam == TEAM_BLUE && death) {
+		if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_ANSION && ent->client->sess.sessionTeam == TEAM_BLUE && death) {
 			qboolean oneSurvived = qfalse;
 			while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
 			{//loop through all ents and blow the crap out of them!

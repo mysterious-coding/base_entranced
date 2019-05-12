@@ -648,6 +648,14 @@ void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 	{
 		return;
 	}
+
+	// duo: fix inconsistent atst spawning on hoth by always spawning it 5 seconds after round start
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_HOTH &&
+		(level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2) &&
+		!Q_stricmp(self->targetname, "atst_1")) {
+		return;
+	}
+
 	self->use(self, other, activator);
 }
 
@@ -1902,7 +1910,7 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 {
 
 	int max = target->maxHealth;
-	if (GetSiegeMap() == SIEGEMAP_URBAN && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
+	if (level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
 		static enum {
 			ONETHIRD = 0,
 			TWOTHIRDS,
@@ -2298,7 +2306,7 @@ void TryUse( gentity_t *ent )
 
 	if (target && target->m_pVehicle && target->client &&
 		target->s.NPC_class == CLASS_VEHICLE &&
-		!ent->client->ps.zoomMode && !(GetSiegeMap() == SIEGEMAP_URBAN && (level.totalObjectivesCompleted >= 4 || level.zombies)))
+		!ent->client->ps.zoomMode && !(level.siegeMap == SIEGEMAP_URBAN && (level.totalObjectivesCompleted >= 4 || level.zombies)))
 	{ //if target is a vehicle then perform appropriate checks
 		Vehicle_t *pVeh = target->m_pVehicle;
 		qboolean used = qfalse;
@@ -3044,35 +3052,6 @@ gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func filterFunc ) {
 	return found;
 }
 
-siegeMap_t GetSiegeMap(void) {
-	static siegeMap_t map = -1;
-	if (map == -1) {
-		vmCvar_t mapname;
-		trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
-		if (!Q_stricmpn(mapname.string, "mp/siege_hoth", 13))
-			map = SIEGEMAP_HOTH;
-		else if (!Q_stricmp(mapname.string, "mp/siege_desert"))
-			map = SIEGEMAP_DESERT;
-		else if (!Q_stricmp(mapname.string, "mp/siege_korriban"))
-			map = SIEGEMAP_KORRIBAN;
-		else if (!Q_stricmp(mapname.string, "siege_narshaddaa"))
-			map = SIEGEMAP_NAR;
-		else if (stristr(mapname.string, "siege_urban"))
-			map = SIEGEMAP_URBAN;
-		else if (stristr(mapname.string, "siege_cargobarge3") || stristr(mapname.string, "siege_cargobarge2"))
-			map = SIEGEMAP_CARGO;
-		else if (stristr(mapname.string, "mp/siege_bespin"))
-			map = SIEGEMAP_BESPIN;
-		else if (stristr(mapname.string, "siege_ansion"))
-			map = SIEGEMAP_ANSION;
-		else
-			map = SIEGEMAP_UNKNOWN;
-
-		trap_Cvar_Set("g_debugMelee", map == SIEGEMAP_CARGO ? "1" : "0");
-	}
-	return map;
-}
-
 qboolean G_ShieldSpamAllowed(team_t t) {
 	vmCvar_t mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
@@ -3121,4 +3100,41 @@ qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2,
 		}
 	}
 	return qtrue;
+}
+
+#define CHOPSTRING_MAXSIZE (2048)
+
+// "^7Padawan", 7		==>		"^7Padawan"
+// "^7Padawan", 5		==>		"^7Padaw"
+// "^7Pada^1wan", 7		==>		"^7Pada^1wan"
+// "^7Pada^1wan", 5		==>		"^7Pada^1w"
+char *ChopString(char *in, size_t targetLen) {
+	if (!VALIDSTRING(in) || targetLen <= 0)
+		return "";
+	if (strlen(in) > CHOPSTRING_MAXSIZE - 1) { // yeah i know i know stop stalking my repo
+		assert(qfalse);
+		return "";
+	}
+
+	size_t colorlessLen = 0;
+	int i, numSkip;
+	static char out[CHOPSTRING_MAXSIZE];
+	memset(out, 0, sizeof(out));
+	char *read = in, *write = out;
+
+	while (*read && colorlessLen < targetLen && strlen(out) < CHOPSTRING_MAXSIZE) {
+		if (Q_IsColorString(read)) // color codes don't count toward the length
+			numSkip = 2;
+		else {
+			numSkip = 1;
+			colorlessLen++;
+		}
+		for (i = 0; i < numSkip; i++) {
+			*write = *read;
+			read++;
+			write++;
+		}
+	}
+
+	return out;
 }

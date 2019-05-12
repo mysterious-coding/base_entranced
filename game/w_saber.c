@@ -7369,9 +7369,9 @@ static void G_TossTheMofo(gentity_t *ent, vec3_t tossDir, float tossStr)
 	}
 
 	if (ent->s.eType == ET_NPC && g_gametype.integer == GT_SIEGE && VALIDSTRING(ent->NPC_type)) {
-		if (GetSiegeMap() == SIEGEMAP_URBAN && (tolower(*ent->NPC_type) == 'w' || tolower(*ent->NPC_type) == 'p'))
+		if (level.siegeMap == SIEGEMAP_URBAN && (tolower(*ent->NPC_type) == 'w' || tolower(*ent->NPC_type) == 'p'))
 			return;
-		else if (GetSiegeMap() == SIEGEMAP_ANSION && (!Q_stricmp(ent->NPC_type, "Alpha") || !Q_stricmp(ent->NPC_type, "Onasi")))
+		else if (level.siegeMap == SIEGEMAP_ANSION && (!Q_stricmp(ent->NPC_type, "Alpha") || !Q_stricmp(ent->NPC_type, "Onasi")))
 			return;
 	}
 

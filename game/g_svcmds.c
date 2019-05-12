@@ -2074,6 +2074,7 @@ void Svcmd_RandomPugMap_f()
 		// we want 1 map, this means listOfMaps only contains 1 randomized map. Just change to it straight away.
 		trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", context.listOfMaps));
 	}
+	LivePugRuined("Map voting", qfalse); // should be obvious enough; doesn't need announcement
 }
 
 void Svcmd_NewPug_f(void) {
@@ -2143,6 +2144,8 @@ void Svcmd_NextPug_f(void) {
 
 void Svcmd_KillTurrets_f(qboolean announce)
 {
+	level.mapCaptureRecords.readonly = qtrue;
+	LivePugRuined("Killturrets", qfalse); // should be obvious enough; doesn't need announcement
 	int i = 0;
 	gentity_t* ent;
 	while (i < level.num_entities)
@@ -2169,6 +2172,8 @@ void Svcmd_KillTurrets_f(qboolean announce)
 
 void Svcmd_GreenDoors_f(qboolean announce)
 {
+	level.mapCaptureRecords.readonly = qtrue;
+	LivePugRuined("Greendoors", qfalse); // should be obvious enough; doesn't need announcement
 	gentity_t *doorent;
 	int i = 0;
 
@@ -2562,6 +2567,7 @@ void Svcmd_SpecAll_f() {
         }
     }
 	trap_SendServerCommand(-1, va("print \"All players were forced to spectator.\n\""));
+	LivePugRuined("Specall", qfalse); // should be obvious enough; doesn't need announcement
 }
 
 void Svcmd_RandomCapts_f() {
@@ -2695,6 +2701,8 @@ void Svcmd_RemovePassword_f()
 
 void Svcmd_Zombies_f()
 {
+	level.mapCaptureRecords.readonly = qtrue;
+	LivePugRuined("Zombies", qfalse); // should be obvious enough; doesn't need announcement
 	if (level.zombies)
 	{
 		level.zombies = qfalse;
@@ -2712,7 +2720,7 @@ void Svcmd_Zombies_f()
 		trap_Cvar_Set("dDemoLimit", "0");
 		trap_Cvar_Set("dTechLimit", "0");
 		trap_Cvar_Set("dScoutLimit", "0");
-		if (GetSiegeMap() == SIEGEMAP_CARGO) {
+		if (level.siegeMap == SIEGEMAP_CARGO) {
 			int i;
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];
@@ -2722,7 +2730,7 @@ void Svcmd_Zombies_f()
 				}
 			}
 		}
-		else if (GetSiegeMap() == SIEGEMAP_NAR) {
+		else if (level.siegeMap == SIEGEMAP_NAR) {
 			int i;
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];
@@ -2732,7 +2740,7 @@ void Svcmd_Zombies_f()
 				}
 			}
 		}
-		else if (GetSiegeMap() == SIEGEMAP_URBAN) {
+		else if (level.siegeMap == SIEGEMAP_URBAN) {
 			int i;
 			for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];
@@ -2791,6 +2799,7 @@ void Svcmd_RandomTeams_f(qboolean shuffle) {
         return;
     }
 
+	LivePugRuined("Randomteams", qfalse); // should be obvious enough; doesn't need announcement
 	char count[2];
     trap_Argv(1, count, sizeof(count));
     int team1Count = atoi(count);
@@ -3176,6 +3185,9 @@ void Svcmd_WhTrustToggle_f( void ) {
 }
 
 void Svcmd_FastCapsRemove_f( void ) {
+#if 1
+	G_Printf("Not yet implemented.\n");
+#else
 	if ( !level.mapCaptureRecords.enabled ) {
 		G_Printf( "Capture records are disabled.\n" );
 		return;
@@ -3207,7 +3219,7 @@ void Svcmd_FastCapsRemove_f( void ) {
 
 	CaptureRecord *recordArray = &level.mapCaptureRecords.records[type][0];
 
-	if ( !recordArray[rank - 1].captureTime ) {
+	if ( !recordArray[rank - 1].totalTime ) {
 		G_Printf( "This record is not set yet.\n" );
 		return;
 	}
@@ -3224,6 +3236,7 @@ void Svcmd_FastCapsRemove_f( void ) {
 	level.mapCaptureRecords.changed = qtrue;
 
 	G_Printf( "Rank %d deleted from category %d successfully.\n", rank, type );
+#endif
 }
 
 void Svcmd_PoolCreate_f()
@@ -3334,6 +3347,14 @@ static void Svcmd_CleanDB_f(void) {
 	G_LogDbUnload();
 	G_LogDbClean();
 	G_LogDbLoad();
+}
+
+static void Svcmd_NotLive_f(void) {
+	if (level.isLivePug == ISLIVEPUG_NO) {
+		Com_Printf("This match is already not a live pug.\n");
+		return;
+	}
+	LivePugRuined("Admin override", qtrue);
 }
 
 char	*ConcatArgs( int start );
@@ -3557,10 +3578,7 @@ qboolean	ConsoleCommand( void ) {
 			int duration;
 
 			trap_Argv(1,durationStr,sizeof(durationStr));
-			duration = atoi(durationStr);
-				
-			if (duration <= 0 || duration > 300) // 5 minutes default/max
-				duration = 300;
+			duration = Com_Clampi(5, 300, atoi(durationStr)); // clamp between 5 seconds and 300 seconds
 
             level.pause.state = PAUSE_PAUSED;
 			level.pause.time = level.time + duration*1000;
@@ -3691,6 +3709,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if (!Q_stricmp(cmd, "cleandb")) {
 		Svcmd_CleanDB_f();
+		return qtrue;
+	}
+
+	if (!Q_stricmp(cmd, "notlive")) {
+		Svcmd_NotLive_f();
 		return qtrue;
 	}
 

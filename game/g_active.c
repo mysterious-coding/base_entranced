@@ -788,7 +788,30 @@ Returns qfalse if the client is dropped/force specced
 */
 qboolean CheckPlayerInactivityTimer(gclient_t *client)
 {
-    qboolean active = qtrue;
+	qboolean active = qtrue;
+
+	qboolean didSomething;
+	if (client->pers.cmd.forwardmove ||
+		client->pers.cmd.rightmove ||
+		client->pers.cmd.upmove) {
+		didSomething = qtrue;
+		if (!level.movedAtStart[client - level.clients] && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+			level.siegeRoundStartTime && level.time - level.siegeRoundStartTime < LIVEPUG_CHECK_TIME && client->sess.sessionTeam != TEAM_SPECTATOR) {
+			level.movedAtStart[client - level.clients] = qtrue;
+		}
+	}
+	else if ((client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) ||
+		client->pers.cmd.generic_cmd ||
+		(short)client->pers.cmd.angles[0] != (short)client->pers.lastCmd.angles[0] ||
+		(short)client->pers.cmd.angles[1] != (short)client->pers.lastCmd.angles[1] ||
+		(short)client->pers.cmd.angles[2] != (short)client->pers.lastCmd.angles[2] ||
+		((client->pers.cmd.buttons ^ client->pers.lastCmd.buttons) & BUTTON_TALK)
+		) {
+		didSomething = qtrue;
+	}
+	else {
+		didSomething = qfalse;
+	}
 
     if (!g_inactivity.integer)
     {
@@ -798,16 +821,7 @@ qboolean CheckPlayerInactivityTimer(gclient_t *client)
         
         client->inactivityWarning = qfalse;
     } 
-    else if (client->pers.cmd.forwardmove ||
-        client->pers.cmd.rightmove ||
-        client->pers.cmd.upmove ||
-        (client->pers.cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) ||
-        client->pers.cmd.generic_cmd ||
-        (short)client->pers.cmd.angles[0] != (short)client->pers.lastCmd.angles[0] ||
-        (short)client->pers.cmd.angles[1] != (short)client->pers.lastCmd.angles[1] ||
-        (short)client->pers.cmd.angles[2] != (short)client->pers.lastCmd.angles[2] ||
-        ((client->pers.cmd.buttons ^ client->pers.lastCmd.buttons) & BUTTON_TALK)
-        )
+    else if (didSomething)
     {
         client->sess.inactivityTime = getGlobalTime() + g_inactivity.integer * 1000;
         client->inactivityWarning = qfalse;
@@ -2468,7 +2482,7 @@ void ClientThink_real( gentity_t *ent ) {
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 
 	if (level.zombies && ent->client->jetPackOn) {
-		if (GetSiegeMap() == SIEGEMAP_CARGO) {
+		if (level.siegeMap == SIEGEMAP_CARGO) {
 			if (ent->client->ps.origin[0] >= 1838 && ent->client->ps.origin[0] <= 3261 && ent->client->ps.origin[1] >= 1719 && ent->client->ps.origin[1] <= 3422)
 				ent->client->jetPackOn = qfalse;
 		}
@@ -4159,6 +4173,30 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
+	// note the last class they were when alive
+	if (g_gametype.integer == GT_SIEGE && ent - g_entities < MAX_CLIENTS && ent->client->sess.sessionTeam == TEAM_RED &&
+		client->ps.stats[STAT_HEALTH] > 0 && level.time > client->tempSpectate) {
+		// note the last class you had while alive
+		level.siegeTopTimes[ent - g_entities].lastSiegeClassWhileAlive = client->siegeClass;
+
+		// have you changed class at this obj?
+		if (level.time >= level.forceCheckClassTime) {
+			if (!level.siegeTopTimes[ent - g_entities].classOnFile) {
+				level.siegeTopTimes[ent - g_entities].classOnFile = client->siegeClass + 2; // make sure not to set to 0, since index 0 is an actual class
+			}
+			else if (level.siegeTopTimes[ent - g_entities].classOnFile != client->siegeClass + 2) {
+				level.siegeTopTimes[ent - g_entities].hasChangedClass = qtrue;
+			}
+		}
+
+		// have you changed class ever?
+		if (!level.siegeTopTimes[ent - g_entities].classOnFileTotal) {
+			level.siegeTopTimes[ent - g_entities].classOnFileTotal = client->siegeClass + 2; // make sure not to set to 0, since index 0 is an actual class
+		}
+		else if (level.siegeTopTimes[ent - g_entities].classOnFileTotal != client->siegeClass + 2) {
+			level.siegeTopTimes[ent - g_entities].hasChangedClassTotal = qtrue;
+		}
+	}
 }
 
 /*
@@ -4334,8 +4372,19 @@ void ClientEndFrame( gentity_t *ent ) {
 	// add the EF_CONNECTION flag for non-specs if we haven't gotten commands recently
 	if (level.time - ent->client->lastCmdTime > 1000) {
 		ent->client->isLagging = qtrue;
-		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 			ent->client->ps.eFlags |= EF_CONNECTION;
+
+			// auto-pause if someone goes 999 for a few seconds during a live pug
+			if (g_gametype.integer == GT_SIEGE && level.isLivePug == ISLIVEPUG_YES && g_autoPause999.integer && level.pause.state != PAUSE_PAUSED &&
+				level.time - ent->client->lastCmdTime >= (Com_Clampi(1, 10, g_autoPause999.integer) * 1000) &&
+				(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+				level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= LIVEPUG_AUTOPAUSE_TIME) {
+				level.pause.state = PAUSE_PAUSED;
+				level.pause.time = level.time + 300000;
+				Q_strncpyz(level.pause.reason, va("%s^7 is 999\n", ent->client->pers.netname), sizeof(level.pause.reason));
+			}
+		}
 	}
 	else {
 		if (ent->client->ps.eFlags & EF_CONNECTION || ent->client->isLagging) { // he was lagging (or vid_restarted) but isn't anymore; send this stuff again just to be sure

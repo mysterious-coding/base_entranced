@@ -928,7 +928,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 		return qfalse;
 	}
 
-	if ( /*g_debugMelee.integer ||*/ (GetSiegeMap() == SIEGEMAP_CARGO && self->client->sess.sessionTeam == TEAM_BLUE && self->client->ps.weapon == WP_SABER))
+	if ( /*g_debugMelee.integer ||*/ (level.siegeMap == SIEGEMAP_CARGO && self->client->sess.sessionTeam == TEAM_BLUE && self->client->ps.weapon == WP_SABER))
 	{
 		if ( (self->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 		{//no offensive force powers when stuck to wall
@@ -1609,7 +1609,7 @@ void ForceTeamForceReplenish( gentity_t *self )
 		}
 
 		// getting te invalidates the run
-		g_entities[pl[i]].client->runInvalid = qtrue;
+		//g_entities[pl[i]].client->runInvalid = qtrue;
 
 		//At this point we know we got one, so add him into the collective event client bitflag
 		if (!te)
@@ -2841,7 +2841,7 @@ void ForceTelepathy(gentity_t *self)
 	}
 
 	// special mind trick power on cargo
-	if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_CARGO &&
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO &&
 		self - g_entities < MAX_CLIENTS && self->client && self->client->sess.sessionTeam == TEAM_BLUE &&
 		self->client->ps.fd.forcePower >= CARGO_MINDTRICK_COST) {
 		vec3_t start, end, forward;
@@ -3674,9 +3674,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				float dirLen = 0;
 
 				// we knocked that guy with push/pull, his run is invalid
-				push_list[x]->client->runInvalid = qtrue;
+				//push_list[x]->client->runInvalid = qtrue;
 
-				if ( /*g_debugMelee.integer ||*/ (GetSiegeMap() == SIEGEMAP_CARGO && push_list[x] - g_entities < MAX_CLIENTS && push_list[x]->client->sess.sessionTeam == TEAM_BLUE && push_list[x]->client->ps.weapon == WP_SABER) )
+				if ( /*g_debugMelee.integer ||*/ (level.siegeMap == SIEGEMAP_CARGO && push_list[x] - g_entities < MAX_CLIENTS && push_list[x]->client->sess.sessionTeam == TEAM_BLUE && push_list[x]->client->ps.weapon == WP_SABER) )
 				{
 					if ( (push_list[x]->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 					{//no resistance if stuck to wall
