@@ -811,15 +811,15 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FOLLOW;
 		specClient = -2;
-	} else if ( !Q_stricmp( s, "spectator" ) || !Q_stricmp( s, "s" ) ) {
+	} else if ( !Q_stricmpn( s, "s", 1 ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
 	} else if ( g_gametype.integer >= GT_TEAM ) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) || !Q_stricmp(s, "o") ) {
+		if ( !Q_stricmpn( s, "r", 1 ) || !Q_stricmpn(s, "o", 1) ) {
 			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) || !Q_stricmp(s, "d")) {
+		} else if ( !Q_stricmpn( s, "b", 1 ) || !Q_stricmpn(s, "d", 1)) {
 			team = TEAM_BLUE;
 		} else {
 			// pick the team with the least number of players
