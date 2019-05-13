@@ -180,6 +180,7 @@ const char* const sqlCreateSiegeFastcapsTable =
 "    [fastcap_id] INTEGER PRIMARY KEY AUTOINCREMENT,                            "
 "    [mapname] TEXT,                                                            "
 "    [flags] INTEGER,                                                           "
+"    [desc] TEXT,                                                               "
 "    [player1_name] TEXT,                                                       "
 "    [player1_ip_int] INTEGER,                                                  "
 "    [player1_cuid_hash2] TEXT,                                                 "
@@ -205,13 +206,13 @@ const char* const sqlCreateSiegeFastcapsTable =
 
 const char* const sqlAddSiegeFastcapV2 =
 "INSERT INTO siegefastcaps (                                                    "
-"    mapname, flags, player1_name, player1_ip_int,                              "
+"    mapname, flags, desc, player1_name, player1_ip_int,                        "
 "    player1_cuid_hash2, max_speed, avg_speed,                                  "
 "    player2_name, player2_ip_int, player2_cuid_hash2,                          "
 "    obj1_time, obj2_time, obj3_time, obj4_time, obj5_time,                     "
 "    obj6_time, obj7_time, obj8_time, obj9_time, total_time, date,              "
 "    match_id, player1_client_id, player2_client_id)                            "
-"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)                       ";
+"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)                     ";
 
 const char* const sqlremoveSiegeFastcaps =
 "DELETE FROM siegefastcaps WHERE mapname = ?1 AND flags = ?2                    ";
@@ -979,6 +980,7 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 		int k = 1;
 		sqlite3_bind_text(statement, k++, mapname, -1, 0);
 		sqlite3_bind_int(statement, k++, recordsForCategory->flags);
+		sqlite3_bind_text(statement, k++, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, recordsForCategory->flags, qtrue), -1, 0);
 
 		sqlite3_bind_text(statement, k++, record->recordHolder1Name, -1, 0);
 		sqlite3_bind_int(statement, k++, record->recordHolder1IpInt);
