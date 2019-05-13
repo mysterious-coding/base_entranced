@@ -3156,151 +3156,93 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 		return;
 	}
 
-	trace_t tr;
-	vec3_t tfrom, tto, fwd;
-	gentity_t *traceEnt;
+	gentity_t *infoEnt;
 
-	VectorCopy(ent->client->ps.origin, tfrom);
-	tfrom[2] += ent->client->ps.viewheight;
-	AngleVectors(ent->client->ps.viewangles, fwd, NULL, NULL);
-	tto[0] = tfrom[0] + fwd[0] * 999999;
-	tto[1] = tfrom[1] + fwd[1] * 999999;
-	tto[2] = tfrom[2] + fwd[2] * 999999;
-
-	trap_Trace(&tr, tfrom, NULL, NULL, tto, ent->s.number, MASK_PLAYERSOLID);
-
-	traceEnt = &g_entities[tr.entityNum];
-
-	trap_SendServerCommand(ent - g_entities, va("print \"^%iI^%in^%if^%io^7 for entity %i\n\"", Q_irand(1, 7), Q_irand(1, 7), Q_irand(1, 7), Q_irand(1, 7), traceEnt->s.number));
-
-	if (traceEnt->client)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2client\n\""));
+	if (trap_Argc() > 1) {
+		char entNumBuf[5];
+		trap_Argv(1, entNumBuf, sizeof(entNumBuf));
+		int entNum = atoi(entNumBuf);
+		if (entNum < 0 || entNum >= MAX_GENTITIES - 1) {
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid entity.\nUsage:  targetinfo <optional entity number>\n\"");
+			return;
+		}
+		infoEnt = &g_entities[entNum];
+		if (!infoEnt->inuse) {
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid entity.\nUsage:  targetinfo <optional entity number>\n\"");
+			return;
+		}
 	}
-	else
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^1!client\n\""));
+	else {
+		trace_t tr;
+		vec3_t tfrom, tto, fwd;
+		VectorCopy(ent->client->ps.origin, tfrom);
+		tfrom[2] += ent->client->ps.viewheight;
+		AngleVectors(ent->client->ps.viewangles, fwd, NULL, NULL);
+		tto[0] = tfrom[0] + fwd[0] * 999999;
+		tto[1] = tfrom[1] + fwd[1] * 999999;
+		tto[2] = tfrom[2] + fwd[2] * 999999;
+
+		trap_Trace(&tr, tfrom, NULL, NULL, tto, ent->s.number, MASK_PLAYERSOLID);
+
+		infoEnt = &g_entities[tr.entityNum];
 	}
 
-	if (VALIDSTRING(traceEnt->classname))
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"classname == %s\n\"", traceEnt->classname));
-		if (!Q_stricmp(traceEnt->classname, "func_door"))
-		{
-			if (traceEnt->moverState == MOVER_POS1)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_POS1\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^%iI^%in^%if^%io^7 for entity %i (%s)\n\"", Q_irand(1, 7), Q_irand(1, 7), Q_irand(1, 7), Q_irand(1, 7), infoEnt->s.number, infoEnt->client ? "^2client^7" : "^1!client^7"));
+
+	if (VALIDSTRING(infoEnt->classname)) {
+		trap_SendServerCommand(ent - g_entities, va("print \"classname == %s\n\"", infoEnt->classname));
+		if (!Q_stricmp(infoEnt->classname, "func_door")) {
+			char *moverStateStr = NULL;
+			switch (infoEnt->moverState) {
+			case MOVER_POS1: moverStateStr = "MOVER_POS1"; break;
+			case MOVER_POS2: moverStateStr = "MOVER_POS2"; break;
+			case MOVER_1TO2: moverStateStr = "MOVER_1TO2"; break;
+			case MOVER_2TO1: moverStateStr = "MOVER_2TO1"; break;
+			default: moverStateStr = "?"; break;
 			}
-			else if (traceEnt->moverState == MOVER_POS2)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_POS2\n\""));
-			}
-			else if (traceEnt->moverState == MOVER_1TO2)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_1TO2\n\""));
-			}
-			else if (traceEnt->moverState == MOVER_2TO1)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"moverState == MOVER_2TO1\n\""));
-			}
+			trap_SendServerCommand(ent - g_entities, va("print \"moverState == %d (%s)\n\"", infoEnt->moverState, moverStateStr));
 		}
 	}
 
-	if (VALIDSTRING(traceEnt->targetname)) {
-		trap_SendServerCommand(ent - g_entities, va("print \"targetname: %s\n\"", traceEnt->targetname));
-	}
+	if (VALIDSTRING(infoEnt->targetname))
+		trap_SendServerCommand(ent - g_entities, va("print \"targetname: %s\n\"", infoEnt->targetname));
 
-	if (VALIDSTRING(traceEnt->target)) {
-		trap_SendServerCommand(ent - g_entities, va("print \"target: %s\n\"", traceEnt->target));
-	}
+	if (VALIDSTRING(infoEnt->target))
+		trap_SendServerCommand(ent - g_entities, va("print \"target: %s\n\"", infoEnt->target));
 
-	trap_SendServerCommand(ent - g_entities, va("print \"health: %d\n\"", traceEnt->health));
-	trap_SendServerCommand(ent - g_entities, va("print \"maxHealth: %d\n\"", traceEnt->maxHealth));
+	trap_SendServerCommand(ent - g_entities, va("print \"health: %d (max: %d)\n\"", infoEnt->health, infoEnt->maxHealth));
+	trap_SendServerCommand(ent - g_entities, va("print \"eFlags: %d (eFlags2: %d)\n\"", infoEnt->s.eFlags, infoEnt->s.eFlags2));
 
-	if (traceEnt->client && traceEnt->client->ewebIndex)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"ewebIndex == %i\n\"", traceEnt->client->ewebIndex));
-	}
+	if (infoEnt->client && infoEnt->client->ewebIndex)
+		trap_SendServerCommand(ent - g_entities, va("print \"ewebIndex == %i\n\"", infoEnt->client->ewebIndex));
 
-	if (traceEnt->client && traceEnt->client->ps.emplacedIndex)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"emplacedIndex == %i\n\"", traceEnt->client->ps.emplacedIndex));
-	}
+	if (infoEnt->client && infoEnt->client->ps.emplacedIndex)
+		trap_SendServerCommand(ent - g_entities, va("print \"emplacedIndex == %i\n\"", infoEnt->client->ps.emplacedIndex));
 
-	if (traceEnt->s.weapon)
-	{
-		if (traceEnt->s.weapon == WP_STUN_BATON)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (stun baton)\n\"", traceEnt->s.weapon));
+	if (infoEnt->s.weapon) {
+		char *weaponStr;
+		switch (infoEnt->s.weapon) {
+		case WP_STUN_BATON: weaponStr = "Stun Baton"; break;
+		case WP_MELEE: weaponStr = "Melee"; break;
+		case WP_SABER: weaponStr = "Saber"; break;
+		case WP_BRYAR_PISTOL: weaponStr = "Pistol"; break;
+		case WP_BLASTER: weaponStr = "Blaster"; break;
+		case WP_DISRUPTOR: weaponStr = "Disruptor"; break;
+		case WP_BOWCASTER: weaponStr = "Bowcaster"; break;
+		case WP_REPEATER: weaponStr = "Repeater"; break;
+		case WP_DEMP2: weaponStr = "Demp"; break;
+		case WP_FLECHETTE: weaponStr = "Golan"; break;
+		case WP_ROCKET_LAUNCHER: weaponStr = "Rocket Launcher"; break;
+		case WP_THERMAL: weaponStr = "Thermals"; break;
+		case WP_TRIP_MINE: weaponStr = "Mines"; break;
+		case WP_DET_PACK: weaponStr = "Detpacks"; break;
+		case WP_CONCUSSION: weaponStr = "Conc"; break;
+		case WP_BRYAR_OLD: weaponStr = "Old Bryar Pistol"; break;
+		case WP_EMPLACED_GUN: weaponStr = "Emplaced"; break;
+		case WP_TURRET: weaponStr = "Turret"; break;
+		default: weaponStr = "?"; break;
 		}
-		else if (traceEnt->s.weapon == WP_MELEE)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (melee)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_SABER)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (saber)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_BRYAR_PISTOL)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (pistol)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_BLASTER)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (e11)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_DISRUPTOR)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (disruptor)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_BOWCASTER)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (bowcaster)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_REPEATER)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (repeater)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_DEMP2)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (demp)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_FLECHETTE)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (golan)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_ROCKET_LAUNCHER)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (rocket launcher)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_THERMAL)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (thermals)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_TRIP_MINE)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (mines)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_DET_PACK)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (det packs)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_CONCUSSION)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (conc)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_BRYAR_OLD)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (bryar)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_EMPLACED_GUN)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (emplaced gun)\n\"", traceEnt->s.weapon));
-		}
-		else if (traceEnt->s.weapon == WP_TURRET)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (turret)\n\"", traceEnt->s.weapon));
-		}
+		trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (%s)\n\"", infoEnt->s.weapon, weaponStr));
 	}
 
 }
