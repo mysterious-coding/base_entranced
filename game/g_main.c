@@ -1679,24 +1679,41 @@ static void InitializeMapName(void) {
 	trap_Cvar_VariableStringBuffer("mapname", level.mapname, sizeof(level.mapname));
 	Q_strlwr(level.mapname);
 	Q_strncpyz(level.mapCaptureRecords.mapname, level.mapname, sizeof(level.mapCaptureRecords.mapname));
-	if (!Q_stricmpn(level.mapname, "mp/siege_hoth", 13))
+	if (!Q_stricmpn(level.mapname, "mp/siege_hoth", 13)) {
 		level.siegeMap = SIEGEMAP_HOTH;
-	else if (!Q_stricmp(level.mapname, "mp/siege_desert"))
+		level.numSiegeObjectivesOnMapCombined = 6;
+	} else if (!Q_stricmp(level.mapname, "mp/siege_desert")) {
 		level.siegeMap = SIEGEMAP_DESERT;
-	else if (!Q_stricmp(level.mapname, "mp/siege_korriban"))
+		level.numSiegeObjectivesOnMapCombined = 5;
+	} else if (!Q_stricmp(level.mapname, "mp/siege_korriban")) {
 		level.siegeMap = SIEGEMAP_KORRIBAN;
-	else if (!Q_stricmp(level.mapname, "siege_narshaddaa"))
+		level.numSiegeObjectivesOnMapCombined = 4;
+	} else if (!Q_stricmp(level.mapname, "siege_narshaddaa")) {
 		level.siegeMap = SIEGEMAP_NAR;
-	else if (stristr(level.mapname, "siege_urban"))
+		level.numSiegeObjectivesOnMapCombined = 5;
+	} else if (stristr(level.mapname, "siege_urban")) {
 		level.siegeMap = SIEGEMAP_URBAN;
-	else if (stristr(level.mapname, "siege_cargobarge3") || stristr(level.mapname, "siege_cargobarge2"))
+		level.numSiegeObjectivesOnMapCombined = 5;
+	} else if (stristr(level.mapname, "siege_cargobarge3") || stristr(level.mapname, "siege_cargobarge2")) {
 		level.siegeMap = SIEGEMAP_CARGO;
-	else if (stristr(level.mapname, "mp/siege_bespin"))
+		level.numSiegeObjectivesOnMapCombined = 6;
+	} else if (stristr(level.mapname, "mp/siege_bespin")) {
 		level.siegeMap = SIEGEMAP_BESPIN;
-	else if (stristr(level.mapname, "siege_ansion"))
+		level.numSiegeObjectivesOnMapCombined = 6;
+	} else if (stristr(level.mapname, "siege_ansion")) {
 		level.siegeMap = SIEGEMAP_ANSION;
-	else
+		level.numSiegeObjectivesOnMapCombined = 5;
+	} else {
 		level.siegeMap = SIEGEMAP_UNKNOWN;
+		if (!Q_stricmp(level.mapname, "siege_cargobarge"))
+			level.numSiegeObjectivesOnMapCombined = 5;
+		else if (!Q_stricmp(level.mapname, "mp/siege_eat_shower"))
+			level.numSiegeObjectivesOnMapCombined = 6;
+		else if (!Q_stricmp(level.mapname, "mp/siege_destroyer"))
+			level.numSiegeObjectivesOnMapCombined = 2;
+		else if (!Q_stricmp(level.mapname, "mp/siege_alzocIII"))
+			level.numSiegeObjectivesOnMapCombined = 5;
+	}
 
 	trap_Cvar_Set("g_debugMelee", level.siegeMap == SIEGEMAP_CARGO ? "1" : "0");
 }

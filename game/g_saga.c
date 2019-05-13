@@ -1075,7 +1075,7 @@ static int LogCaptureTime(
 		objTimes[objNum - 1] = totalTime;
 	}
 	else if (flags & CAPTURERECORDFLAG_FULLMAP) {
-		memcpy(&(newElement->objTimes), objTimes, sizeof(newElement->objTimes));
+		memcpy(&(newElement->objTimes), &objTimes[0], sizeof(newElement->objTimes));
 	}
 
 	// cuid is optional, empty for clients without one
@@ -2129,7 +2129,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 			topTimesObjNum--;
 		}
 	}
-	else if (level.siegeMap == SIEGEMAP_ANSION || !Q_stricmp(level.mapCaptureRecords.mapname, "siege_alzocIII")) {
+	else if (level.siegeMap == SIEGEMAP_ANSION || !Q_stricmp(level.mapCaptureRecords.mapname, "mp/siege_alzocIII")) {
 		if (objective == 2 || objective == 3) {
 			static int firstStationTime = -1;
 			if (firstStationTime == -1) { // first one destroyed

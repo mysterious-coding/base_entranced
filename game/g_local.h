@@ -1389,7 +1389,8 @@ typedef struct {
 		SIEGEMATCHWINNER_ROUND2OFFENSE,
 		SIEGEMATCHWINNER_TIE
 	} siegeMatchWinner;
-	int			numSiegeObjectivesOnMap;
+	int			numSiegeObjectivesOnMap; // e.g. 6 for nar
+	CombinedObjNumber numSiegeObjectivesOnMapCombined; // e.g. 5 for nar
 	int			antiLamingTime;
 #ifdef NEWMOD_SUPPORT
 	int			siegeItemUpdateTime;

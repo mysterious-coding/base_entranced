@@ -5802,23 +5802,23 @@ CaptureCategoryFlags GetRecordFlagsForString(const char *mapname, char *s, qbool
 		}
 		else if (stristr(s, "full") || stristr(s, "map"))
 			flags |= CAPTURERECORDFLAG_FULLMAP;
-		else if (strchr(s, '1'))
+		else if (strchr(s, '1') && !(level.numSiegeObjectivesOnMapCombined && 1 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ1;
-		else if (strchr(s, '2'))
+		else if (strchr(s, '2') && !(level.numSiegeObjectivesOnMapCombined && 2 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ2;
-		else if (strchr(s, '3'))
+		else if (strchr(s, '3') && !(level.numSiegeObjectivesOnMapCombined && 3 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ3;
-		else if (strchr(s, '4'))
+		else if (strchr(s, '4') && !(level.numSiegeObjectivesOnMapCombined && 4 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ4;
-		else if (strchr(s, '5'))
+		else if (strchr(s, '5') && !(level.numSiegeObjectivesOnMapCombined && 5 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ5;
-		else if (strchr(s, '6'))
+		else if (strchr(s, '6') && !(level.numSiegeObjectivesOnMapCombined && 6 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ6;
-		else if (strchr(s, '7'))
+		else if (strchr(s, '7') && !(level.numSiegeObjectivesOnMapCombined && 7 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ7;
-		else if (strchr(s, '8'))
+		else if (strchr(s, '8') && !(level.numSiegeObjectivesOnMapCombined && 8 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ8;
-		else if (strchr(s, '9'))
+		else if (strchr(s, '9') && !(level.numSiegeObjectivesOnMapCombined && 9 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ9;
 		else
 			flags |= CAPTURERECORDFLAG_FULLMAP;
@@ -6047,10 +6047,14 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 		PartitionedTimer(record->totalTime, &mins, &secs, &millis);
 
 		char timeString[10] = { 0 };
-		if (mins > 0)
-			Com_sprintf(timeString, sizeof(timeString), "%d:%2d.%03d", mins, secs, millis);
-		else
-			Com_sprintf(timeString, sizeof(timeString), "%2d.%03d", secs, millis);
+		if (mins > 9) // 12:59.123
+			Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+		else if (mins > 0) // 2:59.123
+			Com_sprintf(timeString, sizeof(timeString), " %d:%02d.%03d", mins, secs, millis);
+		else if (secs > 9) // 59.123
+			Com_sprintf(timeString, sizeof(timeString), "   %d.%03d", secs, millis);
+		else // 9.123
+			Com_sprintf(timeString, sizeof(timeString), "    %d.%03d", secs, millis);
 
 		char *dateColor;
 		char date[19] = { 0 };
@@ -6183,13 +6187,13 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	}
 	else { // no specific category specified; show four: current obj (both speedrun and livepug) and fullmap (both speedrun and livepug)
 		CombinedObjNumber currentObjNum = level.mapCaptureRecords.lastCombinedObjCompleted + 1;
-		if (currentObjNum >= 1 && currentObjNum <= MAX_SAVED_OBJECTIVES) { // double-check that the current obj number is valid
+		if (!level.intermissiontime && currentObjNum >= 1 && currentObjNum <= MAX_SAVED_OBJECTIVES && !(level.numSiegeObjectivesOnMapCombined && currentObjNum > level.numSiegeObjectivesOnMapCombined)) { // double-check that the current obj number is valid
 			categoriesToPrint[0] = (1 << currentObjNum) | CAPTURERECORDFLAG_SPEEDRUN;
 			categoriesToPrint[1] = (1 << currentObjNum) | CAPTURERECORDFLAG_LIVEPUG;
 			categoriesToPrint[2] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_SPEEDRUN;
 			categoriesToPrint[3] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_LIVEPUG;
 		}
-		else { // invalid obj number somehow; just print fullmap
+		else { // intermission or invalid obj number somehow; just print fullmap
 			categoriesToPrint[0] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_SPEEDRUN;
 			categoriesToPrint[1] = CAPTURERECORDFLAG_FULLMAP | CAPTURERECORDFLAG_LIVEPUG;
 		}
@@ -8461,6 +8465,8 @@ void ClientCommand( int clientNum ) {
 			Cmd_ServerStatus2_f(ent);
 		else if (Q_stricmp(cmd, "info") == 0 || Q_stricmp(cmd, "help") == 0 || Q_stricmp(cmd, "rules") == 0)
 			Cmd_Help_f(ent);
+		else if (!Q_stricmp(cmd, "toptimes") || !Q_stricmp(cmd, "fastcaps"))
+			Cmd_TopTimes_f(ent);
 		else
 			trap_SendServerCommand( clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd ) );
 		return;
