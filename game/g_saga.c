@@ -2046,6 +2046,19 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		}
 	}
 
+	if (level.siegeMap == SIEGEMAP_ANSION && objective == 4) { // remove datapad
+		gentity_t *item = G_Find(NULL, FOFS(targetname), "alphaisdeadyay");
+		if (item) {
+			for (int i = 0; i < MAX_CLIENTS; i++) {
+				if (level.clients[i].holdingObjectiveItem == item - g_entities) {
+					level.clients[i].holdingObjectiveItem = 0;
+					break;
+				}
+			}
+			G_FreeEntity(item);
+		}
+	}
+
 	if (client >= 0 && client < MAX_CLIENTS && &level.clients[client] && level.clients[client].pers.connected == CON_CONNECTED)
 	{
 		level.clients[client].pers.teamState.captures++;
@@ -2767,22 +2780,17 @@ static void SiegeItemRespawnEffect(gentity_t *ent, vec3_t newOrg)
 	G_PlayEffectID(ent->genericValue10, newOrg, upAng);
 }
 
-void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier)
+void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier, gentity_t *overrideOriginEnt)
 {
-	qboolean didRespawn = qfalse;
-	if (VALIDSTRING(ent->recallOrigin)) { // see if we need to spawn somewhere in particular
-		gentity_t *overrideOriginEnt = G_Find(NULL, FOFS(targetname), ent->recallOrigin);
-		if (overrideOriginEnt) {
-			SiegeItemRespawnEffect(ent, overrideOriginEnt->r.currentOrigin);
-			G_SetOrigin(ent, overrideOriginEnt->r.currentOrigin);
-			didRespawn = qtrue;
-			ent->recallOrigin = "";
-		}
+	if (overrideOriginEnt) {
+		SiegeItemRespawnEffect(ent, overrideOriginEnt->r.currentOrigin);
+		G_SetOrigin(ent, overrideOriginEnt->r.currentOrigin);
 	}
-	if (!didRespawn) {
+	else {
 		SiegeItemRespawnEffect(ent, ent->pos1);
 		G_SetOrigin(ent, ent->pos1);
 	}
+
 	SiegeItemRemoveOwner(ent, carrier);
 	
 	// Stop the item from flashing on the radar
@@ -2851,7 +2859,7 @@ void SiegeItemThink(gentity_t *ent)
 			{
 				ent->s.eFlags |= EF_RADAROBJECT;
 			}
-			SiegeItemRespawnOnOriginalSpot(ent, NULL);
+			SiegeItemRespawnOnOriginalSpot(ent, NULL, NULL);
 		}
 		else if (carrier->health < 1)
 		{ //The carrier died so pop out where he is (unless in nodrop).
@@ -2876,7 +2884,7 @@ void SiegeItemThink(gentity_t *ent)
 			}
 			if ( trap_PointContents(carrier->client->ps.origin, carrier->s.number) & CONTENTS_NODROP )
 			{ //In nodrop land, go back to the original spot.
-				SiegeItemRespawnOnOriginalSpot(ent, carrier);
+				SiegeItemRespawnOnOriginalSpot(ent, carrier, NULL);
 				if (!ent->genericValue16) //hacky...
 				{
 					ent->s.eFlags |= EF_NODRAW;

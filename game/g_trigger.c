@@ -128,7 +128,7 @@ qboolean G_NameInTriggerClassList(char *list, char *str)
 
 extern qboolean gSiegeRoundBegun;
 void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
-extern void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier);
+extern void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier, gentity_t *overrideOriginEnt);
 void multi_trigger( gentity_t *ent, gentity_t *activator ) 
 {
 	qboolean haltTrigger = qfalse;
@@ -445,10 +445,11 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 			item->siegeItemCarrierTime = 0;
 			if (item->specialIconTreatment)
 				item->s.eFlags |= EF_RADAROBJECT;
-			if (VALIDSTRING(ent->recallOrigin)) // see if a custom recall origin was specified, too
-				item->recallOrigin = VALIDSTRING(ent->recallOrigin) ? ent->recallOrigin : "";
+			gentity_t *overrideOriginEnt = NULL;
+			if (VALIDSTRING(ent->recallOrigin)) // see if a custom recall origin entity targetname was specified, too
+				overrideOriginEnt = G_Find(NULL, FOFS(targetname), ent->recallOrigin);
 			item->genericValue9 = 0; // no longer waiting to respawn
-			SiegeItemRespawnOnOriginalSpot(item, NULL);
+			SiegeItemRespawnOnOriginalSpot(item, NULL, overrideOriginEnt);
 
 			if (VALIDSTRING(ent->recallTarget)) {
 				gentity_t *recallTarget = G_Find(NULL, FOFS(targetname), ent->recallTarget);
