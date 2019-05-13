@@ -5022,6 +5022,30 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	// urban o hw damage stuff
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
+		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_HEAVY_WEAPONS) {
+		if (mod == MOD_FALLING) { // no falling damage
+			return;
+		}
+		else if (!attacker || !attacker->client || attacker->client->sess.sessionTeam != TEAM_RED) {
+			if (mod == MOD_TIMED_MINE_SPLASH) { // reduced proximity mine damage
+				if (damage > 2)
+					damage = 2;
+			}
+			else if (mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || mod == MOD_FLECHETTE_ALT_SPLASH ||
+				mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH || mod == MOD_THERMAL ||
+				mod == MOD_THERMAL_SPLASH || mod == MOD_TRIP_MINE_SPLASH || mod == MOD_DET_PACK_SPLASH) {
+				damage = (int)round((((float)damage) * 0.9f)); // reduced splash/demp damage
+				if (damage < 1)
+					damage = 1;
+			}
+			else if (mod == MOD_SABER) {
+				damage = 100; // guaranteed to be one-shot by saber
+			}
+		}
+	}
+
 	if ( targ && targ->client && targ->client->ps.duelInProgress )
 	{
         // make sure we are attacked by client and not from environment
@@ -5569,7 +5593,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// urban o hw no self-damage with rockets
-	if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
 		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_HEAVY_WEAPONS &&
 		mod >= MOD_ROCKET && mod <= MOD_ROCKET_HOMING_SPLASH && attacker == targ) {
 		return;

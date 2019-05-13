@@ -2144,8 +2144,10 @@ void Svcmd_NextPug_f(void) {
 
 void Svcmd_KillTurrets_f(qboolean announce)
 {
+#ifndef _DEBUG
 	level.mapCaptureRecords.readonly = qtrue;
 	LivePugRuined("Killturrets", qfalse); // should be obvious enough; doesn't need announcement
+#endif
 	int i = 0;
 	gentity_t* ent;
 	while (i < level.num_entities)
