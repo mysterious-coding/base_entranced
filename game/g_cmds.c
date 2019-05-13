@@ -3391,6 +3391,23 @@ void Cmd_SkillBoost_f(gentity_t *ent) {
 	}
 }
 
+void Cmd_SenseBoost_f(gentity_t *ent) {
+	qboolean wrotePreface = qfalse;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.senseBoost) {
+			if (!wrotePreface) {
+				trap_SendServerCommand(ent - g_entities, "print \"Currently senseboosted players:\n\"");
+				wrotePreface = qtrue;
+			}
+			trap_SendServerCommand(ent - g_entities, va("print \"^7%s^7 has a level ^5%d^7 senseboost.\n\"",
+				g_entities[i].client->pers.netname, g_entities[i].client->sess.senseBoost));
+		}
+	}
+	if (!wrotePreface) {
+		trap_SendServerCommand(ent - g_entities, "print \"No players are currently senseboosted.\n\"");
+	}
+}
+
 void Cmd_Anim_f(gentity_t *ent) {
 	if (!g_cheats.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
@@ -8457,6 +8474,8 @@ void ClientCommand( int clientNum ) {
 			Cmd_Changes_f(ent);
 		else if (!Q_stricmp(cmd, "skillboost"))
 			Cmd_SkillBoost_f(ent);
+		else if (!Q_stricmp(cmd, "senseboost"))
+			Cmd_SenseBoost_f(ent);
 		else if (Q_stricmp(cmd, "whois") == 0)
 			Cmd_WhoIs_f(ent);
 		else if (Q_stricmp(cmd, "ignore") == 0)

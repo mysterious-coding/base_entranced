@@ -690,6 +690,11 @@ typedef struct {
 #define SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS					(0.1f)
 #define SKILLBOOST_LEVEL3_SPLASHRADIUSBONUS					(0.2f)
 
+	int senseBoost;
+#define SENSEBOOST_LEVEL1_INTERVAL							(8000)
+#define SENSEBOOST_LEVEL2_INTERVAL							(6000)
+#define SENSEBOOST_LEVEL3_INTERVAL							(4000)
+
 	struct {
 		int caps[2];
 		int saves[2];

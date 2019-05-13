@@ -4917,6 +4917,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->client->sess.skillBoost = 0;
+	ent->client->sess.senseBoost = 0;
 	memset(&ent->client->sess.spawnedSiegeClass, 0, sizeof(ent->client->sess.spawnedSiegeClass));
 	memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
 	ent->client->sess.whitelistStatus = WHITELIST_UNKNOWN;

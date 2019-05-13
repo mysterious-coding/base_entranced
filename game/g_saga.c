@@ -906,7 +906,7 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 	else
 		flags |= CAPTURERECORDFLAG_ANYPERCENT;
 
-	qboolean skillboosted = !!(client1->sess.skillBoost || (flags & CAPTURERECORDFLAG_COOP && client2 && client2->sess.skillBoost));
+	qboolean skillboosted = !!(client1->sess.skillBoost || client1->sess.senseBoost || (flags & CAPTURERECORDFLAG_COOP && client2 && (client2->sess.skillBoost || client2->sess.senseBoost)));
 	if (skillboosted) { // skillboosted guys can only register any% runs
 		flags |= CAPTURERECORDFLAG_ANYPERCENT;
 		flags &= ~(CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_LIVEPUG | CAPTURERECORDFLAG_SPEEDRUN);
@@ -1936,6 +1936,10 @@ void SiegeCheckTimers(void)
 				if (g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.skillBoost) {
 					trap_SendServerCommand(-1, va("print \"^7%s^7 has a level ^5%d^7 skillboost.\n\"",
 						g_entities[i].client->pers.netname, g_entities[i].client->sess.skillBoost));
+				}
+				if (g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.senseBoost) {
+					trap_SendServerCommand(-1, va("print \"^7%s^7 has a level ^5%d^7 senseboost.\n\"",
+						g_entities[i].client->pers.netname, g_entities[i].client->sess.senseBoost));
 				}
 			}
 			level.canShield[TEAM_RED] = CANSHIELD_YES;

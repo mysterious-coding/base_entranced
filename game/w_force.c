@@ -5752,7 +5752,12 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			}
 		}
 	}
-	if (!self->client->ps.fd.forcePowersActive || self->client->ps.fd.forcePowersActive == (1 << FP_DRAIN) || (self->client->ps.fd.forcePowersActive == (1 << FP_LEVITATION) && self->client->ps.m_iVehicleNum))
+	int forcePowersActive = self->client->ps.fd.forcePowersActive;
+	if (self->client->sess.senseBoost && g_gametype.integer == GT_SIEGE && self->client->siegeClass != -1 && !bgSiegeClasses[self->client->siegeClass].forcePowerLevels[FP_SEE])
+		forcePowersActive &= ~(1 << FP_SEE);
+	if (!forcePowersActive ||
+		self->client->ps.fd.forcePowersActive == (1 << FP_DRAIN) ||
+		(self->client->ps.fd.forcePowersActive == (1 << FP_LEVITATION) && self->client->ps.m_iVehicleNum))
 	{//when not using the force, regenerate at 1 point per half second
 		if ( (!self->client->ps.saberInFlight || (g_improvedDisarm.integer && self->client->ps.saberInFlight && !self->client->ps.saberEntityNum)) && self->client->ps.fd.forcePowerRegenDebounceTime < level.time &&
 			(self->client->ps.weapon != WP_SABER || !BG_SaberInSpecial(self->client->ps.saberMove)) )
@@ -5864,6 +5869,11 @@ qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, in
 
 	if ( !self || !self->client || self->health <= 0 )
 	{
+		return qfalse;
+	}
+
+	if (g_gametype.integer == GT_SIEGE && self->client->sess.senseBoost && self->client->siegeClass != -1 &&
+		!bgSiegeClasses[self->client->siegeClass].forcePowerLevels[FP_SEE]) {
 		return qfalse;
 	}
 

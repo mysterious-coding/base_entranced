@@ -4197,6 +4197,25 @@ void ClientThink_real( gentity_t *ent ) {
 			level.siegeTopTimes[ent - g_entities].hasChangedClassTotal = qtrue;
 		}
 	}
+
+	if (g_gametype.integer == GT_SIEGE && ent - g_entities < MAX_CLIENTS && ent->client->sess.senseBoost &&
+		ent->health > 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR && ent->client->siegeClass != -1
+		&& !bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[FP_SEE]) {
+		int interval;
+		switch (ent->client->sess.senseBoost) {
+		case 1: interval = SENSEBOOST_LEVEL1_INTERVAL; break;
+		case 2: interval = SENSEBOOST_LEVEL2_INTERVAL; break;
+		default: interval = SENSEBOOST_LEVEL3_INTERVAL; break;
+		}
+		if (level.time % interval <= 1000) {
+			ent->client->ps.fd.forcePowerLevel[FP_SEE] = 3;
+			ent->client->ps.fd.forcePowersActive |= (1 << FP_SEE);
+		}
+		else {
+			ent->client->ps.fd.forcePowerLevel[FP_SEE] = 0;
+			ent->client->ps.fd.forcePowersActive &= ~(1 << FP_SEE);
+		}
+	}
 }
 
 /*

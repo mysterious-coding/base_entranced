@@ -1774,6 +1774,15 @@ void NPC_PrecacheType( char *NPC_type )
 
 void SP_NPC_spawner( gentity_t *self)
 {
+	// unfortunately, decorative NPCs have to go on cargo because they are annoying with senseboost
+#ifdef _DEBUG
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO)
+		return;
+#else
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO && !g_cheats.integer)
+		return;
+#endif
+
 	int t;
 
 	if (!g_allowNPC.integer)
