@@ -447,6 +447,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 				item->s.eFlags |= EF_RADAROBJECT;
 			if (VALIDSTRING(ent->recallOrigin)) // see if a custom recall origin was specified, too
 				item->recallOrigin = VALIDSTRING(ent->recallOrigin) ? ent->recallOrigin : "";
+			item->genericValue9 = 0; // no longer waiting to respawn
 			SiegeItemRespawnOnOriginalSpot(item, NULL);
 
 			if (VALIDSTRING(ent->recallTarget)) {
