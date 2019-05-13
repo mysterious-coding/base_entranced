@@ -5569,10 +5569,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// urban o hw no self-damage with rockets
-	if (level.siegeMap == SIEGEMAP_URBAN && mod >= MOD_ROCKET && mod <= MOD_ROCKET_HOMING_SPLASH &&
-		targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
+	if (g_gametype.integer == GT_SIEGE && GetSiegeMap() == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
 		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_HEAVY_WEAPONS &&
-		attacker && attacker == targ) {
+		mod >= MOD_ROCKET && mod <= MOD_ROCKET_HOMING_SPLASH && attacker == targ) {
 		return;
 	}
 
