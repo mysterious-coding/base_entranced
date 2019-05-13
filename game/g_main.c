@@ -1416,6 +1416,12 @@ static isLivePug_t CheckLivePug(char **reasonOut) {
 		return ISLIVEPUG_NO;
 	}
 
+	if ((g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none") && Q_stricmp(g_redTeam.string, "0")) ||
+		(g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && Q_stricmp(g_blueTeam.string, "0"))) {
+		*reasonOut = "custom classes in use";
+		return ISLIVEPUG_NO;
+	}
+
 	int numRed = 0, numBlue = 0;
 	for (gclient_t *cl = &level.clients[0]; cl - level.clients < MAX_CLIENTS; cl++) {
 		if (cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam == TEAM_SPECTATOR)
@@ -4474,6 +4480,7 @@ void CheckVote( void ) {
 			//special fix for siege status
 			if (!Q_strncmp(level.voteString, "vstr nextmap", sizeof(level.voteString))) {
 				SiegeClearSwitchData(); //clear siege to round 1 on nextmap vote
+				LivePugRuined("Vote", qfalse);
 			}
 			if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
 				SiegeClearSwitchData(); //clear siege to round 1 on map change vote
@@ -4482,9 +4489,14 @@ void CheckVote( void ) {
 					trap_Cvar_Set("g_redTeam", "none");
 					trap_Cvar_Set("g_blueTeam", "none");
 				}
+				LivePugRuined("Vote", qfalse);
+			}
+			if (!Q_stricmpn(level.voteString, "map_restart", 11)) {
+				LivePugRuined("Vote", qfalse);
 			}
 			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
 			{
+				LivePugRuined("Vote", qfalse);
 				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 				if (trap_Cvar_VariableIntegerValue("g_gametype") != level.votingGametypeTo)
 				{ //If we're voting to a different game type, be sure to refresh all the map stuff
@@ -5536,6 +5548,10 @@ void G_RunFrame( int levelTime ) {
 			level.mapCaptureRecords.readonly = qtrue;
 		} else if ( g_forceRegenTime.value != 200 ) {
 			G_Printf( S_COLOR_YELLOW"Force regen is not standard. Capture records won't be tracked during this map.\n" );
+			level.mapCaptureRecords.readonly = qtrue;
+		} else if ((g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none") && Q_stricmp(g_redTeam.string, "0")) ||
+			(g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && Q_stricmp(g_blueTeam.string, "0"))) {
+			G_Printf( S_COLOR_YELLOW"Custom classes are in use. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
 #ifndef _DEBUG
 		} else if ( g_siegeRespawn.integer != 20 ) {
