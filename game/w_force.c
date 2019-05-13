@@ -4338,33 +4338,33 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 	}
 }
 
-qboolean G_IsMindTricked(forcedata_t *fd, int client)
+qboolean G_IsMindTricked(forcedata_t *trickerFd, int targetClientNum)
 {
 	int checkIn;
 	int trickIndex1, trickIndex2, trickIndex3, trickIndex4;
 	int sub = 0;
 
-	if (!fd)
+	if (!trickerFd)
 	{
 		return qfalse;
 	}
 
-	trickIndex1 = fd->forceMindtrickTargetIndex;
-	trickIndex2 = fd->forceMindtrickTargetIndex2;
-	trickIndex3 = fd->forceMindtrickTargetIndex3;
-	trickIndex4 = fd->forceMindtrickTargetIndex4;
+	trickIndex1 = trickerFd->forceMindtrickTargetIndex;
+	trickIndex2 = trickerFd->forceMindtrickTargetIndex2;
+	trickIndex3 = trickerFd->forceMindtrickTargetIndex3;
+	trickIndex4 = trickerFd->forceMindtrickTargetIndex4;
 
-	if (client > 47)
+	if (targetClientNum > 47)
 	{
 		checkIn = trickIndex4;
 		sub = 48;
 	}
-	else if (client > 31)
+	else if (targetClientNum > 31)
 	{
 		checkIn = trickIndex3;
 		sub = 32;
 	}
-	else if (client > 15)
+	else if (targetClientNum > 15)
 	{
 		checkIn = trickIndex2;
 		sub = 16;
@@ -4374,11 +4374,36 @@ qboolean G_IsMindTricked(forcedata_t *fd, int client)
 		checkIn = trickIndex1;
 	}
 
-	if (checkIn & (1 << (client-sub)))
+	if (checkIn & (1 << (targetClientNum -sub)))
 	{
 		return qtrue;
 	}
 	
+	return qfalse;
+}
+
+qboolean IsMindTrickedByAnyone(int targetClientNum) {
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (!ent->client || ent->client->pers.connected != CON_CONNECTED || i == targetClientNum)
+			continue;
+		if (!(ent->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)))
+			continue;
+
+		int checkIn, sub;
+		if (targetClientNum > 15) {
+			checkIn = ent->client->ps.fd.forceMindtrickTargetIndex2;
+			sub = 16;
+		}
+		else {
+			checkIn = ent->client->ps.fd.forceMindtrickTargetIndex;
+			sub = 0;
+		}
+
+		if (checkIn & (1 << (targetClientNum - sub)))
+			return qtrue;
+	}
+
 	return qfalse;
 }
 
@@ -4421,7 +4446,7 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 			gentity_t *ent = &g_entities[i];
 
 			if ( !ent || !ent->client || !ent->inuse || ent->health < 1 ||
-				(ent->client->ps.fd.forcePowersActive & (1 << FP_SEE)) )
+				(ent->client->ps.fd.forcePowersActive & (1 << FP_SEE) && !(ent->client->sess.senseBoost && g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && !bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[FP_SEE])))
 			{
 				RemoveTrickedEnt(&self->client->ps.fd, i);
 			}

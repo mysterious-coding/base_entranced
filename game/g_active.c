@@ -2208,6 +2208,7 @@ If "g_synchronousClients 1" is set, this will be called exactly
 once for each server frame, which makes for smooth demo recording.
 ==============
 */
+qboolean IsMindTrickedByAnyone(int targetClientNum);
 void ClientThink_real( gentity_t *ent ) {
 	gclient_t	*client;
 	pmove_t		pm;
@@ -4207,7 +4208,7 @@ void ClientThink_real( gentity_t *ent ) {
 		case 2: interval = SENSEBOOST_LEVEL2_INTERVAL; break;
 		default: interval = SENSEBOOST_LEVEL3_INTERVAL; break;
 		}
-		if (level.time % interval <= 1000) {
+		if (level.time % interval <= 1000 && !IsMindTrickedByAnyone(ent - g_entities)) {
 			ent->client->ps.fd.forcePowerLevel[FP_SEE] = 3;
 			ent->client->ps.fd.forcePowersActive |= (1 << FP_SEE);
 		}
