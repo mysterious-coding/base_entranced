@@ -884,8 +884,7 @@ void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags,
 
 		if (flags & CAPTURERECORDFLAG_FULLMAP) { // round time includes times for each obj, too
 			for (int l = 0; l < MAX_SAVED_OBJECTIVES; l++) {
-				record->objTimes[k] = sqlite3_column_int(statement, k + l);
-				k++;
+				record->objTimes[l] = sqlite3_column_int(statement, k++);
 			}
 		}
 		else {

@@ -2553,7 +2553,7 @@ void SP_info_siege_objective(gentity_t *ent)
 			ent->s.eFlags &= ~EF_RADAROBJECT;
 		}
 	}
-	else if (level.siegeMatchWinner == SIEGEMAP_DESERT)
+	else if (level.siegeMap == SIEGEMAP_DESERT)
 	{
 		//they all start off radar
 		//(obj 1 uses separate icons for each (left/right) wall segment
