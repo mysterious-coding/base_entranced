@@ -1102,6 +1102,90 @@ static int LogCaptureTime(
 	return newIndex + 1;
 }
 
+// similar to LogCaptureTime, but used to check the ranking for a broader category without saving anything
+static int CheckRanking(
+	unsigned int ipInt1,
+	unsigned int ipInt2,
+	const char *cuid1,
+	const char *cuid2,
+	const int totalTime,
+	const CaptureCategoryFlags flags,
+	const CaptureCategoryFlags specificFlags,
+	CaptureRecordsForCategory *recordsPtr) {
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags) {
+		return 0;
+	}
+
+	CaptureRecord *recordArray = &recordsPtr->records[0];
+	int newIndex;
+
+	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
+	for (newIndex = 0; newIndex < MAX_SAVED_RECORDS; ++newIndex) {
+		if (!recordArray[newIndex].totalTime) {
+			continue; // not a valid record
+		}
+
+		// don't mix the two types of lookup
+		if (!(flags & CAPTURERECORDFLAG_COOP)) { // solo type
+			if (VALIDSTRING(cuid1)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid) && recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt && recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+		}
+		else { // co-op type
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid) &&
+					VALIDSTRING(recordArray[newIndex].recordHolder2Cuid) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolder2Cuid) &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt && ipInt2 == recordArray[newIndex].recordHolder2IpInt &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+		}
+	}
+
+	if (newIndex < MAX_SAVED_RECORDS) {
+		// we found an existing record for this player, so just use its index to overwrite it if it's better
+		if (totalTime >= recordArray[newIndex].totalTime) {
+			return 0; // our existing record is better, so don't save anything to avoid record spam
+		}
+
+		// we know we have AT LEAST done better than our current record, so we will save something in any case
+		// now, if we didn't already have the top record, check if we did less than the better records
+		if (newIndex > 0) {
+			const int currentRecordIndex = newIndex;
+
+			for (; newIndex > 0; --newIndex) {
+				if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime <= totalTime) {
+					break; // this one is better or equal, so use the index after it
+				}
+			}
+		}
+	}
+	else {
+		// this player doesn't have a record in this category yet, so find an index by comparing times from the worst to the best
+		for (newIndex = MAX_SAVED_RECORDS; newIndex > 0; --newIndex) {
+			if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime <= totalTime) {
+				break; // this one is better or equal, so use the index after it
+			}
+		}
+
+		// if the worst time is better, the index will point past the array, so don't bother
+		if (newIndex >= MAX_SAVED_RECORDS) {
+			return 0;
+		}
+	}
+
+	return newIndex + 1;
+}
+
 void SpeedRunModeRuined(const char *reason) {
 	if (level.mapCaptureRecords.speedRunModeRuined)
 		return;
@@ -1122,6 +1206,17 @@ void LivePugRuined(const char *reason, qboolean announce) {
 
 	trap_SendServerCommand(-1, va("print \"^1Pug is not live:^7 %s^7\n\"", reason));
 	trap_SendServerCommand(-1, va("cp \"^1Pug is not live:^7\n%s^7\n\"", reason));
+}
+
+static char *RankString(int rank) {
+	static char rankString[32] = { 0 };
+	switch (rank) {
+	case 1: Com_sprintf(rankString, sizeof(rankString), "^3Rank: GOLD^7"); break;
+	case 2: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^9SILVER^7"); break;
+	case 3: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^8BRONZE^7"); break;
+	default: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^1%d^7", rank);
+	}
+	return rankString;
 }
 
 // if fullmap completion, objective == -1
@@ -1230,6 +1325,31 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		return; // ???
 	}
 
+	// for speedruns, check whether we registered a rank for a broader (more prestigious) category
+	// e.g. if we performed a "speedrun fullmap co-op assault one-shot" run, check if we also ranked for simply "speedrun fullmap"
+	int broadRank = 0;
+	CaptureCategoryFlags broadFlags = flags;
+	if (flags & CAPTURERECORDFLAG_SPEEDRUN) {
+		broadFlags &= ~CAPTURERECORDFLAG_SOLO;
+		broadFlags &= ~CAPTURERECORDFLAG_COOP;
+		broadFlags &= ~CAPTURERECORDFLAG_ONESHOT;
+		broadFlags &= ~CAPTURERECORDFLAG_ASSAULT;
+		broadFlags &= ~CAPTURERECORDFLAG_HW;
+		broadFlags &= ~CAPTURERECORDFLAG_DEMO;
+		broadFlags &= ~CAPTURERECORDFLAG_TECH;
+		broadFlags &= ~CAPTURERECORDFLAG_SCOUT;
+		broadFlags &= ~CAPTURERECORDFLAG_JEDI;
+		if (broadFlags != flags) { // sanity check; make sure we are actually checking something different
+			CaptureRecordsForCategory broadRecords = { 0 };
+			G_LogDbLoadCaptureRecords(level.mapCaptureRecords.mapname, broadFlags, qfalse, &broadRecords);
+			broadRank = CheckRanking(client1->sess.ip,
+				client2 ? client2->sess.ip : 0,
+				client1->sess.auth == AUTHENTICATED ? client1->sess.cuidHash : "",
+				client2 && client2->sess.auth == AUTHENTICATED ? client2->sess.cuidHash : "",
+				timeInMilliseconds, broadFlags, flags, &broadRecords);
+		}
+	}
+
 	const int recordRank = LogCaptureTime(client1->sess.ip,
 		client2 ? client2->sess.ip : 0,
 		client1->pers.netname,
@@ -1257,16 +1377,20 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 	if (recordRank) {
 		// we just did a new capture record, broadcast it
 
-		char rankString[16];
-		switch (recordRank) {
-		case 1: Com_sprintf(rankString, sizeof(rankString), S_COLOR_YELLOW"Rank: GOLD"); break;
-		case 2: Com_sprintf(rankString, sizeof(rankString), S_COLOR_CYAN"Rank: "S_COLOR_GREY"SILVER"); break;
-		case 3: Com_sprintf(rankString, sizeof(rankString), S_COLOR_CYAN"Rank: "S_COLOR_ORANGE"BRONZE"); break;
-		default: Com_sprintf(rankString, sizeof(rankString), S_COLOR_CYAN"Rank: "S_COLOR_RED"%d", recordRank);
+		if (broadRank) { // if they ranked in a broader category, print that, with the exact category as an afterthought
+			char rankString[32] = { 0 };
+			Q_strncpyz(rankString, RankString(broadRank), sizeof(rankString));
+			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+				combinedNameString, rankString, GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), maxSpeed, avgSpeed, timeString));
+			Q_strncpyz(rankString, RankString(recordRank), sizeof(rankString));
+			trap_SendServerCommand(-1, va("print \"^7Also set record for %s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), rankString));
 		}
-
-		trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-			combinedNameString, rankString, GetLongNameForRecordFlags(level.mapname, flags, qtrue), maxSpeed, avgSpeed, timeString));
+		else { // just print the exact category they ranked in
+			char rankString[32] = { 0 };
+			Q_strncpyz(rankString, RankString(recordRank), sizeof(rankString));
+			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+				combinedNameString, RankString(recordRank), GetLongNameForRecordFlags(level.mapname, flags, qtrue), maxSpeed, avgSpeed, timeString));
+		}
 
 		// update the in-memory db so that toptimes can reflect this change
 		G_LogDbSaveCaptureRecords(&level.mapCaptureRecords);
