@@ -1411,7 +1411,7 @@ static isLivePug_t CheckLivePug(char **reasonOut) {
 		return ISLIVEPUG_NO;
 	}
 #endif
-	if (g_speed.integer != 250 || g_forceRegenTime.integer != 200 || !pmove_float.integer || g_saberDamageScale.value != 1.0f || g_gravity.integer != 760 || (level.siegeMap == SIEGEMAP_KORRIBAN && g_knockback.integer) || g_knockback.integer != 1000) {
+	if (g_speed.integer != 250 || g_forceRegenTime.integer != 200 || !pmove_float.integer || g_saberDamageScale.value != 1.0f || g_gravity.integer != 760 || (level.siegeMap == SIEGEMAP_KORRIBAN && !(g_knockback.integer == 1000 || !g_knockback.integer)) || g_knockback.integer != 1000) {
 		*reasonOut = "non-standard speed, force regen time, pmove_float, saber damage scale, gravity, or knockback";
 		return ISLIVEPUG_NO;
 	}
@@ -5540,7 +5540,7 @@ void G_RunFrame( int levelTime ) {
 		} else if ( g_gravity.value != 760 ) {
 			G_Printf( S_COLOR_YELLOW"Gravity is not standard. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
-		} else if ((level.siegeMap == SIEGEMAP_KORRIBAN && g_knockback.integer) || g_knockback.integer != 1000) {
+		} else if ((level.siegeMap == SIEGEMAP_KORRIBAN && !(g_knockback.integer == 1000 || !g_knockback.integer)) || g_knockback.integer != 1000) {
 			G_Printf(S_COLOR_YELLOW"Knockback is not standard. Capture records won't be tracked during this map.\n");
 			level.mapCaptureRecords.readonly = qtrue;
 		} else if ( g_saberDamageScale.value != 1.0f) {
