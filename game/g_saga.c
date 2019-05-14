@@ -1455,8 +1455,14 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)
 	if (g_gametype.integer == GT_SIEGE)
 	{
 		G_ValidateSiegeClassForTeam(ent, team);
-		if (team == TEAM_BLUE)
+		if (team == TEAM_BLUE) {
 			SpeedRunModeRuined("SetTeamQuick: blue");
+		}
+		else if (!level.mapCaptureRecords.speedRunModeRuined && team == TEAM_RED &&
+			(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+			level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= 10000) {
+			SpeedRunModeRuined("SetTeamQuick: joined red late"); // joined red after 10sec into the round
+		}
 	}
 
 	ent->client->sess.sessionTeam = team;

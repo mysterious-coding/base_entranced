@@ -3119,7 +3119,7 @@ char *ChopString(char *in, size_t targetLen) {
 	size_t colorlessLen = 0;
 	int i, numSkip;
 	static char out[CHOPSTRING_MAXSIZE];
-	memset(out, 0, sizeof(out));
+	memset(&out, 0, sizeof(out));
 	char *read = in, *write = out;
 
 	while (*read && colorlessLen < targetLen && strlen(out) < CHOPSTRING_MAXSIZE) {

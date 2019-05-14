@@ -1017,9 +1017,10 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE && ent - g_entities < MAX_CLIENTS &&
-		team != TEAM_SPECTATOR && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
-		// joining a non-spectator team mid-game breaks speedrun mode
+	if (!level.mapCaptureRecords.speedRunModeRuined && g_gametype.integer == GT_SIEGE && ent - g_entities < MAX_CLIENTS &&
+		(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+		(team == TEAM_BLUE || (team == TEAM_RED && level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= 10000))) {
+		// joining a non-spectator team after 10s+ into the round breaks speedrun mode
 		level.siegeTopTimes[ent - g_entities].hasChangedTeams = qtrue;
 		SpeedRunModeRuined("SetTeam: joined non-spectator team mid-game");
 	}
@@ -5863,7 +5864,9 @@ typedef struct {
 	qboolean hasPrinted;
 } BestTimeContext;
 
-#define NAME_PRINT_LENGTH	(30)
+#define TOPTIMES_NAME_BUFFER_SIZE					(128)
+#define TOPTIMES_NAME_MAX_PRINTABLE_CHARS			(45)
+#define TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME	(21)
 
 static void printBestTimeCallback( void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
 	const char *recordHolder1Name, unsigned int recordHolder1IpInt, const char *recordHolder1Cuid,
@@ -5890,7 +5893,7 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 
 	if ( !thisContext->hasPrinted ) {
 		// first time printing, show a header
-		trap_SendServerCommand( thisContext->entNum, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-30s  %-18s  %-38s\n\"", GetLongNameForRecordFlags( mapname, flags, qfalse ), "Map", "Time", "Name", "Date", "Category" ) );
+		trap_SendServerCommand( thisContext->entNum, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", GetLongNameForRecordFlags( mapname, flags, qfalse ), "Map", "Time", "Name", "Date", "Category" ) );
 	}
 
 	char identifier1[MAX_NETNAME + 1] = { 0 }, identifier2[MAX_NETNAME + 1] = { 0 };
@@ -5904,21 +5907,24 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 	if ( VALIDSTRING(recordHolder2Name) && !VALIDSTRING( identifier2 ) )
 		Q_strncpyz( identifier2, recordHolder2Name, sizeof( identifier2 ) );
 
-	char combinedNameString[64] = { 0 };
-	Q_strncpyz(combinedNameString, identifier1, sizeof(combinedNameString));
-	if (identifier2[0])
-		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", identifier2));
+	char combinedNameString[TOPTIMES_NAME_BUFFER_SIZE] = { 0 };
+	if (identifier2[0]) { // if two people, chop the names to be shorter
+		Q_strncpyz(combinedNameString, ChopString(identifier1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME), sizeof(combinedNameString));
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", ChopString(identifier2, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME)));
+	}
+	else { // if just one person, their name can be longer
+		Q_strncpyz(combinedNameString, ChopString(identifier1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS), sizeof(combinedNameString));
+	}
 
 	{ // pad the name string with spaces here because printf padding will ignore colors
-		int spacesToAdd = g_maxNameLength.integer - Q_PrintStrlen(combinedNameString);
+		int spacesToAdd = TOPTIMES_NAME_MAX_PRINTABLE_CHARS - Q_PrintStrlen(combinedNameString);
 		for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
-			if (combinedNameString[j] == '\0') {
+			if (!combinedNameString[j]) {
 				combinedNameString[j] = ' '; // replace null terminators with spaces
 				--spacesToAdd;
 			}
 		}
 		combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
-		Q_strncpyz(combinedNameString, ChopString(combinedNameString, NAME_PRINT_LENGTH), sizeof(combinedNameString));
 	}
 
 	int mins, secs, millis;
@@ -5943,7 +5949,7 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 	}
 
 	trap_SendServerCommand( thisContext->entNum, va(
-		"print \"^7%-26s^7  ^5%-9s^7  ^7%s  %s%-18s  ^7%-38s\n\"", mapname, timeString, identifier1, dateColor, date, GetLongNameForRecordFlags(mapname, thisRecordFlags, qtrue)) );
+		"print \"^7%-26s^7  ^5%-9s^7  ^7%s  %s%-18s  ^7%-38s\n\"", mapname, timeString, combinedNameString, dateColor, date, GetLongNameForRecordFlags(mapname, thisRecordFlags, qtrue)) );
 
 	thisContext->hasPrinted = qtrue;
 }
@@ -5964,7 +5970,7 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 	const char* categoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qfalse);
 
 	// prepend a newline and print the header
-	trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-30s  %-9s  %-6s  %-6s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "TopSpd", "AvgSpd", "Date", "Category"));
+	trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-45s  %-9s  %-6s  %-6s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "TopSpd", "AvgSpd", "Date", "Category"));
 
 	// print each record for this category as a row
 	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
@@ -5985,21 +5991,24 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 		if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
 			Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
 
-		char combinedNameString[64] = { 0 };
-		Q_strncpyz(combinedNameString, nameString1, sizeof(combinedNameString));
-		if (nameString2[0])
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", nameString2));
+		char combinedNameString[TOPTIMES_NAME_BUFFER_SIZE] = { 0 };
+		if (nameString2[0]) { // if two people, chop the names to be shorter
+			Q_strncpyz(combinedNameString, ChopString(nameString1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME), sizeof(combinedNameString));
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", ChopString(nameString2, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME)));
+		}
+		else { // if just one person, their name can be longer
+			Q_strncpyz(combinedNameString, ChopString(nameString1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS), sizeof(combinedNameString));
+		}
 
 		{ // pad the name string with spaces here because printf padding will ignore colors
-			int spacesToAdd = g_maxNameLength.integer - Q_PrintStrlen(combinedNameString);
+			int spacesToAdd = TOPTIMES_NAME_MAX_PRINTABLE_CHARS - Q_PrintStrlen(combinedNameString);
 			for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
-				if (combinedNameString[j] == '\0') {
+				if (!combinedNameString[j]) {
 					combinedNameString[j] = ' '; // replace null terminators with spaces
 					--spacesToAdd;
 				}
 			}
 			combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
-			Q_strncpyz(combinedNameString, ChopString(combinedNameString, NAME_PRINT_LENGTH), sizeof(combinedNameString));
 		}
 
 		int mins, secs, millis;
@@ -6110,16 +6119,15 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 			return;
 		} else if ( !Q_stricmp( buf, "rules" ) || !Q_stricmp(buf, "help") || !Q_stricmp(buf, "info") ) {
 			char *text =
-				"Rules:\n"
-				"Objectives that can be completed simultaneously (e.g. stations) are combined.\n\n"
-				"^3Speedrun^7 runs require there to be no other players ingame, and you may not change teams after joining red.\n"
+				"^2Live pug^7 runs are for live pugs (even teams, etc.)\n\n"
+				"^3Speedrun^7 runs require there to be nobody on blue team, nobody extra on red, and no changing teams after the start of the round.\n"
 				"While these conditions are intact, for consistent timings, you will spawn only at predetermined spawn points.\n"
-				"^3Live pug^7 runs are for live pugs (even teams, etc.)\n"
-				"Runs that don't qualify for either of these two categories, or were done with skillboost, fall into the ^3Any'/.^7 category.\n\n"
-				"^3Co-op^7 runs use the same rules as the ^3Speedrun^7 category, but with two people on red team.\n\n"
-				"^3<class>-Only^7 runs require playing only one class for the entire obj/map.\n"
-				"You may, however, change class within 500ms of completing an obj and still count as <new class>-only for the next obj.\n\n"
-				"^3One-shot^7 runs require completing the entire map in one life (no dying/selfkilling/changing class).";
+				"This category contains several sub-categories:\n"
+				"    ^5Co-op^7 runs require having a single teammate.\n"
+				"    ^5<class>-Only^7 runs require playing only one class for the entire obj/map.\n"
+				"    ^5One-shot^7 runs require completing the entire map in one life (no dying/selfkilling/changing class).\n\n"
+				"^1Any'/.^7 runs are any that don't qualify for either of these two categories, or were done with skillboost.\n"
+				"Objectives that can be completed simultaneously (e.g. stations) are combined.\n";
 			trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", text ) );
 			return;
 		} else {

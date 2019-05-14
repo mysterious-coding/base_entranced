@@ -869,17 +869,18 @@ void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags,
 		record->maxSpeed1 = sqlite3_column_int(statement, k++);
 		record->avgSpeed1 = sqlite3_column_int(statement, k++);
 
-		if (flags & CAPTURERECORDFLAG_COOP) {
-			const char *player2_name = (const char*)sqlite3_column_text(statement, k++);
-			if (VALIDSTRING(player2_name))
-				Q_strncpyz(record->recordHolder2Name, player2_name, sizeof(record->recordHolder2Name));
+		qboolean secondPlayer = qfalse;
+		const char *player2_name = (const char*)sqlite3_column_text(statement, k++);
+		if (VALIDSTRING(player2_name)) {
+			secondPlayer = qtrue;
+			Q_strncpyz(record->recordHolder2Name, player2_name, sizeof(record->recordHolder2Name));
 			record->recordHolder2IpInt = sqlite3_column_int(statement, k++);
 			const char *player2_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
 			if (VALIDSTRING(player2_cuid_hash2))
 				Q_strncpyz(record->recordHolder2Cuid, player2_cuid_hash2, sizeof(record->recordHolder2Cuid));
 		}
 		else {
-			k += 3;
+			k += 2;
 		}
 
 		if (flags & CAPTURERECORDFLAG_FULLMAP) { // round time includes times for each obj, too
@@ -897,7 +898,7 @@ void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags,
 		if (VALIDSTRING(match_id))
 			Q_strncpyz(record->matchId, match_id, sizeof(record->matchId));
 		record->recordHolder1ClientId = sqlite3_column_int( statement, k++);
-		if (flags & CAPTURERECORDFLAG_COOP)
+		if (secondPlayer)
 			record->recordHolder2ClientId = sqlite3_column_int(statement, k++);
 		else
 			k++;
