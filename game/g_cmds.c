@@ -5956,7 +5956,7 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 
 #define MAPLIST_MAPS_PER_PAGE		(15)
 #define MAX_CATEGORIES_TO_PRINT		(4)
-#define DEMOARCHIVE_BASE_MATCH_URL	"http://demos.jactf.com/match.html#rpc=lookup&id=%s"
+#define DEMOARCHIVE_BASE_MATCH_URL	"https://demos.jactf.com/match.html#rpc=lookup&id=%s"
 #define TOPTIMES_HELPMSG			"For [category], enter any combination of terms (such as obj1, obj2, map, jedi, tech, solo, coop, speedrun, anypercent, oneshot) without spaces.\nExamples:    map     solo     obj5pug     obj2anypercent    codesjedi    coopscoutoneshot"
 
 static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
@@ -6051,6 +6051,100 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 	return qtrue;
 }
 
+// sends the url for a demo to someone
+static qboolean GetDemoURL(CaptureCategoryFlags flags, int rank, gentity_t *ent) {
+	if (!flags || rank < 1 || rank > MAX_SAVED_RECORDS) {
+		assert(qfalse);
+		return qfalse;
+	}
+	CaptureRecordsForCategory localRecords = { 0 };
+	G_LogDbLoadCaptureRecords(level.mapCaptureRecords.mapname, flags, qfalse, &localRecords);
+	if (!localRecords.records[0].totalTime) // there is no first record for that category
+		return qfalse;
+
+	CaptureRecord *record = &localRecords.records[rank - 1];
+	if (!record->totalTime || !record->matchId[0])
+		return qfalse;
+
+	const char* categoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qfalse); // the category they entered
+	const char* thisCategoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qtrue); // the actual category (may be different)
+	char *rankString;
+	switch (rank) {
+	case 1: rankString = "^3GOLD^7 rank"; break;
+	case 2: rankString = "^9SILVER^7 rank"; break;
+	case 3: rankString = "^8BRONZE^7 rank"; break;
+	case 4: rankString = "Rank ^14^7"; break;
+	case 5: rankString = "Rank ^15^7"; break;
+	default: assert(qfalse); return qfalse;
+	}
+
+	char nameString1[64] = { 0 }, nameString2[64] = { 0 };
+	G_CfgDbListAliases(record->recordHolder1IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString1, record->recordHolder1Cuid);
+	if (record->recordHolder2Cuid[0])
+		G_CfgDbListAliases(record->recordHolder2IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString2, record->recordHolder2Cuid);
+
+	// no name in db for this guy, use the one we stored
+	if (!VALIDSTRING(nameString1))
+		Q_strncpyz(nameString1, record->recordHolder1Name, sizeof(nameString1));
+	if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
+		Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
+
+	// no name in db for this guy, use the one we stored
+	if (!VALIDSTRING(nameString1))
+		Q_strncpyz(nameString1, record->recordHolder1Name, sizeof(nameString1));
+	if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
+		Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
+
+	char combinedNameString[256] = { 0 };
+	if (nameString2[0]) { // two people
+		Q_strcat(combinedNameString, sizeof(combinedNameString), nameString1);
+		if (!Q_stricmp(nameString1, record->recordHolder1Name))
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (client %d)", record->recordHolder1ClientId));
+		else
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as client %d: %s^7)", record->recordHolder1ClientId, record->recordHolder1Name));
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", nameString2));
+		if (!Q_stricmp(nameString2, record->recordHolder2Name))
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (client %d)", record->recordHolder2ClientId));
+		else
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as client %d: %s^7)", record->recordHolder2ClientId, record->recordHolder2Name));
+	}
+	else { // one person
+		Q_strcat(combinedNameString, sizeof(combinedNameString), nameString1);
+		if (!Q_stricmp(nameString1, record->recordHolder1Name))
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (client %d)", record->recordHolder1ClientId));
+		else
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as client %d: %s^7)", record->recordHolder1ClientId, record->recordHolder1Name));
+	}
+
+	int mins, secs, millis;
+	PartitionedTimer(record->totalTime, &mins, &secs, &millis);
+
+	char timeString[10] = { 0 };
+	if (mins > 9) // 12:59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+	else if (mins > 0) // 2:59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+	else if (secs > 9) // 59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d.%03d", secs, millis);
+	else // 9.123
+		Com_sprintf(timeString, sizeof(timeString), "%d.%03d", secs, millis);
+
+	char date[19] = { 0 };
+	time_t now = time(NULL);
+	if (now - record->date < 60 * 60 * 24)
+		FormatLocalDateFromEpoch(date, sizeof(date), record->date, qtrue);
+	else
+		FormatLocalDateFromEpoch(date, sizeof(date), record->date, qfalse);
+
+	trap_SendServerCommand(ent - g_entities, va(
+		"print \"%s demo%s for ^5%s^7: %s in %s (^5%s^7), recorded %s\n\"",
+		rankString, nameString2[0] ? "s" : "", categoryName, combinedNameString, timeString, thisCategoryName, date));
+
+	trap_SendServerCommand(ent - g_entities, va("chat \"^1Demo link^7\x19: " DEMOARCHIVE_BASE_MATCH_URL "\"\n", record->matchId));
+
+	return qtrue;
+}
+
 void Cmd_TopTimes_f( gentity_t *ent ) {
 	if ( !ent || !ent->client || g_gametype.integer != GT_SIEGE) {
 		return;
@@ -6076,7 +6170,7 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	qboolean manuallySpecifiedFlags = qfalse, displayBothSpeedRunAndLivePugVariants = qfalse;
 
 	if ( trap_Argc() > 1 ) {
-		char buf[32];
+		char buf[64];
 		trap_Argv( 1, buf, sizeof( buf ) );
 
 		if ( !Q_stricmp( buf, "maplist" ) ) {
@@ -6117,7 +6211,8 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 				trap_SendServerCommand( ent - g_entities, va("print \"There aren't this many records! Try a lower page number.\nUsage: /toptimes maplist [category] [page]\n%s\n\"", TOPTIMES_HELPMSG));
 
 			return;
-		} else if ( !Q_stricmp( buf, "rules" ) || !Q_stricmp(buf, "help") || !Q_stricmp(buf, "info") ) {
+		}
+		else if (!Q_stricmp(buf, "rules") || !Q_stricmp(buf, "help") || !Q_stricmp(buf, "info")) {
 			char *text =
 				"^2Live pug^7 runs are for live pugs (even teams, etc.)\n\n"
 				"^3Speedrun^7 runs require there to be nobody on blue team, nobody extra on red, and no changing teams after the start of the round.\n"
@@ -6128,8 +6223,40 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 				"    ^5One-shot^7 runs require completing the entire map in one life (no dying/selfkilling/changing class).\n\n"
 				"^1Any'/.^7 runs are any that don't qualify for either of these two categories, or were done with skillboost.\n"
 				"Objectives that can be completed simultaneously (e.g. stations) are combined.\n";
-			trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", text ) );
+			trap_SendServerCommand(ent - g_entities, va("print \"%s\"", text));
 			return;
+		}
+		else if (!Q_stricmp(buf, "demo")) {
+			if (trap_Argc() < 4) {
+				trap_SendServerCommand(ent - g_entities, va("print \"Usage: /toptimes demo [category] [rank #]\n%s\n\"", TOPTIMES_HELPMSG));
+				return;
+			}
+			trap_Argv(2, buf, sizeof(buf));
+			flags = GetRecordFlagsForString(level.mapCaptureRecords.mapname, buf, &displayBothSpeedRunAndLivePugVariants, qfalse, qfalse);
+			if (!flags) {
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid category. Usage: /toptimes demo [category] [rank #]\n%s\n\"", TOPTIMES_HELPMSG));
+				return;
+			}
+			trap_Argv(3, buf, sizeof(buf));
+			int desiredRank = 0;
+			if (Q_isanumber(buf))
+				desiredRank = atoi(buf);
+			else if (tolower(buf[0]) == 'g')
+				desiredRank = 1; // gold
+			else if (tolower(buf[0]) == 's')
+				desiredRank = 2; // silver
+			else if (tolower(buf[0]) == 'b')
+				desiredRank = 3; // bronze
+			if (desiredRank < 1 || desiredRank > MAX_SAVED_RECORDS) {
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid rank number (must be between 1 through %d). Usage: /toptimes demo [category] [rank #]\n%s\n\"", MAX_SAVED_RECORDS, TOPTIMES_HELPMSG));
+				return;
+			}
+			if (!GetDemoURL(flags, desiredRank, ent)) {
+				const char* categoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qfalse);
+				trap_SendServerCommand(ent - g_entities, va("print \"Unable to find a demo for rank %d in category %s.\nUsage: /toptimes demo [category] [rank #]\n%s\n\"", desiredRank, categoryName, TOPTIMES_HELPMSG));
+			}
+			return;
+
 		} else {
 			// they typed an arg, but it wasn't "maplist" or "rules"; assume it's a category on the current map
 			flags = GetRecordFlagsForString( level.mapCaptureRecords.mapname, buf, &displayBothSpeedRunAndLivePugVariants, qfalse, qfalse);
@@ -6187,7 +6314,7 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	}
 
 	// display a little extra help message so they know other possibilities with this command
-	trap_SendServerCommand( ent - g_entities, va("print \"\nFor a list of records on all maps: /toptimes maplist [category]\n%s\nFor rules: /toptimes rules\n\"", TOPTIMES_HELPMSG));
+	trap_SendServerCommand( ent - g_entities, va("print \"To get a demo URL for a run: /toptimes demo [category] [rank #]\nFor a list of records on all maps: /toptimes maplist [category]\n%s\nFor rules: /toptimes rules\n\"", TOPTIMES_HELPMSG));
 }
 
 void Cmd_UsePack_f(gentity_t *ent) {
