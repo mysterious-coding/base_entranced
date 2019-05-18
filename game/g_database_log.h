@@ -58,8 +58,10 @@ void G_DbRemovePlayerFromWhitelist(unsigned long long uniqueID, const char* cuid
 void G_LogDbLoadCaptureRecords(const char *mapname, CaptureCategoryFlags flags, qboolean strict, CaptureRecordsForCategory *out);
 
 typedef void( *ListAllMapsCapturesCallback )(void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
-	const char *recordHolder1Name, unsigned int recordHolder1IpInt, const char *recordHolder1Cuid,
-	const char *recordHolder2Name, unsigned int recordHolder2IpInt, const char *recordHolder2Cuid,
+	const char *recordHolderName1, unsigned int recordHolderIpInt1, const char *recordHolderCuid1,
+	const char *recordHolderName2, unsigned int recordHolderIpInt2, const char *recordHolderCuid2,
+	const char *recordHolderName3, unsigned int recordHolderIpInt3, const char *recordHolderCuid3,
+	const char *recordHolderName4, unsigned int recordHolderIpInt4, const char *recordHolderCuid4,
 	int bestTime, time_t bestTimeDate);
 
 void G_LogDbListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int offset, ListAllMapsCapturesCallback callback, void *context );

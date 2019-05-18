@@ -170,6 +170,25 @@ static void PrintObjStat(int objective, int heldForMax) {
 	G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
 	G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
 	G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
+
+	// debug message to help investigate bugged times
+	if (ms < 0 || ms > level.time - level.siegeRoundStartTime) {
+		Com_Printf("PRINTOBJSTAT DEBUG: %s %s %s %s %s/%s %s %s %s %s/%s %s %s %s %s/%s %s %s %s %s/%s %s %s %s %s/%s %s %s %s %s/%s %s %s %s %s/%s %s %s\n",
+			siege_r1_obj0.string, siege_r1_obj1.string, siege_r1_obj2.string,
+			siege_r1_obj3.string, siege_r1_obj4.string, siege_r1_obj5.string,
+			siege_r1_obj6.string, siege_r1_obj7.string, siege_r1_obj8.string,
+			siege_r1_obj9.string, siege_r1_obj10.string, siege_r1_obj11.string,
+			siege_r1_obj12.string, siege_r1_obj13.string, siege_r1_obj14.string,
+			siege_r1_obj15.string, siege_r1_objscompleted.string,
+			siege_r1_heldformaxat.string, siege_r1_heldformaxtime.string,
+			siege_r2_obj0.string, siege_r2_obj1.string, siege_r2_obj2.string,
+			siege_r2_obj3.string, siege_r2_obj4.string, siege_r2_obj5.string,
+			siege_r2_obj6.string, siege_r2_obj7.string, siege_r2_obj8.string,
+			siege_r2_obj9.string, siege_r2_obj10.string, siege_r2_obj11.string,
+			siege_r2_obj12.string, siege_r2_obj13.string, siege_r2_obj14.string,
+			siege_r2_obj15.string, siege_r2_objscompleted.string,
+			siege_r2_heldformaxat.string, siege_r2_heldformaxtime.string);
+	}
 }
 
 //go through all classes on a team and register their
@@ -890,8 +909,7 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 		else { // only speedruns can have co-op
 			if ( !client2->runInvalid && !level.siegeTopTimes[client2 - level.clients].attackedByNonTeammate &&
 				!level.siegeTopTimes[client2 - level.clients].hasChangedTeams) {
-				flags |= CAPTURERECORDFLAG_SPEEDRUN;
-				flags |= CAPTURERECORDFLAG_COOP;
+				flags |= CAPTURERECORDFLAG_SPEEDRUN | CAPTURERECORDFLAG_COOP;
 			}
 			else {
 				if (level.isLivePug == ISLIVEPUG_YES)
@@ -969,7 +987,14 @@ static int LogCaptureTime(
 	const time_t date,
 	const CaptureCategoryFlags flags,
 	CaptureRecordsForCategory *recordsPtr,
-	CombinedObjNumber objNum)
+	CombinedObjNumber objNum,
+	unsigned int ipInt3,
+	unsigned int ipInt4,
+	const char *netname3,
+	const char *netname4,
+	const char *cuid3,
+	const char *cuid4
+	)
 {
 	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags) {
 		return 0;
@@ -979,30 +1004,58 @@ static int LogCaptureTime(
 	int newIndex;
 
 	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
+	// duoTODO: fix this for live pugs
 	for (newIndex = 0; newIndex < MAX_SAVED_RECORDS; ++newIndex) {
 		if (!recordArray[newIndex].totalTime) {
 			continue; // not a valid record
 		}
 
 		// don't mix the two types of lookup
-		if (!(flags & CAPTURERECORDFLAG_COOP)) { // solo type
+		if (!VALIDSTRING(netname2)) { // 1 player
 			if (VALIDSTRING(cuid1)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid))
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]))
 					break;
 			}
 			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt)
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0])
 					break;
 			}
 		}
-		else { // co-op type
+		else if (!VALIDSTRING(netname3)) { // 2 players
 			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid) &&
-					VALIDSTRING(recordArray[newIndex].recordHolder2Cuid) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolder2Cuid))
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]))
 					break;
 			}
 			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt && ipInt2 == recordArray[newIndex].recordHolder2IpInt)
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1])
+					break;
+			}
+		}
+		else if (!VALIDSTRING(netname4)) { // 3 players
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2) && VALIDSTRING(cuid3)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[2]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[2]))
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
+					ipInt3 == recordArray[newIndex].recordHolderIpInts[2])
+					break;
+			}
+		}
+		else  { // 4 players
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2) && VALIDSTRING(cuid3) && VALIDSTRING(cuid4)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[2]) && !Q_stricmp(cuid3, recordArray[newIndex].recordHolderCuids[2]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[3]) && !Q_stricmp(cuid4, recordArray[newIndex].recordHolderCuids[3]))
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
+					ipInt3 == recordArray[newIndex].recordHolderIpInts[2] && ipInt4 == recordArray[newIndex].recordHolderIpInts[3])
 					break;
 			}
 		}
@@ -1053,16 +1106,26 @@ static int LogCaptureTime(
 	// overwrite the selected element with the new record
 	CaptureRecord *newElement = &recordArray[newIndex];
 	if (VALIDSTRING(netname1))
-		Q_strncpyz(newElement->recordHolder1Name, netname1, sizeof(newElement->recordHolder1Name));
+		Q_strncpyz(newElement->recordHolderNames[0], netname1, sizeof(newElement->recordHolderNames[0]));
 	else
-		newElement->recordHolder1Name[0] = '\0';
-	if (flags & CAPTURERECORDFLAG_COOP && VALIDSTRING(netname2))
-		Q_strncpyz(newElement->recordHolder2Name, netname2, sizeof(newElement->recordHolder2Name));
+		newElement->recordHolderNames[0][0] = '\0';
+	if (VALIDSTRING(netname2))
+		Q_strncpyz(newElement->recordHolderNames[1], netname2, sizeof(newElement->recordHolderNames[1]));
 	else
-		newElement->recordHolder2Name[0] = '\0';
+		newElement->recordHolderNames[1][0] = '\0';
+	if (VALIDSTRING(netname3))
+		Q_strncpyz(newElement->recordHolderNames[2], netname3, sizeof(newElement->recordHolderNames[2]));
+	else
+		newElement->recordHolderNames[2][0] = '\0';
+	if (VALIDSTRING(netname4))
+		Q_strncpyz(newElement->recordHolderNames[3], netname4, sizeof(newElement->recordHolderNames[3]));
+	else
+		newElement->recordHolderNames[3][0] = '\0';
 
-	newElement->recordHolder1IpInt = ipInt1;
-	newElement->recordHolder2IpInt = ipInt2;
+	newElement->recordHolderIpInts[0] = ipInt1;
+	newElement->recordHolderIpInts[1] = ipInt2;
+	newElement->recordHolderIpInts[2] = ipInt3;
+	newElement->recordHolderIpInts[3] = ipInt4;
 	newElement->totalTime = totalTime;
 	newElement->maxSpeed1 = maxSpeed1;
 	newElement->avgSpeed1 = avgSpeed1;
@@ -1080,13 +1143,21 @@ static int LogCaptureTime(
 
 	// cuid is optional, empty for clients without one
 	if (VALIDSTRING(cuid1))
-		Q_strncpyz(newElement->recordHolder1Cuid, cuid1, sizeof(newElement->recordHolder1Cuid));
+		Q_strncpyz(newElement->recordHolderCuids[0], cuid1, sizeof(newElement->recordHolderCuids[0]));
 	else
-		newElement->recordHolder1Cuid[0] = '\0';
-	if (flags & CAPTURERECORDFLAG_COOP && VALIDSTRING(cuid2))
-		Q_strncpyz(newElement->recordHolder2Cuid, cuid2, sizeof(newElement->recordHolder2Cuid));
+		newElement->recordHolderCuids[0][0] = '\0';
+	if (VALIDSTRING(cuid2))
+		Q_strncpyz(newElement->recordHolderCuids[1], cuid2, sizeof(newElement->recordHolderCuids[1]));
 	else
-		newElement->recordHolder2Cuid[0] = '\0';
+		newElement->recordHolderCuids[1][0] = '\0';
+	if (VALIDSTRING(cuid3))
+		Q_strncpyz(newElement->recordHolderCuids[2], cuid3, sizeof(newElement->recordHolderCuids[2]));
+	else
+		newElement->recordHolderCuids[2][0] = '\0';
+	if (VALIDSTRING(cuid4))
+		Q_strncpyz(newElement->recordHolderCuids[3], cuid4, sizeof(newElement->recordHolderCuids[3]));
+	else
+		newElement->recordHolderCuids[3][0] = '\0';
 
 	// match id is optional, empty if sv_uniqueid is not implemented in this OpenJK version
 	if (VALIDSTRING(matchId) && strlen(matchId) == SV_UNIQUEID_LEN - 1) {
@@ -1126,25 +1197,25 @@ static int CheckRanking(
 		}
 
 		// don't mix the two types of lookup
-		if (!(flags & CAPTURERECORDFLAG_COOP)) { // solo type
+		if (!(flags & CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_SPEEDRUN)) { // solo type
 			if (VALIDSTRING(cuid1)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid) && recordArray[newIndex].flags == specificFlags)
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) && recordArray[newIndex].flags == specificFlags)
 					break;
 			}
 			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt && recordArray[newIndex].flags == specificFlags)
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && recordArray[newIndex].flags == specificFlags)
 					break;
 			}
 		}
 		else { // co-op type
 			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolder1Cuid) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolder1Cuid) &&
-					VALIDSTRING(recordArray[newIndex].recordHolder2Cuid) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolder2Cuid) &&
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
 					recordArray[newIndex].flags == specificFlags)
 					break;
 			}
 			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolder1IpInt && ipInt2 == recordArray[newIndex].recordHolder2IpInt &&
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
 					recordArray[newIndex].flags == specificFlags)
 					break;
 			}
@@ -1230,9 +1301,9 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		return;
 	}
 
-	gclient_t *client1 = NULL, *client2 = NULL;
+	gclient_t *clients[4] = { NULL };
 	if (clientNumOverride >= 0 && clientNumOverride < MAX_CLIENTS) {
-		client1 = &level.clients[clientNumOverride];
+		clients[0] = &level.clients[clientNumOverride];
 	}
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		gclient_t *cl = &level.clients[i];
@@ -1240,75 +1311,92 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 			continue;
 		if (cl->sess.sessionTeam != TEAM_RED)
 			continue;
-		if (client1 == cl)
+		if (clients[0] == cl)
 			continue;
-		if (!client1) {
-			client1 = cl;
-		} else if (!client2) {
-			client2 = cl;
+		if (!clients[0]) {
+			clients[0] = cl;
+		} else if (!clients[1]) {
+			clients[1] = cl;
+		} else if (!clients[2]) {
+			clients[2] = cl;
+		} else if (!clients[3]) {
+			clients[3] = cl;
 		} else {
-			client2 = NULL;
 			break;
 		}
 	}
-	if (!client1)
+	if (!clients[0])
 		return; // nobody is on red...?
 
-	const CaptureCategoryFlags flags = CaptureFlagsForRun(client1, client2, objective);
+	const CaptureCategoryFlags flags = CaptureFlagsForRun(clients[0], clients[1], objective);
 	if (!flags)
 		return; // invalid
-	if (!(flags & CAPTURERECORDFLAG_COOP) || !(flags & CAPTURERECORDFLAG_SPEEDRUN))
-		client2 = NULL; // sanity check: non-coop or non-speedruns cannot have client2
+	if (!(flags & CAPTURERECORDFLAG_LIVEPUG)) {
+		if (!(flags & CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_SPEEDRUN))
+			clients[1] = NULL; // sanity check: non-coopspeedruns cannot have clients[1]
+		clients[2] = clients[3] = NULL; // in any case, non-livepugs can only have 2 players at most
+	}
 
 	char matchId[SV_UNIQUEID_LEN];
 	trap_Cvar_VariableStringBuffer("sv_uniqueid", matchId, sizeof(matchId)); // this requires a custom OpenJK build
 
 	// store per-obj speeds for calculating the entire-map speeds later
-	float *displacementPtr[2], *topSpeedPtr[2];
-	int *displacementSamplesPtr[2];
-	if (flags & CAPTURERECORDFLAG_FULLMAP) {
-		displacementPtr[0] = &client1->pers.totalDisplacement;
-		topSpeedPtr[0] = &client1->pers.totalTopSpeed;
-		displacementSamplesPtr[0] = &client1->pers.totalDisplacementSamples;
-		if (client2) {
-			displacementPtr[1] = &client2->pers.totalDisplacement;
-			topSpeedPtr[1] = &client2->pers.totalTopSpeed;
-			displacementSamplesPtr[1] = &client2->pers.totalDisplacementSamples;
+	float *disp[4] = { NULL }, *topSpeed[4] = { NULL };
+	int *samples[4] = { NULL };
+	if (flags & CAPTURERECORDFLAG_FULLMAP) { // full map
+		for (int i = 0; i < 4; i++) {
+			gclient_t *cl = clients[i];
+			if (!cl)
+				break;
+			disp[i] = &cl->pers.totalDisplacement;
+			topSpeed[i] = &cl->pers.totalTopSpeed;
+			samples[i] = &cl->pers.totalDisplacementSamples;
 		}
 	}
-	else {
-		client1->pers.totalDisplacement += client1->pers.displacement;
-		client1->pers.totalDisplacementSamples += client1->pers.displacementSamples;
-		if (client1->pers.topSpeed > client1->pers.totalTopSpeed)
-			client1->pers.totalTopSpeed = client1->pers.topSpeed;
-		displacementPtr[0] = &client1->pers.displacement;
-		topSpeedPtr[0] = &client1->pers.topSpeed;
-		displacementSamplesPtr[0] = &client1->pers.displacementSamples;
-		if (client2) {
-			client2->pers.totalDisplacement += client2->pers.displacement;
-			client2->pers.totalDisplacementSamples += client2->pers.displacementSamples;
-			if (client2->pers.topSpeed > client2->pers.totalTopSpeed)
-				client2->pers.totalTopSpeed = client2->pers.topSpeed;
-			displacementPtr[1] = &client2->pers.displacement;
-			topSpeedPtr[1] = &client2->pers.topSpeed;
-			displacementSamplesPtr[1] = &client2->pers.displacementSamples;
+	else { // an individual obj
+		for (int i = 0; i < 4; i++) {
+			gclient_t *cl = clients[i];
+			if (!cl)
+				break;
+			cl->pers.totalDisplacement += cl->pers.displacement;
+			cl->pers.totalDisplacementSamples += cl->pers.displacementSamples;
+			if (cl->pers.topSpeed > cl->pers.totalTopSpeed)
+				cl->pers.totalTopSpeed = cl->pers.topSpeed;
+			disp[i] = &cl->pers.displacement;
+			topSpeed[i] = &cl->pers.topSpeed;
+			samples[i] = &cl->pers.displacementSamples;
 		}
 	}
 
-	int maxSpeed, avgSpeed;
-	if (client2) {
-		int maxSpeed1 = (int)(*(topSpeedPtr[0]) + 0.5f);
-		int maxSpeed2 = (int)(*(topSpeedPtr[1]) + 0.5f);
-		maxSpeed = maxSpeed1 > maxSpeed2 ? maxSpeed1 : maxSpeed2;
-		if (*(displacementSamplesPtr[0]) && *(displacementSamplesPtr[1]))
-			avgSpeed = (int)((((*(displacementPtr[0]) * g_svfps.value) + (*(displacementPtr[1]) * g_svfps.value)) / (*(displacementSamplesPtr[0]) + *(displacementSamplesPtr[1]))) + 0.5f);
-		else
-			avgSpeed = 0;
+	int maxSpeed = 0, avgSpeed = 0;
+	if (clients[1]) { // multiple players
+		int samplesBetweenAllPlayers = 0;
+		float displacementBetweenAllPlayers = 0.0f;
+		int numPlayersWithSamples = 0;
+		for (int i = 0; i < 4; i++) {
+			if (!clients[i])
+				break;
+			int thisGuyMaxSpeed = (int)(*(topSpeed[i]) + 0.5f);
+			if (thisGuyMaxSpeed > maxSpeed)
+				maxSpeed = thisGuyMaxSpeed;
+			if (*(samples[i])) {
+				samplesBetweenAllPlayers += *(samples[i]);
+				displacementBetweenAllPlayers += *(disp[i]);
+				numPlayersWithSamples++;
+			}
+		}
+		if (numPlayersWithSamples) {
+			float mean = (displacementBetweenAllPlayers * g_svfps.value) / samplesBetweenAllPlayers;
+			avgSpeed = (int)(mean + 0.5f);
+		}
+		else {
+			assert(qfalse);
+		}
 	}
-	else {
-		maxSpeed = (int)(*(topSpeedPtr[0]) + 0.5f);
-		if (*(displacementSamplesPtr[0]))
-			avgSpeed = (*(displacementPtr[0]) * g_svfps.value) / *(displacementSamplesPtr[0]);
+	else { // just a single player
+		maxSpeed = (int)(*(topSpeed[0]) + 0.5f);
+		if (*(samples[0]))
+			avgSpeed = (*(disp[0]) * g_svfps.value) / *(samples[0]);
 		else
 			avgSpeed = 0;
 	}
@@ -1318,7 +1406,7 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		gclient_t *cl = &level.clients[i];
 		cl->pers.displacement = cl->pers.displacementSamples = cl->pers.topSpeed = 0;
 	}
-	
+
 	CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
 	if (!recordsPtr) {
 		assert(qfalse);
@@ -1342,37 +1430,60 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		if (broadFlags != flags) { // sanity check; make sure we are actually checking something different
 			CaptureRecordsForCategory broadRecords = { 0 };
 			G_LogDbLoadCaptureRecords(level.mapCaptureRecords.mapname, broadFlags, qfalse, &broadRecords);
-			broadRank = CheckRanking(client1->sess.ip,
-				client2 ? client2->sess.ip : 0,
-				client1->sess.auth == AUTHENTICATED ? client1->sess.cuidHash : "",
-				client2 && client2->sess.auth == AUTHENTICATED ? client2->sess.cuidHash : "",
+			broadRank = CheckRanking(clients[0]->sess.ip,
+				clients[1] ? clients[1]->sess.ip : 0,
+				clients[0]->sess.auth == AUTHENTICATED ? clients[0]->sess.cuidHash : "",
+				clients[1] && clients[1]->sess.auth == AUTHENTICATED ? clients[1]->sess.cuidHash : "",
 				timeInMilliseconds, broadFlags, flags, &broadRecords);
 		}
 	}
 
-	const int recordRank = LogCaptureTime(client1->sess.ip,
-		client2 ? client2->sess.ip : 0,
-		client1->pers.netname,
-		client2 ? client2->pers.netname : "",
-		client1->sess.auth == AUTHENTICATED ? client1->sess.cuidHash : "",
-		client2 && client2->sess.auth == AUTHENTICATED ? client2->sess.cuidHash : "",
-		client1 - level.clients,
-		client2 ? client2 - level.clients : -1,
+	const int recordRank = LogCaptureTime(clients[0]->sess.ip,
+		clients[1] ? clients[1]->sess.ip : 0,
+		clients[0]->pers.netname,
+		clients[1] ? clients[1]->pers.netname : "",
+		clients[0]->sess.auth == AUTHENTICATED ? clients[0]->sess.cuidHash : "",
+		clients[1] && clients[1]->sess.auth == AUTHENTICATED ? clients[1]->sess.cuidHash : "",
+		clients[0] - level.clients,
+		clients[1] ? clients[1] - level.clients : -1,
 		matchId, timeInMilliseconds, maxSpeed, avgSpeed,
-		time(NULL), flags, recordsPtr, objective);
+		time(NULL), flags, recordsPtr, objective,
+		clients[2] ? clients[2]->sess.ip : 0,
+		clients[3] ? clients[3]->sess.ip : 0,
+		clients[2] ? clients[2]->pers.netname : "",
+		clients[3] ? clients[3]->pers.netname : "",
+		clients[2] && clients[2]->sess.auth == AUTHENTICATED ? clients[2]->sess.cuidHash : "",
+		clients[3] && clients[3]->sess.auth == AUTHENTICATED ? clients[3]->sess.cuidHash : "");
 
+	// we only print multiple names if it's two people in a coopspeedrun
+	// i.e. in a live pug, just print the name of the person who actually did the obj
 	char combinedNameString[64] = { 0 };
-	Q_strncpyz(combinedNameString, client1->pers.netname, sizeof(combinedNameString));
-	if (client2)
-		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", client2->pers.netname));
+	Q_strncpyz(combinedNameString, clients[0]->pers.netname, sizeof(combinedNameString));
+	if (clients[1] && flags & (CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_SPEEDRUN))
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", clients[1]->pers.netname));
 
 	int mins, secs, millis;
 	PartitionedTimer(timeInMilliseconds, &mins, &secs, &millis);
-	char timeString[16] = { 0 };
-	if (mins > 0)
-		Com_sprintf(timeString, sizeof(timeString), "%d:%2d.%03d", mins, secs, millis);
-	else
-		Com_sprintf(timeString, sizeof(timeString), "%2d.%03d", secs, millis);
+	char timeString[10] = { 0 };
+	if (mins > 9) // 12:59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+	else if (mins > 0) // 2:59.123
+		Com_sprintf(timeString, sizeof(timeString), " %d:%02d.%03d", mins, secs, millis);
+	else if (secs > 9) // 59.123
+		Com_sprintf(timeString, sizeof(timeString), "   %d.%03d", secs, millis);
+	else // 9.123
+		Com_sprintf(timeString, sizeof(timeString), "    %d.%03d", secs, millis);
+
+	char *topSpeedPhrase;
+	if (clients[2]) {
+		if (flags & (CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_SPEEDRUN))
+			topSpeedPhrase = "Co-op t"; // coopspeedrun: "Co-op top speed"
+		else
+			topSpeedPhrase = "Team t"; // live pug: "Team top speed"
+	}
+	else {
+		topSpeedPhrase = "T"; // everything else: "Top speed"
+	}
 
 	if (recordRank) {
 		// we just did a new capture record, broadcast it
@@ -1380,16 +1491,16 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		if (broadRank) { // if they ranked in a broader category, print that, with the exact category as an afterthought
 			char rankString[32] = { 0 };
 			Q_strncpyz(rankString, RankString(broadRank), sizeof(rankString));
-			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-				combinedNameString, rankString, GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), maxSpeed, avgSpeed, timeString));
+			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+				combinedNameString, rankString, GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 			Q_strncpyz(rankString, RankString(recordRank), sizeof(rankString));
 			trap_SendServerCommand(-1, va("print \"^7Also set record for %s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), rankString));
 		}
 		else { // just print the exact category they ranked in
 			char rankString[32] = { 0 };
 			Q_strncpyz(rankString, RankString(recordRank), sizeof(rankString));
-			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-				combinedNameString, RankString(recordRank), GetLongNameForRecordFlags(level.mapname, flags, qtrue), maxSpeed, avgSpeed, timeString));
+			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+				combinedNameString, RankString(recordRank), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 		}
 
 		// update the in-memory db so that toptimes can reflect this change
@@ -1397,11 +1508,11 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 	}
 	else if (!(flags & CAPTURERECORDFLAG_LIVEPUG)) {
 		// we didn't make a new record, but that was still a valid run. show them what time they did
-		char *msg = va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5Top speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-			GetLongNameForRecordFlags(level.mapname, flags, qtrue), maxSpeed, avgSpeed, timeString, qtrue);
-		trap_SendServerCommand(client1 - level.clients, msg);
-		if (client2)
-			trap_SendServerCommand(client2 - level.clients, msg);
+		char *msg = va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+			GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString, qtrue);
+		trap_SendServerCommand(clients[0] - level.clients, msg);
+		if (clients[1])
+			trap_SendServerCommand(clients[1] - level.clients, msg);
 	}
 }
 

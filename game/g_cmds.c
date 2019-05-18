@@ -5864,59 +5864,103 @@ typedef struct {
 	qboolean hasPrinted;
 } BestTimeContext;
 
-#define TOPTIMES_NAME_BUFFER_SIZE					(128)
-#define TOPTIMES_NAME_MAX_PRINTABLE_CHARS			(45)
-#define TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME	(21)
+#define TOPTIMES_NAME_BUFFER_SIZE								(256)
+#define TOPTIMES_NAME_MAX_PRINTABLE_CHARS						(45)
+#define TOPTIMES_2NAMES_MAX_PRINTABLE_CHARS_PER_NAME			(21)
+#define TOPTIMES_3NAMES_MAX_PRINTABLE_CHARS_PER_NAME			(14)
+#define TOPTIMES_4NAMES_MAX_PRINTABLE_CHARS_PER_NAME			(10)
 
-static void printBestTimeCallback( void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
-	const char *recordHolder1Name, unsigned int recordHolder1IpInt, const char *recordHolder1Cuid,
-	const char *recordHolder2Name, unsigned int recordHolder2IpInt, const char *recordHolder2Cuid,
-	int bestTime, time_t bestTimeDate ) {
-	BestTimeContext* thisContext = ( BestTimeContext* )context;
-
-	// if we are printing the current map, since we only save new records at the end of the round, check if we beat the top time during this session
-	// and print that one instead (the record in DB will stay outdated until round ends)
-	if ( !Q_stricmp( mapname, level.mapCaptureRecords.mapname ) ) {
-		CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
-		const CaptureRecord *currentRecord = &recordsPtr->records[0];
-
-		if ( currentRecord->totalTime && currentRecord->totalTime < bestTime ) {
-			recordHolder1Name = currentRecord->recordHolder1Name;
-			recordHolder2Name = currentRecord->recordHolder1Name;
-			recordHolder1IpInt = currentRecord->recordHolder1IpInt;
-			recordHolder1Cuid = currentRecord->recordHolder1Cuid;
-			recordHolder2Cuid = currentRecord->recordHolder2Cuid;
-			bestTime = currentRecord->totalTime;
-			bestTimeDate = currentRecord->date;
+// returns a combined string of player names, e.g.
+// ^1friend^7
+// ^1friend^9 & ^2buddy^7
+// ^1friend^9, ^2buddy^9, ^3pal^7
+// ^1friend^9, ^2buddy^9, ^3pal^9, ^4guy^7
+static char *CombineNames(const char *inName1, const char *inName2, const char *inName3, const char *inName4, qboolean padSpaces) {
+	static char combinedNameString[256] = { 0 };
+	memset(&combinedNameString, 0, sizeof(combinedNameString));
+	char name[LOGGED_PLAYERS_PER_OBJ][64] = { 0 };
+	int players = 0;
+	if (VALIDSTRING(inName1)) {
+		Q_strncpyz(name[0], inName1, sizeof(name[0]));
+		players++;
+	}
+	else {
+		assert(qfalse);
+		return "";
+	}
+	if (VALIDSTRING(inName2)) {
+		Q_strncpyz(name[1], inName2, sizeof(name[1]));
+		players++;
+		if (VALIDSTRING(inName3)) {
+			Q_strncpyz(name[2], inName3, sizeof(name[2]));
+			players++;
+			if (VALIDSTRING(inName4)) {
+				Q_strncpyz(name[3], inName4, sizeof(name[3]));
+				players++;
+			}
 		}
 	}
 
-	if ( !thisContext->hasPrinted ) {
-		// first time printing, show a header
-		trap_SendServerCommand( thisContext->entNum, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", GetLongNameForRecordFlags( mapname, flags, qfalse ), "Map", "Time", "Name", "Date", "Category" ) );
+	int freeChars = TOPTIMES_NAME_MAX_PRINTABLE_CHARS;
+	switch (players) {
+	case 1:
+		Q_strncpyz(combinedNameString, ChopString(inName1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS), sizeof(combinedNameString));
+		if (padSpaces) { // pad the name string with spaces here because printf padding will ignore colors
+			int spacesToAdd = TOPTIMES_NAME_MAX_PRINTABLE_CHARS - Q_PrintStrlen(combinedNameString);
+			for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
+				if (!combinedNameString[j]) {
+					combinedNameString[j] = ' '; // replace null terminators with spaces
+					--spacesToAdd;
+				}
+			}
+			combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
+		}
+		return combinedNameString;
+	case 2: freeChars -= strlen(" & "); break;
+	case 3: freeChars -= strlen(", , "); break;
+	case 4: freeChars -= strlen(", , , "); break;
+	default: assert(qfalse); return "";
 	}
 
-	char identifier1[MAX_NETNAME + 1] = { 0 }, identifier2[MAX_NETNAME + 1] = { 0 };
-	G_CfgDbListAliases( recordHolder1IpInt, ( unsigned int )0xFFFFFFFF, 1, copyTopNameCallback, &identifier1, recordHolder1Cuid );
-	if (VALIDSTRING(recordHolder2Cuid))
-		G_CfgDbListAliases(recordHolder2IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifier2, recordHolder2Cuid);
-
-	// no name in db for this guy, use the one we stored
-	if ( !VALIDSTRING( identifier1 ) )
-		Q_strncpyz( identifier1, recordHolder1Name, sizeof( identifier1 ) );
-	if ( VALIDSTRING(recordHolder2Name) && !VALIDSTRING( identifier2 ) )
-		Q_strncpyz( identifier2, recordHolder2Name, sizeof( identifier2 ) );
-
-	char combinedNameString[TOPTIMES_NAME_BUFFER_SIZE] = { 0 };
-	if (identifier2[0]) { // if two people, chop the names to be shorter
-		Q_strncpyz(combinedNameString, ChopString(identifier1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME), sizeof(combinedNameString));
-		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", ChopString(identifier2, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME)));
+	// allocate chars for each name
+	// e.g. for one player with a really long name and one with a short name,
+	// if the total length is acceptable, than the really long name player
+	// can take up more than 50% of the available digits
+	int allocated[LOGGED_PLAYERS_PER_OBJ] = { 0 };
+	qboolean good[LOGGED_PLAYERS_PER_OBJ] = { qfalse };
+	for (int i = 0; freeChars > 0; i = (i + 1) % players) {
+		int len = Q_PrintStrlen(name[i]);
+		if (allocated[i] < len) {
+			allocated[i]++;
+			freeChars--;
+		}
+		else {
+			good[i] = qtrue;
+			qboolean allGood = qtrue;
+			for (int j = 0; j < players; j++) {
+				if (!good[j]) {
+					allGood = qfalse;
+					break;
+				}
+			}
+			if (allGood)
+				break;
+		}
 	}
-	else { // if just one person, their name can be longer
-		Q_strncpyz(combinedNameString, ChopString(identifier1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS), sizeof(combinedNameString));
-	}
 
-	{ // pad the name string with spaces here because printf padding will ignore colors
+	Q_strncpyz(combinedNameString, ChopString(name[0], allocated[0]), sizeof(combinedNameString));
+	if (players == 2) {
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", ChopString(name[1], allocated[1])));
+	}
+	else {
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[1], allocated[1])));
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[2], allocated[2])));
+		if (players >= 4)
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[3], allocated[3])));
+	}
+	Q_strcat(combinedNameString, sizeof(combinedNameString), "^7");
+
+	if (padSpaces) { // pad the name string with spaces here because printf padding will ignore colors
 		int spacesToAdd = TOPTIMES_NAME_MAX_PRINTABLE_CHARS - Q_PrintStrlen(combinedNameString);
 		for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
 			if (!combinedNameString[j]) {
@@ -5927,14 +5971,82 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 		combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
 	}
 
+	return combinedNameString;
+}
+
+static void printBestTimeCallback( void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
+	const char *recordHolderName1, unsigned int recordHolderIpInt1, const char *recordHolderCuid1,
+	const char *recordHolderName2, unsigned int recordHolderIpInt2, const char *recordHolderCuid2,
+	const char *recordHolderName3, unsigned int recordHolderIpInt3, const char *recordHolderCuid3,
+	const char *recordHolderName4, unsigned int recordHolderIpInt4, const char *recordHolderCuid4,
+	int bestTime, time_t bestTimeDate ) {
+	BestTimeContext* thisContext = ( BestTimeContext* )context;
+
+	// if we are printing the current map, since we only save new records at the end of the round, check if we beat the top time during this session
+	// and print that one instead (the record in DB will stay outdated until round ends)
+	if ( !Q_stricmp( mapname, level.mapCaptureRecords.mapname ) ) {
+		CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
+		const CaptureRecord *currentRecord = &recordsPtr->records[0];
+
+		if ( currentRecord->totalTime && currentRecord->totalTime < bestTime ) {
+			recordHolderName1 = currentRecord->recordHolderNames[0];
+			recordHolderName2 = currentRecord->recordHolderNames[1];
+			recordHolderName3 = currentRecord->recordHolderNames[2];
+			recordHolderName4 = currentRecord->recordHolderNames[3];
+			recordHolderIpInt1 = currentRecord->recordHolderIpInts[0];
+			recordHolderIpInt2 = currentRecord->recordHolderIpInts[1];
+			recordHolderIpInt3 = currentRecord->recordHolderIpInts[2];
+			recordHolderIpInt4 = currentRecord->recordHolderIpInts[3];
+			recordHolderCuid1 = currentRecord->recordHolderCuids[0];
+			recordHolderCuid2 = currentRecord->recordHolderCuids[1];
+			recordHolderCuid3 = currentRecord->recordHolderCuids[2];
+			recordHolderCuid4 = currentRecord->recordHolderCuids[3];
+			bestTime = currentRecord->totalTime;
+			bestTimeDate = currentRecord->date;
+		}
+	}
+
+	if ( !thisContext->hasPrinted ) {
+		// first time printing, show a header
+		trap_SendServerCommand( thisContext->entNum, va( "print \""S_COLOR_WHITE"Records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", GetLongNameForRecordFlags( mapname, flags, qfalse ), "Map", "Time", "Name", "Date", "Category" ) );
+	}
+
+	char identifiers[LOGGED_PLAYERS_PER_OBJ][MAX_NETNAME + 1] = { 0 };
+	G_CfgDbListAliases(recordHolderIpInt1, ( unsigned int )0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[0], recordHolderCuid1);
+	if (VALIDSTRING(recordHolderName2)) {
+		G_CfgDbListAliases(recordHolderIpInt2, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[1], recordHolderCuid2);
+		if (VALIDSTRING(recordHolderName3)) {
+			G_CfgDbListAliases(recordHolderIpInt3, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[2], recordHolderCuid3);
+			if (VALIDSTRING(recordHolderName4))
+				G_CfgDbListAliases(recordHolderIpInt4, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[3], recordHolderCuid4);
+		}
+	}
+
+	// no name in db for this guy, use the one we stored
+	if ( !VALIDSTRING( identifiers[0] ) )
+		Q_strncpyz( identifiers[0], recordHolderName1, sizeof(identifiers[0]) );
+	if ( VALIDSTRING(recordHolderName2) && !VALIDSTRING( identifiers[1] ) )
+		Q_strncpyz( identifiers[1], recordHolderName2, sizeof( identifiers[1] ) );
+	if (VALIDSTRING(recordHolderName3) && !VALIDSTRING(identifiers[2]))
+		Q_strncpyz(identifiers[2], recordHolderName3, sizeof(identifiers[2]));
+	if (VALIDSTRING(recordHolderName4) && !VALIDSTRING(identifiers[3]))
+		Q_strncpyz(identifiers[3], recordHolderName4, sizeof(identifiers[3]));
+
+	char combinedNameString[TOPTIMES_NAME_BUFFER_SIZE] = { 0 };
+	Q_strncpyz(combinedNameString, CombineNames(identifiers[0], identifiers[1], identifiers[2], identifiers[3], qtrue), sizeof(combinedNameString));
+
 	int mins, secs, millis;
 	PartitionedTimer( bestTime, &mins, &secs, &millis );
 
 	char timeString[10] = { 0 };
-	if ( mins > 0 )
-		Com_sprintf( timeString, sizeof( timeString ), "%d:%2d.%03d", mins, secs, millis);
-	else
-		Com_sprintf( timeString, sizeof( timeString ), "%2d.%03d", secs, millis );
+	if (mins > 9) // 12:59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+	else if (mins > 0) // 2:59.123
+		Com_sprintf(timeString, sizeof(timeString), " %d:%02d.%03d", mins, secs, millis);
+	else if (secs > 9) // 59.123
+		Com_sprintf(timeString, sizeof(timeString), "   %d.%03d", secs, millis);
+	else // 9.123
+		Com_sprintf(timeString, sizeof(timeString), "    %d.%03d", secs, millis);
 
 	char *dateColor;
 	char date[19] = { 0 };
@@ -5980,36 +6092,23 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 			continue;
 		}
 
-		char nameString1[64] = { 0 }, nameString2[64] = { 0 };
-		G_CfgDbListAliases(record->recordHolder1IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString1, record->recordHolder1Cuid);
-		if (record->recordHolder2Cuid[0])
-			G_CfgDbListAliases(record->recordHolder2IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString2, record->recordHolder2Cuid);
+		char nameStrings[LOGGED_PLAYERS_PER_OBJ][64] = { 0 };
+		G_CfgDbListAliases(record->recordHolderIpInts[0], (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameStrings[0], record->recordHolderCuids[0]);
+		for (int i = 1; i < LOGGED_PLAYERS_PER_OBJ; i++) {
+			if (record->recordHolderCuids[i][0])
+				G_CfgDbListAliases(record->recordHolderIpInts[i], (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameStrings[i], record->recordHolderCuids[i]);
+		}
 
 		// no name in db for this guy, use the one we stored
-		if (!VALIDSTRING(nameString1))
-			Q_strncpyz(nameString1, record->recordHolder1Name, sizeof(nameString1));
-		if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
-			Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
+		if (!VALIDSTRING(nameStrings[0]))
+			Q_strncpyz(nameStrings[0], record->recordHolderNames[0], sizeof(nameStrings[0]));
+		for (int i = 1; i < LOGGED_PLAYERS_PER_OBJ; i++) {
+			if (!VALIDSTRING(nameStrings[i]) && VALIDSTRING(record->recordHolderNames[i]))
+				Q_strncpyz(nameStrings[i], record->recordHolderNames[i], sizeof(nameStrings[i]));
+		}
 
 		char combinedNameString[TOPTIMES_NAME_BUFFER_SIZE] = { 0 };
-		if (nameString2[0]) { // if two people, chop the names to be shorter
-			Q_strncpyz(combinedNameString, ChopString(nameString1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME), sizeof(combinedNameString));
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", ChopString(nameString2, TOPTIMES_NAME_MAX_PRINTABLE_CHARS_PER_NAME)));
-		}
-		else { // if just one person, their name can be longer
-			Q_strncpyz(combinedNameString, ChopString(nameString1, TOPTIMES_NAME_MAX_PRINTABLE_CHARS), sizeof(combinedNameString));
-		}
-
-		{ // pad the name string with spaces here because printf padding will ignore colors
-			int spacesToAdd = TOPTIMES_NAME_MAX_PRINTABLE_CHARS - Q_PrintStrlen(combinedNameString);
-			for (int j = 0; j < sizeof(combinedNameString) && spacesToAdd > 0; ++j) {
-				if (!combinedNameString[j]) {
-					combinedNameString[j] = ' '; // replace null terminators with spaces
-					--spacesToAdd;
-				}
-			}
-			combinedNameString[sizeof(combinedNameString) - 1] = '\0'; // make sure it's still null terminated
-		}
+		Q_strncpyz(combinedNameString, CombineNames(nameStrings[0], nameStrings[1], nameStrings[2], nameStrings[3], qtrue), sizeof(combinedNameString));
 
 		int mins, secs, millis;
 		PartitionedTimer(record->totalTime, &mins, &secs, &millis);
@@ -6078,42 +6177,34 @@ static qboolean GetDemoURL(CaptureCategoryFlags flags, int rank, gentity_t *ent)
 	default: assert(qfalse); return qfalse;
 	}
 
-	char nameString1[64] = { 0 }, nameString2[64] = { 0 };
-	G_CfgDbListAliases(record->recordHolder1IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString1, record->recordHolder1Cuid);
-	if (record->recordHolder2Cuid[0])
-		G_CfgDbListAliases(record->recordHolder2IpInt, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameString2, record->recordHolder2Cuid);
+	char nameStrings[LOGGED_PLAYERS_PER_OBJ][64] = { 0 };
+	G_CfgDbListAliases(record->recordHolderIpInts[0], (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameStrings[0], record->recordHolderCuids[0]);
+	for (int i = 1; i < LOGGED_PLAYERS_PER_OBJ; i++) {
+		if (record->recordHolderCuids[i][0])
+			G_CfgDbListAliases(record->recordHolderIpInts[i], (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &nameStrings[i], record->recordHolderCuids[i]);
+	}
 
 	// no name in db for this guy, use the one we stored
-	if (!VALIDSTRING(nameString1))
-		Q_strncpyz(nameString1, record->recordHolder1Name, sizeof(nameString1));
-	if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
-		Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
-
-	// no name in db for this guy, use the one we stored
-	if (!VALIDSTRING(nameString1))
-		Q_strncpyz(nameString1, record->recordHolder1Name, sizeof(nameString1));
-	if (!VALIDSTRING(nameString2) && VALIDSTRING(record->recordHolder2Name))
-		Q_strncpyz(nameString2, record->recordHolder2Name, sizeof(nameString2));
+	if (!VALIDSTRING(nameStrings[0]))
+		Q_strncpyz(nameStrings[0], record->recordHolderNames[0], sizeof(nameStrings[0]));
+	for (int i = 1; i < LOGGED_PLAYERS_PER_OBJ; i++) {
+		if (!VALIDSTRING(nameStrings[i]) && VALIDSTRING(record->recordHolderNames[i]))
+			Q_strncpyz(nameStrings[i], record->recordHolderNames[i], sizeof(nameStrings[i]));
+	}
 
 	char combinedNameString[256] = { 0 };
-	if (nameString2[0]) { // two people
-		Q_strcat(combinedNameString, sizeof(combinedNameString), nameString1);
-		if (!Q_stricmp(nameString1, record->recordHolder1Name))
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (client %d)", record->recordHolder1ClientId));
-		else
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as client %d: %s^7)", record->recordHolder1ClientId, record->recordHolder1Name));
-		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", nameString2));
-		if (!Q_stricmp(nameString2, record->recordHolder2Name))
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (client %d)", record->recordHolder2ClientId));
-		else
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as client %d: %s^7)", record->recordHolder2ClientId, record->recordHolder2Name));
+	Q_strcat(combinedNameString, sizeof(combinedNameString), nameStrings[0]);
+	if (nameStrings[1][0]) {
+		for (int i = 1; i < LOGGED_PLAYERS_PER_OBJ; i++) {
+			if (nameStrings[i][0]) {
+				Q_strcat(combinedNameString, sizeof(combinedNameString), nameStrings[i]);
+				if (Q_stricmp(nameStrings[i], record->recordHolderNames[0]))
+					Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as %s^7)", record->recordHolderNames[0]));
+			}
+		}
 	}
-	else { // one person
-		Q_strcat(combinedNameString, sizeof(combinedNameString), nameString1);
-		if (!Q_stricmp(nameString1, record->recordHolder1Name))
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (client %d)", record->recordHolder1ClientId));
-		else
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as client %d: %s^7)", record->recordHolder1ClientId, record->recordHolder1Name));
+	else {
+		Q_strcat(combinedNameString, sizeof(combinedNameString), "^7");
 	}
 
 	int mins, secs, millis;
@@ -6138,9 +6229,9 @@ static qboolean GetDemoURL(CaptureCategoryFlags flags, int rank, gentity_t *ent)
 
 	trap_SendServerCommand(ent - g_entities, va(
 		"print \"%s demo%s for ^5%s^7: %s in %s (^5%s^7), recorded %s\n\"",
-		rankString, nameString2[0] ? "s" : "", categoryName, combinedNameString, timeString, thisCategoryName, date));
+		rankString, nameStrings[1][0] ? "s" : "", categoryName, combinedNameString, timeString, thisCategoryName, date));
 
-	trap_SendServerCommand(ent - g_entities, va("chat \"^1Demo link^7\x19: " DEMOARCHIVE_BASE_MATCH_URL "\"\n", record->matchId));
+	trap_SendServerCommand(ent - g_entities, va("chat \"^1Demo%s link^7\x19: " DEMOARCHIVE_BASE_MATCH_URL "\"\n", nameStrings[1][0] ? "s" : "", record->matchId));
 
 	return qtrue;
 }

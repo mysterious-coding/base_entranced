@@ -202,7 +202,13 @@ const char* const sqlCreateSiegeFastcapsTable =
 "    [date] INTEGER,                                                            "
 "    [match_id] TEXT,                                                           "
 "    [player1_client_id] INTEGER,                                               "
-"    [player2_client_id] INTEGER);                                              ";
+"    [player2_client_id] INTEGER,                                               "
+"    [player3_name] TEXT,                                                       "
+"    [player3_ip_int] INTEGER,                                                  "
+"    [player3_cuid_hash2] TEXT,                                                 "
+"    [player4_name] TEXT,                                                       "
+"    [player4_ip_int] INTEGER,                                                  "
+"    [player4_cuid_hash2] TEXT);                                                ";
 
 const char* const sqlAddSiegeFastcapV2 =
 "INSERT INTO siegefastcaps (                                                    "
@@ -211,8 +217,10 @@ const char* const sqlAddSiegeFastcapV2 =
 "    player2_name, player2_ip_int, player2_cuid_hash2,                          "
 "    obj1_time, obj2_time, obj3_time, obj4_time, obj5_time,                     "
 "    obj6_time, obj7_time, obj8_time, obj9_time, total_time, date,              "
-"    match_id, player1_client_id, player2_client_id)                            "
-"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)                     ";
+"    match_id, player1_client_id, player2_client_id,                            "
+"    player3_name, player3_ip_int, player3_cuid_hash2,                          "
+"    player4_name, player4_ip_int, player4_cuid_hash2)                          "
+"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)         ";
 
 const char* const sqlremoveSiegeFastcaps =
 "DELETE FROM siegefastcaps WHERE mapname = ?1 AND flags = ?2                    ";
@@ -223,7 +231,9 @@ const char* const sqlGetSiegeFastcapsStrict =
 "    player2_name, player2_ip_int, player2_cuid_hash2,                          "
 "    obj1_time, obj2_time, obj3_time, obj4_time, obj5_time,                     "
 "    obj6_time, obj7_time, obj8_time, obj9_time, total_time, date,              "
-"    match_id, player1_client_id, player2_client_id                             "
+"    match_id, player1_client_id, player2_client_id,                            "
+"    player3_name, player3_ip_int, player3_cuid_hash2,                          "
+"    player4_name, player4_ip_int, player4_cuid_hash2                           "
 "FROM siegefastcaps                                                             "
 "WHERE siegefastcaps.mapname = ?1 AND siegefastcaps.flags = ?2                  "
 "ORDER BY total_time                                                            "
@@ -235,7 +245,9 @@ const char* const sqlGetSiegeFastcapsRelaxed =
 "    player2_name, player2_ip_int, player2_cuid_hash2,                          "
 "    obj1_time, obj2_time, obj3_time, obj4_time, obj5_time,                     "
 "    obj6_time, obj7_time, obj8_time, obj9_time, total_time, date,              "
-"    match_id, player1_client_id, player2_client_id                             "
+"    match_id, player1_client_id, player2_client_id,                            "
+"    player3_name, player3_ip_int, player3_cuid_hash2,                          "
+"    player4_name, player4_ip_int, player4_cuid_hash2                          "
 "FROM siegefastcaps                                                             "
 "WHERE siegefastcaps.mapname = ?1 AND (siegefastcaps.flags & ?2) = ?2           "
 "ORDER BY total_time                                                            "
@@ -244,6 +256,8 @@ const char* const sqlGetSiegeFastcapsRelaxed =
 const char* const sqlListBestSiegeFastcaps =
 "SELECT flags, mapname, player1_name, player1_ip_int, player1_cuid_hash2,       "
 "player2_name, player2_ip_int, player2_cuid_hash2,                              "
+"player3_name, player3_ip_int, player3_cuid_hash2,                              "
+"player4_name, player4_ip_int, player4_cuid_hash2,                              "
 "MIN( total_time ) AS best_time, date                                           "
 "FROM siegefastcaps                                                             "
 "WHERE (siegefastcaps.flags & ?1) = ?1                                          "
@@ -861,11 +875,11 @@ void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags,
 		record->flags = sqlite3_column_int(statement, k++);
 		const char *player1_name = ( const char* )sqlite3_column_text( statement, k++);
 		if (VALIDSTRING(player1_name))
-			Q_strncpyz(record->recordHolder1Name, player1_name, sizeof(record->recordHolder1Name));
-		record->recordHolder1IpInt  = sqlite3_column_int( statement, k++);
+			Q_strncpyz(record->recordHolderNames[0], player1_name, sizeof(record->recordHolderNames[0]));
+		record->recordHolderIpInts[0]  = sqlite3_column_int( statement, k++);
 		const char *player1_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
 		if (VALIDSTRING(player1_cuid_hash2))
-			Q_strncpyz(record->recordHolder1Cuid, player1_cuid_hash2, sizeof(record->recordHolder1Cuid));
+			Q_strncpyz(record->recordHolderCuids[0], player1_cuid_hash2, sizeof(record->recordHolderCuids[0]));
 		record->maxSpeed1 = sqlite3_column_int(statement, k++);
 		record->avgSpeed1 = sqlite3_column_int(statement, k++);
 
@@ -873,11 +887,11 @@ void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags,
 		const char *player2_name = (const char*)sqlite3_column_text(statement, k++);
 		if (VALIDSTRING(player2_name)) {
 			secondPlayer = qtrue;
-			Q_strncpyz(record->recordHolder2Name, player2_name, sizeof(record->recordHolder2Name));
-			record->recordHolder2IpInt = sqlite3_column_int(statement, k++);
+			Q_strncpyz(record->recordHolderNames[1], player2_name, sizeof(record->recordHolderNames[1]));
+			record->recordHolderIpInts[1] = sqlite3_column_int(statement, k++);
 			const char *player2_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
 			if (VALIDSTRING(player2_cuid_hash2))
-				Q_strncpyz(record->recordHolder2Cuid, player2_cuid_hash2, sizeof(record->recordHolder2Cuid));
+				Q_strncpyz(record->recordHolderCuids[1], player2_cuid_hash2, sizeof(record->recordHolderCuids[1]));
 		}
 		else {
 			k += 2;
@@ -902,6 +916,34 @@ void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags,
 			record->recordHolder2ClientId = sqlite3_column_int(statement, k++);
 		else
 			k++;
+
+		if (flags & CAPTURERECORDFLAG_LIVEPUG) { // live pugs can have up to 4 players logged
+			const char *player3_name = sqlite3_column_text(statement, k++);
+			if (VALIDSTRING(player3_name)) {
+				Q_strncpyz(record->recordHolderNames[2], player3_name, sizeof(record->recordHolderNames[2]));
+				record->recordHolderIpInts[2] = sqlite3_column_int(statement, k++);
+				const char *player3_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+				if (VALIDSTRING(player3_cuid_hash2))
+					Q_strncpyz(record->recordHolderCuids[2], player3_cuid_hash2, sizeof(record->recordHolderCuids[2]));
+				const char *player4_name = sqlite3_column_text(statement, k++);
+				if (VALIDSTRING(player4_name)) {
+					Q_strncpyz(record->recordHolderNames[3], player4_name, sizeof(record->recordHolderNames[2]));
+					record->recordHolderIpInts[3] = sqlite3_column_int(statement, k++);
+					const char *player4_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+					if (VALIDSTRING(player4_cuid_hash2))
+						Q_strncpyz(record->recordHolderCuids[3], player4_cuid_hash2, sizeof(record->recordHolderCuids[3]));
+				}
+				else {
+					k += 2;
+				}
+			}
+			else {
+				k += 5;
+			}
+		}
+		else {
+			k += 6;
+		}
 
 		rc = sqlite3_step( statement );
 		++loaded;
@@ -940,10 +982,16 @@ void G_LogDbListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int
 		const char *player2_name = (const char*)sqlite3_column_text(statement, k++);
 		const unsigned int player2_ip_int = sqlite3_column_int(statement, k++);
 		const char *player2_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+		const char *player3_name = (const char*)sqlite3_column_text(statement, k++);
+		const unsigned int player3_ip_int = sqlite3_column_int(statement, k++);
+		const char *player3_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+		const char *player4_name = (const char*)sqlite3_column_text(statement, k++);
+		const unsigned int player4_ip_int = sqlite3_column_int(statement, k++);
+		const char *player4_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
 		const int best_time = sqlite3_column_int( statement, k++);
 		const time_t date = sqlite3_column_int64( statement, k++);
 
-		callback( context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, best_time, date );
+		callback( context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, player3_name, player3_ip_int, player3_cuid_hash2, player4_name, player4_ip_int, player4_cuid_hash2, best_time, date );
 		rc = sqlite3_step( statement );
 	}
 
@@ -982,27 +1030,26 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 		sqlite3_bind_int(statement, k++, recordsForCategory->flags);
 		sqlite3_bind_text(statement, k++, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, recordsForCategory->flags, qtrue), -1, 0);
 
-		sqlite3_bind_text(statement, k++, record->recordHolder1Name, -1, 0);
-		sqlite3_bind_int(statement, k++, record->recordHolder1IpInt);
-		if (VALIDSTRING(record->recordHolder1Cuid))
-			sqlite3_bind_text(statement, k++, record->recordHolder1Cuid, -1, 0);
+		sqlite3_bind_text(statement, k++, record->recordHolderNames[0], -1, 0);
+		sqlite3_bind_int(statement, k++, record->recordHolderIpInts[0]);
+		if (VALIDSTRING(record->recordHolderCuids[0]))
+			sqlite3_bind_text(statement, k++, record->recordHolderCuids[0], -1, 0);
 		else
 			sqlite3_bind_null(statement, k++);
 		sqlite3_bind_int(statement, k++, record->maxSpeed1);
 		sqlite3_bind_int(statement, k++, record->avgSpeed1);
 
-		if (recordsForCategory->flags & CAPTURERECORDFLAG_COOP) {
-			sqlite3_bind_text(statement, k++, record->recordHolder2Name, -1, 0);
-			sqlite3_bind_int(statement, k++, record->recordHolder2IpInt);
-			if (VALIDSTRING(record->recordHolder2Cuid))
-				sqlite3_bind_text(statement, k++, record->recordHolder2Cuid, -1, 0);
+		if (VALIDSTRING(record->recordHolderNames[1])) {
+			sqlite3_bind_text(statement, k++, record->recordHolderNames[1], -1, 0);
+			sqlite3_bind_int(statement, k++, record->recordHolderIpInts[1]);
+			if (VALIDSTRING(record->recordHolderCuids[1]))
+				sqlite3_bind_text(statement, k++, record->recordHolderCuids[1], -1, 0);
 			else
 				sqlite3_bind_null(statement, k++);
 		}
 		else {
-			sqlite3_bind_null(statement, k++);
-			sqlite3_bind_null(statement, k++);
-			sqlite3_bind_null(statement, k++);
+			for (int i = 0; i < 3; i++)
+				sqlite3_bind_null(statement, k++);
 		}
 
 		for (int l = 0; l < MAX_SAVED_OBJECTIVES; l++) {
@@ -1021,10 +1068,36 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 			sqlite3_bind_null(statement, k++);
 
 		sqlite3_bind_int(statement, k++, record->recordHolder1ClientId);
-		if (recordsForCategory->flags & CAPTURERECORDFLAG_COOP)
+		if (recordsForCategory->flags & CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_SPEEDRUN)
 			sqlite3_bind_int(statement, k++, record->recordHolder2ClientId);
 		else
 			sqlite3_bind_null(statement, k++);
+
+		if (VALIDSTRING(record->recordHolderNames[1]) && VALIDSTRING(record->recordHolderNames[2])) {
+			sqlite3_bind_text(statement, k++, record->recordHolderNames[2], -1, 0);
+			sqlite3_bind_int(statement, k++, record->recordHolderIpInts[2]);
+			if (VALIDSTRING(record->recordHolderCuids[2]))
+				sqlite3_bind_text(statement, k++, record->recordHolderCuids[2], -1, 0);
+			else
+				sqlite3_bind_null(statement, k++);
+
+			if (VALIDSTRING(record->recordHolderNames[3])) {
+				sqlite3_bind_text(statement, k++, record->recordHolderNames[3], -1, 0);
+				sqlite3_bind_int(statement, k++, record->recordHolderIpInts[3]);
+				if (VALIDSTRING(record->recordHolderCuids[3]))
+					sqlite3_bind_text(statement, k++, record->recordHolderCuids[3], -1, 0);
+				else
+					sqlite3_bind_null(statement, k++);
+			}
+			else {
+				for (int i = 0; i < 3; i++)
+					sqlite3_bind_null(statement, k++);
+			}
+		}
+		else {
+			for (int i = 0; i < 6; i++)
+				sqlite3_bind_null(statement, k++);
+		}
 
 		int rc = sqlite3_step(statement);
 		if (rc != SQLITE_DONE)

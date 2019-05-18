@@ -3108,7 +3108,7 @@ qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2,
 // "^7Padawan", 5		==>		"^7Padaw"
 // "^7Pada^1wan", 7		==>		"^7Pada^1wan"
 // "^7Pada^1wan", 5		==>		"^7Pada^1w"
-char *ChopString(char *in, size_t targetLen) {
+char *ChopString(const char *in, size_t targetLen) {
 	if (!VALIDSTRING(in) || targetLen <= 0)
 		return "";
 	if (strlen(in) > CHOPSTRING_MAXSIZE - 1) { // yeah i know i know stop stalking my repo
@@ -3120,7 +3120,8 @@ char *ChopString(char *in, size_t targetLen) {
 	int i, numSkip;
 	static char out[CHOPSTRING_MAXSIZE];
 	memset(&out, 0, sizeof(out));
-	char *read = in, *write = out;
+	const char *read = in;
+	char *write = out;
 
 	while (*read && colorlessLen < targetLen && strlen(out) < CHOPSTRING_MAXSIZE) {
 		if (Q_IsColorString(read)) // color codes don't count toward the length

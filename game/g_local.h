@@ -1224,15 +1224,12 @@ typedef struct
 typedef int CaptureCategoryFlags;
 typedef int CombinedObjNumber;
 
-#define MAX_SAVED_OBJECTIVES	(9)
+#define MAX_SAVED_OBJECTIVES		(9)
+#define LOGGED_PLAYERS_PER_OBJ		(4)
 typedef struct {
-	char recordHolder1Name[MAX_NETNAME]; // fallback name in case we can't find it with ip
-	unsigned int recordHolder1IpInt; // used to find who it is with name db
-	char recordHolder1Cuid[CRYPTO_HASH_HEX_SIZE]; // make it easier to find clients with cuid, but optional (may be empty)
-
-	char recordHolder2Name[MAX_NETNAME]; // fallback name in case we can't find it with ip
-	unsigned int recordHolder2IpInt; // used to find who it is with name db
-	char recordHolder2Cuid[CRYPTO_HASH_HEX_SIZE]; // make it easier to find clients with cuid, but optional (may be empty)
+	char recordHolderNames[LOGGED_PLAYERS_PER_OBJ][MAX_NETNAME]; // fallback name in case we can't find it with ip
+	unsigned int recordHolderIpInts[LOGGED_PLAYERS_PER_OBJ]; // used to find who it is with name db
+	char recordHolderCuids[LOGGED_PLAYERS_PER_OBJ][CRYPTO_HASH_HEX_SIZE]; // make it easier to find clients with cuid, but optional (may be empty)
 
 	int totalTime; // total time in ms
 	int objTimes[MAX_SAVED_OBJECTIVES]; // time for each obj in ms
@@ -1778,7 +1775,7 @@ qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2,
 qboolean TryTossHealthPack(gentity_t *ent, qboolean doChecks);
 qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks);
 qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks);
-char *ChopString(char *in, size_t targetLen);
+char *ChopString(const char *in, size_t targetLen);
 
 //
 // g_saga.c
