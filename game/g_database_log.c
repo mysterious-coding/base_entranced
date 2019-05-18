@@ -6,6 +6,7 @@ static sqlite3* fileDb = 0;
 static sqlite3* db = 0;
 
 const char* const logDbFileName = "jka_log.db";
+const char* const logDbHotSwapFileName = "jka_log_hotswap.db";
 
 const char* const sqlCreateLogDb =
 "CREATE TABLE sessions (                                                        "
@@ -1120,4 +1121,48 @@ void G_LogDbSaveCaptureRecords( CaptureRecordsContext *context )
 	}
 
 	ListForEach(&context->captureRecordsList, SaveCapturesForCategory, context->mapname);
+}
+
+void G_LogDbHotswap(void) {
+	sqlite3_close(fileDb);
+	sqlite3_close(db);
+
+	int rc = sqlite3_open_v2(logDbHotSwapFileName, &fileDb, SQLITE_OPEN_READWRITE, 0);
+	if (rc == SQLITE_OK) {
+		G_LogPrintf("Successfully loaded log database %s\n", logDbHotSwapFileName);
+	}
+	else {
+		G_LogPrintf("Unable to load log database %s!\n", logDbHotSwapFileName);
+		return;
+	}
+
+	// open in memory
+	sqlite3_open_v2(":memory:", &db, SQLITE_OPEN_READWRITE, 0);
+	sqlite3_backup *backup = sqlite3_backup_init(db, "main", fileDb, "main");
+	if (backup) {
+		sqlite3_backup_step(backup, -1);
+		sqlite3_backup_finish(backup);
+	}
+	sqlite3_close(fileDb);
+
+	rc = sqlite3_open_v2(logDbFileName, &fileDb, SQLITE_OPEN_READWRITE, 0);
+	if (rc == SQLITE_OK) {
+		G_LogPrintf("Successfully loaded log database %s\n", logDbFileName);
+	}
+	else {
+		G_LogPrintf("Unable to load log database %s!\n", logDbFileName);
+		return;
+	}
+
+	backup = sqlite3_backup_init(fileDb, "main", db, "main");
+	rc = sqlite3_backup_step(backup, -1);
+	sqlite3_backup_finish(backup);
+
+	if (rc == SQLITE_DONE) {
+		G_LogPrintf("Successfully saved hotswap db into %s. You may now delete %s.\n", logDbFileName, logDbHotSwapFileName);
+	}
+	else {
+		G_LogPrintf("Unable to save hotswap db into log database %s!\n", logDbFileName);
+		return;
+	}
 }

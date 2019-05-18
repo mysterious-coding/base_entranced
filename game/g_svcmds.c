@@ -3403,6 +3403,23 @@ static void Svcmd_CleanDB_f(void) {
 	G_LogDbLoad();
 }
 
+extern void G_LogDbHotswap(void);
+static void Svcmd_HotSwapDB_f(void) {
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (level.clients[i].pers.connected) {
+			Com_Printf("Server must be empty to hotswap db. Try using rcon remotely with /rconaddress from the main menu.\n");
+			return;
+		}
+	}
+	static qboolean attempted = qfalse;
+	if (!attempted) {
+		attempted = qtrue;
+		Com_Printf("Are you sure you want to do this? Enter the command once again to continue.\n");
+		return;
+	}
+	G_LogDbHotswap();
+}
+
 static void Svcmd_NotLive_f(void) {
 	if (level.isLivePug == ISLIVEPUG_NO) {
 		Com_Printf("This match is already not a live pug.\n");
@@ -3768,6 +3785,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if (!Q_stricmp(cmd, "cleandb")) {
 		Svcmd_CleanDB_f();
+		return qtrue;
+	}
+
+	if (!Q_stricmp(cmd, "hotswapdb")) {
+		Svcmd_HotSwapDB_f();
 		return qtrue;
 	}
 
