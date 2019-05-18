@@ -2403,7 +2403,7 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
-    if (ent->s.eType != ET_NPC)
+    if (ent->s.eType != ET_NPC && ent - g_entities < MAX_CLIENTS && client)
     {
         // check for inactivity timer, but never drop the local client of a non-dedicated server
         if (!CheckPlayerInactivityTimer(client)) {
@@ -4389,30 +4389,32 @@ void ClientEndFrame( gentity_t *ent ) {
 	}
 
 #ifdef NEWMOD_SUPPORT
-	// add the EF_CONNECTION flag for non-specs if we haven't gotten commands recently
-	if (level.time - ent->client->lastCmdTime > 1000) {
-		ent->client->isLagging = qtrue;
-		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
-			ent->client->ps.eFlags |= EF_CONNECTION;
+	if (ent - g_entities < MAX_CLIENTS && ent->client) {
+		// add the EF_CONNECTION flag for non-specs if we haven't gotten commands recently
+		if (level.time - ent->client->lastCmdTime > 1000) {
+			ent->client->isLagging = qtrue;
+			if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+				ent->client->ps.eFlags |= EF_CONNECTION;
 
-			// auto-pause if someone goes 999 for a few seconds during a live pug
-			if (g_gametype.integer == GT_SIEGE && level.isLivePug == ISLIVEPUG_YES && g_autoPause999.integer && level.pause.state != PAUSE_PAUSED &&
-				level.time - ent->client->lastCmdTime >= (Com_Clampi(1, 10, g_autoPause999.integer) * 1000) &&
-				(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
-				level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= LIVEPUG_AUTOPAUSE_TIME) {
-				level.pause.state = PAUSE_PAUSED;
-				level.pause.time = level.time + 300000;
-				Q_strncpyz(level.pause.reason, va("%s^7 is 999\n", ent->client->pers.netname), sizeof(level.pause.reason));
+				// auto-pause if someone goes 999 for a few seconds during a live pug
+				if (g_gametype.integer == GT_SIEGE && level.isLivePug == ISLIVEPUG_YES && g_autoPause999.integer && level.pause.state != PAUSE_PAUSED &&
+					level.time - ent->client->lastCmdTime >= (Com_Clampi(1, 10, g_autoPause999.integer) * 1000) &&
+					(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+					level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= LIVEPUG_AUTOPAUSE_TIME) {
+					level.pause.state = PAUSE_PAUSED;
+					level.pause.time = level.time + 300000;
+					Q_strncpyz(level.pause.reason, va("%s^7 is 999\n", ent->client->pers.netname), sizeof(level.pause.reason));
+				}
 			}
 		}
-	}
-	else {
-		if (ent->client->ps.eFlags & EF_CONNECTION || ent->client->isLagging) { // he was lagging (or vid_restarted) but isn't anymore; send this stuff again just to be sure
-			G_BroadcastServerFeatureList(ent - g_entities);
-			UpdateNewmodSiegeClassLimits(ent - g_entities);
+		else {
+			if (ent->client->ps.eFlags & EF_CONNECTION || ent->client->isLagging) { // he was lagging (or vid_restarted) but isn't anymore; send this stuff again just to be sure
+				G_BroadcastServerFeatureList(ent - g_entities);
+				UpdateNewmodSiegeClassLimits(ent - g_entities);
+			}
+			ent->client->isLagging = qfalse;
+			ent->client->ps.eFlags &= ~EF_CONNECTION;
 		}
-		ent->client->isLagging = qfalse;
-		ent->client->ps.eFlags &= ~EF_CONNECTION;
 	}
 #endif
 
