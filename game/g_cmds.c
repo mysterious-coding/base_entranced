@@ -6197,9 +6197,12 @@ static qboolean GetDemoURL(CaptureCategoryFlags flags, int rank, gentity_t *ent)
 	if (nameStrings[1][0]) {
 		for (int i = 1; i < LOGGED_PLAYERS_PER_OBJ; i++) {
 			if (nameStrings[i][0]) {
-				Q_strcat(combinedNameString, sizeof(combinedNameString), nameStrings[i]);
+				Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, %s", nameStrings[i]));
 				if (Q_stricmp(nameStrings[i], record->recordHolderNames[0]))
-					Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as %s^7)", record->recordHolderNames[0]));
+					Q_strcat(combinedNameString, sizeof(combinedNameString), va("^7 (as %s^7)", record->recordHolderNames[i]));
+			}
+			else {
+				break;
 			}
 		}
 	}
