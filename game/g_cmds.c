@@ -5532,8 +5532,11 @@ static void FormatLocalDateFromEpoch( time_t now, char* buf, size_t bufSize, tim
 	int diff = now - epochSecs;
 	int minutesAgo = diff / 60;
 	int hoursAgo = diff / 60 / 60;
+	int secondsAgo = diff;
 	if (hoursAgo < 24) {
-		if (hoursAgo < 1)
+		if (minutesAgo < 1)
+			Com_sprintf(buf, bufSize, "%d second%s ago", secondsAgo, secondsAgo == 1 ? "" : "s");
+		else if (hoursAgo < 1)
 			Com_sprintf(buf, bufSize, "%d minute%s ago", minutesAgo, minutesAgo == 1 ? "" : "s");
 		else
 			Com_sprintf(buf, bufSize, "%d hour%s ago", hoursAgo, hoursAgo == 1 ? "" : "s");
