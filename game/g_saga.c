@@ -969,6 +969,83 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 	return flags;
 }
 
+static qboolean RecordMatchesPlayers(
+	int players,
+	CaptureRecord *record,
+	const char *cuid1,
+	const char *cuid2,
+	const char *cuid3,
+	const char *cuid4,
+	unsigned int ipInt1,
+	unsigned int ipInt2,
+	unsigned int ipInt3,
+	unsigned int ipInt4) {
+	assert(record && players >= 1 && players <= LOGGED_PLAYERS_PER_OBJ);
+	char cuids[LOGGED_PLAYERS_PER_OBJ][CRYPTO_HASH_HEX_SIZE] = { 0 };
+	int numCuids = 0;
+	if (VALIDSTRING(cuid1)) {
+		Q_strncpyz(cuids[0], cuid1, sizeof(cuids[0]));
+		numCuids++;
+	}
+	if (VALIDSTRING(cuid2) && players >= 2) {
+		Q_strncpyz(cuids[1], cuid1, sizeof(cuids[1]));
+		numCuids++;
+	}
+	if (VALIDSTRING(cuid3) && players >= 3) {
+		Q_strncpyz(cuids[2], cuid1, sizeof(cuids[2]));
+		numCuids++;
+	}
+	if (VALIDSTRING(cuid4) && players >= 4) {
+		Q_strncpyz(cuids[3], cuid1, sizeof(cuids[3]));
+		numCuids++;
+	}
+	unsigned int ips[LOGGED_PLAYERS_PER_OBJ] = { 0 };
+	ips[0] = ipInt1;
+	ips[1] = ipInt2;
+	ips[2] = ipInt3;
+	ips[3] = ipInt4;
+	int numIps = 0, numCuidsInRecord = 0, numIpsInRecord = 0;
+	for (int i = 0; i < LOGGED_PLAYERS_PER_OBJ; i++) {
+		if (record->recordHolderCuids[i][0])
+			numCuidsInRecord++;
+		if (record->recordHolderIpInts[i])
+			numIpsInRecord++;
+		if (ips[0])
+			numIps++;
+	}
+
+	// if every player has a cuid, and this record has exactly that many cuids, then check for cuids
+	if (numCuids == players && numCuidsInRecord == players) { // check for cuid matches
+		for (int i = 0; i < players; i++) {
+			qboolean matched = qfalse;
+			for (int j = 0; j < players; j++) {
+				if (record->recordHolderCuids[j][0] && !Q_stricmp(cuids[i], record->recordHolderCuids[j])) {
+					matched = qtrue;
+					break;
+				}
+			}
+			if (!matched)
+				return qfalse;
+		}
+		return qtrue;
+	}
+	else if (numIps == players && numIpsInRecord == players) { // check for ip matches
+		for (int i = 0; i < players; i++) {
+			qboolean matched = qfalse;
+			for (int j = 0; j < players; j++) {
+				if (record->recordHolderIpInts[j] == ips[i]) {
+					matched = qtrue;
+					break;
+				}
+			}
+			if (!matched)
+				return qfalse;
+		}
+		return qtrue;
+	}
+	return qfalse;
+}
+
 // this function assumes the arrays in currentRecords are sorted by captureTime and date
 // returns 0 if this is not a record, or the newly assigned rank otherwise (1 = 1st, 2 = 2nd...)
 static int LogCaptureTime(
@@ -1003,62 +1080,36 @@ static int LogCaptureTime(
 	CaptureRecord *recordArray = &recordsPtr->records[0];
 	int newIndex;
 
+	int numPlayers = 0;
+	if (VALIDSTRING(netname1))
+		numPlayers++;
+	if (VALIDSTRING(netname2))
+		numPlayers++;
+	if (VALIDSTRING(netname3))
+		numPlayers++;
+	if (VALIDSTRING(netname4))
+		numPlayers++;
+
 	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
-	// duoTODO: fix this for live pugs
 	for (newIndex = 0; newIndex < MAX_SAVED_RECORDS; ++newIndex) {
 		if (!recordArray[newIndex].totalTime) {
 			continue; // not a valid record
 		}
 
-		// don't mix the two types of lookup
-		if (!VALIDSTRING(netname2)) { // 1 player
-			if (VALIDSTRING(cuid1)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]))
-					break;
-			}
-			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0])
-					break;
-			}
-		}
-		else if (!VALIDSTRING(netname3)) { // 2 players
-			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]))
-					break;
-			}
-			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1])
-					break;
-			}
-		}
-		else if (!VALIDSTRING(netname4)) { // 3 players
-			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2) && VALIDSTRING(cuid3)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[2]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[2]))
-					break;
-			}
-			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
-					ipInt3 == recordArray[newIndex].recordHolderIpInts[2])
-					break;
-			}
-		}
-		else  { // 4 players
-			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2) && VALIDSTRING(cuid3) && VALIDSTRING(cuid4)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[2]) && !Q_stricmp(cuid3, recordArray[newIndex].recordHolderCuids[2]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[3]) && !Q_stricmp(cuid4, recordArray[newIndex].recordHolderCuids[3]))
-					break;
-			}
-			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
-					ipInt3 == recordArray[newIndex].recordHolderIpInts[2] && ipInt4 == recordArray[newIndex].recordHolderIpInts[3])
-					break;
-			}
-		}
+		qboolean match = RecordMatchesPlayers(
+			numPlayers,
+			&recordArray[newIndex],
+			recordArray[newIndex].recordHolderCuids[0],
+			recordArray[newIndex].recordHolderCuids[1],
+			recordArray[newIndex].recordHolderCuids[2],
+			recordArray[newIndex].recordHolderCuids[3],
+			recordArray[newIndex].recordHolderIpInts[0],
+			recordArray[newIndex].recordHolderIpInts[1],
+			recordArray[newIndex].recordHolderIpInts[2],
+			recordArray[newIndex].recordHolderIpInts[3]);
+
+		if (match)
+			break;
 	}
 
 	if (newIndex < MAX_SAVED_RECORDS) {
