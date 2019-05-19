@@ -5525,11 +5525,22 @@ Cmd_TopTimes_f
 =================
 */
 
-static void FormatLocalDateFromEpoch( char* buf, size_t bufSize, time_t epochSecs, qboolean today ) {
+static void FormatLocalDateFromEpoch( time_t now, char* buf, size_t bufSize, time_t epochSecs ) {
 	struct tm * timeinfo;
 	timeinfo = localtime( &epochSecs );
 
-	strftime( buf, bufSize, today ? "Today %I:%M %p" : "%d %b %y %I:%M %p", timeinfo );
+	int diff = now - epochSecs;
+	int minutesAgo = diff / 60;
+	int hoursAgo = diff / 60 / 60;
+	if (hoursAgo < 24) {
+		if (hoursAgo < 1)
+			Com_sprintf(buf, bufSize, "%d minute%s ago", minutesAgo, minutesAgo == 1 ? "" : "s");
+		else
+			Com_sprintf(buf, bufSize, "%d hour%s ago", hoursAgo, hoursAgo == 1 ? "" : "s");
+	}
+	else {
+		strftime(buf, bufSize, "%d %b %y %I:%M %p", timeinfo);
+	}
 }
 
 // if one parameter is NULL, its value is added to the next non NULL parameter
@@ -6053,11 +6064,11 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 	time_t now = time( NULL );
 	if (now - bestTimeDate < 60 * 60 * 24) {
 		dateColor = "^2";
-		FormatLocalDateFromEpoch(date, sizeof(date), bestTimeDate, qtrue);
+		FormatLocalDateFromEpoch(now, date, sizeof(date), bestTimeDate);
 	}
 	else {
 		dateColor = "^7";
-		FormatLocalDateFromEpoch(date, sizeof(date), bestTimeDate, qfalse);
+		FormatLocalDateFromEpoch(now, date, sizeof(date), bestTimeDate);
 	}
 
 	trap_SendServerCommand( thisContext->entNum, va(
@@ -6128,11 +6139,11 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 		time_t now = time(NULL);
 		if (now - record->date < 60 * 60 * 24) {
 			dateColor = "^2";
-			FormatLocalDateFromEpoch(date, sizeof(date), record->date, qtrue);
+			FormatLocalDateFromEpoch(now, date, sizeof(date), record->date);
 		}
 		else {
 			dateColor = "^7";
-			FormatLocalDateFromEpoch(date, sizeof(date), record->date, qfalse);
+			FormatLocalDateFromEpoch(now, date, sizeof(date), record->date);
 		}
 
 		char *rankColor;
@@ -6226,9 +6237,9 @@ static qboolean GetDemoURL(CaptureCategoryFlags flags, int rank, gentity_t *ent)
 	char date[19] = { 0 };
 	time_t now = time(NULL);
 	if (now - record->date < 60 * 60 * 24)
-		FormatLocalDateFromEpoch(date, sizeof(date), record->date, qtrue);
+		FormatLocalDateFromEpoch(now, date, sizeof(date), record->date);
 	else
-		FormatLocalDateFromEpoch(date, sizeof(date), record->date, qfalse);
+		FormatLocalDateFromEpoch(now, date, sizeof(date), record->date);
 
 	trap_SendServerCommand(ent - g_entities, va(
 		"print \"%s demo%s for ^5%s^7: %s in %s (^5%s^7), recorded %s\n\"",
