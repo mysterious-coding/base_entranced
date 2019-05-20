@@ -6080,6 +6080,101 @@ static void printBestTimeCallback( void *context, const char *mapname, const Cap
 	thisContext->hasPrinted = qtrue;
 }
 
+static void printLatestTimesCallback(void *context, const char *mapname, const CaptureCategoryFlags flags, const CaptureCategoryFlags thisRecordFlags,
+	const char *recordHolderName1, unsigned int recordHolderIpInt1, const char *recordHolderCuid1,
+	const char *recordHolderName2, unsigned int recordHolderIpInt2, const char *recordHolderCuid2,
+	const char *recordHolderName3, unsigned int recordHolderIpInt3, const char *recordHolderCuid3,
+	const char *recordHolderName4, unsigned int recordHolderIpInt4, const char *recordHolderCuid4,
+	int bestTime, time_t bestTimeDate) {
+	BestTimeContext* thisContext = (BestTimeContext*)context;
+
+	// if we are printing the current map, since we only save new records at the end of the round, check if we beat the top time during this session
+	// and print that one instead (the record in DB will stay outdated until round ends)
+	if (!Q_stricmp(mapname, level.mapCaptureRecords.mapname)) {
+		CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
+		const CaptureRecord *currentRecord = &recordsPtr->records[0];
+
+		if (currentRecord->totalTime && currentRecord->totalTime < bestTime) {
+			recordHolderName1 = currentRecord->recordHolderNames[0];
+			recordHolderName2 = currentRecord->recordHolderNames[1];
+			recordHolderName3 = currentRecord->recordHolderNames[2];
+			recordHolderName4 = currentRecord->recordHolderNames[3];
+			recordHolderIpInt1 = currentRecord->recordHolderIpInts[0];
+			recordHolderIpInt2 = currentRecord->recordHolderIpInts[1];
+			recordHolderIpInt3 = currentRecord->recordHolderIpInts[2];
+			recordHolderIpInt4 = currentRecord->recordHolderIpInts[3];
+			recordHolderCuid1 = currentRecord->recordHolderCuids[0];
+			recordHolderCuid2 = currentRecord->recordHolderCuids[1];
+			recordHolderCuid3 = currentRecord->recordHolderCuids[2];
+			recordHolderCuid4 = currentRecord->recordHolderCuids[3];
+			bestTime = currentRecord->totalTime;
+			bestTimeDate = currentRecord->date;
+		}
+	}
+
+	if (!thisContext->hasPrinted) {
+		// first time printing, show a header
+		if (flags)
+			trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"Latest records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", GetLongNameForRecordFlags(mapname, flags, qfalse), "Map", "Time", "Name", "Date", "Category"));
+		else
+			trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"Latest records:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", "Map", "Time", "Name", "Date", "Category"));
+	}
+
+	char identifiers[LOGGED_PLAYERS_PER_OBJ][MAX_NETNAME + 1] = { 0 };
+	G_CfgDbListAliases(recordHolderIpInt1, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[0], recordHolderCuid1);
+	if (VALIDSTRING(recordHolderName2)) {
+		G_CfgDbListAliases(recordHolderIpInt2, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[1], recordHolderCuid2);
+		if (VALIDSTRING(recordHolderName3)) {
+			G_CfgDbListAliases(recordHolderIpInt3, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[2], recordHolderCuid3);
+			if (VALIDSTRING(recordHolderName4))
+				G_CfgDbListAliases(recordHolderIpInt4, (unsigned int)0xFFFFFFFF, 1, copyTopNameCallback, &identifiers[3], recordHolderCuid4);
+		}
+	}
+
+	// no name in db for this guy, use the one we stored
+	if (!VALIDSTRING(identifiers[0]))
+		Q_strncpyz(identifiers[0], recordHolderName1, sizeof(identifiers[0]));
+	if (VALIDSTRING(recordHolderName2) && !VALIDSTRING(identifiers[1]))
+		Q_strncpyz(identifiers[1], recordHolderName2, sizeof(identifiers[1]));
+	if (VALIDSTRING(recordHolderName3) && !VALIDSTRING(identifiers[2]))
+		Q_strncpyz(identifiers[2], recordHolderName3, sizeof(identifiers[2]));
+	if (VALIDSTRING(recordHolderName4) && !VALIDSTRING(identifiers[3]))
+		Q_strncpyz(identifiers[3], recordHolderName4, sizeof(identifiers[3]));
+
+	char combinedNameString[TOPTIMES_NAME_BUFFER_SIZE] = { 0 };
+	Q_strncpyz(combinedNameString, CombineNames(identifiers[0], identifiers[1], identifiers[2], identifiers[3], qtrue), sizeof(combinedNameString));
+
+	int mins, secs, millis;
+	PartitionedTimer(bestTime, &mins, &secs, &millis);
+
+	char timeString[10] = { 0 };
+	if (mins > 9) // 12:59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+	else if (mins > 0) // 2:59.123
+		Com_sprintf(timeString, sizeof(timeString), " %d:%02d.%03d", mins, secs, millis);
+	else if (secs > 9) // 59.123
+		Com_sprintf(timeString, sizeof(timeString), "   %d.%03d", secs, millis);
+	else // 9.123
+		Com_sprintf(timeString, sizeof(timeString), "    %d.%03d", secs, millis);
+
+	char *dateColor;
+	char date[19] = { 0 };
+	time_t now = time(NULL);
+	if (now - bestTimeDate < 60 * 60 * 24) {
+		dateColor = "^2";
+		FormatLocalDateFromEpoch(now, date, sizeof(date), bestTimeDate);
+	}
+	else {
+		dateColor = "^7";
+		FormatLocalDateFromEpoch(now, date, sizeof(date), bestTimeDate);
+	}
+
+	trap_SendServerCommand(thisContext->entNum, va(
+		"print \"^7%-26s^7  ^5%-9s^7  ^7%s  %s%-18s  ^7%-38s\n\"", mapname, timeString, combinedNameString, dateColor, date, GetLongNameForRecordFlags(mapname, thisRecordFlags, qtrue)));
+
+	thisContext->hasPrinted = qtrue;
+}
+
 #define MAPLIST_MAPS_PER_PAGE		(15)
 #define MAX_CATEGORIES_TO_PRINT		(4)
 #define DEMOARCHIVE_BASE_MATCH_URL	"https://demos.jactf.com/match.html#rpc=lookup&id=%s"
@@ -6334,6 +6429,42 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent - g_entities, va("print \"%s\"", text));
 			return;
 		}
+		else if (!Q_stricmp(buf, "latest")) {
+			int page = 1;
+			if (trap_Argc() > 2) {
+				trap_Argv(2, buf, sizeof(buf));
+
+				if (Q_isanumber(buf)) { // is the 2nd argument a page number?...
+					page = Com_Clampi(1, 999, atoi(buf));
+				}
+				else { // 2nd argument isn't a page number, so it must be a category
+				 // prevent maplist with flags pertaining to a specific obj...
+				 // what's the point of getting the fastest obj 1 time on multiple maps?
+					flags = GetRecordFlagsForString(NULL, buf, NULL, qtrue, qfalse);
+					if (!flags) {
+						trap_SendServerCommand(ent - g_entities, va("print \"Invalid category. Usage: /toptimes latest [category]\n%s\n\"", TOPTIMES_HELPMSG));
+						return;
+					}
+
+					if (trap_Argc() > 3) { // 3rd argument must be the page number
+						trap_Argv(3, buf, sizeof(buf));
+						page = Com_Clampi(1, 999, atoi(buf));
+					}
+				}
+			}
+
+			BestTimeContext context;
+			context.entNum = ent - g_entities;
+			context.hasPrinted = qfalse;
+			G_LogDbListLatestCaptureRecords(flags, MAPLIST_MAPS_PER_PAGE, (page - 1) * MAPLIST_MAPS_PER_PAGE, printLatestTimesCallback, &context);
+
+			if (context.hasPrinted)
+				trap_SendServerCommand(ent - g_entities, va("print \"Viewing page %d.\nUsage: /toptimes latest [category] [page]\n%s\n\"", page, TOPTIMES_HELPMSG));
+			else
+				trap_SendServerCommand(ent - g_entities, va("print \"There aren't this many records! Try a lower page number.\nUsage: /toptimes latest [category] [page]\n%s\n\"", TOPTIMES_HELPMSG));
+
+			return;
+		}
 		else if (!Q_stricmp(buf, "demo")) {
 			if (trap_Argc() < 4) {
 				trap_SendServerCommand(ent - g_entities, va("print \"Usage: /toptimes demo [category] [rank #]\n%s\n\"", TOPTIMES_HELPMSG));
@@ -6365,11 +6496,12 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 			}
 			return;
 
-		} else {
+		}
+		else {
 			// they typed an arg, but it wasn't "maplist" or "rules"; assume it's a category on the current map
-			flags = GetRecordFlagsForString( level.mapCaptureRecords.mapname, buf, &displayBothSpeedRunAndLivePugVariants, qfalse, qfalse);
-			if ( !flags) {
-				trap_SendServerCommand( ent - g_entities, va("print \"Invalid category. Usage: /toptimes maplist [category]\n%s\n\"", TOPTIMES_HELPMSG));
+			flags = GetRecordFlagsForString(level.mapCaptureRecords.mapname, buf, &displayBothSpeedRunAndLivePugVariants, qfalse, qfalse);
+			if (!flags) {
+				trap_SendServerCommand(ent - g_entities, va("print \"Invalid category. Usage: /toptimes maplist [category]\n%s\n\"", TOPTIMES_HELPMSG));
 				return;
 			}
 			manuallySpecifiedFlags = qtrue;

@@ -267,6 +267,18 @@ const char* const sqlListBestSiegeFastcaps =
 "LIMIT ?2                                                                       "
 "OFFSET ?3                                                                      ";
 
+const char* const sqlListLatestSiegeFastcaps =
+"SELECT flags, mapname, player1_name, player1_ip_int, player1_cuid_hash2,       "
+"player2_name, player2_ip_int, player2_cuid_hash2,                              "
+"player3_name, player3_ip_int, player3_cuid_hash2,                              "
+"player4_name, player4_ip_int, player4_cuid_hash2,                              "
+"total_time, date                                                               "
+"FROM siegefastcaps                                                             "
+"WHERE (siegefastcaps.flags & ?1) = ?1                                          "
+"ORDER BY date DESC                                                             "
+"LIMIT ?2                                                                       "
+"OFFSET ?3                                                                      ";
+
 //
 //  G_LogDbLoad
 // 
@@ -835,10 +847,11 @@ void G_DbRemovePlayerFromWhitelist(unsigned long long uniqueID, const char* cuid
 // strict == qtrue:  only get records where flags in db is exactly equal to flags parameter
 // strict == qfalse: only get records where flags in db contains (bitwise AND) flags parameter
 void G_LogDbLoadCaptureRecords( const char *mapname, CaptureCategoryFlags flags, qboolean strict, CaptureRecordsForCategory *out ) {
+#ifdef _DEBUG
 	if (!flags) {
-		assert(qfalse);
-		return;
+		Com_Printf("DEBUG MESSAGE: G_LogDbLoadCaptureRecords: flags 0\n");
 	}
+#endif
 	memset(out, 0, sizeof( *out) );
 
 	if ( g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer ) {
@@ -997,6 +1010,41 @@ void G_LogDbListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int
 	}
 
 	sqlite3_finalize( statement );
+}
+
+void G_LogDbListLatestCaptureRecords(CaptureCategoryFlags flags, int limit, int offset, ListLastestCapturesCallback callback, void *context) {
+	sqlite3_stmt* statement;
+	int rc = sqlite3_prepare(db, sqlListLatestSiegeFastcaps, -1, &statement, 0);
+
+	sqlite3_bind_int(statement, 1, flags);
+	sqlite3_bind_int(statement, 2, limit);
+	sqlite3_bind_int(statement, 3, offset);
+
+	rc = sqlite3_step(statement);
+	while (rc == SQLITE_ROW) {
+		int k = 0;
+		const int thisRecordFlags = sqlite3_column_int(statement, k++);
+		const char *mapname = (const char*)sqlite3_column_text(statement, k++);
+		const char *player1_name = (const char*)sqlite3_column_text(statement, k++);
+		const unsigned int player1_ip_int = sqlite3_column_int(statement, k++);
+		const char *player1_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+		const char *player2_name = (const char*)sqlite3_column_text(statement, k++);
+		const unsigned int player2_ip_int = sqlite3_column_int(statement, k++);
+		const char *player2_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+		const char *player3_name = (const char*)sqlite3_column_text(statement, k++);
+		const unsigned int player3_ip_int = sqlite3_column_int(statement, k++);
+		const char *player3_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+		const char *player4_name = (const char*)sqlite3_column_text(statement, k++);
+		const unsigned int player4_ip_int = sqlite3_column_int(statement, k++);
+		const char *player4_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
+		const int best_time = sqlite3_column_int(statement, k++);
+		const time_t date = sqlite3_column_int64(statement, k++);
+
+		callback(context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, player3_name, player3_ip_int, player3_cuid_hash2, player4_name, player4_ip_int, player4_cuid_hash2, best_time, date);
+		rc = sqlite3_step(statement);
+	}
+
+	sqlite3_finalize(statement);
 }
 
 static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCategory, void *mapname) {
