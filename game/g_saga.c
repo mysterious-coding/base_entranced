@@ -1567,7 +1567,7 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 	}
 }
 
-void G_SiegeRoundComplete(int winningteam, int winningclient)
+void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completedEntireMap)
 {
 	ComputeSiegePlayTimes();
 
@@ -1609,7 +1609,7 @@ void G_SiegeRoundComplete(int winningteam, int winningclient)
 		winningclient = ENTITYNUM_NONE;
 	}
 
-	if (winningteam == TEAM_RED)
+	if (winningteam == TEAM_RED && completedEntireMap)
 		CheckTopTimes(totalRoundTime, -1, winningclient >= 0 && winningclient < MAX_CLIENTS ? winningclient : -1);
 
 	VectorClear(nomatter);
@@ -2169,7 +2169,7 @@ void SiegeCheckTimers(void)
 					level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
 			}
 			PrintObjStat(0, qtrue);
-			G_SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE);
+			G_SiegeRoundComplete(SIEGETEAM_TEAM2, ENTITYNUM_NONE, qfalse);
 			imperial_time_limit = 0;
 			return;
 		}
@@ -2190,7 +2190,7 @@ void SiegeCheckTimers(void)
 					level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
 			}
 			PrintObjStat(0, qtrue);
-			G_SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE);
+			G_SiegeRoundComplete(SIEGETEAM_TEAM1, ENTITYNUM_NONE, qfalse);
 			rebel_time_limit = 0;
 			return;
 		}
@@ -2493,10 +2493,14 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 		level.mapCaptureRecords.lastCombinedObjCompleted = topTimesObjNum;
 	}
 
-	if (final == 1 || goals_completed >= goals_required || (g_siegeTiebreakEnd.integer && g_siegePersistant.beatingTime && g_siegeTeamSwitch.integer && siege_r2_objscompleted.integer >= siege_r1_objscompleted.integer))
+	if (final == 1 || goals_completed >= goals_required)
 	{
 		SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
-		G_SiegeRoundComplete(team, client);
+		G_SiegeRoundComplete(team, client, qtrue);
+	}
+	else if (g_siegeTiebreakEnd.integer && g_siegePersistant.beatingTime && g_siegeTeamSwitch.integer && siege_r2_objscompleted.integer >= siege_r1_objscompleted.integer) {
+		SiegeBroadcast_OBJECTIVECOMPLETE(team, client, objective);
+		G_SiegeRoundComplete(team, client, qfalse);
 	}
 	else
 	{

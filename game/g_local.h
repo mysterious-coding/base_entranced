@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"310"
+#define MODBUILDNUMBER			"311"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
@@ -1786,7 +1786,7 @@ int G_ObjectiveTimeDifference(int objective, int round);
 int G_FirstIncompleteObjective(int round);
 int G_FirstCompleteObjective(int round);
 int G_PreviousObjective(int objective, int round, int timeOverride);
-void G_SiegeRoundComplete(int winningteam, int winningclient);
+void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completedEntireMap);
 void SpeedRunModeRuined(const char *reason);
 void LivePugRuined(const char *reason, qboolean announce);
 

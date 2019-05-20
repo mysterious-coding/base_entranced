@@ -3689,15 +3689,15 @@ qboolean	ConsoleCommand( void ) {
 			int r2objs = trap_Cvar_VariableIntegerValue("siege_r2_objscompleted");
 			if (r1objs > r2objs) {
 				level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND1OFFENSE;
-				G_SiegeRoundComplete(TEAM_BLUE, ENTITYNUM_NONE);
+				G_SiegeRoundComplete(TEAM_BLUE, ENTITYNUM_NONE, qfalse);
 			}
 			else if (r2objs > r1objs) {
 				level.siegeMatchWinner = SIEGEMATCHWINNER_ROUND2OFFENSE;
-				G_SiegeRoundComplete(TEAM_RED, ENTITYNUM_NONE);
+				G_SiegeRoundComplete(TEAM_RED, ENTITYNUM_NONE, qtrue);
 			}
 			else {
 				level.siegeMatchWinner = SIEGEMATCHWINNER_TIE;
-				G_SiegeRoundComplete(TEAM_BLUE, ENTITYNUM_NONE);
+				G_SiegeRoundComplete(TEAM_BLUE, ENTITYNUM_NONE, qfalse);
 			}
 		}
 		else
