@@ -181,6 +181,7 @@ const char* const sqlCreateSiegeFastcapsTable =
 "    [fastcap_id] INTEGER PRIMARY KEY AUTOINCREMENT,                            "
 "    [mapname] TEXT,                                                            "
 "    [flags] INTEGER,                                                           "
+"    [rank] INTEGER,                                                            "
 "    [desc] TEXT,                                                               "
 "    [player1_name] TEXT,                                                       "
 "    [player1_ip_int] INTEGER,                                                  "
@@ -213,7 +214,7 @@ const char* const sqlCreateSiegeFastcapsTable =
 
 const char* const sqlAddSiegeFastcapV2 =
 "INSERT INTO siegefastcaps (                                                    "
-"    mapname, flags, desc, player1_name, player1_ip_int,                        "
+"    mapname, flags, rank, desc, player1_name, player1_ip_int,                  "
 "    player1_cuid_hash2, max_speed, avg_speed,                                  "
 "    player2_name, player2_ip_int, player2_cuid_hash2,                          "
 "    obj1_time, obj2_time, obj3_time, obj4_time, obj5_time,                     "
@@ -221,7 +222,7 @@ const char* const sqlAddSiegeFastcapV2 =
 "    match_id, player1_client_id, player2_client_id,                            "
 "    player3_name, player3_ip_int, player3_cuid_hash2,                          "
 "    player4_name, player4_ip_int, player4_cuid_hash2)                          "
-"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)         ";
+"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)       ";
 
 const char* const sqlremoveSiegeFastcaps =
 "DELETE FROM siegefastcaps WHERE mapname = ?1 AND flags = ?2                    ";
@@ -1077,6 +1078,7 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 		int k = 1;
 		sqlite3_bind_text(statement, k++, mapname, -1, 0);
 		sqlite3_bind_int(statement, k++, recordsForCategory->flags);
+		sqlite3_bind_int(statement, k++, j + 1); // rank
 		sqlite3_bind_text(statement, k++, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, recordsForCategory->flags, qtrue), -1, 0);
 
 		sqlite3_bind_text(statement, k++, record->recordHolderNames[0], -1, 0);
