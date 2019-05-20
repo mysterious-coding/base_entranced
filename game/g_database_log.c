@@ -273,7 +273,7 @@ const char* const sqlListLatestSiegeFastcaps =
 "player2_name, player2_ip_int, player2_cuid_hash2,                              "
 "player3_name, player3_ip_int, player3_cuid_hash2,                              "
 "player4_name, player4_ip_int, player4_cuid_hash2,                              "
-"total_time, date                                                               "
+"total_time, date, rank                                                         "
 "FROM siegefastcaps                                                             "
 "WHERE (siegefastcaps.flags & ?1) = ?1                                          "
 "ORDER BY date DESC                                                             "
@@ -1040,8 +1040,9 @@ void G_LogDbListLatestCaptureRecords(CaptureCategoryFlags flags, int limit, int 
 		const char *player4_cuid_hash2 = (const char*)sqlite3_column_text(statement, k++);
 		const int best_time = sqlite3_column_int(statement, k++);
 		const time_t date = sqlite3_column_int64(statement, k++);
+		const int rank = sqlite3_column_int(statement, k++);
 
-		callback(context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, player3_name, player3_ip_int, player3_cuid_hash2, player4_name, player4_ip_int, player4_cuid_hash2, best_time, date);
+		callback(context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, player3_name, player3_ip_int, player3_cuid_hash2, player4_name, player4_ip_int, player4_cuid_hash2, best_time, date, rank);
 		rc = sqlite3_step(statement);
 	}
 

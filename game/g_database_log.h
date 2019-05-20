@@ -69,7 +69,7 @@ typedef void(*ListLastestCapturesCallback) (void *context, const char *mapname, 
 	const char *recordHolderName2, unsigned int recordHolderIpInt2, const char *recordHolderCuid2,
 	const char *recordHolderName3, unsigned int recordHolderIpInt3, const char *recordHolderCuid3,
 	const char *recordHolderName4, unsigned int recordHolderIpInt4, const char *recordHolderCuid4,
-	int bestTime, time_t bestTimeDate);
+	int bestTime, time_t bestTimeDate, int rank);
 
 void G_LogDbListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int offset, ListAllMapsCapturesCallback callback, void *context );
 void G_LogDbListLatestCaptureRecords(CaptureCategoryFlags flags, int limit, int offset, ListLastestCapturesCallback callback, void *context);

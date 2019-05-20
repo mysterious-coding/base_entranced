@@ -1010,7 +1010,7 @@ static qboolean RecordMatchesPlayers(
 			numCuidsInRecord++;
 		if (record->recordHolderIpInts[i])
 			numIpsInRecord++;
-		if (ips[0])
+		if (ips[i])
 			numIps++;
 	}
 
@@ -1099,14 +1099,14 @@ static int LogCaptureTime(
 		qboolean match = RecordMatchesPlayers(
 			numPlayers,
 			&recordArray[newIndex],
-			recordArray[newIndex].recordHolderCuids[0],
-			recordArray[newIndex].recordHolderCuids[1],
-			recordArray[newIndex].recordHolderCuids[2],
-			recordArray[newIndex].recordHolderCuids[3],
-			recordArray[newIndex].recordHolderIpInts[0],
-			recordArray[newIndex].recordHolderIpInts[1],
-			recordArray[newIndex].recordHolderIpInts[2],
-			recordArray[newIndex].recordHolderIpInts[3]);
+			cuid1,
+			cuid2,
+			cuid3,
+			cuid4,
+			ipInt1,
+			ipInt2,
+			ipInt3,
+			ipInt4);
 
 		if (match)
 			break;

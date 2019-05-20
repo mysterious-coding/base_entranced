@@ -6097,39 +6097,15 @@ static void printLatestTimesCallback(void *context, const char *mapname, const C
 	const char *recordHolderName2, unsigned int recordHolderIpInt2, const char *recordHolderCuid2,
 	const char *recordHolderName3, unsigned int recordHolderIpInt3, const char *recordHolderCuid3,
 	const char *recordHolderName4, unsigned int recordHolderIpInt4, const char *recordHolderCuid4,
-	int bestTime, time_t bestTimeDate) {
+	int bestTime, time_t bestTimeDate, int rank) {
 	BestTimeContext* thisContext = (BestTimeContext*)context;
-
-	// if we are printing the current map, since we only save new records at the end of the round, check if we beat the top time during this session
-	// and print that one instead (the record in DB will stay outdated until round ends)
-	if (!Q_stricmp(mapname, level.mapCaptureRecords.mapname)) {
-		CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
-		const CaptureRecord *currentRecord = &recordsPtr->records[0];
-
-		if (currentRecord->totalTime && currentRecord->totalTime < bestTime) {
-			recordHolderName1 = currentRecord->recordHolderNames[0];
-			recordHolderName2 = currentRecord->recordHolderNames[1];
-			recordHolderName3 = currentRecord->recordHolderNames[2];
-			recordHolderName4 = currentRecord->recordHolderNames[3];
-			recordHolderIpInt1 = currentRecord->recordHolderIpInts[0];
-			recordHolderIpInt2 = currentRecord->recordHolderIpInts[1];
-			recordHolderIpInt3 = currentRecord->recordHolderIpInts[2];
-			recordHolderIpInt4 = currentRecord->recordHolderIpInts[3];
-			recordHolderCuid1 = currentRecord->recordHolderCuids[0];
-			recordHolderCuid2 = currentRecord->recordHolderCuids[1];
-			recordHolderCuid3 = currentRecord->recordHolderCuids[2];
-			recordHolderCuid4 = currentRecord->recordHolderCuids[3];
-			bestTime = currentRecord->totalTime;
-			bestTimeDate = currentRecord->date;
-		}
-	}
 
 	if (!thisContext->hasPrinted) {
 		// first time printing, show a header
 		if (flags)
-			trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"Latest records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", GetLongNameForRecordFlags(mapname, flags, qfalse), "Map", "Time", "Name", "Date", "Category"));
+			trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"Latest records for the "S_COLOR_CYAN"%s "S_COLOR_WHITE"category:\n^5# %-26s  %-9s  %-45s  %-18s  %-38s\n\"", GetLongNameForRecordFlags(mapname, flags, qfalse), "Map", "Time", "Name", "Date", "Category"));
 		else
-			trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"Latest records:\n^5%-26s  %-9s  %-45s  %-18s  %-38s\n\"", "Map", "Time", "Name", "Date", "Category"));
+			trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"Latest records:\n^5# %-26s  %-9s  %-45s  %-18s  %-38s\n\"", "Map", "Time", "Name", "Date", "Category"));
 	}
 
 	char identifiers[LOGGED_PLAYERS_PER_OBJ][MAX_NETNAME + 1] = { 0 };
@@ -6180,9 +6156,21 @@ static void printLatestTimesCallback(void *context, const char *mapname, const C
 		dateColor = "^7";
 		FormatLocalDateFromEpoch(now, date, sizeof(date), bestTimeDate);
 	}
+	char *rankString;
+	if (rank >= 1 && rank <= MAX_SAVED_RECORDS) {
+		switch (rank) {
+		case 1: rankString = "^31"; break;
+		case 2: rankString = "^92"; break;
+		case 3: rankString = "^83"; break;
+		default: rankString = va("^1%d", rank); break;
+		}
+	}
+	else {
+		rankString = "";
+	}
 
 	trap_SendServerCommand(thisContext->entNum, va(
-		"print \"^7%-26s^7  ^5%-9s^7  ^7%s  %s%-18s  ^7%-38s\n\"", mapname, timeString, combinedNameString, dateColor, date, GetLongNameForRecordFlags(mapname, thisRecordFlags, qtrue)));
+		"print \"^7%s ^7%-26s  ^5%-9s^7  ^7%s  %s%-18s  ^7%-38s\n\"", rankString, mapname, timeString, combinedNameString, dateColor, date, GetLongNameForRecordFlags(mapname, thisRecordFlags, qtrue)));
 
 	thisContext->hasPrinted = qtrue;
 }
