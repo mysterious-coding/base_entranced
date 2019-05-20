@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"311"
+#define MODBUILDNUMBER			"312"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
@@ -2586,6 +2586,7 @@ extern vmCvar_t		g_allow_vote_randomcapts;
 extern vmCvar_t		g_allow_vote_cointoss;
 extern vmCvar_t		g_allow_vote_q;
 extern vmCvar_t		g_allow_vote_killturrets;
+extern vmCvar_t		g_allow_vote_quickSpawns;
 extern vmCvar_t     g_allow_vote_pug;
 extern vmCvar_t     g_allow_vote_pub;
 extern vmCvar_t     g_allow_vote_forceclass;

@@ -3992,6 +3992,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
     } else if ( !Q_stricmp( arg1, "randomteams")) {
 	} else if ( !Q_stricmp( arg1, "shuffleteams")) {
 	} else if ( !Q_stricmp( arg1, "killturrets")) {
+	} else if (!Q_stricmpn(arg1, "quickspawn", 10) || !Q_stricmpn(arg1, "quickrespawn", 12) ||
+		!Q_stricmpn(arg1, "fastspawn", 9) || !Q_stricmpn(arg1, "fastrespawn", 11) || !Q_stricmpn(arg1, "respawn", 7)) {
 	} else if ( !Q_stricmp( arg1, "zombies")) {
 	} else if (!Q_stricmp(arg1, "pug")) {
 	} else if (!Q_stricmp(arg1, "pub")) {
@@ -4001,7 +4003,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, "
-			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, "
+			"kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>, cointoss, forceround2, killturrets, quickspawns,"
 			"resetflags, q <question>, pause, unpause, endmatch, randomcapts, randomteams <numRedPlayers> <numBluePlayers>, shuffleteams <numRedPlayers> <numBluePlayers>, g_redTeam, g_blueTeam, zombies, lockTeams <numPlayers>, newpug, nextpug, randompugmap\n\"" );
 		return;
 	}
@@ -4711,6 +4713,16 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Kill Turrets");
 
+	}
+	else if (!Q_stricmpn(arg1, "quickspawn", 10) || !Q_stricmpn(arg1, "quickrespawn", 12) ||
+	!Q_stricmpn(arg1, "fastspawn", 9) || !Q_stricmpn(arg1, "fastrespawn", 11) || !Q_stricmpn(arg1, "respawn", 7)) {
+	//disable this vote
+	if (!g_allow_vote_quickSpawns.integer || g_gametype.integer != GT_SIEGE) {
+		trap_SendServerCommand(ent - g_entities, "print \"Quick spawns is disabled.\n\"");
+		return;
+	}
+	Com_sprintf(level.voteString, sizeof(level.voteString), "g_siegeRespawn 1");
+	Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Quick Spawns");
 	}
 	else if (!Q_stricmp(arg1, "zombies"))
 	{
@@ -8074,6 +8086,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_allow_vote_gametype);
 	PrintCvar(g_allow_vote_kick);
 	PrintCvar(g_allow_vote_killturrets);
+	PrintCvar(g_allow_vote_quickSpawns);
 	PrintCvar(g_allow_vote_lockteams);
 	PrintCvar(g_allow_vote_map);
 	PrintCvar(g_allow_vote_maprandom);

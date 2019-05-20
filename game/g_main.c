@@ -443,6 +443,7 @@ vmCvar_t	g_allow_vote_randomcapts;
 vmCvar_t	g_allow_vote_cointoss;
 vmCvar_t	g_allow_vote_q;
 vmCvar_t    g_allow_vote_killturrets;
+vmCvar_t    g_allow_vote_quickSpawns;
 vmCvar_t    g_allow_vote_zombies;
 vmCvar_t    g_allow_vote_pug;
 vmCvar_t    g_allow_vote_pub;
@@ -815,6 +816,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allow_vote_pug, "g_allow_vote_pug", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_pub, "g_allow_vote_pub", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_allow_vote_lockteams, "g_allow_vote_lockteams", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_allow_vote_quickSpawns, "g_allow_vote_quickSpawns", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_hackLog,	"g_hackLog"	, "hacks.log"	, CVAR_ARCHIVE, 0, qtrue },
 
@@ -4494,6 +4496,9 @@ void CheckVote( void ) {
 			if (!Q_stricmpn(level.voteString, "map_restart", 11)) {
 				LivePugRuined("Vote", qfalse);
 			}
+			if (!Q_stricmp(level.voteString, "g_siegeRespawn 1")) {
+				LivePugRuined("Vote", qfalse);
+			}
 			if (!Q_stricmpn(level.voteString, "g_gametype", 10))
 			{
 				LivePugRuined("Vote", qfalse);
@@ -4548,6 +4553,7 @@ void CheckVote( void ) {
 				G_LogPrintf("Vote passed. (Yes:%i No:%i All:%i)\n", level.voteYes, level.voteNo, level.numVotingClients);
 				if (!Q_strncmp(level.voteString, "vstr nextmap", sizeof(level.voteString))) {
 					SiegeClearSwitchData(); //clear siege to round 1 on nextmap vote
+					LivePugRuined("Vote", qfalse);
 				}
 				if (!Q_stricmpn(level.voteString, "map", 3) && !(!Q_stricmpn(level.voteString, "map_", 4))) {
 					SiegeClearSwitchData(); //clear siege to round 1 on map change vote
@@ -4556,6 +4562,13 @@ void CheckVote( void ) {
 						trap_Cvar_Set("g_redTeam", "none");
 						trap_Cvar_Set("g_blueTeam", "none");
 					}
+					LivePugRuined("Vote", qfalse);
+				}
+				if (!Q_stricmpn(level.voteString, "map_restart", 11)) {
+					LivePugRuined("Vote", qfalse);
+				}
+				if (!Q_stricmp(level.voteString, "g_siegeRespawn 1")) {
+					LivePugRuined("Vote", qfalse);
 				}
 				if (!Q_stricmpn(level.voteString, "g_gametype", 10))
 				{
