@@ -6166,7 +6166,9 @@ static void printLatestTimesCallback(void *context, const char *mapname, const C
 		}
 	}
 	else {
-		rankString = "";
+		assert(qfalse);
+		Com_Printf("DEBUG MESSAGE: printLatestTimesCallback: bad rank %d\n", rank);
+		rankString = " ";
 	}
 
 	trap_SendServerCommand(thisContext->entNum, va(
