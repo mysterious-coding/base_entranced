@@ -7697,13 +7697,13 @@ static void FillObjStats(gclient_t *cl, Stat *values) {
 
 static const StatsDesc SiegeGeneralDesc = {
 	{
-		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OFFDTH", "DMGTKN", "OKPM",
-		"DEFKIL", "DMGDEALT", "DEFDTH", "DMGTKN", "DKPM",
+		"CAP", "SAVE", "OFFKIL", "DMGDEALT", "OKPM", "OFFDTH", "DMGTKN",
+		"DEFKIL", "DMGDEALT", "DKPM", "DEFDTH", "DMGTKN",
 		"MAXES", "GOTMAXED", "SK",
 	},
 	{
-		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_FLOAT,
-		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER, STAT_FLOAT,
+		STAT_INT, STAT_INT, STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_FLOAT, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
+		STAT_INT_PAIR1, STAT_INT_PAIR2, STAT_FLOAT, STAT_INT_PAIR1_LOWERBETTER, STAT_INT_PAIR2_LOWERBETTER,
 		STAT_INT, STAT_INT_LOWERBETTER, STAT_INT
 	}
 };
@@ -7714,8 +7714,6 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 	FillValueInt(cl->sess.siegeStats.saves[0] + cl->sess.siegeStats.saves[1]);
 	FillValueInt(cl->sess.siegeStats.oKills[0] + cl->sess.siegeStats.oKills[1]);
 	FillValueInt(cl->sess.siegeStats.oDamageDealt[0] + cl->sess.siegeStats.oDamageDealt[1]);
-	FillValueInt(cl->sess.siegeStats.oDeaths[0] + cl->sess.siegeStats.oDeaths[1]);
-	FillValueInt(cl->sess.siegeStats.oDamageTaken[0] + cl->sess.siegeStats.oDamageTaken[1]);
 
 	float oKills = (float)(cl->sess.siegeStats.oKills[0] + cl->sess.siegeStats.oKills[1]);
 	float oTime = (float)(cl->sess.siegeStats.oTime[0] + cl->sess.siegeStats.oTime[1]);
@@ -7730,10 +7728,11 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 		FillValueFloat(0.0f);
 	}
 
+	FillValueInt(cl->sess.siegeStats.oDeaths[0] + cl->sess.siegeStats.oDeaths[1]);
+	FillValueInt(cl->sess.siegeStats.oDamageTaken[0] + cl->sess.siegeStats.oDamageTaken[1]);
+
 	FillValueInt(cl->sess.siegeStats.dKills[0] + cl->sess.siegeStats.dKills[1]);
 	FillValueInt(cl->sess.siegeStats.dDamageDealt[0] + cl->sess.siegeStats.dDamageDealt[1]);
-	FillValueInt(cl->sess.siegeStats.dDeaths[0] + cl->sess.siegeStats.dDeaths[1]);
-	FillValueInt(cl->sess.siegeStats.dDamageTaken[0] + cl->sess.siegeStats.dDamageTaken[1]);
 
 	float dKills = (float)(cl->sess.siegeStats.dKills[0] + cl->sess.siegeStats.dKills[1]);
 	float dTime = (float)(cl->sess.siegeStats.dTime[0] + cl->sess.siegeStats.dTime[1]);
@@ -7747,6 +7746,9 @@ static void FillSiegeGeneralStats(gclient_t *cl, Stat *values) {
 	else {
 		FillValueFloat(0.0f);
 	}
+
+	FillValueInt(cl->sess.siegeStats.dDeaths[0] + cl->sess.siegeStats.dDeaths[1]);
+	FillValueInt(cl->sess.siegeStats.dDamageTaken[0] + cl->sess.siegeStats.dDamageTaken[1]);
 
 	FillValueInt(cl->sess.siegeStats.maxes[0] + cl->sess.siegeStats.maxes[1]);
 	FillValueInt(cl->sess.siegeStats.maxed[0] + cl->sess.siegeStats.maxed[1]);
