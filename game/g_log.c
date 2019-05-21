@@ -122,6 +122,8 @@ void G_LogWeaponInit(void) {
 void QDECL G_LogWeaponPickup(int client, int weaponid)
 {
 #ifdef LOGGING_WEAPONS
+	if (client >= MAX_CLIENTS)
+		return;
 	G_WeaponLogPickups[client][weaponid]++;
 	G_WeaponLogClientTouch[client] = qtrue;
 #endif //_LOGGING_WEAPONS
@@ -130,6 +132,8 @@ void QDECL G_LogWeaponPickup(int client, int weaponid)
 void QDECL G_LogWeaponFire(int client, int weaponid)
 {
 #ifdef LOGGING_WEAPONS
+	if (client >= MAX_CLIENTS)
+		return;
 	int dur;
 
 	G_WeaponLogFired[client][weaponid]++;
