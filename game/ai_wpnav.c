@@ -3360,11 +3360,11 @@ void LoadPath_ThisLevel(void)
 
 		if (ent && ent->inuse && ent->classname)
 		{
-			if (!eFlagRed && strcmp(ent->classname, "team_CTF_redflag") == 0)
+			if (!eFlagRed && Q_stricmp(ent->classname, "team_CTF_redflag") == 0)
 			{
 				eFlagRed = ent;
 			}
-			else if (!eFlagBlue && strcmp(ent->classname, "team_CTF_blueflag") == 0)
+			else if (!eFlagBlue && Q_stricmp(ent->classname, "team_CTF_blueflag") == 0)
 			{
 				eFlagBlue = ent;
 			}

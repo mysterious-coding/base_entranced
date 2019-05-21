@@ -1543,7 +1543,7 @@ void CheckTeamStatus(void) {
 		for (i = 0; i < g_maxclients.integer; i++) {
 			ent = g_entities + i;
 
-			if ( ent->client->pers.connected != CON_CONNECTED ) {
+			if ( !ent->client || ent->client->pers.connected != CON_CONNECTED ) {
 				continue;
 			}
 

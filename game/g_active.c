@@ -284,13 +284,23 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 		easyBreakBrush = qtrue;
 	}
 
-	if ( !self->client || self->client->ps.lastOnGround+300<level.time || ( self->client->ps.lastOnGround+100 < level.time && easyBreakBrush ) )
+	qboolean definitelyBreak;
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO) {
+		definitelyBreak = qtrue;
+	}
+	else {
+		definitelyBreak = qfalse;
+	}
+
+	if ( !self->client || self->client->ps.lastOnGround+300<level.time || ( self->client->ps.lastOnGround+100 < level.time && easyBreakBrush ) || definitelyBreak )
 	{
 		vec3_t dir1, dir2;
 		float force = 0, dot;
 
 		if ( easyBreakBrush )
 			magnitude *= 2;
+		if (definitelyBreak)
+			magnitude = 69420;
 
 		//damage them
 		if ( magnitude >= 100 && other->s.number < ENTITYNUM_WORLD )

@@ -3649,16 +3649,16 @@ qboolean	ConsoleCommand( void ) {
     //OSP: pause
     if ( !Q_stricmp( cmd, "pause" ) )
     {
-        //if ( level.pause.state == PAUSE_NONE ) {
-			char durationStr[4];
-			int duration;
+		char durationStr[4];
+		trap_Argv(1,durationStr,sizeof(durationStr));
 
-			trap_Argv(1,durationStr,sizeof(durationStr));
-			duration = Com_Clampi(5, 300, atoi(durationStr)); // clamp between 5 seconds and 300 seconds
+		// clamp between 5 seconds and 300 seconds
+		int duration = atoi(durationStr);
+		if (duration < 5 || duration > 300)
+			duration = 300;
 
-            level.pause.state = PAUSE_PAUSED;
-			level.pause.time = level.time + duration*1000;
-		//}
+        level.pause.state = PAUSE_PAUSED;
+		level.pause.time = level.time + duration*1000;
 
         return qtrue;
     } 
