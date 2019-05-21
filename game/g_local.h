@@ -333,6 +333,7 @@ struct gentity_s {
 	int			health;
 	qboolean	takedamage;
 	material_t	material;
+	qboolean	noTouchBreak;
 
 	int			damage;
 	int			dflags;

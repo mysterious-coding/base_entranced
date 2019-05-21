@@ -275,11 +275,11 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 
 	magnitude = VectorLength( velocity ) * my_mass / 10;
 
-	if ( other->material == MAT_GLASS 
+	if ( !other->noTouchBreak && (other->material == MAT_GLASS 
 		|| other->material == MAT_GLASS_METAL 
 		|| other->material == MAT_GRATE1
 		|| ((other->flags&FL_BBRUSH)&&(other->spawnflags&8))
-		|| (other->r.svFlags&SVF_GLASS_BRUSH) )
+		|| (other->r.svFlags&SVF_GLASS_BRUSH) ))
 	{
 		easyBreakBrush = qtrue;
 	}
@@ -391,7 +391,7 @@ void Client_CheckImpactBBrush( gentity_t *self, gentity_t *other )
 		return;
 	}
 
-	if ( (other->material == MAT_GLASS 
+	if ( !other->noTouchBreak && (other->material == MAT_GLASS 
 		|| other->material == MAT_GLASS_METAL 
 		|| other->material == MAT_GRATE1
 		|| ((other->flags&FL_BBRUSH)&&(other->spawnflags&8/*THIN*/))

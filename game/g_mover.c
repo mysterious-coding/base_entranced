@@ -2962,6 +2962,7 @@ void SP_func_breakable(gentity_t *self)
 
 	G_SpawnInt("splashDamage", "0", &self->splashDamage);
 	G_SpawnInt("splashRadius", "0", &self->splashRadius);
+	G_SpawnInt("noTouchBreak", "0", &self->noTouchBreak);
 
 	CacheChunkEffects(self->material);
 
