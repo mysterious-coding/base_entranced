@@ -2823,6 +2823,12 @@ static void InitBBrush(gentity_t *ent)
 
 void funcBBrushTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
+	// allow touching cargo vents to destroy them
+	if (g_gametype.integer != GT_SIEGE || level.siegeMap != SIEGEMAP_CARGO)
+		return;
+	if (!other || !other->client || !ent || !(ent->spawnflags & 8))
+		return;
+	G_Damage(ent, NULL, NULL, NULL, ent->r.currentOrigin, 999, DAMAGE_NO_ARMOR, MOD_FALLING);
 }
 
 /*QUAKED func_breakable (0 .8 .5) ? INVINCIBLE IMPACT CRUSHER THIN SABERONLY HEAVY_WEAP USE_NOT_BREAK PLAYER_USE NO_EXPLOSION
@@ -3115,6 +3121,41 @@ void GlassUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 	GlassDie(self, other, activator, 100, MOD_UNKNOWN);
 }
 
+void GlassInstaBreakOnTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
+{
+	// allow touching cargo glass to destroy it
+	if (g_gametype.integer != GT_SIEGE || level.siegeMap != SIEGEMAP_CARGO)
+		return;
+	if (!other || !other->client || !ent)
+		return;
+	gentity_t *te;
+	vec3_t dif;
+
+	if (ent->genericValue5)
+	{ //was already destroyed, do not retrigger it
+		return;
+	}
+
+	ent->genericValue5 = 1;
+
+	dif[0] = (ent->r.absmax[0] + ent->r.absmin[0]) / 2;
+	dif[1] = (ent->r.absmax[1] + ent->r.absmin[1]) / 2;
+	dif[2] = (ent->r.absmax[2] + ent->r.absmin[2]) / 2;
+
+	G_UseTargets(ent, other);
+
+	ent->splashRadius = 40; // ?? some random number, maybe it's ok?
+
+	te = G_TempEntity(dif, EV_GLASS_SHATTER);
+	te->s.genericenemyindex = ent->s.number;
+	VectorCopy(ent->pos1, te->s.origin);
+	VectorCopy(ent->pos2, te->s.angles);
+	te->s.trickedentindex = (int)ent->splashRadius;
+	te->s.pos.trTime = (int)ent->genericValue3;
+
+	G_FreeEntity(ent);
+}
+
 /*QUAKED func_glass (0 .5 .8) ? x x x x x x PLAYER_USE INACTIVE
 Breakable glass
 "model2"	.md3 model to also draw
@@ -3155,6 +3196,8 @@ void SP_func_glass(gentity_t *ent) {
 	ent->die = GlassDie;
 	ent->use = GlassUse;
 	ent->pain = GlassPain;
+	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO)
+		ent->touch = GlassInstaBreakOnTouch;
 }
 
 void func_usable_use(gentity_t *self, gentity_t *other, gentity_t *activator);

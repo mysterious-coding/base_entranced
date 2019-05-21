@@ -1751,6 +1751,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	vmCvar_t	ckSum;
 
 	InitUnhandledExceptionFilter();
+	InitializeMapName();
 
 #ifdef _XBOX
 	if(restart) {
