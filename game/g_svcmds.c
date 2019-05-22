@@ -1753,7 +1753,7 @@ void Svcmd_AccountPrintAll_f(){
 */
 
 char *GetNewestMapVersion(siegeMap_t map) {
-	static char cargoBuf[MAX_QPATH] = { 0 }, urbanBuf[MAX_QPATH] = { 0 }, ansionBuf[MAX_QPATH] = { 0 }, bespinBuf[MAX_QPATH] = { 0 };
+	static char cargoBuf[MAX_QPATH] = { 0 }, urbanBuf[MAX_QPATH] = { 0 }, ansionBuf[MAX_QPATH] = { 0 }, bespinBuf[MAX_QPATH] = { 0 }, imperialBuf[MAX_QPATH] = { 0 };
 	char *mapBuf, *prefix;
 
 	switch (map) {
@@ -1761,6 +1761,7 @@ char *GetNewestMapVersion(siegeMap_t map) {
 	case SIEGEMAP_URBAN:	mapBuf = urbanBuf;		prefix = "siege_urban_b";			break;
 	case SIEGEMAP_ANSION:	mapBuf = ansionBuf;		prefix = "siege_ansion_beta";		break;
 	case SIEGEMAP_BESPIN:	mapBuf = bespinBuf;		prefix = "mp/siege_bespin_b";		break;
+	case SIEGEMAP_IMPERIAL:	mapBuf = imperialBuf;	prefix = "mp/siege_imperial_b";		break; // using /mp/ in 2019 for some reason
 	default:				assert(qfalse);			return "";
 	}
 	if (*mapBuf)
@@ -1778,6 +1779,10 @@ char *GetNewestMapVersion(siegeMap_t map) {
 
 	if (map == SIEGEMAP_BESPIN) {
 		Q_strncpyz(bespinBuf, "mp/siege_bespin", sizeof(bespinBuf));
+		return bespinBuf;
+	}
+	if (map == SIEGEMAP_IMPERIAL) {
+		Q_strncpyz(bespinBuf, "mp/siege_imperial", sizeof(bespinBuf));
 		return bespinBuf;
 	}
 

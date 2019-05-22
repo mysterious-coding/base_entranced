@@ -3349,7 +3349,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		G_Sound(other, CHAN_AUTO, self->noise_index);
 	}
 
-	if (level.siegeMap != SIEGEMAP_UNKNOWN)
+	if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
 		self->siegeItemCarrierTime = level.time;
 	else
 		self->siegeItemCarrierTime = 0;

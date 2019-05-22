@@ -1711,6 +1711,9 @@ static void InitializeMapName(void) {
 	} else if (stristr(level.mapname, "siege_ansion")) {
 		level.siegeMap = SIEGEMAP_ANSION;
 		level.numSiegeObjectivesOnMapCombined = 5;
+	} else if (stristr(level.mapname, "siege_imperial")){
+		level.siegeMap = SIEGEMAP_IMPERIAL;
+		level.numSiegeObjectivesOnMapCombined = 5;
 	} else {
 		level.siegeMap = SIEGEMAP_UNKNOWN;
 		if (!Q_stricmp(level.mapname, "siege_cargobarge"))
@@ -1723,7 +1726,7 @@ static void InitializeMapName(void) {
 			level.numSiegeObjectivesOnMapCombined = 5;
 	}
 
-	trap_Cvar_Set("g_debugMelee", level.siegeMap == SIEGEMAP_CARGO ? "1" : "0");
+	trap_Cvar_Set("g_debugMelee", (level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL) ? "1" : "0");
 }
 
 char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE];
@@ -3041,7 +3044,7 @@ void BeginIntermission( void ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(NULL, "obj");
 			PrintStatsTo(NULL, "general");
-			if (level.siegeMap != SIEGEMAP_UNKNOWN)
+			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
 				PrintStatsTo(NULL, "map");
 		}
 		else if (g_gametype.integer == GT_CTF) {

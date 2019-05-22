@@ -1315,7 +1315,8 @@ typedef enum {
 	SIEGEMAP_CARGO,
 	SIEGEMAP_URBAN,
 	SIEGEMAP_BESPIN,
-	SIEGEMAP_ANSION
+	SIEGEMAP_ANSION,
+	SIEGEMAP_IMPERIAL
 } siegeMap_t;
 
 // check this many milliseconds into the game (not including siege countdown) whether or not the pug is live

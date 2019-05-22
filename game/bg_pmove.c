@@ -1529,7 +1529,7 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 			return qfalse;
 			break;
 		}
-		if ( /*pm->debugMelee ||*/ (level.siegeMap == SIEGEMAP_CARGO && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
+		if ( /*pm->debugMelee ||*/ ((level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL) && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
 		{//uber-skillz
 			if (level.clients[pm->ps->clientNum].pushOffWallTime && level.time - level.clients[pm->ps->clientNum].pushOffWallTime <= 100) {
 				level.clients[pm->ps->clientNum].pushOffWallTime = 0;

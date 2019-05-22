@@ -4100,6 +4100,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_ANSION), sizeof(arg2));
 		else if (!Q_stricmp(arg2, "siege_cargobarge3") || !Q_stricmp(arg2, "mp/siege_cargobarge3"))
 			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_CARGO), sizeof(arg2));
+		else if (!Q_stricmp(arg2, "siege_bespin") || !Q_stricmp(arg2, "mp/siege_bespin"))
+			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_BESPIN), sizeof(arg2));
+		else if (!Q_stricmp(arg2, "siege_imperial") || !Q_stricmp(arg2, "mp/siege_imperial"))
+			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_IMPERIAL), sizeof(arg2));
 
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
 		if (result)
@@ -5617,6 +5621,8 @@ static const FancyObjNameData fancyObjNameData[] = {
 		{ "Defenses", "TractorBeam" } },
 	{ "mp/siege_bespin", NULL, qfalse, 6,
 		{ "Door", "Consoles", "PowerGen", "Codes", "Lift", "TwinPod" } },
+	{ "siege_imperial", NULL, qfalse, 5,
+        { "ShieldCooling", "Consoles", "Codes", "Lift", "Bridge" } },
 	{ NULL }
 };
 
@@ -7981,7 +7987,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(ent, "obj");
 			PrintStatsTo(ent, "general");
-			if (level.siegeMap != SIEGEMAP_UNKNOWN)
+			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
 				PrintStatsTo(ent, "map");
 		}
 		else {
