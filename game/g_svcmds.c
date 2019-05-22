@@ -1782,8 +1782,8 @@ char *GetNewestMapVersion(siegeMap_t map) {
 		return bespinBuf;
 	}
 	if (map == SIEGEMAP_IMPERIAL) {
-		Q_strncpyz(bespinBuf, "mp/siege_imperial", sizeof(bespinBuf));
-		return bespinBuf;
+		Q_strncpyz(imperialBuf, "mp/siege_imperial", sizeof(imperialBuf));
+		return imperialBuf;
 	}
 
 	assert(qfalse);
