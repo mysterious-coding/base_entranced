@@ -33,7 +33,7 @@ extern vec3_t gPainPoint;
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"base_entranced"
 //#define	GAMEVERSION	"basejka" //test
-#define MODBUILDNUMBER			"315"
+#define MODBUILDNUMBER			"316"
 #define GAMEVERSION_VALUE		GAMEVERSION" "MODBUILDNUMBER
 
 #define DEFAULT_NAME			S_COLOR_WHITE"Padawan"
@@ -333,7 +333,6 @@ struct gentity_s {
 	int			health;
 	qboolean	takedamage;
 	material_t	material;
-	qboolean	noTouchBreak;
 
 	int			damage;
 	int			dflags;
@@ -418,7 +417,10 @@ struct gentity_s {
 	int			siegeItemSpawnTime;
 
 	qboolean	atstKilled;
-	int			siegeItemCarrierTime;
+	union {
+		int			siegeItemCarrierTime;
+		qboolean	noTouchBreak;
+	};
 	gentity_t	*lastPilot;
 };
 
