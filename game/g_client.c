@@ -4800,7 +4800,7 @@ void ClientDisconnect( int clientNum ) {
 	memset(&level.siegeTopTimes[clientNum], 0, sizeof(level.siegeTopTimes[0]));
 
 	// auto-pause if someone disconnects during a live pug
-	if (g_autoPauseDisconnect.integer && g_gametype.integer == GT_SIEGE && ent->client->sess.sessionTeam != TEAM_SPECTATOR && level.isLivePug == ISLIVEPUG_YES &&
+	if (g_autoPauseDisconnect.integer && g_gametype.integer == GT_SIEGE && (ent->client->sess.siegeDesiredTeam == TEAM_RED || ent->client->sess.siegeDesiredTeam == TEAM_BLUE) && level.isLivePug == ISLIVEPUG_YES &&
 		(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) && level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= LIVEPUG_AUTOPAUSE_TIME) {
 
 		// only reset the pause time back up to maximum if we're not already paused
