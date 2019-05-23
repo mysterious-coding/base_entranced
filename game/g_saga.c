@@ -2458,6 +2458,19 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 			topTimesObjNum -= 2;
 		}
 	}
+	else if (level.siegeMap == SIEGEMAP_URBAN) {
+		if (objective == 5 || objective == 6) {
+			static int firstStationTime = -1;
+			if (firstStationTime == -1) { // first one destroyed
+				firstStationTime = ms;
+				topTimesObjNum = 0; // don't run toptimes on this obj
+			}
+			else { // second one destroyed
+				ms += firstStationTime;
+				topTimesObjNum = 5;
+			}
+		}
+	}
 	else if (level.siegeMap == SIEGEMAP_KORRIBAN) {
 		if (objective == 2 || objective == 3 || objective == 4) {
 			static int crystalCaptureNumber = 1;
@@ -2475,8 +2488,8 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 			topTimesObjNum -= 2;
 		}
 	}
-	else if (level.siegeMap == SIEGEMAP_URBAN) {
-		if (objective == 5 || objective == 6) {
+	else if (level.siegeMap == SIEGEMAP_IMPERIAL) {
+		if (objective <= 2) {
 			static int firstStationTime = -1;
 			if (firstStationTime == -1) { // first one destroyed
 				firstStationTime = ms;
@@ -2484,8 +2497,11 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 			}
 			else { // second one destroyed
 				ms += firstStationTime;
-				topTimesObjNum = 5;
+				topTimesObjNum = 1;
 			}
+		}
+		else {
+			topTimesObjNum -= 1;
 		}
 	}
 	if (topTimesObjNum >= 1 && topTimesObjNum <= MAX_SAVED_OBJECTIVES) {
