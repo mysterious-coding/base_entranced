@@ -5621,7 +5621,7 @@ static const FancyObjNameData fancyObjNameData[] = {
 		{ "Defenses", "TractorBeam" } },
 	{ "mp/siege_bespin", NULL, qfalse, 6,
 		{ "Door", "Consoles", "PowerGen", "Codes", "Lift", "TwinPod" } },
-	{ "siege_imperial", NULL, qfalse, 5,
+	{ "mp/siege_imperial", NULL, qfalse, 5,
         { "ShieldCooling", "Consoles", "Codes", "Lift", "Bridge" } },
 	{ NULL }
 };
