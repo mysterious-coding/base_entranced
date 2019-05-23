@@ -2828,6 +2828,8 @@ void funcBBrushTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 		return;
 	if (!other || !other->client || !ent || !(ent->spawnflags & 8))
 		return;
+	if (ent - g_entities == CARGO_FANGRATING_NUM)
+		return;
 	G_Damage(ent, NULL, NULL, NULL, ent->r.currentOrigin, 999, DAMAGE_NO_ARMOR, MOD_FALLING);
 }
 
