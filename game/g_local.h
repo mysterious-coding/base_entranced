@@ -737,6 +737,11 @@ typedef struct {
 		WHITELIST_WHITELISTED
 	} whitelistStatus;
 #endif
+
+	struct {
+		qboolean	wasFollowing;
+		int			followingClientNum;
+	} siegeFollowing;
 } clientSession_t;
 
 // playerstate mGameFlags
@@ -2657,6 +2662,7 @@ extern vmCvar_t    g_runoffVote;
 extern vmCvar_t    g_antiSelfMax;
 extern vmCvar_t    g_improvedDisarm;
 extern vmCvar_t    g_flechetteSpread;
+extern vmCvar_t    g_autoSpec;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

@@ -2727,6 +2727,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	trap_Cvar_VariableStringBuffer("g_cleverFakeDetection",	cleverFakeDetection, 24);
 	ent = &g_entities[ clientNum ];
+	if (firstTime && clientNum < MAX_CLIENTS) {
+		level.clients[clientNum].sess.siegeFollowing.wasFollowing = qfalse;
+	}
 
 	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -3781,11 +3784,15 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
-	if (index >= 0 && index < MAX_CLIENTS) {
+	if (index >= 0 && index < MAX_CLIENTS && client) {
 		if (g_gametype.integer == GT_SIEGE) {
 			if (client->sess.sessionTeam == TEAM_BLUE) {
 				level.siegeTopTimes[ent - g_entities].hasChangedTeams = qtrue;
 				SpeedRunModeRuined("ClientSpawn: spawned on blue");
+				client->sess.siegeFollowing.wasFollowing = qfalse;
+			}
+			else if (client->sess.sessionTeam == TEAM_RED) {
+				client->sess.siegeFollowing.wasFollowing = qfalse;
 			}
 			int numOnRedTeam = 0;
 			for (i = 0; i < MAX_CLIENTS; i++) {
@@ -4811,6 +4818,10 @@ void ClientDisconnect( int clientNum ) {
 		Q_strncpyz(level.pause.reason, va("%s^7 disconnected\n", ent->client->pers.netname), sizeof(level.pause.reason));
 
 		level.pause.state = PAUSE_PAUSED;
+	}
+
+	if (clientNum < MAX_CLIENTS) {
+		ent->client->sess.siegeFollowing.wasFollowing = qfalse;
 	}
 
     G_LogDbLogNickname( ent->client->sess.ip, ent->client->pers.netname, (getGlobalTime() - ent->client->sess.nameChangeTime ) / 1000, ent->client->sess.auth == AUTHENTICATED ? ent->client->sess.cuidHash : "");

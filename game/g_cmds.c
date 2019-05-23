@@ -8108,6 +8108,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_autoKorribanSpam);
 	PrintCvar(g_autoPause999);
 	PrintCvar(g_autoPauseDisconnect);
+	PrintCvar(g_autoSpec);
 	PrintCvar(g_autoStats);
 	PrintCvar(g_antiLaming);
 	PrintCvar(g_autoResetCustomTeams);

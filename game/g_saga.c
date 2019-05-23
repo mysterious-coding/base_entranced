@@ -2009,8 +2009,27 @@ void SiegeBeginRound(int entNum)
 
 		// spawn everyone who needs to be spawned
 		for (i = 0; i < MAX_CLIENTS; i++) {
-			if (spawnEnt[i])
+			if (spawnEnt[i]) {
 				SiegeRespawn(&g_entities[i]);
+				level.clients[i].sess.siegeFollowing.wasFollowing = qfalse;
+			}
+		}
+
+		if (g_autoSpec.integer) {
+			for (i = 0; i < MAX_CLIENTS; i++) {
+				if (spawnEnt[i])
+					continue;
+				gclient_t *cl = &level.clients[i];
+				if (cl->pers.connected == CON_CONNECTED && cl->sess.siegeFollowing.wasFollowing &&
+					cl->sess.siegeFollowing.followingClientNum >= 0 && cl->sess.siegeFollowing.followingClientNum < MAX_CLIENTS &&
+					spawnEnt[cl->sess.siegeFollowing.followingClientNum] && level.clients[cl->sess.siegeFollowing.followingClientNum].pers.connected == CON_CONNECTED) {
+					cl->sess.spectatorClient = cl->sess.siegeFollowing.followingClientNum;
+					cl->sess.spectatorState = SPECTATOR_FOLLOW;
+				}
+				else {
+					cl->sess.siegeFollowing.wasFollowing = qfalse;
+				}
+			}
 		}
 	}
 

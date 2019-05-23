@@ -4373,6 +4373,18 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
         }
     }
 
+	if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
+		ent->client->sess.siegeFollowing.wasFollowing = qtrue;
+		ent->client->sess.siegeFollowing.followingClientNum = ent->client->sess.spectatorClient;
+	}
+	else if (g_gametype.integer != GT_SIEGE) {
+		ent->client->sess.siegeFollowing.wasFollowing = qfalse;
+	}
+	else if ((level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
+		level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= 100) {
+		ent->client->sess.siegeFollowing.wasFollowing = qfalse;
+	}
+
 	if ( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
 		ent->client->ps.pm_flags |= PMF_SCOREBOARD;
 	} else {
@@ -4396,6 +4408,16 @@ void ClientEndFrame( gentity_t *ent ) {
 	if (ent->s.eType == ET_NPC)
 	{
 		isNPC = qtrue;
+	}
+
+	if (ent->client && ent - g_entities < MAX_CLIENTS) {
+		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+			ent->client->sess.siegeFollowing.wasFollowing = qfalse;
+		}
+		else if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
+			ent->client->sess.siegeFollowing.wasFollowing = qtrue;
+			ent->client->sess.siegeFollowing.followingClientNum = ent->client->sess.spectatorClient;
+		}
 	}
 
 #ifdef NEWMOD_SUPPORT
