@@ -285,7 +285,7 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 	}
 
 	qboolean definitelyBreak;
-	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO && self - g_entities != CARGO_FANGRATING_NUM) {
+	if (easyBreakBrush && g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO && self - g_entities != CARGO_FANGRATING_NUM) {
 		definitelyBreak = qtrue;
 	}
 	else {
@@ -299,8 +299,6 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 
 		if ( easyBreakBrush )
 			magnitude *= 2;
-		if (definitelyBreak)
-			magnitude = 69420;
 
 		//damage them
 		if ( magnitude >= 100 && other->s.number < ENTITYNUM_WORLD )
