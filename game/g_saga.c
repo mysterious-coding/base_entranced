@@ -1016,11 +1016,13 @@ static qboolean RecordMatchesPlayers(
 
 	// if every player has a cuid, and this record has exactly that many cuids, then check for cuids
 	if (numCuids == players && numCuidsInRecord == players) { // check for cuid matches
+		qboolean alreadyUsed[LOGGED_PLAYERS_PER_OBJ] = { qfalse };
 		for (int i = 0; i < players; i++) {
 			qboolean matched = qfalse;
 			for (int j = 0; j < players; j++) {
-				if (record->recordHolderCuids[j][0] && !Q_stricmp(cuids[i], record->recordHolderCuids[j])) {
+				if (record->recordHolderCuids[j][0] && !alreadyUsed[j] && !Q_stricmp(cuids[i], record->recordHolderCuids[j])) {
 					matched = qtrue;
+					alreadyUsed[j] = qtrue;
 					break;
 				}
 			}
@@ -1030,11 +1032,13 @@ static qboolean RecordMatchesPlayers(
 		return qtrue;
 	}
 	else if (numIps == players && numIpsInRecord == players) { // check for ip matches
+		qboolean alreadyUsed[LOGGED_PLAYERS_PER_OBJ] = { qfalse };
 		for (int i = 0; i < players; i++) {
 			qboolean matched = qfalse;
 			for (int j = 0; j < players; j++) {
-				if (record->recordHolderIpInts[j] == ips[i]) {
+				if (!alreadyUsed[j] && record->recordHolderIpInts[j] == ips[i]) {
 					matched = qtrue;
+					alreadyUsed[j] = qtrue;
 					break;
 				}
 			}
@@ -1247,30 +1251,20 @@ static int CheckRanking(
 			continue; // not a valid record
 		}
 
-		// don't mix the two types of lookup
-		if (!(flags & CAPTURERECORDFLAG_COOP | CAPTURERECORDFLAG_SPEEDRUN)) { // solo type
-			if (VALIDSTRING(cuid1)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) && recordArray[newIndex].flags == specificFlags)
-					break;
-			}
-			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && recordArray[newIndex].flags == specificFlags)
-					break;
-			}
-		}
-		else { // co-op type
-			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
-				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
-					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
-					recordArray[newIndex].flags == specificFlags)
-					break;
-			}
-			else { // fall back to the whois accuracy...
-				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
-					recordArray[newIndex].flags == specificFlags)
-					break;
-			}
-		}
+		qboolean match = RecordMatchesPlayers(
+			(VALIDSTRING(cuid2) || ipInt2) ? 2 : 1,
+			&recordArray[newIndex],
+			cuid1,
+			cuid2,
+			NULL,
+			NULL,
+			ipInt1,
+			ipInt2,
+			0,
+			0);
+
+		if (match)
+			break;
 	}
 
 	if (newIndex < MAX_SAVED_RECORDS) {
