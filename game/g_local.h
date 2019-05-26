@@ -1498,7 +1498,7 @@ typedef struct {
 	qboolean	inRunoff;
 	int			multiVoteChoices;
 	int			multiVotes[MAX_CLIENTS]; // the id of the choice they voted for
-#define MAX_PUGMAPS 6
+#define MAX_PUGMAPS (8)
 	char		multiVoteMapChars[MAX_PUGMAPS];
 
 	// spawn variables
@@ -2069,7 +2069,9 @@ qboolean getIpFromString( const char* from, unsigned int* ip );
 qboolean getIpPortFromString( const char* from, unsigned int* ip, int* port );
 void getStringFromIp( unsigned int ip, char* buffer, int size );
 void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce);
+#if 0
 char *GetNewestMapVersion(siegeMap_t map);
+#endif
 qboolean DoRunoff(void);
 
 
@@ -2679,6 +2681,59 @@ extern vmCvar_t    dDemoLimit;
 extern vmCvar_t    dTechLimit;
 extern vmCvar_t    dScoutLimit;
 extern vmCvar_t    dJediLimit;
+
+extern vmCvar_t    vote_map_a;
+extern vmCvar_t    vote_map_b;
+extern vmCvar_t    vote_map_c;
+extern vmCvar_t    vote_map_d;
+extern vmCvar_t    vote_map_e;
+extern vmCvar_t    vote_map_f;
+extern vmCvar_t    vote_map_g;
+extern vmCvar_t    vote_map_h;
+extern vmCvar_t    vote_map_i;
+extern vmCvar_t    vote_map_j;
+extern vmCvar_t    vote_map_k;
+extern vmCvar_t    vote_map_l;
+extern vmCvar_t    vote_map_m;
+extern vmCvar_t    vote_map_n;
+extern vmCvar_t    vote_map_o;
+extern vmCvar_t    vote_map_p;
+extern vmCvar_t    vote_map_q;
+extern vmCvar_t    vote_map_r;
+extern vmCvar_t    vote_map_s;
+extern vmCvar_t    vote_map_t;
+extern vmCvar_t    vote_map_u;
+extern vmCvar_t    vote_map_v;
+extern vmCvar_t    vote_map_w;
+extern vmCvar_t    vote_map_x;
+extern vmCvar_t    vote_map_y;
+extern vmCvar_t    vote_map_z;
+extern vmCvar_t    vote_map_shortname_a;
+extern vmCvar_t    vote_map_shortname_b;
+extern vmCvar_t    vote_map_shortname_c;
+extern vmCvar_t    vote_map_shortname_d;
+extern vmCvar_t    vote_map_shortname_e;
+extern vmCvar_t    vote_map_shortname_f;
+extern vmCvar_t    vote_map_shortname_g;
+extern vmCvar_t    vote_map_shortname_h;
+extern vmCvar_t    vote_map_shortname_i;
+extern vmCvar_t    vote_map_shortname_j;
+extern vmCvar_t    vote_map_shortname_k;
+extern vmCvar_t    vote_map_shortname_l;
+extern vmCvar_t    vote_map_shortname_m;
+extern vmCvar_t    vote_map_shortname_n;
+extern vmCvar_t    vote_map_shortname_o;
+extern vmCvar_t    vote_map_shortname_p;
+extern vmCvar_t    vote_map_shortname_q;
+extern vmCvar_t    vote_map_shortname_r;
+extern vmCvar_t    vote_map_shortname_s;
+extern vmCvar_t    vote_map_shortname_t;
+extern vmCvar_t    vote_map_shortname_u;
+extern vmCvar_t    vote_map_shortname_v;
+extern vmCvar_t    vote_map_shortname_w;
+extern vmCvar_t    vote_map_shortname_x;
+extern vmCvar_t    vote_map_shortname_y;
+extern vmCvar_t    vote_map_shortname_z;
 
 extern vmCvar_t    playedPugMaps;
 extern vmCvar_t    desiredPugMaps;

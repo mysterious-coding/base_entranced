@@ -1752,92 +1752,57 @@ void Svcmd_AccountPrintAll_f(){
 }
 */
 
-char *GetNewestMapVersion(siegeMap_t map) {
-	static char cargoBuf[MAX_QPATH] = { 0 }, urbanBuf[MAX_QPATH] = { 0 }, ansionBuf[MAX_QPATH] = { 0 }, bespinBuf[MAX_QPATH] = { 0 }, imperialBuf[MAX_QPATH] = { 0 };
-	char *mapBuf, *prefix;
-
-	switch (map) {
-	case SIEGEMAP_CARGO:	mapBuf = cargoBuf;		prefix = "siege_cargobarge3_v";		break;
-	case SIEGEMAP_URBAN:	mapBuf = urbanBuf;		prefix = "siege_urban_b";			break;
-	case SIEGEMAP_ANSION:	mapBuf = ansionBuf;		prefix = "siege_ansion_beta";		break;
-	case SIEGEMAP_BESPIN:	mapBuf = bespinBuf;		prefix = "mp/siege_bespin_b";		break;
-	case SIEGEMAP_IMPERIAL:	mapBuf = imperialBuf;	prefix = "mp/siege_imperial_b";		break; // using /mp/ in 2019 for some reason
-	default:				assert(qfalse);			return "";
-	}
-	if (*mapBuf)
-		return mapBuf;
-
-	fileHandle_t f;
-	for (int i = 99; i > 0; i--) {
-		trap_FS_FOpenFile(va("maps/%s%d.bsp", prefix, i), &f, FS_READ);
-		if (f) {
-			trap_FS_FCloseFile(f);
-			Q_strncpyz(mapBuf, va("%s%d", prefix, i), MAX_QPATH);
-			return mapBuf;
-		}
-	}
-
-	if (map == SIEGEMAP_BESPIN) {
-		Q_strncpyz(bespinBuf, "mp/siege_bespin", sizeof(bespinBuf));
-		return bespinBuf;
-	}
-	if (map == SIEGEMAP_IMPERIAL) {
-		Q_strncpyz(imperialBuf, "mp/siege_imperial", sizeof(imperialBuf));
-		return imperialBuf;
-	}
-
-	assert(qfalse);
-	return "";
-}
-
 qboolean LongMapNameFromChar(char c, char *outFileName, size_t outFileNameSize, char *outPrettyName, size_t outPrettyNameSize) {
-	char *fileName, *prettyName;
-	switch (tolower(c)) {
-	case 'h':	fileName = "mp/siege_hoth2";						prettyName = "Hoth";		break;
-	case 'n':	fileName = "siege_narshaddaa";						prettyName = "Nar";			break;
-	case 'c':	fileName = GetNewestMapVersion(SIEGEMAP_CARGO);		prettyName = "Cargo";		break;
-	case 'u':	fileName = GetNewestMapVersion(SIEGEMAP_URBAN);		prettyName = "Urban";		break;
-	case 'b':	fileName = GetNewestMapVersion(SIEGEMAP_BESPIN);	prettyName = "Bespin";		break;
-	case 'a':	fileName = GetNewestMapVersion(SIEGEMAP_ANSION);	prettyName = "Ansion";		break;
-	case 'z':	fileName = "mp/siege_alzocIII";						prettyName = "Alzoc";		break;
-	case 'e':	fileName = "mp/siege_eat_shower";					prettyName = "Eat Shower";	break;
-	case 'd':	fileName = "mp/siege_desert";						prettyName = "Desert";		break;
-	case 'k':	fileName = "mp/siege_korriban";						prettyName = "Korri";		break;
-	case 'o':	fileName = "siege_codes";							prettyName = "Codes";		break;
-	default:	return qfalse;
-	}
+	char lowered = tolower(c);
+	if (lowered < 'a' || lowered > 'z')
+		return qfalse;
+
+	// get the filename
+	char fileName[MAX_STRING_CHARS] = { 0 };
+	trap_Cvar_VariableStringBuffer(va("vote_map_%c", lowered), fileName, sizeof(fileName));
+	if (!fileName[0])
+		return qfalse;
+
 	if (outFileName && outFileNameSize > 0)
 		Q_strncpyz(outFileName, fileName, outFileNameSize);
-	if (outPrettyName && outPrettyNameSize > 0)
+
+	if (!outPrettyName || outPrettyNameSize <= 0)
+		return qtrue;
+
+	// now get the brief, readable name
+	char prettyName[MAX_STRING_CHARS] = { 0 };
+	trap_Cvar_VariableStringBuffer(va("vote_map_shortname_%c", lowered), prettyName, sizeof(prettyName));
+	if (prettyName[0]) {
+		Q_CleanStr(prettyName);
 		Q_strncpyz(outPrettyName, prettyName, outPrettyNameSize);
+	}
+	else { // fallback; see if we can get it from the map's arena info
+		extern const char *G_GetArenaInfoByMap(const char *map);
+		const char *arenaInfo = G_GetArenaInfoByMap(fileName);
+		if (VALIDSTRING(arenaInfo)) {
+			char *nameFromArenaInfo = Info_ValueForKey(arenaInfo, "longname");
+			if (VALIDSTRING(nameFromArenaInfo)) {
+				Q_strncpyz(prettyName, nameFromArenaInfo, sizeof(prettyName));
+				Q_CleanStr(prettyName);
+				Q_strncpyz(outPrettyName, prettyName, outPrettyNameSize);
+				return qtrue;
+			}
+		}
+		// if we got here, we couldn't get it from the arena info either; just use the filename
+		Q_strncpyz(outPrettyName, fileName, outPrettyNameSize);
+	}
 	return qtrue;
 }
 
 static char CharFromMapName(char *s) {
-	if (!s)
+	if (!s || !strlen(s))
 		return '\0';
-	if (!Q_stricmpn(s, "mp/siege_hoth", 13))
-		return 'h';
-	if (!Q_stricmp(s, "siege_narshaddaa"))
-		return 'n';
-	if (stristr(s, "siege_cargobarge3") || stristr(s, "siege_cargobarge2"))
-		return 'c';
-	if (stristr(s, "siege_urban"))
-		return 'u';
-	if (stristr(s, "mp/siege_bespin"))
-		return 'b';
-	if (stristr(s, "siege_ansion"))
-		return 'a';
-	if (!Q_stricmp(s, "mp/siege_alzocIII"))
-		return 'z';
-	if (!Q_stricmp(s, "mp/siege_eat_shower"))
-		return 'e';
-	if (!Q_stricmp(s, "mp/siege_desert"))
-		return 'd';
-	if (!Q_stricmp(s, "mp/siege_korriban"))
-		return 'k';
-	if (!Q_stricmp(s, "siege_codes"))
-		return 'o';
+	for (char c = 'a'; c <= 'z'; c++) {
+		char buf[MAX_STRING_CHARS] = { 0 };
+		trap_Cvar_VariableStringBuffer(va("vote_map_%c", c), buf, sizeof(buf));
+		if (!Q_stricmpn(s, buf, strlen(s)))
+			return c;
+	}
 	return '\0';
 }
 

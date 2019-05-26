@@ -3351,6 +3351,19 @@ void Cmd_SenseBoost_f(gentity_t *ent) {
 	}
 }
 
+void Cmd_PugMaps_f(gentity_t *ent) {
+	qboolean gotOne = qfalse;
+	for (char c = 'a'; c <= 'z'; c++) {
+		char fileName[MAX_QPATH] = { 0 }, prettyName[MAX_QPATH] = { 0 };
+		if (LongMapNameFromChar(c, fileName, sizeof(fileName), prettyName, sizeof(prettyName))) {
+			trap_SendServerCommand(ent - g_entities, va("print \"%sMap ^3%c^7: %s (%s):\n\"", gotOne ? "" : "List of map letters for /callvote newpug:\n", c, prettyName, fileName));
+			gotOne = qtrue;
+		}
+	}
+	if (!gotOne)
+		trap_SendServerCommand(ent - g_entities, "print \"This server is not properly configured for pug map voting.\n\"");
+}
+
 void Cmd_Anim_f(gentity_t *ent) {
 	if (!g_cheats.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
@@ -4094,6 +4107,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			}
 		}
 
+#if 0
 		if (!Q_stricmp(arg2, "siege_urban") || !Q_stricmp(arg2, "mp/siege_urban"))
 			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_URBAN), sizeof(arg2));
 		else if (!Q_stricmp(arg2, "siege_ansion") || !Q_stricmp(arg2, "mp/siege_ansion"))
@@ -4104,6 +4118,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_BESPIN), sizeof(arg2));
 		else if (!Q_stricmp(arg2, "siege_imperial") || !Q_stricmp(arg2, "mp/siege_imperial"))
 			Q_strncpyz(arg2, GetNewestMapVersion(SIEGEMAP_IMPERIAL), sizeof(arg2));
+#endif
 
 		result = G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype"));
 		if (result)
@@ -8043,6 +8058,7 @@ void Cmd_Help_f(gentity_t *ent)
 	if (g_allowVote.integer)
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"^2VOTES:^7   There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"To see a list of eligible maps for voting with /callvote newpug, use ^5/pugmaps^7\n\""));
 	}
 	if (g_moreTaunts.integer)
 	{
@@ -8805,6 +8821,8 @@ void ClientCommand( int clientNum ) {
 			Cmd_SkillBoost_f(ent);
 		else if (!Q_stricmp(cmd, "senseboost"))
 			Cmd_SenseBoost_f(ent);
+		else if (!Q_stricmp(cmd, "pugmaps"))
+			Cmd_PugMaps_f(ent);
 		else if (Q_stricmp(cmd, "whois") == 0)
 			Cmd_WhoIs_f(ent);
 		else if (Q_stricmp(cmd, "ignore") == 0)
@@ -8904,6 +8922,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_Changes_f(ent);
 	else if (!Q_stricmp(cmd, "skillboost"))
 		Cmd_SkillBoost_f(ent);
+	else if (!Q_stricmp(cmd, "senseboost"))
+		Cmd_SenseBoost_f(ent);
+	else if (!Q_stricmp(cmd, "pugmaps"))
+		Cmd_PugMaps_f(ent);
 	else if (!Q_stricmp(cmd, "anim"))
 		Cmd_Anim_f(ent);
 	else if (!Q_stricmp(cmd, "getanim"))

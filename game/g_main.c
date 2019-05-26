@@ -274,6 +274,59 @@ vmCvar_t	siege_r2_objscompleted;
 vmCvar_t	siege_r2_heldformaxat;
 vmCvar_t	siege_r2_heldformaxtime;
 
+vmCvar_t	vote_map_a;
+vmCvar_t	vote_map_b;
+vmCvar_t	vote_map_c;
+vmCvar_t	vote_map_d;
+vmCvar_t	vote_map_e;
+vmCvar_t	vote_map_f;
+vmCvar_t	vote_map_g;
+vmCvar_t	vote_map_h;
+vmCvar_t	vote_map_i;
+vmCvar_t	vote_map_j;
+vmCvar_t	vote_map_k;
+vmCvar_t	vote_map_l;
+vmCvar_t	vote_map_m;
+vmCvar_t	vote_map_n;
+vmCvar_t	vote_map_o;
+vmCvar_t	vote_map_p;
+vmCvar_t	vote_map_q;
+vmCvar_t	vote_map_r;
+vmCvar_t	vote_map_s;
+vmCvar_t	vote_map_t;
+vmCvar_t	vote_map_u;
+vmCvar_t	vote_map_v;
+vmCvar_t	vote_map_w;
+vmCvar_t	vote_map_x;
+vmCvar_t	vote_map_y;
+vmCvar_t	vote_map_z;
+vmCvar_t	vote_map_shortname_a;
+vmCvar_t	vote_map_shortname_b;
+vmCvar_t	vote_map_shortname_c;
+vmCvar_t	vote_map_shortname_d;
+vmCvar_t	vote_map_shortname_e;
+vmCvar_t	vote_map_shortname_f;
+vmCvar_t	vote_map_shortname_g;
+vmCvar_t	vote_map_shortname_h;
+vmCvar_t	vote_map_shortname_i;
+vmCvar_t	vote_map_shortname_j;
+vmCvar_t	vote_map_shortname_k;
+vmCvar_t	vote_map_shortname_l;
+vmCvar_t	vote_map_shortname_m;
+vmCvar_t	vote_map_shortname_n;
+vmCvar_t	vote_map_shortname_o;
+vmCvar_t	vote_map_shortname_p;
+vmCvar_t	vote_map_shortname_q;
+vmCvar_t	vote_map_shortname_r;
+vmCvar_t	vote_map_shortname_s;
+vmCvar_t	vote_map_shortname_t;
+vmCvar_t	vote_map_shortname_u;
+vmCvar_t	vote_map_shortname_v;
+vmCvar_t	vote_map_shortname_w;
+vmCvar_t	vote_map_shortname_x;
+vmCvar_t	vote_map_shortname_y;
+vmCvar_t	vote_map_shortname_z;
+
 vmCvar_t    g_forceOnNpcs;
 
 #if 0//#ifndef FINAL_BUILD
@@ -947,6 +1000,59 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &siege_r2_objscompleted, "siege_r2_objscompleted", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r2_heldformaxat, "siege_r2_heldformaxat", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r2_heldformaxat, "siege_r2_heldformaxtime", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+
+	{ &vote_map_a, "vote_map_a", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_b, "vote_map_b", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_c, "vote_map_c", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_d, "vote_map_d", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_e, "vote_map_e", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_f, "vote_map_f", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_g, "vote_map_g", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_h, "vote_map_h", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_i, "vote_map_i", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_j, "vote_map_j", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_k, "vote_map_k", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_l, "vote_map_l", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_m, "vote_map_m", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_n, "vote_map_n", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_o, "vote_map_o", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_p, "vote_map_p", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_q, "vote_map_q", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_r, "vote_map_r", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_s, "vote_map_s", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_t, "vote_map_t", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_u, "vote_map_u", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_v, "vote_map_v", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_w, "vote_map_w", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_x, "vote_map_x", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_y, "vote_map_y", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_z, "vote_map_z", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_a, "vote_map_shortname_a", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_b, "vote_map_shortname_b", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_c, "vote_map_shortname_c", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_d, "vote_map_shortname_d", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_e, "vote_map_shortname_e", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_f, "vote_map_shortname_f", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_g, "vote_map_shortname_g", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_h, "vote_map_shortname_h", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_i, "vote_map_shortname_i", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_j, "vote_map_shortname_j", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_k, "vote_map_shortname_k", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_l, "vote_map_shortname_l", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_m, "vote_map_shortname_m", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_n, "vote_map_shortname_n", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_o, "vote_map_shortname_o", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_p, "vote_map_shortname_p", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_q, "vote_map_shortname_q", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_r, "vote_map_shortname_r", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_s, "vote_map_shortname_s", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_t, "vote_map_shortname_t", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_u, "vote_map_shortname_u", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_v, "vote_map_shortname_v", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_w, "vote_map_shortname_w", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_x, "vote_map_shortname_x", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_y, "vote_map_shortname_y", "", CVAR_ARCHIVE, 0, qtrue },
+	{ &vote_map_shortname_z, "vote_map_shortname_z", "", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_forceOnNpcs, "g_forceOnNpcs", "0", CVAR_ARCHIVE, 0, qtrue },
 
