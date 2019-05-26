@@ -1668,7 +1668,10 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 		G_UseTargets2(&g_entities[originalWinningClient], &g_entities[originalWinningClient], teamstr);
 	}
 
-	if (g_siegeTeamSwitch.integer &&
+	if (level.isLivePug != ISLIVEPUG_YES && !level.mapCaptureRecords.speedRunModeRuined) {
+		SiegeClearSwitchData(); // if map is completed in speedrun mode, just restart round 1 afterwards and don't switch teams
+	}
+	else if (g_siegeTeamSwitch.integer &&
 		(imperial_time_limit || rebel_time_limit))
 	{ //handle stupid team switching crap
 		int time = 0;

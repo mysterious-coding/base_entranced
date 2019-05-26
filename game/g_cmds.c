@@ -8058,7 +8058,7 @@ void Cmd_Help_f(gentity_t *ent)
 	if (g_allowVote.integer)
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"^2VOTES:^7   There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
-		trap_SendServerCommand(ent - g_entities, va("print \"To see a list of eligible maps for voting with /callvote newpug, use ^5/pugmaps^7\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"To see a list of eligible maps for voting with /callvote newpug, use ^5/pugmaps^7.\n\""));
 	}
 	if (g_moreTaunts.integer)
 	{
@@ -8071,7 +8071,7 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"Use ^5/teamvote yes^7 and ^5/teamvote no^7 to vote on these special teamvotes.\n\""));
 	}
 	trap_SendServerCommand(ent - g_entities, va("print \"^2WEAPON SPAWN PREFERENCE:^7   You can specify an order of preferred weapons that you would like to be holding when you spawn by using ^5/setu prefer <15 letters>\n\""));
-	trap_SendServerCommand(ent - g_entities, va("print \"L=melee,S=saber,P=pistol,Y=bryar,E=E11,U=disruptor,B=bowcaster,I=repeater,D=demp,G=golan,R=rocket,C=conc,T=dets,M=mines,K=detpacks\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"L=melee,S=saber,P=pistol,Y=bryar,E=E11,U=disruptor,B=bowcaster,I=repeater,D=demp,G=golan,R=rocket,C=conc,T=thermals,M=mines,K=detpacks\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"Example: ^5/setu prefer RCTIGDUEBSMKYPL\n\""));
 	if (g_cheats.integer)
 	{
