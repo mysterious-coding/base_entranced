@@ -167,9 +167,13 @@ static void PrintObjStat(int objective, int heldForMax) {
 	char formattedTime[8] = { 0 };
 	G_ParseMilliseconds(ms, formattedTime, sizeof(formattedTime));
 
-	G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
-	G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
-	G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
+	// print times if it is a confirmed or possible live pug
+	// in everything else, times will be printed from CheckTopTimes
+	if (level.isLivePug != ISLIVEPUG_NO) {
+		G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
+		G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
+		G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
+	}
 
 	// debug message to help investigate bugged times
 	if (ms < 0 || ms > level.time - level.siegeRoundStartTime) {
@@ -1562,12 +1566,9 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		G_LogDbSaveCaptureRecords(&level.mapCaptureRecords);
 	}
 	else if (!(flags & CAPTURERECORDFLAG_LIVEPUG)) {
-		// we didn't make a new record, but that was still a valid run. show them what time they did
-		char *msg = va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-			GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString, qtrue);
-		trap_SendServerCommand(clients[0] - level.clients, msg);
-		if (clients[1])
-			trap_SendServerCommand(clients[1] - level.clients, msg);
+		// we didn't make a new record, but that was still a valid run. show everyone what time they did
+		trap_SendServerCommand(-1, va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+			GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 	}
 }
 
