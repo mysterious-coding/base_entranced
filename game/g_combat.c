@@ -3295,6 +3295,19 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 		}
 	}
+
+	// grass's target_death thing
+	if (g_gametype.integer >= GT_TEAM && self && self->client &&
+		(self->client->sess.sessionTeam == TEAM_RED || self->client->sess.sessionTeam == TEAM_BLUE) &&
+		attacker && attacker != self && attacker->client && attacker->client->sess.sessionTeam != self->client->sess.sessionTeam) {
+		char *findClassname = self->client->sess.sessionTeam == TEAM_RED ? "target_deathteam1" : "target_deathteam2";
+		gentity_t *grassThing = G_Find(NULL, FOFS(classname), findClassname);
+		while (grassThing) {
+			if (grassThing->use && !(grassThing->flags & FL_INACTIVE))
+				grassThing->use(grassThing, ent, ent);
+			grassThing = G_Find(grassThing, FOFS(classname), findClassname);
+		}
+	}
 }
 
 

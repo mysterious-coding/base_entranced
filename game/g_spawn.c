@@ -512,6 +512,8 @@ spawn_t	spawns[] = {
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},
 	{"target_counter", SP_target_counter},
+	{"target_deathteam1", SP_target_counter},
+	{"target_deathteam2", SP_target_counter},
 	{"target_random", SP_target_random},
 	{"target_scriptrunner", SP_target_scriptrunner},
 	{"target_interest", SP_target_interest},
