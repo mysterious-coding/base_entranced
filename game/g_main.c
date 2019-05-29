@@ -3149,13 +3149,8 @@ void BeginIntermission( void ) {
 	SendScoreboardMessageToAllClients();
 
 	if ( g_autoStats.integer ) {
-		if (g_gametype.integer == GT_SIEGE) {
-			PrintStatsTo(NULL, "obj");
-			PrintStatsTo(NULL, "general");
-			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
-				PrintStatsTo(NULL, "map");
-		}
-		else if (g_gametype.integer == GT_CTF) {
+		// siege stats are now done from g_saga.c
+		if (g_gametype.integer == GT_CTF) {
 			PrintStatsTo(NULL, "general");
 			PrintStatsTo(NULL, "force");
 		}

@@ -167,13 +167,9 @@ static void PrintObjStat(int objective, int heldForMax) {
 	char formattedTime[8] = { 0 };
 	G_ParseMilliseconds(ms, formattedTime, sizeof(formattedTime));
 
-	// print times if it is a confirmed or possible live pug
-	// in everything else, times will be printed from CheckTopTimes
-	if (level.isLivePug != ISLIVEPUG_NO) {
-		G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
-		G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
-		G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
-	}
+	G_TeamCommand(TEAM_RED, va("print \"%s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "Held at objective for" : "Objective completed in", formattedTime));
+	G_TeamCommand(TEAM_BLUE, va("print \"Objective held for "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", formattedTime));
+	G_TeamCommand(TEAM_SPECTATOR, va("print \"Objective %s "S_COLOR_CYAN"%s"S_COLOR_WHITE".\n\"", heldForMax ? "held for" : "completed in", formattedTime));
 
 	// debug message to help investigate bugged times
 	if (ms < 0 || ms > level.time - level.siegeRoundStartTime) {
@@ -1572,6 +1568,7 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 	}
 }
 
+extern void PrintStatsTo(gentity_t *ent, const char *type);
 void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completedEntireMap)
 {
 	ComputeSiegePlayTimes();
@@ -1613,6 +1610,12 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 	{ //this person just won the round for the other team..
 		winningclient = ENTITYNUM_NONE;
 	}
+
+	// print stats here so that they appear before the full map record
+	PrintStatsTo(NULL, "obj");
+	PrintStatsTo(NULL, "general");
+	if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
+		PrintStatsTo(NULL, "map");
 
 	if (winningteam == TEAM_RED && completedEntireMap)
 		CheckTopTimes(totalRoundTime, -1, winningclient >= 0 && winningclient < MAX_CLIENTS ? winningclient : -1);
