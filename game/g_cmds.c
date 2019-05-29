@@ -6577,7 +6577,7 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	}
 
 	// display a little extra help message so they know other possibilities with this command
-	trap_SendServerCommand( ent - g_entities, va("print \"For a list of records on all maps: /toptimes maplist [category]\n%s\nFor rules: /toptimes rules\nTo get the demo URL for a record: /toptimes demo [category] [rank #]\nTo view the latest records: /toptimes latest\n\"", TOPTIMES_HELPMSG));
+	trap_SendServerCommand( ent - g_entities, va("print \"To view records for a specific category: /toptimes [category]\n%s\nFor a list of records on all maps: /toptimes maplist [category]\nFor rules: /toptimes rules\nTo get the demo URL for a record: /toptimes demo [category] [rank #]\nTo view the latest records: /toptimes latest\n\"", TOPTIMES_HELPMSG));
 }
 
 void Cmd_UsePack_f(gentity_t *ent) {
