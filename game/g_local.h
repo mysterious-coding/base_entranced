@@ -2573,10 +2573,13 @@ extern vmCvar_t     g_siegeReflectionFix;
 extern vmCvar_t		g_randomConeReflection;
 extern vmCvar_t		g_coneReflectAngle;
 
+#ifdef _DEBUG
 extern vmCvar_t		z_debug1;
 extern vmCvar_t		z_debug2;
 extern vmCvar_t		z_debug3;
 extern vmCvar_t		z_debug4;
+extern vmCvar_t     z_debugSiegeTime;
+#endif
 
 extern vmCvar_t		g_saveCaptureRecords;
 extern vmCvar_t     g_notifyNotLive;

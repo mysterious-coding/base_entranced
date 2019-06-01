@@ -3174,7 +3174,8 @@ enum {
 	FONT_SMALL2
 };
 
-#define STRIP_COLOUR	(0x00000001)
+#define STRIP_COLOR		(0x00000001)
+#define STRIP_COLOUR	(STRIP_COLOR) // umad?
 #define STRIP_EXTASCII	(0x00000002)
 void Q_CleanString(char *string, int flags);
 

@@ -6217,11 +6217,73 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 	trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-45s  %-9s  %-6s  %-6s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "TopSpd", "AvgSpd", "Date", "Category"));
 
 	// print each record for this category as a row
+	int goldTime = -1, silverTime = -1, bronzeTime = -1, fourthTime = -1;
 	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
 		CaptureRecord *record = &localRecords.records[i];
 
 		if (!record->totalTime) {
 			continue;
+		}
+
+		const char *overrideRankColor = NULL;
+		switch (i) {
+		case 0:
+			goldTime = record->totalTime;
+			overrideRankColor = "^3";
+			break;
+		case 1:
+			if (record->totalTime == goldTime) {
+				overrideRankColor = "^3";
+			}
+			else {
+				silverTime = record->totalTime;
+				overrideRankColor = "^9";
+			}
+			break;
+		case 2:
+			if (record->totalTime == goldTime) {
+				overrideRankColor = "^3";
+			}
+			else if (record->totalTime == silverTime) {
+				overrideRankColor = "^9";
+			}
+			else {
+				bronzeTime = record->totalTime;
+				overrideRankColor = "^8";
+			}
+			break;
+		case 3:
+			if (record->totalTime == goldTime) {
+				overrideRankColor = "^3";
+			}
+			else if (record->totalTime == silverTime) {
+				overrideRankColor = "^9";
+			}
+			else if (record->totalTime == bronzeTime) {
+				overrideRankColor = "^8";
+			}
+			else {
+				fourthTime = record->totalTime;
+				overrideRankColor = "^1";
+			}
+			break;
+		case 4:
+			if (record->totalTime == goldTime) {
+				overrideRankColor = "^3";
+			}
+			else if (record->totalTime == silverTime) {
+				overrideRankColor = "^9";
+			}
+			else if (record->totalTime == bronzeTime) {
+				overrideRankColor = "^8";
+			}
+			else if (record->totalTime == fourthTime) {
+				overrideRankColor = "^1";
+			}
+			else {
+				overrideRankColor = "^1";
+			}
+			break;
 		}
 
 		char nameStrings[LOGGED_PLAYERS_PER_OBJ][64] = { 0 };
@@ -6267,12 +6329,17 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 			FormatLocalDateFromEpoch(now, date, sizeof(date), record->date);
 		}
 
-		char *rankColor;
-		switch (i + 1) {
-		case 1: rankColor = S_COLOR_YELLOW; break;
-		case 2: rankColor = S_COLOR_GREY; break;
-		case 3: rankColor = S_COLOR_ORANGE; break;
-		default: rankColor = S_COLOR_RED; break;
+		const char *rankColor;
+		if (VALIDSTRING(overrideRankColor)) {
+			rankColor = overrideRankColor;
+		}
+		else {
+			switch (i + 1) {
+			case 1: rankColor = S_COLOR_YELLOW; break;
+			case 2: rankColor = S_COLOR_GREY; break;
+			case 3: rankColor = S_COLOR_ORANGE; break;
+			default: rankColor = S_COLOR_RED; break;
+			}
 		}
 
 		trap_SendServerCommand(ent - g_entities, va(
@@ -6579,6 +6646,101 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	// display a little extra help message so they know other possibilities with this command
 	trap_SendServerCommand( ent - g_entities, va("print \"To view records for a specific category: /toptimes [category]\n%s\nFor a list of records on all maps: /toptimes maplist [category]\nFor rules: /toptimes rules\nTo get the demo URL for a record: /toptimes demo [category] [rank #]\nTo view the latest records: /toptimes latest\n\"", TOPTIMES_HELPMSG));
 }
+
+#ifdef NEWMOD_SUPPORT
+#define VCHAT_ESCAPE_CHAR '$'
+void Cmd_Vchat_f(gentity_t *sender) {
+	char *s = ConcatArgs(1);
+	if (!VALIDSTRING(s) || !strchr(s, VCHAT_ESCAPE_CHAR)) {
+		trap_SendServerCommand(sender - g_entities, "print \"Usage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
+		return;
+	}
+
+	qboolean teamOnly = qfalse;
+	char modName[MAX_QPATH] = { 0 }, fileName[MAX_QPATH] = { 0 }, msg[200] = { 0 };
+	// parse each argument
+	for (char *r = s; *r; r++) {
+		// skip to the next argument
+		while (*r && *r != VCHAT_ESCAPE_CHAR)
+			r++;
+		if (!*r++)
+			break;
+
+		// copy this argument into a buffer
+		char buf[MAX_STRING_CHARS] = { 0 }, *w = buf;
+		while (*r && *r != VCHAT_ESCAPE_CHAR && w - buf < sizeof(buf) - 1)
+			*w++ = *r++;
+		if (!buf[0])
+			break;
+
+		if (!Q_stricmpn(buf, "mod=", 4) && buf[4])
+			Q_strncpyz(modName, buf + 4, sizeof(modName));
+		else if (!Q_stricmpn(buf, "file=", 5) && buf[5])
+			Q_strncpyz(fileName, buf + 5, sizeof(fileName));
+		else if (!Q_stricmpn(buf, "msg=", 4) && buf[4])
+			Q_strncpyz(msg, buf + 4, sizeof(msg));
+		else if (!Q_stricmpn(buf, "team=", 5) && buf[5])
+			teamOnly = !!atoi(buf + 5);
+
+		if (!*r)
+			break; // we reached the end of the line
+
+		// the for loop will increment r here, taking us past the current escape char
+	}
+
+	if (!modName[0] || !fileName[0] || !msg[0]) {
+		trap_SendServerCommand(sender - g_entities, "print \"Invalid vchat command.\nUsage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
+		return;
+	}
+
+	Q_CleanString(modName, STRIP_COLOR);
+	Q_CleanString(fileName, STRIP_COLOR);
+#if 1
+	Q_CleanString(msg, STRIP_COLOR);
+#endif
+
+#ifdef _DEBUG
+	Com_Printf("Got vchat request with mod name %s, file name %s, team %d, message %s\n", modName, fileName, teamOnly, msg);
+#endif
+
+	int senderLocation = 0;
+#if 1
+	// get his location (disable this section to never send locations)
+	if (g_gametype.integer >= GT_TEAM)
+		senderLocation = Team_GetLocation(sender, NULL, 0);
+#endif
+
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED)
+			continue;
+
+		int locationToSend = 0;
+		if (teamOnly) {
+			team_t senderTeam = GetRealTeam(sender->client);
+			team_t recipientTeam = GetRealTeam(cl);
+			if (senderTeam != recipientTeam) { // it's a teamchat and this guy isn't on our team...
+				if (recipientTeam == TEAM_SPECTATOR && cl->ps.persistant[PERS_TEAM] == senderTeam) {
+					// but he is speccing our team, so it's okay
+				}
+				else {
+					continue; // he is truly on a different team; don't send it to him
+				}
+			}
+			locationToSend = senderLocation;
+		}
+
+		trap_SendServerCommand(i,
+			va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s",
+				sender - g_entities,
+				modName,
+				fileName,
+				msg,
+				teamOnly,
+				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "")); // team only parameter is sent anyway so clients can display with team styling
+	}
+}
+#endif
 
 void Cmd_UsePack_f(gentity_t *ent) {
 	if (!(ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)))
@@ -8835,6 +8997,10 @@ void ClientCommand( int clientNum ) {
 			Cmd_Help_f(ent);
 		else if (!Q_stricmp(cmd, "toptimes") || !Q_stricmp(cmd, "fastcaps"))
 			Cmd_TopTimes_f(ent);
+#ifdef NEWMOD_SUPPORT
+		else if (!Q_stricmp(cmd, "vchat"))
+			Cmd_Vchat_f(ent);
+#endif
 		else
 			trap_SendServerCommand( clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd ) );
 		return;
@@ -8970,6 +9136,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_TestCmd_f( ent );
 	else if ( !Q_stricmp(cmd, "toptimes") || !Q_stricmp( cmd, "fastcaps" ) )
 		Cmd_TopTimes_f( ent );
+#ifdef NEWMOD_SUPPORT
+	else if (!Q_stricmp(cmd, "vchat"))
+		Cmd_Vchat_f(ent);
+#endif
 	else if (!Q_stricmp(cmd, "use_pack"))
 		Cmd_UsePack_f(ent);
 	else if (!Q_stricmp(cmd, "use_dispenser"))

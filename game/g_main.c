@@ -448,10 +448,13 @@ vmCvar_t	g_siegeReflectionFix;
 vmCvar_t	g_randomConeReflection;
 vmCvar_t	g_coneReflectAngle;
 
+#ifdef _DEBUG
 vmCvar_t	z_debug1;
 vmCvar_t	z_debug2;
 vmCvar_t	z_debug3;
 vmCvar_t	z_debug4;
+vmCvar_t	z_debugSiegeTime;
+#endif
 
 vmCvar_t	g_saveCaptureRecords;
 vmCvar_t	g_notifyNotLive;
@@ -811,10 +814,13 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_randomConeReflection , "g_randomConeReflection", "-1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_coneReflectAngle , "g_coneReflectAngle", "30", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &z_debug1, "z_debug1", "", CVAR_ARCHIVE, 0, qtrue },
-	{ &z_debug2, "z_debug2", "", CVAR_ARCHIVE, 0, qtrue },
-	{ &z_debug3, "z_debug3", "", CVAR_ARCHIVE, 0, qtrue },
-	{ &z_debug4, "z_debug4", "", CVAR_ARCHIVE, 0, qtrue },
+#ifdef _DEBUG
+	{ &z_debug1, "z_debug1", "", 0, 0, qtrue },
+	{ &z_debug2, "z_debug2", "", 0, 0, qtrue },
+	{ &z_debug3, "z_debug3", "", 0, 0, qtrue },
+	{ &z_debug4, "z_debug4", "", 0, 0, qtrue },
+	{ &z_debugSiegeTime, "z_debugSiegeTime", "", 0, 0, qtrue },
+#endif
 
 	{ &g_saveCaptureRecords, "g_saveCaptureRecords", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_notifyNotLive, "g_notifyNotLive", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -3149,8 +3155,13 @@ void BeginIntermission( void ) {
 	SendScoreboardMessageToAllClients();
 
 	if ( g_autoStats.integer ) {
-		// siege stats are now done from g_saga.c
-		if (g_gametype.integer == GT_CTF) {
+		if (g_gametype.integer == GT_SIEGE) {
+			PrintStatsTo(NULL, "obj");
+			PrintStatsTo(NULL, "general");
+			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
+				PrintStatsTo(NULL, "map");
+		}
+		else if (g_gametype.integer == GT_CTF) {
 			PrintStatsTo(NULL, "general");
 			PrintStatsTo(NULL, "force");
 		}

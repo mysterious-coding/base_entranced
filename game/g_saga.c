@@ -1074,7 +1074,8 @@ static int LogCaptureTime(
 	const char *netname3,
 	const char *netname4,
 	const char *cuid3,
-	const char *cuid4
+	const char *cuid4,
+	int *tiedOut
 	)
 {
 	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags) {
@@ -1114,6 +1115,47 @@ static int LogCaptureTime(
 
 		if (match)
 			break;
+	}
+
+	int goldTime = -1, silverTime = -1, bronzeTime = -1, fourthTime = -1;
+	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
+		if (!recordArray[i].totalTime) {
+			continue; // not a valid record
+		}
+		switch (i) {
+		case 0:
+			goldTime = recordArray[i].totalTime;
+			break;
+		case 1:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else {
+				silverTime = recordArray[i].totalTime;
+			}
+			break;
+		case 2:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else {
+				bronzeTime = recordArray[i].totalTime;
+			}
+			break;
+		case 3:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else if (recordArray[i].totalTime == bronzeTime) {
+			}
+			else {
+				fourthTime = recordArray[i].totalTime;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	if (newIndex < MAX_SAVED_RECORDS) {
@@ -1225,6 +1267,20 @@ static int LogCaptureTime(
 	// save the changes later in db
 	level.mapCaptureRecords.changed = qtrue;
 
+	if (tiedOut) {
+		if (totalTime == goldTime)
+			*tiedOut = 1;
+		else if (totalTime == silverTime)
+			*tiedOut = 2;
+		else if (totalTime == bronzeTime)
+			*tiedOut = 3;
+		else if (totalTime == fourthTime)
+			*tiedOut = 4;
+	}
+	else {
+		assert(qfalse);
+	}
+
 	return newIndex + 1;
 }
 
@@ -1237,12 +1293,55 @@ static int CheckRanking(
 	const int totalTime,
 	const CaptureCategoryFlags flags,
 	const CaptureCategoryFlags specificFlags,
-	CaptureRecordsForCategory *recordsPtr) {
+	CaptureRecordsForCategory *recordsPtr,
+	int *tiedOut) {
 	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags) {
 		return 0;
 	}
 
 	CaptureRecord *recordArray = &recordsPtr->records[0];
+
+	int goldTime = -1, silverTime = -1, bronzeTime = -1, fourthTime = -1;
+	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
+		if (!recordArray[i].totalTime) {
+			continue; // not a valid record
+		}
+		switch (i) {
+		case 0:
+			goldTime = recordArray[i].totalTime;
+			break;
+		case 1:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else {
+				silverTime = recordArray[i].totalTime;
+			}
+			break;
+		case 2:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else {
+				bronzeTime = recordArray[i].totalTime;
+			}
+			break;
+		case 3:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else if (recordArray[i].totalTime == bronzeTime) {
+			}
+			else {
+				fourthTime = recordArray[i].totalTime;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
 	int newIndex;
 
 	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
@@ -1309,6 +1408,20 @@ static int CheckRanking(
 		}
 	}
 
+	if (tiedOut) {
+		if (totalTime == goldTime)
+			*tiedOut = 1;
+		else if (totalTime == silverTime)
+			*tiedOut = 2;
+		else if (totalTime == bronzeTime)
+			*tiedOut = 3;
+		else if (totalTime == fourthTime)
+			*tiedOut = 4;
+	}
+	else {
+		assert(qfalse);
+	}
+
 	return newIndex + 1;
 }
 
@@ -1334,13 +1447,23 @@ void LivePugRuined(const char *reason, qboolean announce) {
 	trap_SendServerCommand(-1, va("cp \"^1Pug is not live:^7\n%s^7\n\"", reason));
 }
 
-static char *RankString(int rank) {
+static char *RankString(int rank, int tied) {
 	static char rankString[32] = { 0 };
-	switch (rank) {
-	case 1: Com_sprintf(rankString, sizeof(rankString), "^3Rank: GOLD^7"); break;
-	case 2: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^9SILVER^7"); break;
-	case 3: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^8BRONZE^7"); break;
-	default: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^1%d^7", rank);
+	if (tied) {
+		switch (tied) {
+		case 1: Com_sprintf(rankString, sizeof(rankString), "^3Rank: tied for GOLD^7"); break; // gold gets "Rank:" in gold, too
+		case 2: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^9tied for SILVER^7"); break;
+		case 3: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^8tied for BRONZE^7"); break;
+		default: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^1tied for %d^7", tied);
+		}
+	}
+	else {
+		switch (rank) {
+		case 1: Com_sprintf(rankString, sizeof(rankString), "^3Rank: GOLD^7"); break; // gold gets "Rank:" in gold too
+		case 2: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^9SILVER^7"); break;
+		case 3: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^8BRONZE^7"); break;
+		default: Com_sprintf(rankString, sizeof(rankString), "^5Rank: ^1%d^7", rank);
+		}
 	}
 	return rankString;
 }
@@ -1468,10 +1591,16 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		return; // ???
 	}
 
+#ifdef _DEBUG
+	if (z_debugSiegeTime.string[0])
+		timeInMilliseconds = z_debugSiegeTime.integer;
+#endif
+
 	// for speedruns, check whether we registered a rank for a broader (more prestigious) category
 	// e.g. if we performed a "speedrun fullmap co-op assault one-shot" run, check if we also ranked for simply "speedrun fullmap"
 	int broadRank = 0;
 	CaptureCategoryFlags broadFlags = flags;
+	int broadRankTied = 0;
 	if (flags & CAPTURERECORDFLAG_SPEEDRUN) {
 		broadFlags &= ~CAPTURERECORDFLAG_SOLO;
 		broadFlags &= ~CAPTURERECORDFLAG_COOP;
@@ -1489,10 +1618,11 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 				clients[1] ? clients[1]->sess.ip : 0,
 				clients[0]->sess.auth == AUTHENTICATED ? clients[0]->sess.cuidHash : "",
 				clients[1] && clients[1]->sess.auth == AUTHENTICATED ? clients[1]->sess.cuidHash : "",
-				timeInMilliseconds, broadFlags, flags, &broadRecords);
+				timeInMilliseconds, broadFlags, flags, &broadRecords, &broadRankTied);
 		}
 	}
 
+	int newRankTied = 0;
 	const int recordRank = LogCaptureTime(clients[0]->sess.ip,
 		clients[1] ? clients[1]->sess.ip : 0,
 		clients[0]->pers.netname,
@@ -1508,7 +1638,8 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		clients[2] ? clients[2]->pers.netname : "",
 		clients[3] ? clients[3]->pers.netname : "",
 		clients[2] && clients[2]->sess.auth == AUTHENTICATED ? clients[2]->sess.cuidHash : "",
-		clients[3] && clients[3]->sess.auth == AUTHENTICATED ? clients[3]->sess.cuidHash : "");
+		clients[3] && clients[3]->sess.auth == AUTHENTICATED ? clients[3]->sess.cuidHash : "",
+		&newRankTied);
 
 	// we only print multiple names if it's two people in a coopspeedrun
 	// i.e. in a live pug, just print the name of the person who actually did the obj
@@ -1544,18 +1675,13 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		// we just did a new capture record, broadcast it
 
 		if (broadRank) { // if they ranked in a broader category, print that, with the exact category as an afterthought
-			char rankString[32] = { 0 };
-			Q_strncpyz(rankString, RankString(broadRank), sizeof(rankString));
 			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-				combinedNameString, rankString, GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
-			Q_strncpyz(rankString, RankString(recordRank), sizeof(rankString));
-			trap_SendServerCommand(-1, va("print \"^7Also set record for %s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), rankString));
+				combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+			trap_SendServerCommand(-1, va("print \"^7Also set record for %s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
 		}
 		else { // just print the exact category they ranked in
-			char rankString[32] = { 0 };
-			Q_strncpyz(rankString, RankString(recordRank), sizeof(rankString));
 			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-				combinedNameString, RankString(recordRank), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+				combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 		}
 
 		// update the in-memory db so that toptimes can reflect this change
@@ -1610,12 +1736,6 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 	{ //this person just won the round for the other team..
 		winningclient = ENTITYNUM_NONE;
 	}
-
-	// print stats here so that they appear before the full map record
-	PrintStatsTo(NULL, "obj");
-	PrintStatsTo(NULL, "general");
-	if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
-		PrintStatsTo(NULL, "map");
 
 	if (winningteam == TEAM_RED && completedEntireMap)
 		CheckTopTimes(totalRoundTime, -1, winningclient >= 0 && winningclient < MAX_CLIENTS ? winningclient : -1);
