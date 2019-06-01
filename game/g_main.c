@@ -3411,6 +3411,8 @@ void LogExit( const char *string ) {
 	gclient_t		*cl;
 	G_LogPrintf( "Exit: %s\n", string );
 
+	level.didLogExit = qtrue;
+	level.intermissionNeededTime = 0;
 	level.intermissionQueued = level.time;
 
 
@@ -6537,6 +6539,13 @@ void G_RunFrame( int levelTime ) {
 			atst->delay = 0;
 			GlobalUse(atst, NULL, NULL);
 			atst->delay = 10000;
+		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE && level.intermissionNeededTime && !level.didLogExit) {
+		int now = trap_Milliseconds();
+		if (now - level.intermissionNeededTime > 1000) {
+			LogExit("Siege intermission override");
 		}
 	}
 

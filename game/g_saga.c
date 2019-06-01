@@ -1818,6 +1818,8 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 	{ //assure it's clear for next round
 		SiegeClearSwitchData();
 	}
+
+	level.intermissionNeededTime = trap_Milliseconds();
 }
 
 void G_ValidateSiegeClassForTeam(gentity_t *ent, int team)
@@ -2605,7 +2607,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 			}
 		}
 		else {
-			topTimesObjNum -= 2;
+			topTimesObjNum = 2;
 		}
 	}
 	else if (level.siegeMap == SIEGEMAP_URBAN) {

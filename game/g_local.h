@@ -1509,6 +1509,8 @@ typedef struct {
 	char		spawnVarChars[MAX_SPAWN_VARS_CHARS];
 
 	// intermission state
+	qboolean	didLogExit;
+	int			intermissionNeededTime;
 	int			intermissionQueued;		// intermission was qualified, but
 										// wait INTERMISSION_DELAY_TIME before
 										// actually going there so the last
