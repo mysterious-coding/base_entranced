@@ -6656,6 +6656,9 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		return;
 	}
 
+	if (ChatLimitExceeded(sender, -1))
+		return;
+
 	qboolean teamOnly = qfalse;
 	char modName[MAX_QPATH] = { 0 }, fileName[MAX_QPATH] = { 0 }, msg[200] = { 0 };
 	// parse each argument
