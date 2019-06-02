@@ -5465,6 +5465,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
+	if (level.intermissiontime)
+		return;
+
 	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->sess.siegeDuelInProgress &&
 		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
 	{ //this class is flagged to take less damage from physical attacks.
@@ -6169,9 +6172,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		//prevent team-switch from allowing projectiles to kill (former) teammates on blue team in zombies mode
 		take = 0;
 	}
-
-	if (level.intermissiontime)
-		return;
 
 	// do the damage
 	if (take) 
