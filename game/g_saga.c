@@ -941,13 +941,48 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 	}
 
 	if (flags & CAPTURERECORDFLAG_SPEEDRUN) { // only speedruns can have <class>-only or oneshot
-		if (!level.siegeTopTimes[client1 - level.clients].hasChangedClass && // hasn't changed class for this obj
-			!(flags & CAPTURERECORDFLAG_FULLMAP && level.siegeTopTimes[client1 - level.clients].hasChangedClassTotal) &&  // if entire-map, hasn't changed class ever
-			level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive != -1 && // has/had a valid class
-			!(flags & CAPTURERECORDFLAG_COOP && (level.siegeTopTimes[client2 - level.clients].hasChangedClass || // player 2 hasn't changed class for this obj
-			(flags & CAPTURERECORDFLAG_FULLMAP && level.siegeTopTimes[client1 - level.clients].hasChangedClassTotal) ||  // if entire-map, player 2 hasn't changed class ever
-				level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive != level.siegeTopTimes[client2 - level.clients].lastSiegeClassWhileAlive || // player 2 has/had the same class
-				level.siegeTopTimes[client2 - level.clients].lastSiegeClassWhileAlive == -1))) { // player 2 has/had a valid class
+		qboolean usedOnlyOneClass = qfalse;
+
+		if (flags & CAPTURERECORDFLAG_FULLMAP) {
+			if (flags & CAPTURERECORDFLAG_COOP) {
+				if (level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive != level.siegeTopTimes[client2 - level.clients].lastSiegeClassWhileAlive)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client1 - level.clients].hasChangedClassTotal)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client1 - level.clients].hasChangedClass)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client2 - level.clients].hasChangedClassTotal)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client2 - level.clients].hasChangedClass)
+					usedOnlyOneClass = qfalse;
+				else
+					usedOnlyOneClass = qtrue;
+			}
+			else {
+				if (level.siegeTopTimes[client1 - level.clients].hasChangedClassTotal)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client1 - level.clients].hasChangedClass)
+					usedOnlyOneClass = qfalse;
+				else
+					usedOnlyOneClass = qtrue;
+			}
+		}
+		else {
+			if (flags & CAPTURERECORDFLAG_COOP) {
+				if (level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive != level.siegeTopTimes[client2 - level.clients].lastSiegeClassWhileAlive)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client1 - level.clients].hasChangedClass)
+					usedOnlyOneClass = qfalse;
+				else if (level.siegeTopTimes[client2 - level.clients].hasChangedClass)
+					usedOnlyOneClass = qfalse;
+			}
+			else {
+				if (level.siegeTopTimes[client1 - level.clients].hasChangedClass)
+					usedOnlyOneClass = qfalse;
+			}
+		}
+
+		if (usedOnlyOneClass) {
 			switch (bgSiegeClasses[level.siegeTopTimes[client1 - level.clients].lastSiegeClassWhileAlive].playerClass) {
 			case SPC_INFANTRY: flags |= CAPTURERECORDFLAG_ASSAULT; break;
 			case SPC_HEAVY_WEAPONS: flags |= CAPTURERECORDFLAG_HW; break;
