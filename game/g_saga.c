@@ -1435,11 +1435,12 @@ void SpeedRunModeRuined(const char *reason) {
 }
 
 void LivePugRuined(const char *reason, qboolean announce) {
-	Com_Printf(va("Pug is not live (reason: %s)\n", reason)); // always print the reason to the server console
 	if (level.isLivePug == ISLIVEPUG_NO) // prevent spamming people with messages; once is enough
 		return;
 
+	Com_Printf(va("Pug is not live (reason: %s)\n", reason)); // print the reason to the server console
 	level.isLivePug = ISLIVEPUG_NO;
+
 	if (!g_notifyNotLive.integer || !announce)
 		return;
 
@@ -2368,9 +2369,21 @@ void SiegeCheckTimers(void)
 		else if (gSiegeBeginTime < level.time)
 		{ //mark the round as having begun
 			level.siegeRoundStartTime = gSiegeBeginTime;
-			if (debug_duoTest.integer)
-			{
+			if (level.wasRestarted) {
+				int numRed = 0, numBlue = 0;
+				GetPlayerCounts(qtrue, qtrue, &numRed, &numBlue, NULL, NULL);
+				if (numRed && numBlue) {
+					trap_Cvar_Set("g_siegeRespawn", va("%d", level.worldspawnSiegeRespawnTime));
+					SpeedRunModeRuined("Round started with players on both teams");
+				}
+				else {
+					trap_Cvar_Set("g_siegeRespawn", "1");
+					LivePugRuined("Round started without players on both teams", qfalse);
+				}
+			}
+			else {
 				trap_Cvar_Set("g_siegeRespawn", "1");
+				LivePugRuined("Round started without having been restarted", qfalse);
 			}
 			gSiegeRoundBegun = qtrue;
 			level.inSiegeCountdown = qtrue;
@@ -2406,6 +2419,26 @@ void SiegeCheckTimers(void)
 		}
 		else
 		{
+			if (level.wasRestarted) {
+				static int ticksCountedDown = 0;
+				ticksCountedDown++;
+				if (ticksCountedDown >= g_svfps.integer * 4) {
+					int numRed = 0, numBlue = 0;
+					GetPlayerCounts(qtrue, qtrue, &numRed, &numBlue, NULL, NULL);
+					if (numRed && numBlue) {
+						trap_Cvar_Set("g_siegeRespawn", va("%d", level.worldspawnSiegeRespawnTime));
+						SpeedRunModeRuined("Countdown ticking down with players on both teams");
+					}
+					else {
+						trap_Cvar_Set("g_siegeRespawn", "1");
+						LivePugRuined("Countdown ticking down without players on both teams", qfalse);
+					}
+				}
+			}
+			else {
+				trap_Cvar_Set("g_siegeRespawn", "1");
+				LivePugRuined("Countdown ticking down without having been restarted", qfalse);
+			}
 			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));
 			trap_SetConfigstring(CS_SIEGE_STATE, va("2|%i", gSiegeBeginTime - SIEGE_ROUND_BEGIN_TIME)); //getting ready to begin
 			level.inSiegeCountdown = qtrue;

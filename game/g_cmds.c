@@ -4740,6 +4740,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand(ent - g_entities, "print \"Quick spawns is disabled.\n\"");
 		return;
 	}
+	if (!g_siegeRespawn.integer || g_siegeRespawn.integer == 1) {
+		trap_SendServerCommand(ent - g_entities, "print \"Quick spawns are already enabled.\n\"");
+		return;
+	}
 	Com_sprintf(level.voteString, sizeof(level.voteString), "g_siegeRespawn 1");
 	Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "Quick Spawns");
 	}

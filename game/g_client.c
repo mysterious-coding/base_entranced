@@ -1157,56 +1157,57 @@ void respawn( gentity_t *ent ) {
 
 	if (g_gametype.integer == GT_SIEGE)
 	{
-		if (g_siegeRespawn.integer)
-		{
-            if ( (ent->client->tempSpectate <= level.time) && (level.siegeRespawnCheck >= level.time) )
+		if (!g_siegeRespawn.integer || g_siegeRespawn.integer == 1) {
+			SiegeRespawn(ent);
+			UpdateNewmodSiegeTimers();
+			return;
+		}
+        if ( (ent->client->tempSpectate <= level.time) && (level.siegeRespawnCheck >= level.time) ) {
+			int minDel = g_siegeRespawn.integer* 2000;
+			if (minDel < 20000)
 			{
-				int minDel = g_siegeRespawn.integer* 2000;
-				if (minDel < 20000)
-				{
-					minDel = 20000;
-				}
-				if (g_siegeRespawn.integer >= 10) {
-					int killer = ent->client->sess.siegeStats.killer;
-					if (level.siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
-						ent->client->sess.siegeStats.maxed[GetSiegeStatRound()]++;
-						if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities && &g_entities[killer] && g_entities[killer].client) {
-							g_entities[killer].client->sess.siegeStats.maxes[GetSiegeStatRound()]++;
-							// check for tech max
-							if (bgSiegeClasses[ent->client->siegeClass].playerClass == SPC_SUPPORT && ent->client->sess.sessionTeam == TEAM_BLUE && g_entities[killer].client->sess.sessionTeam == TEAM_RED) {
-								char map[MAX_QPATH] = { 0 };
-								trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-								if (map[0] && !Q_stricmpn(map, "mp/siege_hoth", 13))
-									g_entities[killer].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_TECHMAX]++;
-								else if (map[0] && !Q_stricmp(map, "siege_narshaddaa"))
-									g_entities[killer].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_TECHMAX]++;
-							}
+				minDel = 20000;
+			}
+			if (g_siegeRespawn.integer >= 10) {
+				int killer = ent->client->sess.siegeStats.killer;
+				if (level.siegeRespawnCheck >= level.time + ((g_siegeRespawn.integer * 1000) - 4000)) { // check for max
+					ent->client->sess.siegeStats.maxed[GetSiegeStatRound()]++;
+					if (killer >= 0 && killer < MAX_CLIENTS && killer != ent - g_entities && &g_entities[killer] && g_entities[killer].client) {
+						g_entities[killer].client->sess.siegeStats.maxes[GetSiegeStatRound()]++;
+						// check for tech max
+						if (bgSiegeClasses[ent->client->siegeClass].playerClass == SPC_SUPPORT && ent->client->sess.sessionTeam == TEAM_BLUE && g_entities[killer].client->sess.sessionTeam == TEAM_RED) {
+							char map[MAX_QPATH] = { 0 };
+							trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+							if (map[0] && !Q_stricmpn(map, "mp/siege_hoth", 13))
+								g_entities[killer].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_HOTH_TECHMAX]++;
+							else if (map[0] && !Q_stricmp(map, "siege_narshaddaa"))
+								g_entities[killer].client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_TECHMAX]++;
 						}
 					}
 				}
-				ent->client->sess.siegeStats.killer = -1;
-				ent->client->tempSpectate = level.time + minDel;
-				ent->health = ent->client->ps.stats[STAT_HEALTH] = 1;
-				ent->client->ps.weapon = WP_NONE;
-				ent->client->ps.stats[STAT_WEAPONS] = 0;
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
-				ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-				ent->client->ps.eFlags = 0;
-				ent->client->ps.saberMove = LS_NONE;
-				ent->takedamage = qfalse;
-				trap_LinkEntity(ent);
-				// Respawn time.
-				if ( ent->s.number < MAX_CLIENTS )
-				{
-					gentity_t *te = G_TempEntity( ent->client->ps.origin, EV_SIEGESPEC );
-					te->s.time = level.siegeRespawnCheck;
-					te->s.owner = ent->s.number;
-				}
-#ifdef NEWMOD_SUPPORT
-				UpdateNewmodSiegeTimers();
-#endif
-				return;
 			}
+			ent->client->sess.siegeStats.killer = -1;
+			ent->client->tempSpectate = level.time + minDel;
+			ent->health = ent->client->ps.stats[STAT_HEALTH] = 1;
+			ent->client->ps.weapon = WP_NONE;
+			ent->client->ps.stats[STAT_WEAPONS] = 0;
+			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
+			ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+			ent->client->ps.eFlags = 0;
+			ent->client->ps.saberMove = LS_NONE;
+			ent->takedamage = qfalse;
+			trap_LinkEntity(ent);
+			// Respawn time.
+			if ( ent->s.number < MAX_CLIENTS )
+			{
+				gentity_t *te = G_TempEntity( ent->client->ps.origin, EV_SIEGESPEC );
+				te->s.time = level.siegeRespawnCheck;
+				te->s.owner = ent->s.number;
+			}
+#ifdef NEWMOD_SUPPORT
+			UpdateNewmodSiegeTimers();
+#endif
+			return;
 		}
 		SiegeRespawn(ent);
 	}

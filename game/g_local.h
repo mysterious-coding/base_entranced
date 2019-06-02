@@ -1381,6 +1381,8 @@ typedef struct {
 	int			initialBlueCount;
 	int			initialRedCount;
 
+	int			worldspawnSiegeRespawnTime; // the number specified in worldspawn to be the siege respawn time for this map (virtually always 20)
+
 	qboolean    overtime;
 
 	//special handle for libcurl debug

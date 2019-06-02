@@ -1401,11 +1401,11 @@ void SP_worldspawn( void )
 
 	G_SpawnInt("shieldSpamAllowed", "1", &level.shieldSpamAllowed); // red team can shield spam; blue can't, unless otherwise specified
 
-	if (!debug_duoTest.integer)
-	{
-		G_SpawnString("siegeRespawn", "20", &text); //if not defined, set to 20
-		trap_Cvar_Set("g_siegeRespawn", text);
-	}
+	if (G_SpawnString("siegeRespawn", "20", &text)) //if not defined, set to 20
+		level.worldspawnSiegeRespawnTime = atoi(text);
+	else
+		level.worldspawnSiegeRespawnTime = 20;
+
 	level.voteTime = 0;
 	trap_SetConfigstring(CS_VOTE_TIME, "");
 	level.teamVoteTime[0] = 0;

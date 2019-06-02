@@ -2729,8 +2729,7 @@ void Svcmd_Zombies_f()
 	LivePugRuined("Zombies", qfalse); // should be obvious enough; doesn't need announcement
 	if (level.zombies)
 	{
-		level.zombies = qfalse;
-		trap_Cvar_Set("g_siegeRespawn", "20");
+		return;
 	}
 	else
 	{

@@ -687,7 +687,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_weaponTeamRespawn, "g_weaponTeamRespawn", "5", 0, 0, qtrue },
 	{ &g_adaptRespawn, "g_adaptrespawn", "1", 0, 0, qtrue },		// Make weapons respawn faster with a lot of players.
 	{ &g_forcerespawn, "g_forcerespawn", "60", 0, 0, qtrue },		// One minute force respawn.  Give a player enough time to reallocate force.
-	{ &g_siegeRespawn, "g_siegeRespawn", "20", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue }, //siege respawn wave time
+	{ &g_siegeRespawn, "g_siegeRespawn", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue }, //siege respawn wave time
 	{ &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
 	{ &g_inactivityKick, "g_inactivityKick", "1", 0, 0, qtrue },
 	{ &g_spectatorInactivity, "g_spectatorInactivity", "0", 0, 0, qtrue },
@@ -1524,7 +1524,7 @@ static isLivePug_t CheckLivePug(char **reasonOut) {
 		return ISLIVEPUG_NO;
 	}
 #ifndef _DEBUG
-	if (g_cheats.integer || g_siegeRespawn.integer != 20) {
+	if (g_cheats.integer || g_siegeRespawn.integer != level.worldspawnSiegeRespawnTime) {
 		*reasonOut = "cheats enabled or non-standard respawn time";
 		return ISLIVEPUG_NO;
 	}
@@ -5688,7 +5688,7 @@ void G_RunFrame( int levelTime ) {
 			(g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none") && Q_stricmp(g_blueTeam.string, "0"))) {
 			G_Printf( S_COLOR_YELLOW"Custom classes are in use. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
-#ifndef _DEBUG
+#if 0
 		} else if ( g_siegeRespawn.integer != 20 ) {
 			G_Printf( S_COLOR_YELLOW"Respawn time is not standard. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
@@ -5728,7 +5728,10 @@ void G_RunFrame( int levelTime ) {
 			}
 		}
 
-		level.siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
+		if (!g_siegeRespawn.integer || g_siegeRespawn.integer == 1)
+			level.siegeRespawnCheck = level.time;
+		else
+			level.siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
 
 #ifdef NEWMOD_SUPPORT
 		UpdateNewmodSiegeTimers();
