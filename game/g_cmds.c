@@ -8319,6 +8319,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_improvedDisarm);
 	PrintCvar(g_improvedTeamchat);
 	PrintCvar(g_infiniteCharge);
+	PrintCvar(g_intermissionKnockbackNPCs);
 	PrintCvar(g_knockback);
 	PrintCvar(g_locationBasedDamage);
 	PrintCvar(g_moreTaunts);

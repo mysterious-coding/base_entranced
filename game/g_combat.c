@@ -4917,9 +4917,20 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE && !gSiegeRoundBegun && mod != MOD_SUICIDE && damage != 6666)
-	{ //nothing can be damaged til the round starts, except killturrets command
-		return;
+	if (g_gametype.integer == GT_SIEGE && level.intermissiontime) { // allow damaging some NPCs in post game for fun
+		if (targ && (targ - g_entities < MAX_CLIENTS || !targ->client || !targ->NPC))
+			return;
+		if (!g_intermissionKnockbackNPCs.integer)
+			return;
+		targ->NPC->stats.nodmgfrom = 0;
+		targ->NPC->stats.specialKnockback = 0;
+		targ->alliedTeam = 0;
+	}
+	else {
+		if (g_gametype.integer == GT_SIEGE && !gSiegeRoundBegun && mod != MOD_SUICIDE && damage != 6666)
+		{ //nothing can be damaged til the round starts, except killturrets command
+			return;
+		}
 	}
 
 	if (!targ->takedamage) {
@@ -6158,6 +6169,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		//prevent team-switch from allowing projectiles to kill (former) teammates on blue team in zombies mode
 		take = 0;
 	}
+
+	if (level.intermissiontime)
+		return;
 
 	// do the damage
 	if (take) 

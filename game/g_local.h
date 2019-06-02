@@ -2672,6 +2672,7 @@ extern vmCvar_t    g_antiSelfMax;
 extern vmCvar_t    g_improvedDisarm;
 extern vmCvar_t    g_flechetteSpread;
 extern vmCvar_t    g_autoSpec;
+extern vmCvar_t    g_intermissionKnockbackNPCs;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;
