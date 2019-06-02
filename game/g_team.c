@@ -1346,7 +1346,7 @@ gentity_t *SelectSiegeSpeedrunSpawnPoint(void) {
 				secondNearestSpot = spot;
 			}
 		}
-		if (nearestSpot && (level.time - lastTimeFirstSpotUsed > 0 || firstSpot != nearestSpot)) { // take the spot nearest the obj if it hasn't been used this tick
+		if (nearestSpot && (level.time - lastTimeFirstSpotUsed > 500 || firstSpot != nearestSpot)) { // take the spot nearest the obj if it hasn't been used in the last 500ms, or the obj changed
 			firstSpot = nearestSpot;
 			lastTimeFirstSpotUsed = level.time;
 			return nearestSpot;
