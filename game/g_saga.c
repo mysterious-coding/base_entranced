@@ -941,7 +941,7 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 	}
 
 	if (flags & CAPTURERECORDFLAG_SPEEDRUN) { // only speedruns can have <class>-only or oneshot
-		qboolean usedOnlyOneClass = qfalse;
+		qboolean usedOnlyOneClass;
 
 		if (flags & CAPTURERECORDFLAG_FULLMAP) {
 			if (flags & CAPTURERECORDFLAG_COOP) {
@@ -975,10 +975,14 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 					usedOnlyOneClass = qfalse;
 				else if (level.siegeTopTimes[client2 - level.clients].hasChangedClass)
 					usedOnlyOneClass = qfalse;
+				else
+					usedOnlyOneClass = qtrue;
 			}
 			else {
 				if (level.siegeTopTimes[client1 - level.clients].hasChangedClass)
 					usedOnlyOneClass = qfalse;
+				else
+					usedOnlyOneClass = qtrue;
 			}
 		}
 
@@ -1024,15 +1028,15 @@ static qboolean RecordMatchesPlayers(
 		numCuids++;
 	}
 	if (VALIDSTRING(cuid2) && players >= 2) {
-		Q_strncpyz(cuids[1], cuid1, sizeof(cuids[1]));
+		Q_strncpyz(cuids[1], cuid2, sizeof(cuids[1]));
 		numCuids++;
 	}
 	if (VALIDSTRING(cuid3) && players >= 3) {
-		Q_strncpyz(cuids[2], cuid1, sizeof(cuids[2]));
+		Q_strncpyz(cuids[2], cuid3, sizeof(cuids[2]));
 		numCuids++;
 	}
 	if (VALIDSTRING(cuid4) && players >= 4) {
-		Q_strncpyz(cuids[3], cuid1, sizeof(cuids[3]));
+		Q_strncpyz(cuids[3], cuid4, sizeof(cuids[3]));
 		numCuids++;
 	}
 	unsigned int ips[LOGGED_PLAYERS_PER_OBJ] = { 0 };
