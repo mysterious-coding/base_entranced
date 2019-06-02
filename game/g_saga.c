@@ -901,7 +901,8 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 
 	CaptureCategoryFlags flags = 0;
 	int numOnRed = NumPlayersOnTeam(TEAM_RED), numOnBlue = NumPlayersOnTeam(TEAM_BLUE);
-	if (!level.mapCaptureRecords.speedRunModeRuined && !client1->runInvalid && !level.siegeTopTimes[client1 - level.clients].attackedByNonTeammate &&
+	if (!level.mapCaptureRecords.speedRunModeRuined && g_siegeRespawn.integer == 1 &&
+		!client1->runInvalid && !level.siegeTopTimes[client1 - level.clients].attackedByNonTeammate &&
 		!level.siegeTopTimes[client1 - level.clients].hasChangedTeams &&
 		!numOnBlue && (numOnRed == 1 || numOnRed == 2)) {
 		if (!client2)
@@ -919,7 +920,7 @@ static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *cl
 			}
 		}
 	}
-	else if (level.isLivePug == ISLIVEPUG_YES)
+	else if (level.isLivePug == ISLIVEPUG_YES && g_siegeRespawn.integer == level.worldspawnSiegeRespawnTime)
 		flags |= CAPTURERECORDFLAG_LIVEPUG;
 	else
 		flags |= CAPTURERECORDFLAG_ANYPERCENT;
