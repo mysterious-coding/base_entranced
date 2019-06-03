@@ -1090,6 +1090,8 @@ static qboolean RecordMatchesPlayers(
 	return qfalse;
 }
 
+static int objTimes[MAX_SAVED_OBJECTIVES] = { -1 };
+
 // this function assumes the arrays in currentRecords are sorted by captureTime and date
 // returns 0 if this is not a record, or the newly assigned rank otherwise (1 = 1st, 2 = 2nd...)
 static int LogCaptureTime(
@@ -1270,13 +1272,8 @@ static int LogCaptureTime(
 	newElement->recordHolder1ClientId = client1Id;
 	newElement->recordHolder2ClientId = client2Id;
 
-	static int objTimes[MAX_SAVED_OBJECTIVES] = { -1 };
-	if (!(flags & CAPTURERECORDFLAG_FULLMAP) && objNum >= 1 && objNum <= MAX_SAVED_OBJECTIVES) {
-		objTimes[objNum - 1] = totalTime;
-	}
-	else if (flags & CAPTURERECORDFLAG_FULLMAP) {
+	if (flags & CAPTURERECORDFLAG_FULLMAP)
 		memcpy(&(newElement->objTimes), &objTimes[0], sizeof(newElement->objTimes));
-	}
 
 	// cuid is optional, empty for clients without one
 	if (VALIDSTRING(cuid1))
@@ -1519,6 +1516,9 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		}
 		return;
 	}
+
+	if (objective >= 1 && objective <= MAX_SAVED_OBJECTIVES)
+		objTimes[objective - 1] = timeInMilliseconds;
 
 	gclient_t *clients[4] = { NULL };
 	if (clientNumOverride >= 0 && clientNumOverride < MAX_CLIENTS) {
