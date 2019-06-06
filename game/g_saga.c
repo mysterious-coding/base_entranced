@@ -1728,8 +1728,9 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		// update the in-memory db so that toptimes can reflect this change
 		G_LogDbSaveCaptureRecords(&level.mapCaptureRecords);
 	}
-	else if (!(flags & CAPTURERECORDFLAG_LIVEPUG)) {
+	else if (level.isLivePug == ISLIVEPUG_NO && !(flags & CAPTURERECORDFLAG_LIVEPUG)) {
 		// we didn't make a new record, but that was still a valid run. show everyone what time they did
+		// don't print this for pugs, though
 		trap_SendServerCommand(-1, va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
 			GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 	}
