@@ -6747,6 +6747,50 @@ void Cmd_Vchat_f(gentity_t *sender) {
 				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "")); // team only parameter is sent anyway so clients can display with team styling
 	}
 }
+
+static void Cmd_VchatDl_f(gentity_t *ent) {
+	if (trap_Argc() < 2 || !ent || !ent->client)
+		return;
+
+	char buf[MAX_QPATH];
+	trap_Argv(1, buf, sizeof(buf));
+	if (!buf[0] || strstr(buf, "../") || strstr(buf, "..\\"))
+		return;
+
+	char base[MAX_STRING_CHARS] = { 0 };
+	trap_Cvar_VariableStringBuffer("g_vchatdlbase", base, sizeof(base));
+	if (!base[0]) {
+		trap_SendServerCommand(ent - g_entities, "print \"This server is not configured for downloading vchat packs.\n\"");
+		return;
+	}
+	// remove any trailing slash
+	size_t baseLen = strlen(base);
+	if (base[baseLen - 1] == '/' || base[baseLen - 1] == '\\')
+		base[baseLen - 1] = '\0';
+	if (!base[0])
+		return; // ...
+
+	char pk3[MAX_STRING_CHARS] = { 0 };
+	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", buf), pk3, sizeof(pk3));
+	if (!pk3[0]) {
+		trap_SendServerCommand(ent - g_entities, va("print \"This server does not have a download link available for the %s pack.\n\"", buf));
+		return;
+	}
+	// remove any trailing ".pk3"
+	size_t pk3Len = strlen(pk3);
+	if (pk3Len >= strlen(".pk3")) {
+		char *checkPtr = &pk3[0] + pk3Len - strlen(".pk3");
+		if (!Q_stricmp(checkPtr, ".pk3"))
+			*checkPtr = '\0';
+	}
+	if (!pk3[0])
+		return; // ...
+
+	char fullPath[MAX_STRING_CHARS] = { 0 };
+	Com_sprintf(fullPath, sizeof(fullPath), "%s/%s.pk3", base, pk3);
+	trap_SendServerCommand(ent - g_entities, va("kls -1 -1 vcdl \"%s\" \"%s\"", buf, fullPath));
+	G_LogPrintf("Vchat download request from client %d (%s) for mod %s\n^7", ent - g_entities, ent->client->pers.netnameClean, buf);
+}
 #endif
 
 void Cmd_UsePack_f(gentity_t *ent) {
@@ -9008,6 +9052,8 @@ void ClientCommand( int clientNum ) {
 #ifdef NEWMOD_SUPPORT
 		else if (!Q_stricmp(cmd, "vchat"))
 			Cmd_Vchat_f(ent);
+		else if (!Q_stricmp(cmd, "vchatdl"))
+			Cmd_VchatDl_f(ent);
 #endif
 		else
 			trap_SendServerCommand( clientNum, va("print \"%s (%s) \n\"", G_GetStringEdString("MP_SVGAME", "CANNOT_TASK_INTERMISSION"), cmd ) );
@@ -9147,6 +9193,8 @@ void ClientCommand( int clientNum ) {
 #ifdef NEWMOD_SUPPORT
 	else if (!Q_stricmp(cmd, "vchat"))
 		Cmd_Vchat_f(ent);
+	else if (!Q_stricmp(cmd, "vchatdl"))
+		Cmd_VchatDl_f(ent);
 #endif
 	else if (!Q_stricmp(cmd, "use_pack"))
 		Cmd_UsePack_f(ent);
