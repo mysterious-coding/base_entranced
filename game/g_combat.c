@@ -4867,6 +4867,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ENEMY)))
 					continue;
 			}
+			else if (targ && targ->s.NPC_class == CLASS_VEHICLE) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_VEHICLE)))
+					continue;
+			}
 			else {
 				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ENEMY)))
 					continue;
@@ -4904,6 +4908,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 			else if (attacker && attacker - g_entities < MAX_CLIENTS && attacker->client) {
 				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ENEMY)))
+					continue;
+			}
+			else if (attacker && attacker->s.NPC_class == CLASS_VEHICLE) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_VEHICLE)))
 					continue;
 			}
 			else {

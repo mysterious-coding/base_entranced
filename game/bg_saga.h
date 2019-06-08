@@ -87,6 +87,7 @@ typedef struct specialDamageParam_s {
 		OTHERENTTYPE_SELF = 0,
 		OTHERENTTYPE_ALLY,
 		OTHERENTTYPE_ENEMY,
+		OTHERENTTYPE_VEHICLE,
 		OTHERENTTYPE_OTHER
 	}			otherEntType;
 } specialDamageParam_t;
