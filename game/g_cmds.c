@@ -8725,6 +8725,7 @@ void Cmd_Help_f(gentity_t *ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"^2/TOPTIMES:^7   Use ^5/toptimes^7 to view a list of fastest obj/map completion records.\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASS:^7   Use ^5/class <first letter of class name>^7 to change classes. For example, ^5/class a^7 for assault.\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/JOIN:^7   Use ^5/join <team letter><first letter of class name>^7 (no spaces) to join as a specific team and class. For example, '^5join rj^7' for red jedi)\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASSES:^7   Use ^5/classes^7 to display all class loadouts for the current map.\n\""));
 	}
 	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2:^7   Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
 	if (g_allow_ready.integer)
