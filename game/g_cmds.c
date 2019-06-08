@@ -6749,8 +6749,8 @@ void Cmd_Vchat_f(gentity_t *sender) {
 				fileName,
 				msg,
 				teamOnly,
-				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "",
-				downloadAvailable ? "\"dl=1\"" : "")); // team only parameter is sent anyway so clients can display with team styling
+				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "",
+				downloadAvailable ? " \"dl=1\"" : "")); // team only parameter is sent anyway so clients can display with team styling
 	}
 }
 
