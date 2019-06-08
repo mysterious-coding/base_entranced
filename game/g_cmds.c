@@ -7170,16 +7170,68 @@ void Cmd_Vchat_f(gentity_t *sender) {
 #endif
 
 	int senderLocation = 0;
+	char chatLocation[64] = { 0 };
+	char chatMessage[200] = { 0 };
+	Q_strncpyz(chatMessage, msg, sizeof(chatMessage));
 #if 1
 	// get his location (disable this section to never send locations)
 	if (g_gametype.integer >= GT_TEAM)
-		senderLocation = Team_GetLocation(sender, NULL, 0);
+		senderLocation = Team_GetLocation(sender, chatLocation, sizeof(chatLocation));
 #endif
 
 	char baseCvar[2] = { 0 }, downloadCvar[2] = { 0 };
 	trap_Cvar_VariableStringBuffer("g_vchatdlbase", baseCvar, sizeof(baseCvar));
 	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", modName), downloadCvar, sizeof(downloadCvar));
 	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0]);
+
+	char chatSenderName[64] = { 0 };
+	if (teamOnly) {
+		Com_sprintf(chatSenderName, sizeof(chatSenderName), EC"(%s%c%c"EC")"EC": ", sender->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+#if 1 // disable this to disable all the extra siege stuff
+		if (g_gametype.integer == GT_SIEGE) {
+			if (level.inSiegeCountdown) {
+				if (sender->client->siegeClass != -1 && sender->client->sess.sessionTeam == TEAM_SPECTATOR && sender->client->sess.siegeDesiredTeam &&
+					(sender->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM1 || sender->client->sess.siegeDesiredTeam == SIEGETEAM_TEAM2)) {
+					// we are in spec (in countdown) with a desired team/class...put our class type as our "location"
+					switch (bgSiegeClasses[sender->client->siegeClass].playerClass) {
+					case 0:	Q_strncpyz(chatLocation, "Assault", sizeof(chatLocation));			break;
+					case 1:	Q_strncpyz(chatLocation, "Scout", sizeof(chatLocation));			break;
+					case 2:	Q_strncpyz(chatLocation, "Tech", sizeof(chatLocation));				break;
+					case 3:	Q_strncpyz(chatLocation, "Jedi", sizeof(chatLocation));				break;
+					case 4:	Q_strncpyz(chatLocation, "Demolitions", sizeof(chatLocation));		break;
+					case 5:	Q_strncpyz(chatLocation, "Heavy Weapons", sizeof(chatLocation));	break;
+					default:	senderLocation = 0;	chatLocation[0] = '\0';						break;
+					}
+				}
+			}
+			else { // not in siege countdown
+				if (sender->client->sess.sessionTeam == SIEGETEAM_TEAM1 || sender->client->sess.sessionTeam == SIEGETEAM_TEAM2) {
+					if (sender->client->tempSpectate > level.time || sender->health <= 0) { // ingame and dead
+						Com_sprintf(chatMessage, sizeof(chatMessage), "^0(DEAD) ^5%s", chatMessage);
+					}
+					else if (g_improvedTeamchat.integer >= 2 && !level.intermissiontime) {
+						if (sender->client->ps.stats[STAT_ARMOR])
+							Com_sprintf(chatMessage, sizeof(chatMessage), "^7(%i/%i) ^5%s", sender->health, sender->client->ps.stats[STAT_ARMOR], chatMessage);
+						else
+							Com_sprintf(chatMessage, sizeof(chatMessage), "^7(%i) ^5%s", sender->health, chatMessage);
+					}
+				}
+			}
+
+			if (((sender->client->sess.sessionTeam == TEAM_SPECTATOR &&
+				(!level.inSiegeCountdown ||
+				(sender->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM1 && sender->client->sess.siegeDesiredTeam != SIEGETEAM_TEAM2)) ||
+				level.intermissiontime) && g_improvedTeamchat.integer) ||
+				(level.zombies && sender->client->sess.sessionTeam == TEAM_BLUE)) {
+				senderLocation = 0;
+				chatLocation[0] = '\0';
+			}
+		}
+#endif
+	}
+	else {
+		Com_sprintf(chatSenderName, sizeof(chatSenderName), "%s%c%c"EC": ", sender->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+	}
 
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		gclient_t *cl = &level.clients[i];
@@ -7201,15 +7253,45 @@ void Cmd_Vchat_f(gentity_t *sender) {
 			locationToSend = senderLocation;
 		}
 
-		trap_SendServerCommand(i,
-			va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s%s",
+		char *command;
+		if (teamOnly && locationToSend) {
+			command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\" \"loc=%d\"%s",
+				chatSenderName,
+				chatLocation,
+				chatMessage,
 				sender - g_entities,
 				modName,
 				fileName,
 				msg,
 				teamOnly, // team only parameter is sent anyway so clients can display with team styling
-				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "",
-				downloadAvailable ? " \"dl=1\"" : ""));
+				locationToSend,
+				downloadAvailable ? " \"dl=1\"" : "");
+		}
+		else {
+			if (teamOnly) {
+				command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s",
+					chatSenderName,
+					chatMessage,
+					sender - g_entities,
+					modName,
+					fileName,
+					msg,
+					teamOnly, // team only parameter is sent anyway so clients can display with team styling
+					downloadAvailable ? " \"dl=1\"" : "");
+			}
+			else {
+				command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s",
+					chatSenderName,
+					chatMessage,
+					sender - g_entities,
+					modName,
+					fileName,
+					msg,
+					teamOnly, // team only parameter is sent anyway so clients can display with team styling
+					downloadAvailable ? " \"dl=1\"" : "");
+			}
+		}
+		trap_SendServerCommand(i, command);
 	}
 }
 
