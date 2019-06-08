@@ -6656,7 +6656,7 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 void Cmd_Vchat_f(gentity_t *sender) {
 	char *s = ConcatArgs(1);
 	if (!VALIDSTRING(s) || !strchr(s, VCHAT_ESCAPE_CHAR)) {
-		trap_SendServerCommand(sender - g_entities, "print \"Usage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
+		//trap_SendServerCommand(sender - g_entities, "print \"Usage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
 		return;
 	}
 
@@ -6696,7 +6696,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	}
 
 	if (!modName[0] || !fileName[0] || !msg[0]) {
-		trap_SendServerCommand(sender - g_entities, "print \"Invalid vchat command.\nUsage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
+		//trap_SendServerCommand(sender - g_entities, "print \"Invalid vchat command.\nUsage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
 		return;
 	}
 
@@ -6716,6 +6716,11 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	if (g_gametype.integer >= GT_TEAM)
 		senderLocation = Team_GetLocation(sender, NULL, 0);
 #endif
+
+	char baseCvar[2] = { 0 }, downloadCvar[2] = { 0 };
+	trap_Cvar_VariableStringBuffer("g_vchatdlbase", baseCvar, sizeof(baseCvar));
+	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", modName), downloadCvar, sizeof(downloadCvar));
+	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0]);
 
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		gclient_t *cl = &level.clients[i];
@@ -6738,13 +6743,14 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		}
 
 		trap_SendServerCommand(i,
-			va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s",
+			va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s%s",
 				sender - g_entities,
 				modName,
 				fileName,
 				msg,
 				teamOnly,
-				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "")); // team only parameter is sent anyway so clients can display with team styling
+				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "",
+				downloadAvailable ? "\"dl=1\"" : "")); // team only parameter is sent anyway so clients can display with team styling
 	}
 }
 
