@@ -2189,9 +2189,9 @@ static qboolean CheckSiegeAward(reward_t reward, gentity_t *self, gentity_t *att
 		}
 		else if (level.siegeMap == SIEGEMAP_BESPIN) {
 			if (!level.totalObjectivesCompleted && self->client->sess.sessionTeam == TEAM_RED &&
-				self->client->ps.origin[0] >= 440 && self->client->ps.origin[0] <= 560 &&
-				self->client->ps.origin[1] >= -1775 && self->client->ps.origin[1] <= -1500 &&
-				self->client->ps.origin[2] >= 90 && self->client->ps.origin[2] <= 360 &&
+				self->client->ps.origin[0] >= 605 && self->client->ps.origin[0] <= 835 &&
+				self->client->ps.origin[1] >= -2060 && self->client->ps.origin[1] <= -1935 &&
+				self->client->ps.origin[2] >= 140 && self->client->ps.origin[2] <= 400 &&
 				mod != MOD_TIMED_MINE_SPLASH && mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TARGET_LASER) {
 				//killed in doorway of first obj
 				qboolean foundLock = qfalse;
