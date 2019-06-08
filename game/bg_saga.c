@@ -69,6 +69,61 @@ stringID_table_t StanceTable[] =
 	{"", 0}
 };
 
+stringID_table_t OtherEntTypeTable[] = {
+	ENUM2STRING(OTHERENTTYPE_SELF),
+	ENUM2STRING(OTHERENTTYPE_ALLY),
+	ENUM2STRING(OTHERENTTYPE_ENEMY),
+	ENUM2STRING(OTHERENTTYPE_OTHER)
+};
+
+stringID_table_t ModTable[] = {
+	ENUM2STRING(MOD_UNKNOWN),
+	ENUM2STRING(MOD_STUN_BATON),
+	ENUM2STRING(MOD_MELEE),
+	ENUM2STRING(MOD_SABER),
+	ENUM2STRING(MOD_BRYAR_PISTOL),
+	ENUM2STRING(MOD_BRYAR_PISTOL_ALT),
+	ENUM2STRING(MOD_BLASTER),
+	ENUM2STRING(MOD_TURBLAST),
+	ENUM2STRING(MOD_DISRUPTOR),
+	ENUM2STRING(MOD_DISRUPTOR_SPLASH),
+	ENUM2STRING(MOD_DISRUPTOR_SNIPER),
+	ENUM2STRING(MOD_BOWCASTER),
+	ENUM2STRING(MOD_REPEATER),
+	ENUM2STRING(MOD_REPEATER_ALT),
+	ENUM2STRING(MOD_REPEATER_ALT_SPLASH),
+	ENUM2STRING(MOD_DEMP2),
+	ENUM2STRING(MOD_DEMP2_ALT),
+	ENUM2STRING(MOD_FLECHETTE),
+	ENUM2STRING(MOD_FLECHETTE_ALT_SPLASH),
+	ENUM2STRING(MOD_ROCKET),
+	ENUM2STRING(MOD_ROCKET_SPLASH),
+	ENUM2STRING(MOD_ROCKET_HOMING),
+	ENUM2STRING(MOD_ROCKET_HOMING_SPLASH),
+	ENUM2STRING(MOD_THERMAL),
+	ENUM2STRING(MOD_THERMAL_SPLASH),
+	ENUM2STRING(MOD_TRIP_MINE_SPLASH),
+	ENUM2STRING(MOD_TIMED_MINE_SPLASH),
+	ENUM2STRING(MOD_DET_PACK_SPLASH),
+	ENUM2STRING(MOD_VEHICLE),
+	ENUM2STRING(MOD_CONC),
+	ENUM2STRING(MOD_CONC_ALT),
+	ENUM2STRING(MOD_FORCE_DARK),
+	ENUM2STRING(MOD_SENTRY),
+	ENUM2STRING(MOD_WATER),
+	ENUM2STRING(MOD_SLIME),
+	ENUM2STRING(MOD_LAVA),
+	ENUM2STRING(MOD_CRUSH),
+	ENUM2STRING(MOD_TELEFRAG),
+	ENUM2STRING(MOD_FALLING),
+	ENUM2STRING(MOD_SUICIDE),
+	ENUM2STRING(MOD_TARGET_LASER),
+	ENUM2STRING(MOD_TRIGGER_HURT),
+	ENUM2STRING(MOD_TEAM_CHANGE),
+	ENUM2STRING(MOD_MAX),
+	ENUM2STRING(MOD_SPECIAL_SENTRYBOMB)
+};
+
 //Weapon and force power tables are also used in NPC parsing code and some other places.
 stringID_table_t WPTable[] =
 {
@@ -757,6 +812,67 @@ int BG_SiegeTranslateGenericTable(char *buf, stringID_table_t *table, qboolean b
 	return items;
 }
 
+// duo: same as above but with 64-bit support
+long long BG_SiegeTranslateGenericTable64(char *buf, stringID_table_t *table, qboolean bitflag)
+{
+	long long items = 0ll;
+	char checkItem[1024];
+	long long i = 0ll;
+	long long j = 0ll;
+	long long k = 0ll;
+
+	if (buf[0] == '0' && !buf[1])
+	{ //special case, no items.
+		return 0;
+	}
+
+	while (buf[i])
+	{ //Using basically the same parsing method as we do for weapons and forcepowers.
+		if (buf[i] != ' ' && buf[i] != '|')
+		{
+			j = 0ll;
+
+			while (buf[i] && buf[i] != ' ' && buf[i] != '|')
+			{
+				checkItem[j] = buf[i];
+				j++;
+				i++;
+			}
+			checkItem[j] = 0ll;
+
+			if (checkItem[0])
+			{
+				k = 0ll;
+
+				while (table[k].name && table[k].name[0])
+				{ //go through the list and check the parsed flag name against the hardcoded names
+					if (!Q_stricmp(checkItem, table[k].name))
+					{ //Got it, so add the value into our items value.
+						if (bitflag)
+						{
+							items |= (1ll << (long long)table[k].id);
+						}
+						else
+						{ //return the value directly then.
+							return (long long)table[k].id;
+						}
+						break;
+					}
+					k++;
+				}
+			}
+		}
+
+		if (!buf[i])
+		{
+			break;
+		}
+
+		i++;
+	}
+	return items;
+}
+
 char *classTitles[SPC_MAX] =
 {
 "infantry",			// SPC_INFANTRY
@@ -1058,7 +1174,6 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		scl->dispenseHealthpaks = 0;
 	}
 
-	//Parse jetpackfreezeimmunity
 	if (BG_SiegeGetPairedValue(classInfo, "jetpackfreezeimmunity", parseBuf))
 	{
 		scl->jetpackFreezeImmunity = atoi(parseBuf);
@@ -1076,6 +1191,132 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	else
 	{ //It's alright, just default to 0 then.
 		scl->maxSentries = 0;
+	}
+	
+	memset(&scl->incomingDamageParam, 0, sizeof(scl->incomingDamageParam));
+	memset(&scl->outgoingDamageParam, 0, sizeof(scl->outgoingDamageParam));
+	for (i = 0; i < MAX_SPECIALDAMAGEPARAMETERS; i++) {
+		//Parse special dmg params
+		specialDamageParam_t *sdp = &scl->incomingDamageParam[i];
+		if (!BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_mods", i + 1), parseBuf)) {
+			memset(sdp, 0, sizeof(specialDamageParam_t));
+			continue;
+		}
+		sdp->mods = BG_SiegeTranslateGenericTable64(parseBuf, ModTable, qtrue);
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_otherenttype", i + 1), parseBuf))
+			sdp->otherEntType = BG_SiegeTranslateGenericTable(parseBuf, OtherEntTypeTable, qtrue);
+		else
+			sdp->otherEntType = -1;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_minDmg", i + 1), parseBuf))
+			sdp->damageMin = atoi(parseBuf);
+		else
+			sdp->damageMin = 0x80000000;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_maxDmg", i + 1), parseBuf))
+			sdp->damageMax = atoi(parseBuf);
+		else
+			sdp->damageMax = 0x7FFFFFFF;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_dmgMult", i + 1), parseBuf))
+			sdp->damageMultiplier = atof(parseBuf);
+		else
+			sdp->damageMultiplier = 1.0f;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_knockbackMult", i + 1), parseBuf))
+			sdp->knockbackMultiplier = atof(parseBuf);
+		else
+			sdp->knockbackMultiplier = sdp->damageMultiplier;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_negativedmgok", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->negativeDamageOk = qtrue;
+			else
+				sdp->negativeDamageOk = qfalse;
+		}
+		else {
+			sdp->negativeDamageOk = qfalse;
+		}
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_freeze", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->freeze = FREEZE_YES;
+			else if (stristr(parseBuf, "no") || *parseBuf == '0')
+				sdp->freeze = FREEZE_NO;
+			else
+				sdp->freeze = FREEZE_DEFAULT;
+		}
+		else {
+			sdp->freeze = FREEZE_DEFAULT;
+		}
+
+#ifdef _DEBUG
+		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d, negativeDmgOk %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->negativeDamageOk);
+#endif
+	}
+
+	for (i = 0; i < MAX_SPECIALDAMAGEPARAMETERS; i++) {
+		//Parse special dmg params
+		specialDamageParam_t *sdp = &scl->outgoingDamageParam[i];
+		if (!BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_mods", i + 1), parseBuf)) {
+			memset(sdp, 0, sizeof(specialDamageParam_t));
+			continue;
+		}
+		sdp->mods = BG_SiegeTranslateGenericTable64(parseBuf, ModTable, qtrue);
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_otherenttype", i + 1), parseBuf))
+			sdp->otherEntType = BG_SiegeTranslateGenericTable(parseBuf, OtherEntTypeTable, qtrue);
+		else
+			sdp->otherEntType = -1;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_minDmg", i + 1), parseBuf))
+			sdp->damageMin = atoi(parseBuf);
+		else
+			sdp->damageMin = 0x80000000;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_maxDmg", i + 1), parseBuf))
+			sdp->damageMax = atoi(parseBuf);
+		else
+			sdp->damageMax = 0x7FFFFFFF;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_dmgMult", i + 1), parseBuf))
+			sdp->damageMultiplier = atof(parseBuf);
+		else
+			sdp->damageMultiplier = 1.0f;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_knockbackMult", i + 1), parseBuf))
+			sdp->knockbackMultiplier = atof(parseBuf);
+		else
+			sdp->knockbackMultiplier = sdp->damageMultiplier;
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_negativedmgok", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->negativeDamageOk = qtrue;
+			else
+				sdp->negativeDamageOk = qfalse;
+		}
+		else {
+			sdp->negativeDamageOk = qfalse;
+		}
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_freeze", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->freeze = FREEZE_YES;
+			else if (stristr(parseBuf, "no") || *parseBuf == '2')
+				sdp->freeze = FREEZE_NO;
+			else
+				sdp->freeze = FREEZE_DEFAULT;
+		}
+		else {
+			sdp->freeze = FREEZE_DEFAULT;
+		}
+
+#ifdef _DEBUG
+		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d, negativeDmgOk %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->negativeDamageOk);
+#endif
 	}
 
 	//Parse startarmor

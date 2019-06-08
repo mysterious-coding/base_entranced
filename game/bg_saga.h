@@ -70,6 +70,27 @@ typedef struct
 	char		desc[SIEGE_CLASS_DESC_LEN];
 } siegeClassDesc_t;
 
+#define MAX_SPECIALDAMAGEPARAMETERS		(8)
+typedef struct specialDamageParam_s {
+	long long	mods;
+	int			damageMin;
+	int			damageMax;
+	float		damageMultiplier;
+	float		knockbackMultiplier;
+	qboolean	negativeDamageOk;
+	enum {
+		FREEZE_DEFAULT = 0,
+		FREEZE_YES,
+		FREEZE_NO
+	}			freeze;
+	enum {
+		OTHERENTTYPE_SELF = 0,
+		OTHERENTTYPE_ALLY,
+		OTHERENTTYPE_ENEMY,
+		OTHERENTTYPE_OTHER
+	}			otherEntType;
+} specialDamageParam_t;
+
 typedef struct
 {
 	char		name[512];
@@ -108,6 +129,8 @@ typedef struct
 	int			maxSentries;
 	qboolean	dispenseHealthpaks;
 	qboolean	jetpackFreezeImmunity;
+	specialDamageParam_t	incomingDamageParam[MAX_SPECIALDAMAGEPARAMETERS];
+	specialDamageParam_t	outgoingDamageParam[MAX_SPECIALDAMAGEPARAMETERS];
 } siegeClass_t;
 
 typedef struct

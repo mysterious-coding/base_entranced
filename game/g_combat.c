@@ -4844,6 +4844,91 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (level.siegeMap == SIEGEMAP_ANSION && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && (!Q_stricmp(attacker->NPC_type, "Alpha") || !Q_stricmp(attacker->NPC_type, "Onasi")))
 		return;
 
+#ifdef _DEBUG
+	int originalDamage = damage;
+#endif
+	int freeze = FREEZE_DEFAULT;
+	qboolean negativeDamageOk = qfalse;
+	float specialDamageParamKnockbackMultiplier = 1.0f;
+	if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker->client->siegeClass != -1) {
+		for (int i = 0; i < MAX_SPECIALDAMAGEPARAMETERS; i++) {
+			specialDamageParam_t *sdp = &bgSiegeClasses[attacker->client->siegeClass].outgoingDamageParam[i];
+			if (!(sdp->mods & (1ll << (long long)mod)))
+				continue;
+			if (attacker == targ) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_SELF)))
+					continue;
+			}
+			else if (targ && targ - g_entities < MAX_CLIENTS && targ->client && targ->client->sess.sessionTeam == targ->client->sess.sessionTeam) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ALLY)))
+					continue;
+			}
+			else if (targ && targ - g_entities < MAX_CLIENTS && targ->client) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ENEMY)))
+					continue;
+			}
+			else {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ENEMY)))
+					continue;
+			}
+
+			if (sdp->damageMultiplier != 1.0f)
+				damage = (int)((((float)damage) + 0.5f) * sdp->damageMultiplier);
+			specialDamageParamKnockbackMultiplier = sdp->knockbackMultiplier;
+			if (damage > sdp->damageMax)
+				damage = sdp->damageMax;
+			if (damage < sdp->damageMin)
+				damage = sdp->damageMin;
+			freeze = sdp->freeze;
+			negativeDamageOk = sdp->negativeDamageOk;
+#ifdef _DEBUG
+			Com_Printf("Outgoing damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
+#endif
+			if (!damage)
+				return;
+			break;
+		}
+	}
+	if (g_gametype.integer == GT_SIEGE && targ && targ->client && targ->client->siegeClass != -1) {
+		for (int i = 0; i < MAX_SPECIALDAMAGEPARAMETERS; i++) {
+			specialDamageParam_t *sdp = &bgSiegeClasses[targ->client->siegeClass].incomingDamageParam[i];
+			if (!(sdp->mods & (1ll << (long long)mod)))
+				continue;
+			if (attacker == targ) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_SELF)))
+					continue;
+			}
+			else if (attacker && attacker - g_entities < MAX_CLIENTS && attacker->client && attacker->client->sess.sessionTeam == targ->client->sess.sessionTeam) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ALLY)))
+					continue;
+			}
+			else if (attacker && attacker - g_entities < MAX_CLIENTS && attacker->client) {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_ENEMY)))
+					continue;
+			}
+			else {
+				if (!(sdp->otherEntType & (1 << OTHERENTTYPE_OTHER)))
+					continue;
+			}
+
+			if (sdp->damageMultiplier != 1.0f)
+				damage = (int)((((float)damage) + 0.5f) * sdp->damageMultiplier);
+			specialDamageParamKnockbackMultiplier = sdp->knockbackMultiplier;
+			if (damage > sdp->damageMax)
+				damage = sdp->damageMax;
+			if (damage < sdp->damageMin)
+				damage = sdp->damageMin;
+			freeze = sdp->freeze;
+			negativeDamageOk = sdp->negativeDamageOk;
+#ifdef _DEBUG
+			Com_Printf("Incoming damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
+#endif
+			if (!damage)
+				return;
+			break;
+		}
+	}
+
 	if (level.siegeMap == SIEGEMAP_ANSION && targ && targ->maxHealth == 2000 &&
 		attacker && attacker->client && attacker->client->ps.origin[0] <= 4000 &&
 		VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "ansion_obj2_part2") &&
@@ -4858,7 +4943,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY) {
 		isUrbanOrCargoOAssault = qtrue;
 	}
-	if (mod == MOD_DEMP2 && !isUrbanOrCargoOAssault && targ && targ->inuse && targ->client)
+	if (freeze == FREEZE_YES || (freeze != FREEZE_NO && mod == MOD_DEMP2 && !isUrbanOrCargoOAssault && targ && targ->inuse && targ->client))
 	{
 		if (targ->client->ps.electrifyTime < level.time)
 		{//electrocution effect
@@ -4936,8 +5021,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (!targ->takedamage) {
 		return;
 	}
-
-	int originalDamage = damage;
 
 	qboolean enableJediSplashDamageReduction = qtrue;
 	if (level.siegeMap == SIEGEMAP_URBAN && targ && targ->client && targ->client->siegeClass != -1) {
@@ -5189,6 +5272,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	knockback = damage;
+	if (specialDamageParamKnockbackMultiplier != 1.0f)
+		knockback = (int)((((float)knockback) + 0.5f) * specialDamageParamKnockbackMultiplier);
 	if ( knockback > 200 ) {
 		knockback = 200;
 	}
@@ -5523,7 +5608,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		{
 			if (OnSameTeam (targ, attacker))
 			{
-				if ( !g_friendlyFire.integer )
+				if ( !g_friendlyFire.integer && !(negativeDamageOk && damage < 0) )
 				{
 					return;
 				}
@@ -5671,13 +5756,18 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if ( damage < 1 ) {
+	if (negativeDamageOk && damage < 0) {
+	}
+	else if ( damage < 1 ) {
 		damage = 1;
 	}
 	take = damage;
 
 	// save some from armor
-	asave = CheckArmor (targ, take, dflags);
+	if (take > 0)
+		asave = CheckArmor(targ, take, dflags);
+	else
+		asave = 0;
 
 	if (asave)
 	{
@@ -6213,6 +6303,22 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		targ->health = targ->health - take;
+		
+		// check that we didn't put them over their max hp
+		if (negativeDamageOk && take < 0) {
+			if (targ->client && targ - g_entities < MAX_CLIENTS && targ->client->siegeClass != -1 && targ->health > bgSiegeClasses[targ->client->siegeClass].maxhealth) {
+#if 0
+				Com_Printf("Clamping negative damage to siegeclass maxhealth (%d -> %d)\n", targ->health, bgSiegeClasses[targ->client->siegeClass].maxhealth);
+#endif
+				targ->health = bgSiegeClasses[targ->client->siegeClass].maxhealth;
+			}
+			else if (targ->maxHealth && targ->health > targ->maxHealth) {
+#if 0
+				Com_Printf("Clamping negative damage to entity maxHealth (%d -> %d)\n", targ->health, targ->maxHealth);
+#endif
+				targ->health = targ->maxHealth;
+			}
+		}
 
 		if ( (targ->flags&FL_UNDYING) )
 		{//take damage down to 1, but never die
