@@ -7165,9 +7165,8 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	Q_CleanString(msg, STRIP_COLOR);
 #endif
 
-#ifdef _DEBUG
-	Com_Printf("Got vchat request with mod name %s, file name %s, team %d, message %s\n", modName, fileName, teamOnly, msg);
-#endif
+	G_LogPrintf("vchat: %d %s: %s%s/%s: %s\n",
+		sender - g_entities, sender->client->pers.netname, teamOnly ? "(team) " : "", modName, fileName, msg);
 
 	int senderLocation = 0;
 	char chatLocation[64] = { 0 };
