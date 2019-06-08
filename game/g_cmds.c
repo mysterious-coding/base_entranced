@@ -6651,6 +6651,465 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent - g_entities, va("print \"To view records for a specific category: /toptimes [category]\n%s\nFor a list of records on all maps: /toptimes maplist [category]\nFor rules: /toptimes rules\nTo get the demo URL for a record: /toptimes demo [category] [rank #]\nTo view the latest records: /toptimes latest\n\"", TOPTIMES_HELPMSG));
 }
 
+#define AddDesc(s)							\
+	do {									\
+		Q_strcat(desc, sizeof(desc), s);	\
+	} while (0)
+
+#define MAX_CLASSES_CHUNKS		4
+#define CLASSES_CHUNK_SIZE		1000
+#define MAX_CLASSES_SIZE		(MAX_CLASSES_CHUNKS * CLASSES_CHUNK_SIZE)
+
+static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
+	if (!scl) {
+		assert(qfalse);
+		return "";
+	}
+	static char desc[MAX_CLASSES_SIZE] = { 0 };
+	memset(&desc, 0, sizeof(desc));
+	switch (scl->playerClass) {
+	case 0:	AddDesc("^5Assault:^7");	break;
+	case 1:	AddDesc("^5Scout:^7");		break;
+	case 2:	AddDesc("^5Tech:^7");		break;
+	case 3:	AddDesc("^5Jedi:^7");		break;
+	case 4:	AddDesc("^5Demo:^7");		break;
+	case 5:	AddDesc("^5HW:^7");			break;
+	}
+	if (scl->starthealth == scl->maxhealth)
+		AddDesc(va(" ^1%d^7 HP", scl->starthealth));
+	else
+		AddDesc(va(" ^1%d/%d^7 HP", scl->starthealth, scl->maxhealth));
+
+	if (scl->startarmor || scl->maxarmor) {
+		if (scl->startarmor == scl->maxarmor)
+			AddDesc(va(", ^2%d^7 Armor", scl->startarmor));
+		else
+			AddDesc(va(", ^2%d/%d^7 Armor", scl->startarmor, scl->maxarmor));
+	}
+
+	AddDesc(va(", %.02fx Speed", scl->speed));
+
+	for (weapon_t w = WP_STUN_BATON; w < WP_NUM_WEAPONS; w++) {
+		if (scl->weapons & (1 << w)) {
+			switch (w) {
+			case WP_STUN_BATON:			AddDesc(", Stun Baton");			break;
+			case WP_MELEE:				AddDesc(", Melee");				break;
+			case WP_BRYAR_PISTOL:		AddDesc(", Pistol");				break;
+			case WP_BRYAR_OLD:			AddDesc(", Bryar");				break;
+			case WP_BLASTER:			AddDesc(", Blaster");				break;
+			case WP_DISRUPTOR:			AddDesc(", Disruptor");			break;
+			case WP_BOWCASTER:			AddDesc(", Bowcaster");			break;
+			case WP_REPEATER:			AddDesc(", Repeater");			break;
+			case WP_DEMP2:				AddDesc(", Demp");				break;
+			case WP_FLECHETTE:			AddDesc(", Golan");				break;
+			case WP_ROCKET_LAUNCHER:	AddDesc(", Rockets");				break;
+			case WP_THERMAL:			AddDesc(", Thermals");			break;
+			case WP_TRIP_MINE:			AddDesc(", Mines");				break;
+			case WP_DET_PACK:			AddDesc(", Detpacks");			break;
+			case WP_CONCUSSION:			AddDesc(", Concussion");			break;
+			}
+		}
+	}
+
+	if (scl->weapons & (1 << WP_SABER)) {
+		if (scl->saber2[0] || scl->saberStance & (1 << SS_DUAL)) {
+			AddDesc(", Dual Sabers");
+		}
+		else if (scl->saberStance & (1 << SS_STAFF)) {
+			AddDesc(", Staff");
+		}
+		else {
+			AddDesc(", Saber");
+			qboolean gotStyle = qfalse;
+			for (saber_styles_t style = SS_FAST; style <= SS_TAVION; style++) {
+				if (scl->saberStance & (1 << style)) {
+					AddDesc(gotStyle ? "/" : " (");
+					switch (style) {
+					case SS_FAST:	AddDesc("Blue");	break;
+					case SS_MEDIUM:	AddDesc("Yellow");	break;
+					case SS_STRONG:	AddDesc("Red");		break;
+					case SS_DESANN:	AddDesc("Desann");	break;
+					case SS_TAVION:	AddDesc("Tavion");	break;
+					}
+					gotStyle = qtrue;
+				}
+			}
+			if (gotStyle)
+				AddDesc(")");
+		}
+	}
+
+	for (forcePowers_t fp = FP_HEAL; fp < NUM_FORCE_POWERS; fp++) {
+		if (scl->forcePowerLevels[fp]) {
+			switch (fp) {
+			case FP_HEAL:			AddDesc(", ^5Heal");				break;
+			case FP_LEVITATION:		AddDesc(", ^5Jump");				break;
+			case FP_SPEED:			AddDesc(", ^5Speed");				break;
+			case FP_PUSH:			AddDesc(", ^5Push");				break;
+			case FP_PULL:			AddDesc(", ^5Pull");				break;
+			case FP_TELEPATHY:		AddDesc(", ^5Mind Trick");		break;
+			case FP_GRIP:			AddDesc(", ^5Grip");				break;
+			case FP_LIGHTNING:		AddDesc(", ^5Lightning");			break;
+			case FP_RAGE:			AddDesc(", ^5Rage");				break;
+			case FP_PROTECT:		AddDesc(", ^5Protect");			break;
+			case FP_ABSORB:			AddDesc(", ^5Absorb");			break;
+			case FP_TEAM_HEAL:		AddDesc(", ^5Team Heal");			break;
+			case FP_TEAM_FORCE:		AddDesc(", ^5Team Energize");		break;
+			case FP_DRAIN:			AddDesc(", ^5Drain");				break;
+			case FP_SEE:			AddDesc(", ^5Sense");				break;
+			case FP_SABER_OFFENSE:	AddDesc(", ^5Offense");			break;
+			case FP_SABER_DEFENSE:	AddDesc(", ^5Defense");			break;
+			case FP_SABERTHROW:		AddDesc(", ^5Throw");				break;
+			}
+			AddDesc(va(" %d^7", scl->forcePowerLevels[fp]));
+		}
+	}
+
+	for (siegeClassFlags_t cfl = CFL_MORESABERDMG; cfl <= CFL_EXTRA_AMMO; cfl++) {
+		if (scl->classflags & (1 << cfl)) {
+			switch (cfl) {
+			case CFL_MORESABERDMG:			AddDesc(", ^3More Saber Dmg^7");					break;
+			case CFL_STRONGAGAINSTPHYSICAL:	AddDesc(", ^3Strong Against Physical^7");			break;
+			case CFL_FASTFORCEREGEN:		AddDesc(", ^3Fast Force Regen^7");					break;
+			case CFL_STATVIEWER:			AddDesc(", ^3Sees Allied HP/Armor/Ammo Bars^7");	break;
+			case CFL_HEAVYMELEE:			AddDesc(", ^3Heavy Melee^7");						break;
+			case CFL_SINGLE_ROCKET:			AddDesc(", ^3Single Rocket^7");						break;
+			case CFL_CUSTOMSKEL:			AddDesc(", ^3Custom Skeleton^7");					break;
+			case CFL_EXTRA_AMMO:			AddDesc(", ^3Double Ammo^7");						break;
+			}
+		}
+	}
+
+	if (scl->invenItems & (1 << HI_HEALTHDISP) && scl->invenItems & (1 << HI_AMMODISP))
+		AddDesc(", ^3Health/Ammo Dispensing^7");
+	else if (scl->invenItems & (1 << HI_HEALTHDISP))
+		AddDesc(", ^3Health Dispensing^7");
+	else if (scl->invenItems & (1 << HI_AMMODISP))
+		AddDesc(", ^3Ammo Dispensing^7");
+
+	if (scl->jetpackFreezeImmunity)
+		AddDesc(", ^3Jetpack Freeze Immunity^7");
+	if (scl->dispenseHealthpaks)
+		AddDesc(", ^3Dispenses Health Packs^7");
+
+	if (scl->ammoblaster)
+		AddDesc(va(", ^8%d Blaster Ammo^7", scl->ammoblaster));
+	if (scl->ammopowercell)
+		AddDesc(va(", ^8%d Powercell Ammo^7", scl->ammopowercell));
+	if (scl->ammometallicbolts)
+		AddDesc(va(", ^8%d Metallic Bolt Ammo^7", scl->ammometallicbolts));
+	if (scl->ammorockets)
+		AddDesc(va(", ^8%d Rocket Ammo^7", scl->ammorockets));
+	if (scl->ammothermals)
+		AddDesc(va(", ^8%d Thermal Ammo^7", scl->ammothermals));
+	if (scl->ammotripmines)
+		AddDesc(va(", ^8%d Mine Ammo^7", scl->ammotripmines));
+	if (scl->ammodetpacks)
+		AddDesc(va(", ^8%d Detpack Ammo^7", scl->ammodetpacks));
+
+	for (holdable_t item = HI_SEEKER; item < HI_NUM_HOLDABLE; item++) {
+		if (scl->invenItems & (1 << item)) {
+			switch (item) {
+			case HI_SEEKER:		AddDesc(", ^2Seeker^7");		break;
+			case HI_SHIELD:		AddDesc(", ^2Shield^7");		break;
+			case HI_MEDPAC:		AddDesc(", ^2Bacta^7");			break;
+			case HI_MEDPAC_BIG:	AddDesc(", ^2Big Bacta^7");		break;
+			case HI_BINOCULARS:	AddDesc(", ^2Binoculars^7");	break;
+			case HI_JETPACK:	AddDesc(", ^2Jetpack^7");		break;
+			case HI_EWEB:		AddDesc(", ^2Eweb^7");			break;
+			case HI_CLOAK:		AddDesc(", ^2Cloak^7");			break;
+			}
+		}
+	}
+
+	if (scl->invenItems & (1 << HI_SENTRY_GUN)) {
+		if (scl->maxSentries)
+			AddDesc(va(", ^2%d Sentries^7", scl->maxSentries));
+		else
+			AddDesc(", ^2Sentry^7");
+	}
+
+	for (powerup_t pw = PW_QUAD; pw < PW_NUM_POWERUPS; pw++) {
+		if (scl->powerups & (1 << pw)) {
+			switch (pw) {
+			case PW_FORCE_ENLIGHTENED_LIGHT:AddDesc(", ^6Light Enlightenment^7");	break;
+			case PW_FORCE_ENLIGHTENED_DARK:	AddDesc(", ^6Dark Enlightenment^7");	break;
+			case PW_FORCE_BOON:				AddDesc(", ^6Boon^7");					break;
+			case PW_YSALAMIRI:				AddDesc(", ^6Ysalamiri^7");				break;
+			}
+		}
+	}
+
+	for (specialDamageParam_t *param = &scl->incomingDamageParam[0]; param - scl->incomingDamageParam < MAX_SPECIALDAMAGEPARAMETERS; param++) {
+		if (!param->mods)
+			continue;
+		AddDesc(", ^1Incoming dmg modifier^7 (");
+		if (param->mods == 0xFFFFFFFFFFFFFFFFll) {
+			AddDesc("All Weapons");
+		}
+		else {
+			qboolean gotMod = qfalse;
+			for (meansOfDeath_t mod = MOD_STUN_BATON; mod <= MOD_SPECIAL_SENTRYBOMB; mod++) {
+				if (param->mods & (1ll << (long long)mod)) {
+					if (gotMod)
+						AddDesc("/");
+					switch (mod) {
+					case MOD_STUN_BATON:			AddDesc("Stun Baton");				break;
+					case MOD_MELEE:					AddDesc("Melee");					break;
+					case MOD_SABER:					AddDesc("Saber");					break;
+					case MOD_BRYAR_PISTOL:			AddDesc("Pistol Primary");			break;
+					case MOD_BRYAR_PISTOL_ALT:		AddDesc("Pistol Altfire");			break;
+					case MOD_BLASTER:				AddDesc("E11");						break;
+					case MOD_TURBLAST:				AddDesc("Turbolaser");				break;
+					case MOD_DISRUPTOR:				AddDesc("Disruptor Primary");		break;
+					case MOD_DISRUPTOR_SNIPER:		AddDesc("Disruptor Altfire");		break;
+					case MOD_BOWCASTER:				AddDesc("Bowcaster");				break;
+					case MOD_REPEATER:				AddDesc("Repeater Primary");		break;
+					case MOD_REPEATER_ALT:			AddDesc("Repeater Altfire Direct");	break;
+					case MOD_REPEATER_ALT_SPLASH:	AddDesc("Repeater Altfire Splash");	break;
+					case MOD_DEMP2:					AddDesc("Demp Primary");			break;
+					case MOD_DEMP2_ALT:				AddDesc("Demp Altfire");			break;
+					case MOD_FLECHETTE:				AddDesc("Golan Primary");			break;
+					case MOD_FLECHETTE_ALT_SPLASH:	AddDesc("Golan Altfire");			break;
+					case MOD_ROCKET:				AddDesc("Rocket Direct");			break;
+					case MOD_ROCKET_SPLASH:			AddDesc("Rocket Splash");			break;
+					case MOD_ROCKET_HOMING:			AddDesc("Rocket Altfire Direct");	break;
+					case MOD_ROCKET_HOMING_SPLASH:	AddDesc("Rocket Altfire Splash");	break;
+					case MOD_THERMAL:				AddDesc("Thermal Direct");			break;
+					case MOD_THERMAL_SPLASH:		AddDesc("Thermal Splash");			break;
+					case MOD_TRIP_MINE_SPLASH:		AddDesc("Lasermine");				break;
+					case MOD_TIMED_MINE_SPLASH:		AddDesc("Proximity Mine");			break;
+					case MOD_DET_PACK_SPLASH:		AddDesc("Detpack");					break;
+					case MOD_VEHICLE:				AddDesc("Vehicle");					break;
+					case MOD_CONC:					AddDesc("Concussion Primary");		break;
+					case MOD_CONC_ALT:				AddDesc("Concussion Altfire");		break;
+					case MOD_FORCE_DARK:			AddDesc("Dark Force");				break;
+					case MOD_SENTRY:				AddDesc("Sentry");					break;
+					case MOD_WATER:					AddDesc("Water");					break;
+					case MOD_SLIME:					AddDesc("Slime");					break;
+					case MOD_LAVA:					AddDesc("Lava");					break;
+					case MOD_CRUSH:					AddDesc("Crush");					break;
+					case MOD_TELEFRAG:				AddDesc("Telefrag");				break;
+					case MOD_FALLING:				AddDesc("Falling");					break;
+					case MOD_SUICIDE:				AddDesc("Suicide");					break;
+					case MOD_TARGET_LASER:			AddDesc("Laser");					break;
+					case MOD_TRIGGER_HURT:			AddDesc("Trigger");					break;
+					case MOD_SPECIAL_SENTRYBOMB:	AddDesc("Sentry-Bomb");				break;
+					}
+					gotMod = qtrue;
+				}
+			}
+		}
+
+		if (param->otherEntType == -1) {
+			AddDesc(", All Attacker Types");
+		}
+		else {
+			for (int oet = OTHERENTTYPE_SELF; oet <= OTHERENTTYPE_ENEMY; oet++) {
+				if (param->otherEntType & (1 << oet)) {
+					switch (oet) {
+					case OTHERENTTYPE_SELF:		AddDesc(", Self");	break;
+					case OTHERENTTYPE_ALLY:		AddDesc(", Allies");	break;
+					case OTHERENTTYPE_ENEMY:	AddDesc(", Enemies");	break;
+					case OTHERENTTYPE_VEHICLE:	AddDesc(", Vehicles"); break;
+					case OTHERENTTYPE_OTHER:	AddDesc(", Other");	break;
+					}
+				}
+			}
+		}
+
+		if (param->damageMin == param->damageMax) {
+			if (param->damageMin)
+				AddDesc(va(", %d Dmg", param->damageMin));
+			else
+				AddDesc(", No Dmg");
+		}
+		else if (param->damageMin != 0x80000000) {
+			AddDesc(va(", %d Min Dmg", param->damageMin));
+		}
+		else if (param->damageMax != 0x7FFFFFFF) {
+			AddDesc(va(", %d Max Dmg", param->damageMax));
+		}
+
+		if (param->damageMultiplier != 1.0f) {
+			if (param->damageMultiplier)
+				AddDesc(va(", %0.2fx Dmg", param->damageMultiplier));
+			else
+				AddDesc(", No Dmg");
+		}
+		if (param->knockbackMultiplier != 1.0f || param->knockbackMultiplier != param->damageMultiplier) {
+			if (param->knockbackMultiplier)
+				AddDesc(va(", %0.2fx Knockback", param->knockbackMultiplier));
+			else
+				AddDesc(", No Knockback");
+		}
+		if (param->negativeDamageOk)
+			AddDesc(", Can Heal");
+
+		if (param->freeze == FREEZE_NO)
+			AddDesc(", No Freezing");
+		else if (param->freeze == FREEZE_YES)
+			AddDesc(", Causes Freezing");
+
+		AddDesc(")");
+	}
+	for (specialDamageParam_t *param = &scl->outgoingDamageParam[0]; param - scl->outgoingDamageParam < MAX_SPECIALDAMAGEPARAMETERS; param++) {
+		if (!param->mods)
+			continue;
+		AddDesc(", ^1Outgoing dmg modifier^7 (");
+		if (param->mods == 0xFFFFFFFFFFFFFFFFll) {
+			AddDesc("All Weapons");
+		}
+		else {
+			qboolean gotMod = qfalse;
+			for (meansOfDeath_t mod = MOD_STUN_BATON; mod <= MOD_SPECIAL_SENTRYBOMB; mod++) {
+				if (param->mods & (1ll << (long long)mod)) {
+					if (gotMod)
+						AddDesc("/");
+					switch (mod) {
+					case MOD_STUN_BATON:			AddDesc("Stun Baton");				break;
+					case MOD_MELEE:					AddDesc("Melee");					break;
+					case MOD_SABER:					AddDesc("Saber");					break;
+					case MOD_BRYAR_PISTOL:			AddDesc("Pistol Primary");			break;
+					case MOD_BRYAR_PISTOL_ALT:		AddDesc("Pistol Altfire");			break;
+					case MOD_BLASTER:				AddDesc("E11");						break;
+					case MOD_TURBLAST:				AddDesc("Turbolaser");				break;
+					case MOD_DISRUPTOR:				AddDesc("Disruptor Primary");		break;
+					case MOD_DISRUPTOR_SNIPER:		AddDesc("Disruptor Altfire");		break;
+					case MOD_BOWCASTER:				AddDesc("Bowcaster");				break;
+					case MOD_REPEATER:				AddDesc("Repeater Primary");		break;
+					case MOD_REPEATER_ALT:			AddDesc("Repeater Altfire Direct");	break;
+					case MOD_REPEATER_ALT_SPLASH:	AddDesc("Repeater Altfire Splash");	break;
+					case MOD_DEMP2:					AddDesc("Demp Primary");			break;
+					case MOD_DEMP2_ALT:				AddDesc("Demp Altfire");			break;
+					case MOD_FLECHETTE:				AddDesc("Golan Primary");			break;
+					case MOD_FLECHETTE_ALT_SPLASH:	AddDesc("Golan Altfire");			break;
+					case MOD_ROCKET:				AddDesc("Rocket Direct");			break;
+					case MOD_ROCKET_SPLASH:			AddDesc("Rocket Splash");			break;
+					case MOD_ROCKET_HOMING:			AddDesc("Rocket Altfire Direct");	break;
+					case MOD_ROCKET_HOMING_SPLASH:	AddDesc("Rocket Altfire Splash");	break;
+					case MOD_THERMAL:				AddDesc("Thermal Direct");			break;
+					case MOD_THERMAL_SPLASH:		AddDesc("Thermal Splash");			break;
+					case MOD_TRIP_MINE_SPLASH:		AddDesc("Lasermine");				break;
+					case MOD_TIMED_MINE_SPLASH:		AddDesc("Proximity Mine");			break;
+					case MOD_DET_PACK_SPLASH:		AddDesc("Detpack");					break;
+					case MOD_VEHICLE:				AddDesc("Vehicle");					break;
+					case MOD_CONC:					AddDesc("Concussion Primary");		break;
+					case MOD_CONC_ALT:				AddDesc("Concussion Altfire");		break;
+					case MOD_FORCE_DARK:			AddDesc("Dark Force");				break;
+					case MOD_SENTRY:				AddDesc("Sentry");					break;
+					case MOD_WATER:					AddDesc("Water");					break;
+					case MOD_SLIME:					AddDesc("Slime");					break;
+					case MOD_LAVA:					AddDesc("Lava");					break;
+					case MOD_CRUSH:					AddDesc("Crush");					break;
+					case MOD_TELEFRAG:				AddDesc("Telefrag");				break;
+					case MOD_FALLING:				AddDesc("Falling");					break;
+					case MOD_SUICIDE:				AddDesc("Suicide");					break;
+					case MOD_TARGET_LASER:			AddDesc("Laser");					break;
+					case MOD_TRIGGER_HURT:			AddDesc("Trigger");					break;
+					case MOD_SPECIAL_SENTRYBOMB:	AddDesc("Sentry-Bomb");				break;
+					}
+					gotMod = qtrue;
+				}
+			}
+		}
+
+		if (param->otherEntType == -1) {
+			AddDesc(", All Target Types");
+		}
+		else {
+			for (int oet = OTHERENTTYPE_SELF; oet <= OTHERENTTYPE_ENEMY; oet++) {
+				if (param->otherEntType & (1 << oet)) {
+					switch (oet) {
+					case OTHERENTTYPE_SELF:		AddDesc(", Self");	break;
+					case OTHERENTTYPE_ALLY:		AddDesc(", Allies");	break;
+					case OTHERENTTYPE_ENEMY:	AddDesc(", Enemies");	break;
+					case OTHERENTTYPE_VEHICLE:	AddDesc(", Vehicles"); break;
+					case OTHERENTTYPE_OTHER:	AddDesc(", Other");	break;
+					}
+				}
+			}
+		}
+
+		if (param->damageMin == param->damageMax) {
+			if (param->damageMin)
+				AddDesc(va(", %d Dmg", param->damageMin));
+			else
+				AddDesc(", No Dmg");
+		}
+		else if (param->damageMin != 0x80000000) {
+			AddDesc(va(", %d Min Dmg", param->damageMin));
+		}
+		else if (param->damageMax != 0x7FFFFFFF) {
+			AddDesc(va(", %d Max Dmg", param->damageMax));
+		}
+
+		if (param->damageMultiplier != 1.0f) {
+			if (param->damageMultiplier)
+				AddDesc(va(", %0.2fx Dmg", param->damageMultiplier));
+			else
+				AddDesc(", No Dmg");
+		}
+		if (param->knockbackMultiplier != 1.0f || param->knockbackMultiplier != param->damageMultiplier) {
+			if (param->knockbackMultiplier)
+				AddDesc(va(", %0.2fx Knockback", param->knockbackMultiplier));
+			else
+				AddDesc(", No Knockback");
+		}
+		if (param->negativeDamageOk)
+			AddDesc(", Can Heal");
+
+		if (param->freeze == FREEZE_NO)
+			AddDesc(", No Freezing");
+		else if (param->freeze == FREEZE_YES)
+			AddDesc(", Causes Freezing");
+
+		AddDesc(")");
+	}
+
+	return desc;
+}
+
+void Cmd_Classes_f(gentity_t *ent) {
+	if (g_gametype.integer != GT_SIEGE)
+		return;
+	trap_SendServerCommand(ent - g_entities, va("print \"Classes for %s:\n\"", level.mapname));
+	qboolean printedOne = qfalse;
+	for (team_t team = TEAM_RED; team <= TEAM_BLUE; team++) {
+		trap_SendServerCommand(ent - g_entities, va("print \"%s:\n\"", team == TEAM_RED ? "^1Offense^7" : "\n^4Defense^7")); // extra line break for second team
+
+		for (stupidSiegeClassNum_t clNum = SSCN_ASSAULT; clNum <= SSCN_JEDI; clNum++) {
+			siegeClass_t *scl = BG_SiegeGetClass(team, clNum);
+			if (!scl)
+				continue;
+			char *desc = GenerateSiegeClassDescription(scl);
+			if (!VALIDSTRING(desc)) {
+				assert(qfalse);
+				continue;
+			}
+			size_t len = strlen(desc);
+			if (len <= CLASSES_CHUNK_SIZE) { // no chunking necessary
+				trap_SendServerCommand(ent - g_entities, va("print \"%s^7\n\"", desc));
+			}
+			else { // chunk it
+				int chunks = len / CLASSES_CHUNK_SIZE;
+				if (len % CLASSES_CHUNK_SIZE > 0)
+					chunks++;
+				for (int i = 0; i < chunks && i < MAX_CLASSES_CHUNKS; i++) {
+					char thisChunk[CLASSES_CHUNK_SIZE + 1];
+					Q_strncpyz(thisChunk, desc + (i * CLASSES_CHUNK_SIZE), sizeof(thisChunk));
+					if (thisChunk[0])
+						trap_SendServerCommand(ent - g_entities, va("print \"%s%s\"", thisChunk, i == chunks - 1 ? "^7\n" : "")); // add ^7 and line break for last one
+				}
+			}
+			printedOne = qtrue;
+		}
+
+	}
+	if (!printedOne)
+		trap_SendServerCommand(ent - g_entities, "print \"No classes found!\n\"");
+}
+
 #ifdef NEWMOD_SUPPORT
 #define VCHAT_ESCAPE_CHAR '$'
 void Cmd_Vchat_f(gentity_t *sender) {
@@ -9055,6 +9514,8 @@ void ClientCommand( int clientNum ) {
 			Cmd_Help_f(ent);
 		else if (!Q_stricmp(cmd, "toptimes") || !Q_stricmp(cmd, "fastcaps"))
 			Cmd_TopTimes_f(ent);
+		else if (!Q_stricmp(cmd, "classes"))
+			Cmd_Classes_f(ent);
 #ifdef NEWMOD_SUPPORT
 		else if (!Q_stricmp(cmd, "vchat"))
 			Cmd_Vchat_f(ent);
@@ -9196,6 +9657,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_TestCmd_f( ent );
 	else if ( !Q_stricmp(cmd, "toptimes") || !Q_stricmp( cmd, "fastcaps" ) )
 		Cmd_TopTimes_f( ent );
+	else if (!Q_stricmp(cmd, "classes"))
+		Cmd_Classes_f(ent);
 #ifdef NEWMOD_SUPPORT
 	else if (!Q_stricmp(cmd, "vchat"))
 		Cmd_Vchat_f(ent);
