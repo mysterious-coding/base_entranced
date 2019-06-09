@@ -5968,6 +5968,7 @@ void emplaced_gun_update(gentity_t *self)
 		self->activator->client->ps.emplacedTime = level.time + 100; // duo: reduced from 1000
 		self->activator->client->ps.emplacedIndex = 0;
 		self->activator->client->ps.saberHolstered = 0;
+
 		self->activator = NULL;
 
 		self->s.activeForcePass = 0;

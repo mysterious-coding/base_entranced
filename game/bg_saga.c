@@ -1252,9 +1252,27 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			sdp->freeze = FREEZE_DEFAULT;
 		}
 
+		if (sdp->freeze == FREEZE_YES) {
+			if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_freezemin", i + 1), parseBuf))
+				sdp->freezeMin = atoi(parseBuf);
+			else
+				sdp->freezeMin = -1;
+
+			if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_freezemax", i + 1), parseBuf))
+				sdp->freezeMax = atoi(parseBuf);
+			else
+				sdp->freezeMax = -1;
+
+			if (sdp->freezeMin < 0 || sdp->freezeMax <= 0 || sdp->freezeMin > sdp->freezeMax)
+				sdp->freezeMin = sdp->freezeMax = -1;
+		}
+		else {
+			sdp->freezeMin = sdp->freezeMax = -1;
+		}
+
 #ifdef _DEBUG
-		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d, negativeDmgOk %d\n",
-			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->negativeDamageOk);
+		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk);
 #endif
 	}
 
@@ -1314,9 +1332,27 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			sdp->freeze = FREEZE_DEFAULT;
 		}
 
+		if (sdp->freeze == FREEZE_YES) {
+			if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_freezemin", i + 1), parseBuf))
+				sdp->freezeMin = atoi(parseBuf);
+			else
+				sdp->freezeMin = -1;
+
+			if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_freezemax", i + 1), parseBuf))
+				sdp->freezeMax = atoi(parseBuf);
+			else
+				sdp->freezeMax = -1;
+
+			if (sdp->freezeMin < 0 || sdp->freezeMax <= 0 || sdp->freezeMin > sdp->freezeMax)
+				sdp->freezeMin = sdp->freezeMax = -1;
+		}
+		else {
+			sdp->freezeMin = sdp->freezeMax = -1;
+		}
+
 #ifdef _DEBUG
-		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d, negativeDmgOk %d\n",
-			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->negativeDamageOk);
+		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk);
 #endif
 	}
 

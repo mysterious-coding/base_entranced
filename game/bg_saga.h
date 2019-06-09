@@ -78,6 +78,8 @@ typedef struct specialDamageParam_s {
 	float		damageMultiplier;
 	float		knockbackMultiplier;
 	qboolean	negativeDamageOk;
+	int			freezeMin;
+	int			freezeMax;
 	enum {
 		FREEZE_DEFAULT = 0,
 		FREEZE_YES,

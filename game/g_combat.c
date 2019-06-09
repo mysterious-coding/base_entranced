@@ -4847,7 +4847,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #ifdef _DEBUG
 	int originalDamage = damage;
 #endif
-	int freeze = FREEZE_DEFAULT;
+	int freeze = FREEZE_DEFAULT, freezeMinOverride = -1, freezeMaxOverride = -1, overrideFreezeTimeActual = -1;
 	qboolean negativeDamageOk = qfalse;
 	float specialDamageParamKnockbackMultiplier = 1.0f;
 	if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker->client->siegeClass != -1) {
@@ -4884,6 +4884,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (damage < sdp->damageMin)
 				damage = sdp->damageMin;
 			freeze = sdp->freeze;
+			if (freeze == FREEZE_YES && sdp->freezeMin >= 0 && sdp->freezeMax > 0 && sdp->freezeMin <= sdp->freezeMax) {
+				freezeMinOverride = sdp->freezeMin;
+				freezeMaxOverride = sdp->freezeMax;
+			}
 			negativeDamageOk = sdp->negativeDamageOk;
 #ifdef _DEBUG
 			Com_Printf("Outgoing damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
@@ -4927,6 +4931,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (damage < sdp->damageMin)
 				damage = sdp->damageMin;
 			freeze = sdp->freeze;
+			if (freeze == FREEZE_YES && sdp->freezeMin >= 0 && sdp->freezeMax > 0 && sdp->freezeMin <= sdp->freezeMax) {
+				freezeMinOverride = sdp->freezeMin;
+				freezeMaxOverride = sdp->freezeMax;
+			}
 			negativeDamageOk = sdp->negativeDamageOk;
 #ifdef _DEBUG
 			Com_Printf("Incoming damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
@@ -4958,13 +4966,23 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (targ->s.eType == ET_NPC && targ->s.NPC_class == CLASS_VEHICLE &&
 				targ->m_pVehicle && (targ->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || targ->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
 			{ //do some extra stuff to speeders/walkers
-				rng = Q_irand(3000, 4000);
+				if (freeze == FREEZE_YES && freezeMinOverride >= 0 && freezeMaxOverride > 0 && freezeMinOverride <= freezeMaxOverride) {
+					rng = Q_irand(freezeMinOverride, freezeMaxOverride);
+					overrideFreezeTimeActual = rng;
+				}
+				else {
+					rng = Q_irand(3000, 4000);
+				}
 				targ->client->ps.electrifyTime = level.time + rng;
 			}
 			else if ((targ->s.NPC_class != CLASS_VEHICLE
 				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER)))
 			{//don't do this to fighters
-				int maxFreezeTime = 800;
+				int maxFreezeTime;
+				if (freeze == FREEZE_YES && freezeMinOverride >= 0 && freezeMaxOverride > 0 && freezeMinOverride <= freezeMaxOverride)
+					maxFreezeTime = freezeMaxOverride;
+				else
+					maxFreezeTime = 800;
 				if (targ->client->sess.skillBoost) {
 					float maxFreezeReductionFactor;
 					switch (targ->client->sess.skillBoost) {
@@ -4974,7 +4992,14 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					}
 					maxFreezeTime -= (int)((float)maxFreezeTime * maxFreezeReductionFactor);
 				}
-				rng = Q_irand(300, maxFreezeTime);
+				if (freeze == FREEZE_YES && freezeMinOverride >= 0 && freezeMaxOverride > 0 && freezeMinOverride <= freezeMaxOverride) {
+					rng = Q_irand(freezeMinOverride > maxFreezeTime ? maxFreezeTime : freezeMinOverride, maxFreezeTime);
+					overrideFreezeTimeActual = rng;
+				}
+				else {
+					rng = Q_irand(300, maxFreezeTime);
+				}
+				overrideFreezeTimeActual = rng;
 				targ->client->ps.electrifyTime = level.time + rng;
 
 				// siege freezing stats
@@ -6280,18 +6305,26 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->client->pushOffWallTime = level.time;
 		}
 
-		if (targ->client && targ->s.number < MAX_CLIENTS &&
-			(mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
+		if (targ->client && targ->s.number < MAX_CLIENTS && freeze != FREEZE_NO && (freeze ==  FREEZE_YES || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
 		{ //uh.. shock them or something. what the hell, I don't know.
             if (targ->client->ps.weaponTime <= 0 && !isUrbanOrCargoOAssault)
 			{ //yeah, we were supposed to be beta a week ago, I don't feel like
 				//breaking the game so I'm gonna be safe and only do this only
 				//if your weapon is not busy
-				targ->client->ps.weaponTime = 2000;
-				targ->client->ps.electrifyTime = level.time + 2000;
+				if (freeze == FREEZE_YES && overrideFreezeTimeActual != -1) {
+					targ->client->ps.weaponTime = overrideFreezeTimeActual;
+					targ->client->ps.electrifyTime = level.time + overrideFreezeTimeActual;
+				}
+				else {
+					targ->client->ps.weaponTime = 2000;
+					targ->client->ps.electrifyTime = level.time + 2000;
+				}
 				if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam)
 				{
-					attacker->client->pers.teamState.frozeTime = level.time + 2000;
+					if (freeze == FREEZE_YES && overrideFreezeTimeActual != -1)
+						attacker->client->pers.teamState.frozeTime = level.time + overrideFreezeTimeActual;
+					else
+						attacker->client->pers.teamState.frozeTime = level.time + 2000;
 					attacker->client->pers.teamState.frozeClient = targ->client->ps.clientNum;
 				}
 				if (targ->client->ps.weaponstate == WEAPON_CHARGING ||

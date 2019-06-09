@@ -7059,10 +7059,20 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 		if (param->negativeDamageOk)
 			AddDesc(", Can Heal");
 
-		if (param->freeze == FREEZE_NO)
+		if (param->freeze == FREEZE_NO) {
 			AddDesc(", No Freezing");
-		else if (param->freeze == FREEZE_YES)
-			AddDesc(", Causes Freezing");
+		}
+		else if (param->freeze == FREEZE_YES) {
+			if (param->freeze == FREEZE_YES && param->freezeMin >= 0 && param->freezeMax > 0 && param->freezeMin <= param->freezeMax) {
+				if (param->freezeMin == param->freezeMax)
+					AddDesc(va(", Causes %dms Freezing", param->freezeMin));
+				else
+					AddDesc(va(", Causes %d-%dms Freezing", param->freezeMin, param->freezeMax));
+			}
+			else {
+				AddDesc(", Causes Freezing");
+			}
+		}
 
 		AddDesc(")");
 	}
