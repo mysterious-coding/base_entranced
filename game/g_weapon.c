@@ -5965,7 +5965,7 @@ void emplaced_gun_update(gentity_t *self)
 		self->activator->client->ps.weapon = self->s.weapon;
 		self->s.weapon = oldWeap;
 		self->activator->r.ownerNum = ENTITYNUM_NONE;
-		self->activator->client->ps.emplacedTime = level.time + 1000;
+		self->activator->client->ps.emplacedTime = level.time + 100; // duo: reduced from 1000
 		self->activator->client->ps.emplacedIndex = 0;
 		self->activator->client->ps.saberHolstered = 0;
 		self->activator = NULL;

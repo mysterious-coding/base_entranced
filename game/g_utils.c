@@ -2347,23 +2347,28 @@ void TryUse( gentity_t *ent )
 			|| target->alliedTeam != ent->client->sess.sessionTeam 
 			|| g_ff_objectives.integer) )
 	{
-		if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
-			ent->client->ps.torsoAnim == BOTH_CONSOLE1)
-		{ //extend the time
-			ent->client->ps.torsoTimer = 500;
-		}
-		else
-		{
-			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
-		}
-		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
-		if ( target->touch == Touch_Button )
-		{//pretend we touched it
-			target->touch(target, ent, NULL);
-		}
-		else
-		{
+		if (!Q_stricmp(target->classname, "emplaced_gun")) {
 			GlobalUse(target, ent, ent);
+		}
+		else {
+			if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
+				ent->client->ps.torsoAnim == BOTH_CONSOLE1)
+			{ //extend the time
+				ent->client->ps.torsoTimer = 500;
+			}
+			else
+			{
+				G_SetAnim(ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+			}
+			ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
+			if (target->touch == Touch_Button)
+			{//pretend we touched it
+				target->touch(target, ent, NULL);
+			}
+			else
+			{
+				GlobalUse(target, ent, ent);
+			}
 		}
 		return;
 	}
