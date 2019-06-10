@@ -1716,13 +1716,36 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		// we just did a new capture record, broadcast it
 
 		if (broadRank) { // if they ranked in a broader category, print that, with the exact category as an afterthought
-			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-				combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
-			trap_SendServerCommand(-1, va("print \"^7Also set record for %s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+
+			// more swag colors if you got gold
+			if (broadRankTied == 1 || (!broadRankTied && broadRank == 1)) {
+				trap_SendServerCommand(-1, va("print \"^3New toptimes record by ^7%s^3!    %s    ^3Type: ^7%s    ^3%sop speed: ^7%d    ^3Avg: ^7%d    ^3Time: ^7%s\n\"",
+					combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+			}
+			else {
+				trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+					combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+			}
+
+			// more swag colors if you got gold
+			if (newRankTied == 1 || (!newRankTied && recordRank == 1))
+				trap_SendServerCommand(-1, va("print \"^3Also set record for ^7%s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+			else
+				trap_SendServerCommand(-1, va("print \"^7Also set record for %s ^7(%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+
 		}
 		else { // just print the exact category they ranked in
-			trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
-				combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+
+			// more swag colors if you got gold
+			if (newRankTied == 1 || (!newRankTied && recordRank == 1)) {
+				trap_SendServerCommand(-1, va("print \"^3New toptimes record by ^7%s^3!    %s    ^3Type: ^7%s    ^3%sop speed: ^7%d    ^3Avg: ^7%d    ^3Time: ^7%s\n\"",
+					combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+			}
+			else {
+				trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+					combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+			}
+
 		}
 
 		// update the in-memory db so that toptimes can reflect this change

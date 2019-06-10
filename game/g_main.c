@@ -607,12 +607,12 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_optvehtrace, "com_optvehtrace", "0", 0, 0, qtrue },
 
-	{ &g_locationBasedDamage, "g_locationBasedDamage", "1", 0, 0, qtrue },
+	{ &g_locationBasedDamage, "g_locationBasedDamage", "3", 0, 0, qtrue },
 
 	{ &g_allowHighPingDuelist, "g_allowHighPingDuelist", "1", 0, 0, qtrue },
 
 	{ &g_fixSaberDefense, "g_fixSaberDefense", "1", 0, 0, qtrue },
-	{ &g_saberDefense1Angle, "g_saberDefense1Angle", "5", 0, 0, qtrue },
+	{ &g_saberDefense1Angle, "g_saberDefense1Angle", "6", 0, 0, qtrue },
 	{ &g_saberDefense2Angle, "g_saberDefense2Angle", "30", 0, 0, qtrue },
 	{ &g_saberDefense3Angle, "g_saberDefense3Angle", "73", 0, 0, qtrue },
 	{ &g_saberDefensePrintAngle, "g_saberDefensePrintAngle", "0", 0, 0, qtrue },
@@ -901,7 +901,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_improvedTeamchat, "g_improvedTeamchat", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_enableCloak, "g_enableCloak", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_infiniteCharge, "g_infiniteCharge", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_infiniteCharge, "g_infiniteCharge", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeTiebreakEnd, "g_siegeTiebreakEnd", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_moreTaunts, "g_moreTaunts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -933,7 +933,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_multiVoteRNG, "g_multiVoteRNG", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_runoffVote, "g_runoffVote", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiSelfMax, "g_antiSelfMax", "1", CVAR_ARCHIVE, 0 , qtrue },
-	{ &g_improvedDisarm, "g_improvedDisarm", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_improvedDisarm, "g_improvedDisarm", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_flechetteSpread, "g_flechetteSpread", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoSpec, "g_autoSpec", "1", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_intermissionKnockbackNPCs, "g_intermissionKnockbackNPCs", "1", CVAR_ARCHIVE, 0, qtrue },
