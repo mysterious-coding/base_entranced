@@ -10,18 +10,18 @@ a fork of Sil's old [base_enhanced](https://github.com/TheSil/base_enhanced) CTF
 
 base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive Siege gameplay**, not as a general-purpose "hangout server" mod.
 
-base_entranced is the official server mod of the siege community [(www.jasiege.com)](http://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
+base_entranced is the official server mod of the siege community [(www.jasiege.com)](https://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
 base_entranced has three goals:
 * Fixing bugs.
 * Adding enhancements to basejka siege gameplay and server administration.
 * Providing an enhanced mapping framework that allows for many more possilibities for siege mappers.
 
-base_entranced strives to remain close to basejka gameplay. You won't see anything like kiss emotes or grappling hooks like JA+, nor is it wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind.
+base_entranced strives to remain close to basejka gameplay. You won't see anything like kiss emotes or grappling hooks like JA+, nor is it wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind. The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka Siege gameplay, doorspam, minespam, and shieldspam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else generally adheres to the "stay-close-to-basejka" philosophy.
 
-The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka Siege gameplay, doorspam, minespam, and shieldspam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else generally adheres to the "stay-close-to-basejka" philosophy.
+You can discuss base_entranced on the **base_entranced forum** at [www.jasiege.com](https://www.jasiege.com)
 
-You can discuss base_entranced on the **base_entranced forum** at [www.jasiege.com](http://www.jasiege.com)
+base_entranced includes additional support for [Newmod](https://jkanewmod.github.io), which is the recommended client mod for Siege.
 
 base_entranced is icensed under GPLv2 as free software. You are free to use, modify and redistribute base_entranced following the terms in LICENSE.txt.
 
@@ -64,7 +64,7 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 #### `/g_fixVoiceChat`
 0 = enemies can hear your voice chats and see icon over your head (default JK3)
 
-1 = (default) only teammates can hear your voice chats and see icon over your head (except for air support, which is used to BM your enemies)
+1 = (default) only teammates can hear your voice chats and see icon over your head (except for spot_air and spot_emplaced, which are used to BM your enemies)
 
 #### `/iLikeToDoorSpam`
 0 = (default) door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
@@ -86,6 +86,32 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 
 1 = (default) `/iLikeToDoorSpam` and `/iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
 
+#### Toptimes records and speedruns
+The server database tracks statistics on fastest objective/map completion times. For more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=23&t=215
+
+#### Live pug detection
+The server automatically detects when a pug (2v2 or greater) is live. It notifies you at the beginning if there's an issue (e.g. AFK player), and will automatically pause if someone 999s for several seconds (`/g_autoPause999`, default 3)
+
+#### Skillboost/senseboost
+You can give bad players a boost to help them be competitive. `/skillboost <player> <number 0 through 3>` gives them a boost to their stats (higher levels are better), while `/senseboost <player> <number 0 through 3>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `/skillboost` or `/senseboost` commands to see who is currently boosted.
+
+#### Respawn times
+The server automatically defaults to instant respawn times. If the map is restarted (i.e. via vote or rcon) with at least one player on each team, the respawn timer will automatically be set to 20.
+
+#### `/g_fixSaberDefense`
+0 = base JA saber blocking
+
+1 = (default) fixed saber defense, for more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=18&t=133
+
+#### `/g_locationBasedDamage`
+0 = no location-based damage
+
+1 = (old base JA default) base JA location-based damage
+
+2 = saber always hits for 1.00 damage multiplier
+
+3 = (default) saber always hits for 1.00 damage multiplier, hands/arms count as chest, and feet count as legs
+
 #### `/g_fixShield`
 0 = bugged basejka shield behavior; shields placed along the x-axis of a map are 25% taller (even though they do not visually reflect it in unpatched client mods)
 
@@ -93,10 +119,29 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 
 2 = break all shields; all shields are 25% taller
 
+#### `/g_flechetteSpread`
+0 = disable
+
+1 = improved golan primary spread pattern, guaranteeing one pellet to fire somewhere into each quadrant (±x, ±y)
+
+#### `/g_improvedDisarm`
+0 = disable
+
+1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed
+
 #### `/g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (default JK3)
 
 1 = (default) Hoth codes bunker lift requires pressing `+use` button (prevents you from killing yourself way too easily on this dumb lift)
+
+#### `/g_hothHangarHack`
+0 = no changes
+
+1 = (default) Hoth hangar hack time reduced to 5 seconds
+
+2 = any class can do hangar hack
+
+-1 = both
 
 #### `/g_fixHothDoorSounds`
 0 = Hoth bunker doors at first objective are silent (bug from default JK3)
@@ -169,9 +214,11 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 1 = rancor cannot charge/jump through `BLOCKNPC` areas
 
 #### `/g_infiniteCharge`
-0 = no infinite charging bug with `+useforce`/`+button2` (bugfix from base_enhanced)
+0 = no infinite charging bug ("bugfix" from Sil's base_enhanced)
 
-1 = (default) infinite charging bug enabled (classic behavior, brought back by popular demand. hold `+useforce` or `+button2` to hold weapon charge indefinitely)
+1 = infinite charging bug enabled (classic behavior, brought back by popular demand. hold `+useforce` or `+button2` to hold weapon charge indefinitely)
+
+2 = (default) infinite charge bug enabled, but you don't have to hold down any extra buttons.
 
 #### `/g_fixGripKills`
 0 = normal selfkilling while gripped (default JK3)
@@ -200,6 +247,8 @@ The number of points you gain from killing swoops (1 = default JK3). Set to 0 (t
 0 = (default) lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
+
+2 = same as 1 but also for primary fire
 
 #### `/siege_restart`
 rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `/callvote nextmap` (lol)
@@ -236,6 +285,17 @@ bitflag 2 = o hw gets regular bacta and e11
 bitflag 4 = d jedi gets heal 3
 
 -1 = enable all
+
+#### `/g_antiSelfMax`
+0 = disable
+
+1 = you cannot selfkill within the one second after a spawn (prevents accidental SK)
+
+#### Improved projectile pushing/deflection
+Pushing/deflection has been reworked in a way consistent with base siege gameplay, but in a bug-free manner. You can enable this with the recommended settings: `/g_siegeReflectionFix 1`, `/g_randomConeReflection -1`, `/g_coneReflectAngle 30`, `/g_breakRNG 0`. To disable, use the settings `/g_siegeReflectionFix 0`, `/g_randomConeReflection 0`, `/g_coneReflectAngle 30`, `/g_breakRNG -1`.
+
+#### Chat limits
+(Defaults are 0) you can set `/g_chatLimit`, `/g_teamChatLimit`, and `/g_voiceChatLimit` to reduce the maximum amount of times people can spam chat during one second.
 
 #### Custom team/class overrides
 You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
@@ -311,6 +371,24 @@ Client command; displays some helpful commands and features that clients should 
 #### `/serverstatus2`
 Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
 
+#### `/followtarget`
+Client command; also triggered by pressing your `+use` bind from spectator. Follows the player closest to where you are aiming.
+
+#### `/changes`
+Client command; if the creator of the current map included a file named `/maps/map_name_goes_here.changes`, it will print the contents of that file. Helpful for knowing the changelog for the current version of the map.
+
+#### `/classes`
+Client command; displays all class loadouts on the current map.
+
+#### New item binds
+`/use_dispenser` = dispense an ammo can (works while jetpacking)
+
+`/use_anybacta` = use any bacta that you have
+
+`/use_pack` = throw a health pack if the map supports it (works while jetpacking)
+
+You can also dispense ammo cans by pressing your `/saberAttackCycle` (saber stance) bind.
+
 #### Broadcast `siegeStatus` in serverinfo
 base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
 
@@ -320,8 +398,11 @@ No more changing maps with timer still going down.
 #### Random teams/capts in siege
 base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `/ready` command)
 
+#### Map voting
+You can vote to start a new pug with `/callvote newpug <optional letters for maps>`, which allows players to vote for the map they want to play. If an argument is not specified, it will default to using the maps specified in `/g_defaultPugMaps`. Each letter corresponds to a map name defined via cvar. For example, to make mp/siege_desert the map for the letter "d", you set `/vote_map_d` to `mp/siege_desert` and set `/vote_map_shortname_d` to `Desert`. Players can `/callvote nextpug` to continue the pug map rotation. You can optionally enable `/g_multiVoteRNG` to have votes merely *increase the chance* for a map to be randomly picked by the server, but it's not recommended.
+
 #### Unlimited class-changing during countdown
-Removed the 5-second delay for class-changing during the countdown.
+Completely removed the cooldown for class-changing during the countdown.
 
 #### Improved `/tell`
 You can still use partial client names with `/tell` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
@@ -378,10 +459,12 @@ Some models allow you to use custom color shading (for example, trandoshan and w
 Selfkilling with high ping can be frustrating on base servers when you accidentally max yourself due to selfkilling too late. base_entranced's lag compensation allows you to selfkill slightly closer to the respawn wave if you have high ping by subtracting your ping from the minimum delay of 1000 milliseconds. For example, if you have 200 ping, you will only have to wait 800 milliseconds before you can respawn instead of 1000. This is because you actually pressed your selfkill bind earlier and the server simply did not receive that packet until later.
 
 #### Map updates/improvements
-Some maps have hardcoded fixes in base_entranced in order to eliminate the need for releasing pk3 patches. For example, on siege_cargobarge2, defense demo was given double ammo via base_entranced hardcoding rather than releasing another pk3 patch. Yes, some of these are "hacky," but it's better than forcing everyone to redownload the maps.
+Some maps have hardcoded fixes in base_entranced in order to eliminate the need for releasing pk3 patches. Yes, some of these are "hacky," but it's better than forcing everyone to redownload the maps.
 
 #### Enhanced mapping framework
 base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
+
+Mapmakers can add a text file with the filename `/maps/mapname_goes_here.changes` to print a list of changes in the current version when a player enters `/changes` in the console.
 
 Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
 
@@ -403,8 +486,37 @@ Mapmakers can add some new extra flags to .scl siege class files for additional 
 * `ammothermals <#>`
 * `ammotripmines <#>`
 * `ammodetpacks <#>`
+* `maxsentries <#>` - place multiple sentries
+* `dispensehealthpaks` - throw health packs instead of ammo cans
+* `jetpackfreezeimmunity` - cannot have jetpack disabled by demp while already in flight
 
-For example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
+Note about ammo: for example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
+
+Mapmakers can customize weapons in their .scl siege class files. Up to 8 damage incoming damage modifiers and 8 outgoing damage modifiers are supported for each class. Examples:
+```
+    outgoingdmg1_mods    MOD_DISRUPTOR|MOD_DISRUPTOR_SPLASH|MOD_DISRUPTOR_SNIPER
+    outgoingdmg1_dmgMult    0.25
+    outgoingdmg1_freeze    yes
+    outgoingdmg1_freezeMin  1000
+    outgoingdmg2_freezeMax  2000
+    outgoingdmg1_knockbackmult    8
+
+    outgoingdmg2_mods    MOD_MELEE
+    outgoingdmg2_otherenttype    OTHERENTTYPE_ALLY
+    outgoingdmg2_negativedmgok    yes
+    outgoingdmg2_mindmg    -10
+    outgoingdmg2_maxdmg    -10
+
+    outgoingdmg3_mods    MOD_BRYAR_PISTOL|MOD_BRYAR_PISTOL_ALT
+    outgoingdmg3_otherenttype OTHERENTTYPE_ENEMY|OTHERENTTYPE_VEHICLE|OTHERENTTYPE_OTHER
+    outgoingdmg3_mindmg    500
+    outgoingdmg3_maxdmg    500
+
+    incomingdmg1_mods    MOD_REPEATER|MOD_REPEATER_ALT|MOD_REPEATER_ALT_SPLASH
+    incomingdmg1_otherenttype OTHERENTTYPE_SELF|OTHERENTTYPE_ENEMY
+    incomingdmg1_dmgMult    0
+```
+These are ridiculous examples, but they are just used to show some possibilities. In the first example, this class using disruptor on any entity will cause 25% damage, double knockback (25% * 8), and causes freezing randomly between 1000ms and 2000ms. In the second example, this class punching allies heals them for 10 health. In the third example, this class using pistol on anything other than allies/self causes 500 damage. In the fourth example, this class getting repeatered by themself or enemies causes 0 damage.
 
 Mapmakers can add the new `drawicon` key to shield/health/ammo generators. Use `drawicon 0` to hide its icon from the radar display (defaults to 1). The main intent of this is to hide shield/health/ammo generators from the radar that are not yet accessible to the players. For example, hiding the Hoth infirmary ammo generators until offense has reached the infirmary objective (use an `info_siege_radaricon` with the icon of the generator and toggle it on/off).
 
@@ -541,7 +653,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 
 #### Bugfixes and other changes:
 * Hoth bridge is forced to be crusher (prevents bridge lame).
-* Fixed thermals bugging lifts
+* Fixed thermals bugging lifts.
 * Fixed seekers attacking walkers and fighters.
 * Fixed sentries attacking rancors, wampas, walkers, and fighters.
 * Fixed bug with `nextmap` failed vote causing siege to reset to round 1 anyway.
@@ -612,6 +724,19 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Classes with shield (i.e. tech on many maps) cannot trigger the `/g_fixPitKills` feature by manually SKing over a pit to get an early death at the hands of an enemy.
 * Fixed bug where shields could not be destroyed while being attacked.
 * Fixed rare bug with incorrect walker spawn on Hoth.
+* Improved update rate of tech information on teammates (health/armor/ammo).
+* Reduced the 5-second class change cooldown to 1 second.
+* Fixed a bug where your armor could decrease over time if your maximum armor was higher than your maximum health.
+* Fixed an issue with improper precaching of Siege skins if the mapmaker didn't include `default` as the skin in the .scl file.
+* Fixed inconsistent timing of the ATST spawn on Hoth.
+* Fixed not being able to dispense ammo cans while too close to a surface.
+* Fixed small turrets causing splash damage.
+* Fixed a bug where not all of your detpacks would explode if 10 of them were placed at the same time.
+* Fixed players having different physics depending on their framerate (requires `/pmove_float 1` and `/g_gravity 760`).
+* Fixed direct thermals potentially causing less damage than splash.
+* Fixed single-objective maps not ending properly.
+* Fixed not following the same person from spectator after the round ends or map changes.
+
 
 # Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, so they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
@@ -623,13 +748,11 @@ Clients can use the following chat tokens:
 * `$a` = current armor
 * `$f` = current force
 * `$m` = current ammo
+* `$w` = current weapon (added in base_entranced)
 * `$l` = closest weapon spawn (not useful for siege)
 
 #### Advanced random map voting
 Instead of the traditional random map voting to have the server pick a map, `/g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `/vote 1`, `/vote 2`, etc.
-
-#### Improved projectile pushing/deflection
-Instead of the buggy base JA behavior with pushing/deflecting projectiles, you now have some more options. `/g_breakRNG` (default: 0) controls whether to use old "broken" RNG system from base JA. `/g_randomConeReflection` (default: 0) controls whether to use an improved system of randomly generating a trajectory for the pushed/deflected projectile within a cone of the pusher/deflecter's FOV. `/g_coneReflectAngle` (default: 30) controls how wide of an angle to use for this.
 
 #### `/sv_passwordlessSpectators`
 0 = (default) normal server password behavior
