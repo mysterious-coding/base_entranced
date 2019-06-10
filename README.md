@@ -518,6 +518,10 @@ Mapmakers can customize weapons in their .scl siege class files. Up to 8 damage 
 ```
 These are ridiculous examples, but they are just used to show some possibilities. In the first example, this class using disruptor on any entity will cause 25% damage, double knockback (25% * 8), and causes freezing randomly between 1000ms and 2000ms. In the second example, this class punching allies heals them for 10 health. In the third example, this class using pistol on anything other than allies/self causes 500 damage. In the fourth example, this class getting repeatered by themself or enemies causes 0 damage.
 
+Mapmakers can add the new `notouchbreak` key (use value `1`) to breakables to make sure they don't get damaged from touching them (for example, `func_glass` entities).
+
+Mapmakers can add the new `2` spawnflag in `target_random` entities to make it actually randomize correctly.
+
 Mapmakers can add the new `drawicon` key to shield/health/ammo generators. Use `drawicon 0` to hide its icon from the radar display (defaults to 1). The main intent of this is to hide shield/health/ammo generators from the radar that are not yet accessible to the players. For example, hiding the Hoth infirmary ammo generators until offense has reached the infirmary objective (use an `info_siege_radaricon` with the icon of the generator and toggle it on/off).
 
 Mapmakers can add some new extra keys to `misc_siege_item` for additional control over siege items:
@@ -736,6 +740,7 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Fixed direct thermals potentially causing less damage than splash.
 * Fixed single-objective maps not ending properly.
 * Fixed not following the same person from spectator after the round ends or map changes.
+* Fixed weird behavior with emplaced guns (touching them without mounting them, long cooldown after exiting one).
 
 
 # Features that are also in Alpha's base_enhanced
