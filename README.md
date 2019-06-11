@@ -1,6 +1,6 @@
 # base_entranced
 
-a multiplayer server mod for Jedi Knight 3's Siege gametype
+a multiplayer server mod for Jedi Knight: Jedi Academy's Siege gametype
 
 by Duo
 
@@ -33,12 +33,12 @@ base_entranced is intended to be fully usable "out of the box." Most cvars defau
 These are unique features for base_entranced.
 
 #### `/g_autoStats`
-0 = no stats (default JK3)
+0 = no stats (base JKA)
 
 1 = (default) automatically prints stats at the end of each round, including objective times, kills, deaths, damage, etc. Some maps also have their own unique stats for that map. Clients can also access these stats manually by using the `stats` command.
 
 #### `/g_classLimits`
-0 = no limits (default JK3)
+0 = no limits (base JKA)
 
 1 = (default) enable class limits + automatic overrides from map/server mod
 
@@ -52,29 +52,29 @@ If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of 
 1 = (default) instantly broadcast class changes to teammates; delay class change broadcast for enemies until after the respawn. Prevents the stupid "oh you changed class 150ms before the respawn? Let me counter you by changing class 140ms before the respawn" garbage.
 
 #### `/g_siegeTiebreakEnd`
-0 = (default) no tiebreaking rules (JK3 default)
+0 = (default) no tiebreaking rules (base JKA)
 
 1 = enforce traditional siege community tiebreaking rule. If round 1 offense got held for maximum time(20 minutes on most maps), game will end once round 2 offense has completed one more objective. Round 2 offense will be declared the winner of the match.
 
 #### `/g_fixSiegeScoring`
-0 = dumb default JK3 scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
+0 = dumb base JKA scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
 1 = (default) improved/logical scoring (100 pts per obj)
 
 #### `/g_fixVoiceChat`
-0 = enemies can hear your voice chats and see icon over your head (default JK3)
+0 = enemies can hear your voice chats and see icon over your head (base JKA)
 
 1 = (default) only teammates can hear your voice chats and see icon over your head (except for spot_air and spot_emplaced, which are used to BM your enemies)
 
 #### `/iLikeToDoorSpam`
 0 = (default) door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
 
-1 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (default JK3)
+1 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (base JKA)
 
 #### `/iLikeToMineSpam`
 0 = (default) mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already refrain from this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
 
-1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door (bonus points for "was planting, bro" excuse) (default JK3)
+1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door (bonus points for "was planting, bro" excuse) (base JKA)
 
 #### `/iLikeToShieldSpam`
 0 = (default) shield spam prohibited; you have to be killed by an enemy or walker explosion to place a new shield. You can place a new shield at each objective, with one freebie ("Yo shield") during the 20 seconds immediately after an objective.
@@ -130,7 +130,7 @@ The server automatically defaults to instant respawn times. If the map is restar
 1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed
 
 #### `/g_fixHothBunkerLift`
-0 = normal lift behavior for Hoth codes bunker lift (default JK3)
+0 = normal lift behavior for Hoth codes bunker lift (base JKA)
 
 1 = (default) Hoth codes bunker lift requires pressing `+use` button (prevents you from killing yourself way too easily on this dumb lift)
 
@@ -144,7 +144,7 @@ The server automatically defaults to instant respawn times. If the map is restar
 -1 = both
 
 #### `/g_fixHothDoorSounds`
-0 = Hoth bunker doors at first objective are silent (bug from default JK3)
+0 = Hoth bunker doors at first objective are silent (bug from base JKA)
 
 1 = (default) Hoth bunker doors at first objective use standard door sounds
 
@@ -154,7 +154,7 @@ The server automatically defaults to instant respawn times. If the map is restar
 1 = (default) defenders cannot call up Hoth codes delivery bunker lift if a non-Jedi codes carrier is inside the bunker
 
 #### `/g_antiHothHangarLiftLame`
-0 = normal behavior for Hoth hangar lift (default JK3)
+0 = normal behavior for Hoth hangar lift (base JKA)
 
 1 = defense tech uses a 2 second hack to call up the lift. Returns to normal behavior after the hangar objective is completed.
 
@@ -165,12 +165,12 @@ The server automatically defaults to instant respawn times. If the map is restar
 4 = (default) use both 1 and 2 methods, plus, after the infirmary has been breached, only allow the defense to call the lift up once within 15 seconds of the infirmary breach. (default setting)
 
 #### `/g_antiHothInfirmaryLiftLame`
-0 = normal behavior for Hoth infirmary "short" lift (default JK3)
+0 = normal behavior for Hoth infirmary "short" lift (base JKA)
 
 1 = (default) defense cannot call the "short" lift up with the top button; they must use the lower button
 
 #### `/g_antiLaming`
-0 = (default) no anti-laming provisions (default JK3, suggested setting for pug servers)
+0 = (default) no anti-laming provisions (base JKA, suggested setting for pug servers)
 
 1 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being killed.
 
@@ -182,34 +182,34 @@ The server automatically defaults to instant respawn times. If the map is restar
 1 = (default) `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
 
 #### `/g_nextmapWarning`
-0 = no warning (default JK3)
+0 = no warning (base JKA)
 
 1 = (default) when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
 #### `/g_improvedTeamchat`
-0 = default JK3 team chat
+0 = base JKA team chat
 
 1 = show selected class as "location" during countdown, show "(DEAD)" in teamchat for dead players, hide location from teamchat between spectators, hide location from teamchat during intermission
 
 2 = (default) all of the above, plus show HP in teamchat for alive players
 
 #### `/g_fixFallingSounds`
-0 = default JK3 sound (normal death sound)
+0 = base JKA sound (normal death sound)
 
 1 = (default) use falling death scream sound when damaged by a `trigger_hurt` entity for >= 100 damage (i.e., death pits). Also plays scream sound if selfkilling while affected by `/g_fixPitKills`
 
 #### `/g_fixEweb`
-0 = default JK3 eweb behavior (huge annoying recoil, etc)
+0 = base JKA eweb behavior (huge annoying recoil, etc)
 
 1 = (default) remove eweb recoil, remove "unfolding" animation when pulling out eweb, make eweb crosshair start closer to normal crosshair
 
 #### `/g_enableCloak`
 0 = (default) remove cloak from all siege classes (eliminates need for no-cloak PK3 patches)
 
-1 = cloak enabled (default JK3)
+1 = cloak enabled (base JKA)
 
 #### `/g_fixRancorCharge`
-0 = (default) default JK3 behavior - rancor can charge/jump through `BLOCKNPC` areas (e.g. desert arena door)
+0 = (default) base JKA behavior - rancor can charge/jump through `BLOCKNPC` areas (e.g. desert arena door)
 
 1 = rancor cannot charge/jump through `BLOCKNPC` areas
 
@@ -221,30 +221,30 @@ The server automatically defaults to instant respawn times. If the map is restar
 2 = (default) infinite charge bug enabled, but you don't have to hold down any extra buttons.
 
 #### `/g_fixGripKills`
-0 = normal selfkilling while gripped (default JK3)
+0 = normal selfkilling while gripped (base JKA)
 
 1 = (default) selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill (similar to `/g_fixPitKills` from base_enhanced)
 
 #### `/g_antiCallvoteTakeover`
-0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, and `lockteams` votes (default JK3)
+0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, and `lockteams` votes (base JKA)
 
 1 = (default) calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, or `lockteams` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
 
 #### `/g_moreTaunts`
-0 = default JK3 behavior (only allow `/taunt` in non-duel gametypes)
+0 = base JKA behavior (only allow `/taunt` in non-duel gametypes)
 
 1 = (default) enable `/gloat`, `/flourish`, and `/bow` in non-duel gametypes)
 
 #### `/g_botJumping`
-0 = (default) bots jump around like crazy on maps without botroute support (default JK3)
+0 = (default) bots jump around like crazy on maps without botroute support (base JKA)
 
 1 = bots stay on the ground on maps without botroute support
 
 #### `/g_swoopKillPoints`
-The number of points you gain from killing swoops (1 = default JK3). Set to 0 (the default) so you don't gain points from farming swoops.
+The number of points you gain from killing swoops (1 = base JKA). Set to 0 (the default) so you don't gain points from farming swoops.
 
 #### `/g_sexyDisruptor`
-0 = (default) lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed default JK3 setting, which was bugged)
+0 = (default) lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed base JKA setting, which was bugged)
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
 
@@ -263,7 +263,7 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 "Greens" (unlocks) all doors on the map. For testing purposes only; should not be used in live games.
 
 #### `/autocfg_map`
-0 = (default) no automatic cfg execution (default JK3)
+0 = (default) no automatic cfg execution (base JKA)
 
 1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` (if it exists). This should eliminate the need for map-specific cvars like `/g_autoKorribanFloatingItems`, etc.
 
@@ -308,7 +308,7 @@ Make sure to use the correct team name, which is written inside the .team file -
 
 A few important clientside bugs to be aware of:
 * If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use `/team r` or `/team b` (easiest method), autojoin, or use a CFG classbind.
-* Ravensoft decided to combine force powers and items into one menu/cycle in JK3; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
+* Ravensoft decided to combine force powers and items into one menu/cycle in JKA; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
 * If the server is using teams/class that you don't have at all (like completely new classes, or classes for a map you don't have), you will see people as using Kyle skin with no sounds and no class icons.
 
 #### `/g_autoResetCustomTeams`
@@ -317,7 +317,7 @@ A few important clientside bugs to be aware of:
 1 = (default) `/g_redTeam` and `/g_blueTeam` are automatically reset to normal classes when map is changed via `/callvote`
 
 #### `/g_requireMoreCustomTeamVotes`
-0 = 51% yes votes required for all votes to pass (default JK3)
+0 = 51% yes votes required for all votes to pass (base JKA)
 
 1 = (default) custom team/class votes require 75% yes votes. This does not apply if the argument is `0` or `none` (resetting to normal classes)
 
@@ -360,7 +360,7 @@ Clients can decide their own preference of which weapon they would like to be ho
 
 Your most-preferred weapons go at the beginning; least-preferred weapons go at the end. For example, you could enter `/setu prefer RCTIGDUEBSMKYPL`
 
-Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use default JK3 weapon priority.
+Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use base JKA weapon priority.
 
 #### `/join`
 Clientside command. Use to join a specific class and team, e.g. `/join rj` for red jedi.
@@ -462,7 +462,7 @@ Selfkilling with high ping can be frustrating on base servers when you accidenta
 Some maps have hardcoded fixes in base_entranced in order to eliminate the need for releasing pk3 patches. Yes, some of these are "hacky," but it's better than forcing everyone to redownload the maps.
 
 #### Enhanced mapping framework
-base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JK3.
+base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JKA.
 
 Mapmakers can add a text file with the filename `/maps/mapname_goes_here.changes` to print a list of changes in the current version when a player enters `/changes` in the console.
 
@@ -472,9 +472,9 @@ Mapmakers can set the new class limits keys in `worldspawn`, which automatically
 
 Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
 
-Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `/g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (JK3 default).
+Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `/g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (base JKA default).
 
-Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (JK3 default).
+Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (base JKA default).
 
 Mapmakers can set the new `mapversion` key in `worldspawn`, which can be used in conjunction with custom base_entranced code to alter certain things for each map version (for example, if you move the map in a new update, you can automatically adjust anti-spam or any other custom features present in the mod that depend on coordinates). If you don't know what this means, ignore it.
 
@@ -770,7 +770,7 @@ Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use argument
 Teams are automatically unlocked at intermission, or if there are 0 players in-game.
 
 #### `/g_teamOverlayUpdateRate`
-The interval in milliseconds for teamoverlay data to be updated and sent out to clients. Defaults to 250 (JK3 default is 1000).
+The interval in milliseconds for teamoverlay data to be updated and sent out to clients. Defaults to 250 (base JKA is 1000).
 
 #### `/g_balanceSaber` (bitflag cvar)
 0 = (default) basejka saber moves
@@ -812,18 +812,18 @@ Clientside command. Use first letter of class to change, like `/class a` for ass
 #### `/g_rocketSurfing`
 0 = (default) no rocket surfing (ideal setting)
 
-1 = bullshit rocket surfing enabled; landing on top of a rocket will not explode the rocket (JK3 default)
+1 = bullshit rocket surfing enabled; landing on top of a rocket will not explode the rocket (base JKA)
 
 #### `/g_floatingItems`
 0 = (default) no floating siege items (ideal setting for most maps)
 
-1 = siege items float up walls when dropped - annoying bug on most maps, but classic strategy for korriban (JK3 default)
+1 = siege items float up walls when dropped - annoying bug on most maps, but classic strategy for korriban (base JKA)
 
 #### `/g_selfkillPenalty`
 Set to 0 (the default) so you don't lose points when you SK.
 
 #### `/g_fixPitKills`
-0 = normal pit kills (JK3 default)
+0 = normal pit kills (base JKA)
 
 1 = (default) if you selfkill while above a pit, it grants a kill to whoever pushed you into the pit. This prevents people from denying enemies' kills with selfkill.
 
