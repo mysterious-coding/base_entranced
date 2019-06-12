@@ -1131,6 +1131,8 @@ Touch_DoorTrigger
 */
 void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
+	if (other && other->client && other->client->emoted)
+		return;
 
 	gentity_t *relockEnt = NULL;
 
@@ -1564,6 +1566,8 @@ void Touch_PlatCenterTrigger(gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if (!other->client) {
 		return;
 	}
+	if (other->client->emoted)
+		return;
 
 	if (ent->parent->moverState == MOVER_POS1) {
 		Use_BinaryMover(ent->parent, ent, other);
@@ -1583,6 +1587,9 @@ void Touch_PlatCenterTrigger_Hoth(gentity_t *ent, gentity_t *other, trace_t *tra
 		return;
 	}
 	
+	if (other->client->emoted)
+		return;
+
 	if (g_fixHothBunkerLift.integer)
 	{
 		if (!(other->client->pers.cmd.buttons & BUTTON_USE))
@@ -1635,6 +1642,8 @@ void Touch_PlatCenterTrigger_HothCodes(gentity_t *ent, gentity_t *other, trace_t
 	if (!other->client) {
 		return;
 	}
+	if (other->client->emoted)
+		return;
 
 	if (g_antiHothCodesLiftLame.integer && other->client->sess.sessionTeam == TEAM_BLUE) {
 		int i;
@@ -2830,6 +2839,8 @@ void funcBBrushTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 		return;
 	if (ent - g_entities == CARGO_FANGRATING_NUM)
 		return;
+	if (other->client->emoted)
+		return;
 	G_Damage(ent, NULL, NULL, NULL, ent->r.currentOrigin, 999, DAMAGE_NO_ARMOR, MOD_FALLING);
 }
 
@@ -3129,6 +3140,8 @@ void GlassInstaBreakOnTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 	if (g_gametype.integer != GT_SIEGE || level.siegeMap != SIEGEMAP_CARGO)
 		return;
 	if (!other || !other->client || !ent)
+		return;
+	if (other->client->emoted)
 		return;
 	gentity_t *te;
 	vec3_t dif;

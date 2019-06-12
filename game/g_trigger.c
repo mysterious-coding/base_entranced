@@ -131,6 +131,9 @@ void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
 extern void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier, gentity_t *overrideOriginEnt);
 void multi_trigger( gentity_t *ent, gentity_t *activator ) 
 {
+	if (activator && activator->client && activator->client->emoted)
+		return;
+
 	qboolean haltTrigger = qfalse;
 	short i1, i2;
 	if ( ent->think == multi_trigger_run )
@@ -494,6 +497,9 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 	{
 		return;
 	}
+
+	if (other->client->emoted)
+		return;
 
 	if (self->flags & FL_INACTIVE)
 	{//set by target_deactivate

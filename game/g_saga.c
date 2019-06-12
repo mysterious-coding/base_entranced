@@ -3610,6 +3610,9 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
+	if (other->client->emoted)
+		return;
+
 	if (self->noise_index)
 	{ //play the pickup noise.
 		G_Sound(other, CHAN_AUTO, self->noise_index);

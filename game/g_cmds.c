@@ -7152,6 +7152,7 @@ void Cmd_Emote_f(gentity_t *ent) {
 		ent->flags & FL_NOTARGET ||
 		ent->client->sess.siegeDuelInProgress ||
 		ent->client->ps.duelInProgress ||
+		ent->client->holdingObjectiveItem ||
 		level.pause.state != PAUSE_NONE)
 		return;
 
