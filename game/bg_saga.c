@@ -1270,9 +1270,19 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			sdp->freezeMin = sdp->freezeMax = -1;
 		}
 
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_onlyknockback", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->onlyKnockback = qtrue;
+			else
+				sdp->onlyKnockback = qfalse;
+		}
+		else {
+			sdp->onlyKnockback = qfalse;
+		}
+
 #ifdef _DEBUG
-		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d\n",
-			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk);
+		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d, onlyKnockback %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk, sdp->onlyKnockback);
 #endif
 	}
 
@@ -1350,9 +1360,19 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			sdp->freezeMin = sdp->freezeMax = -1;
 		}
 
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_onlyknockback", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->onlyKnockback = qtrue;
+			else
+				sdp->onlyKnockback = qfalse;
+		}
+		else {
+			sdp->onlyKnockback = qfalse;
+		}
+
 #ifdef _DEBUG
-		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d\n",
-			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk);
+		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d, onlyKnockback %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk, sdp->onlyKnockback);
 #endif
 	}
 

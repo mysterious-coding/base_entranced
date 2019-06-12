@@ -80,6 +80,7 @@ typedef struct specialDamageParam_s {
 	qboolean	negativeDamageOk;
 	int			freezeMin;
 	int			freezeMax;
+	qboolean	onlyKnockback;
 	enum {
 		FREEZE_DEFAULT = 0,
 		FREEZE_YES,

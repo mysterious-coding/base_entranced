@@ -4882,7 +4882,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int originalDamage = damage;
 #endif
 	int freeze = FREEZE_DEFAULT, freezeMinOverride = -1, freezeMaxOverride = -1, overrideFreezeTimeActual = -1;
-	qboolean negativeDamageOk = qfalse;
+	qboolean negativeDamageOk = qfalse, onlyKnockback = qfalse;
 	float specialDamageParamKnockbackMultiplier = 1.0f;
 	if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker->client->siegeClass != -1) {
 		for (int i = 0; i < MAX_SPECIALDAMAGEPARAMETERS; i++) {
@@ -4923,6 +4923,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				freezeMaxOverride = sdp->freezeMax;
 			}
 			negativeDamageOk = sdp->negativeDamageOk;
+			onlyKnockback = sdp->onlyKnockback;
 #ifdef _DEBUG
 			Com_Printf("Outgoing damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
 #endif
@@ -4970,6 +4971,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				freezeMaxOverride = sdp->freezeMax;
 			}
 			negativeDamageOk = sdp->negativeDamageOk;
+			onlyKnockback = sdp->onlyKnockback;
 #ifdef _DEBUG
 			Com_Printf("Incoming damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
 #endif
@@ -5617,7 +5619,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	if (level.intermissiontime)
+	if (level.intermissiontime || onlyKnockback)
 		return;
 
 	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->sess.siegeDuelInProgress &&
