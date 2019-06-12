@@ -7159,22 +7159,22 @@ void Cmd_Emote_f(gentity_t *ent) {
 	if (trap_Argc() >= 2)
 		trap_Argv(1, buf, sizeof(buf));
 	unsigned int hash;
+	int torsoTimer = EMOTE_DEFAULT_TIME, legsTimer = EMOTE_DEFAULT_TIME;
 	if (buf[0]) { // manually-specified animation string
 		// allow manually-specified duration with a second argument
-		int durationFromArg = 0;
 		if (trap_Argc() >= 3) {
 			char durationBuf[8] = { 0 };
 			trap_Argv(2, durationBuf, sizeof(durationBuf));
-			durationFromArg = atoi(durationBuf);
-			if (durationFromArg > 0) {
+			int durationFromArg = atoi(durationBuf);
+			if (durationFromArg >= 100) {
 				durationFromArg = Com_Clampi(1, 20000, durationFromArg);
-				ent->client->ps.torsoTimer = durationFromArg;
-				ent->client->ps.legsTimer = durationFromArg;
+				torsoTimer = durationFromArg;
+				legsTimer = durationFromArg;
 			}
-		}
-		if (durationFromArg <= 0) {
-			ent->client->ps.torsoTimer = EMOTE_DEFAULT_TIME;
-			ent->client->ps.legsTimer = EMOTE_DEFAULT_TIME;
+			else {
+				trap_SendServerCommand(ent - g_entities, va("print \"Usage: emote [keyword] [duration in milliseconds]  (duration must be at least 100 ms)\n\""));
+				return;
+			}
 		}
 		hash = XXH32(buf, strlen(buf), 0x69420) % (unsigned)NUM_EMOTE_COMBINATIONS;
 	}
@@ -7183,17 +7183,7 @@ void Cmd_Emote_f(gentity_t *ent) {
 		hash |= (rand() & 0xff) << 8;
 		hash |= (rand() & 0xff) << 16;
 		hash &= (unsigned)NUM_EMOTE_COMBINATIONS;
-		ent->client->ps.torsoTimer = EMOTE_DEFAULT_TIME;
-		ent->client->ps.legsTimer = EMOTE_DEFAULT_TIME;
 	}
-
-	unsigned int torso = hash / (unsigned)NUM_EMOTES;
-	unsigned int legs = hash % (unsigned)NUM_EMOTES;
-
-	ent->client->ps.torsoAnim = (signed)torso;
-	ent->client->ps.legsAnim = (signed)legs;
-
-	BG_ClearRocketLock(&ent->client->ps);
 
 	if (level.isLivePug != ISLIVEPUG_NO) {
 		if (g_gametype.integer == GT_SIEGE && level.isLivePug != ISLIVEPUG_NO && g_siegeRespawn.integer >= 5 &&
@@ -7208,6 +7198,17 @@ void Cmd_Emote_f(gentity_t *ent) {
 		// set the emoted bool so that they will automatically sk + can't do certain things
 		ent->client->emoted = qtrue;
 	}
+
+
+	unsigned int torsoAnim = hash / (unsigned)NUM_EMOTES;
+	unsigned int legsAnim = hash % (unsigned)NUM_EMOTES;
+
+	ent->client->ps.torsoAnim = (signed)torsoAnim;
+	ent->client->ps.legsAnim = (signed)legsAnim;
+	ent->client->ps.torsoTimer = torsoTimer;
+	ent->client->ps.legsTimer = legsTimer;
+
+	BG_ClearRocketLock(&ent->client->ps);
 }
 
 #ifdef NEWMOD_SUPPORT
