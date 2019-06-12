@@ -2616,6 +2616,9 @@ qboolean PM_CanDoKata( void )
 }
 
 static qboolean CanSaberAnimKick( void ) {
+	if (pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].emoted)
+		return qfalse;
+
 	if ( pm->ps->fd.saberAnimLevel == SS_STAFF ) {
 		return qtrue; // always true for staff
 	}
@@ -2974,6 +2977,9 @@ void PM_WeaponLightsaber(void)
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
 		return;
 	}
+
+	if (pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].emoted)
+		return;
 
 	// make weapon function
 	if ( pm->ps->weaponTime > 0 )

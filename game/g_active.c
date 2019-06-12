@@ -1084,6 +1084,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			}
 			break;
 		case EV_FIRE_WEAPON:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			FireWeapon( ent, qfalse );
 			ent->client->dangerTime = level.time;
 			ent->client->ps.eFlags &= ~EF_INVULNERABLE;
@@ -1091,6 +1093,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			break;
 
 		case EV_ALT_FIRE:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			FireWeapon( ent, qtrue );
 			ent->client->dangerTime = level.time;
 			ent->client->ps.eFlags &= ~EF_INVULNERABLE;
@@ -1098,6 +1102,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			break;
 
 		case EV_SABER_ATTACK:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ent->client->dangerTime = level.time;
 			ent->client->ps.eFlags &= ~EF_INVULNERABLE;
 			ent->client->invulnerableTimer = 0;
@@ -1908,15 +1914,6 @@ void G_HeldByMonster( gentity_t *ent, usercmd_t **ucmd )
 	(*ucmd)->upmove = 0;
 }
 
-enum
-{
-	TAUNT_TAUNT = 0,
-	TAUNT_BOW,
-	TAUNT_MEDITATE,
-	TAUNT_FLOURISH,
-	TAUNT_GLOAT
-};
-
 void G_SetTauntAnim( gentity_t *ent, int taunt )
 {
 	if (taunt == TAUNT_MEDITATE &&
@@ -1937,7 +1934,13 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 	}
 	if (g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL && taunt == TAUNT_MEDITATE)
 	{
-		return; //no meditating; could be cheesy with hiding behind boxes with really small animation
+		if (g_emotes.integer) {
+			if (level.isLivePug != ISLIVEPUG_NO)
+				ent->client->emoted = qtrue; // apply emote restrictions to meditate during pugs
+		}
+		else {
+			return; // no meditating in non-duel gametypes unless emotes are enabled
+		}
 	}
 	// *CHANGE 65* fix - release rocket lock, old bug
 		BG_ClearRocketLock(&ent->client->ps);
@@ -3802,39 +3805,63 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_FORCE_HEAL:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceHeal(ent);
 			break;
 		case GENCMD_FORCE_SPEED:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceSpeed(ent, 0);
 			break;
 		case GENCMD_FORCE_THROW:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceThrow(ent, qfalse);
 			break;
 		case GENCMD_FORCE_PULL:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceThrow(ent, qtrue);
 			break;
 		case GENCMD_FORCE_DISTRACT:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceTelepathy(ent);
 			break;
 		case GENCMD_FORCE_RAGE:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceRage(ent);
 			break;
 		case GENCMD_FORCE_PROTECT:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceProtect(ent);
 			break;
 		case GENCMD_FORCE_ABSORB:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceAbsorb(ent);
 			break;
 		case GENCMD_FORCE_HEALOTHER:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceTeamHeal(ent);
 			break;
 		case GENCMD_FORCE_FORCEPOWEROTHER:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceTeamForceReplenish(ent);
 			break;
 		case GENCMD_FORCE_SEEING:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			ForceSeeing(ent);
 			break;
 		case GENCMD_USE_SEEKER:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SEEKER)) &&
 				G_ItemUsable(&ent->client->ps, HI_SEEKER) )
 			{
@@ -3844,6 +3871,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_FIELD:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) &&
 				G_ItemUsable(&ent->client->ps, HI_SHIELD) )
 			{
@@ -3864,6 +3893,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_BACTA:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) &&
 				G_ItemUsable(&ent->client->ps, HI_MEDPAC) )
 			{
@@ -3873,6 +3904,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_BACTABIG:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG)) &&
 				G_ItemUsable(&ent->client->ps, HI_MEDPAC_BIG) )
 			{
@@ -3882,6 +3915,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_ELECTROBINOCULARS:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) &&
 				G_ItemUsable(&ent->client->ps, HI_BINOCULARS) )
 			{
@@ -3897,6 +3932,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_ZOOM:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) &&
 				G_ItemUsable(&ent->client->ps, HI_BINOCULARS) )
 			{
@@ -3912,6 +3949,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_SENTRY:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SENTRY_GUN)) &&
 				G_ItemUsable(&ent->client->ps, HI_SENTRY_GUN) )
 			{
@@ -3932,6 +3971,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_HEALTHDISP:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) &&
 				G_ItemUsable(&ent->client->ps, HI_HEALTHDISP) )
 			{
@@ -3939,6 +3980,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_AMMODISP:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) &&
 				G_ItemUsable(&ent->client->ps, HI_AMMODISP) )
 			{
@@ -3946,6 +3989,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_EWEB:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_EWEB)) &&
 				G_ItemUsable(&ent->client->ps, HI_EWEB) )
 			{
@@ -3954,6 +3999,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_CLOAK:
+			if (ent && ent->client && ent->client->emoted)
+				break;
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK)) &&
 				G_ItemUsable(&ent->client->ps, HI_CLOAK) )
 			{
@@ -4223,6 +4270,22 @@ void ClientThink_real( gentity_t *ent ) {
 		else {
 			ent->client->ps.fd.forcePowerLevel[FP_SEE] = 0;
 			ent->client->ps.fd.forcePowersActive &= ~(1 << FP_SEE);
+		}
+	}
+
+	if (g_emotes.integer && g_gametype.integer == GT_SIEGE && level.isLivePug != ISLIVEPUG_NO && g_siegeRespawn.integer >= 5 &&
+		level.siegeRespawnCheck > level.time && level.siegeRespawnCheck - level.time <= 3000 && level.siegeRespawnCheck - level.time > 1000) {
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			gclient_t *killCl = &level.clients[i];
+			if (!killCl->emoted || killCl->pers.connected != CON_CONNECTED ||
+				killCl->ps.stats[STAT_HEALTH] <= 0 || killCl->tempSpectate > level.time ||
+				killCl->ps.pm_type == PM_DEAD)
+				continue;
+			killCl->emoted = qfalse;
+			gentity_t *killEnt = &g_entities[i];
+			killCl->ps.stats[STAT_HEALTH] = killEnt->health = -999;
+			killEnt->flags &= ~FL_GODMODE;
+			player_die(killEnt, killEnt, killEnt, 100000, MOD_SUICIDE);
 		}
 	}
 }

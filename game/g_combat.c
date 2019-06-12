@@ -2433,6 +2433,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
+	self->client->emoted = qfalse;
+
 	// idiot selfkilled at the start of the round for some reason; note this
 	if (level.wasRestarted && g_gametype.integer == GT_SIEGE && self - g_entities < MAX_CLIENTS && (!attacker || self == attacker) &&
 		self->client && (self->client->sess.sessionTeam == TEAM_RED || self->client->sess.sessionTeam == TEAM_BLUE) &&
@@ -4843,6 +4845,38 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if (level.siegeMap == SIEGEMAP_ANSION && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && (!Q_stricmp(attacker->NPC_type, "Alpha") || !Q_stricmp(attacker->NPC_type, "Onasi")))
 		return;
+
+	// target emoted == die easily
+	if (targ && targ->client && targ->client->emoted && targ - g_entities - MAX_CLIENTS && level.isLivePug != ISLIVEPUG_NO &&
+		(targ->client->sess.sessionTeam == TEAM_RED || targ->client->sess.sessionTeam == TEAM_BLUE) &&
+		!(attacker && attacker->client && attacker->client->sess.sessionTeam == targ->client->sess.sessionTeam)) {
+		damage = 9999;
+	}
+
+	// attacker emoted == inflict 0 damage against non-teammates in most cases
+	if (attacker && attacker - g_entities < MAX_CLIENTS && attacker->client && attacker->client->emoted &&
+		!(targ && targ - g_entities < MAX_CLIENTS && targ->client && targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam)) {
+		switch (mod) {
+		case MOD_UNKNOWN:
+		case MOD_TURBLAST:
+		case MOD_SENTRY:
+		case MOD_WATER:
+		case MOD_SLIME:
+		case MOD_LAVA:
+		case MOD_CRUSH:
+		case MOD_TELEFRAG:
+		case MOD_FALLING:
+		case MOD_SUICIDE:
+		case MOD_TARGET_LASER:
+		case MOD_TRIGGER_HURT:
+		case MOD_TEAM_CHANGE:
+		case MOD_MAX:
+		case MOD_SPECIAL_SENTRYBOMB:
+			break;
+		default:
+			return;
+		}
+	}
 
 #ifdef _DEBUG
 	int originalDamage = damage;

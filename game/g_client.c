@@ -3787,6 +3787,7 @@ void ClientSpawn(gentity_t *ent) {
 	client = ent->client;
 
 	if (index >= 0 && index < MAX_CLIENTS && client) {
+		client->emoted = qfalse;
 		if (g_gametype.integer == GT_SIEGE) {
 			if (client->sess.sessionTeam == TEAM_BLUE) {
 				level.siegeTopTimes[ent - g_entities].hasChangedTeams = qtrue;

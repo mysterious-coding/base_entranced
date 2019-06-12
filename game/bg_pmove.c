@@ -7175,6 +7175,9 @@ static void PM_Weapon( void )
 		}
 	}
 
+	if (pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].emoted)
+		return;
+
 	if ( PM_DoChargedWeapons(vehicleRocketLock, veh))
 	{
 		// In some cases the charged weapon code may want us to short circuit the rest of the firing code

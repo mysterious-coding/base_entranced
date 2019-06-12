@@ -1908,7 +1908,8 @@ void HealSomething(gentity_t *ent, gentity_t *target)
 
 qboolean TryHeal(gentity_t *ent, gentity_t *target)
 {
-
+	if (ent && ent->client && ent->client->emoted)
+		return qfalse;
 	int max = target->maxHealth;
 	if (level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
 		static enum {
@@ -2109,6 +2110,8 @@ qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks) {
 
 // qtrue if heal
 qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks) {
+	if (ent && ent->client && ent->client->emoted)
+		return qfalse;
 	if (doChecks) {
 		if (g_gametype.integer == GT_SIEGE &&
 			!gSiegeRoundBegun)
@@ -2241,6 +2244,9 @@ void TryUse( gentity_t *ent )
 	{ //can't use anything else to jp is off
 		goto tryJetPack;
 	}
+
+	if (ent->client->emoted)
+		return;
 
 	if (ent->client->bodyGrabIndex != ENTITYNUM_NONE)
 	{ //then hitting the use key just means let go
@@ -2388,6 +2394,9 @@ tryJetPack:
 			return;
 		}
 	}
+
+	if (ent->client->emoted)
+		return;
 
 	if (TryTossHealthPack(ent, qfalse))
 		return;

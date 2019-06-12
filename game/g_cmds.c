@@ -7120,6 +7120,96 @@ void Cmd_Classes_f(gentity_t *ent) {
 		trap_SendServerCommand(ent - g_entities, "print \"No classes found!\n\"");
 }
 
+#define NUM_EMOTES				(LEGS_TURN180)
+#define NUM_EMOTE_COMBINATIONS	(NUM_EMOTES * NUM_EMOTES)
+#define RANDOM_EMOTE_LEN		(5)
+#define EMOTE_DEFAULT_TIME		(5000)
+#include "xxhash.h"
+extern qboolean PM_InKnockDown(playerState_t *ps);
+void Cmd_Emote_f(gentity_t *ent) {
+	if (!g_emotes.integer ||
+		ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
+		ent->client->ps.stats[STAT_HEALTH] <= 0 ||
+		ent->client->tempSpectate >= level.time ||
+		ent->client->ps.pm_type == PM_DEAD ||
+		ent->client->ps.pm_type == PM_SPECTATOR ||
+		ent->client->ps.pm_type == PM_INTERMISSION ||
+		level.intermissiontime ||
+		ent->client->ps.weaponTime ||
+		ent->client->ps.m_iVehicleNum ||
+		ent->client->ps.pm_flags & PMF_STUCK_TO_WALL ||
+		ent->client->ps.eFlags2 & EF2_HELD_BY_MONSTER ||
+		ent->client->ps.fd.forceGripBeingGripped > level.time ||
+		PM_InKnockDown(&ent->client->ps) ||
+		ent->client->ps.saberLockTime >= level.time ||
+		ent->client->ps.torsoTimer >= EMOTE_DEFAULT_TIME ||
+		ent->client->ps.legsTimer >= EMOTE_DEFAULT_TIME ||
+		ent->client->ps.pm_flags & PMF_FOLLOW ||
+		ent->client->ps.emplacedIndex ||
+		ent->client->ps.saberInFlight ||
+		ent->client->ps.weaponstate == WEAPON_CHARGING ||
+		ent->client->ps.weaponstate == WEAPON_CHARGING_ALT ||
+		ent->flags & FL_NOTARGET ||
+		ent->client->sess.siegeDuelInProgress ||
+		ent->client->ps.duelInProgress ||
+		level.pause.state != PAUSE_NONE)
+		return;
+
+	char buf[MAX_STRING_CHARS] = { 0 };
+	if (trap_Argc() >= 2)
+		trap_Argv(1, buf, sizeof(buf));
+	unsigned int hash;
+	if (buf[0]) { // manually-specified animation string
+		// allow manually-specified duration with a second argument
+		int durationFromArg = 0;
+		if (trap_Argc() >= 3) {
+			char durationBuf[8] = { 0 };
+			trap_Argv(2, durationBuf, sizeof(durationBuf));
+			durationFromArg = atoi(durationBuf);
+			if (durationFromArg > 0) {
+				durationFromArg = Com_Clampi(1, 20000, durationFromArg);
+				ent->client->ps.torsoTimer = durationFromArg;
+				ent->client->ps.legsTimer = durationFromArg;
+			}
+		}
+		if (durationFromArg <= 0) {
+			ent->client->ps.torsoTimer = EMOTE_DEFAULT_TIME;
+			ent->client->ps.legsTimer = EMOTE_DEFAULT_TIME;
+		}
+		hash = XXH32(buf, strlen(buf), 0x69420) % (unsigned)NUM_EMOTE_COMBINATIONS;
+	}
+	else { // no arg == generate random animations
+		hash = rand() & 0xff;
+		hash |= (rand() & 0xff) << 8;
+		hash |= (rand() & 0xff) << 16;
+		hash &= (unsigned)NUM_EMOTE_COMBINATIONS;
+		ent->client->ps.torsoTimer = EMOTE_DEFAULT_TIME;
+		ent->client->ps.legsTimer = EMOTE_DEFAULT_TIME;
+	}
+
+	unsigned int torso = hash / (unsigned)NUM_EMOTES;
+	unsigned int legs = hash % (unsigned)NUM_EMOTES;
+
+	ent->client->ps.torsoAnim = (signed)torso;
+	ent->client->ps.legsAnim = (signed)legs;
+
+	BG_ClearRocketLock(&ent->client->ps);
+
+	if (level.isLivePug != ISLIVEPUG_NO) {
+		if (g_gametype.integer == GT_SIEGE && level.isLivePug != ISLIVEPUG_NO && g_siegeRespawn.integer >= 5 &&
+			level.siegeRespawnCheck > level.time && level.siegeRespawnCheck - level.time <= 3000 && level.siegeRespawnCheck - level.time > 1000) {
+			// if timer is almost up, just kill them immediately
+			ent->client->emoted = qfalse;
+			ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
+			ent->flags &= ~FL_GODMODE;
+			player_die(ent, ent, ent, 100000, MOD_SUICIDE);
+			return;
+		}
+		// set the emoted bool so that they will automatically sk + can't do certain things
+		ent->client->emoted = qtrue;
+	}
+}
+
 #ifdef NEWMOD_SUPPORT
 #define VCHAT_ESCAPE_CHAR '$'
 void Cmd_Vchat_f(gentity_t *sender) {
@@ -8832,9 +8922,14 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^2VOTES:^7   There are many new things you can call votes for. Type ^5/callvote^7 to see a list.\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"To see a list of eligible maps for voting with /callvote newpug, use ^5/pugmaps^7.\n\""));
 	}
-	if (g_moreTaunts.integer)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^2MORE TAUNTS:^7   This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, or ^5/bow^7.\n\""));
+	if (g_emotes.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"^2/EMOTE^7:   You can do a custom animation with ^5/emote [optional keyword] [optional duration in ms]^7. You will automatically SK at the end of the current spawn cycle, and can no longer attack or sustain damage for that spawn.\n\""));
+		if (g_moreTaunts.integer)
+			trap_SendServerCommand(ent - g_entities, va("print \"^2MORE TAUNTS:^7   This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, ^5/bow^7, or ^5/meditate^7. Meditate uses similar rules as emotes (see above).\n\""));
+	}
+	else {
+		if (g_moreTaunts.integer)
+			trap_SendServerCommand(ent - g_entities, va("print \"^2MORE TAUNTS:^7   This server allows for extra taunts. Use ^5/gloat^7, ^5/flourish^7, ^5/bow^7, or ^5/meditate^7. Meditate causes you to automatically SK at the end of the current spawn cycle, and you can no longer attack or sustain damage for that spawn.\n\""));
 	}
 	if (g_allow_vote_forceclass.integer && g_allowVote.integer)
 	{
@@ -8904,6 +8999,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_breakRNG);
 	PrintCvar(g_coneReflectAngle);
 	PrintCvar(g_dismember);
+	PrintCvar(g_emotes);
 	PrintCvar(g_enableCloak);
 	PrintCvar(g_siegeTiebreakEnd);
 	PrintCvar(g_fixEweb);
@@ -9608,6 +9704,8 @@ void ClientCommand( int clientNum ) {
 			Cmd_TopTimes_f(ent);
 		else if (!Q_stricmp(cmd, "classes"))
 			Cmd_Classes_f(ent);
+		else if (!Q_stricmp(cmd, "emote"))
+			Cmd_Emote_f(ent);
 #ifdef NEWMOD_SUPPORT
 		else if (!Q_stricmp(cmd, "vchat"))
 			Cmd_Vchat_f(ent);
@@ -9751,6 +9849,9 @@ void ClientCommand( int clientNum ) {
 		Cmd_TopTimes_f( ent );
 	else if (!Q_stricmp(cmd, "classes"))
 		Cmd_Classes_f(ent);
+	else if (!Q_stricmp(cmd, "emote"))
+		Cmd_Emote_f(ent);
+	
 #ifdef NEWMOD_SUPPORT
 	else if (!Q_stricmp(cmd, "vchat"))
 		Cmd_Vchat_f(ent);

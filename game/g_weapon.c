@@ -5474,6 +5474,9 @@ int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float const
 
 void FireWeapon( gentity_t *ent, qboolean altFire ) {
 
+	if (ent && ent->client && ent->client->emoted)
+		return;
+
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	if( ent->s.weapon != WP_SABER && ent->s.weapon != WP_STUN_BATON && ent->s.weapon != WP_MELEE 
 		/* *CHANGE 63* mines and det packs should not be considered in accuracy  */

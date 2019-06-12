@@ -1830,9 +1830,13 @@ qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t
 		return qfalse;
 	}
 
-	if (&g_entities[ps->clientNum] && g_entities[ps->clientNum].client->sess.siegeDuelInProgress)
+	if (ps->clientNum < MAX_CLIENTS && g_entities[ps->clientNum].client && g_entities[ps->clientNum].client->sess.siegeDuelInProgress)
 	{
 		//siege duel in progress
+		return qfalse;
+	}
+
+	if (power != FP_LEVITATION && ps->clientNum < MAX_CLIENTS && g_entities[ps->clientNum].client && g_entities[ps->clientNum].client->emoted) {
 		return qfalse;
 	}
 

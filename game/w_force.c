@@ -876,6 +876,10 @@ qboolean WP_ForcePowerInUse( gentity_t *self, forcePowers_t forcePower )
 
 qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 {
+	// only allow jump if emoted
+	if (self->client->emoted && forcePower != FP_LEVITATION) {
+		return qfalse;
+	}
 	if (BG_HasYsalamiri(g_gametype.integer, &self->client->ps))
 	{
 		return qfalse;
@@ -4980,7 +4984,7 @@ void SeekerDroneUpdate(gentity_t *self)
 		}
 		return;
 	}
-	else if (self->client->ps.droneExistTime < level.time)
+	else if (self->client->ps.droneExistTime < level.time || self->client->emoted)
 	{
 		VectorCopy(self->client->ps.origin, elevated);
 		elevated[2] += 40;
@@ -5901,6 +5905,9 @@ qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, in
 		!bgSiegeClasses[self->client->siegeClass].forcePowerLevels[FP_SEE]) {
 		return qfalse;
 	}
+
+	if (self->client->emoted)
+		return qfalse;
 
 	if (!g_forceDodge.integer)
 	{

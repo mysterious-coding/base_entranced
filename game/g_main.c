@@ -205,6 +205,7 @@ vmCvar_t	g_improvedDisarm;
 vmCvar_t	g_flechetteSpread;
 vmCvar_t	g_autoSpec;
 vmCvar_t	g_intermissionKnockbackNPCs;
+vmCvar_t	g_emotes;
 
 vmCvar_t	g_classLimits;
 vmCvar_t	oAssaultLimit;
@@ -937,6 +938,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_flechetteSpread, "g_flechetteSpread", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoSpec, "g_autoSpec", "1", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_intermissionKnockbackNPCs, "g_intermissionKnockbackNPCs", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_emotes, "g_emotes", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "-1", CVAR_ARCHIVE, 0, qtrue },

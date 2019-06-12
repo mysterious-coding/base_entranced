@@ -1145,6 +1145,8 @@ struct gclient_s {
 	int			realPing;
 #endif
 
+	qboolean	emoted;
+
 };
 
 //Interest points
@@ -2149,6 +2151,16 @@ void PurgeStringedTrolling(char *in, char *out, int outSize);
 //
 // g_active.c
 //
+
+enum
+{
+	TAUNT_TAUNT = 0,
+	TAUNT_BOW,
+	TAUNT_MEDITATE,
+	TAUNT_FLOURISH,
+	TAUNT_GLOAT
+};
+
 void G_CheckClientTimeouts	( gentity_t *ent );
 void ClientThink			( int clientNum, usercmd_t *ucmd );
 void ClientEndFrame			( gentity_t *ent );
@@ -2675,6 +2687,7 @@ extern vmCvar_t    g_improvedDisarm;
 extern vmCvar_t    g_flechetteSpread;
 extern vmCvar_t    g_autoSpec;
 extern vmCvar_t    g_intermissionKnockbackNPCs;
+extern vmCvar_t    g_emotes;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

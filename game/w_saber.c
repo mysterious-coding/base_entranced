@@ -9072,6 +9072,9 @@ int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags
 		return 0;
 	}
 
+	if (self->client->emoted)
+		return 0;
+
     if ( self->health < 1)
     {
         return 0;

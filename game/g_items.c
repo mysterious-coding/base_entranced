@@ -647,6 +647,9 @@ void ItemUse_Binoculars(gentity_t *ent)
 		return;
 	}
 
+	if (ent->client->emoted)
+		return;
+
 	if (ent->client->ps.weaponstate != WEAPON_READY)
 	{ //So we can't fool it and reactivate while switching to the saber or something.
 		return;
@@ -667,6 +670,8 @@ void ItemUse_Binoculars(gentity_t *ent)
 
 void ItemUse_Shield(gentity_t *ent)
 {
+	if (ent && ent->client && ent->client->emoted)
+		return;
 	PlaceShield(ent);
 }
 
@@ -1208,6 +1213,9 @@ void ItemUse_Sentry( gentity_t *ent )
 		return;
 	}
 
+	if (ent->client->emoted)
+		return;
+
 	VectorSet( mins, -8, -8, 0 );
 	VectorSet( maxs, 8, 8, 24 );
 
@@ -1289,6 +1297,8 @@ void ItemUse_Sentry( gentity_t *ent )
 extern gentity_t *NPC_SpawnType( gentity_t *ent, char *npc_type, char *targetname, qboolean isVehicle );
 void ItemUse_Seeker(gentity_t *ent)
 {
+	if (ent && ent->client && ent->client->emoted)
+		return;
 	if ( g_gametype.integer == GT_SIEGE && d_siegeSeekerNPC.integer )
 	{//actualy spawn a remote NPC
 		gentity_t *remote = NPC_SpawnType( ent, "remote", NULL, qfalse );
@@ -1347,11 +1357,15 @@ static void MedPackGive(gentity_t *ent, int amount)
 
 void ItemUse_MedPack_Big(gentity_t *ent)
 {
+	if (ent && ent->client && ent->client->emoted)
+		return;
 	MedPackGive(ent, MAX_MEDPACK_BIG_HEAL_AMOUNT);
 }
 
 void ItemUse_MedPack(gentity_t *ent)
 {
+	if (ent && ent->client && ent->client->emoted)
+		return;
 	MedPackGive(ent, MAX_MEDPACK_HEAL_AMOUNT);
 }
 
@@ -1442,6 +1456,9 @@ extern void Jedi_Decloak( gentity_t *self );
 void ItemUse_UseCloak( gentity_t *ent )
 {
 	assert(ent && ent->client);
+
+	if (ent && ent->client && ent->client->emoted)
+		return;
 
 	if (ent->client->cloakToggleTime >= level.time)
 	{
@@ -1832,6 +1849,8 @@ void EWeb_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 #define EWEB_MISSILE_DAMAGE			20
 void EWebFire(gentity_t *owner, gentity_t *eweb)
 {
+	if (owner && owner->client && owner->client->emoted)
+		return;
 	mdxaBone_t boltMatrix;
 	gentity_t *missile;
 	vec3_t p, d, bPoint;
@@ -2216,6 +2235,8 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 //use the e-web
 void ItemUse_UseEWeb(gentity_t *ent)
 {
+	if (ent && ent->client && ent->client->emoted)
+		return;
 	if (ent->client->ewebTime > level.time)
 	{ //can't use again yet
 		return;
