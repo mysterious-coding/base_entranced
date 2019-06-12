@@ -52,18 +52,19 @@ static char gObjectiveCfgStr[1024];
 
 #ifdef NEWMOD_SUPPORT
 #define SIEGETIMER_FAKEOWNER 1023
-void UpdateNewmodSiegeTimers(void)
-{
-	int n;
-	for (n = 0; n < MAX_CLIENTS; n++)
-	{
-		if (&g_entities[n] && g_entities[n].inuse && g_entities[n].client)
-		{
-			gentity_t *te = G_TempEntity(g_entities[n].client->ps.origin, EV_SIEGESPEC);
-			te->s.time = level.siegeRespawnCheck;
-			te->s.owner = SIEGETIMER_FAKEOWNER;
-			te->s.saberInFlight = qtrue;
-		}
+void UpdateNewmodSiegeTimers(void) {
+	if (!g_siegeRespawn.integer || g_siegeRespawn.integer == 1)
+		return;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
+			continue;
+		gentity_t *te = G_TempEntity(ent->client->ps.origin, EV_SIEGESPEC);
+		te->s.time = level.siegeRespawnCheck;
+		te->s.owner = SIEGETIMER_FAKEOWNER;
+		te->s.saberInFlight = qtrue;
+		te->r.svFlags |= SVF_SINGLECLIENT;
+		te->r.singleClient = i;
 	}
 }
 #endif
