@@ -17,7 +17,7 @@ base_entranced has three goals:
 * Adding enhancements to basejka siege gameplay and server administration.
 * Providing an enhanced mapping framework that allows for many more possilibities for siege mappers.
 
-base_entranced strives to remain close to basejka gameplay. You won't see anything like kiss emotes or grappling hooks like JA+, nor is it wildly different from basejka like MB2. It is a simple improvement of basejka Siege, with competitive gameplay in mind. The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka Siege gameplay, doorspam, minespam, and shieldspam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else generally adheres to the "stay-close-to-basejka" philosophy.
+base_entranced strives to remain close to basejka gameplay. You won't see anything like grappling hooks or flamethrowers. It is a simple improvement of basejka Siege, with competitive gameplay in mind. The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka Siege gameplay, doorspam, minespam, and shieldspam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else generally adheres to the "stay-close-to-basejka" philosophy.
 
 You can discuss base_entranced on the **base_entranced forum** at [www.jasiege.com](https://www.jasiege.com)
 
@@ -97,6 +97,11 @@ You can give bad players a boost to help them be competitive. `/skillboost <play
 
 #### Respawn times
 The server automatically defaults to instant respawn times. If the map is restarted (i.e. via vote or rcon) with at least one player on each team, the respawn timer will automatically be set to 20.
+
+#### `/g_emotes`
+0 = disable
+
+1 = (default) clients can use custom animations with the `/emote` command
 
 #### `/g_fixSaberDefense`
 0 = base JA saber blocking
