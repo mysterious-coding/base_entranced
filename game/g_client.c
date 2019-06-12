@@ -3047,14 +3047,18 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 void G_BroadcastServerFeatureList( int clientNum ) {
 	static char commandListCmd[MAX_TOKEN_CHARS] =
 		"kls -1 -1 cmds "
-		"whois \"Shows the most used names\" "
+		"whois \"Displays current players' most-used names\" "
 		"rules \"Displays server rules\" "
 		"mappool \"Lists server map pools and their content\" "
 		"ready \"Marks yourself as ready to be part of random teams\" "
-		"stats \"Shows stats for the current game\" "
-		"siegestats \"Shows stats for the current game\" "
 		"join \"Changes Siege class on a specified team\" "
 		"class \"Changes Siege class on current team\" "
+		"classes \"Displays Siege class loadouts for the current map\" "
+		"toptimes \"Displays fast capture records\" "
+		"emote \"Performs a unique animation\" "
+		"skillboost \"Displays which players are skillboosted\" "
+		"senseboost \"Displays which players are senseboosted\" "
+		"pugmaps \"Displays a list of maps you can vote for with /callvote newpug\" "
 		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
 
 	trap_SendServerCommand(clientNum, commandListCmd);
