@@ -235,8 +235,6 @@ void P_WorldEffects( gentity_t *ent ) {
 extern void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback );
 void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 {
-	if (self && self->client && self->client->emoted)
-		return;
 	float magnitude, my_mass;
 	vec3_t	velocity;
 	int cont;
