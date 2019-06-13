@@ -516,12 +516,17 @@ Mapmakers can customize weapons in their .scl siege class files. Up to 8 damage 
     outgoingdmg3_otherenttype OTHERENTTYPE_ENEMY|OTHERENTTYPE_VEHICLE|OTHERENTTYPE_OTHER
     outgoingdmg3_mindmg    500
     outgoingdmg3_maxdmg    500
+    outgoingdmg3_onlyknockback yes
 
     incomingdmg1_mods    MOD_REPEATER|MOD_REPEATER_ALT|MOD_REPEATER_ALT_SPLASH
     incomingdmg1_otherenttype OTHERENTTYPE_SELF|OTHERENTTYPE_ENEMY
     incomingdmg1_dmgMult    0
 ```
-These are ridiculous examples, but they are just used to show some possibilities. In the first example, this class using disruptor on any entity will cause 25% damage, double knockback (25% * 8), and causes freezing randomly between 1000ms and 2000ms. In the second example, this class punching allies heals them for 10 health. In the third example, this class using pistol on anything other than allies/self causes 500 damage. In the fourth example, this class getting repeatered by themself or enemies causes 0 damage.
+These are ridiculous examples, but they are just used to show some possibilities. In the first example, this class using disruptor on any entity will cause 25% damage, double knockback (25% * 8), and causes freezing randomly between 1000ms and 2000ms. In the second example, this class punching allies heals them for 10 health. In the third example, this class using pistol on anything *other than* allies/self causes 500 damage worth of knockback, but no actual damage. In the fourth example, this class getting repeatered by themself or enemies causes 0 damage. Other possible keys not listed in the above examples include:
+
+`xxxdmgx_jedisplashdmgreduction 1/0` - force this class use/not use the base JKA 25% splash damage reduction for saberists (omit for default/base JKA default behavior)
+
+`xxxdmgx_nonjedisaberdmgincrease 1/0` - force this class to use/not use the base JKA 4x saber damage (with max of 100) increase on non-saberists (omit for default/base JKA behavior)
 
 Mapmakers can add the new `notouchbreak` key (use value `1`) to breakables to make sure they don't get damaged from touching them (for example, `func_glass` entities).
 
