@@ -82,6 +82,16 @@ typedef struct specialDamageParam_s {
 	int			freezeMax;
 	qboolean	onlyKnockback;
 	enum {
+		JEDISPLASHDMGREDUCTION_DEFAULT = 0,
+		JEDISPLASHDMGREDUCTION_YES,
+		JEDISPLASHDMGREDUCTION_NO
+	}			jediSplashDamageReduction;
+	enum {
+		NONJEDISABERDMGINCREASE_DEFAULT = 0,
+		NONJEDISABERDMGINCREASE_YES,
+		NONJEDISABERDMGINCREASE_NO,
+	}			nonJediSaberDamageIncrease;
+	enum {
 		FREEZE_DEFAULT = 0,
 		FREEZE_YES,
 		FREEZE_NO

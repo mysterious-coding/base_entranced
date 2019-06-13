@@ -1203,7 +1203,10 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			memset(sdp, 0, sizeof(specialDamageParam_t));
 			continue;
 		}
-		sdp->mods = BG_SiegeTranslateGenericTable64(parseBuf, ModTable, qtrue);
+		if (stristr(parseBuf, "-1"))
+			sdp->mods = 0xFFFFFFFFFFFFFFFFll;
+		else
+			sdp->mods = BG_SiegeTranslateGenericTable64(parseBuf, ModTable, qtrue);
 
 		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_otherenttype", i + 1), parseBuf))
 			sdp->otherEntType = BG_SiegeTranslateGenericTable(parseBuf, OtherEntTypeTable, qtrue);
@@ -1280,9 +1283,33 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			sdp->onlyKnockback = qfalse;
 		}
 
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_jedisplashdmgreduction", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_YES;
+			else if (stristr(parseBuf, "no") || *parseBuf == '0')
+				sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_NO;
+			else
+				sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_DEFAULT;
+		}
+		else {
+			sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_DEFAULT;
+		}
+
+		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_nonjedisaberdmgincrease", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_YES;
+			else if (stristr(parseBuf, "no") || *parseBuf == '0')
+				sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_NO;
+			else
+				sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_DEFAULT;
+		}
+		else {
+			sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_DEFAULT;
+		}
+
 #ifdef _DEBUG
-		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d, onlyKnockback %d\n",
-			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk, sdp->onlyKnockback);
+		Com_Printf("Parsed incoming dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d, onlyKnockback %d, jedi splash dmg reduction %d, non-jedi saber dmg increase %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk, sdp->onlyKnockback, sdp->jediSplashDamageReduction, sdp->nonJediSaberDamageIncrease);
 #endif
 	}
 
@@ -1293,7 +1320,10 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			memset(sdp, 0, sizeof(specialDamageParam_t));
 			continue;
 		}
-		sdp->mods = BG_SiegeTranslateGenericTable64(parseBuf, ModTable, qtrue);
+		if (stristr(parseBuf, "-1"))
+			sdp->mods = 0xFFFFFFFFFFFFFFFFll;
+		else
+			sdp->mods = BG_SiegeTranslateGenericTable64(parseBuf, ModTable, qtrue);
 
 		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_otherenttype", i + 1), parseBuf))
 			sdp->otherEntType = BG_SiegeTranslateGenericTable(parseBuf, OtherEntTypeTable, qtrue);
@@ -1370,9 +1400,33 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			sdp->onlyKnockback = qfalse;
 		}
 
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_jedisplashdmgreduction", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_YES;
+			else if (stristr(parseBuf, "no") || *parseBuf == '0')
+				sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_NO;
+			else
+				sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_DEFAULT;
+		}
+		else {
+			sdp->jediSplashDamageReduction = JEDISPLASHDMGREDUCTION_DEFAULT;
+		}
+
+		if (BG_SiegeGetPairedValue(classInfo, va("outgoingdmg%d_nonjedisaberdmgincrease", i + 1), parseBuf)) {
+			if (stristr(parseBuf, "yes") || *parseBuf == '1')
+				sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_YES;
+			else if (stristr(parseBuf, "no") || *parseBuf == '0')
+				sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_NO;
+			else
+				sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_DEFAULT;
+		}
+		else {
+			sdp->nonJediSaberDamageIncrease = NONJEDISABERDMGINCREASE_DEFAULT;
+		}
+
 #ifdef _DEBUG
-		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d, onlyKnockback %d\n",
-			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk, sdp->onlyKnockback);
+		Com_Printf("Parsed outgoing dmg parm for %s with mods %llu, otherEntType %d, minDmg %d, maxDmg %d, dmgMult %.3f, knockbackMult %.3f, freeze %d (%d to %d), negativeDmgOk %d, onlyKnockback %d, jedi splash dmg reduction %d, non-jedi saber dmg increase %d\n",
+			scl->name, sdp->mods, sdp->otherEntType, sdp->damageMin, sdp->damageMax, sdp->damageMultiplier, sdp->knockbackMultiplier, sdp->freeze, sdp->freezeMin, sdp->freezeMax, sdp->negativeDamageOk, sdp->onlyKnockback, sdp->jediSplashDamageReduction, sdp->nonJediSaberDamageIncrease);
 #endif
 	}
 

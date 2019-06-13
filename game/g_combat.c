@@ -4882,6 +4882,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int originalDamage = damage;
 #endif
 	int freeze = FREEZE_DEFAULT, freezeMinOverride = -1, freezeMaxOverride = -1, overrideFreezeTimeActual = -1;
+	int jediSplashDmgReduction = JEDISPLASHDMGREDUCTION_DEFAULT, nonJediSaberDmgIncrease = NONJEDISABERDMGINCREASE_DEFAULT;
 	qboolean negativeDamageOk = qfalse, onlyKnockback = qfalse;
 	float specialDamageParamKnockbackMultiplier = 1.0f;
 	if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker->client->siegeClass != -1) {
@@ -4924,6 +4925,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 			negativeDamageOk = sdp->negativeDamageOk;
 			onlyKnockback = sdp->onlyKnockback;
+			jediSplashDmgReduction = sdp->jediSplashDamageReduction;
+			nonJediSaberDmgIncrease = sdp->nonJediSaberDamageIncrease;
 #ifdef _DEBUG
 			Com_Printf("Outgoing damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
 #endif
@@ -4972,6 +4975,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 			negativeDamageOk = sdp->negativeDamageOk;
 			onlyKnockback = sdp->onlyKnockback;
+			jediSplashDmgReduction = sdp->jediSplashDamageReduction;
+			nonJediSaberDmgIncrease = sdp->nonJediSaberDamageIncrease;
 #ifdef _DEBUG
 			Com_Printf("Incoming damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
 #endif
@@ -4988,14 +4993,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	qboolean isUrbanOrCargoOAssault = qfalse;
-	if ((mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) && (level.siegeMap == SIEGEMAP_URBAN || level.siegeMap == SIEGEMAP_CARGO) &&
-		targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
-		attacker && attacker->client && attacker->client->sess.sessionTeam != TEAM_RED &&
-		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_INFANTRY) {
-		isUrbanOrCargoOAssault = qtrue;
-	}
-	if (freeze == FREEZE_YES || (freeze != FREEZE_NO && mod == MOD_DEMP2 && !isUrbanOrCargoOAssault && targ && targ->inuse && targ->client))
+	if (freeze == FREEZE_YES || (freeze != FREEZE_NO && mod == MOD_DEMP2 && targ && targ->inuse && targ->client))
 	{
 		if (targ->client->ps.electrifyTime < level.time)
 		{//electrocution effect
@@ -5091,31 +5089,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	qboolean enableJediSplashDamageReduction = qtrue;
-	if (level.siegeMap == SIEGEMAP_URBAN && targ && targ->client && targ->client->siegeClass != -1) {
-		if (bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_JEDI && targ->client->sess.sessionTeam == TEAM_BLUE) {
-			switch (mod) {
-			case MOD_REPEATER_ALT:
-			case MOD_REPEATER_ALT_SPLASH:
-			case MOD_FLECHETTE_ALT_SPLASH:
-			case MOD_ROCKET:
-			case MOD_ROCKET_SPLASH:
-			case MOD_ROCKET_HOMING:
-			case MOD_ROCKET_HOMING_SPLASH:
-			case MOD_THERMAL:
-			case MOD_THERMAL_SPLASH:
-			case MOD_TRIP_MINE_SPLASH:
-			case MOD_TIMED_MINE_SPLASH:
-			case MOD_DET_PACK_SPLASH:
-				enableJediSplashDamageReduction = qfalse;
-				break;
-			}
-		}
-	}
-
-	if (isUrbanOrCargoOAssault && (mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
-		damage -= (int)((float)damage * 0.3f);
-
 	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && level.siegeMap == SIEGEMAP_DESERT && !level.totalObjectivesCompleted)
 	{
 		//can't damage the stations until the game starts
@@ -5196,30 +5169,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && targ->client && targ->client->sess.siegeDuelInProgress && mod == MOD_MELEE)
 	{
 		return;
-	}
-
-	// urban o hw damage stuff
-	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
-		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_HEAVY_WEAPONS) {
-		if (mod == MOD_FALLING) { // no falling damage
-			return;
-		}
-		else if (!attacker || !attacker->client || attacker->client->sess.sessionTeam != TEAM_RED) {
-			if (mod == MOD_TIMED_MINE_SPLASH) { // reduced proximity mine damage
-				if (damage > 2)
-					damage = 2;
-			}
-			else if (mod == MOD_REPEATER_ALT || mod == MOD_REPEATER_ALT_SPLASH || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT || mod == MOD_FLECHETTE_ALT_SPLASH ||
-				mod == MOD_ROCKET || mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET_HOMING || mod == MOD_ROCKET_HOMING_SPLASH || mod == MOD_THERMAL ||
-				mod == MOD_THERMAL_SPLASH || mod == MOD_TRIP_MINE_SPLASH || mod == MOD_DET_PACK_SPLASH) {
-				damage = (int)round((((float)damage) * 0.9f)); // reduced splash/demp damage
-				if (damage < 1)
-					damage = 1;
-			}
-			else if (mod == MOD_SABER) {
-				damage = 100; // guaranteed to be one-shot by saber
-			}
-		}
 	}
 
 	if ( targ && targ->client && targ->client->ps.duelInProgress )
@@ -5583,8 +5532,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( (g_trueJedi.integer || g_gametype.integer == GT_SIEGE)
 		&& client )
 	{//less explosive damage for jedi, more saber damage for non-jedi
-		if (enableJediSplashDamageReduction && (client->ps.trueJedi
-			|| (g_gametype.integer == GT_SIEGE&&client->ps.weapon == WP_SABER)))
+		if (jediSplashDmgReduction != JEDISPLASHDMGREDUCTION_NO && (jediSplashDmgReduction == JEDISPLASHDMGREDUCTION_YES || client->ps.trueJedi
+			|| (g_gametype.integer == GT_SIEGE && client->ps.weapon == WP_SABER)))
 		{//if the target is a trueJedi, reduce splash and explosive damage to 1/2
 			switch ( mod )
 			{
@@ -5605,8 +5554,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				break;
 			}
 		}
-		else if ( (client->ps.trueNonJedi || (g_gametype.integer == GT_SIEGE&&client->ps.weapon != WP_SABER))
-			&& mod == MOD_SABER && !(targ->NPC && targ->NPC->stats.normalSaberDamage) )
+		else if (nonJediSaberDmgIncrease != NONJEDISABERDMGINCREASE_NO && mod == MOD_SABER && !(targ->NPC && targ->NPC->stats.normalSaberDamage) &&
+			(nonJediSaberDmgIncrease == NONJEDISABERDMGINCREASE_YES || client->ps.trueNonJedi || (g_gametype.integer == GT_SIEGE && client->ps.weapon != WP_SABER)))
 		{//if the target is a trueNonJedi, take more saber damage... combined with the 1.5 in the w_saber stuff, this is 6 times damage!
 			if ( damage < 100 )
 			{
@@ -5773,13 +5722,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	// urban o hw no self-damage with rockets
-	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_URBAN && targ && targ->client && targ->client->sess.sessionTeam == TEAM_RED &&
-		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].playerClass == SPC_HEAVY_WEAPONS &&
-		mod >= MOD_ROCKET && mod <= MOD_ROCKET_HOMING_SPLASH && attacker == targ) {
-		return;
-	}
-
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
 	if ( client && client->ps.powerups[PW_BATTLESUIT] && !client->sess.siegeDuelInProgress) {
@@ -5837,6 +5779,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		asave = CheckArmor(targ, take, dflags);
 	else
 		asave = 0;
+
+#ifdef _DEBUG
+	Com_Printf("%d damaged by %d with mod %d for %d (original damage: %d)\n", targ ? targ - g_entities : -1, attacker ? attacker - g_entities : -1, mod, take, originalDamage);
+#endif
 
 	if (asave)
 	{
@@ -6343,7 +6289,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		if (targ->client && targ->s.number < MAX_CLIENTS && freeze != FREEZE_NO && (freeze ==  FREEZE_YES || mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT))
 		{ //uh.. shock them or something. what the hell, I don't know.
-            if (targ->client->ps.weaponTime <= 0 && !isUrbanOrCargoOAssault)
+            if (targ->client->ps.weaponTime <= 0)
 			{ //yeah, we were supposed to be beta a week ago, I don't feel like
 				//breaking the game so I'm gonna be safe and only do this only
 				//if your weapon is not busy

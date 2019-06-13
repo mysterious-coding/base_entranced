@@ -6958,7 +6958,7 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			continue;
 		AddDesc(", ^1Outgoing dmg modifier^7 (");
 		if (param->mods == 0xFFFFFFFFFFFFFFFFll) {
-			AddDesc("All Weapons");
+			AddDesc("All Damage Sources");
 		}
 		else {
 			qboolean gotMod = qfalse;
@@ -7073,6 +7073,19 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 				AddDesc(", Causes Freezing");
 			}
 		}
+
+		if (param->onlyKnockback)
+			AddDesc(", Only Knockback");
+
+		if (param->jediSplashDamageReduction == JEDISPLASHDMGREDUCTION_YES)
+			AddDesc(", Jedi Splash Damage Reduction");
+		else if (param->jediSplashDamageReduction == JEDISPLASHDMGREDUCTION_NO)
+			AddDesc(", No Jedi Splash Damage Reduction");
+
+		if (param->nonJediSaberDamageIncrease == NONJEDISABERDMGINCREASE_YES)
+			AddDesc(", Non-Jedi Saber Damage Increase");
+		else if (param->nonJediSaberDamageIncrease == NONJEDISABERDMGINCREASE_NO)
+			AddDesc(", No Non-Jedi Saber Damage Increase");
 
 		AddDesc(")");
 	}
