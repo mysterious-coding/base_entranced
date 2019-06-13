@@ -7204,6 +7204,13 @@ void Cmd_Emote_f(gentity_t *ent) {
 	unsigned int torsoAnim = hash / (unsigned)NUM_EMOTES;
 	unsigned int legsAnim = hash % (unsigned)NUM_EMOTES;
 
+	// regenerate the hash for some bugged ones
+	while (legsAnim >= (unsigned)BOTH_ROLL_F && legsAnim <= (unsigned)BOTH_ROLL_R) {
+		hash = XXH32(&hash, sizeof(hash), 0x69420) % (unsigned)NUM_EMOTE_COMBINATIONS;
+		torsoAnim = hash / (unsigned)NUM_EMOTES;
+		legsAnim = hash % (unsigned)NUM_EMOTES;
+	}
+
 	ent->client->ps.torsoAnim = (signed)torsoAnim;
 	ent->client->ps.legsAnim = (signed)legsAnim;
 	ent->client->ps.torsoTimer = torsoTimer;
