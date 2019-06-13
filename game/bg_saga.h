@@ -70,7 +70,7 @@ typedef struct
 	char		desc[SIEGE_CLASS_DESC_LEN];
 } siegeClassDesc_t;
 
-#define MAX_SPECIALDAMAGEPARAMETERS		(8)
+#define MAX_SPECIALDAMAGEPARAMETERS		(32)
 typedef struct specialDamageParam_s {
 	long long	mods;
 	int			damageMin;
