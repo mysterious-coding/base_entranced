@@ -1131,9 +1131,6 @@ Touch_DoorTrigger
 */
 void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
-	if (other && other->client && other->client->emoted)
-		return;
-
 	gentity_t *relockEnt = NULL;
 
 	if (other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR)
