@@ -497,7 +497,7 @@ Mapmakers can add some new extra flags to .scl siege class files for additional 
 
 Note about ammo: for example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
 
-Mapmakers can customize weapons in their .scl siege class files. Up to 8 damage incoming damage modifiers and 8 outgoing damage modifiers are supported for each class. Examples:
+Mapmakers can customize weapons in their .scl siege class files. Up to 32 damage incoming damage modifiers and 32 outgoing damage modifiers are supported for each class. Examples:
 ```
     outgoingdmg1_mods    MOD_DISRUPTOR|MOD_DISRUPTOR_SPLASH|MOD_DISRUPTOR_SNIPER
     outgoingdmg1_dmgMult    0.25
