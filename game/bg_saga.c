@@ -52,6 +52,9 @@ stringID_table_t bgSiegeClassFlagNames[] =
 	ENUM2STRING(CFL_SINGLE_ROCKET),
 	ENUM2STRING(CFL_CUSTOMSKEL),
 	ENUM2STRING(CFL_EXTRA_AMMO),
+	ENUM2STRING(CFL_SPIDERMAN),
+	ENUM2STRING(CFL_GRAPPLE),
+	ENUM2STRING(CFL_KICK),
 	{"", -1}
 };
 
@@ -74,7 +77,8 @@ stringID_table_t OtherEntTypeTable[] = {
 	ENUM2STRING(OTHERENTTYPE_ALLY),
 	ENUM2STRING(OTHERENTTYPE_ENEMY),
 	ENUM2STRING(OTHERENTTYPE_VEHICLE),
-	ENUM2STRING(OTHERENTTYPE_OTHER)
+	ENUM2STRING(OTHERENTTYPE_OTHER),
+	{"", -1}
 };
 
 stringID_table_t ModTable[] = {
@@ -122,7 +126,8 @@ stringID_table_t ModTable[] = {
 	ENUM2STRING(MOD_TRIGGER_HURT),
 	ENUM2STRING(MOD_TEAM_CHANGE),
 	ENUM2STRING(MOD_MAX),
-	ENUM2STRING(MOD_SPECIAL_SENTRYBOMB)
+	ENUM2STRING(MOD_SPECIAL_SENTRYBOMB),
+	{"",  0xFFFFFFFFFFFFFFFFll}
 };
 
 //Weapon and force power tables are also used in NPC parsing code and some other places.
@@ -1075,6 +1080,26 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		scl->classflags = 0;
 	}
 
+	if (BG_SiegeGetPairedValue(classInfo, "audiomindtrick", parseBuf))
+		scl->audioMindTrick = atoi(parseBuf) ? qtrue : qfalse;
+	else
+		scl->audioMindTrick = qfalse;
+
+	if (BG_SiegeGetPairedValue(classInfo, "saberoffdamageboost", parseBuf))
+		scl->saberOffDamageBoost = atoi(parseBuf) ? qtrue : qfalse;
+	else
+		scl->saberOffDamageBoost = qfalse;
+
+	if (BG_SiegeGetPairedValue(classInfo, "shortburstjetpack", parseBuf))
+		scl->shortBurstJetpack = atoi(parseBuf) ? qtrue : qfalse;
+	else
+		scl->shortBurstJetpack = qfalse;
+
+	if (BG_SiegeGetPairedValue(classInfo, "chargingdempremovesspawnshield", parseBuf))
+		scl->chargingDempRemovesSpawnShield = atoi(parseBuf) ? qtrue : qfalse;
+	else
+		scl->chargingDempRemovesSpawnShield = qfalse;
+
 	//Parse maxhealth
 	if (BG_SiegeGetPairedValue(classInfo, "maxhealth", parseBuf))
 	{
@@ -1231,7 +1256,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_knockbackMult", i + 1), parseBuf))
 			sdp->knockbackMultiplier = atof(parseBuf);
 		else
-			sdp->knockbackMultiplier = sdp->damageMultiplier;
+			sdp->knockbackMultiplier = 1.0f;
 
 		if (BG_SiegeGetPairedValue(classInfo, va("incomingdmg%d_negativedmgok", i + 1), parseBuf)) {
 			if (stristr(parseBuf, "yes") || *parseBuf == '1')

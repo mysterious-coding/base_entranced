@@ -3183,4 +3183,144 @@ char *stristr(char *str, char *charset);
 
 #include "collections.h"
 
+#define		MAX_SIEGE_CLASSES					4096 //up to 128 classes
+#define		MAX_SIEGE_CLASSES_PER_TEAM			16
+
+#define		MAX_SIEGE_CLASS_FILELIST			16384
+#define		MAX_SIEGE_TEAM_FILELIST				16384
+
+#define		MAX_SIEGE_TEAMS						1024 //up to 16 diffent teams
+
+// The basic siege player classes
+typedef enum
+{
+	SPC_INFANTRY = 0,
+	SPC_VANGUARD,
+	SPC_SUPPORT,
+	SPC_JEDI,
+	SPC_DEMOLITIONIST,
+	SPC_HEAVY_WEAPONS,
+	SPC_MAX
+} siegePlayerClassFlags_t;
+
+// raven did some things inconsistently from the above enum, so this is unfortunately necessary
+typedef enum {
+	SSCN_ASSAULT = 1,
+	SSCN_HW,
+	SSCN_DEMO,
+	SSCN_SCOUT,
+	SSCN_TECH,
+	SSCN_JEDI
+} stupidSiegeClassNum_t;
+
+stupidSiegeClassNum_t SiegeClassEnumToStupidClassNumber(siegePlayerClassFlags_t scl);
+
+typedef enum
+{
+	CFL_MORESABERDMG = 0,
+	CFL_STRONGAGAINSTPHYSICAL,
+	CFL_FASTFORCEREGEN,
+	CFL_STATVIEWER,
+	CFL_HEAVYMELEE,
+	CFL_SINGLE_ROCKET,//has only 1 rocket to use with rocketlauncher
+	CFL_CUSTOMSKEL, //class uses a custom skeleton, be sure to load on server etc
+	CFL_EXTRA_AMMO,
+	CFL_SPIDERMAN,
+	CFL_GRAPPLE,
+	CFL_KICK,
+	NUM_CLASSFLAGS
+} siegeClassFlags_t;
+
+
+#ifdef _XBOX
+#define SIEGE_CLASS_DESC_LEN  512
+#else
+#define SIEGE_CLASS_DESC_LEN  4096
+#endif
+typedef struct
+{
+	char		desc[SIEGE_CLASS_DESC_LEN];
+} siegeClassDesc_t;
+
+#define MAX_SPECIALDAMAGEPARAMETERS		(32)
+typedef struct specialDamageParam_s {
+	long long	mods;
+	int			damageMin;
+	int			damageMax;
+	float		damageMultiplier;
+	float		knockbackMultiplier;
+	qboolean	negativeDamageOk;
+	int			freezeMin;
+	int			freezeMax;
+	qboolean	onlyKnockback;
+	enum {
+		JEDISPLASHDMGREDUCTION_DEFAULT = 0,
+		JEDISPLASHDMGREDUCTION_YES,
+		JEDISPLASHDMGREDUCTION_NO
+	}			jediSplashDamageReduction;
+	enum {
+		NONJEDISABERDMGINCREASE_DEFAULT = 0,
+		NONJEDISABERDMGINCREASE_YES,
+		NONJEDISABERDMGINCREASE_NO,
+	}			nonJediSaberDamageIncrease;
+	enum {
+		FREEZE_DEFAULT = 0,
+		FREEZE_YES,
+		FREEZE_NO
+	}			freeze;
+	enum {
+		OTHERENTTYPE_SELF = 0,
+		OTHERENTTYPE_ALLY,
+		OTHERENTTYPE_ENEMY,
+		OTHERENTTYPE_VEHICLE,
+		OTHERENTTYPE_OTHER
+	}			otherEntType;
+} specialDamageParam_t;
+
+typedef struct
+{
+	char		name[512];
+	char		description[/*SIEGE_CLASS_DESC_LEN*/1024];
+	char		forcedModel[256];
+	char		forcedSkin[256];
+	char		saber1[64];
+	char		saber2[64];
+	int			saberStance;
+	int			weapons;
+	int			forcePowerLevels[NUM_FORCE_POWERS];
+	int			classflags;
+	int			maxhealth;
+	int			starthealth;
+	int			maxarmor;
+	int			startarmor;
+	float		speed;
+	qboolean	hasForcedSaberColor;
+	int			forcedSaberColor;
+	qboolean	hasForcedSaber2Color;
+	int			forcedSaber2Color;
+	int			invenItems;
+	int			powerups;
+	int			uiPortraitShader;
+	char		uiPortrait[256];
+	int			classShader;
+	char		classShaderBuf[256];
+	short		playerClass;		// SPC_INFANTRY . .. 
+	int			ammoblaster;
+	int			ammopowercell;
+	int			ammometallicbolts;
+	int			ammorockets;
+	int			ammothermals;
+	int			ammotripmines;
+	int			ammodetpacks;
+	int			maxSentries;
+	qboolean	dispenseHealthpaks;
+	qboolean	jetpackFreezeImmunity;
+	qboolean	audioMindTrick;
+	qboolean	saberOffDamageBoost;
+	qboolean	shortBurstJetpack;
+	qboolean	chargingDempRemovesSpawnShield;
+	specialDamageParam_t	incomingDamageParam[MAX_SPECIALDAMAGEPARAMETERS];
+	specialDamageParam_t	outgoingDamageParam[MAX_SPECIALDAMAGEPARAMETERS];
+} siegeClass_t;
+
 #endif	// __Q_SHARED_H

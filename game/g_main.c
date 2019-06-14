@@ -1843,8 +1843,6 @@ static void InitializeMapName(void) {
 		else if (!Q_stricmp(level.mapname, "mp/siege_alzocIII"))
 			level.numSiegeObjectivesOnMapCombined = 5;
 	}
-
-	trap_Cvar_Set("g_debugMelee", (level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL) ? "1" : "0");
 }
 
 char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE];
@@ -5600,14 +5598,17 @@ void G_RunFrame( int levelTime ) {
 	}
 #endif
 
-	if (level.siegeMap == SIEGEMAP_CARGO) {
+	// saber off damage boost
+	if (g_gametype.integer == GT_SIEGE) {
 		static int lastTime = 0;
 		static qboolean saberOn[MAX_CLIENTS] = { qfalse }, notified[MAX_CLIENTS] = { qfalse };
 		if (lastTime) {
 			for (i = 0; i < MAX_CLIENTS; i++) {
 				gclient_t *cl = &level.clients[i];
 				if (cl->pers.connected != CON_CONNECTED ||
-					cl->sess.sessionTeam != TEAM_BLUE ||
+					cl->siegeClass == -1 ||
+					!bgSiegeClasses[cl->siegeClass].saberOffDamageBoost ||
+					cl->sess.sessionTeam == TEAM_SPECTATOR ||
 					cl->ps.stats[STAT_HEALTH] <= 0 ||
 					cl->tempSpectate > level.time ||
 					cl->ps.weapon != WP_SABER) {
@@ -6124,7 +6125,7 @@ void G_RunFrame( int levelTime ) {
 #define JETPACK_REFUEL_RATE		150 //seems fair
 			if (ent->client->jetPackOn && level.pause.state == PAUSE_NONE) { //using jetpack, drain fuel
 				if (ent->client->jetPackDebReduce < level.time) {
-					if (level.siegeMap == SIEGEMAP_URBAN)
+					if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].shortBurstJetpack)
 						ent->client->ps.jetpackFuel -= 3;
 					else
 						ent->client->ps.jetpackFuel -= (ent->client->pers.cmd.upmove > 0) ? 2 : 1; // take more if they're thrusting
@@ -6133,7 +6134,7 @@ void G_RunFrame( int levelTime ) {
 						ent->client->ps.jetpackFuel = 0;
 						Jetpack_Off(ent);
 					}
-					if (level.siegeMap == SIEGEMAP_URBAN)
+					if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].shortBurstJetpack)
 						ent->client->jetPackDebReduce = level.time + 14;
 					else
 						ent->client->jetPackDebReduce = level.time + JETPACK_DEFUEL_RATE;
@@ -6142,7 +6143,7 @@ void G_RunFrame( int levelTime ) {
 			else if (ent->client->ps.jetpackFuel < 100 && level.pause.state == PAUSE_NONE) { //recharge jetpack
 				if (ent->client->jetPackDebRecharge < level.time) {
 					ent->client->ps.jetpackFuel++;
-					if (level.siegeMap == SIEGEMAP_URBAN)
+					if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].shortBurstJetpack)
 						ent->client->jetPackDebRecharge = level.time + (JETPACK_REFUEL_RATE / 2);
 					else
 						ent->client->jetPackDebRecharge = level.time + JETPACK_REFUEL_RATE;

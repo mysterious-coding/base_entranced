@@ -1406,7 +1406,8 @@ void Jetpack_On(gentity_t *ent)
 			return;
 	}
 
-	if (level.siegeMap == SIEGEMAP_URBAN && ent->client->ps.jetpackFuel < 100) {
+	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 &&
+		bgSiegeClasses[ent->client->siegeClass].shortBurstJetpack && ent->client->ps.jetpackFuel < 100) {
 		return;
 	}
 

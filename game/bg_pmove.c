@@ -1484,6 +1484,7 @@ static float BG_ForceWallJumpStrength( void )
 	return (forceJumpStrength[FORCE_LEVEL_3]/2.5f);
 }
 
+extern siegeClass_t bgSiegeClasses[MAX_SIEGE_CLASSES];
 qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean doMove )
 {
 	if ( ( ( BG_InReboundJump( ps->legsAnim ) || BG_InReboundHold( ps->legsAnim ) )
@@ -1529,7 +1530,9 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 			return qfalse;
 			break;
 		}
-		if ( /*pm->debugMelee ||*/ ((level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL) && pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].sess.sessionTeam == TEAM_BLUE && g_entities[pm->ps->clientNum].s.weapon == WP_SABER) )
+		if (pm->debugMelee || (pm->ps->clientNum < MAX_CLIENTS &&
+			g_gametype.integer == GT_SIEGE && level.clients[pm->ps->clientNum].siegeClass != -1 &&
+			bgSiegeClasses[level.clients[pm->ps->clientNum].siegeClass].classflags & (1 << CFL_SPIDERMAN)))
 		{//uber-skillz
 			if (level.clients[pm->ps->clientNum].pushOffWallTime && level.time - level.clients[pm->ps->clientNum].pushOffWallTime <= 100) {
 				level.clients[pm->ps->clientNum].pushOffWallTime = 0;
@@ -5875,7 +5878,9 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 				assert(pm->ps->weapon > WP_NONE);
 				BG_AddPredictableEventToPlayerstate(EV_WEAPON_CHARGE_ALT, pm->ps->weapon, pm->ps);
-				if (level.siegeMap == SIEGEMAP_CARGO && pm->ps->weapon == WP_DEMP2) {
+				if (pm->ps->weapon == WP_DEMP2 && pm->ps->clientNum >= 0 && pm->ps->clientNum < MAX_CLIENTS &&
+					g_gametype.integer == GT_SIEGE && level.clients[pm->ps->clientNum].siegeClass != -1 &&
+					bgSiegeClasses[level.clients[pm->ps->clientNum].siegeClass].chargingDempRemovesSpawnShield) {
 					level.clients[pm->ps->clientNum].dangerTime = level.time;
 					level.clients[pm->ps->clientNum].ps.eFlags &= ~EF_INVULNERABLE;
 					level.clients[pm->ps->clientNum].invulnerableTimer = 0;
@@ -7247,7 +7252,9 @@ static void PM_Weapon( void )
 		//Alternate between punches and use the anim length as weapon time.
 		if (!pm->ps->m_iVehicleNum)
 		{ //if riding a vehicle don't do this stuff at all
-			if (/*pm->debugMelee*/0 &&
+			if ((pm->debugMelee || (pm->ps->clientNum < MAX_CLIENTS &&
+				g_gametype.integer == GT_SIEGE && level.clients[pm->ps->clientNum].siegeClass != -1 &&
+				bgSiegeClasses[level.clients[pm->ps->clientNum].siegeClass].classflags & (1 << CFL_GRAPPLE))) &&
 				(pm->cmd.buttons & BUTTON_ATTACK) &&
 				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //ok, grapple time
@@ -7294,7 +7301,9 @@ static void PM_Weapon( void )
 	#endif
 #endif
 			}
-			else if (/*pm->debugMelee*/0 &&
+			else if ((pm->debugMelee || (pm->ps->clientNum < MAX_CLIENTS &&
+				g_gametype.integer == GT_SIEGE && level.clients[pm->ps->clientNum].siegeClass != -1 &&
+				bgSiegeClasses[level.clients[pm->ps->clientNum].siegeClass].classflags & (1 << CFL_KICK))) &&
 				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //kicks
 				if (!BG_KickingAnim(pm->ps->torsoAnim) &&

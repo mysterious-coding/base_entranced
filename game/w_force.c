@@ -932,7 +932,9 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 		return qfalse;
 	}
 
-	if ( /*g_debugMelee.integer ||*/ ((level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL) && self->client->sess.sessionTeam == TEAM_BLUE && self->client->ps.weapon == WP_SABER))
+	if ( g_debugMelee.integer || (self - g_entities < MAX_CLIENTS && self->client &&
+		g_gametype.integer == GT_SIEGE && self->client->siegeClass != -1 &&
+		bgSiegeClasses[self->client->siegeClass].classflags & (1 << CFL_SPIDERMAN)))
 	{
 		if ( (self->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 		{//no offensive force powers when stuck to wall
@@ -2845,8 +2847,8 @@ void ForceTelepathy(gentity_t *self)
 	}
 
 	// special mind trick power on cargo
-	if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_CARGO &&
-		self - g_entities < MAX_CLIENTS && self->client && self->client->sess.sessionTeam == TEAM_BLUE &&
+	if (g_gametype.integer == GT_SIEGE && self - g_entities < MAX_CLIENTS && self->client && self->client->siegeClass != -1 &&
+		bgSiegeClasses[self->client->siegeClass].audioMindTrick &&
 		self->client->ps.fd.forcePower >= CARGO_MINDTRICK_COST) {
 		vec3_t start, end, forward;
 		VectorCopy(self->client->ps.origin, start);
@@ -3680,7 +3682,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				// we knocked that guy with push/pull, his run is invalid
 				//push_list[x]->client->runInvalid = qtrue;
 
-				if ( /*g_debugMelee.integer ||*/ ((level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL) && push_list[x] - g_entities < MAX_CLIENTS && push_list[x]->client->sess.sessionTeam == TEAM_BLUE && push_list[x]->client->ps.weapon == WP_SABER) )
+				if ( g_debugMelee.integer || (push_list[x] - g_entities < MAX_CLIENTS && push_list[x]->client &&
+					g_gametype.integer == GT_SIEGE && push_list[x]->client->siegeClass != -1 &&
+					bgSiegeClasses[push_list[x]->client->siegeClass].classflags & (1 << CFL_SPIDERMAN)))
 				{
 					if ( (push_list[x]->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 					{//no resistance if stuck to wall

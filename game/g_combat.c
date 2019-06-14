@@ -5578,10 +5578,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		damage *= 0.5;
 	}
 
-	if (level.siegeMap == SIEGEMAP_CARGO && g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker - g_entities - MAX_CLIENTS &&
-		attacker->client->sess.sessionTeam == TEAM_BLUE && mod == MOD_SABER &&
-		attacker->client->saberBonusTime && level.time - attacker->client->saberBonusTime <= 1500 &&
-		targ && targ->client && targ - g_entities < MAX_CLIENTS && targ->client->sess.sessionTeam == TEAM_RED && targ->s.weapon != WP_SABER) {
+	if (g_gametype.integer == GT_SIEGE && attacker && attacker->client && attacker - g_entities < MAX_CLIENTS &&
+		attacker->client->siegeClass != -1 && bgSiegeClasses[attacker->client->siegeClass].saberOffDamageBoost &&
+		mod == MOD_SABER && attacker->client->saberBonusTime && level.time - attacker->client->saberBonusTime <= 1500 &&
+		targ && targ->client && targ - g_entities < MAX_CLIENTS && targ->s.weapon != WP_SABER) {
 		damage = (int)(((float)damage) * 1.5f);
 	}
 
@@ -6281,9 +6281,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// do the damage
 	if (take) 
 	{
-		if (level.siegeMap == SIEGEMAP_CARGO && targ - g_entities < MAX_CLIENTS && targ->client &&
-			targ->client->ps.pm_flags & PMF_STUCK_TO_WALL && targ->client->sess.sessionTeam == TEAM_BLUE &&
-			targ->s.weapon == WP_SABER && targ->health > 0) {
+		if (targ - g_entities < MAX_CLIENTS && targ->client && targ->health > 0 &&
+			targ->client->ps.pm_flags & PMF_STUCK_TO_WALL &&
+			g_gametype.integer == GT_SIEGE && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].classflags & (1 << CFL_SPIDERMAN)) {
 			targ->client->pushOffWallTime = level.time;
 		}
 
@@ -6472,7 +6472,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		} 
 		else 
 		{
-			if ( /*pm->debugMelee ||*/ ((level.siegeMap == SIEGEMAP_CARGO || level.siegeMap == SIEGEMAP_IMPERIAL ) && targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && targ->client->ps.weapon == WP_SABER))
+			if ( pm->debugMelee || (targ - g_entities < MAX_CLIENTS && targ->client &&
+				g_gametype.integer == GT_SIEGE && targ->client->siegeClass != -1 &&
+				bgSiegeClasses[targ->client->siegeClass].classflags & (1 << CFL_SPIDERMAN)))
 			{//getting hurt makes you let go of the wall
 				if ( targ->client && (targ->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 				{

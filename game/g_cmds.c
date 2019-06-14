@@ -6765,7 +6765,7 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 		}
 	}
 
-	for (siegeClassFlags_t cfl = CFL_MORESABERDMG; cfl <= CFL_EXTRA_AMMO; cfl++) {
+	for (siegeClassFlags_t cfl = CFL_MORESABERDMG; cfl < NUM_CLASSFLAGS; cfl++) {
 		if (scl->classflags & (1 << cfl)) {
 			switch (cfl) {
 			case CFL_MORESABERDMG:			AddDesc(", ^3More Saber Dmg^7");					break;
@@ -6776,6 +6776,9 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			case CFL_SINGLE_ROCKET:			AddDesc(", ^3Single Rocket^7");						break;
 			case CFL_CUSTOMSKEL:			AddDesc(", ^3Custom Skeleton^7");					break;
 			case CFL_EXTRA_AMMO:			AddDesc(", ^3Double Ammo^7");						break;
+			case CFL_SPIDERMAN:				AddDesc(", ^3Perma-Wallgrab^7");					break;
+			case CFL_GRAPPLE:				AddDesc(", ^3Melee Grapple^7");						break;
+			case CFL_KICK:					AddDesc(", ^3Melee Kick^7");						break;
 			}
 		}
 	}
@@ -6791,6 +6794,14 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 		AddDesc(", ^3Jetpack Freeze Immunity^7");
 	if (scl->dispenseHealthpaks)
 		AddDesc(", ^3Dispenses Health Packs^7");
+	if (scl->audioMindTrick)
+		AddDesc(", ^3Audio Mind Trick^7");
+	if (scl->saberOffDamageBoost)
+		AddDesc(", ^3Saber-Off Damage Boost^7");
+	if (scl->shortBurstJetpack)
+		AddDesc(", ^3Short-Burst Jetpack^7");
+	if (scl->saberOffDamageBoost)
+		AddDesc(", ^3Charging Demp Removes Spawn Shield^7");
 
 	if (scl->ammoblaster)
 		AddDesc(va(", ^8%d Blaster Ammo^7", scl->ammoblaster));
@@ -6937,7 +6948,7 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			else
 				AddDesc(", No Dmg");
 		}
-		if (param->knockbackMultiplier != 1.0f || param->knockbackMultiplier != param->damageMultiplier) {
+		if (param->knockbackMultiplier != 1.0f) {
 			if (param->knockbackMultiplier)
 				AddDesc(va(", %0.2fx Knockback", param->knockbackMultiplier));
 			else
@@ -6950,6 +6961,19 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			AddDesc(", No Freezing");
 		else if (param->freeze == FREEZE_YES)
 			AddDesc(", Causes Freezing");
+
+		if (param->onlyKnockback)
+			AddDesc(", Only Knockback");
+
+		if (param->jediSplashDamageReduction == JEDISPLASHDMGREDUCTION_YES)
+			AddDesc(", Jedi Splash Damage Reduction");
+		else if (param->jediSplashDamageReduction == JEDISPLASHDMGREDUCTION_NO)
+			AddDesc(", No Jedi Splash Damage Reduction");
+
+		if (param->nonJediSaberDamageIncrease == NONJEDISABERDMGINCREASE_YES)
+			AddDesc(", Non-Jedi Saber Damage Increase");
+		else if (param->nonJediSaberDamageIncrease == NONJEDISABERDMGINCREASE_NO)
+			AddDesc(", No Non-Jedi Saber Damage Increase");
 
 		AddDesc(")");
 	}
@@ -7050,7 +7074,7 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			else
 				AddDesc(", No Dmg");
 		}
-		if (param->knockbackMultiplier != 1.0f || param->knockbackMultiplier != param->damageMultiplier) {
+		if (param->knockbackMultiplier != 1.0f) {
 			if (param->knockbackMultiplier)
 				AddDesc(va(", %0.2fx Knockback", param->knockbackMultiplier));
 			else
