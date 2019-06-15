@@ -494,6 +494,13 @@ Mapmakers can add some new extra flags to .scl siege class files for additional 
 * `maxsentries <#>` - place multiple sentries
 * `dispensehealthpaks` - throw health packs instead of ammo cans
 * `jetpackfreezeimmunity` - cannot have jetpack disabled by demp while already in flight
+* `audiomindtrick` - cargo3 style mind trick
+* `saberoffdamageboost` - cargo3 style saber damage boost
+* `shortburstjetpack` - urban style jetpack
+* `chargingdempremovesspawnshield` - hitting mouse2 with demp immediately removes green invulnerability shield
+* `classflags CFL_SPIDERMAN` - permanent wallgrab
+* `classflags CFL_GRAPPLE` - melee grapple
+* `classflags CFL_KICK` - melee kick
 
 Note about ammo: for example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
 
