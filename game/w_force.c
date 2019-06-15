@@ -3368,8 +3368,11 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	// d jedi on ansion gets pull1 if saber in air
 
 	if (pull && g_gametype.integer == GT_SIEGE && self && self - g_entities < MAX_CLIENTS && self->client && self->client->siegeClass != -1 &&
-		bgSiegeClasses[self->client->siegeClass].name[0] && !strcmp(bgSiegeClasses[self->client->siegeClass].name, "Ansion D Jedi")) {
-		powerLevel = self->client->ps.saberInFlight && self->client->ps.saberEntityNum ? FORCE_LEVEL_1 : FORCE_LEVEL_2;
+		bgSiegeClasses[self->client->siegeClass].pull1IfSaberInAir) {
+		int normalLevel = bgSiegeClasses[self->client->siegeClass].forcePowerLevels[FP_PULL];
+		if (normalLevel == FORCE_LEVEL_1)
+			normalLevel = FORCE_LEVEL_2;
+		powerLevel = self->client->ps.saberInFlight && self->client->ps.saberEntityNum ? FORCE_LEVEL_1 : normalLevel;
 		pushPower = 256 * powerLevel;
 	}
 

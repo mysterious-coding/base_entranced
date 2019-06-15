@@ -1100,6 +1100,16 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	else
 		scl->chargingDempRemovesSpawnShield = qfalse;
 
+	if (BG_SiegeGetPairedValue(classInfo, "pull1IfSaberInAir", parseBuf))
+		scl->pull1IfSaberInAir = atoi(parseBuf) ? qtrue : qfalse;
+	else
+		scl->pull1IfSaberInAir = qfalse;
+
+	if (BG_SiegeGetPairedValue(classInfo, "detkilldelay", parseBuf))
+		scl->detKillDelay = atoi(parseBuf);
+	else
+		scl->detKillDelay = 0;
+
 	//Parse maxhealth
 	if (BG_SiegeGetPairedValue(classInfo, "maxhealth", parseBuf))
 	{

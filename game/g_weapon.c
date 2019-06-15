@@ -3907,31 +3907,29 @@ void drop_charge (gentity_t *self, vec3_t start, vec3_t dir)
 void BlowDetpacks(gentity_t *ent, qboolean death)
 {
 	gentity_t *found = NULL;
+	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 && bgSiegeClasses[ent->client->siegeClass].detKillDelay) {
+		qboolean oneSurvived = qfalse;
+		while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
+		{//loop through all ents and blow the crap out of them!
+			if (found->parent == ent)
+			{
+				if (!death || level.time - found->siegeItemSpawnTime >= bgSiegeClasses[ent->client->siegeClass].detKillDelay) {
+					VectorCopy(found->r.currentOrigin, found->s.origin);
+					found->think = DetPackBlow;
+					found->nextthink = level.time + 100 + random() * 200; //TEST, BLOW BETWEEN THIS AND NEXT FRAME, MUHAHA
 
-	if ( ent->client->ps.hasDetPackPlanted )
-	{
-		if (g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_ANSION && ent->client->sess.sessionTeam == TEAM_BLUE && death) {
-			qboolean oneSurvived = qfalse;
-			while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
-			{//loop through all ents and blow the crap out of them!
-				if (found->parent == ent)
-				{
-					if (level.time - found->siegeItemSpawnTime >= 1000) {
-						VectorCopy(found->r.currentOrigin, found->s.origin);
-						found->think = DetPackBlow;
-						found->nextthink = level.time + 100 + random() * 200; //TEST, BLOW BETWEEN THIS AND NEXT FRAME, MUHAHA
-
-						G_Sound(found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav"));
-					}
-					else {
-						oneSurvived = qtrue;
-					}
+					G_Sound(found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav"));
+				}
+				else {
+					oneSurvived = qtrue;
 				}
 			}
-			if (!oneSurvived)
-				ent->client->ps.hasDetPackPlanted = qfalse;
 		}
-		else {
+		if (!oneSurvived)
+			ent->client->ps.hasDetPackPlanted = qfalse;
+	}
+	else {
+		if (ent->client->ps.hasDetPackPlanted) {
 			while ((found = G_Find(found, FOFS(classname), "detpack")) != NULL)
 			{//loop through all ents and blow the crap out of them!
 				if (found->parent == ent)

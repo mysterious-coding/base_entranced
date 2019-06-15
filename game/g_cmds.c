@@ -6802,6 +6802,10 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 		AddDesc(", ^3Short-Burst Jetpack^7");
 	if (scl->saberOffDamageBoost)
 		AddDesc(", ^3Charging Demp Removes Spawn Shield^7");
+	if (scl->pull1IfSaberInAir)
+		AddDesc(", ^3Pull Level 1 If Saber In Air^7");
+	if (scl->detKillDelay)
+		AddDesc(va(", ^3%d ms Detkill Delay^7"));
 
 	if (scl->ammoblaster)
 		AddDesc(va(", ^8%d Blaster Ammo^7", scl->ammoblaster));

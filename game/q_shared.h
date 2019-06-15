@@ -3319,6 +3319,8 @@ typedef struct
 	qboolean	saberOffDamageBoost;
 	qboolean	shortBurstJetpack;
 	qboolean	chargingDempRemovesSpawnShield;
+	qboolean	pull1IfSaberInAir;
+	int			detKillDelay;
 	specialDamageParam_t	incomingDamageParam[MAX_SPECIALDAMAGEPARAMETERS];
 	specialDamageParam_t	outgoingDamageParam[MAX_SPECIALDAMAGEPARAMETERS];
 } siegeClass_t;
