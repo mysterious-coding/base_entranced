@@ -492,12 +492,14 @@ Mapmakers can add some new extra flags to .scl siege class files for additional 
 * `ammotripmines <#>`
 * `ammodetpacks <#>`
 * `maxsentries <#>` - place multiple sentries
-* `dispensehealthpaks` - throw health packs instead of ammo cans
-* `jetpackfreezeimmunity` - cannot have jetpack disabled by demp while already in flight
-* `audiomindtrick` - cargo3 style mind trick
-* `saberoffdamageboost` - cargo3 style saber damage boost
-* `shortburstjetpack` - urban style jetpack
-* `chargingdempremovesspawnshield` - hitting mouse2 with demp immediately removes green invulnerability shield
+* `dispensehealthpaks 1` - throw health packs instead of ammo cans
+* `jetpackfreezeimmunity 1` - cannot have jetpack disabled by demp while already in flight
+* `audiomindtrick 1` - cargo3 style mind trick
+* `saberoffdamageboost 1` - cargo3 style saber damage boost
+* `shortburstjetpack 1` - urban style jetpack
+* `chargingdempremovesspawnshield 1` - hitting mouse2 with demp immediately removes green invulnerability shield
+* `pull1IfSaberInAir 1` - force pull level reduced to 1 if saber is in air
+* `detkilldelay 1000` - detpacks must be >= 1000ms old in order to detonate from death
 * `classflags CFL_SPIDERMAN` - permanent wallgrab
 * `classflags CFL_GRAPPLE` - melee grapple
 * `classflags CFL_KICK` - melee kick
