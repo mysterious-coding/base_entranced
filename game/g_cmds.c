@@ -7269,6 +7269,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		return;
 
 	qboolean teamOnly = qfalse;
+	qboolean needsSound = qtrue;
 	char modName[MAX_QPATH] = { 0 }, fileName[MAX_QPATH] = { 0 }, msg[200] = { 0 };
 	// parse each argument
 	for (char *r = s; *r; r++) {
@@ -7293,6 +7294,8 @@ void Cmd_Vchat_f(gentity_t *sender) {
 			Q_strncpyz(msg, buf + 4, sizeof(msg));
 		else if (!Q_stricmpn(buf, "team=", 5) && buf[5])
 			teamOnly = !!atoi(buf + 5);
+		else if (!Q_stricmpn(buf, "ns=", 3) && buf[3])
+			needsSound = !!atoi(buf + 3);
 
 		if (!*r)
 			break; // we reached the end of the line
@@ -7311,8 +7314,8 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	Q_CleanString(msg, STRIP_COLOR);
 #endif
 
-	G_LogPrintf("vchat: %d %s: %s%s/%s: %s\n",
-		sender - g_entities, sender->client->pers.netname, teamOnly ? "(team) " : "", modName, fileName, msg);
+	G_LogPrintf("vchat: %d %s%s: %s%s/%s: %s\n",
+		sender - g_entities, sender->client->pers.netname, teamOnly ? "(team) " : "", needsSound ? va("%s(ns)", teamOnly ? " " : "") : "", modName, fileName, msg);
 
 	int senderLocation = 0;
 	char chatLocation[64] = { 0 };
@@ -7399,41 +7402,56 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		}
 
 		char *command;
-		if (teamOnly && locationToSend) {
-			command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\" \"loc=%d\"%s",
-				chatSenderName,
-				chatLocation,
-				chatMessage,
+		if (needsSound) {
+			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
 				sender - g_entities,
 				modName,
 				fileName,
 				msg,
-				teamOnly, // team only parameter is sent anyway so clients can display with team styling
-				locationToSend,
-				downloadAvailable ? " \"dl=1\"" : "");
+				needsSound,
+				teamOnly,
+				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "");
 		}
 		else {
-			if (teamOnly) {
-				command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s",
+			if (teamOnly && locationToSend) {
+				command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\" \"loc=%d\"%s",
 					chatSenderName,
+					chatLocation,
 					chatMessage,
 					sender - g_entities,
 					modName,
 					fileName,
 					msg,
+					needsSound,
 					teamOnly, // team only parameter is sent anyway so clients can display with team styling
+					locationToSend,
 					downloadAvailable ? " \"dl=1\"" : "");
 			}
 			else {
-				command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"team=%d\"%s",
-					chatSenderName,
-					chatMessage,
-					sender - g_entities,
-					modName,
-					fileName,
-					msg,
-					teamOnly, // team only parameter is sent anyway so clients can display with team styling
-					downloadAvailable ? " \"dl=1\"" : "");
+				if (teamOnly) {
+					command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
+						chatSenderName,
+						chatMessage,
+						sender - g_entities,
+						modName,
+						fileName,
+						msg,
+						needsSound,
+						teamOnly, // team only parameter is sent anyway so clients can display with team styling
+						downloadAvailable ? " \"dl=1\"" : "");
+				}
+				else {
+					command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
+						chatSenderName,
+						chatMessage,
+						sender - g_entities,
+						modName,
+						fileName,
+						msg,
+						needsSound,
+						teamOnly, // team only parameter is sent anyway so clients can display with team styling
+						downloadAvailable ? " \"dl=1\"" : "");
+				}
 			}
 		}
 		trap_SendServerCommand(i, command);
