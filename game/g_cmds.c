@@ -6805,7 +6805,7 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 	if (scl->pull1IfSaberInAir)
 		AddDesc(", ^3Pull Level 1 If Saber In Air^7");
 	if (scl->detKillDelay)
-		AddDesc(va(", ^3%d ms Detkill Delay^7"));
+		AddDesc(va(", ^3%d ms Detkill Delay^7", scl->detKillDelay));
 
 	if (scl->ammoblaster)
 		AddDesc(va(", ^8%d Blaster Ammo^7", scl->ammoblaster));
