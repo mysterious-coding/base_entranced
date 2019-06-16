@@ -4316,7 +4316,6 @@ void ClientThink_real( gentity_t *ent ) {
 				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_KICK))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_KICK);
 			}
-			trap_Cvar_Set(va("client%dflags", i), va("%d", cl->ps.stats[STAT_SIEGEFLAGS]));
 		}
 	}
 }
