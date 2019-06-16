@@ -4301,21 +4301,22 @@ void ClientThink_real( gentity_t *ent ) {
 					continue;
 				if (followed->siegeClass == -1)
 					continue;
-				if (bgSiegeClasses[followed->siegeClass].classflags & CFL_SPIDERMAN)
+				if (bgSiegeClasses[followed->siegeClass].classflags & (1 << CFL_SPIDERMAN))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_SPIDERMAN);
-				if (bgSiegeClasses[followed->siegeClass].classflags & CFL_GRAPPLE)
+				if (bgSiegeClasses[followed->siegeClass].classflags & (1 << CFL_GRAPPLE))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_GRAPPLE);
-				if (bgSiegeClasses[followed->siegeClass].classflags & CFL_KICK)
+				if (bgSiegeClasses[followed->siegeClass].classflags & (1 << CFL_KICK))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_KICK);
 			}
 			else {
-				if (bgSiegeClasses[cl->siegeClass].classflags & CFL_SPIDERMAN)
+				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_SPIDERMAN))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_SPIDERMAN);
-				if (bgSiegeClasses[cl->siegeClass].classflags & CFL_GRAPPLE)
+				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_GRAPPLE))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_GRAPPLE);
-				if (bgSiegeClasses[cl->siegeClass].classflags & CFL_KICK)
+				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_KICK))
 					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_KICK);
 			}
+			trap_Cvar_Set(va("client%dflags", i), va("%d", cl->ps.stats[STAT_SIEGEFLAGS]));
 		}
 	}
 }
