@@ -7407,14 +7407,15 @@ void Cmd_Vchat_f(gentity_t *sender) {
 
 		char *command;
 		if (needsSound) {
-			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
+			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s%s",
 				sender - g_entities,
 				modName,
 				fileName,
 				msg,
 				needsSound,
 				teamOnly,
-				teamOnly && locationToSend ? va("\"loc=%d\"", locationToSend) : "");
+				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "",
+				downloadAvailable ? " \"dl=1\"" : "");
 		}
 		else {
 			if (teamOnly && locationToSend) {
