@@ -4534,6 +4534,8 @@ void ClientEndFrame( gentity_t *ent ) {
 			if (ent->client->ps.eFlags & EF_CONNECTION || ent->client->isLagging) { // he was lagging (or vid_restarted) but isn't anymore; send this stuff again just to be sure
 				G_BroadcastServerFeatureList(ent - g_entities);
 				UpdateNewmodSiegeClassLimits(ent - g_entities);
+				if (ent->client->sess.isInkognito)
+					trap_SendServerCommand(ent - g_entities, "kls -1 -1 \"inko\" \"1\""); // only update if enabled
 			}
 			ent->client->isLagging = qfalse;
 			ent->client->ps.eFlags &= ~EF_CONNECTION;

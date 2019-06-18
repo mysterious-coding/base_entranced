@@ -8976,7 +8976,8 @@ void Cmd_Help_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/JOIN:^7   Use ^5/join <team letter><first letter of class name>^7 (no spaces) to join as a specific team and class. For example, '^5join rj^7' for red jedi)\n\""));
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/CLASSES:^7   Use ^5/classes^7 to display all class loadouts for the current map.\n\""));
 	}
-	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2:^7   Using ^5serverstatus2^7, you can see a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
+	trap_SendServerCommand(ent - g_entities, va("print \"^2/SERVERSTATUS2:^7   You can use ^5/serverstatus2^7 to display a list of server cvars that are not displayed by the ordinary /serverstatus command.\n\""));
+	trap_SendServerCommand(ent - g_entities, "print \"^2/INKOGNITO:^7   You can use ^5/inkognito^7 to hide whom you are following on the scoreboard.\n\"");
 	if (g_allow_ready.integer)
 	{
 		trap_SendServerCommand(ent - g_entities, va("print \"^2/READY:^7   You can use ^5/ready^7 to yourself to toggle yourself eligible/ineligible for selection by the random team generator(used with vote or rcon).\n\""));
@@ -9730,6 +9731,9 @@ void ClientCommand( int clientNum ) {
 
 			trap_SendServerCommand( ent-g_entities, 
 			va("print \"Inkognito %s\n\"", ent->client->sess.isInkognito ? "ON" : "OFF"));
+#ifdef NEWMOD_SUPPORT
+			trap_SendServerCommand(ent - g_entities, va("kls -1 -1 \"inko\" \"%d\"", ent->client->sess.isInkognito));
+#endif
 		}
 		return;
 	}

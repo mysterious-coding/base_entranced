@@ -3059,6 +3059,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"skillboost \"Displays which players are skillboosted\" "
 		"senseboost \"Displays which players are senseboosted\" "
 		"pugmaps \"Displays a list of maps you can vote for with /callvote newpug\" "
+		"inkognito \"Hides whom you are following on the scoreboard\" "
 		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
 
 	trap_SendServerCommand(clientNum, commandListCmd);
@@ -3378,6 +3379,8 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 #ifdef NEWMOD_SUPPORT
 	G_BroadcastServerFeatureList( clientNum );
 	UpdateNewmodSiegeClassLimits(clientNum);
+	if (ent->client->sess.isInkognito)
+		trap_SendServerCommand(ent - g_entities, "kls -1 -1 \"inko\" \"1\""); // only update if enabled
 
 	if ( ent->client->sess.auth == PENDING ) {
 		trap_SendServerCommand( clientNum, va( "kls -1 -1 \"clannounce\" %d \"%s\"", NM_AUTH_PROTOCOL, level.publicKey.keyHex ) );
