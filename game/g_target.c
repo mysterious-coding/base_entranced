@@ -657,16 +657,10 @@ void target_icontoggle_use(gentity_t *self, gentity_t *other, gentity_t *activat
 	targ = G_Find(NULL, FOFS(targetname), self->target);
 
 	while (targ) {
-		if (!Q_stricmp(targ->classname, "info_siege_radaricon") || !Q_stricmp(targ->classname, "info_siege_objective")) {
-			if (!enable && (targ->s.eFlags & EF_RADAROBJECT || disable)) {
-				targ->s.eFlags &= ~EF_RADAROBJECT;
-				targ->r.svFlags &= ~SVF_BROADCAST;
-			}
-			else {
-				targ->s.eFlags |= EF_RADAROBJECT;
-				targ->r.svFlags |= SVF_BROADCAST;
-			}
-		}
+		if (!enable && (targ->s.eFlags & EF_RADAROBJECT || disable))
+			targ->s.eFlags &= ~EF_RADAROBJECT;
+		else
+			targ->s.eFlags |= EF_RADAROBJECT;
 		targ = G_Find(targ, FOFS(targetname), self->target);
 	}
 }
