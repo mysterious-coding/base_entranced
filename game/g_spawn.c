@@ -219,6 +219,7 @@ void SP_target_character (gentity_t *ent);
 void SP_target_score( gentity_t *ent );
 void SP_target_teleporter( gentity_t *ent );
 void SP_target_relay (gentity_t *ent);
+void SP_target_icontoggle(gentity_t *ent);
 void SP_target_kill (gentity_t *ent);
 void SP_target_position (gentity_t *ent);
 void SP_target_location (gentity_t *ent);
@@ -508,6 +509,7 @@ spawn_t	spawns[] = {
 	{"target_score", SP_target_score},
 	{"target_teleporter", SP_target_teleporter},
 	{"target_relay", SP_target_relay},
+	{"target_icontoggle", SP_target_icontoggle},
 	{"target_kill", SP_target_kill},
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},

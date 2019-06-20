@@ -643,6 +643,40 @@ void SP_target_relay (gentity_t *self) {
 	}
 }
 
+void target_icontoggle_use(gentity_t *self, gentity_t *other, gentity_t *activator) {
+	assert(self);
+	if (!self || !VALIDSTRING(self->target) || self->flags & FL_INACTIVE)
+		return;
+
+	qboolean enable = !!(self->spawnflags & 1);
+	qboolean disable = !!(self->spawnflags & 2);
+	if (enable && disable) // ?
+		enable = disable = qfalse;
+
+	gentity_t *targ;
+	targ = G_Find(NULL, FOFS(targetname), self->target);
+
+	while (targ) {
+		if (!Q_stricmp(targ->classname, "info_siege_radaricon") || !Q_stricmp(targ->classname, "info_siege_objective")) {
+			if (!enable && (targ->s.eFlags & EF_RADAROBJECT || disable)) {
+				targ->s.eFlags &= ~EF_RADAROBJECT;
+				targ->r.svFlags &= ~SVF_BROADCAST;
+			}
+			else {
+				targ->s.eFlags |= EF_RADAROBJECT;
+				targ->r.svFlags |= SVF_BROADCAST;
+			}
+		}
+		targ = G_Find(targ, FOFS(targetname), self->target);
+	}
+}
+
+void SP_target_icontoggle(gentity_t *self) {
+	self->use = target_icontoggle_use;
+	if (self->spawnflags & 128)
+		self->flags |= FL_INACTIVE;
+}
+
 
 //==========================================================
 
