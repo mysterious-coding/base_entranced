@@ -483,6 +483,8 @@ Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces th
 
 Mapmakers can set the new `mapversion` key in `worldspawn`, which can be used in conjunction with custom base_entranced code to alter certain things for each map version (for example, if you move the map in a new update, you can automatically adjust anti-spam or any other custom features present in the mod that depend on coordinates). If you don't know what this means, ignore it.
 
+Mapmakers can add the new `target_icontoggle` entity, which can toggle an entity's icon on/off. Make sure to only target entities that you want to toggle icons for. If `spawnflags` has the `1` bitflag set, it will enable the icon. If `spawnflags` has the `2` bitflag set, it will disable the icon. If neither, it will toggle it. If `spawnflags` has the `128` bitflag set, the `target_icontoggle` will be considered inactive, and needs to be activated by a `target_activate` first.
+
 Mapmakers can add some new extra flags to .scl siege class files for additional control over siege classes:
 * `ammoblaster <#>`
 * `ammopowercell <#>`
