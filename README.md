@@ -485,6 +485,21 @@ Mapmakers can set the new `mapversion` key in `worldspawn`, which can be used in
 
 Mapmakers can add the new `target_icontoggle` entity, which can toggle an entity's icon on/off. Make sure to only target entities that you want to toggle icons for. If `spawnflags` has the `1` bitflag set, it will enable the icon. If `spawnflags` has the `2` bitflag set, it will disable the icon. If neither, it will toggle it. If `spawnflags` has the `128` bitflag set, the `target_icontoggle` will be considered inactive, and needs to be activated by a `target_activate` first.
 
+Mapmakers can add the new `target_gear` entity, which can add, remove, or set certain parameters for whoever triggered it. Set the `type` key to either `add`, `remove`, or `set`. Here is an example:
+```
+classname    target_gear
+type    add
+weapons    WP_ROCKET_LAUNCHER|WP_FLECHETTE
+powerups    PW_FORCE_BOON
+items    HI_MEDPAC|HI_SEEKER
+ammo    AMMO_ROCKETS|AMMO_METAL_BOLTS
+ammoamount    15
+health    5
+armor    5
+force    FP_LIGHTNING,1|FP_LEVITATION,1
+```
+This is a ridiculous example, but it is just used to show some possibilities. This particular entity gives you rocket launcher and golan, gives you boon (or adds 25 seconds if you already have it), gives you a bacta and a seeker, adds 15 rockets and metallic bolts, adds 5 health, adds 5 armor, and adds one level of lightning and jump.
+
 Mapmakers can add some new extra flags to .scl siege class files for additional control over siege classes:
 * `ammoblaster <#>`
 * `ammopowercell <#>`
