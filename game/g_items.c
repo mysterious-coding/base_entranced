@@ -2437,7 +2437,12 @@ int Add_Ammo( gentity_t *ent, ammo_t ammoIndex, int count )
 	int max = Get_Max_Ammo( ent, ammoIndex );
 	int original = ent->client->ps.ammo[ammoIndex];
 
-	if ( ent->client->ps.ammo[ammoIndex] < max )
+	if (count < 0) {
+		ent->client->ps.ammo[ammoIndex] += count;
+		if (ent->client->ps.ammo[ammoIndex] < 0)
+			ent->client->ps.ammo[ammoIndex] = 0;
+	}
+	else if ( ent->client->ps.ammo[ammoIndex] < max )
 	{
 		ent->client->ps.ammo[ammoIndex] += count;
 		if ( ent->client->ps.ammo[ammoIndex] > max )

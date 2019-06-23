@@ -209,6 +209,7 @@ void SP_trigger_hyperspace(gentity_t *self);
 void SP_trigger_asteroid_field(gentity_t *self);
 
 void SP_target_remove_powerups( gentity_t *ent );
+void SP_target_gear(gentity_t *ent);
 void SP_target_give (gentity_t *ent);
 void SP_target_delay (gentity_t *ent);
 void SP_target_delay_cancel(gentity_t *ent);
@@ -501,6 +502,7 @@ spawn_t	spawns[] = {
 	// by another entity
 	{"target_give", SP_target_give},
 	{"target_remove_powerups", SP_target_remove_powerups},
+	{"target_gear", SP_target_gear},
 	{"target_delay", SP_target_delay},
 	{ "target_delay_cancel", SP_target_delay_cancel },
 	{"target_speaker", SP_target_speaker},

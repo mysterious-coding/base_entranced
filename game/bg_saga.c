@@ -221,6 +221,21 @@ stringID_table_t PowerupTable[] =
 	{"", -1}
 };
 
+stringID_table_t AmmoTable[] = 
+{
+	ENUM2STRING(AMMO_NONE),
+	ENUM2STRING(AMMO_FORCE),
+	ENUM2STRING(AMMO_BLASTER),
+	ENUM2STRING(AMMO_POWERCELL),
+	ENUM2STRING(AMMO_METAL_BOLTS),
+	ENUM2STRING(AMMO_ROCKETS),
+	ENUM2STRING(AMMO_EMPLACED),
+	ENUM2STRING(AMMO_THERMAL),
+	ENUM2STRING(AMMO_TRIPMINE),
+	ENUM2STRING(AMMO_DETPACK),
+	{"", -1}
+};
+
 // this crap was done inconsistently so i have to resort to this
 stupidSiegeClassNum_t SiegeClassEnumToStupidClassNumber(siegePlayerClassFlags_t scl) {
 	switch (scl) {

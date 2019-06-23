@@ -1,6 +1,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
+#include "bg_saga.h"
 
 //==========================================================
 
@@ -62,6 +63,361 @@ void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *ac
 
 void SP_target_remove_powerups( gentity_t *ent ) {
 	ent->use = Use_target_remove_powerups;
+}
+
+extern stringID_table_t WPTable[];
+extern stringID_table_t HoldableTable[];
+extern stringID_table_t PowerupTable[];
+extern stringID_table_t AmmoTable[];
+extern stringID_table_t FPTable[];
+extern int BG_SiegeTranslateGenericTable(char *buf, stringID_table_t *table, qboolean bitflag);
+typedef struct powersList_s {
+	byte	levels[NUM_FORCE_POWERS];
+} powersList_t;
+static powersList_t powersLists[MAX_GENTITIES] = { 0 };
+static void TranslateForcePowers(char *buf, powersList_t *powers) { // copy of base jka function without siegeclass_t
+	char checkPower[1024];
+	char checkLevel[256];
+	int l = 0;
+	int k = 0;
+	int j = 0;
+	int i = 0;
+	int parsedLevel = 0;
+	qboolean allPowers = qfalse;
+	qboolean noPowers = qfalse;
+
+	if (!Q_stricmp(buf, "FP_ALL"))
+	{ //this is a special case, just give us all the powers on level 3
+		allPowers = qtrue;
+	}
+
+	if (buf[0] == '0' && !buf[1])
+	{ //no powers then
+		noPowers = qtrue;
+	}
+
+	//First clear out the powers, or in the allPowers case, give us all level 3.
+	while (i < NUM_FORCE_POWERS)
+	{
+		if (allPowers)
+		{
+			powers->levels[i] = FORCE_LEVEL_3;
+		}
+		else
+		{
+			powers->levels[i] = 0;
+		}
+		i++;
+	}
+
+	if (allPowers || noPowers)
+	{ //we're done now then.
+		return;
+	}
+
+	i = 0;
+	while (buf[i])
+	{ //parse through the list which is seperated by |, and add all the weapons into a bitflag
+		if (buf[i] != ' ' && buf[i] != '|')
+		{
+			j = 0;
+
+			while (buf[i] && buf[i] != ' ' && buf[i] != '|' && buf[i] != ',')
+			{
+				checkPower[j] = buf[i];
+				j++;
+				i++;
+			}
+			checkPower[j] = 0;
+
+			if (buf[i] == ',')
+			{ //parse the power level
+				i++;
+				l = 0;
+				while (buf[i] && buf[i] != ' ' && buf[i] != '|')
+				{
+					checkLevel[l] = buf[i];
+					l++;
+					i++;
+				}
+				checkLevel[l] = 0;
+				parsedLevel = atoi(checkLevel);
+
+				//keep sane limits on the powers
+				if (parsedLevel < 0)
+				{
+					parsedLevel = 0;
+				}
+				if (parsedLevel > FORCE_LEVEL_5)
+				{
+					parsedLevel = FORCE_LEVEL_5;
+				}
+			}
+			else
+			{ //if it's not there, assume level 3 I guess.
+				parsedLevel = 3;
+			}
+
+			if (checkPower[0])
+			{ //Got the name, compare it against the weapon table strings.
+				k = 0;
+
+				if (!Q_stricmp(checkPower, "FP_JUMP"))
+				{ //haqery
+					strcpy(checkPower, "FP_LEVITATION");
+				}
+
+				while (FPTable[k].id != -1 && FPTable[k].name[0])
+				{
+					if (!Q_stricmp(checkPower, FPTable[k].name))
+					{ //found it, add the weapon into the weapons value
+						powers->levels[k] = parsedLevel;
+						break;
+					}
+					k++;
+				}
+			}
+		}
+
+		if (!buf[i])
+		{
+			break;
+		}
+		i++;
+	}
+}
+
+typedef enum gearChange_s {
+	GEARCHANGE_ADD = 0,
+	GEARCHANGE_REMOVE,
+	GEARCHANGE_SET
+} gearChange_t;
+
+void Use_target_gear(gentity_t *ent, gentity_t *other, gentity_t *activator) {
+	if (!activator ||
+		!activator->client ||
+		activator->health <= 0 ||
+		activator->client->sess.sessionTeam == TEAM_SPECTATOR ||
+		activator->client->ps.pm_type == PM_INTERMISSION ||
+		activator->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	gearChange_t gearChange = ent->genericValue1;
+	qboolean doWeapons = ent->genericValue2;
+	int weapons = ent->genericValue3;
+	qboolean doItems = ent->genericValue4;
+	int items = ent->genericValue5;
+	qboolean doPowerups = ent->genericValue6;
+	int powerups = ent->genericValue7;
+	qboolean doAmmo = ent->genericValue8;
+	int ammoTypes = ent->genericValue9;
+	int ammoAmount = ent->genericValue10;
+	qboolean doHealth = ent->genericValue11;
+	int health = ent->genericValue12;
+	qboolean doArmor = ent->genericValue13;
+	int armor = ent->genericValue14;
+	qboolean doForce = ent->genericValue15;
+
+	if (doWeapons) {
+		if (gearChange == GEARCHANGE_ADD)
+			activator->client->ps.stats[STAT_WEAPONS] |= weapons;
+		else if (gearChange == GEARCHANGE_REMOVE)
+			activator->client->ps.stats[STAT_WEAPONS] &= ~weapons;
+		else if (gearChange == GEARCHANGE_SET)
+			activator->client->ps.stats[STAT_WEAPONS] = weapons;
+		if (!activator->client->ps.stats[STAT_WEAPONS])
+			activator->client->ps.stats[STAT_WEAPONS] = (1 << WP_MELEE);
+	}
+
+	if (doItems) {
+		if (gearChange == GEARCHANGE_ADD)
+			activator->client->ps.stats[STAT_HOLDABLE_ITEMS] |= items;
+		else if (gearChange == GEARCHANGE_REMOVE)
+			activator->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~items;
+		else if (gearChange == GEARCHANGE_SET)
+			activator->client->ps.stats[STAT_HOLDABLE_ITEMS] = items;
+	}
+
+	if (doPowerups) {
+		for (powerup_t pw = PW_NONE; pw < PW_NUM_POWERUPS; pw++) {
+			if (powerups & (1 << pw)) {
+				if (gearChange == GEARCHANGE_ADD && activator->client->ps.powerups[pw] > level.time)
+					activator->client->ps.powerups[pw] += 25000;
+				else if (gearChange != GEARCHANGE_REMOVE)
+					activator->client->ps.powerups[pw] = level.time + 25000;
+				else
+					activator->client->ps.powerups[pw] = 0;
+
+				if (pw == PW_FORCE_BOON && gearChange != GEARCHANGE_REMOVE)
+					activator->client->pers.teamState.boonPickups++;
+			}
+		}
+	}
+
+	if (doAmmo) {
+		for (ammo_t a = AMMO_NONE; a < AMMO_MAX; a++) {
+			if (ammoTypes & (1 << a)) {
+				if (gearChange == GEARCHANGE_ADD)
+					Add_Ammo(activator, a, ammoAmount);
+				else if (gearChange == GEARCHANGE_REMOVE)
+					Add_Ammo(activator, a, -ammoAmount);
+				else if (gearChange == GEARCHANGE_SET)
+					activator->client->ps.ammo[a] = ammoAmount;
+			}
+		}
+	}
+
+	if (doForce) {
+		powersList_t *powers = &powersLists[ent - g_entities];
+		for (forcePowers_t f = FP_HEAL; f < NUM_FORCE_POWERS; f++) {
+			if (powers->levels[f]) {
+				if (gearChange == GEARCHANGE_ADD)
+					activator->client->ps.fd.forcePowerLevel[f] += powers->levels[f];
+				if (gearChange == GEARCHANGE_REMOVE)
+					activator->client->ps.fd.forcePowerLevel[f] -= powers->levels[f];
+				else if (gearChange == GEARCHANGE_SET)
+					activator->client->ps.fd.forcePowerLevel[f] = powers->levels[f];
+				if (activator->client->ps.fd.forcePowerLevel[f] <= 0) {
+					activator->client->ps.fd.forcePowerLevel[f] = 0;
+					activator->client->ps.fd.forcePowersKnown &= ~(1 << f);
+				}
+				else {
+					activator->client->ps.fd.forcePowersKnown |= (1 << f);
+					if (activator->client->ps.fd.forcePowerLevel[f] > 3)
+						activator->client->ps.fd.forcePowerLevel[f] = 3;
+				}
+			}
+			else if (gearChange == GEARCHANGE_SET) {
+				activator->client->ps.fd.forcePowerLevel[f] = 0;
+				activator->client->ps.fd.forcePowersKnown &= ~(1 << f);
+			}
+		}
+	}
+
+	if (doHealth) {
+		if (gearChange == GEARCHANGE_ADD)
+			activator->health += health;
+		else if (gearChange == GEARCHANGE_REMOVE)
+			activator->health -= health;
+		else if (gearChange == GEARCHANGE_SET)
+			activator->health = health;
+		if (g_gametype.integer == GT_SIEGE && activator - g_entities < MAX_CLIENTS && activator->client->siegeClass != -1) {
+			if (activator->health > bgSiegeClasses[activator->client->siegeClass].maxhealth)
+				activator->health = bgSiegeClasses[activator->client->siegeClass].maxhealth;
+		}
+		else {
+			if (activator->maxHealth && activator->health > activator->maxHealth)
+				activator->health = activator->maxHealth;
+		}
+		if (activator->health < 0)
+			activator->health = 0;
+		activator->client->ps.stats[STAT_HEALTH] = activator->health;
+	}
+
+	if (doArmor) {
+		if (gearChange == GEARCHANGE_ADD)
+			activator->client->ps.stats[STAT_ARMOR] += armor;
+		else if (gearChange == GEARCHANGE_REMOVE)
+			activator->client->ps.stats[STAT_ARMOR] -= armor;
+		else if (gearChange == GEARCHANGE_SET)
+			activator->client->ps.stats[STAT_ARMOR] = armor;
+		if (g_gametype.integer == GT_SIEGE && activator - g_entities < MAX_CLIENTS && activator->client->siegeClass != -1) {
+			if (activator->client->ps.stats[STAT_ARMOR] > bgSiegeClasses[activator->client->siegeClass].maxarmor)
+				activator->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[activator->client->siegeClass].maxarmor;
+		}
+		else {
+			if (activator->client->ps.stats[STAT_ARMOR] > 100)
+				activator->client->ps.stats[STAT_ARMOR] = 100;
+		}
+		if (activator->client->ps.stats[STAT_ARMOR] < 0)
+			activator->client->ps.stats[STAT_ARMOR] = 0;
+	}
+}
+
+void SP_target_gear(gentity_t *ent) {
+	char *s = NULL;
+
+	G_SpawnString("type", "", &s);
+	if (!VALIDSTRING(s)) {
+		Com_Printf("Target_gear with no type!\n");
+		return;
+	}
+
+	gearChange_t *gearChange = (gearChange_t *)&ent->genericValue1;
+
+	if (stristr(s, "add")) {
+		*gearChange = GEARCHANGE_ADD;
+	} else if (stristr(s, "remove")) {
+		*gearChange = GEARCHANGE_REMOVE;
+	} else if (stristr(s, "set")) {
+		*gearChange = GEARCHANGE_SET;
+	} else {
+		Com_Printf("Bad target_gear type \"%s\"!\n", s);
+		return;
+	}
+
+	qboolean *doWeapons = (qboolean *)&ent->genericValue2;
+	int *weapons = &ent->genericValue3;
+	qboolean *doItems = (qboolean *)&ent->genericValue4;
+	int *items = &ent->genericValue5;
+	qboolean *doPowerups = (qboolean *)&ent->genericValue6;
+	int *powerups = &ent->genericValue7;
+	qboolean *doAmmo = (qboolean *)&ent->genericValue8;
+	int *ammoTypes = &ent->genericValue9;
+	int *ammoAmount = &ent->genericValue10;
+	qboolean *doHealth = (qboolean *)&ent->genericValue11;
+	int *health = &ent->genericValue12;
+	qboolean *doArmor = (qboolean *)&ent->genericValue13;
+	int *armor = &ent->genericValue14;
+	qboolean *doForce = (qboolean *)&ent->genericValue15;
+
+	G_SpawnString("weapons", "", &s);
+	if (VALIDSTRING(s)) {
+		*doWeapons = qtrue;
+		*weapons = BG_SiegeTranslateGenericTable(s, WPTable, qtrue);
+	}
+
+	G_SpawnString("items", "", &s);
+	if (VALIDSTRING(s)) {
+		*doItems = qtrue;
+		*items = BG_SiegeTranslateGenericTable(s, HoldableTable, qtrue);
+	}
+
+	G_SpawnString("powerups", "", &s);
+	if (VALIDSTRING(s)) {
+		*doPowerups = qtrue;
+		*powerups = BG_SiegeTranslateGenericTable(s, PowerupTable, qtrue);
+	}
+
+	G_SpawnString("ammo", "", &s);
+	if (VALIDSTRING(s)) {
+		*doAmmo = qtrue;
+		*ammoTypes = BG_SiegeTranslateGenericTable(s, AmmoTable, qtrue);
+		G_SpawnString("ammoamount", "", &s);
+		if (VALIDSTRING(s))
+			*ammoAmount = atoi(s);
+	}
+
+	G_SpawnString("force", "", &s);
+	if (VALIDSTRING(s)) {
+		*doForce = qtrue;
+		TranslateForcePowers(s, &powersLists[ent - g_entities]);
+	}
+
+	G_SpawnString("health", "", &s);
+	if (VALIDSTRING(s)) {
+		*doHealth = qtrue;
+		*health = atoi(s);
+	}
+
+	G_SpawnString("armor", "", &s);
+	if (VALIDSTRING(s)) {
+		*doArmor = qtrue;
+		*armor = atoi(s);
+	}
+
+	ent->use = Use_target_gear;
 }
 
 

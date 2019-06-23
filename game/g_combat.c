@@ -6329,17 +6329,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		
 		// check that we didn't put them over their max hp
 		if (negativeDamageOk && take < 0) {
-			if (targ->client && targ - g_entities < MAX_CLIENTS && targ->client->siegeClass != -1 && targ->health > bgSiegeClasses[targ->client->siegeClass].maxhealth) {
-#if 0
-				Com_Printf("Clamping negative damage to siegeclass maxhealth (%d -> %d)\n", targ->health, bgSiegeClasses[targ->client->siegeClass].maxhealth);
-#endif
-				targ->health = bgSiegeClasses[targ->client->siegeClass].maxhealth;
+			if (targ->client && targ - g_entities < MAX_CLIENTS && targ->client->siegeClass != -1) {
+				if (targ->health > bgSiegeClasses[targ->client->siegeClass].maxhealth)
+					targ->health = bgSiegeClasses[targ->client->siegeClass].maxhealth;
 			}
-			else if (targ->maxHealth && targ->health > targ->maxHealth) {
-#if 0
-				Com_Printf("Clamping negative damage to entity maxHealth (%d -> %d)\n", targ->health, targ->maxHealth);
-#endif
-				targ->health = targ->maxHealth;
+			else {
+				if (targ->maxHealth && targ->health > targ->maxHealth)
+					targ->health = targ->maxHealth;
 			}
 		}
 
