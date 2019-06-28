@@ -483,6 +483,23 @@ Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces th
 
 Mapmakers can set the new `mapversion` key in `worldspawn`, which can be used in conjunction with custom base_entranced code to alter certain things for each map version (for example, if you move the map in a new update, you can automatically adjust anti-spam or any other custom features present in the mod that depend on coordinates). If you don't know what this means, ignore it.
 
+Mapmakers can define in `worldspawn` certain metadata about objectives for use with the top times feature. Enable this feature by setting the `combinedobjs` key to `1`. Then, using bitflags, follow the example below for siege_narshaddaa, which combines the third and fourth objs (station 1 and station 2) into one combined objective for the purposes of top times, by combining bitflags 4 and 8.
+```
+combinedobjs    1
+
+combinedobj1    1
+combinedobj2    2
+combinedobj3    12
+combinedobj4    16
+combinedobj5    32
+
+combinedobj1name    Entrance
+combinedobj2name    Checkpoint
+combinedobj3name    Stations
+combinedobj4name    Bridge
+combinedobj5name    Codes
+```
+
 Mapmakers can add the new `target_icontoggle` entity, which can toggle an entity's icon on/off. Make sure to only target entities that you want to toggle icons for. If `spawnflags` has the `1` bitflag set, it will enable the icon. If `spawnflags` has the `2` bitflag set, it will disable the icon. If neither, it will toggle it. If `spawnflags` has the `128` bitflag set, the `target_icontoggle` will be considered inactive, and needs to be activated by a `target_activate` first.
 
 Mapmakers can add the new `target_gear` entity, which can add, remove, or set certain parameters for whoever triggered it. Set the `type` key to either `add`, `remove`, or `set`. Here is an example:
