@@ -192,6 +192,9 @@ const char* const sqlGetMetadata =
 const char* const sqlSetMetadata =
 "INSERT OR REPLACE INTO metadata (key, value) VALUES( ?1, ?2 );                ";
 
+const char* const sqlDeleteMetadata =
+"DELETE FROM metadata WHERE metadata.key = ?1;                                  ";
+
 const char* const sqlTestSiegeFastcapsSupport =
 "PRAGMA table_info(siegefastcaps)";
 
@@ -1294,10 +1297,16 @@ void G_LogDbSetMetadata(const char *key,
 	G_LogDbLoad(); // might not be initialized for super early worldspawn loading calls
 	sqlite3_stmt* statement;
 
-	int rc = sqlite3_prepare_v2(db, sqlSetMetadata, -1, &statement, 0);
-
-	sqlite3_bind_text(statement, 1, key, -1, SQLITE_STATIC);
-	sqlite3_bind_text(statement, 2, value, -1, SQLITE_STATIC);
+	int rc;
+	if (VALIDSTRING(value)) {
+		rc = sqlite3_prepare_v2(db, sqlSetMetadata, -1, &statement, 0);
+		sqlite3_bind_text(statement, 1, key, -1, SQLITE_STATIC);
+		sqlite3_bind_text(statement, 2, value, -1, SQLITE_STATIC);
+	}
+	else {
+		rc = sqlite3_prepare_v2(db, sqlDeleteMetadata, -1, &statement, 0);
+		sqlite3_bind_text(statement, 1, key, -1, SQLITE_STATIC);
+	}
 
 	rc = sqlite3_step(statement);
 
