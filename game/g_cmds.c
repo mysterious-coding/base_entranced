@@ -5656,6 +5656,11 @@ static void RemoveSpaces(char* s) {
 }
 
 static char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj) {
+	// try to get it from worldspawn if it's the current map
+	if (obj >= 1 && obj <= MAX_SAVED_OBJECTIVES && level.combinedObjName[obj - 1][0] && !Q_stricmp(mapname, level.mapname))
+		return level.combinedObjName[obj - 1];
+
+	// try to get it from the hardcoded data
 	for (const FancyObjNameData *data = &fancyObjNameData[0]; VALIDSTRING(data->mapname); data++) {
 		if (data->matchMapNameExactly) {
 			if (Q_stricmp(data->mapname, mapname) &&
@@ -5777,31 +5782,50 @@ CaptureCategoryFlags GetRecordFlagsForString(const char *mapname, char *s, qbool
 		gotObjNumber = qtrue;
 	}
 	else {
-		for (const FancyObjNameData *data = &fancyObjNameData[0]; VALIDSTRING(data->mapname); data++) {
-			if (data->matchMapNameExactly) {
-				if (Q_stricmp(data->mapname, mapname) &&
-					!(VALIDSTRING(data->altMapname) && !Q_stricmp(data->altMapname, mapname))) {
-					continue;
+		// try to get it from worldspawn if it's the current map
+		if (!Q_stricmp(mapname, level.mapname)) {
+			for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+				if (level.combinedObjName[i][0]) {
+					char buf[OBJ_NAME_PARTIALMATCH_LENGTH + 1];
+					Q_strncpyz(buf, level.combinedObjName[i], sizeof(buf));
+					RemoveSpaces(buf);
+					if (stristr(s, buf)) {
+						flags |= (1 << (i + 1));
+						gotObjNumber = qtrue;
+						break;
+					}
 				}
 			}
-			else {
-				if (Q_stricmpn(data->mapname, mapname, strlen(data->mapname)) &&
-					!(VALIDSTRING(data->altMapname) && !Q_stricmpn(data->altMapname, mapname, strlen(data->altMapname)))) {
-					continue;
+		}
+
+		if (!gotObjNumber) {
+			// try to get it from the hardcoded data
+			for (const FancyObjNameData *data = &fancyObjNameData[0]; VALIDSTRING(data->mapname); data++) {
+				if (data->matchMapNameExactly) {
+					if (Q_stricmp(data->mapname, mapname) &&
+						!(VALIDSTRING(data->altMapname) && !Q_stricmp(data->altMapname, mapname))) {
+						continue;
+					}
 				}
-			}
-			for (CombinedObjNumber i = 1; i <= data->numObjs; i++) {
-				assert(VALIDSTRING(data->objName[i - 1]));
-				char buf[OBJ_NAME_PARTIALMATCH_LENGTH + 1];
-				Q_strncpyz(buf, data->objName[i - 1], sizeof(buf));
-				RemoveSpaces(buf);
-				if (stristr(s, buf)) {
-					flags |= (1 << i);
-					gotObjNumber = qtrue;
-					break;
+				else {
+					if (Q_stricmpn(data->mapname, mapname, strlen(data->mapname)) &&
+						!(VALIDSTRING(data->altMapname) && !Q_stricmpn(data->altMapname, mapname, strlen(data->altMapname)))) {
+						continue;
+					}
 				}
+				for (CombinedObjNumber i = 1; i <= data->numObjs; i++) {
+					assert(VALIDSTRING(data->objName[i - 1]));
+					char buf[OBJ_NAME_PARTIALMATCH_LENGTH + 1];
+					Q_strncpyz(buf, data->objName[i - 1], sizeof(buf));
+					RemoveSpaces(buf);
+					if (stristr(s, buf)) {
+						flags |= (1 << i);
+						gotObjNumber = qtrue;
+						break;
+					}
+				}
+				break;
 			}
-			break;
 		}
 	}
 

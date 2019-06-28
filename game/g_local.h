@@ -1385,6 +1385,11 @@ typedef struct {
 
 	int			worldspawnSiegeRespawnTime; // the number specified in worldspawn to be the siege respawn time for this map (virtually always 20)
 
+	qboolean	objIsComplete[MAX_SAVED_OBJECTIVES];
+	int			worldspawnCombinedObjs[MAX_SAVED_OBJECTIVES]; // which objs are combined, e.g. if index 0 is 3, then the first combined obj is objs 1 and 2
+	qboolean	worldspawnHasCombinedObjs;
+	char		combinedObjName[MAX_SAVED_OBJECTIVES][32];
+
 	qboolean    overtime;
 
 	//special handle for libcurl debug

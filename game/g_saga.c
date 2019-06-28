@@ -2530,6 +2530,8 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 	int goals_completed, goals_required;
 
 	trap_Cvar_Set(va("siege_r%i_obj%i", CurrentSiegeRound(), objective), va("%i", level.time - level.siegeRoundStartTime));
+	if (objective >= 1 && objective <= MAX_SAVED_OBJECTIVES)
+		level.objIsComplete[objective - 1] = qtrue;
 	PrintObjStat(objective, 0);
 
 	if (objective == 5 && level.siegeMap == SIEGEMAP_HOTH)
@@ -2754,6 +2756,54 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 			topTimesObjNum -= 1;
 		}
 	}
+	else if (level.worldspawnHasCombinedObjs && objective >= 1 && objective <= MAX_SAVED_OBJECTIVES) {
+		qboolean gotIt = qfalse;
+		for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+			if (level.worldspawnCombinedObjs[i] == (1 << (objective - 1))) {
+				// this combined obj is exactly the obj we just completed
+#ifdef _DEBUG
+				Com_Printf("Obj complete exactly matching a combined obj; running top times on combined obj %d\n", i + 1);
+#endif
+				topTimesObjNum = i + 1;
+				gotIt = qtrue;
+				break;
+			}
+		}
+		if (!gotIt) {
+			static int savedTime = 0;
+			for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+				if (level.worldspawnCombinedObjs[i] & (1 << (objective - 1))) {
+					// this combined obj includes the obj we just completed
+					qboolean combinedObjHasAllObjsCompleted = qtrue;
+					for (int j = 0; j < MAX_SAVED_OBJECTIVES; j++) {
+						if (level.worldspawnCombinedObjs[i] & (1 << j) && !level.objIsComplete[j]) {
+							combinedObjHasAllObjsCompleted = qfalse;
+							break;
+						}
+					}
+					if (combinedObjHasAllObjsCompleted) {
+						// the combined obj has had all sub-objs completed; run top times
+#ifdef _DEBUG
+						Com_Printf("Obj complete and all sub-objs complete; running toptimes on combined obj %d with time savedTime %d + ms %d == %d\n", i + 1, savedTime, ms, savedTime + ms);
+#endif
+						topTimesObjNum = i + 1;
+						ms += savedTime;
+						savedTime = 0;
+					}
+					else {
+						// don't run top times yet; the combined obj has not yet had all sub-objs completed
+#ifdef _DEBUG
+						Com_Printf("Obj complete but not all sub-objs of combined obj; saving obj time: %d += %d == %d\n", savedTime, ms, savedTime + ms);
+#endif
+						savedTime += ms;
+						topTimesObjNum = 0;
+					}
+					break;
+				}
+			}
+		}
+	}
+
 	if (topTimesObjNum >= 1 && topTimesObjNum <= MAX_SAVED_OBJECTIVES) {
 		CheckTopTimes(ms, topTimesObjNum, client >= 0 && client < MAX_CLIENTS ? client : -1);
 		level.mapCaptureRecords.lastCombinedObjCompleted = topTimesObjNum;
