@@ -53,7 +53,11 @@ const char* const sqlCreateLogDb =
 "CREATE TABLE playerwhitelist(                                                  "
 "  [unique_id] BIGINT,                                                          "
 "  [cuid_hash2] TEXT,                                                           "
-"  [name] TEXT);                                                                ";
+"  [name] TEXT);                                                                "
+"                                                                               "
+"CREATE TABLE [metadata] (                                                      "
+"  [key] TEXT COLLATE NOCASE PRIMARY KEY NOT NULL,                              "
+"  [value] TEXT DEFAULT NULL);                                                  ";
                                                                                
 
 const char* const sqlLogLevelStart =
@@ -173,6 +177,21 @@ const char* const sqlDeleteNMPlayerFromWhitelist =
 const char* const sqlDeletePlayerFromWhitelist =
 "DELETE FROM playerwhitelist WHERE unique_id = ?1";
 
+const char* const sqlTestMetadataSupport =
+"PRAGMA table_info(metadata)";
+
+const char* const sqlCreateMetadataTable =
+"CREATE TABLE [metadata] (                                                     "
+"  [key] TEXT COLLATE NOCASE PRIMARY KEY NOT NULL,                             "
+"  [value] TEXT DEFAULT NULL                                                   "
+");                                                                            ";
+
+const char* const sqlGetMetadata =
+"SELECT value FROM metadata WHERE metadata.key = ?1 LIMIT 1;                   ";
+
+const char* const sqlSetMetadata =
+"INSERT OR REPLACE INTO metadata (key, value) VALUES( ?1, ?2 );                ";
+
 const char* const sqlTestSiegeFastcapsSupport =
 "PRAGMA table_info(siegefastcaps)";
 
@@ -286,8 +305,11 @@ const char* const sqlListLatestSiegeFastcaps =
 //  Loads the database from disk, including creating of not exists
 //  or if it is corrupted
 //
+static qboolean logDbLoaded = qfalse;
 void G_LogDbLoad()
 {    
+	if (logDbLoaded)
+		return;
     int rc = -1;    
 
     rc = sqlite3_initialize();
@@ -351,7 +373,6 @@ void G_LogDbLoad()
 			}
 			rc = sqlite3_step(statement);
 		}
-		sqlite3_finalize(statement);
 
 		// create the database IF NEEDED, since it might have been created before the feature was added
 		if (foundFastcaps) {
@@ -360,6 +381,29 @@ void G_LogDbLoad()
 		else {
 			G_LogPrintf("Automatically upgrading old log database: adding siege fastcaps support.\n");
 			sqlite3_exec(fileDb, sqlCreateSiegeFastcapsTable, 0, 0, 0);
+		}
+
+		sqlite3_reset(statement);
+		rc = sqlite3_prepare(fileDb, sqlTestMetadataSupport, -1, &statement, 0);
+		rc = sqlite3_step(statement);
+		qboolean foundMetadata = qfalse;
+		while (rc == SQLITE_ROW) {
+			const char *name = (const char*)sqlite3_column_text(statement, 1);
+			if (VALIDSTRING(name)) {
+				foundMetadata = qtrue;
+				break;
+			}
+			rc = sqlite3_step(statement);
+		}
+		sqlite3_finalize(statement);
+
+		// create the database IF NEEDED, since it might have been created before the feature was added
+		if (foundMetadata) {
+			//G_LogPrintf("Log database supports metadata, no upgrade needed.\n");
+		}
+		else {
+			G_LogPrintf("Automatically upgrading old log database: adding metadata support.\n");
+			sqlite3_exec(fileDb, sqlCreateMetadataTable, 0, 0, 0);
 		}
 	}
 	else {
@@ -378,6 +422,8 @@ void G_LogDbLoad()
 		sqlite3_backup_step(backup, -1);
 		sqlite3_backup_finish(backup);
 	}
+
+	logDbLoaded = qtrue;
 }
 
 
@@ -1216,4 +1262,44 @@ void G_LogDbHotswap(void) {
 		G_LogPrintf("Unable to save hotswap db into log database %s!\n", logDbFileName);
 		return;
 	}
+}
+
+void G_LogDbGetMetadata(const char *key,
+	char *outValue,
+	size_t outValueBufSize)
+{
+	G_LogDbLoad(); // might not be initialized for super early worldspawn loading calls
+	sqlite3_stmt* statement;
+
+	outValue[0] = '\0';
+
+	int rc = sqlite3_prepare_v2(db, sqlGetMetadata, -1, &statement, 0);
+
+	sqlite3_bind_text(statement, 1, key, -1, SQLITE_STATIC);
+
+	rc = sqlite3_step(statement);
+	while (rc == SQLITE_ROW) {
+		const char *value = (const char*)sqlite3_column_text(statement, 0);
+		Q_strncpyz(outValue, value, outValueBufSize);
+
+		rc = sqlite3_step(statement);
+	}
+
+	sqlite3_finalize(statement);
+}
+
+void G_LogDbSetMetadata(const char *key,
+	const char *value)
+{
+	G_LogDbLoad(); // might not be initialized for super early worldspawn loading calls
+	sqlite3_stmt* statement;
+
+	int rc = sqlite3_prepare_v2(db, sqlSetMetadata, -1, &statement, 0);
+
+	sqlite3_bind_text(statement, 1, key, -1, SQLITE_STATIC);
+	sqlite3_bind_text(statement, 2, value, -1, SQLITE_STATIC);
+
+	rc = sqlite3_step(statement);
+
+	sqlite3_finalize(statement);
 }

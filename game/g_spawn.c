@@ -1268,6 +1268,8 @@ BSP Options
 */
 extern void EWebPrecache(void); //g_items.c
 float g_cullDistance;
+extern void G_LogDbSetMetadata(const char *key,
+	const char *value);
 void SP_worldspawn( void ) 
 {
 	char		*text, temp[32];
@@ -1411,13 +1413,20 @@ void SP_worldspawn( void )
 		level.worldspawnSiegeRespawnTime = 20;
 
 	int combinedObjs = 0;
-	if (G_SpawnInt("combinedobjs", "", &combinedObjs) && combinedObjs) {
+	if (g_gametype.integer == GT_SIEGE && G_SpawnInt("combinedobjs", "", &combinedObjs) && combinedObjs) {
 		level.worldspawnHasCombinedObjs = qtrue;
 		for (i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
-			if (G_SpawnInt(va("combinedobj%d", i + 1), "", &combinedObjs) && combinedObjs)
+			if (G_SpawnInt(va("combinedobj%d", i + 1), "", &combinedObjs) && combinedObjs) {
 				level.worldspawnCombinedObjs[i] = combinedObjs;
-			if (G_SpawnString(va("combinedobj%dname", i + 1), "", &text) && VALIDSTRING(text))
+			}
+
+			if (G_SpawnString(va("combinedobj%dname", i + 1), "", &text) && VALIDSTRING(text)) {
 				Q_strncpyz(level.combinedObjName[i], text, sizeof(level.combinedObjName[i]));
+				G_LogDbSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), level.combinedObjName[i]);
+			}
+			else {
+				G_LogDbSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), ""); // clear it
+			}
 		}
 	}
 	else {

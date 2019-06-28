@@ -5660,6 +5660,13 @@ static char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj) {
 	if (obj >= 1 && obj <= MAX_SAVED_OBJECTIVES && level.combinedObjName[obj - 1][0] && !Q_stricmp(mapname, level.mapname))
 		return level.combinedObjName[obj - 1];
 
+	// try to get it from past worldspawn data
+	static char buf[32] = { 0 };
+	memset(&buf, 0, sizeof(buf));
+	G_LogDbGetMetadata(va("combinedobjname_%s_%d", mapname, obj), buf, sizeof(buf));
+	if (buf[0])
+		return buf;
+
 	// try to get it from the hardcoded data
 	for (const FancyObjNameData *data = &fancyObjNameData[0]; VALIDSTRING(data->mapname); data++) {
 		if (data->matchMapNameExactly) {
@@ -5788,6 +5795,22 @@ CaptureCategoryFlags GetRecordFlagsForString(const char *mapname, char *s, qbool
 				if (level.combinedObjName[i][0]) {
 					char buf[OBJ_NAME_PARTIALMATCH_LENGTH + 1];
 					Q_strncpyz(buf, level.combinedObjName[i], sizeof(buf));
+					RemoveSpaces(buf);
+					if (stristr(s, buf)) {
+						flags |= (1 << (i + 1));
+						gotObjNumber = qtrue;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!gotObjNumber) {
+			// try to get it from past worldspawn data
+			for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+				char buf[OBJ_NAME_PARTIALMATCH_LENGTH] = { 0 };
+				G_LogDbGetMetadata(va("combinedobjname_%s_%d", mapname, i + 1), buf, sizeof(buf));
+				if (buf[0]) {
 					RemoveSpaces(buf);
 					if (stristr(s, buf)) {
 						flags |= (1 << (i + 1));

@@ -76,6 +76,13 @@ void G_LogDbListLatestCaptureRecords(CaptureCategoryFlags flags, int limit, int 
 
 void G_LogDbSaveCaptureRecords( CaptureRecordsContext *context );
 
+void G_LogDbGetMetadata(const char *key,
+	char *outValue,
+	size_t outValueBufSize);
+
+void G_LogDbSetMetadata(const char *key,
+	const char *value);
+
 #endif //G_DATABASE_H
 
 
