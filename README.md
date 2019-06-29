@@ -469,7 +469,7 @@ Some maps have hardcoded fixes in base_entranced in order to eliminate the need 
 #### Enhanced mapping framework
 base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JKA.
 
-Mapmakers can add a text file with the filename `/maps/mapname_goes_here.changes` to print a list of changes in the current version when a player enters `/changes` in the console.
+Mapmakers can add a text file with the filename `/maps/mapname_goes_here.changes` to print a list of changes in the current version when a player enters `/changes` in the console (make sure to include /mp/ sub-folder if needed).
 
 Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
 
@@ -481,9 +481,7 @@ Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the s
 
 Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (base JKA default).
 
-Mapmakers can set the new `mapversion` key in `worldspawn`, which can be used in conjunction with custom base_entranced code to alter certain things for each map version (for example, if you move the map in a new update, you can automatically adjust anti-spam or any other custom features present in the mod that depend on coordinates). If you don't know what this means, ignore it.
-
-Mapmakers can define in `worldspawn` certain metadata about objectives for use with the top times feature. Enable this feature by setting the `combinedobjs` key to `1`. Then, using bitflags, follow the example below for siege_narshaddaa, which combines the third and fourth objs (station 1 and station 2) into one combined objective for the purposes of top times, by combining bitflags 4 and 8.
+Mapmakers can define in `worldspawn` certain metadata about objectives for use with the top times feature. Enable this feature by setting the `combinedobjs` key to `1`. Then, using bitflags, follow the example below for siege_narshaddaa, which combines the third and fourth objs (station 1 and station 2) into one combined objective for the purposes of top times, by combining bitflags 4 and 8. To be clear, this feature is *only* for the top times feature, allowing objectives to be combined; in this example, you have to complete *both* stations objectives in order to trigger the "stations" objective (which is not a real objective). Without this feature, top times would be triggered for each station individually, which would allow you to achieve inhumanly fast times on either station by killing it extremely soon after killing the previous one.
 ```
 combinedobjs    1
 
