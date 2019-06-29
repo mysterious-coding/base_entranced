@@ -3153,3 +3153,13 @@ char *ChopString(const char *in, size_t targetLen) {
 
 	return out;
 }
+
+void RemoveSpaces(char* s) {
+	char *i = s, *j = s;
+	while (*j) {
+		*i = *j++;
+		if (*i != ' ')
+			i++;
+	}
+	*i = '\0';
+}

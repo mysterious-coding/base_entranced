@@ -1798,6 +1798,7 @@ qboolean TryTossHealthPack(gentity_t *ent, qboolean doChecks);
 qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks);
 qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks);
 char *ChopString(const char *in, size_t targetLen);
+void RemoveSpaces(char* s);
 
 //
 // g_saga.c

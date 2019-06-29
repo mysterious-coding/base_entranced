@@ -1423,6 +1423,7 @@ void SP_worldspawn( void )
 
 				if (G_SpawnString(va("combinedobj%dname", i + 1), "", &text) && VALIDSTRING(text)) {
 					Q_strncpyz(level.combinedObjName[i], text, sizeof(level.combinedObjName[i]));
+					RemoveSpaces(level.combinedObjName[i]);
 					G_LogDbSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), level.combinedObjName[i]);
 				}
 				else {

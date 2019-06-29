@@ -5645,16 +5645,6 @@ static const FancyObjNameData fancyObjNameData[] = {
 	{ NULL }
 };
 
-static void RemoveSpaces(char* s) {
-	char *i = s, *j = s;
-	while (*j) {
-		*i = *j++;
-		if (*i != ' ')
-			i++;
-	}
-	*i = '\0';
-}
-
 static char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj) {
 	// try to get it from worldspawn if it's the current map
 	if (obj >= 1 && obj <= MAX_SAVED_OBJECTIVES && level.combinedObjName[obj - 1][0] && !Q_stricmp(mapname, level.mapname))
