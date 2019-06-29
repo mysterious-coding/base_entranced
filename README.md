@@ -500,7 +500,7 @@ combinedobj4name    Bridge
 combinedobj5name    Codes
 ```
 
-Mapmakers can add the new `target_icontoggle` entity, which can toggle an entity's icon on/off. Make sure to only target entities that you want to toggle icons for. If `spawnflags` has the `1` bitflag set, it will enable the icon. If `spawnflags` has the `2` bitflag set, it will disable the icon. If neither, it will toggle it. If `spawnflags` has the `128` bitflag set, the `target_icontoggle` will be considered inactive, and needs to be activated by a `target_activate` first.
+Mapmakers can add the new `target_icontoggle` entity, which can toggle an entity's icon on/off. Make sure to only target entities that you want to toggle icons for. If `spawnflags` has the `1` bitflag set, it will enable the icon. If `spawnflags` has the `2` bitflag set, it will disable the icon. If neither, it will toggle it. If `spawnflags` has the `128` bitflag set, the `target_icontoggle` will be considered inactive, and needs to be activated by a `target_activate` first. It is strongly recommended to only target things that *can legitimately have icons*, such as siege icon entities, ammo generators, etc., since there is, by design, no check performed on what type of entity is being targeted.
 
 Mapmakers can add the new `target_gear` entity, which can add, remove, or set certain parameters for whoever triggered it. Set the `type` key to either `add`, `remove`, or `set`. Here is an example:
 ```
