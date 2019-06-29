@@ -671,6 +671,8 @@ Special note on `nodmgfrom`: you can use -1 as shortcut for complete damage immu
 
 Mapmakers can use `idealClassType` for triggers activated by red team; use the first letter of the class, e.g. `idealClassType s` for scout. Similarly, use `idealClassTypeTeam2` for blue team.
 
+For a list of special words that you can use in .scl class files (e.g. `FP_LIGHTNING`, `WP_REPEATER`, etc.), [click here.](https://github.com/deathsythe47/base_entranced/blob/master/game/bg_saga.c#L45)
+
 Note that if a map includes these new special features, and is then played on a non-base_entranced server, those features will obviously not work.
 
 #### Additional control over vote-calling
