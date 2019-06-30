@@ -7298,13 +7298,33 @@ void Cmd_Emote_f(gentity_t *ent) {
 }
 
 #ifdef NEWMOD_SUPPORT
+static qboolean StringIsOnlyNumbers(const char *s) {
+	if (!VALIDSTRING(s))
+		return qfalse;
+	for (const char *p = s; *p; p++) {
+		if (*p < '0' || *p > '9')
+			return qfalse;
+	}
+	return qtrue;
+}
+
+static XXH32_hash_t GetVchatHash(const char *modName, const char *msg, const char *fileName) {
+	char buf[MAX_TOKEN_CHARS] = { 0 };
+	Com_sprintf(buf, sizeof(buf), "%s%s%s%s", level.mapname, modName, msg, fileName);
+	return XXH32(buf, strlen(buf), 0);
+}
+
 #define VCHAT_ESCAPE_CHAR '$'
 void Cmd_Vchat_f(gentity_t *sender) {
-	char *s = ConcatArgs(1);
-	if (!VALIDSTRING(s) || !strchr(s, VCHAT_ESCAPE_CHAR)) {
-		//trap_SendServerCommand(sender - g_entities, "print \"Usage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
+	char hashBuf[MAX_TOKEN_CHARS] = { 0 };
+	trap_Argv(1, hashBuf, sizeof(hashBuf));
+	if (!hashBuf[0] || !StringIsOnlyNumbers(hashBuf))
 		return;
-	}
+	XXH32_hash_t hash = (XXH32_hash_t)strtoul(hashBuf, NULL, 10);
+
+	char *s = ConcatArgs(2);
+	if (!VALIDSTRING(s) || !strchr(s, VCHAT_ESCAPE_CHAR))
+		return;
 
 	if (ChatLimitExceeded(sender, -1))
 		return;
@@ -7344,16 +7364,18 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		// the for loop will increment r here, taking us past the current escape char
 	}
 
-	if (!modName[0] || !fileName[0] || !msg[0]) {
-		//trap_SendServerCommand(sender - g_entities, "print \"Invalid vchat command.\nUsage: vchat $mod=xxx$ $file=xxx$ $msg=xxx$ $team=0/1$\n\"");
+	if (!modName[0] || !fileName[0] || !msg[0])
 		return;
-	}
 
 	Q_CleanString(modName, STRIP_COLOR);
 	Q_CleanString(fileName, STRIP_COLOR);
 #if 1
 	Q_CleanString(msg, STRIP_COLOR);
 #endif
+	
+	XXH32_hash_t expectedHash = GetVchatHash(modName, msg, fileName);
+	if (hash != expectedHash)
+		return;
 
 	G_LogPrintf("vchat: %d %s%s: %s%s/%s: %s\n",
 		sender - g_entities, sender->client->pers.netname, teamOnly ? "(team) " : "", needsSound ? va("%s(ns)", teamOnly ? " " : "") : "", modName, fileName, msg);
@@ -7368,10 +7390,28 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		senderLocation = Team_GetLocation(sender, chatLocation, sizeof(chatLocation));
 #endif
 
+	// see if a download is available
 	char baseCvar[2] = { 0 }, downloadCvar[2] = { 0 };
 	trap_Cvar_VariableStringBuffer("g_vchatdlbase", baseCvar, sizeof(baseCvar));
 	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", modName), downloadCvar, sizeof(downloadCvar));
 	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0]);
+
+	// see if a version number is known (okay if not)
+	int downloadVersion = 0;
+	if (downloadAvailable) {
+		char versionCvar[5] = { 0 }; // support integer versions up to 9999
+		trap_Cvar_VariableStringBuffer(va("g_vchatdlversion_%s", modName), versionCvar, sizeof(versionCvar));
+		if (StringIsOnlyNumbers(versionCvar))
+			downloadVersion = atoi(versionCvar);
+	}
+
+	char downloadStr[16] = { 0 };
+	if (downloadAvailable) {
+		if (downloadVersion)
+			Com_sprintf(downloadStr, sizeof(downloadStr), " \"dl=%u\"", downloadVersion); // a specific version is available to download
+		else
+			Com_sprintf(downloadStr, sizeof(downloadStr), " \"dl=y\""); // some unspecified version is available to download
+	}
 
 	char chatSenderName[64] = { 0 };
 	if (teamOnly) {
@@ -7452,7 +7492,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 				needsSound,
 				teamOnly,
 				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "",
-				downloadAvailable ? " \"dl=1\"" : "");
+				downloadAvailable ? downloadStr : "");
 		}
 		else {
 			if (teamOnly && locationToSend) {
@@ -7467,7 +7507,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 					needsSound,
 					teamOnly, // team only parameter is sent anyway so clients can display with team styling
 					locationToSend,
-					downloadAvailable ? " \"dl=1\"" : "");
+					downloadAvailable ? downloadStr : "");
 			}
 			else {
 				if (teamOnly) {
@@ -7480,7 +7520,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 						msg,
 						needsSound,
 						teamOnly, // team only parameter is sent anyway so clients can display with team styling
-						downloadAvailable ? " \"dl=1\"" : "");
+						downloadAvailable ? downloadStr : "");
 				}
 				else {
 					command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
@@ -7492,7 +7532,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 						msg,
 						needsSound,
 						teamOnly, // team only parameter is sent anyway so clients can display with team styling
-						downloadAvailable ? " \"dl=1\"" : "");
+						downloadAvailable ? downloadStr : "");
 				}
 			}
 		}
