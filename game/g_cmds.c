@@ -7314,6 +7314,12 @@ static XXH32_hash_t GetVchatHash(const char *modName, const char *msg, const cha
 	return XXH32(buf, strlen(buf), 0);
 }
 
+typedef enum vchatType_s {
+	VCHATTYPE_TEAMWORK = 0,
+	VCHATTYPE_GENERAL,
+	VCHATTYPE_MEME
+} vchatType_t;
+
 #define VCHAT_ESCAPE_CHAR '$'
 void Cmd_Vchat_f(gentity_t *sender) {
 	char hashBuf[MAX_TOKEN_CHARS] = { 0 };
@@ -7330,7 +7336,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		return;
 
 	qboolean teamOnly = qfalse;
-	qboolean needsSound = qtrue;
+	vchatType_t type = VCHATTYPE_MEME;
 	char modName[MAX_QPATH] = { 0 }, fileName[MAX_QPATH] = { 0 }, msg[200] = { 0 };
 	// parse each argument
 	for (char *r = s; *r; r++) {
@@ -7355,8 +7361,8 @@ void Cmd_Vchat_f(gentity_t *sender) {
 			Q_strncpyz(msg, buf + 4, sizeof(msg));
 		else if (!Q_stricmpn(buf, "team=", 5) && buf[5])
 			teamOnly = !!atoi(buf + 5);
-		else if (!Q_stricmpn(buf, "ns=", 3) && buf[3])
-			needsSound = !!atoi(buf + 3);
+		else if (!Q_stricmpn(buf, "t=", 2) && buf[2])
+			type = atoi(buf + 2);
 
 		if (!*r)
 			break; // we reached the end of the line
@@ -7377,8 +7383,17 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	if (hash != expectedHash)
 		return;
 
-	G_LogPrintf("vchat: %d %s%s: %s%s/%s: %s\n",
-		sender - g_entities, sender->client->pers.netname, teamOnly ? "(team) " : "", needsSound ? va("%s(ns)", teamOnly ? " " : "") : "", modName, fileName, msg);
+	if (type == VCHATTYPE_TEAMWORK && !teamOnly)
+		type = VCHATTYPE_MEME;
+
+	G_LogPrintf("vchat: %d %s (%s/%s): %s/%s: %s\n",
+		sender - g_entities,
+		sender->client->pers.netname,
+		teamOnly ? "team" : "global",
+		type == VCHATTYPE_TEAMWORK ? "teamwork" : (type == VCHATTYPE_GENERAL ? "general" : "meme"),
+		modName,
+		fileName,
+		msg);
 
 	int senderLocation = 0;
 	char chatLocation[64] = { 0 };
@@ -7483,20 +7498,20 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		}
 
 		char *command;
-		if (needsSound) {
-			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s%s",
+		if (type == VCHATTYPE_MEME) {
+			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s%s",
 				sender - g_entities,
 				modName,
 				fileName,
 				msg,
-				needsSound,
+				type,
 				teamOnly,
 				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "",
 				downloadAvailable ? downloadStr : "");
 		}
 		else {
 			if (teamOnly && locationToSend) {
-				command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\" \"loc=%d\"%s",
+				command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\" \"loc=%d\"%s",
 					chatSenderName,
 					chatLocation,
 					chatMessage,
@@ -7504,33 +7519,33 @@ void Cmd_Vchat_f(gentity_t *sender) {
 					modName,
 					fileName,
 					msg,
-					needsSound,
+					type,
 					teamOnly, // team only parameter is sent anyway so clients can display with team styling
 					locationToSend,
 					downloadAvailable ? downloadStr : "");
 			}
 			else {
 				if (teamOnly) {
-					command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
+					command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s",
 						chatSenderName,
 						chatMessage,
 						sender - g_entities,
 						modName,
 						fileName,
 						msg,
-						needsSound,
+						type,
 						teamOnly, // team only parameter is sent anyway so clients can display with team styling
 						downloadAvailable ? downloadStr : "");
 				}
 				else {
-					command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"ns=%d\" \"team=%d\"%s",
+					command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s",
 						chatSenderName,
 						chatMessage,
 						sender - g_entities,
 						modName,
 						fileName,
 						msg,
-						needsSound,
+						type,
 						teamOnly, // team only parameter is sent anyway so clients can display with team styling
 						downloadAvailable ? downloadStr : "");
 				}
