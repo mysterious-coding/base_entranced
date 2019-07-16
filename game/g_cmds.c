@@ -7405,28 +7405,23 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		senderLocation = Team_GetLocation(sender, chatLocation, sizeof(chatLocation));
 #endif
 
-	// see if a download is available
+	// see if a download is available (requires cvars for dl base, this particular dl, and this dl's version number)
+	// get the url
 	char baseCvar[2] = { 0 }, downloadCvar[2] = { 0 };
 	trap_Cvar_VariableStringBuffer("g_vchatdlbase", baseCvar, sizeof(baseCvar));
 	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", modName), downloadCvar, sizeof(downloadCvar));
-	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0]);
 
-	// see if a version number is known (okay if not)
+	// get the version
+	char versionCvar[5] = { 0 }; // support integer versions up to 9999
+	trap_Cvar_VariableStringBuffer(va("g_vchatdlversion_%s", modName), versionCvar, sizeof(versionCvar));
 	int downloadVersion = 0;
-	if (downloadAvailable) {
-		char versionCvar[5] = { 0 }; // support integer versions up to 9999
-		trap_Cvar_VariableStringBuffer(va("g_vchatdlversion_%s", modName), versionCvar, sizeof(versionCvar));
-		if (StringIsOnlyNumbers(versionCvar))
-			downloadVersion = atoi(versionCvar);
-	}
+	if (StringIsOnlyNumbers(versionCvar))
+		downloadVersion = atoi(versionCvar);
 
+	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0] && downloadVersion > 0);
 	char downloadStr[16] = { 0 };
-	if (downloadAvailable) {
-		if (downloadVersion)
-			Com_sprintf(downloadStr, sizeof(downloadStr), " \"dl=%u\"", downloadVersion); // a specific version is available to download
-		else
-			Com_sprintf(downloadStr, sizeof(downloadStr), " \"dl=y\""); // some unspecified version is available to download
-	}
+	if (downloadAvailable)
+		Com_sprintf(downloadStr, sizeof(downloadStr), " \"dl=%d\"", downloadVersion);
 
 	char chatSenderName[64] = { 0 };
 	if (teamOnly) {
