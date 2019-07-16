@@ -7412,11 +7412,13 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", modName), downloadCvar, sizeof(downloadCvar));
 
 	// get the version
-	char versionCvar[5] = { 0 }; // support integer versions up to 9999
+	char versionCvar[MAX_STRING_CHARS] = { 0 };
 	trap_Cvar_VariableStringBuffer(va("g_vchatdlversion_%s", modName), versionCvar, sizeof(versionCvar));
 	int downloadVersion = 0;
 	if (StringIsOnlyNumbers(versionCvar))
 		downloadVersion = atoi(versionCvar);
+	if (downloadVersion > 9999) // prevent troll high version numbers
+		downloadVersion = 9999;
 
 	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0] && downloadVersion > 0);
 	char downloadStr[16] = { 0 };
