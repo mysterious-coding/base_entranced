@@ -3085,7 +3085,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"sccc "
 		"isd2 "
 		"sci "
-		"vcht "
+		"vch2 "
 		"sgfl";
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
