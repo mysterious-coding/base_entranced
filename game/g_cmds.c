@@ -7383,7 +7383,8 @@ void Cmd_Vchat_f(gentity_t *sender) {
 	if (hash != expectedHash)
 		return;
 
-	if (type == VCHATTYPE_TEAMWORK && !teamOnly)
+	// convert global teamwork vchats and teamwork vchats among specs to memes
+	if (type == VCHATTYPE_TEAMWORK && (!teamOnly || GetRealTeam(sender->client) == TEAM_SPECTATOR))
 		type = VCHATTYPE_MEME;
 
 	G_LogPrintf("vchat: %d %s (%s/%s): %s/%s: %s\n",
