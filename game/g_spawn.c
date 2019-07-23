@@ -1268,7 +1268,7 @@ BSP Options
 */
 extern void EWebPrecache(void); //g_items.c
 float g_cullDistance;
-extern void G_LogDbSetMetadata(const char *key,
+extern void G_DBSetMetadata(const char *key,
 	const char *value);
 void SP_worldspawn( void ) 
 {
@@ -1424,16 +1424,16 @@ void SP_worldspawn( void )
 				if (G_SpawnString(va("combinedobj%dname", i + 1), "", &text) && VALIDSTRING(text)) {
 					Q_strncpyz(level.combinedObjName[i], text, sizeof(level.combinedObjName[i]));
 					RemoveSpaces(level.combinedObjName[i]);
-					G_LogDbSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), level.combinedObjName[i]);
+					G_DBSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), level.combinedObjName[i]);
 				}
 				else {
-					G_LogDbSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), NULL); // clear it
+					G_DBSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), NULL); // clear it
 				}
 			}
 		}
 		else {
 			for (i = 0; i < MAX_SAVED_OBJECTIVES; i++)
-				G_LogDbSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), NULL); // clear it
+				G_DBSetMetadata(va("combinedobjname_%s_%d", level.mapname, i + 1), NULL); // clear it
 			level.worldspawnHasCombinedObjs = qfalse;
 		}
 	}

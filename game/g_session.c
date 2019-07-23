@@ -144,6 +144,9 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 	sess->canJoin = !sv_passwordlessSpectators.integer || PasswordMatches( Info_ValueForKey( userinfo, "password" ) );
 	sess->whTrustToggle = qfalse;
 
+	sess->sessionCacheNum = -1;
+	sess->accountCacheNum = -1;
+
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
     sess->inactivityTime = getGlobalTime() + 1000 * g_spectatorInactivity.integer;
@@ -192,27 +195,27 @@ G_WriteSessionData
 
 ==================
 */
-void G_WriteSessionData( void )
+void G_WriteSessionData(void)
 {
-    trap_Cvar_Set( "session", va( "%i", g_gametype.integer ) );
+	trap_Cvar_Set("session_gametype", va("%i", g_gametype.integer));
 
-    fileHandle_t sessionFile;
-    trap_FS_FOpenFile( "session.dat", &sessionFile, FS_WRITE );
+	fileHandle_t sessionFile;
+	trap_FS_FOpenFile("session.dat", &sessionFile, FS_WRITE);
 
-    if ( !sessionFile )
-    {
-        return;
-    }
+	if (!sessionFile)
+	{
+		return;
+	}
 
-    int i;
-    for ( i = 0; i < level.maxclients; ++i )
-    {
-        gclient_t *client = g_entities[i].client;
-        trap_FS_Write( &client->sess, sizeof( client->sess), sessionFile );
-    }
+	int i;
+	for (i = 0; i < level.maxclients; ++i)
+	{
+		gclient_t *client = g_entities[i].client;
+		trap_FS_Write(&client->sess, sizeof(client->sess), sessionFile);
+	}
 
-    trap_FS_FCloseFile( sessionFile );
-}  
+	trap_FS_FCloseFile(sessionFile);
+}
 
 void G_ReadSessionData()
 {

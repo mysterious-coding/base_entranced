@@ -489,6 +489,40 @@ typedef struct {
 #define	FOLLOW_ACTIVE1	-1
 #define	FOLLOW_ACTIVE2	-2
 
+#define MAX_ACCOUNTNAME_LEN		24
+#define MAX_GROUPNAME_LEN		48
+
+typedef struct {
+	int id;
+	char name[MAX_ACCOUNTNAME_LEN];
+	int creationDate;
+	char group[MAX_GROUPNAME_LEN];
+	int flags;
+} account_t;
+
+#define MAX_SESSIONINFO_LEN		256
+
+typedef long long sessionIdentifier_t;
+
+#define ACCOUNT_ID_UNLINKED		-1;
+
+typedef struct {
+	int id;
+	sessionIdentifier_t identifier;
+	char info[MAX_SESSIONINFO_LEN];
+	int accountId;
+} session_t;
+
+typedef struct {
+	account_t* ptr;
+	qboolean online;
+} accountReference_t;
+
+typedef struct {
+	session_t* ptr;
+	qboolean online;
+} sessionReference_t;
+
 #define GetSiegeStatRound()		(level.siegeStage >= SIEGESTAGE_ROUND2 ? 1 : 0)
 enum {
 	SIEGEMAPSTAT_HOTH_GENDMG = 0,
@@ -655,6 +689,10 @@ typedef struct {
 
 	qboolean	canJoin; // Passwordless clients
 	qboolean	whTrustToggle; // in whitelist mode, qtrue = trusted, in blacklist mode, qtrue = untrusted
+
+	// account system
+	int sessionCacheNum;
+	int accountCacheNum;
 
 	char        username[MAX_USERNAME_SIZE];
 
@@ -917,6 +955,10 @@ struct gclient_s {
 	// the rest of the structure is private to game
 	clientPersistant_t	pers;
 	clientSession_t		sess;
+
+	// accounts
+	session_t* session;
+	account_t* account;
 
 	saberInfo_t	saber[MAX_SABERS];
 	void		*weaponGhoul2[MAX_SABERS];
@@ -1635,6 +1677,30 @@ typedef struct {
 
 } level_locals_t;
 
+//
+// g_accounts.c
+//
+typedef void( *ListAccountSessionsCallback )( void *ctx,
+	const sessionReference_t sessionRef,
+	const qboolean temporary );
+
+void G_SaveAccountsCache( void );
+qboolean G_ReadAccountsCache( void );
+void G_InitClientSession( gclient_t *client );
+void G_InitClientAccount( gclient_t* client );
+qboolean G_CreateAccount( const char* name, accountReference_t* out );
+qboolean G_DeleteAccount( account_t* account );
+sessionReference_t G_GetSessionByID( const int id, qboolean onlineOnly );
+sessionReference_t G_GetSessionByIdentifier( const sessionIdentifier_t identifier, qboolean onlineOnly );
+accountReference_t G_GetAccountByID( const int id, qboolean onlineOnly );
+accountReference_t G_GetAccountByName( const char* name, qboolean onlineOnly );
+qboolean G_LinkAccountToSession( session_t* session, account_t* account );
+qboolean G_UnlinkAccountFromSession( session_t* session );
+void G_ListSessionsForAccount( account_t* account, ListAccountSessionsCallback callback, void* ctx );
+qboolean G_SessionInfoHasString( const session_t* session, const char* key );
+void G_GetStringFromSessionInfo( const session_t* session, const char* key, char* outValue, size_t outValueSize );
+
+
 
 //
 // g_spawn.c
@@ -1772,6 +1838,8 @@ qboolean	G_EntitiesFree( void );
 void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy);
 void UnLockDoors(gentity_t *const ent);
 
+qboolean G_GetIPFromString(const char* from, unsigned int* ip);
+
 qboolean G_ActivateBehavior (gentity_t *self, int bset );
 
 void	G_TouchTriggers (gentity_t *ent);
@@ -1791,6 +1859,7 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
+void G_FormatLocalDateFromEpoch(char* buf, size_t bufSize, time_t epochSecs);
 qboolean G_ShieldSpamAllowed(team_t t);
 qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2, float y2, float z2, float wiggleRoom);
 
@@ -2209,7 +2278,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 
 void G_InitWorldSession( void );
 void G_WriteSessionData( void );
-void G_ReadSessionData( void );
+void G_ReadSessionData(qboolean restart, qboolean resetAccounts);
 
 //
 // NPC_senses.cpp
@@ -2556,6 +2625,10 @@ extern vmCvar_t     g_strafejump_mod;
 
 extern vmCvar_t     g_antiWallhack;
 extern vmCvar_t		g_wallhackMaxTraces;
+
+extern vmCvar_t     g_inMemoryDB;
+
+extern vmCvar_t		g_traceSQL;
 
 extern vmCvar_t     g_hackLog;
 
@@ -3148,6 +3221,11 @@ void trap_RMG_Init(int terrainID);
 
 void trap_Bot_UpdateWaypoints(int wpnum, wpobject_t **wps);
 void trap_Bot_CalculatePaths(int rmg);
+
+#ifdef NEW_TRAP_CALLS
+// new base_enhanced trap calls
+void trap_OutOfBandPrint(int clientNum, const char* text);
+#endif
 
 #include "namespace_end.h"
 

@@ -3163,3 +3163,10 @@ void RemoveSpaces(char* s) {
 	}
 	*i = '\0';
 }
+
+void G_FormatLocalDateFromEpoch(char* buf, size_t bufSize, time_t epochSecs) {
+	struct tm * timeinfo;
+	timeinfo = localtime(&epochSecs);
+
+	strftime(buf, bufSize, "%d/%m/%y %I:%M %p", timeinfo);
+}

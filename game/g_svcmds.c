@@ -4,8 +4,7 @@
 // this file holds commands that can be executed by the server console, but not remote clients
 
 #include "g_local.h"
-#include "g_database_log.h"
-#include "g_database_config.h"
+#include "g_database.h"
 #include "bg_saga.h"
 
 void Team_ResetFlags( void );
@@ -346,11 +345,17 @@ static void GetstatusUpdateIPBans (void)
 G_FilterPacket
 =================
 */
-qboolean G_FilterPacket( char *from, char* reasonBuffer, int reasonBufferSize )
+qboolean G_FilterPacket(char *from, char* reasonBuffer, int reasonBufferSize)
 {
-    unsigned int ip = 0;
-    getIpFromString( from, &ip );
-    return G_CfgDbIsFiltered( ip, reasonBuffer, reasonBufferSize );
+	unsigned int ip = 0;
+	getIpFromString(from, &ip);
+
+	if (g_whitelist.integer) {
+		return G_DBIsFilteredByWhitelist(ip, reasonBuffer, reasonBufferSize);
+	}
+	else {
+		return G_DBIsFilteredByBlacklist(ip, reasonBuffer, reasonBufferSize);
+	}
 }
 
 /*
@@ -538,7 +543,7 @@ void Svcmd_AddIP_f (void)
         hours = atoi( hoursStr );        
     }                       
 
-    if ( G_CfgDbAddToBlacklist( ipInt, maskInt, notes, reason, hours ) )
+    if ( G_DBAddToBlacklist( ipInt, maskInt, notes, reason, hours ) )
     {
         G_Printf( "Added %s to blacklist successfuly.\n", ip );
         }
@@ -581,7 +586,7 @@ void Svcmd_RemoveIP_f (void)
         getIpFromString( mask, &maskInt );
     }   
 
-    if ( G_CfgDbRemoveFromBlacklist( ipInt, maskInt ) )
+    if ( G_DBRemoveFromBlacklist( ipInt, maskInt ) )
     {
         G_Printf( "Removed %s from blacklist successfuly.\n", ip );
     }
@@ -633,7 +638,7 @@ void Svcmd_AddWhiteIP_f( void )
         trap_Argv( 3, notes, sizeof( notes ) );
     }          
 
-    if ( G_CfgDbAddToWhitelist( ipInt, maskInt, notes ) )
+    if ( G_DBAddToWhitelist( ipInt, maskInt, notes ) )
     {
         G_Printf( "Added %s to whitelist successfuly.\n", ip );
     }
@@ -678,7 +683,7 @@ void Svcmd_RemoveWhiteIP_f( void )
         getIpFromString( mask, &maskInt );
     }         
 
-    if ( G_CfgDbRemoveFromWhitelist( ipInt, maskInt ) )
+    if ( G_DBRemoveFromWhitelist( ipInt, maskInt ) )
     {
         G_Printf( "Removed %s from whitelist successfuly.\n", ip );
     }
@@ -717,7 +722,7 @@ void Svcmd_Listip_f (void)
 {
     G_Printf( "ip mask notes reason banned_since banned_until\n" );   
 
-    G_CfgDbListBlacklist( listCallback );
+    G_DBListBlacklist( listCallback );
 }
 
 		
@@ -1305,9 +1310,9 @@ void Svcmd_Whitelist_f(void) {
 	unsigned long long id = level.clientUniqueIds[clientNum];
 	qboolean newmod = found->client->sess.auth == AUTHENTICATED ? qtrue : qfalse;
 	char *cuid = newmod ? found->client->sess.cuidHash : "";
-	int currentStatus = G_DbPlayerWhitelisted(id, cuid);
-	qboolean whiteId = currentStatus & WHITELISTED_ID ? qtrue : qfalse;
-	qboolean whiteCuid = currentStatus & WHITELISTED_CUID ? qtrue : qfalse;
+	int currentStatus = G_DBPlayerLockdownWhitelisted(id, cuid);
+	qboolean whiteId = currentStatus & LOCKDOWNWHITELISTED_ID ? qtrue : qfalse;
+	qboolean whiteCuid = currentStatus & LOCKDOWNWHITELISTED_CUID ? qtrue : qfalse;
 
 	if (add) {
 		found->client->sess.whitelistStatus = WHITELIST_WHITELISTED;
@@ -1316,15 +1321,15 @@ void Svcmd_Whitelist_f(void) {
 			Com_Printf("%s"S_COLOR_WHITE" is already whitelisted.\n", name);
 		}
 		else if (newmod && whiteId && !whiteCuid) {
-			G_DbStorePlayerInWhitelist(0, cuid, name);
+			G_DBStorePlayerInLockdownWhitelist(0, cuid, name);
 			Com_Printf("%s"S_COLOR_WHITE" was previously whitelisted by unique ID, but not CUID. Added their CUID to the whitelist.\n", name);
 		}
 		else if (newmod && !whiteId && whiteCuid) {
-			G_DbStorePlayerInWhitelist(id, "", name);
+			G_DBStorePlayerInLockdownWhitelist(id, "", name);
 			Com_Printf("%s"S_COLOR_WHITE" was previously whitelisted by CUID, but not unique ID. Added their unique ID to the whitelist.\n", name);
 		}
 		else {
-			G_DbStorePlayerInWhitelist(id, cuid, name);
+			G_DBStorePlayerInLockdownWhitelist(id, cuid, name);
 			Com_Printf("%s"S_COLOR_WHITE" was added to the whitelist.\n", name);
 		}
 	}
@@ -1332,7 +1337,7 @@ void Svcmd_Whitelist_f(void) {
 		found->client->sess.whitelistStatus = WHITELIST_NOTWHITELISTED;
 		// remove the player from the whitelist
 		if (currentStatus) {
-			G_DbRemovePlayerFromWhitelist(id, cuid);
+			G_DBRemovePlayerFromLockdownWhitelist(id, cuid);
 			Com_Printf("%s"S_COLOR_WHITE" was removed from the whitelist.\n", name);
 		}
 		else {
@@ -2003,7 +2008,7 @@ void Svcmd_MapRandom_f()
 		context.announceMultiVote = qtrue;
 	}
 	memset(&level.multiVoteMapChars, 0, sizeof(level.multiVoteMapChars));
-	if ( G_CfgDbSelectMapsFromPool( pool, currentMap, mapsToRandomize, mapSelectedCallback, &context ) )
+	if ( G_DBSelectMapsFromPool( pool, currentMap, mapsToRandomize, mapSelectedCallback, &context ) )
     {
 		if ( context.numSelected != mapsToRandomize ) {
 			G_Printf( "Could not randomize this many maps! Expected %d, but randomized %d\n", mapsToRandomize, context.numSelected );
@@ -3096,7 +3101,7 @@ static void Svcmd_WhoIs_f(void)
 		getIpFromString(mask, &maskInt);
 	}
 
-	G_CfgDbListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallbackServer, &context, found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0);
+	G_DBListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallbackServer, &context, found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : 0);
 }
 
 void Svcmd_ClientDesc_f( void ) {
@@ -3275,7 +3280,7 @@ void Svcmd_PoolCreate_f()
     trap_Argv( 1, short_name, sizeof( short_name ) );
     trap_Argv( 2, long_name, sizeof( long_name ) );
 
-    if ( !G_CfgDbPoolCreate( short_name, long_name ) )
+    if ( !G_DBPoolCreate( short_name, long_name ) )
     {
         G_Printf( "Could not create pool '%s'.\n", short_name );
     }
@@ -3292,7 +3297,7 @@ void Svcmd_PoolDelete_f()
 
     trap_Argv( 1, short_name, sizeof( short_name ) );
 
-    if ( !G_CfgDbPoolDelete( short_name ))
+    if ( !G_DBPoolDelete( short_name ))
     {
         G_Printf( "Failed to delete pool '%s'.\n", short_name );
     }
@@ -3327,7 +3332,7 @@ void Svcmd_PoolMapAdd_f()
         weight = 1;
     } 
 
-    if ( !G_CfgDbPoolMapAdd( short_name, mapname, weight ) )
+    if ( !G_DBPoolMapAdd( short_name, mapname, weight ) )
     {
         G_Printf( "Could not add map to pool '%s'.\n", short_name );
     }  
@@ -3346,13 +3351,14 @@ void Svcmd_PoolMapRemove_f()
     trap_Argv( 1, short_name, sizeof( short_name ) );
     trap_Argv( 2, mapname, sizeof( mapname ) );
 
-    if ( !G_CfgDbPoolMapRemove( short_name, mapname ) )
+    if ( !G_DBPoolMapRemove( short_name, mapname ) )
     {
         G_Printf( "Could not remove map from pool '%s'.\n", short_name );
     }
 
 }
 
+#ifdef DBCLEAN
 extern void G_LogDbClean(void);
 static void Svcmd_CleanDB_f(void) {
 	for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -3371,7 +3377,9 @@ static void Svcmd_CleanDB_f(void) {
 	G_LogDbClean();
 	G_LogDbLoad();
 }
+#endif
 
+#ifdef DBHOTSWAP
 extern void G_LogDbHotswap(void);
 static void Svcmd_HotSwapDB_f(void) {
 	for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -3388,6 +3396,7 @@ static void Svcmd_HotSwapDB_f(void) {
 	}
 	G_LogDbHotswap();
 }
+#endif
 
 static void Svcmd_NotLive_f(void) {
 	if (level.isLivePug == ISLIVEPUG_NO) {
@@ -3398,6 +3407,459 @@ static void Svcmd_NotLive_f(void) {
 }
 
 char	*ConcatArgs( int start );
+
+typedef struct {
+	char format[MAX_STRING_CHARS];
+} SessionPrintCtx;
+
+static void FormatAccountSessionList(void *ctx, const sessionReference_t sessionRef, const qboolean temporary) {
+	SessionPrintCtx* out = (SessionPrintCtx*)ctx;
+
+#ifdef NEWMOD_SUPPORT
+	qboolean isNewmodSession = G_SessionInfoHasString(sessionRef.ptr, "cuid_hash2");
+#endif
+
+	char sessFlags[16] = { 0 };
+	if (sessionRef.online) Q_strcat(sessFlags, sizeof(sessFlags), S_COLOR_GREEN"|");
+	if (temporary) Q_strcat(sessFlags, sizeof(sessFlags), S_COLOR_YELLOW"|");
+#ifdef NEWMOD_SUPPORT
+	if (isNewmodSession) Q_strcat(sessFlags, sizeof(sessFlags), S_COLOR_CYAN"|");
+#endif
+
+	Q_strcat(out->format, sizeof(out->format), va(S_COLOR_WHITE"Session ID %d ", sessionRef.ptr->id));
+	if (VALIDSTRING(sessFlags)) Q_strcat(out->format, sizeof(out->format), va("%s ", sessFlags));
+	Q_strcat(out->format, sizeof(out->format), va(S_COLOR_WHITE"(identifier: %llX)\n", sessionRef.ptr->identifier));
+}
+
+void Svcmd_Account_f(void) {
+	qboolean printHelp = qfalse;
+
+	if (trap_Argc() > 1) {
+		char s[64];
+		trap_Argv(1, s, sizeof(s));
+
+		if (!Q_stricmp(s, "create")) {
+
+			if (trap_Argc() < 3) {
+				G_Printf("Usage: account create <username>\n");
+				return;
+			}
+
+			char username[MAX_ACCOUNTNAME_LEN];
+			trap_Argv(2, username, sizeof(username));
+
+			// sanitize input
+			char *p;
+			for (p = username; *p; ++p) {
+				if (p == username) {
+					if (!Q_isalpha(*p)) {
+						G_Printf("Username must start with an alphabetic character\n");
+						return;
+					}
+				}
+				else if (!*(p + 1)) {
+					if (!Q_isalphanumeric(*p)) {
+						G_Printf("Username must end with an alphanumeric character\n");
+						return;
+					}
+				}
+				else {
+					if (!Q_isalphanumeric(*p) && *p != '-' && *p != '_') {
+						G_Printf("Valid characters are: a-z A-Z 0-9 - _\n");
+						return;
+					}
+				}
+			}
+
+			accountReference_t acc;
+
+			if (G_CreateAccount(username, &acc)) {
+				G_Printf("Account '%s' created successfully\n", acc.ptr->name);
+			}
+			else {
+				if (acc.ptr) {
+					char timestamp[32];
+					G_FormatLocalDateFromEpoch(timestamp, sizeof(timestamp), acc.ptr->creationDate);
+					G_Printf("Account '%s' was already created on %s\n", acc.ptr->name, timestamp);
+				}
+				else {
+					G_Printf("Failed to create account!\n");
+				}
+			}
+
+		}
+		else if (!Q_stricmp(s, "delete")) {
+
+			if (trap_Argc() < 3) {
+				G_Printf("Usage: account delete <username>\n");
+				return;
+			}
+
+			char username[MAX_ACCOUNTNAME_LEN];
+			trap_Argv(2, username, sizeof(username));
+
+			accountReference_t acc = G_GetAccountByName(username, qfalse);
+
+			if (!acc.ptr) {
+				G_Printf("No account exists with this name\n");
+				return;
+			}
+
+			if (G_DeleteAccount(acc.ptr)) {
+				G_Printf("Deleted account '%s' successfully\n", acc.ptr->name);
+			}
+			else {
+				G_Printf("Failed to delete account!\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "info")) {
+
+			if (trap_Argc() < 3) {
+				G_Printf("Usage: account info <username>\n");
+				return;
+			}
+
+			char username[MAX_ACCOUNTNAME_LEN];
+			trap_Argv(2, username, sizeof(username));
+
+			accountReference_t acc = G_GetAccountByName(username, qfalse);
+
+			if (!acc.ptr) {
+				G_Printf("Account '%s' does not exist\n", username);
+				return;
+			}
+
+			SessionPrintCtx sessionsPrint = { 0 };
+			G_ListSessionsForAccount(acc.ptr, FormatAccountSessionList, &sessionsPrint);
+
+			char timestamp[32];
+			G_FormatLocalDateFromEpoch(timestamp, sizeof(timestamp), acc.ptr->creationDate);
+
+			// TODO: pages
+
+			G_Printf(
+				S_COLOR_YELLOW"Account Name: "S_COLOR_WHITE"%s\n"
+				S_COLOR_YELLOW"Account ID: "S_COLOR_WHITE"%d\n"
+				S_COLOR_YELLOW"Created on: "S_COLOR_WHITE"%s\n"
+				S_COLOR_YELLOW"Group: "S_COLOR_WHITE"%s\n"
+				S_COLOR_YELLOW"Flags: "S_COLOR_WHITE"%d\n"
+				"\n",
+				acc.ptr->name,
+				acc.ptr->id,
+				timestamp,
+				acc.ptr->group,
+				acc.ptr->flags
+			);
+
+			if (VALIDSTRING(sessionsPrint.format)) {
+
+#ifdef NEWMOD_SUPPORT
+				G_Printf("Sessions tied to this account: ( "S_COLOR_GREEN"| = online "S_COLOR_YELLOW"| = temporary "S_COLOR_CYAN"| = newmod "S_COLOR_WHITE")\n");
+#else
+				G_Printf("Sessions tied to this account: ( "S_COLOR_GREEN"| - online "S_COLOR_YELLOW"| - temporary "S_COLOR_WHITE")\n");
+#endif
+				G_Printf("%s", sessionsPrint.format);
+
+			}
+			else {
+				G_Printf("No session tied to this account yet.\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "help")) {
+			printHelp = qtrue;
+		}
+		else {
+			G_Printf("Invalid subcommand.\n");
+			printHelp = qtrue;
+		}
+	}
+	else {
+		printHelp = qtrue;
+	}
+
+	if (printHelp) {
+		G_Printf(
+			"Valid subcommands:\n"
+			"account create <username>: Creates a new account with the given name\n"
+			"account delete <username>: Deletes the given account and unlinks all associated sessions\n"
+			"account info <username>: Prints various information for the given account name\n"
+			"account help: Prints this message\n"
+		);
+	}
+}
+
+void Svcmd_Session_f(void) {
+	qboolean printHelp = qfalse;
+
+	if (trap_Argc() > 1) {
+		char s[64];
+		trap_Argv(1, s, sizeof(s));
+
+		if (!Q_stricmp(s, "whois")) {
+
+			qboolean printed = qfalse;
+
+			int i;
+			for (i = 0; i < level.maxclients; ++i) {
+				gclient_t *client = &level.clients[i];
+
+				if (client->pers.connected != CON_DISCONNECTED &&
+					!(&g_entities[i] && g_entities[i].r.svFlags & SVF_BOT))
+				{
+					char* color;
+					switch (level.clients[i].sess.sessionTeam) {
+					case TEAM_RED: color = S_COLOR_RED; break;
+					case TEAM_BLUE: color = S_COLOR_BLUE; break;
+					case TEAM_FREE: color = S_COLOR_YELLOW; break;
+					default: color = S_COLOR_WHITE;
+					}
+
+					printed = qtrue;
+
+					if (!client->session) {
+						G_Printf("%sClient %d "S_COLOR_WHITE"(%s"S_COLOR_WHITE"): Uninitialized session\n", color, i, client->pers.netname);
+						continue;
+					}
+
+					char line[MAX_STRING_CHARS];
+					line[0] = '\0';
+
+					Q_strcat(line, sizeof(line), va("%sClient %d "S_COLOR_WHITE"(%s"S_COLOR_WHITE"): Session ID %d (identifier: %llX)",
+						color, i, client->pers.netname, client->session->id, client->session->identifier));
+
+					if (client->account) {
+						Q_strcat(line, sizeof(line), va(" linked to Account ID %d '%s'", client->account->id, client->account->name));
+					}
+
+					Q_strcat(line, sizeof(line), "\n");
+
+#ifdef _DEBUG
+					Q_strcat(line, sizeof(line), va("=> Session cache num %d (ptr: 0x%lx)", client->sess.sessionCacheNum, (uintptr_t)client->session));
+
+					if (client->account) {
+						Q_strcat(line, sizeof(line), va(" ; Account cache num %d (ptr: 0x%lx)", client->sess.accountCacheNum, (uintptr_t)client->account));
+					}
+
+					Q_strcat(line, sizeof(line), "\n");
+#endif
+
+					G_Printf(line);
+				}
+			}
+
+			if (!printed) {
+				G_Printf("No player online\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "latest")) {
+
+			// TODO
+
+		}
+		else if (!Q_stricmp(s, "info")) {
+
+			// TODO
+
+		}
+		else if (!Q_stricmp(s, "link")) {
+
+			if (trap_Argc() < 4) {
+				G_Printf("Usage: session link <session id> <account name>\n");
+				return;
+			}
+
+			trap_Argv(2, s, sizeof(s));
+			const int sessionId = atoi(s);
+			if (sessionId <= 0) {
+				G_Printf("Session ID must be a number > 1\n");
+				return;
+			}
+
+			char username[MAX_ACCOUNTNAME_LEN];
+			trap_Argv(3, username, sizeof(username));
+
+			sessionReference_t sess = G_GetSessionByID(sessionId, qfalse);
+
+			if (!sess.ptr) {
+				G_Printf("No session found with this ID\n");
+				return;
+			}
+
+			if (sess.ptr->accountId > 0) {
+				accountReference_t acc = G_GetAccountByID(sess.ptr->accountId, qfalse);
+				if (acc.ptr) G_Printf("This session is already linked to account '%s' (id: %d)\n", acc.ptr->name, acc.ptr->id);
+				return;
+			}
+
+			accountReference_t acc = G_GetAccountByName(username, qfalse);
+
+			if (!acc.ptr) {
+				G_Printf("No account found with this name\n");
+				return;
+			}
+
+			if (G_LinkAccountToSession(sess.ptr, acc.ptr)) {
+				G_Printf("Session successfully linked to account '%s' (id: %d)\n", acc.ptr->name, acc.ptr->id);
+			}
+			else {
+				G_Printf("Failed to link session to this account!\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "linkingame")) {
+
+			if (trap_Argc() < 4) {
+				G_Printf("Usage: session linkingame <client id> <account name>\n");
+				return;
+			}
+
+			trap_Argv(2, s, sizeof(s));
+			const int clientId = atoi(s);
+			if (!IN_CLIENTNUM_RANGE(clientId) ||
+				!g_entities[clientId].inuse ||
+				level.clients[clientId].pers.connected != CON_CONNECTED) {
+				G_Printf("You must enter a valid client ID of a connected client\n");
+				return;
+			}
+
+			gclient_t *client = &level.clients[clientId];
+
+			char username[MAX_ACCOUNTNAME_LEN];
+			trap_Argv(3, username, sizeof(username));
+
+			if (!client->session) {
+				return;
+			}
+
+			if (client->account) {
+				G_Printf("This session is already linked to account '%s' (id: %d)\n", client->account->name, client->account->id);
+				return;
+			}
+
+			accountReference_t acc = G_GetAccountByName(username, qfalse);
+
+			if (!acc.ptr) {
+				G_Printf("No account found with this name\n");
+				return;
+			}
+
+			if (G_LinkAccountToSession(client->session, acc.ptr)) {
+				G_Printf("Client session successfully linked to account '%s' (id: %d)\n", acc.ptr->name, acc.ptr->id);
+			}
+			else {
+				G_Printf("Failed to link client session to this account!\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "unlink")) {
+
+			if (trap_Argc() < 3) {
+				G_Printf("Usage: session unlink <session id>\n");
+				return;
+			}
+
+			trap_Argv(2, s, sizeof(s));
+			const int sessionId = atoi(s);
+			if (sessionId <= 0) {
+				G_Printf("Session ID must be a number > 1\n");
+				return;
+			}
+
+			sessionReference_t sess = G_GetSessionByID(sessionId, qfalse);
+
+			if (!sess.ptr) {
+				G_Printf("No session found with this ID\n");
+				return;
+			}
+
+			if (sess.ptr->accountId <= 0) {
+				G_Printf("This session is not linked to any account\n");
+				return;
+			}
+
+			accountReference_t acc = G_GetAccountByID(sess.ptr->accountId, qfalse);
+
+			if (!acc.ptr) {
+				return;
+			}
+
+			if (G_UnlinkAccountFromSession(sess.ptr)) {
+				G_Printf("Session successfully unlinked from account '%s' (id: %d)\n", acc.ptr->name, acc.ptr->id);
+			}
+			else {
+				G_Printf("Failed to unlink session from this account!\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "unlinkingame")) {
+
+			if (trap_Argc() < 3) {
+				G_Printf("Usage: session unlinkingame <client id>\n");
+				return;
+			}
+
+			trap_Argv(2, s, sizeof(s));
+			const int clientId = atoi(s);
+			if (!IN_CLIENTNUM_RANGE(clientId) ||
+				!g_entities[clientId].inuse ||
+				level.clients[clientId].pers.connected != CON_CONNECTED) {
+				G_Printf("You must enter a valid client ID of a connected client\n");
+				return;
+			}
+
+			gclient_t *client = &level.clients[clientId];
+
+			if (!client->session) {
+				return;
+			}
+
+			if (!client->account) {
+				G_Printf("This client's session is not linked to any account\n");
+				return;
+			}
+
+			// save a reference so we can print the name even after unlinking
+			accountReference_t acc;
+			acc.ptr = client->account;
+			acc.online = qtrue;
+
+			if (G_UnlinkAccountFromSession(client->session)) {
+				G_Printf("Client session successfully unlinked from account '%s' (id: %d)\n", acc.ptr->name, acc.ptr->id);
+			}
+			else {
+				G_Printf("Failed to unlink Client session from this account!\n");
+			}
+
+		}
+		else if (!Q_stricmp(s, "help")) {
+			printHelp = qtrue;
+		}
+		else {
+			G_Printf("Invalid subcommand.\n");
+			printHelp = qtrue;
+		}
+	}
+	else {
+		printHelp = qtrue;
+	}
+
+	if (printHelp) {
+		G_Printf(
+			"Valid subcommands:\n"
+			"session whois: Lists the session currently in use by all in-game players\n"
+			"session latest: Lists the latest unassigned sessions\n"
+			"session info <session id>: Prints detailed information for the given session ID\n"
+			"session link <session id> <account name>: Links the given session ID to an existing account\n"
+			"session linkingame <client id> <account name>: Shortcut command to link an in-game client's session to an existing account\n"
+			"session unlink <session id>: Unlinks the account associated to the given session ID\n"
+			"session unlinkingame <client id>: Shortcut command to unlink the account associated to an in-game client's session\n"
+			"session help: Prints this message\n"
+		);
+	}
+}
 
 /*
 =================
@@ -3752,15 +4214,29 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	if (!Q_stricmp(cmd, "account")) {
+		Svcmd_Account_f();
+		return qtrue;
+	}
+
+	if (!Q_stricmp(cmd, "session")) {
+		Svcmd_Session_f();
+		return qtrue;
+	}
+
+#ifdef DBCLEAN
 	if (!Q_stricmp(cmd, "cleandb")) {
 		Svcmd_CleanDB_f();
 		return qtrue;
 	}
+#endif
 
+#ifdef DBHOTSWAP
 	if (!Q_stricmp(cmd, "hotswapdb")) {
 		Svcmd_HotSwapDB_f();
 		return qtrue;
 	}
+#endif
 
 	if (!Q_stricmp(cmd, "notlive")) {
 		Svcmd_NotLive_f();
@@ -3771,6 +4247,11 @@ qboolean	ConsoleCommand( void ) {
 	//	Svcmd_AccountPrintAll_f();
 	//	return qtrue;
 	//}	
+
+	if (!Q_stricmp(cmd, "session")) {
+		Svcmd_Session_f();
+		return qtrue;
+	}
 
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {

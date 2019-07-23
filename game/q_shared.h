@@ -1706,6 +1706,7 @@ int Q_isprint( int c );
 int Q_islower( int c );
 int Q_isupper( int c );
 int Q_isalpha( int c );
+int Q_isalphanumeric(int c);
 qboolean Q_isanumber( const char *s );
 
 // portable case insensitive compare
@@ -1980,6 +1981,8 @@ typedef int soundChannel_t;
 #define MAX_RADAR_ENTITIES	MAX_GENTITIES
 #define MAX_TERRAINS		1//32 //rwwRMG: inserted
 #define MAX_LOCATIONS		64
+
+#define IN_CLIENTNUM_RANGE(x)	( x >= 0 && x < MAX_CLIENTS )
 
 #ifdef _XBOX
 #define	GENTITYNUM_BITS	9		// don't need to send any more

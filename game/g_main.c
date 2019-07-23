@@ -8,8 +8,7 @@
 
 //#include "accounts.h"
 #include "jp_engine.h"
-#include "g_database_log.h"
-#include "g_database_config.h"
+#include "g_database.h"
 
 #include "kdtree.h"
 
@@ -483,6 +482,10 @@ vmCvar_t     g_strafejump_mod;
 vmCvar_t	g_antiWallhack;
 vmCvar_t	g_wallhackMaxTraces;
 
+vmCvar_t	g_inMemoryDB;
+
+vmCvar_t	g_traceSQL;
+
 //allowing/disabling vote types
 vmCvar_t	g_allow_vote_customTeams;
 vmCvar_t    g_allow_vote_gametype;
@@ -850,6 +853,10 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_antiWallhack,	"g_antiWallhack"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_wallhackMaxTraces,	"g_wallhackMaxTraces"	, "1000"	, CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_inMemoryDB, "g_inMemoryDB", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
+
+	{ &g_traceSQL, "g_traceSQL", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
 
     { &g_restart_countdown, "g_restart_countdown", "0", CVAR_ARCHIVE, 0, qtrue }, 
 
@@ -1778,7 +1785,7 @@ qboolean G_ClientIsWhitelisted(int clientNum) {
 	// status is unknown; check it in the db now
 	unsigned long long id = level.clientUniqueIds[clientNum];
 	char *cuid = client->sess.auth == AUTHENTICATED ? client->sess.cuidHash : "";
-	if (G_DbPlayerWhitelisted(id, cuid)) {
+	if (G_DBPlayerLockdownWhitelisted(id, cuid)) {
 		// according to the db, he is whitelisted
 		client->sess.whitelistStatus = WHITELIST_WHITELISTED;
 		return qtrue;
@@ -2035,7 +2042,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		g_entities[i].client = level.clients + i;
 	}
 
-    G_ReadSessionData();
+	// read accounts and sessions cache
+	qboolean resetAccountsCache = !G_ReadAccountsCache();
+
+	G_ReadSessionData(restart ? qtrue : qfalse, resetAccountsCache);
 
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that
@@ -2163,8 +2173,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		PatchEngine();
 	}
 
-    G_CfgDbLoad();
-    G_LogDbLoad();
+	G_DBLoadDatabase();
     //level.db.levelId = G_LogDbLogLevelStart(restart);
 
 #ifdef _DEBUG
@@ -2251,6 +2260,9 @@ void G_ShutdownGame( int restart ) {
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
 
+	// save accounts and sessions cache
+	G_SaveAccountsCache();
+
 	trap_ROFF_Clean();
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -2268,8 +2280,7 @@ void G_ShutdownGame( int restart ) {
 
     //G_LogDbLogLevelEnd(level.db.levelId);
 
-    G_CfgDbUnload();
-    G_LogDbUnload();
+	G_DBUnloadDatabase();
 
 	UnpatchEngine();
 }
@@ -3271,6 +3282,9 @@ void ExitLevel (void) {
 
 	// we need to do this here before chaning to CON_CONNECTING
 	G_WriteSessionData();
+
+	// save accounts and sessions cache
+	G_SaveAccountsCache();
 
 	// change all client states to connecting, so the early players into the
 	// next level will know the others aren't done reconnecting

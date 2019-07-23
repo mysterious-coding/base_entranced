@@ -2,6 +2,7 @@
 //
 #include "g_local.h"
 #include "bg_saga.h"
+#include "g_database.h"
 
 #define LIFT_LAME_DETECTION_DISTANCE 1200
 

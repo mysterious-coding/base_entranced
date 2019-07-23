@@ -11,7 +11,7 @@
  *****************************************************************************/
 #include "g_local.h"
 #include "bg_saga.h"
-#include "g_database_log.h"
+#include "g_database.h"
 
 #define SIEGEITEM_STARTOFFRADAR 8
 
@@ -1655,7 +1655,7 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		broadFlags &= ~CAPTURERECORDFLAG_JEDI;
 		if (broadFlags != flags) { // sanity check; make sure we are actually checking something different
 			CaptureRecordsForCategory broadRecords = { 0 };
-			G_LogDbLoadCaptureRecords(level.mapCaptureRecords.mapname, broadFlags, qfalse, &broadRecords);
+			G_DBLoadCaptureRecords(level.mapCaptureRecords.mapname, broadFlags, qfalse, &broadRecords);
 			broadRank = CheckRanking(clients[0]->sess.ip,
 				clients[1] ? clients[1]->sess.ip : 0,
 				clients[0]->sess.auth == AUTHENTICATED ? clients[0]->sess.cuidHash : "",
@@ -1750,7 +1750,7 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		}
 
 		// update the in-memory db so that toptimes can reflect this change
-		G_LogDbSaveCaptureRecords(&level.mapCaptureRecords);
+		G_DBSaveCaptureRecords(&level.mapCaptureRecords);
 	}
 	else if (level.isLivePug == ISLIVEPUG_NO && !(flags & CAPTURERECORDFLAG_LIVEPUG)) {
 		// we didn't make a new record, but that was still a valid run. show everyone what time they did
