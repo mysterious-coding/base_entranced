@@ -5095,8 +5095,8 @@ void G_RunThink(gentity_t *ent) {
 		if (ent->think == SiegeItemThink && ent->siegeItemCarrierTime)
 			ent->siegeItemCarrierTime += dt;
 
-		// siege shield uptime stat
-		if (ent->siegeItemSpawnTime && (ent->think == ShieldThink || ent->think == ShieldGoSolid))
+		// siege shield uptime stat, siege item spawn floating timer, detkill timer
+		if (ent->siegeItemSpawnTime)
 			ent->siegeItemSpawnTime += dt;
 
 		// turrets

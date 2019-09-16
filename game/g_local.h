@@ -1675,6 +1675,8 @@ typedef struct {
 	char classLimits[MAX_STRING_CHARS];
 #endif
 
+	qboolean	endedWithEndMatchCommand;
+
 } level_locals_t;
 
 //

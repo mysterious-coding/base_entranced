@@ -1509,7 +1509,7 @@ static char *RankString(int rank, int tied) {
 
 // if fullmap completion, objective == -1
 static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, int clientNumOverride) {
-	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer) {
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || level.endedWithEndMatchCommand) {
 		// reset EVERYONE's speed/displacement stats
 		for (int i = 0; i < MAX_CLIENTS; i++) {
 			gclient_t *cl = &level.clients[i];
@@ -2302,6 +2302,7 @@ void SiegeBeginRound(int entNum)
 	}
 
 	level.siegeMatchWinner = SIEGEMATCHWINNER_NONE;
+	level.endedWithEndMatchCommand = qfalse; // sanity check; probably not needed
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
 }
 

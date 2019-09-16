@@ -4108,6 +4108,7 @@ qboolean	ConsoleCommand( void ) {
 
     if ( !Q_stricmp( cmd, "endmatch" ) )
     {
+		level.endedWithEndMatchCommand = qtrue;
 #ifdef NEWMOD_SUPPORT
 		trap_SendServerCommand(-1, "lchat \"em\"");
 #endif
