@@ -3086,7 +3086,8 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"isd2 "
 		"sci "
 		"vch2 "
-		"sgfl";
+		"vchl "
+		"sgfl ";
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
 	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };
