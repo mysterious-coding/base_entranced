@@ -7460,26 +7460,6 @@ void Cmd_Vchat_f(gentity_t *sender) {
 		senderLocation = Team_GetLocation(sender, chatLocation, sizeof(chatLocation));
 #endif
 
-	// see if a download is available (requires cvars for dl base, this particular dl, and this dl's version number)
-	// get the url
-	char baseCvar[2] = { 0 }, downloadCvar[2] = { 0 };
-	trap_Cvar_VariableStringBuffer("g_vchatdlbase", baseCvar, sizeof(baseCvar));
-	trap_Cvar_VariableStringBuffer(va("g_vchatdl_%s", modName), downloadCvar, sizeof(downloadCvar));
-
-	// get the version
-	char versionCvar[MAX_STRING_CHARS] = { 0 };
-	trap_Cvar_VariableStringBuffer(va("g_vchatdlversion_%s", modName), versionCvar, sizeof(versionCvar));
-	int downloadVersion = 0;
-	if (StringIsOnlyNumbers(versionCvar))
-		downloadVersion = atoi(versionCvar);
-	if (downloadVersion > 9999) // prevent troll high version numbers
-		downloadVersion = 9999;
-
-	qboolean downloadAvailable = !!(baseCvar[0] && downloadCvar[0] && downloadVersion > 0);
-	char downloadStr[16] = { 0 };
-	if (downloadAvailable)
-		Com_sprintf(downloadStr, sizeof(downloadStr), " \"dl=%d\"", downloadVersion);
-
 	char chatSenderName[64] = { 0 };
 	if (teamOnly) {
 		Com_sprintf(chatSenderName, sizeof(chatSenderName), EC"(%s%c%c"EC")"EC": ", sender->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
@@ -7551,19 +7531,18 @@ void Cmd_Vchat_f(gentity_t *sender) {
 
 		char *command;
 		if (type == VCHATTYPE_MEME) {
-			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s%s",
+			command = va("kls -1 -1 vcht \"cl=%d\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s",
 				sender - g_entities,
 				modName,
 				fileName,
 				msg,
 				type,
 				teamOnly,
-				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "",
-				downloadAvailable ? downloadStr : "");
+				teamOnly && locationToSend ? va(" \"loc=%d\"", locationToSend) : "");
 		}
 		else {
 			if (teamOnly && locationToSend) {
-				command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\" \"loc=%d\"%s",
+				command = va("ltchat \"%s\" \"%s\" \"5\" \"%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\" \"loc=%d\"",
 					chatSenderName,
 					chatLocation,
 					chatMessage,
@@ -7573,12 +7552,11 @@ void Cmd_Vchat_f(gentity_t *sender) {
 					msg,
 					type,
 					teamOnly, // team only parameter is sent anyway so clients can display with team styling
-					locationToSend,
-					downloadAvailable ? downloadStr : "");
+					locationToSend);
 			}
 			else {
 				if (teamOnly) {
-					command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s",
+					command = va("tchat \"%s^5%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"",
 						chatSenderName,
 						chatMessage,
 						sender - g_entities,
@@ -7586,11 +7564,10 @@ void Cmd_Vchat_f(gentity_t *sender) {
 						fileName,
 						msg,
 						type,
-						teamOnly, // team only parameter is sent anyway so clients can display with team styling
-						downloadAvailable ? downloadStr : "");
+						teamOnly); // team only parameter is sent anyway so clients can display with team styling);
 				}
 				else {
-					command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"%s",
+					command = va("chat \"%s^2%s\" \"%d\" \"vchat\" \"mod=%s\" \"file=%s\" \"msg=%s\" \"t=%d\" \"team=%d\"",
 						chatSenderName,
 						chatMessage,
 						sender - g_entities,
@@ -7598,8 +7575,7 @@ void Cmd_Vchat_f(gentity_t *sender) {
 						fileName,
 						msg,
 						type,
-						teamOnly, // team only parameter is sent anyway so clients can display with team styling
-						downloadAvailable ? downloadStr : "");
+						teamOnly); // team only parameter is sent anyway so clients can display with team styling);
 				}
 			}
 		}
