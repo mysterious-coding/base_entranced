@@ -3245,6 +3245,61 @@ void Cmd_TargetInfo_f(gentity_t *ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"weapon == %i (%s)\n\"", infoEnt->s.weapon, weaponStr));
 	}
 
+	if (infoEnt->r.contents) {
+		char contentsBuf[MAX_STRING_CHARS] = { 0 };
+		if (infoEnt->r.contents & CONTENTS_SOLID)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%ssolid", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_LAVA)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%slava", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_WATER)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%swater", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_FOG)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sfog", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_PLAYERCLIP)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%splayerclip", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_MONSTERCLIP)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%smonsterclip", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_BOTCLIP)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sbotclip", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_SHOTCLIP)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sshotclip", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_BODY)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sbody", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_CORPSE)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%scorpse", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_TRIGGER)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%strigger", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_NODROP)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%snodrop", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_TERRAIN)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sterrain", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_LADDER)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sladder", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_ABSEIL)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sabseil", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_OPAQUE)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sopaque", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_OUTSIDE)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%soutside", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_INSIDE)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sinside", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_SLIME)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sslime", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_LIGHTSABER)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%slightsaber", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_TELEPORTER)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%steleporter", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_ITEM)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sitem", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_NOSHOT)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%snoshot", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_DETAIL)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%sdetail", contentsBuf[0] ? " " : ""));
+		if (infoEnt->r.contents & CONTENTS_TRANSLUCENT)
+			Q_strcat(contentsBuf, sizeof(contentsBuf), va("%stranslucent", contentsBuf[0] ? " " : ""));
+
+		trap_SendServerCommand(ent - g_entities, va("print \"contents: %d / 0x%08X (%s)\n\"", infoEnt->r.contents, infoEnt->r.contents, contentsBuf));
+	}
 }
 
 #define MAX_CHANGES_CHUNKS		4
