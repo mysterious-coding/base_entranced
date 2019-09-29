@@ -7587,7 +7587,8 @@ static void Cmd_VchatDl_f(gentity_t *ent) {
 	// no longer used
 }
 
-void Cmd_VchatList_f(gentity_t* ent) {
+// use -1 for everyone
+void SendVchatList(int clientNum) {
 	char listBuf[MAX_STRING_CHARS] = { 0 }, baseBuf[MAX_STRING_CHARS] = { 0 };
 	trap_Cvar_VariableStringBuffer("sv_availableVchats", listBuf, sizeof(listBuf));
 	trap_Cvar_VariableStringBuffer("g_vchatdlbase", baseBuf, sizeof(baseBuf));
@@ -7595,7 +7596,11 @@ void Cmd_VchatList_f(gentity_t* ent) {
 	if (!listBuf[0] || !Q_stricmp(listBuf, "0") || !baseBuf[0] || !Q_stricmp(baseBuf, "0") || strchr(baseBuf, ' '))
 		return;
 
-	trap_SendServerCommand(ent - g_entities, va("kls -1 -1 vchl \"%s\" %s", baseBuf, listBuf));
+	trap_SendServerCommand(clientNum, va("kls -1 -1 vchl \"%s\" %s", baseBuf, listBuf));
+}
+
+void Cmd_VchatList_f(gentity_t* ent) {
+	SendVchatList(ent - g_entities);
 }
 #endif
 

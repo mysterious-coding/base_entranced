@@ -1737,6 +1737,7 @@ gentity_t *G_GetDuelWinner(gclient_t *client);
 const char *GetLongNameForRecordFlags(const char *mapname, CaptureCategoryFlags flags, qboolean forceSoloIfSpeedrunAndNonCoop);
 CaptureRecordsForCategory *CaptureRecordsForCategoryFromFlags(CaptureCategoryFlags flags);
 void PartitionedTimer(const int time, int *mins, int *secs, int *millis);
+void SendVchatList(int clientNum);
 
 //
 // g_items.c
