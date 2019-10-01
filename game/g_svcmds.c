@@ -3431,7 +3431,11 @@ static void FormatAccountSessionList(void *ctx, const sessionReference_t session
 	Q_strcat(out->format, sizeof(out->format), va(S_COLOR_WHITE"(identifier: %llX)\n", sessionRef.ptr->identifier));
 }
 
-void Svcmd_Account_f(void) {
+
+void Svcmd_Account_f( void ) {
+#ifndef SESSIONS_ACCOUNTS_SYSTEM
+	return;
+#endif
 	qboolean printHelp = qfalse;
 
 	if (trap_Argc() > 1) {
@@ -3590,7 +3594,10 @@ void Svcmd_Account_f(void) {
 	}
 }
 
-void Svcmd_Session_f(void) {
+void Svcmd_Session_f( void ) {
+#ifndef SESSIONS_ACCOUNTS_SYSTEM
+	return;
+#endif
 	qboolean printHelp = qfalse;
 
 	if (trap_Argc() > 1) {
