@@ -217,7 +217,7 @@ void G_WriteSessionData(void)
 	trap_FS_FCloseFile(sessionFile);
 }
 
-void G_ReadSessionData()
+void G_ReadSessionData(qboolean restart, qboolean resetAccounts)
 {
     fileHandle_t sessionFile;
     int fileSize = trap_FS_FOpenFile( "session.dat", &sessionFile, FS_READ );
