@@ -172,20 +172,20 @@ G_InitWorldSession
 
 ==================
 */
-void G_InitWorldSession( void ) {
+void G_InitWorldSession(void) {
 	char	s[MAX_STRING_CHARS];
 	int			gt;
 
-    level.newSession = qfalse;
+	level.newSession = qfalse;
 
-	trap_Cvar_VariableStringBuffer( "session", s, sizeof(s) );
-	gt = atoi( s );
-	
+	trap_Cvar_VariableStringBuffer("session_gametype", s, sizeof(s));
+	gt = atoi(s);
+
 	// if the gametype changed since the last session, don't use any
 	// client sessions
-	if ( g_gametype.integer != gt ) {
+	if (g_gametype.integer != gt) {
 		level.newSession = qtrue;
-		G_Printf( "Gametype changed, clearing session data.\n" );
+		G_Printf("Gametype changed, clearing session data.\n");
 	}
 }
 
