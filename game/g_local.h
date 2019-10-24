@@ -1885,6 +1885,8 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 void SpeedRunModeRuined(const char *reason);
 void LivePugRuined(const char *reason, qboolean announce);
 
+qboolean FileExists(const char *fileName);
+
 //
 // g_object.c
 //
@@ -2565,6 +2567,11 @@ extern	vmCvar_t	pmove_fixed;
 extern	vmCvar_t	pmove_msec;
 extern	vmCvar_t	pmove_float;
 #include "namespace_end.h"
+
+extern vmCvar_t		g_defaultMapFFA;
+extern vmCvar_t		g_defaultMapDuel;
+extern vmCvar_t		g_defaultMapSiege;
+extern vmCvar_t		g_defaultMapCTF;
 
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
