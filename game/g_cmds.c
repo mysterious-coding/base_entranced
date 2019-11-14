@@ -944,8 +944,13 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 				}
 			}
 
+			// since we switched teams, update their siege help
+			SendSiegeHelpForClient(clientNum, team == TEAM_SPECTATOR ? TEAM_SPECTATOR : client->sess.siegeDesiredTeam);
 			return;
 		}
+
+		// since we switched teams, update their siege help
+		SendSiegeHelpForClient(clientNum, team == TEAM_SPECTATOR ? TEAM_SPECTATOR : client->sess.siegeDesiredTeam);
 
 		if (!teamChanged)
 		{
@@ -9250,6 +9255,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_runoffVote);
 	PrintCvar(g_saberDamageScale);
 	PrintCvar(g_sexyDisruptor);
+	PrintCvar(g_siegeHelp);
 	PrintCvar(g_siegeReflectionFix);
 	PrintCvar(g_specInfo);
 	PrintCvar(g_swoopKillPoints);
@@ -9973,6 +9979,7 @@ void ClientCommand( int clientNum ) {
 			{
 				if (targ->use)
 				{
+					CheckSiegeHelpFromUse(targ->targetname);
 					targ->use(targ, ent, ent);
 				}
 				targ = G_Find(targ, FOFS(targetname), sArg);

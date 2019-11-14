@@ -205,6 +205,7 @@ vmCvar_t	g_flechetteSpread;
 vmCvar_t	g_autoSpec;
 vmCvar_t	g_intermissionKnockbackNPCs;
 vmCvar_t	g_emotes;
+vmCvar_t	g_siegeHelp;
 
 vmCvar_t	g_classLimits;
 vmCvar_t	oAssaultLimit;
@@ -460,6 +461,7 @@ vmCvar_t	z_debug2;
 vmCvar_t	z_debug3;
 vmCvar_t	z_debug4;
 vmCvar_t	z_debugSiegeTime;
+vmCvar_t	z_debugUse;
 #endif
 
 vmCvar_t	g_saveCaptureRecords;
@@ -835,6 +837,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &z_debug3, "z_debug3", "", 0, 0, qtrue },
 	{ &z_debug4, "z_debug4", "", 0, 0, qtrue },
 	{ &z_debugSiegeTime, "z_debugSiegeTime", "", 0, 0, qtrue },
+	{ &z_debugUse, "z_debugUse", "1", 0, 0, qtrue },
 #endif
 
 	{ &g_saveCaptureRecords, "g_saveCaptureRecords", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
@@ -956,6 +959,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_autoSpec, "g_autoSpec", "1", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_intermissionKnockbackNPCs, "g_intermissionKnockbackNPCs", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_emotes, "g_emotes", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_siegeHelp, "g_siegeHelp", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
 	{ &g_hothRebalance, "g_hothRebalance", "-1", CVAR_ARCHIVE, 0, qtrue },
@@ -2186,6 +2190,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_DBLoadDatabase();
     //level.db.levelId = G_LogDbLogLevelStart(restart);
 
+	InitializeSiegeHelpMessages();
+
 #ifdef _DEBUG
 	Com_Printf("Build date: %s %s\n", __DATE__, __TIME__);
 #endif
@@ -2287,6 +2293,7 @@ void G_ShutdownGame( int restart ) {
 	//cleanDB();
 
 	ListClear(&level.mapCaptureRecords.captureRecordsList);
+	ListClear(&level.siegeHelpList);
 
     //G_LogDbLogLevelEnd(level.db.levelId);
 
@@ -5195,6 +5202,344 @@ int BG_GetTime(void)
 }
 #include "namespace_end.h"
 
+
+#ifdef NEWMOD_SUPPORT
+#include "cJSON.h"
+
+/*
+reads the siege help messages from maps/map_name_goes_here.siegehelp
+example file contents:
+
+
+{
+   "messages":[
+	  {
+		 "start":[""],
+		 "end":["obj2"],
+		 "size":"large",
+		 "origin":[4360, -1220, 92],
+		 "redMsg":"Complete obj 1",
+		 "blueMsg":"Complete obj 2"
+	  },
+	  {
+		 "start":["obj1completed"],
+		 "end":["teleporttimedout", "obj2completed"],
+		 "size":"small",
+		 "origin":[3257, 2746, 424],
+		 "constraints":[[null, 3900], [null, null], [null, null]],
+		 "blueMsg":"Teleport"
+	  },
+	  {
+		 "start":["obj1completed"],
+		 "end":["obj2completed"],
+		 "item":"codes",
+		 "size":"large",
+		 "origin":[6070, 1910, 179],
+		 "redMsg":"Get codes",
+		 "blueMsg":"Defend codes spawn"
+	  },
+   ]
+}
+
+
+*/
+void InitializeSiegeHelpMessages(void) {
+	if (!g_siegeHelp.integer)
+		return;
+	level.siegeHelpInitialized = qtrue;
+	fileHandle_t f = 0;
+	char mapname[64];
+	trap_Cvar_VariableStringBuffer("mapname", mapname, sizeof(mapname));
+	int len = trap_FS_FOpenFile(va("maps/%s.siegehelp", mapname), &f, FS_READ);
+	if (!f) { // idk
+		Com_Printf("No .siegehelp file was found for %s.\n", mapname);
+		return;
+	}
+	if (len < 4) { // sanity check i guess
+		Com_Printf("^1No valid siege help messages found. The siegehelp file was probably configured incorrectly.^7\n");
+		trap_FS_FCloseFile(f);
+		return;
+	}
+
+	char *buf = malloc(len + 1);
+	memset(buf, 0, len + 1);
+	if (f) {
+		trap_FS_Read(buf, len, f);
+		trap_FS_FCloseFile(f);
+	}
+
+	cJSON *root = cJSON_Parse(buf);
+	if (!root) {
+		Com_Printf("^1No valid siege help messages found. The siegehelp file was probably configured incorrectly. Check commas, etc.^7\n");
+		Com_DebugPrintf("Error pointer: %s\n", cJSON_GetErrorPtr());
+		free(buf);
+		return;
+	}
+	cJSON *messages = cJSON_GetObjectItem(root, "messages");
+	if (!messages) {
+		Com_Printf("^1No valid siege help messages found. The siegehelp file was probably configured incorrectly. Check commas, etc.^7\n");
+		cJSON_Delete(root);
+		free(buf);
+		return;
+	}
+
+	int numHelps = 0;
+	for (int i = 0; i < cJSON_GetArraySize(messages); i++) {
+		cJSON *thisMessageInArray = cJSON_GetArrayItem(messages, i);
+		if (!thisMessageInArray)
+			//break;
+			continue;
+		siegeHelp_t *help = ListAdd(&level.siegeHelpList, sizeof(siegeHelp_t));
+
+		cJSON *start = cJSON_GetObjectItem(thisMessageInArray, "start");
+		if (start) {
+			for (int j = 0; j < MAX_SIEGEHELP_TARGETNAMES; j++) {
+				cJSON *thisStart = cJSON_GetArrayItem(start, j);
+				if (thisStart && cJSON_IsString(thisStart) && VALIDSTRING(thisStart->valuestring))
+					Q_strncpyz(help->start[j], thisStart->valuestring, sizeof(help->start[j]));
+			}
+		}
+
+		cJSON *end = cJSON_GetObjectItem(thisMessageInArray, "end");
+		if (end) {
+			for (int j = 0; j < MAX_SIEGEHELP_TARGETNAMES; j++) {
+				cJSON *thisEnd = cJSON_GetArrayItem(end, j);
+				if (thisEnd && cJSON_IsString(thisEnd) && VALIDSTRING(thisEnd->valuestring))
+					Q_strncpyz(help->end[j], thisEnd->valuestring, sizeof(help->end[j]));
+			}
+		}
+
+		cJSON *size = cJSON_GetObjectItem(thisMessageInArray, "size");
+		if (size && cJSON_IsString(size) && VALIDSTRING(size->valuestring) && !Q_stricmpn(size->valuestring, "small", 5))
+			help->smallSize = qtrue;
+
+		cJSON *item = cJSON_GetObjectItem(thisMessageInArray, "item");
+		if (item && cJSON_IsString(item) && VALIDSTRING(item->valuestring))
+			Q_strncpyz(help->item, item->valuestring, sizeof(help->item));
+
+		cJSON *redMsg = cJSON_GetObjectItem(thisMessageInArray, "redMsg");
+		if (redMsg && cJSON_IsString(redMsg) && VALIDSTRING(redMsg->valuestring)) {
+			Q_strncpyz(help->redMsg, redMsg->valuestring, sizeof(help->redMsg));
+			char *checkQuotes = help->redMsg;
+			while (checkQuotes = strchr(checkQuotes, '"')) // make sure idiots didn't write quotation marks
+				*checkQuotes = '\'';
+		}
+
+		cJSON *blueMsg = cJSON_GetObjectItem(thisMessageInArray, "blueMsg");
+		if (blueMsg && cJSON_IsString(blueMsg) && VALIDSTRING(blueMsg->valuestring)) {
+			Q_strncpyz(help->blueMsg, blueMsg->valuestring, sizeof(help->blueMsg));
+			char *checkQuotes = help->blueMsg;
+			while (checkQuotes = strchr(checkQuotes, '"')) // make sure idiots didn't write quotation marks
+				*checkQuotes = '\'';
+		}
+		if (!help->redMsg[0] && !help->blueMsg[0]) {
+			Com_Printf("^1InitializeSiegeHelpMessages: error: message has empty redMsg and empty blueMsg!^7\n");
+			ListRemove(&level.siegeHelpList, help);
+			continue;
+		}
+
+		cJSON *origin = cJSON_GetObjectItem(thisMessageInArray, "origin");
+		if (origin) {
+			for (int j = 0; j < 3; j++) { // one coord for each of x, y, and z
+				cJSON *thisCoord = cJSON_GetArrayItem(origin, j);
+				if (thisCoord && cJSON_IsNumber(thisCoord))
+					help->origin[j] = (int)thisCoord->valuedouble;
+			}
+		}
+
+		cJSON *constraints = cJSON_GetObjectItem(thisMessageInArray, "constraints");
+		if (constraints) {
+			for (int j = 0; j < 3; j++) { // one set of constraints for each of x, y, and z
+				cJSON *thisConstraint = cJSON_GetArrayItem(constraints, j);
+				if (thisConstraint) {
+					for (int k = 0; k < 2; k++) { // one lower bound and one upper bound for each set of constraints
+						cJSON *thisConstraintBound = cJSON_GetArrayItem(thisConstraint, k);
+						if (thisConstraintBound && cJSON_IsNumber(thisConstraintBound)) {
+							help->constraints[j][k] = (int)thisConstraintBound->valuedouble;
+							help->constrained[j][k] = qtrue;
+						}
+					}
+					if (help->constrained[j][0] && help->constrained[j][1] && help->constraints[j][0] > help->constraints[j][1]) {
+						// make sure they are in the correct order: low, high
+						int temp = help->constraints[j][0];
+						help->constraints[j][0] = help->constraints[j][1];
+						help->constraints[j][1] = temp;
+					}
+				}
+			}
+		}
+
+		if (!help->start[0][0])
+			help->started = qtrue; // no start targetname; it just defaults to started at the beginning of the level
+
+		numHelps++;
+	}
+
+	if (numHelps) {
+		Com_Printf("Parsed %d siege help messages.\n", numHelps);
+		level.siegeHelpValid = qtrue;
+	}
+	else {
+		Com_Printf("^1No valid siege help messages found. The siegehelp file was probably configured incorrectly.^7\n");
+	}
+
+	free(buf);
+}
+
+// gets the current siege help messages and writes them to the supplied buffers
+static void GetSiegeHelpMessages(char *redOut, size_t redOutSize, char *blueOut, size_t blueOutSize, char *bothOut, size_t bothOutSize) {
+	assert(redOut && redOutSize && blueOut && blueOutSize && bothOut && bothOutSize && g_gametype.integer == GT_SIEGE);
+	*redOut = *blueOut = *bothOut = '\0';
+	char redTeamHelpBuf[MAX_STRING_CHARS] = { 0 }, blueTeamHelpBuf[MAX_STRING_CHARS] = { 0 }, bothTeamsHelpBuf[MAX_STRING_CHARS] = { 0 };
+	Q_strncpyz(redTeamHelpBuf, "kls -1 -1 shlp", sizeof(redTeamHelpBuf));
+	Q_strncpyz(blueTeamHelpBuf, "kls -1 -1 shlp", sizeof(blueTeamHelpBuf));
+	Q_strncpyz(bothTeamsHelpBuf, "kls -1 -1 shlp", sizeof(bothTeamsHelpBuf));
+
+	if (!level.zombies) {
+		iterator_t iter = { 0 };
+		ListIterate(&level.siegeHelpList, &iter, qfalse);
+		while (IteratorHasNext(&iter)) {
+			siegeHelp_t *help = IteratorNext(&iter);
+			if (help->ended || !help->started)
+				continue;
+			if (help->forceHideItem)
+				continue;
+			assert(help->redMsg[0] || help->blueMsg[0]);
+
+			// message
+			char thisRed[MAX_STRING_CHARS] = { 0 }, thisBlue[MAX_STRING_CHARS] = { 0 }, thisBoth[MAX_STRING_CHARS] = { 0 };
+			if (help->redMsg[0]) {
+				Q_strcat(thisRed, sizeof(thisRed), va("\"r=%s\"", help->redMsg));
+				Q_strcat(thisBoth, sizeof(thisBoth), va("\"r=%s\"", help->redMsg));
+			}
+			if (help->blueMsg[0]) {
+				Q_strcat(thisBlue, sizeof(thisBlue), va("\"b=%s\"", help->blueMsg));
+				Q_strcat(thisBoth, sizeof(thisBoth), va("%s\"b=%s\"", help->redMsg[0] ? " " : "", help->blueMsg)); // extra space if red too
+			}
+
+			// small size?
+			if (help->smallSize) {
+				Q_strcat(thisBoth, sizeof(thisBoth), " \"s=1\"");
+				if (help->redMsg[0])
+					Q_strcat(thisRed, sizeof(thisRed), " \"s=1\"");
+				if (help->blueMsg[0])
+					Q_strcat(thisBlue, sizeof(thisBlue), " \"s=1\"");
+			}
+
+			// constraints?
+			for (int j = 0; j < 3; j++) {
+				for (int k = 0; k < 2; k++) {
+					if (help->constrained[j][k]) {
+						Q_strcat(thisBoth, sizeof(thisBoth), va(" \"c%d%d=%d\"", j, k, help->constraints[j][k]));
+						if (help->redMsg[0])
+							Q_strcat(thisRed, sizeof(thisRed), va(" \"c%d%d=%d\"", j, k, help->constraints[j][k]));
+						if (help->blueMsg[0])
+							Q_strcat(thisBlue, sizeof(thisBlue), va(" \"c%d%d=%d\"", j, k, help->constraints[j][k]));
+					}
+				}
+			}
+
+			// coordinates (these should be last)
+			Q_strcat(thisBoth, sizeof(thisBoth), va(" \"x=%d\" \"y=%d\" \"z=%d\"", help->origin[0], help->origin[1], help->origin[2]));
+			if (help->redMsg[0])
+				Q_strcat(thisRed, sizeof(thisRed), va(" \"x=%d\" \"y=%d\" \"z=%d\"", help->origin[0], help->origin[1], help->origin[2]));
+			if (help->blueMsg[0])
+				Q_strcat(thisBlue, sizeof(thisBlue), va(" \"x=%d\" \"y=%d\" \"z=%d\"", help->origin[0], help->origin[1], help->origin[2]));
+
+			// copy this one into the main strings
+			if (strlen(bothTeamsHelpBuf) + strlen(thisBoth) < MAX_STRING_CHARS - 1)
+				Q_strcat(bothTeamsHelpBuf, sizeof(bothTeamsHelpBuf), thisBoth);
+			else
+				Com_Printf("Warning: siege both teams help message does not fit! (\"%s^7\")\n", thisBoth);
+
+			if (help->redMsg[0]) {
+				if (strlen(redTeamHelpBuf) + strlen(thisRed) < MAX_STRING_CHARS - 1)
+					Q_strcat(redTeamHelpBuf, sizeof(redTeamHelpBuf), thisRed);
+				else
+					Com_Printf("Warning: siege red help message does not fit! (\"%s^7\")\n", thisRed);
+			}
+
+			if (help->blueMsg[0]) {
+				if (strlen(blueTeamHelpBuf) + strlen(thisBlue) < MAX_STRING_CHARS - 1)
+					Q_strcat(blueTeamHelpBuf, sizeof(blueTeamHelpBuf), thisBlue);
+				else
+					Com_Printf("Warning: siege blue help message does not fit! (\"%s^7\")\n", thisBlue);
+			}
+		}
+	}
+
+	Q_strncpyz(redOut, redTeamHelpBuf, redOutSize);
+	Q_strncpyz(blueOut, blueTeamHelpBuf, blueOutSize);
+	Q_strncpyz(bothOut, bothTeamsHelpBuf, bothOutSize);
+}
+
+// sends current siege help to a client (-1 for everyone)
+void SendSiegeHelpForClient(int client, team_t teamOverride) {
+	assert(client >= -1 && client < MAX_CLIENTS);
+	if (g_gametype.integer != GT_SIEGE || !g_siegeHelp.integer)
+		return;
+	if (!level.siegeHelpInitialized)
+		InitializeSiegeHelpMessages();
+	if (level.siegeStage != SIEGESTAGE_ROUND1 && level.siegeStage != SIEGESTAGE_ROUND2)
+		return;
+	if (!level.siegeHelpValid)
+		return;
+	char red[MAX_STRING_CHARS], blue[MAX_STRING_CHARS], both[MAX_STRING_CHARS];
+
+	GetSiegeHelpMessages(&red[0], sizeof(red), &blue[0], sizeof(blue), &both[0], sizeof(both));
+
+	if (client == -1) { // everyone
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			if (level.clients[i].pers.connected != CON_CONNECTED || level.clients[i].isLagging)
+				continue;
+			if (level.clients[i].sess.siegeDesiredTeam == TEAM_RED) {
+				trap_SendServerCommand(i, red);
+				Com_DebugPrintf("Sent red help to client %d: %s^7\n", i, red);
+			}
+			else if (level.clients[i].sess.siegeDesiredTeam == TEAM_BLUE) {
+				trap_SendServerCommand(i, blue);
+				Com_DebugPrintf("Sent blue help to client %d: %s^7\n", i, blue);
+			}
+			else {
+				trap_SendServerCommand(i, both);
+				Com_DebugPrintf("Sent both help to client %d: %s^7\n", i, both);
+			}
+		}
+	}
+	else if (level.clients[client].pers.connected == CON_CONNECTED && !level.clients[client].isLagging) { // a specific client
+		team_t team = teamOverride ? teamOverride : level.clients[client].sess.siegeDesiredTeam;
+		if (team == TEAM_RED) {
+			trap_SendServerCommand(client, red);
+			Com_DebugPrintf("Sent red help to client %d: %s^7\n", client, red);
+		}
+		else if (team == TEAM_BLUE) {
+			trap_SendServerCommand(client, blue);
+			Com_DebugPrintf("Sent blue help to client %d: %s^7\n", client, blue);
+		}
+		else {
+			trap_SendServerCommand(client, both);
+			Com_DebugPrintf("Sent both help to client %d: %s^7\n", client, both);
+		}
+	}
+}
+
+// sends siege help messages periodically
+static void RunSiegeHelpMessages(void) {
+	if (g_gametype.integer != GT_SIEGE || !g_siegeHelp.integer)
+		return;
+	if (level.siegeStage != SIEGESTAGE_ROUND1 && level.siegeStage != SIEGESTAGE_ROUND2)
+		return;
+	if (level.siegeHelpMessageTime && trap_Milliseconds() < level.siegeHelpMessageTime)
+		return;
+
+	// send help to everyone
+	SendSiegeHelpForClient(-1, 0);
+
+	// set the time for this function to run again
+	level.siegeHelpMessageTime = trap_Milliseconds() + SIEGE_HELP_INTERVAL;
+}
+#endif
+
 /*
 ================
 G_RunFrame
@@ -6600,6 +6945,10 @@ void G_RunFrame( int levelTime ) {
 		}
 		lastVchatCheckTime = trap_Milliseconds();
 	}
+
+#ifdef NEWMOD_SUPPORT
+	RunSiegeHelpMessages();
+#endif
 
 	level.frameStartTime = trap_Milliseconds(); // accurate timer
 

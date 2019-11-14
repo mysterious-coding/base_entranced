@@ -2550,8 +2550,10 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 				ent->s.frame = 0;
 			}
 			else if (!Q_stricmp(ent->targetname, "ccreached")) {
-				if (ent->use)
+				if (ent->use) {
+					CheckSiegeHelpFromUse(ent->targetname);
 					ent->use(ent, NULL, NULL);
+				}
 			}
 		}
 	}
@@ -3508,6 +3510,22 @@ void SiegeItemThink(gentity_t *ent)
 					ent->genericValue11 = 0;
 					ent->s.eFlags &= ~EF_RADAROBJECT;
 				}
+
+				// see if we need to respawn a "pick up this item" siege help message
+				qboolean needUpdate = qfalse;
+				iterator_t iter = { 0 };
+				ListIterate(&level.siegeHelpList, &iter, qfalse);
+				while (IteratorHasNext(&iter)) {
+					siegeHelp_t *help = IteratorNext(&iter);
+					if (help->ended)
+						continue;
+					if (help->started && help->item[0] && !Q_stricmp(ent->targetname, help->item)) {
+						help->forceHideItem = qtrue;
+						needUpdate = qtrue;
+					}
+				}
+				if (needUpdate)
+					level.siegeHelpMessageTime = -SIEGE_HELP_INTERVAL;
 			}
 			else
 			{
@@ -3574,6 +3592,22 @@ void SiegeItemThink(gentity_t *ent)
 		
 		// stop flashing on radar
 		ent->s.time2 = 0;
+
+		// see if we need to respawn a "pick up this item" siege help message
+		qboolean needUpdate = qfalse;
+		iterator_t iter = { 0 };
+		ListIterate(&level.siegeHelpList, &iter, qfalse);
+		while (IteratorHasNext(&iter)) {
+			siegeHelp_t *help = IteratorNext(&iter);
+			if (help->ended)
+				continue;
+			if (help->started && help->item[0] && !Q_stricmp(ent->targetname, help->item)) {
+				help->forceHideItem = qfalse;
+				needUpdate = qtrue;
+			}
+		}
+		if (needUpdate)
+			level.siegeHelpMessageTime = -SIEGE_HELP_INTERVAL;
 	}
 
 	ent->nextthink = level.time + FRAMETIME/2;
@@ -3681,6 +3715,22 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 	self->genericValue8 = other->s.number; //Keep the index so we know who is "carrying" us
 
 	self->genericValue9 = 0; //So it doesn't think it has to respawn.
+	
+	// see if we need to kill a "pick up this item" siege help message
+	qboolean needUpdate = qfalse;
+	iterator_t iter = { 0 };
+	ListIterate(&level.siegeHelpList, &iter, qfalse);
+	while (IteratorHasNext(&iter)) {
+		siegeHelp_t *help = IteratorNext(&iter);
+		if (help->ended)
+			continue;
+		if (help->started && help->item[0] && !Q_stricmp(self->targetname, help->item)) {
+			help->forceHideItem = qtrue;
+			needUpdate = qtrue;
+		}
+	}
+	if (needUpdate)
+		level.siegeHelpMessageTime = -SIEGE_HELP_INTERVAL;
 
 #ifdef NEWMOD_SUPPORT
 	UpdateNewmodSiegeItems();

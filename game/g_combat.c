@@ -3305,8 +3305,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		char *findClassname = self->client->sess.sessionTeam == TEAM_RED ? "target_deathteam1" : "target_deathteam2";
 		gentity_t *grassThing = G_Find(NULL, FOFS(classname), findClassname);
 		while (grassThing) {
-			if (grassThing->use && !(grassThing->flags & FL_INACTIVE))
+			if (grassThing->use && !(grassThing->flags & FL_INACTIVE)) {
+				CheckSiegeHelpFromUse(grassThing->targetname);
 				grassThing->use(grassThing, ent, ent);
+			}
 			grassThing = G_Find(grassThing, FOFS(classname), findClassname);
 		}
 	}

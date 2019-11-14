@@ -28,6 +28,12 @@ extern int gPainMOD;
 extern int gPainHitLoc;
 extern vec3_t gPainPoint;
 
+#ifdef _DEBUG
+#define Com_DebugPrintf(...)	Com_Printf(__VA_ARGS__)
+#else
+#define Com_DebugPrintf(...)	do {} while (0)
+#endif
+
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
@@ -1359,6 +1365,23 @@ typedef struct {
 	int time;
 } changeClass_t;
 
+#define MAX_SIEGEHELP_TARGETNAMES	(4)
+typedef struct {
+	node_t		node;
+	qboolean	smallSize;
+	char		start[MAX_SIEGEHELP_TARGETNAMES][64];
+	char		end[MAX_SIEGEHELP_TARGETNAMES][64];
+	char		item[64];
+	int			origin[3];
+	int			constraints[3][2];
+	qboolean	constrained[3][2];
+	char		redMsg[64];
+	char		blueMsg[64];
+	qboolean	started;
+	qboolean	ended;
+	qboolean	forceHideItem;
+} siegeHelp_t;
+
 typedef enum {
 	SIEGEMAP_UNKNOWN = 0,
 	SIEGEMAP_HOTH,
@@ -1482,6 +1505,11 @@ typedef struct {
 		SIEGESTAGE_ROUND2POSTGAME,
 		MAX_SIEGESTAGES
 	} siegeStage;
+#define SIEGE_HELP_INTERVAL		(10000) // can be a little higher since it only really matters if someone vid_restarts
+	list_t siegeHelpList;
+	int siegeHelpMessageTime;
+	qboolean siegeHelpInitialized;
+	qboolean siegeHelpValid;
 	int lastLegitClass[MAX_CLIENTS];
 	changeClass_t tryChangeClass[MAX_CLIENTS];
 	int teamChangeTime[MAX_CLIENTS];
@@ -1871,6 +1899,7 @@ qboolean TryTossAmmoPack(gentity_t *ent, qboolean doChecks);
 qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doChecks);
 char *ChopString(const char *in, size_t targetLen);
 void RemoveSpaces(char* s);
+void CheckSiegeHelpFromUse(const char *targetname);
 
 //
 // g_saga.c
@@ -2213,6 +2242,8 @@ void GetPlayerCounts(qboolean includeBots, qboolean realTeam, int *numRedOut, in
 #ifdef NEWMOD_SUPPORT
 void UpdateNewmodSiegeItems(void);
 void UpdateNewmodSiegeClassLimits(int clientNum);
+void InitializeSiegeHelpMessages(void);
+void SendSiegeHelpForClient(int client, team_t teamOverride);
 #endif
 
 //
@@ -2684,6 +2715,7 @@ extern vmCvar_t		z_debug2;
 extern vmCvar_t		z_debug3;
 extern vmCvar_t		z_debug4;
 extern vmCvar_t     z_debugSiegeTime;
+extern vmCvar_t		z_debugUse;
 #endif
 
 extern vmCvar_t		g_saveCaptureRecords;
@@ -2777,6 +2809,7 @@ extern vmCvar_t    g_flechetteSpread;
 extern vmCvar_t    g_autoSpec;
 extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
+extern vmCvar_t    g_siegeHelp;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

@@ -458,8 +458,10 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 			if (VALIDSTRING(ent->recallTarget)) {
 				gentity_t *recallTarget = G_Find(NULL, FOFS(targetname), ent->recallTarget);
 				while (recallTarget) {
-					if (recallTarget->use && !(VALIDSTRING(recallTarget->classname) && !Q_stricmp(recallTarget->classname, "misc_siege_item"))) // sanity; don't use siege items
+					if (recallTarget->use && !(VALIDSTRING(recallTarget->classname) && !Q_stricmp(recallTarget->classname, "misc_siege_item"))) { // sanity; don't use siege items
+						CheckSiegeHelpFromUse(recallTarget->targetname);
 						recallTarget->use(recallTarget, activator, activator);
+					}
 					recallTarget = G_Find(recallTarget, FOFS(targetname), ent->recallTarget);
 				}
 			}

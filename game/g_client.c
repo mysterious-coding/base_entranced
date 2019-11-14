@@ -3088,6 +3088,15 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"vch2 "
 		"vchl "
 		"sgfl ";
+
+	// shlp is dependent on whether we have it for this map
+	if (g_gametype.integer == GT_SIEGE) {
+		if (!level.siegeHelpInitialized)
+			InitializeSiegeHelpMessages();
+		if (level.siegeHelpValid)
+			Q_strcat(featureListConfigString, sizeof(featureListConfigString), "shlp ");
+	}
+
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
 	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };

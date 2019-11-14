@@ -625,18 +625,50 @@ gentity_t *G_PickTarget (char *targetname)
 	return choice[rand() % num_choices];
 }
 
+// checks whether siege help needs to be updated because of something being used
+// e.g. an objective got completed, so maybe some siege helps might be started/ended because of that
+void CheckSiegeHelpFromUse(const char *targetname) {
+	if (g_gametype.integer != GT_SIEGE || !g_siegeHelp.integer || !VALIDSTRING(targetname))
+		return;
+
+	qboolean needUpdate = qfalse;
+	iterator_t iter = { 0 };
+	ListIterate(&level.siegeHelpList, &iter, qfalse);
+	while (IteratorHasNext(&iter)) {
+		siegeHelp_t *help = IteratorNext(&iter);
+		if (help->ended)
+			continue;
+		for (int j = 0; j < MAX_SIEGEHELP_TARGETNAMES; j++) {
+			if (help->end[j][0] && !Q_stricmp(targetname, help->end[j])) {
+				help->ended = qtrue;
+				needUpdate = qtrue;
+				break;
+			}
+			else if (!help->started && help->start[j][0] && !Q_stricmp(targetname, help->start[j])) {
+				help->started = qtrue;
+				needUpdate = qtrue;
+				break;
+			}
+		}
+	}
+	if (needUpdate)
+		level.siegeHelpMessageTime = -SIEGE_HELP_INTERVAL;
+}
+
 void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 #ifdef _DEBUG
-	char *selfClassname = self && VALIDSTRING(self->classname) ? self->classname : "";
-	char *selfTargetname = self && VALIDSTRING(self->targetname) ? self->targetname : "";
-	char *otherClassname = other && VALIDSTRING(other->classname) ? other->classname : "";
-	char *otherTargetname = other && VALIDSTRING(other->targetname) ? other->targetname : "";
-	char *activatorClassname = activator && VALIDSTRING(activator->classname) ? activator->classname : "";
-	char *activatorTargetname = activator && VALIDSTRING(activator->targetname) ? activator->targetname : "";
+	if (z_debugUse.integer) {
+		char *selfClassname = self && VALIDSTRING(self->classname) ? self->classname : "";
+		char *selfTargetname = self && VALIDSTRING(self->targetname) ? self->targetname : "";
+		char *otherClassname = other && VALIDSTRING(other->classname) ? other->classname : "";
+		char *otherTargetname = other && VALIDSTRING(other->targetname) ? other->targetname : "";
+		char *activatorClassname = activator && VALIDSTRING(activator->classname) ? activator->classname : "";
+		char *activatorTargetname = activator && VALIDSTRING(activator->targetname) ? activator->targetname : "";
 
-	Com_Printf("GlobalUse: self %s \"%s\" other %s \"%s\" activator %s \"%s\"\n",
-		selfClassname, selfTargetname, otherClassname, otherTargetname, activatorClassname, activatorTargetname);
+		Com_Printf("GlobalUse: self %s \"%s\" other %s \"%s\" activator %s \"%s\"\n",
+			selfClassname, selfTargetname, otherClassname, otherTargetname, activatorClassname, activatorTargetname);
+	}
 #endif
 
 	if (!self || (self->flags & FL_INACTIVE))
@@ -655,6 +687,8 @@ void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 		!Q_stricmp(self->targetname, "atst_1")) {
 		return;
 	}
+
+	CheckSiegeHelpFromUse(self->targetname);
 
 	self->use(self, other, activator);
 }
