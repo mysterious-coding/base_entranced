@@ -5313,6 +5313,7 @@ void InitializeSiegeHelpMessages(void) {
 		if (size && cJSON_IsString(size) && VALIDSTRING(size->valuestring) && !Q_stricmpn(size->valuestring, "small", 5))
 			help->smallSize = qtrue;
 
+		// can either be the item's targetname or goaltarget
 		cJSON *item = cJSON_GetObjectItem(thisMessageInArray, "item");
 		if (item && cJSON_IsString(item) && VALIDSTRING(item->valuestring))
 			Q_strncpyz(help->item, item->valuestring, sizeof(help->item));

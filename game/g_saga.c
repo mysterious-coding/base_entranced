@@ -3519,7 +3519,7 @@ void SiegeItemThink(gentity_t *ent)
 					siegeHelp_t *help = IteratorNext(&iter);
 					if (help->ended)
 						continue;
-					if (help->started && help->item[0] && !Q_stricmp(ent->targetname, help->item)) {
+					if (help->started && help->item[0] && (!Q_stricmp(ent->targetname, help->item) || !Q_stricmp(ent->goaltarget, help->item))) {
 						help->forceHideItem = qtrue;
 						needUpdate = qtrue;
 					}
@@ -3601,7 +3601,7 @@ void SiegeItemThink(gentity_t *ent)
 			siegeHelp_t *help = IteratorNext(&iter);
 			if (help->ended)
 				continue;
-			if (help->started && help->item[0] && !Q_stricmp(ent->targetname, help->item)) {
+			if (help->started && help->item[0] && (!Q_stricmp(ent->targetname, help->item) || !Q_stricmp(ent->goaltarget, help->item))) {
 				help->forceHideItem = qfalse;
 				needUpdate = qtrue;
 			}
@@ -3724,7 +3724,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		siegeHelp_t *help = IteratorNext(&iter);
 		if (help->ended)
 			continue;
-		if (help->started && help->item[0] && !Q_stricmp(self->targetname, help->item)) {
+		if (help->started && help->item[0] && (!Q_stricmp(self->targetname, help->item) || !Q_stricmp(self->goaltarget, help->item))) {
 			help->forceHideItem = qtrue;
 			needUpdate = qtrue;
 		}

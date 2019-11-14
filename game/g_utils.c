@@ -628,7 +628,7 @@ gentity_t *G_PickTarget (char *targetname)
 // checks whether siege help needs to be updated because of something being used
 // e.g. an objective got completed, so maybe some siege helps might be started/ended because of that
 void CheckSiegeHelpFromUse(const char *targetname) {
-	if (g_gametype.integer != GT_SIEGE || !g_siegeHelp.integer || !VALIDSTRING(targetname))
+	if (g_gametype.integer != GT_SIEGE || !g_siegeHelp.integer || !level.siegeHelpValid || !VALIDSTRING(targetname))
 		return;
 
 	qboolean needUpdate = qfalse;
