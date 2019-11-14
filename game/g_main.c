@@ -5232,7 +5232,7 @@ example file contents:
 	  {
 		 "start":["obj1completed"],
 		 "end":["obj2completed"],
-		 "item":"codes",
+		 "item":"codes_targetname_or_goaltarget",
 		 "size":"large",
 		 "origin":[6070, 1910, 179],
 		 "redMsg":"Get codes",
