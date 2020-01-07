@@ -5835,11 +5835,13 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 			int regenTime = g_forceRegenTime.integer;
 			if (self->client->sess.skillBoost) {
-				float forceRegenReductionFactor;
+				float forceRegenReductionFactor = 0.0f;
 				switch (self->client->sess.skillBoost) {
-				case 1:		forceRegenReductionFactor = SKILLBOOST_LEVEL1_FORCEREGENBONUS;		break;
-				case 2:		forceRegenReductionFactor = SKILLBOOST_LEVEL2_FORCEREGENBONUS;		break;
-				default:	forceRegenReductionFactor = SKILLBOOST_LEVEL3_FORCEREGENBONUS;		break;
+				case 1:		forceRegenReductionFactor = g_skillboost1_forceRegenBonus.value;		break;
+				case 2:		forceRegenReductionFactor = g_skillboost2_forceRegenBonus.value;		break;
+				case 3:		forceRegenReductionFactor = g_skillboost3_forceRegenBonus.value;		break;
+				case 4:		forceRegenReductionFactor = g_skillboost4_forceRegenBonus.value;		break;
+				case 5:		forceRegenReductionFactor = g_skillboost5_forceRegenBonus.value;		break;
 				}
 				regenTime -= (int)((float)regenTime * forceRegenReductionFactor);
 			}

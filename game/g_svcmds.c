@@ -1402,7 +1402,7 @@ void Svcmd_Skillboost_f(void) {
 	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() <= 2) {
-		Com_Printf("Usage:   skillboost [client num or partial name] [level from 1 to 3]     (use level 0 to reset).\n");
+		Com_Printf("Usage:   skillboost [client num or partial name] [level from 1 to 5]     (use level 0 to reset).\n");
 		int i;
 		qboolean wrotePreface = qfalse;
 		for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1425,14 +1425,14 @@ void Svcmd_Skillboost_f(void) {
 	found = G_FindClient(str);
 	if (!found || !found->client) {
 		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
-		Com_Printf("Usage:   skillboost [client num or partial name] [level from 1 to 3]     (use level 0 to reset).\n");
+		Com_Printf("Usage:   skillboost [client num or partial name] [level from 1 to 5]     (use level 0 to reset).\n");
 		return;
 	}
 
 	cl = found->client;
 
 	trap_Argv(2, str, sizeof(str));
-	int newValue = Com_Clampi(0, 3, atoi(str));
+	int newValue = Com_Clampi(0, MAX_SKILLBOOST, atoi(str));
 
 	// notify everyone
 	if (!newValue) {
@@ -1454,7 +1454,7 @@ void Svcmd_Senseboost_f(void) {
 	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() <= 2) {
-		Com_Printf("Usage:   senseboost [client num or partial name] [level from 1 to 3]     (use level 0 to reset).\n");
+		Com_Printf("Usage:   senseboost [client num or partial name] [level from 1 to 5]     (use level 0 to reset).\n");
 		int i;
 		qboolean wrotePreface = qfalse;
 		for (i = 0; i < MAX_CLIENTS; i++) {
@@ -1477,14 +1477,14 @@ void Svcmd_Senseboost_f(void) {
 	found = G_FindClient(str);
 	if (!found || !found->client) {
 		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
-		Com_Printf("Usage:   senseboost [client num or partial name] [level from 1 to 3]     (use level 0 to reset).\n");
+		Com_Printf("Usage:   senseboost [client num or partial name] [level from 1 to 5]     (use level 0 to reset).\n");
 		return;
 	}
 
 	cl = found->client;
 
 	trap_Argv(2, str, sizeof(str));
-	int newValue = Com_Clampi(0, 3, atoi(str));
+	int newValue = Com_Clampi(0, MAX_SKILLBOOST, atoi(str));
 
 	// notify everyone
 	if (!newValue) {

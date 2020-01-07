@@ -708,41 +708,7 @@ typedef struct {
 
 	int			skillBoost;
 
-#define SKILLBOOST_LEVEL1_DMGDEALTBONUS						(0.1f)
-#define SKILLBOOST_LEVEL2_DMGDEALTBONUS						(0.15f)
-#define SKILLBOOST_LEVEL3_DMGDEALTBONUS						(0.2f)
-#define SKILLBOOST_LEVEL1_DEMPDMGDEALTBONUS					(0.0333f)
-#define SKILLBOOST_LEVEL2_DEMPDMGDEALTBONUS					(0.0667f)
-#define SKILLBOOST_LEVEL3_DEMPDMGDEALTBONUS					(0.1f)
-
-#define SKILLBOOST_LEVEL1_DMGTKNREDUCTION					(0.05f)
-#define SKILLBOOST_LEVEL2_DMGTKNREDUCTION					(0.075f)
-#define SKILLBOOST_LEVEL3_DMGTKNREDUCTION					(0.1f)
-
-#define SKILLBOOST_LEVEL1_FORCEREGENBONUS					(0.1f)
-#define SKILLBOOST_LEVEL2_FORCEREGENBONUS					(0.15f)
-#define SKILLBOOST_LEVEL3_FORCEREGENBONUS					(0.2f)
-
-#define SKILLBOOST_LEVEL1_DEMPMAXFROZENTIMEREDUCTION		(0.1f)
-#define SKILLBOOST_LEVEL2_DEMPMAXFROZENTIMEREDUCTION		(0.15f)
-#define SKILLBOOST_LEVEL3_DEMPMAXFROZENTIMEREDUCTION		(0.2f)
-
-#define SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS				(0.05f)
-#define SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS				(0.075f)
-#define SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS				(0.1f)
-
-#define SKILLBOOST_LEVEL1_SELFDAMAGEFACTOROVERRIDE			(1.25f)
-#define SKILLBOOST_LEVEL2_SELFDAMAGEFACTOROVERRIDE			(1.125f)
-#define SKILLBOOST_LEVEL3_SELFDAMAGEFACTOROVERRIDE			(1.0f)
-
-#define SKILLBOOST_LEVEL1_SPLASHRADIUSBONUS					(0.05f)
-#define SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS					(0.1f)
-#define SKILLBOOST_LEVEL3_SPLASHRADIUSBONUS					(0.2f)
-
 	int senseBoost;
-#define SENSEBOOST_LEVEL1_INTERVAL							(10100)
-#define SENSEBOOST_LEVEL2_INTERVAL							(7100)
-#define SENSEBOOST_LEVEL3_INTERVAL							(4100)
 
 	struct {
 		int caps[2];
@@ -2810,6 +2776,58 @@ extern vmCvar_t    g_autoSpec;
 extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
 extern vmCvar_t    g_siegeHelp;
+
+#define MAX_SKILLBOOST	(5)
+
+extern vmCvar_t	g_skillboost1_damageDealtBonus;
+extern vmCvar_t	g_skillboost1_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost1_damageTakenReduction;
+extern vmCvar_t	g_skillboost1_forceRegenBonus;
+extern vmCvar_t	g_skillboost1_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost1_movementSpeedBonus;
+extern vmCvar_t	g_skillboost1_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost1_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost2_damageDealtBonus;
+extern vmCvar_t	g_skillboost2_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost2_damageTakenReduction;
+extern vmCvar_t	g_skillboost2_forceRegenBonus;
+extern vmCvar_t	g_skillboost2_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost2_movementSpeedBonus;
+extern vmCvar_t	g_skillboost2_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost2_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost3_damageDealtBonus;
+extern vmCvar_t	g_skillboost3_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost3_damageTakenReduction;
+extern vmCvar_t	g_skillboost3_forceRegenBonus;
+extern vmCvar_t	g_skillboost3_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost3_movementSpeedBonus;
+extern vmCvar_t	g_skillboost3_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost3_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost4_damageDealtBonus;
+extern vmCvar_t	g_skillboost4_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost4_damageTakenReduction;
+extern vmCvar_t	g_skillboost4_forceRegenBonus;
+extern vmCvar_t	g_skillboost4_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost4_movementSpeedBonus;
+extern vmCvar_t	g_skillboost4_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost4_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost5_damageDealtBonus;
+extern vmCvar_t	g_skillboost5_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost5_damageTakenReduction;
+extern vmCvar_t	g_skillboost5_forceRegenBonus;
+extern vmCvar_t	g_skillboost5_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost5_movementSpeedBonus;
+extern vmCvar_t	g_skillboost5_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost5_splashRadiusBonus;
+
+extern vmCvar_t	g_senseBoost1_interval;
+extern vmCvar_t	g_senseBoost2_interval;
+extern vmCvar_t	g_senseBoost3_interval;
+extern vmCvar_t	g_senseBoost4_interval;
 
 extern vmCvar_t    g_classLimits;
 extern vmCvar_t    oAssaultLimit;

@@ -2716,9 +2716,11 @@ void ClientThink_real( gentity_t *ent ) {
 			client->ps.speed = g_speed.value;
 			if (client->sess.skillBoost) {
 				switch (client->sess.skillBoost) {
-				case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
-				case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
-				case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+				case 1:		client->ps.speed += (client->ps.speed * g_skillboost1_movementSpeedBonus.value);		break;
+				case 2:		client->ps.speed += (client->ps.speed * g_skillboost2_movementSpeedBonus.value);		break;
+				case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
+				case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
+				case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
 				}
 			}
 
@@ -2972,9 +2974,11 @@ void ClientThink_real( gentity_t *ent ) {
 					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
 					if (ent->client->sess.skillBoost) {
 						switch (client->sess.skillBoost) {
-						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
-						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
-						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						case 1:		client->ps.speed += (client->ps.speed * g_skillboost1_movementSpeedBonus.value);		break;
+						case 2:		client->ps.speed += (client->ps.speed * g_skillboost2_movementSpeedBonus.value);		break;
+						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
+						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
+						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -2984,9 +2988,11 @@ void ClientThink_real( gentity_t *ent ) {
 					ent->client->ps.speed = g_speed.value;
 					if (ent->client->sess.skillBoost) {
 						switch (client->sess.skillBoost) {
-						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
-						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
-						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						case 1:		client->ps.speed += (client->ps.speed * g_skillboost1_movementSpeedBonus.value);		break;
+						case 2:		client->ps.speed += (client->ps.speed * g_skillboost2_movementSpeedBonus.value);		break;
+						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
+						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
+						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -3046,9 +3052,11 @@ void ClientThink_real( gentity_t *ent ) {
 					ent->client->ps.speed *= bgSiegeClasses[client->siegeClass].speed;
 					if (ent->client->sess.skillBoost) {
 						switch (client->sess.skillBoost) {
-						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
-						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
-						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						case 1:		client->ps.speed += (client->ps.speed * g_skillboost1_movementSpeedBonus.value);		break;
+						case 2:		client->ps.speed += (client->ps.speed * g_skillboost2_movementSpeedBonus.value);		break;
+						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
+						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
+						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -3058,9 +3066,11 @@ void ClientThink_real( gentity_t *ent ) {
 					ent->client->ps.speed = g_speed.value;
 					if (ent->client->sess.skillBoost) {
 						switch (client->sess.skillBoost) {
-						case 1:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL1_MOVEMENTSPEEDBONUS);		break;
-						case 2:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL2_MOVEMENTSPEEDBONUS);		break;
-						case 3:		client->ps.speed += (client->ps.speed * SKILLBOOST_LEVEL3_MOVEMENTSPEEDBONUS);		break;
+						case 1:		client->ps.speed += (client->ps.speed * g_skillboost1_movementSpeedBonus.value);		break;
+						case 2:		client->ps.speed += (client->ps.speed * g_skillboost2_movementSpeedBonus.value);		break;
+						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
+						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
+						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -4256,13 +4266,15 @@ void ClientThink_real( gentity_t *ent ) {
 	if (g_gametype.integer == GT_SIEGE && ent - g_entities < MAX_CLIENTS && ent->client->sess.senseBoost &&
 		ent->health > 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR && ent->client->siegeClass != -1
 		&& !bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[FP_SEE]) {
-		int interval;
+		int interval = 0;
 		switch (ent->client->sess.senseBoost) {
-		case 1: interval = SENSEBOOST_LEVEL1_INTERVAL; break;
-		case 2: interval = SENSEBOOST_LEVEL2_INTERVAL; break;
-		default: interval = SENSEBOOST_LEVEL3_INTERVAL; break;
+		case 1: interval = g_senseBoost1_interval.integer; break;
+		case 2: interval = g_senseBoost2_interval.integer; break;
+		case 3: interval = g_senseBoost3_interval.integer; break;
+		case 4: interval = g_senseBoost4_interval.integer; break;
+		case 5: interval = 0; break; // just constant
 		}
-		if (level.time % interval <= 1000 && !IsMindTrickedByAnyone(ent - g_entities)) {
+		if ((!interval || level.time % interval <= 1000) && !IsMindTrickedByAnyone(ent - g_entities)) {
 			ent->client->ps.fd.forcePowerLevel[FP_SEE] = 3;
 			ent->client->ps.fd.forcePowersActive |= (1 << FP_SEE);
 		}

@@ -660,8 +660,10 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		}
 		if (ent->client->sess.skillBoost) {
 			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
-			if (timeSinceRespawn >= oneSecBeforeRespawn)
+			if (timeSinceRespawn >= oneSecBeforeRespawn) {
+				trap_SendServerCommand(ent - g_entities, "print \"Your selfkill was blocked because it would have maxed you, and you are skillboosted, which prevents this.\n\"");
 				return;
+			}
 		}
 	}
 
@@ -1825,8 +1827,10 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 		}
 		if (ent->client->sess.skillBoost) {
 			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
-			if (timeSinceRespawn >= oneSecBeforeRespawn)
+			if (timeSinceRespawn >= oneSecBeforeRespawn) {
+				trap_SendServerCommand(ent - g_entities, "print \"Your class change was blocked because it would have maxed you, and you are skillboosted, which prevents this.\n\"");
 				return;
+			}
 		}
 	}
 
@@ -1917,8 +1921,10 @@ void Cmd_Join_f(gentity_t *ent)
 		}
 		if (ent->client->sess.skillBoost) {
 			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
-			if (timeSinceRespawn >= oneSecBeforeRespawn)
+			if (timeSinceRespawn >= oneSecBeforeRespawn) {
+				trap_SendServerCommand(ent - g_entities, "print \"Your class change was blocked because it would have maxed you, and you are skillboosted, which prevents this.\n\"");
 				return;
+			}
 		}
 	}
 
@@ -2025,8 +2031,10 @@ void Cmd_Class_f(gentity_t *ent)
 		}
 		if (ent->client->sess.skillBoost) {
 			int oneSecBeforeRespawn = (g_siegeRespawn.integer - 1) * 1000;
-			if (timeSinceRespawn >= oneSecBeforeRespawn)
+			if (timeSinceRespawn >= oneSecBeforeRespawn) {
+				trap_SendServerCommand(ent - g_entities, "print \"Your class change was blocked because it would have maxed you, and you are skillboosted, which prevents this.\n\"");
 				return;
+			}
 		}
 	}
 

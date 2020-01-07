@@ -5020,11 +5020,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				else
 					maxFreezeTime = 800;
 				if (targ->client->sess.skillBoost) {
-					float maxFreezeReductionFactor;
+					float maxFreezeReductionFactor = 0.0f;
 					switch (targ->client->sess.skillBoost) {
-					case 1:		maxFreezeReductionFactor = SKILLBOOST_LEVEL1_DEMPMAXFROZENTIMEREDUCTION;		break;
-					case 2:		maxFreezeReductionFactor = SKILLBOOST_LEVEL2_DEMPMAXFROZENTIMEREDUCTION;		break;
-					default:	maxFreezeReductionFactor = SKILLBOOST_LEVEL3_DEMPMAXFROZENTIMEREDUCTION;		break;
+					case 1:		maxFreezeReductionFactor = g_skillboost1_dempMaxFrozenTimeReduction.value;		break;
+					case 2:		maxFreezeReductionFactor = g_skillboost2_dempMaxFrozenTimeReduction.value;		break;
+					case 3:		maxFreezeReductionFactor = g_skillboost3_dempMaxFrozenTimeReduction.value;		break;
+					case 4:		maxFreezeReductionFactor = g_skillboost4_dempMaxFrozenTimeReduction.value;		break;
+					case 5:		maxFreezeReductionFactor = g_skillboost5_dempMaxFrozenTimeReduction.value;		break;
 					}
 					maxFreezeTime -= (int)((float)maxFreezeTime * maxFreezeReductionFactor);
 				}
@@ -5589,33 +5591,38 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself
 		if (attacker && attacker->client && attacker->client->sess.skillBoost && targ) { // attacker has a skillboost
-			float damageMultiplier;
+			float damageMultiplier = 0.0f;
 			if (mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT) {
 				switch (attacker->client->sess.skillBoost) { // increase damage dealt
-				case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DEMPDMGDEALTBONUS;		break;
-				case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DEMPDMGDEALTBONUS;		break;
-				default:	damageMultiplier = SKILLBOOST_LEVEL3_DEMPDMGDEALTBONUS;		break;
+				case 1:		damageMultiplier = g_skillboost1_dempDamageDealtBonus.value;		break;
+				case 2:		damageMultiplier = g_skillboost2_dempDamageDealtBonus.value;		break;
+				case 3:		damageMultiplier = g_skillboost3_dempDamageDealtBonus.value;		break;
+				case 4:		damageMultiplier = g_skillboost4_dempDamageDealtBonus.value;		break;
+				case 5:		damageMultiplier = g_skillboost5_dempDamageDealtBonus.value;		break;
 				}
 			}
 			else {
 				switch (attacker->client->sess.skillBoost) { // increase damage dealt
-				case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DMGDEALTBONUS;			break;
-				case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DMGDEALTBONUS;			break;
-				default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGDEALTBONUS;			break;
+				case 1:		damageMultiplier = g_skillboost1_damageDealtBonus.value;			break;
+				case 2:		damageMultiplier = g_skillboost2_damageDealtBonus.value;			break;
+				case 3:		damageMultiplier = g_skillboost3_damageDealtBonus.value;			break;
+				case 4:		damageMultiplier = g_skillboost4_damageDealtBonus.value;			break;
+				case 5:		damageMultiplier = g_skillboost5_damageDealtBonus.value;			break;
 				}
 			}
 			damage += (int)((float)damage * damageMultiplier);
 		}
 		if (targ && targ->client && targ->client->sess.skillBoost) { // target has a skillboost
-			float damageMultiplier;
-			if (targ == attacker) { // reduce damage intake
-				switch (attacker->client->sess.skillBoost) {
-				case 1:		damageMultiplier = SKILLBOOST_LEVEL1_DMGTKNREDUCTION;		break;
-				case 2:		damageMultiplier = SKILLBOOST_LEVEL2_DMGTKNREDUCTION;		break;
-				default:	damageMultiplier = SKILLBOOST_LEVEL3_DMGTKNREDUCTION;		break;
-				}
-				damage -= (int)((float)damage * damageMultiplier);
+			float damageMultiplier = 0.0f;
+			// reduce damage intake
+			switch (targ->client->sess.skillBoost) {
+			case 1:		damageMultiplier = g_skillboost1_damageTakenReduction.value;		break;
+			case 2:		damageMultiplier = g_skillboost2_damageTakenReduction.value;		break;
+			case 3:		damageMultiplier = g_skillboost3_damageTakenReduction.value;		break;
+			case 4:		damageMultiplier = g_skillboost4_damageTakenReduction.value;		break;
+			case 5:		damageMultiplier = g_skillboost5_damageTakenReduction.value;		break;
 			}
+			damage -= (int)((float)damage * damageMultiplier);
 		}
 	}
 
@@ -5754,9 +5761,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		{
 			if (targ->client && targ->client->sess.skillBoost) { // reduce damage intake
 				switch (attacker->client->sess.skillBoost) {
-				case 1:		damage *= SKILLBOOST_LEVEL1_SELFDAMAGEFACTOROVERRIDE;		break;
-				case 2:		damage *= SKILLBOOST_LEVEL2_SELFDAMAGEFACTOROVERRIDE;		break;
-				default:	damage *= SKILLBOOST_LEVEL3_SELFDAMAGEFACTOROVERRIDE;		break;
+				case 1:		damage *= g_skillboost1_selfDamageFactorOverride.value;		break;
+				case 2:		damage *= g_skillboost2_selfDamageFactorOverride.value;		break;
+				case 3:		damage *= g_skillboost3_selfDamageFactorOverride.value;		break;
+				case 4:		damage *= g_skillboost4_selfDamageFactorOverride.value;		break;
+				case 5:		damage *= g_skillboost5_selfDamageFactorOverride.value;		break;
 				}
 			}
 			else {
@@ -6599,9 +6608,11 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 
 		if (mod != MOD_TRIP_MINE_SPLASH && mod != MOD_TIMED_MINE_SPLASH && maybeBoosted && maybeBoosted - g_entities < MAX_CLIENTS && maybeBoosted->client && maybeBoosted->client->sess.skillBoost) {
 			switch (maybeBoosted->client->sess.skillBoost) {
-			case 1:		radius += (radius * SKILLBOOST_LEVEL1_SPLASHRADIUSBONUS);		break;
-			case 2:		radius += (radius * SKILLBOOST_LEVEL2_SPLASHRADIUSBONUS);		break;
-			default:	radius += (radius * SKILLBOOST_LEVEL3_SPLASHRADIUSBONUS);		break;
+			case 1:		radius += (radius * g_skillboost1_splashRadiusBonus.value);		break;
+			case 2:		radius += (radius * g_skillboost2_splashRadiusBonus.value);		break;
+			case 3:		radius += (radius * g_skillboost3_splashRadiusBonus.value);		break;
+			case 4:		radius += (radius * g_skillboost4_splashRadiusBonus.value);		break;
+			case 5:		radius += (radius * g_skillboost5_splashRadiusBonus.value);		break;
 			}
 		}
 	}
