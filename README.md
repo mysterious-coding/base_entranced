@@ -10,7 +10,7 @@ a fork of Sil's old [base_enhanced](https://github.com/TheSil/base_enhanced) CTF
 
 base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive Siege gameplay**, not as a general-purpose "hangout server" mod.
 
-base_entranced is the official server mod of the siege community [(www.jasiege.com)](https://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is severely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
+base_entranced is the official server mod of the siege community [(www.jasiege.com)](https://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is extremely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
 base_entranced has three goals:
 * Fixing bugs.
@@ -93,7 +93,7 @@ The server database tracks statistics on fastest objective/map completion times.
 The server automatically detects when a pug (2v2 or greater) is live. It notifies you at the beginning if there's an issue (e.g. AFK player), and will automatically pause if someone 999s for several seconds (`/g_autoPause999`, default 3)
 
 #### Skillboost/senseboost
-You can give bad players a boost to help them be competitive. `/skillboost <player> <number 0 through 3>` gives them a boost to their stats (higher levels are better), while `/senseboost <player> <number 0 through 3>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `/skillboost` or `/senseboost` commands to see who is currently boosted.
+You can give bad players a boost to help them be competitive. `/skillboost <player> <number 0 through 5>` gives them a boost to their stats (higher levels are better), while `/senseboost <player> <number 0 through 5>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `/skillboost` or `/senseboost` commands to see who is currently boosted. Generally, levels 1-3 should be used most of the time; 4-5 are more extreme boosts and should only be used for people who have absolutely no idea what they are doing. These values can be changed with cvars beginning with `g_skillboost` and `g_senseboost`; use `cvarlist` to see all of them.
 
 #### Respawn times
 The server automatically defaults to instant respawn times. If the map is restarted (i.e. via vote or rcon) with at least one player on each team, the respawn timer will automatically be set to 20.
@@ -613,6 +613,39 @@ Mapmakers are advised to include the new `healingteam` key to healable `func_bre
 
 Mapmakers can use the new entity `target_delay_cancel` to cancel the pending target-firing of a `target_delay`. This can be used to create Counter-Strike-style bomb-defusal objectives in which one team must plant a bomb, and the other team must defuse it. For example, an offense hack(planting the bomb) could trigger a `target_delay` for a 10 second delay for the bomb detonation, and a defense hack(defusing the bomb) could trigger a `target_delay_cancel` to cancel the explosion.
 
+Mapmakers can add support for three-dimensional siege help in certain client mods by including a file with the filename `maps/map_name_goes_here.siegehelp` such as the following:
+```json
+{
+   "messages":[
+	  {
+		 "start":[""],
+		 "end":["obj2"],
+		 "size":"large",
+		 "origin":[4360, -1220, 92],
+		 "redMsg":"Complete obj 1",
+		 "blueMsg":"Complete obj 2"
+	  },
+	  {
+		 "start":["obj1completed"],
+		 "end":["teleporttimedout", "obj2completed"],
+		 "size":"small",
+		 "origin":[3257, 2746, 424],
+		 "constraints":[[null, 3900], [null, null], [null, null]],
+		 "blueMsg":"Teleport"
+	  },
+	  {
+		 "start":["obj1completed"],
+		 "end":["obj2completed"],
+		 "item":"codes",
+		 "size":"large",
+		 "origin":[6070, 1910, 179],
+		 "redMsg":"Get codes",
+		 "blueMsg":"Defend codes spawn"
+	  },
+   ]
+}
+```
+
 Mapmakers can add some new extra flags to .npc files for additional control over NPCs:
 
 `specialKnockback 1` = NPC cannot be knockbacked by red team
@@ -709,6 +742,9 @@ Zombies receives some much-needed help in base_entranced. To activate the zombie
 * Removes auto-detonation timer for detpacks
 
 #### Bugfixes and other changes:
+
+Note: this list is not necessarily intended to be comprehensive. This mod fixes a ton of bugs; they are probably not all documented here.
+
 * Hoth bridge is forced to be crusher (prevents bridge lame).
 * Fixed thermals bugging lifts.
 * Fixed seekers attacking walkers and fighters.
