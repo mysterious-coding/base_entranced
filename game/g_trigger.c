@@ -1121,6 +1121,9 @@ void SP_trigger_multiple( gentity_t *ent )
 	if (ent->genericValue17 < TEAM_FREE || ent->genericValue17 > TEAM_BLUE)
 		ent->genericValue17 = TEAM_FREE;
 
+	// duo: new "justopen" key -- when targeting a LOCKED door, this trigger will simply open it once instead of unlocking it
+	G_SpawnInt("justopen", "0", &ent->genericValue16);
+
 	char	*s;
 	if ( G_SpawnString( "noise", "", &s ) ) 
 	{
@@ -1309,6 +1312,9 @@ void SP_trigger_once( gentity_t *ent )
 	G_SpawnInt("setteamallow", "0", &ent->genericValue17);
 	if (ent->genericValue17 < TEAM_FREE || ent->genericValue17 > TEAM_BLUE)
 		ent->genericValue17 = TEAM_FREE;
+
+	// duo: new "justopen" key -- when targeting a LOCKED door, this trigger will simply open it once instead of unlocking it
+	G_SpawnInt("justopen", "0", &ent->genericValue16);
 
 	char	*s;
 	if ( G_SpawnString( "noise", "", &s ) ) 

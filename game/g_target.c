@@ -999,6 +999,9 @@ void SP_target_relay (gentity_t *self) {
 	if (self->genericValue17 < TEAM_FREE || self->genericValue17 > TEAM_BLUE)
 		self->genericValue17 = TEAM_FREE;
 
+	// duo: new "justopen" key -- when targeting a LOCKED door, this target_relay will simply open it once instead of unlocking it
+	G_SpawnInt("justopen", "0", &self->genericValue16);
+
 	self->use = target_relay_use;
 	if ( self->spawnflags&128 )
 	{

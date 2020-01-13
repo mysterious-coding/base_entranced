@@ -913,15 +913,22 @@ void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	}
 
 	// setteamallow
-	if (other->genericValue17) {
+	if (other && other->genericValue17) {
 		ent->alliedTeam = other->genericValue17;
 		return;
 	}
 
 	if (ent->spawnflags & MOVER_LOCKED)
 	{//a locked door, unlock it
-		UnLockDoors(ent);
-		return;
+		if (other && other->genericValue16) {
+			// justopen: open the locked door once instead of unlocking it
+			if (ent->moverState == MOVER_1TO2)
+				return; // already opening
+		}
+		else {
+			UnLockDoors(ent);
+			return;
+		}
 	}
 
 	G_ActivateBehavior(ent, BSET_USE);
