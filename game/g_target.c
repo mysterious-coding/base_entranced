@@ -979,6 +979,17 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
 			self->nextthink = level.time + FRAMETIME;
 		}
 	}
+
+	if (other->genericValue17) { // setteamallow
+		gentity_t *door = NULL;
+		while ((door = G_Find(door, FOFS(targetname), self->target)) != NULL) {
+			if (!door->inuse || !door->classname || Q_stricmp(door->classname, "func_door"))
+				continue;
+			door->alliedTeam = other->genericValue17;
+		}
+		return; // since we return here, doors should be the only thing that a target_relay with setteamallow targets.
+	}
+
 	if ( self->spawnflags & 4 ) {
 		gentity_t	*ent;
 
@@ -992,6 +1003,12 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
 }
 
 void SP_target_relay (gentity_t *self) {
+	// duo: new "setteamallow" key -- this target_relay will set the teamallow (known as alliedTeam in the gentity_t struct)
+	// which means we can target a door to enable a certain team to use it but not actually unlock it
+	G_SpawnInt("setteamallow", "0", &self->genericValue17);
+	if (self->genericValue17 < TEAM_FREE || self->genericValue17 > TEAM_BLUE)
+		self->genericValue17 = TEAM_FREE;
+
 	self->use = target_relay_use;
 	if ( self->spawnflags&128 )
 	{

@@ -1115,6 +1115,12 @@ void SP_trigger_multiple( gentity_t *ent )
 		return;
 	}
 
+	// duo: new "setteamallow" key -- this trigger will set the teamallow (known as alliedTeam in the gentity_t struct)
+	// which means we can target a door to enable a certain team to use it but not actually unlock it
+	G_SpawnInt("setteamallow", "0", &ent->genericValue17);
+	if (ent->genericValue17 < TEAM_FREE || ent->genericValue17 > TEAM_BLUE)
+		ent->genericValue17 = TEAM_FREE;
+
 	char	*s;
 	if ( G_SpawnString( "noise", "", &s ) ) 
 	{
@@ -1297,6 +1303,12 @@ void SP_trigger_once( gentity_t *ent )
 		InitControlPoint(ent);
 		return;
 	}
+
+	// duo: new "setteamallow" key -- this trigger will set the teamallow (known as alliedTeam in the gentity_t struct)
+	// which means we can target a door to enable a certain team to use it but not actually unlock it
+	G_SpawnInt("setteamallow", "0", &ent->genericValue17);
+	if (ent->genericValue17 < TEAM_FREE || ent->genericValue17 > TEAM_BLUE)
+		ent->genericValue17 = TEAM_FREE;
 
 	char	*s;
 	if ( G_SpawnString( "noise", "", &s ) ) 

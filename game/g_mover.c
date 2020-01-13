@@ -912,6 +912,12 @@ void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
+	// setteamallow
+	if (other->genericValue17) {
+		ent->alliedTeam = other->genericValue17;
+		return;
+	}
+
 	if (ent->spawnflags & MOVER_LOCKED)
 	{//a locked door, unlock it
 		UnLockDoors(ent);
