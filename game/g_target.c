@@ -980,16 +980,6 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
 		}
 	}
 
-	if (other->genericValue17) { // setteamallow
-		gentity_t *door = NULL;
-		while ((door = G_Find(door, FOFS(targetname), self->target)) != NULL) {
-			if (!door->inuse || !door->classname || Q_stricmp(door->classname, "func_door"))
-				continue;
-			door->alliedTeam = other->genericValue17;
-		}
-		return; // since we return here, doors should be the only thing that a target_relay with setteamallow targets.
-	}
-
 	if ( self->spawnflags & 4 ) {
 		gentity_t	*ent;
 
