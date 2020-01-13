@@ -613,6 +613,10 @@ Mapmakers are advised to include the new `healingteam` key to healable `func_bre
 
 Mapmakers can use the new entity `target_delay_cancel` to cancel the pending target-firing of a `target_delay`. This can be used to create Counter-Strike-style bomb-defusal objectives in which one team must plant a bomb, and the other team must defuse it. For example, an offense hack(planting the bomb) could trigger a `target_delay` for a 10 second delay for the bomb detonation, and a defense hack(defusing the bomb) could trigger a `target_delay_cancel` to cancel the explosion.
 
+Mapmakers can now use the `setteamallow` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set to `1` or `2` and targets a door, then that door will only have its `teamallow` property set when it's used by the trigger/relay. For example, you can now have a 100% locked door that nobody can access, and then it can be hacked so that it is still locked but now allows passage for one team. Use `1` for red team, `2` for blue team.
+
+Mapmakers can now use the `justopen` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set and targets a locked door, then that door will just open once instead of unlocking (like the Ambush Room door at Cargo's first obj)
+
 Mapmakers can add support for three-dimensional siege help in certain client mods by including a file with the filename `maps/map_name_goes_here.siegehelp` such as the following:
 ```json
 {
