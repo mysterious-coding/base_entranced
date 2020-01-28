@@ -206,6 +206,7 @@ vmCvar_t	g_autoSpec;
 vmCvar_t	g_intermissionKnockbackNPCs;
 vmCvar_t	g_emotes;
 vmCvar_t	g_siegeHelp;
+vmCvar_t	g_improvedHoming;
 
 vmCvar_t	g_skillboost1_damageDealtBonus;
 vmCvar_t	g_skillboost1_dempDamageDealtBonus;
@@ -1010,6 +1011,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_intermissionKnockbackNPCs, "g_intermissionKnockbackNPCs", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_emotes, "g_emotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeHelp, "g_siegeHelp", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_improvedHoming, "g_improvedHoming", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_skillboost1_damageDealtBonus, "g_skillboost1_damageDealtBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_damageDealtBonus, "g_skillboost2_damageDealtBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
@@ -5643,6 +5645,88 @@ static void RunSiegeHelpMessages(void) {
 	// set the time for this function to run again
 	level.siegeHelpMessageTime = trap_Milliseconds() + SIEGE_HELP_INTERVAL;
 }
+
+// use some bullshit unused fields to put homing data in the client's playerstate
+static void SetHomingInPlayerstate(gclient_t *cl, int stage) {
+	assert(cl);
+	assert(stage >= 0 && stage <= 10);
+	for (int i = 0; i < 4; i++) {
+		if (stage & (1 << i))
+			cl->ps.holocronBits |= (1 << (NUM_FORCE_POWERS + i));
+		else
+			cl->ps.holocronBits &= ~(1 << (NUM_FORCE_POWERS + i));
+	}
+}
+
+static void RunImprovedHoming(void) {
+	if (!g_improvedHoming.integer)
+		return;
+
+	float lockTimeInterval = ((g_gametype.integer == GT_SIEGE) ? 2400.0f : 1200.0f) / 16.0f;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gentity_t *ent = &g_entities[i];
+		gclient_t *cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED) {
+			SetHomingInPlayerstate(cl, 0);
+			cl->homingLockTime = 0;
+			continue;
+		}
+
+		// check if they are following someone
+		gentity_t *lockEnt = ent;
+		gclient_t *lockCl = cl;
+		if (cl->sess.sessionTeam == TEAM_SPECTATOR && cl->sess.spectatorState == SPECTATOR_FOLLOW &&
+			cl->sess.spectatorClient >= 0 && cl->sess.spectatorClient < MAX_CLIENTS) {
+			gclient_t *followed = &level.clients[cl->sess.spectatorClient];
+			if (followed->pers.connected != CON_CONNECTED) {
+				SetHomingInPlayerstate(cl, 0);
+				continue;
+			}
+			lockCl = followed;
+			lockEnt = &g_entities[lockCl - level.clients];
+		}
+
+		// check that the rocketeer has a lock
+		if (lockCl->ps.rocketLockIndex == ENTITYNUM_NONE || lockCl->sess.sessionTeam == TEAM_SPECTATOR || lockEnt->health <= 0 || lockCl->ps.pm_type == PM_SPECTATOR || lockCl->ps.pm_type == PM_INTERMISSION) {
+			SetHomingInPlayerstate(cl, 0);
+			lockCl->homingLockTime = 0;
+			continue;
+		}
+
+		// get the lock stage
+		float rTime = lockCl->ps.rocketLockTime == -1 ? lockCl->ps.rocketLastValidTime : lockCl->ps.rocketLockTime;
+		int dif = Com_Clampi(0, 10, (level.time - rTime) / lockTimeInterval);
+		if (lockCl->ps.m_iVehicleNum) {
+			gentity_t *veh = &g_entities[lockCl->ps.m_iVehicleNum];
+			if (veh->m_pVehicle) {
+				vehWeaponInfo_t *vehWeapon = NULL;
+				if (lockCl->ps.weaponstate == WEAPON_CHARGING_ALT) {
+					if (veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID > VEH_WEAPON_BASE &&veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID < MAX_VEH_WEAPONS)
+						vehWeapon = &g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID];
+				}
+				else if (veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID > VEH_WEAPON_BASE &&veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID < MAX_VEH_WEAPONS) {
+					vehWeapon = &g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID];
+				}
+				if (vehWeapon) {//we are trying to lock on with a valid vehicle weapon, so use *its* locktime, not the hard-coded one
+					if (!vehWeapon->iLockOnTime) { //instant lock-on
+						dif = 10;
+					}
+					else {//use the custom vehicle lockOnTime
+						lockTimeInterval = (vehWeapon->iLockOnTime / 16.0f);
+						dif = Com_Clampi(0, 10, (level.time - rTime) / lockTimeInterval);
+					}
+				}
+			}
+		}
+
+		// set the homing stage in their playerstate and start the special serverside timer
+		SetHomingInPlayerstate(cl, dif);
+		if (dif == 10) {
+			lockCl->homingLockTime = level.time;
+			lockCl->homingLockTarget = lockCl->ps.rocketLockIndex;
+		}
+	}
+}
 #endif
 
 /*
@@ -7100,6 +7184,7 @@ void G_RunFrame( int levelTime ) {
 
 #ifdef NEWMOD_SUPPORT
 	RunSiegeHelpMessages();
+	RunImprovedHoming();
 #endif
 
 	level.frameStartTime = trap_Milliseconds(); // accurate timer

@@ -3097,6 +3097,9 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 			Q_strcat(featureListConfigString, sizeof(featureListConfigString), "shlp ");
 	}
 
+	if (g_improvedHoming.integer)
+		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "rhom ");
+
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
 	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };

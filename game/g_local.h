@@ -1161,6 +1161,8 @@ struct gclient_s {
 
 	qboolean	emoted;
 
+	int homingLockTime; // time at which homing weapon locked on to a target
+	int homingLockTarget; // the target of it
 };
 
 //Interest points
@@ -2776,6 +2778,7 @@ extern vmCvar_t    g_autoSpec;
 extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
 extern vmCvar_t    g_siegeHelp;
+extern vmCvar_t    g_improvedHoming;
 
 #define MAX_SKILLBOOST	(5)
 
