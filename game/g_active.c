@@ -4283,53 +4283,6 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->ps.fd.forcePowersActive &= ~(1 << FP_SEE);
 		}
 	}
-
-	if (g_emotes.integer && g_gametype.integer == GT_SIEGE && level.isLivePug != ISLIVEPUG_NO && g_siegeRespawn.integer >= 5 &&
-		level.siegeRespawnCheck > level.time && level.siegeRespawnCheck - level.time <= 3000 && level.siegeRespawnCheck - level.time > 1000) {
-		for (int i = 0; i < MAX_CLIENTS; i++) {
-			gclient_t *killCl = &level.clients[i];
-			if (!killCl->emoted || killCl->pers.connected != CON_CONNECTED ||
-				killCl->ps.stats[STAT_HEALTH] <= 0 || killCl->tempSpectate > level.time ||
-				killCl->ps.pm_type == PM_DEAD)
-				continue;
-			killCl->emoted = qfalse;
-			gentity_t *killEnt = &g_entities[i];
-			killCl->ps.stats[STAT_HEALTH] = killEnt->health = -999;
-			killEnt->flags &= ~FL_GODMODE;
-			player_die(killEnt, killEnt, killEnt, 100000, MOD_SUICIDE);
-		}
-	}
-
-	if (g_gametype.integer == GT_SIEGE) {
-		for (int i = 0; i < MAX_CLIENTS; i++) {
-			gclient_t *cl = &level.clients[i];
-			cl->ps.stats[STAT_SIEGEFLAGS] = 0;
-			if (cl->pers.connected != CON_CONNECTED)
-				continue;
-			if (cl->sess.sessionTeam == TEAM_SPECTATOR && cl->sess.spectatorState == SPECTATOR_FOLLOW &&
-				cl->sess.spectatorClient >= 0 && cl->sess.spectatorClient < MAX_CLIENTS) {
-				gclient_t *followed = &level.clients[cl->sess.spectatorClient];
-				if (followed->pers.connected != CON_CONNECTED)
-					continue;
-				if (followed->siegeClass == -1)
-					continue;
-				if (bgSiegeClasses[followed->siegeClass].classflags & (1 << CFL_SPIDERMAN))
-					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_SPIDERMAN);
-				if (bgSiegeClasses[followed->siegeClass].classflags & (1 << CFL_GRAPPLE))
-					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_GRAPPLE);
-				if (bgSiegeClasses[followed->siegeClass].classflags & (1 << CFL_KICK))
-					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_KICK);
-			}
-			else {
-				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_SPIDERMAN))
-					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_SPIDERMAN);
-				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_GRAPPLE))
-					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_GRAPPLE);
-				if (bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_KICK))
-					cl->ps.stats[STAT_SIEGEFLAGS] |= (1 << SIEGEFLAG_KICK);
-			}
-		}
-	}
 }
 
 /*
