@@ -2795,8 +2795,12 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 	missile = CreateMissile( muzzle, forward, vel, 30000, ent, altFire );
 
 	int forceLock = -1;
-	if (g_improvedHoming.integer && ent->client && ent->client->homingLockTime && level.time - ent->client->homingLockTime <= 500 && ent->client->homingLockTarget != ENTITYNUM_NONE)
+	int deltaT = level.time - ent->client->homingLockTime;
+	int homingThreshold = g_improvedHomingThreshold.integer > 0 ? g_improvedHomingThreshold.integer : (g_gametype.integer == GT_SIEGE ? 150 : 75);
+	if (g_improvedHoming.integer && ent->client && ent->client->homingLockTime && deltaT <= homingThreshold && ent->client->homingLockTarget != ENTITYNUM_NONE)
 		forceLock = ent->client->homingLockTarget;
+	if (d_debugImprovedHoming.integer)
+		trap_SendServerCommand(ent - g_entities, "print \"deltaT is %d (threshold is %d)\n\"", deltaT, homingThreshold);
 
 	if (forceLock != -1 || (ent->client && ent->client->ps.rocketLockIndex != ENTITYNUM_NONE))
 	{

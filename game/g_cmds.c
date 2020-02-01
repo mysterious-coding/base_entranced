@@ -9284,6 +9284,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(iLikeToMineSpam);
 	PrintCvar(iLikeToShieldSpam);
 	PrintCvar(g_improvedHoming);
+	PrintCvar(g_improvedHomingThreshold);
 	trap_SendServerCommand(ent - g_entities, va("print \"If the cvar you are looking for is not listed here, use regular ^5/serverstatus^7 command instead\n\""));
 }
 

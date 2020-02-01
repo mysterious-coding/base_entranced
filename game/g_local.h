@@ -2779,6 +2779,8 @@ extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
 extern vmCvar_t    g_siegeHelp;
 extern vmCvar_t    g_improvedHoming;
+extern vmCvar_t    g_improvedHomingThreshold;
+extern vmCvar_t    d_debugImprovedHoming;
 
 #define MAX_SKILLBOOST	(5)
 

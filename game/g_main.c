@@ -207,6 +207,8 @@ vmCvar_t	g_intermissionKnockbackNPCs;
 vmCvar_t	g_emotes;
 vmCvar_t	g_siegeHelp;
 vmCvar_t	g_improvedHoming;
+vmCvar_t	g_improvedHomingThreshold;
+vmCvar_t	d_debugImprovedHoming;
 
 vmCvar_t	g_skillboost1_damageDealtBonus;
 vmCvar_t	g_skillboost1_dempDamageDealtBonus;
@@ -1011,7 +1013,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_intermissionKnockbackNPCs, "g_intermissionKnockbackNPCs", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_emotes, "g_emotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeHelp, "g_siegeHelp", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_improvedHoming, "g_improvedHoming", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_improvedHoming, "g_improvedHoming", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_improvedHomingThreshold, "g_improvedHomingThreshold", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &d_debugImprovedHoming, "d_debugImprovedHoming", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_damageDealtBonus, "g_skillboost1_damageDealtBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_damageDealtBonus, "g_skillboost2_damageDealtBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
@@ -5667,8 +5671,8 @@ static void RunImprovedHoming(void) {
 		gentity_t *ent = &g_entities[i];
 		gclient_t *cl = &level.clients[i];
 		if (cl->pers.connected != CON_CONNECTED) {
-			SetHomingInPlayerstate(cl, 0);
 			cl->homingLockTime = 0;
+			SetHomingInPlayerstate(cl, 0);
 			continue;
 		}
 
@@ -5679,6 +5683,7 @@ static void RunImprovedHoming(void) {
 			cl->sess.spectatorClient >= 0 && cl->sess.spectatorClient < MAX_CLIENTS) {
 			gclient_t *followed = &level.clients[cl->sess.spectatorClient];
 			if (followed->pers.connected != CON_CONNECTED) {
+				lockCl->homingLockTime = 0;
 				SetHomingInPlayerstate(cl, 0);
 				continue;
 			}
@@ -5686,10 +5691,15 @@ static void RunImprovedHoming(void) {
 			lockEnt = &g_entities[lockCl - level.clients];
 		}
 
-		// check that the rocketeer has a lock
-		if (lockCl->ps.rocketLockIndex == ENTITYNUM_NONE || lockCl->sess.sessionTeam == TEAM_SPECTATOR || lockEnt->health <= 0 || lockCl->ps.pm_type == PM_SPECTATOR || lockCl->ps.pm_type == PM_INTERMISSION) {
-			SetHomingInPlayerstate(cl, 0);
+		if (lockCl->sess.sessionTeam == TEAM_SPECTATOR || lockEnt->health <= 0 || lockCl->ps.pm_type == PM_SPECTATOR || lockCl->ps.pm_type == PM_INTERMISSION) {
 			lockCl->homingLockTime = 0;
+			SetHomingInPlayerstate(cl, 0);
+			continue;
+		}
+
+		// check that the rocketeer has a lock
+		if (lockCl->ps.rocketLockIndex == ENTITYNUM_NONE) {
+			SetHomingInPlayerstate(cl, 0);
 			continue;
 		}
 
