@@ -2800,7 +2800,7 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 	if (g_improvedHoming.integer && ent->client && ent->client->homingLockTime && deltaT <= homingThreshold && ent->client->homingLockTarget != ENTITYNUM_NONE)
 		forceLock = ent->client->homingLockTarget;
 	if (d_debugImprovedHoming.integer)
-		trap_SendServerCommand(ent - g_entities, "print \"deltaT is %d (threshold is %d)\n\"", deltaT, homingThreshold);
+		trap_SendServerCommand(ent - g_entities, va("print \"deltaT is %d (threshold is %d)\n\"", deltaT, homingThreshold));
 
 	if (forceLock != -1 || (ent->client && ent->client->ps.rocketLockIndex != ENTITYNUM_NONE))
 	{
