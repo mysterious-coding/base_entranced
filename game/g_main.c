@@ -209,6 +209,7 @@ vmCvar_t	g_siegeHelp;
 vmCvar_t	g_improvedHoming;
 vmCvar_t	g_improvedHomingThreshold;
 vmCvar_t	d_debugImprovedHoming;
+vmCvar_t	g_braindeadBots;
 
 vmCvar_t	g_skillboost1_damageDealtBonus;
 vmCvar_t	g_skillboost1_dempDamageDealtBonus;
@@ -1013,9 +1014,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_intermissionKnockbackNPCs, "g_intermissionKnockbackNPCs", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_emotes, "g_emotes", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeHelp, "g_siegeHelp", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_improvedHoming, "g_improvedHoming", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_improvedHomingThreshold, "g_improvedHomingThreshold", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_improvedHoming, "g_improvedHoming", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_improvedHomingThreshold, "g_improvedHomingThreshold", "500", CVAR_ARCHIVE, 0, qtrue },
 	{ &d_debugImprovedHoming, "d_debugImprovedHoming", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_braindeadBots, "g_braindeadBots", "0", CVAR_ARCHIVE, 0 , qtrue },
 
 	{ &g_skillboost1_damageDealtBonus, "g_skillboost1_damageDealtBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_damageDealtBonus, "g_skillboost2_damageDealtBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },

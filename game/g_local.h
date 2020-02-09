@@ -2781,6 +2781,7 @@ extern vmCvar_t    g_siegeHelp;
 extern vmCvar_t    g_improvedHoming;
 extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
+extern vmCvar_t    g_braindeadBots;
 
 #define MAX_SKILLBOOST	(5)
 
