@@ -211,6 +211,28 @@ vmCvar_t	g_improvedHomingThreshold;
 vmCvar_t	d_debugImprovedHoming;
 vmCvar_t	g_braindeadBots;
 
+vmCvar_t	g_customVotes;
+vmCvar_t	g_customVote1_command;
+vmCvar_t	g_customVote1_label;
+vmCvar_t	g_customVote2_command;
+vmCvar_t	g_customVote2_label;
+vmCvar_t	g_customVote3_command;
+vmCvar_t	g_customVote3_label;
+vmCvar_t	g_customVote4_command;
+vmCvar_t	g_customVote4_label;
+vmCvar_t	g_customVote5_command;
+vmCvar_t	g_customVote5_label;
+vmCvar_t	g_customVote6_command;
+vmCvar_t	g_customVote6_label;
+vmCvar_t	g_customVote7_command;
+vmCvar_t	g_customVote7_label;
+vmCvar_t	g_customVote8_command;
+vmCvar_t	g_customVote8_label;
+vmCvar_t	g_customVote9_command;
+vmCvar_t	g_customVote9_label;
+vmCvar_t	g_customVote10_command;
+vmCvar_t	g_customVote10_label;
+
 vmCvar_t	g_skillboost1_damageDealtBonus;
 vmCvar_t	g_skillboost1_dempDamageDealtBonus;
 vmCvar_t	g_skillboost1_damageTakenReduction;
@@ -1018,6 +1040,28 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_improvedHomingThreshold, "g_improvedHomingThreshold", "500", CVAR_ARCHIVE, 0, qtrue },
 	{ &d_debugImprovedHoming, "d_debugImprovedHoming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_braindeadBots, "g_braindeadBots", "0", CVAR_ARCHIVE, 0 , qtrue },
+
+	{ &g_customVotes, "g_customVotes", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote1_command, "g_customVote1_command", "map_restart", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote1_command, "g_customVote1_label", "Restart Map", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote2_command, "g_customVote2_command", "nextmap", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote2_command, "g_customVote2_label", "Restart Match (Round 1)", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote3_command, "g_customVote3_command", "newpug", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote3_command, "g_customVote3_label", "New Pug Map Rotation", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote4_command, "g_customVote4_command", "nextpug", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote4_command, "g_customVote4_label", "Next Pug Map", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote5_command, "g_customVote5_command", "randomteams 2 2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote5_command, "g_customVote5_label", "Random Teams: 2v2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote6_command, "g_customVote6_command", "shuffleteams 2 2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote6_command, "g_customVote6_label", "Shuffle Teams: 2v2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote7_command, "g_customVote7_command", "randomteams 3 3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote7_command, "g_customVote7_label", "Random Teams: 3v3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote8_command, "g_customVote8_command", "shuffleteams 3 3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote8_command, "g_customVote8_label", "Shuffle Teams: 3v3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote9_command, "g_customVote9_command", "randomteams 4 4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote9_command, "g_customVote9_label", "Random Teams: 4v4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote10_command, "g_customVote10_command", "shuffleteams 4 4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote10_command, "g_customVote10_label", "Shuffle Teams: 4v4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_skillboost1_damageDealtBonus, "g_skillboost1_damageDealtBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_damageDealtBonus, "g_skillboost2_damageDealtBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
@@ -2303,6 +2347,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
     //level.db.levelId = G_LogDbLogLevelStart(restart);
 
 	InitializeSiegeHelpMessages();
+
+	G_BroadcastServerFeatureList(-1);
 
 #ifdef _DEBUG
 	Com_Printf("Build date: %s %s\n", __DATE__, __TIME__);

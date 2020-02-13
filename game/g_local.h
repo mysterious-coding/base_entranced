@@ -2783,6 +2783,29 @@ extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
 
+#define MAX_CUSTOM_VOTES	(10)
+extern vmCvar_t    g_customVotes;
+extern vmCvar_t    g_customVote1_command;
+extern vmCvar_t    g_customVote1_label;
+extern vmCvar_t    g_customVote2_command;
+extern vmCvar_t    g_customVote2_label;
+extern vmCvar_t    g_customVote3_command;
+extern vmCvar_t    g_customVote3_label;
+extern vmCvar_t    g_customVote4_command;
+extern vmCvar_t    g_customVote4_label;
+extern vmCvar_t    g_customVote5_command;
+extern vmCvar_t    g_customVote5_label;
+extern vmCvar_t    g_customVote6_command;
+extern vmCvar_t    g_customVote6_label;
+extern vmCvar_t    g_customVote7_command;
+extern vmCvar_t    g_customVote7_label;
+extern vmCvar_t    g_customVote8_command;
+extern vmCvar_t    g_customVote8_label;
+extern vmCvar_t    g_customVote9_command;
+extern vmCvar_t    g_customVote0_label;
+extern vmCvar_t    g_customVote10_command;
+extern vmCvar_t    g_customVote10_label;
+
 #define MAX_SKILLBOOST	(5)
 
 extern vmCvar_t	g_skillboost1_damageDealtBonus;

@@ -88,6 +88,7 @@
 #define CS_CLIENT_DUELHEALTHS	31		// nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
 #define CS_GLOBAL_AMBIENT_SET	32
 #define CS_CUSTOMOBITUARIES		33
+#define CS_CUSTOMVOTES			34
 
 #define CS_AMBIENT_SET			37
 

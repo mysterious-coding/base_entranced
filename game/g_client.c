@@ -3062,7 +3062,8 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"inkognito \"Hides whom you are following on the scoreboard\" "
 		"serverstatus2 \"View additional server settings not listed in serverstatus\"";
 
-	trap_SendServerCommand(clientNum, commandListCmd);
+	if (clientNum != -1) // we call this function with -1 clientNum to just do the global stuff
+		trap_SendServerCommand(clientNum, commandListCmd);
 
 	static qboolean didGlobal = qfalse;
 	if (didGlobal)
@@ -3111,6 +3112,41 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	}
 	if (level.locations.enhanced.numUnique)
 		trap_SetConfigstring(CS_ENHANCEDLOCATIONS, locationsListConfigString);
+
+	qboolean gotCustomVote = qfalse;
+	static char customVotesStr[MAX_TOKEN_CHARS] = "cuvo ";
+	if (g_customVotes.integer) {
+		for (int i = 0; i < MAX_CUSTOM_VOTES; i++) {
+			// get the command
+			char cmdBuf[256] = { 0 };
+			trap_Cvar_VariableStringBuffer(va("g_customVote%d_command", i + 1), cmdBuf, sizeof(cmdBuf));
+			if (!cmdBuf[0] || !Q_stricmp(cmdBuf, "0"))
+				continue;
+			char *quote = strchr(cmdBuf, '"');
+			while (quote) { // sanity check to remove quotation marks
+				*quote = '\'';
+				quote = strchr(quote, '"');
+			}
+
+			// get the label
+			char labelBuf[256] = { 0 };
+			trap_Cvar_VariableStringBuffer(va("g_customVote%d_label", i + 1), labelBuf, sizeof(labelBuf));
+			if (!labelBuf[0] || !Q_stricmp(labelBuf, "0"))
+				continue;
+			quote = strchr(labelBuf, '"');
+			while (quote) { // sanity check to remove quotation marks
+				*quote = '\'';
+				quote = strchr(quote, '"');
+			}
+
+			// append to the overall string
+			if (gotCustomVote)
+				Q_strcat(customVotesStr, sizeof(customVotesStr), " "); // prepend a space if not the first one
+			Q_strcat(customVotesStr, sizeof(customVotesStr), va("\"%s\" \"%s\"", cmdBuf, labelBuf));
+			gotCustomVote = qtrue;
+		}
+	}
+	trap_SetConfigstring(CS_CUSTOMVOTES, gotCustomVote ? customVotesStr : "");
 
 	static char customObituariesString[MAX_TOKEN_CHARS] = "cobt ";
 	Q_strcat(customObituariesString, sizeof(customObituariesString), va(

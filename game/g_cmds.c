@@ -4098,6 +4098,17 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "powerduel" ) ) {
 	} else if ( !Q_stricmp( arg1, "tffa" ) ) {
 	} else if ( !Q_stricmp( arg1, "siege" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom1" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom2" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom3" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom4" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom5" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom6" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom7" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom8" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom9" ) ) {
+	} else if ( !Q_stricmp( arg1, "custom10" ) ) {
+	} else if ( !Q_stricmp( arg1, "siege_restart" ) ) {
 	} else if ( !Q_stricmp( arg1, "ctf" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
@@ -4118,6 +4129,48 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		*/
 
 		trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.voteString ) );
+	}
+
+	for (int k = 0; k < MAX_CUSTOM_VOTES; k++) {
+		// check if the person entered "custom3" or whatever
+		char callvoteCommandBuf[64] = { 0 };
+		Com_sprintf(callvoteCommandBuf, sizeof(callvoteCommandBuf), "custom%d", k + 1);
+		if (Q_stricmp(arg1, callvoteCommandBuf))
+			continue;
+
+		// check whether this command is enabled
+		char cmdBuf[256] = { 0 };
+		trap_Cvar_VariableStringBuffer(va("g_customVote%d_command", k + 1), cmdBuf, sizeof(cmdBuf));
+		if (!cmdBuf[0] || !Q_stricmp(cmdBuf, "0")) {
+			trap_SendServerCommand(ent - g_entities, va("print \"Custom vote %d is not enabled by the server.\n\"", k + 1));
+			return;
+		}
+
+		// overwrite arg1/arg2
+		Q_strncpyz(arg1, cmdBuf, sizeof(arg1));
+		char *space = strchr(arg1, ' ');
+		if (space && *(space + 1)) { // everything after the first space is arg2
+			*space = '\0';
+			Q_strncpyz(arg2, space + 1, sizeof(arg2));
+		}
+		else {
+			arg2[0] = '\0';
+		}
+
+		break;
+	}
+
+	// if calling a nextmap vote on a siege server where nextmap is set to "map_restart 0"
+	// (basically any pug server, since it doesn't have a standard map rotation setup),
+	// redirect this vote to the new siege_restart vote
+	// the purpose of this is that showing the words "Next Map" is misleading in such a context
+	if (g_gametype.integer == GT_SIEGE && !Q_stricmp(arg1, "nextmap")) {
+		char nextmapBuf[MAX_QPATH] = { 0 };
+		trap_Cvar_VariableStringBuffer("nextmap", nextmapBuf, sizeof(nextmapBuf));
+		if (nextmapBuf[0] && !Q_stricmp(nextmapBuf, "map_restart 0")) {
+			Q_strncpyz(arg1, "siege_restart", sizeof(arg1));
+			arg2[0] = '\0';
+		}
 	}
 
 	// allow e.g. /callvote ctf as an alias of /callvote g_gametype 8
@@ -4596,12 +4649,35 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 		
-		const int n = Com_Clampi( 0, 60, g_restart_countdown.integer );
+		const int n = Com_Clampi(0, 10, g_restart_countdown.integer);
 
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%i\"", arg1, n );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%i\"", arg1, n);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 
 	} 
+	else if (!Q_stricmp(arg1, "siege_restart"))
+	{
+		if (g_gametype.integer != GT_SIEGE) {
+			trap_SendServerCommand(ent - g_entities, "print \"Not in siege gametype.\n\"");
+			return;
+		}
+
+	// *CHANGE 22* - vote disabling
+	if (!g_allow_vote_restart.integer) {
+		trap_SendServerCommand(ent - g_entities, "print \"Vote map_restart is disabled.\n\"");
+		return;
+	}
+
+	extern siegePers_t g_siegePersistant;
+	if (g_siegeTeamSwitch.integer && g_siegePersistant.beatingTime && g_nextmapWarning.integer) {
+		Q_strncpyz(level.voteString, "siege_restart", sizeof(level.voteString));
+		Q_strncpyz(level.voteDisplayString, "Restart Match in Round 1", sizeof(level.voteDisplayString));
+	}
+	else {
+		Q_strncpyz(level.voteString, "map_restart \"0\"", sizeof(level.voteString));
+		Q_strncpyz(level.voteDisplayString, "map_restart \"0\"", sizeof(level.voteDisplayString));
+	}
+	}
 	else if (!Q_stricmp(arg1, "g_redTeam"))
 	{
 		if (!g_allow_vote_customTeams.integer) {
