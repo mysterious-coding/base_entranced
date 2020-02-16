@@ -212,6 +212,8 @@ vmCvar_t	d_debugImprovedHoming;
 vmCvar_t	g_braindeadBots;
 vmCvar_t	g_siegeRespawnAutoChange;
 
+vmCvar_t	lastMapName;
+
 vmCvar_t	g_customVotes;
 vmCvar_t	g_customVote1_command;
 vmCvar_t	g_customVote1_label;
@@ -1042,6 +1044,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &d_debugImprovedHoming, "d_debugImprovedHoming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_braindeadBots, "g_braindeadBots", "0", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_siegeRespawnAutoChange, "g_siegeRespawnAutoChange", "1", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
 
 	{ &g_customVotes, "g_customVotes", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_customVote1_command, "g_customVote1_command", "map_restart", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
@@ -2050,6 +2054,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	InitUnhandledExceptionFilter();
 	InitializeMapName();
+
+	// if we changed siege maps, reset back to round 1
+	char lastMapName[MAX_QPATH] = { 0 };
+	trap_Cvar_VariableStringBuffer("lastMapName", lastMapName, sizeof(lastMapName));
+	int gametype = trap_Cvar_VariableIntegerValue("g_gametype");
+	int siegeTeamSwitch = trap_Cvar_VariableIntegerValue("g_siegeTeamSwitch");
+	if (gametype == GT_SIEGE && siegeTeamSwitch && lastMapName[0] && Q_stricmp(lastMapName, level.mapname))
+		SiegeClearSwitchData();
+	trap_Cvar_Set("lastMapName", level.mapname);
 
 #ifdef _XBOX
 	if(restart) {

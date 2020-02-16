@@ -1881,6 +1881,7 @@ int G_PreviousObjective(int objective, int round, int timeOverride);
 void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completedEntireMap);
 void SpeedRunModeRuined(const char *reason);
 void LivePugRuined(const char *reason, qboolean announce);
+void SiegeClearSwitchData(void);
 
 qboolean FileExists(const char *fileName);
 
@@ -2783,6 +2784,8 @@ extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
 extern vmCvar_t	   g_siegeRespawnAutoChange;
+
+extern vmCvar_t    lastMapName;
 
 #define MAX_CUSTOM_VOTES	(10)
 extern vmCvar_t    g_customVotes;
