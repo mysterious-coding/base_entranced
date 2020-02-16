@@ -2439,16 +2439,19 @@ void SiegeCheckTimers(void)
 				int numRed = 0, numBlue = 0;
 				GetPlayerCounts(qtrue, qtrue, &numRed, &numBlue, NULL, NULL);
 				if (numRed && numBlue) {
-					trap_Cvar_Set("g_siegeRespawn", va("%d", level.worldspawnSiegeRespawnTime));
+					if (g_siegeRespawnAutoChange.integer)
+						trap_Cvar_Set("g_siegeRespawn", va("%d", level.worldspawnSiegeRespawnTime));
 					SpeedRunModeRuined("Round started with players on both teams");
 				}
 				else {
-					trap_Cvar_Set("g_siegeRespawn", "1");
+					if (g_siegeRespawnAutoChange.integer)
+						trap_Cvar_Set("g_siegeRespawn", "1");
 					LivePugRuined("Round started without players on both teams", qfalse);
 				}
 			}
 			else {
-				trap_Cvar_Set("g_siegeRespawn", "1");
+				if (g_siegeRespawnAutoChange.integer)
+					trap_Cvar_Set("g_siegeRespawn", "1");
 				LivePugRuined("Round started without having been restarted", qfalse);
 			}
 			gSiegeRoundBegun = qtrue;
@@ -2492,17 +2495,20 @@ void SiegeCheckTimers(void)
 					int numRed = 0, numBlue = 0;
 					GetPlayerCounts(qtrue, qtrue, &numRed, &numBlue, NULL, NULL);
 					if (numRed && numBlue) {
-						trap_Cvar_Set("g_siegeRespawn", va("%d", level.worldspawnSiegeRespawnTime));
+						if (g_siegeRespawnAutoChange.integer)
+							trap_Cvar_Set("g_siegeRespawn", va("%d", level.worldspawnSiegeRespawnTime));
 						SpeedRunModeRuined("Countdown ticking down with players on both teams");
 					}
 					else {
-						trap_Cvar_Set("g_siegeRespawn", "1");
+						if (g_siegeRespawnAutoChange.integer)
+							trap_Cvar_Set("g_siegeRespawn", "1");
 						LivePugRuined("Countdown ticking down without players on both teams", qfalse);
 					}
 				}
 			}
 			else {
-				trap_Cvar_Set("g_siegeRespawn", "1");
+				if (g_siegeRespawnAutoChange.integer)
+					trap_Cvar_Set("g_siegeRespawn", "1");
 				LivePugRuined("Countdown ticking down without having been restarted", qfalse);
 			}
 			memset(&level.lastLegitClass, -1, sizeof(level.lastLegitClass));

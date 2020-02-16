@@ -210,6 +210,7 @@ vmCvar_t	g_improvedHoming;
 vmCvar_t	g_improvedHomingThreshold;
 vmCvar_t	d_debugImprovedHoming;
 vmCvar_t	g_braindeadBots;
+vmCvar_t	g_siegeRespawnAutoChange;
 
 vmCvar_t	g_customVotes;
 vmCvar_t	g_customVote1_command;
@@ -1040,6 +1041,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_improvedHomingThreshold, "g_improvedHomingThreshold", "500", CVAR_ARCHIVE, 0, qtrue },
 	{ &d_debugImprovedHoming, "d_debugImprovedHoming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_braindeadBots, "g_braindeadBots", "0", CVAR_ARCHIVE, 0 , qtrue },
+	{ &g_siegeRespawnAutoChange, "g_siegeRespawnAutoChange", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_customVotes, "g_customVotes", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_customVote1_command, "g_customVote1_command", "map_restart", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },

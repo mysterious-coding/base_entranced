@@ -2782,6 +2782,7 @@ extern vmCvar_t    g_improvedHoming;
 extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
+extern vmCvar_t	   g_siegeRespawnAutoChange;
 
 #define MAX_CUSTOM_VOTES	(10)
 extern vmCvar_t    g_customVotes;
