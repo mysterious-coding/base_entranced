@@ -644,6 +644,17 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 	}
 
+	// duo: added siege item check here to prevent bogus hacking/using animations without having the item
+	// (the base jka item check takes place after we've already given you an animation)
+	if (g_gametype.integer == GT_SIEGE && self->genericValue1) {
+		if (!other || !other->client || !other->client->holdingObjectiveItem || !VALIDSTRING(self->targetname))
+			return;
+		gentity_t *objItem = &g_entities[other->client->holdingObjectiveItem];
+		if (!objItem || !objItem->inuse || objItem->genericValue7 == other->client->sess.sessionTeam ||
+			!VALIDSTRING(objItem->goaltarget) || Q_stricmp(self->targetname, objItem->goaltarget))
+			return;
+	}
+
 	if (self->spawnflags & 4)
 	{//USE_BUTTON
 		if (!(other->client->pers.cmd.buttons & BUTTON_USE))
