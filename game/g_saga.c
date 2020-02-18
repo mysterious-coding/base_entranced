@@ -2124,7 +2124,7 @@ void SiegeRespawn(gentity_t *ent)
 
 	level.lastLegitClass[ent - g_entities] = bgSiegeClasses[ent->client->siegeClass].playerClass;
 
-	qboolean needUpdateInfo = g_delayClassUpdate.integer && (Q_stricmp(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass) || Q_stricmp(ent->client->sess.spawnedSiegeModel, ent->client->modelname)) ? qtrue : qfalse;
+	qboolean needUpdateInfo = g_delayClassUpdate.integer && (Q_stricmp(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass) || (ent->client->siegeClass != -1 && Q_stricmp(ent->client->sess.spawnedSiegeModel, bgSiegeClasses[ent->client->siegeClass].forcedModel))) ? qtrue : qfalse;
 
 	if (ent->client->sess.siegeClass[0])
 		Q_strncpyz(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass, sizeof(ent->client->sess.spawnedSiegeClass));
@@ -2136,8 +2136,8 @@ void SiegeRespawn(gentity_t *ent)
 	else
 		memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
 
-	if (needUpdateInfo)
-		ClientUserinfoChanged(ent - g_entities);
+	if (scl)
+		ent->client->sess.spawnedSiegeMaxHealth = scl->maxhealth;
 
 	if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
 	{
@@ -2145,7 +2145,7 @@ void SiegeRespawn(gentity_t *ent)
 	}
 	else
 	{
-		ClientSpawn(ent);
+		ClientSpawn(ent, needUpdateInfo);
 		// add a teleportation effect
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;

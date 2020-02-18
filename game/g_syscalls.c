@@ -133,7 +133,11 @@ void trap_SendServerCommand( int clientNum, const char *text ) {
 }
 
 void trap_SetConfigstring( int num, const char *string ) {
-	syscall( G_SET_CONFIGSTRING, num, string );
+	syscall( G_SET_CONFIGSTRING, num, string, qfalse ); // duo: extra arg if the server supports it
+}
+
+void trap_SetConfigstringNoUpdate(int num, const char *string) {
+	syscall(G_SET_CONFIGSTRING, num, string, qtrue); // duo: extra arg if the server supports it
 }
 
 void trap_GetConfigstring( int num, char *buffer, int bufferSize ) {

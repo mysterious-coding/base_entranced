@@ -672,6 +672,8 @@ typedef struct {
 	char		siegeClass[64];
 	char		spawnedSiegeClass[64]; // siege class we successfully spawned as at least once
 	char		spawnedSiegeModel[64]; // model for this class
+	int			spawnedSiegeMaxHealth; // max health for this class
+	char		lastInfoSent[MAX_CLIENTS][MAX_STRING_CHARS] ; // last real info we sent out to people
 	char		saberType[64];
 	char		saber2Type[64];
 	int			duelTeam;
@@ -1399,6 +1401,8 @@ typedef struct {
 
 	char			mapname[MAX_STRING_CHARS];
 	siegeMap_t		siegeMap;
+
+	qboolean		serverEngineSupportsSetUserinfoWithoutUpdate;
 
 	fileHandle_t	logFile;
 	fileHandle_t	hackLogFile;
@@ -2130,7 +2134,7 @@ void MaintainBodyQueue(gentity_t *ent);
 void respawn (gentity_t *ent);
 void BeginIntermission (void);
 void InitBodyQue (void);
-void ClientSpawn( gentity_t *ent );
+void ClientSpawn( gentity_t *ent, qboolean forceUpdateInfo );
 void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
@@ -3027,6 +3031,7 @@ void	trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_
 void	trap_DropClient( int clientNum, const char *reason );
 void	trap_SendServerCommand( int clientNum, const char *text );
 void	trap_SetConfigstring( int num, const char *string );
+void	trap_SetConfigstringNoUpdate(int num, const char *string);
 void	trap_GetConfigstring( int num, char *buffer, int bufferSize );
 void	trap_GetUserinfo( int num, char *buffer, int bufferSize );
 void	trap_SetUserinfo( int num, const char *buffer );

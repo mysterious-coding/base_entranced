@@ -1148,7 +1148,7 @@ void respawn( gentity_t *ent ) {
 
 		ent->client->pers.teamState.state = TEAM_BEGIN;
 		ent->client->sess.spectatorTime = level.time;
-		ClientSpawn(ent);
+		ClientSpawn(ent, qfalse);
 		ent->client->iAmALoser = qtrue;
 		return;
 	}
@@ -1215,7 +1215,7 @@ void respawn( gentity_t *ent ) {
 	{
 		gentity_t	*tent;
 
-		ClientSpawn(ent);
+		ClientSpawn(ent, qfalse);
 
 		// add a teleportation effect
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
@@ -2607,33 +2607,59 @@ void ClientUserinfoChanged( int clientNum ) {
 #endif
 	}
 
-	trap_SetConfigstring(CS_PLAYERS + clientNum, s); // set it on the server
+	if (g_logClientInfo.integer) {
+		static char lastClientInfo[MAX_CLIENTS][MAX_STRING_CHARS] = { 0 };
+		if (!lastClientInfo[clientNum][0] || Q_stricmp(lastClientInfo[clientNum], s)) {
+			G_LogPrintf("ClientUserinfoChanged: %i %s\n", clientNum, s);
+			Q_strncpyz(lastClientInfo[clientNum], s, sizeof(lastClientInfo[0]));
+		}
+	}
+
 	if (g_gametype.integer == GT_SIEGE && g_delayClassUpdate.integer && !(ent->r.svFlags & SVF_BOT)) {
+		trap_SetConfigstringNoUpdate(CS_PLAYERS + clientNum, s); // set it on the server without updating everyone (if possible)
+		qboolean pregame = (level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2) ? qtrue : qfalse;
 		for (int i = 0; i < MAX_CLIENTS; i++) {
-			if (level.clients[i].pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT)
+			if (level.clients[i].pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT) {
+				client->sess.lastInfoSent[i][0] = '\0'; // client i isn't valid anymore; clear out lastInfoSent from me to him
 				continue;
-			qboolean pregame = (level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2) ? qtrue : qfalse;
+			}
+
 			if (OnOppositeTeam(client, &level.clients[i]) && (level.inSiegeCountdown || client->sess.spawnedSiegeClass[0] && client->sess.spawnedSiegeModel[0] && Q_stricmp(className, client->sess.spawnedSiegeClass))) {
 				// this guy doesn't get to see our real class yet
 				s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\id\\%llu",
 					client->pers.netname, client->sess.sessionTeam, pregame ? "kyle" : client->sess.spawnedSiegeModel, c1, c2,
-					pregame ? 100 : client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, pregame ? "" : client->sess.spawnedSiegeClass, pregame ? "Kyle" : saberName, pregame ? "none" : saber2Name, client->sess.duelTeam,
+					pregame ? 100 : client->sess.spawnedSiegeMaxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, pregame ? "" : client->sess.spawnedSiegeClass, pregame ? "Kyle" : saberName, pregame ? "none" : saber2Name, client->sess.duelTeam,
 					client->sess.siegeDesiredTeam, totalHash);
 			}
 			else {
-				// teammate; show him our real class
+				// teammate or otherwise allowed to see real class
 				s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\siegeclass\\%s\\st\\%s\\st2\\%s\\dt\\%i\\sdt\\%i\\id\\%llu",
 					client->pers.netname, client->sess.sessionTeam, model, c1, c2,
 					client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, className, saberName, saber2Name, client->sess.duelTeam,
 					client->sess.siegeDesiredTeam, totalHash);
 			}
+
 #ifdef NEWMOD_SUPPORT
 			if (client->sess.auth == AUTHENTICATED && client->sess.cuidHash[0]) {
 				s = va("%s\\cid\\%s", s, client->sess.cuidHash);
 			}
 #endif
+
+			// if the engine supports setting user info without immediately updating,
+			// then we don't need to send another one to overwrite the one sent above
+			if (level.serverEngineSupportsSetUserinfoWithoutUpdate) {
+				if (client->sess.lastInfoSent[i][0] && !Q_stricmp(s, client->sess.lastInfoSent[i]))
+					continue; // client i already got this exact info from us last time; don't bother
+				Q_strncpyz(client->sess.lastInfoSent[i], s, sizeof(client->sess.lastInfoSent[i]));
+			}
+
+			// send whatever to client i
 			G_SendConfigstring(i, CS_PLAYERS + clientNum, s, qtrue);
 		}
+	}
+	else {
+		// crappy server or gametype; just do normal behavior
+		trap_SetConfigstring(CS_PLAYERS + clientNum, s);
 	}
 
 	if (modelChanged) //only going to be true for allowable server-side custom skeleton cases
@@ -2648,11 +2674,6 @@ void ClientUserinfoChanged( int clientNum ) {
 
 		client->torsoAnimExecute = client->legsAnimExecute = -1;
 		client->torsoLastFlip = client->legsLastFlip = qfalse;
-	}
-
-	if (g_logClientInfo.integer)
-	{
-		G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
 	}
 }
 
@@ -3399,7 +3420,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
         }
 
 		// locate ent at a spawn point
-		ClientSpawn( ent );
+		ClientSpawn( ent, qfalse );
 	}
 
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -3809,7 +3830,7 @@ Initializes all non-persistant parts of playerState
 ============
 */
 extern qboolean WP_HasForcePowers( const playerState_t *ps );
-void ClientSpawn(gentity_t *ent) {
+void ClientSpawn(gentity_t *ent, qboolean forceUpdateInfo) {
 	int					index;
 	vec3_t				spawn_origin, spawn_angles;
 	gclient_t			*client;
@@ -3880,44 +3901,50 @@ void ClientSpawn(gentity_t *ent) {
 
 	//first we want the userinfo so we can see if we should update this client's saber -rww
 	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
-	while (l < MAX_SABERS)
-	{
-		switch (l)
+	if (g_gametype.integer != GT_SIEGE) { // duo: we don't care what sabers you want in siege
+		while (l < MAX_SABERS)
 		{
-		case 0:
-			saber = &ent->client->sess.saberType[0];
-			break;
-		case 1:
-			saber = &ent->client->sess.saber2Type[0];
-			break;
-		default:
-			saber = NULL;
-			break;
-		}
-
-		value = Info_ValueForKey (userinfo, va("saber%i", l+1));
-		if (saber &&
-			value &&
-			(Q_stricmp(value, saber) || !saber[l] || !ent->client->saber[l].model[0]))
-		{ //doesn't match up (or our session saber is BS), we want to try setting it
-			if (G_SetSaber(ent, l, value, qfalse))
+			switch (l)
 			{
-				//if (Q_stricmp(value, saber))
+			case 0:
+				saber = &ent->client->sess.saberType[0];
+				break;
+			case 1:
+				saber = &ent->client->sess.saber2Type[0];
+				break;
+			default:
+				saber = NULL;
+				break;
+			}
+
+			value = Info_ValueForKey(userinfo, va("saber%i", l + 1));
+			if (saber &&
+				value &&
+				(Q_stricmp(value, saber) || !saber[l] || !ent->client->saber[l].model[0]))
+			{ //doesn't match up (or our session saber is BS), we want to try setting it
+				if (G_SetSaber(ent, l, value, qfalse))
+				{
+					//if (Q_stricmp(value, saber))
 					{
-					changedSaber = qtrue;
+						changedSaber = qtrue;
 					}
+				}
+				else if (!saber[l] || !ent->client->saber[l].model[0])
+				{ //Well, we still want to say they changed then (it means this is siege and we have some overrides)
+					changedSaber = qtrue;
+				}
 			}
-			else if (!saber[l] || !ent->client->saber[l].model[0])
-			{ //Well, we still want to say they changed then (it means this is siege and we have some overrides)
-				changedSaber = qtrue;
-			}
+			l++;
 		}
-		l++;
 	}
+
+	if (forceUpdateInfo)
+		ClientUserinfoChanged(ent->s.number);
 
 	if (changedSaber)
 	{ //make sure our new info is sent out to all the other clients, and give us a valid stance
-		ClientUserinfoChanged( ent->s.number );
+		if (!forceUpdateInfo)
+			ClientUserinfoChanged( ent->s.number );
 
 		//make sure the saber models are updated
 		G_SaberModelSetup(ent);
@@ -4991,6 +5018,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->sess.senseBoost = 0;
 	memset(&ent->client->sess.spawnedSiegeClass, 0, sizeof(ent->client->sess.spawnedSiegeClass));
 	memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
+	ent->client->sess.spawnedSiegeMaxHealth = 0;
 	ent->client->sess.whitelistStatus = WHITELIST_UNKNOWN;
 	ent->r.contents = 0;
 	level.clientUniqueIds[clientNum] = 0;
