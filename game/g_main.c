@@ -2374,6 +2374,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_BroadcastServerFeatureList(-1);
 
+	if (lastMapName[0] && Q_stricmp(lastMapName, level.mapname))
+		G_SaveDatabase(); // the map has been changed, so save db to disk
+
 #ifdef _DEBUG
 	Com_Printf("Build date: %s %s\n", __DATE__, __TIME__);
 #endif
