@@ -569,6 +569,7 @@ vmCvar_t	g_antiWallhack;
 vmCvar_t	g_wallhackMaxTraces;
 
 vmCvar_t	g_inMemoryDB;
+vmCvar_t	dbLocation;
 
 vmCvar_t	g_traceSQL;
 
@@ -947,6 +948,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_wallhackMaxTraces,	"g_wallhackMaxTraces"	, "1000"	, CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_inMemoryDB, "g_inMemoryDB", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
+	{ &dbLocation, "dbLocation", "", CVAR_ROM | CVAR_TEMP, 0, qfalse },
 
 	{ &g_traceSQL, "g_traceSQL", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
 
