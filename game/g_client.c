@@ -5052,8 +5052,10 @@ void ClientDisconnect( int clientNum ) {
 
 	G_ClearClientLog(clientNum);
 
-	if (ServerIsEmpty())
+	if (ServerIsEmpty()) {
+		G_DBOptimizeDatabaseIfNeeded();
 		G_SaveDatabase();
+	}
 }   
 
 

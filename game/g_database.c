@@ -12,7 +12,7 @@ static void ErrorCallback( void* ctx, int code, const char* msg ) {
 }
 
 static int TraceCallback( unsigned int type, void* ctx, void* ptr, void* info ) {
-	if ( !ptr || !info ) {
+	if ( !ptr || !info || !g_traceSQL.integer ) {
 		return 0;
 	}
 
@@ -42,6 +42,31 @@ static int TraceCallback( unsigned int type, void* ctx, void* ptr, void* info ) 
 	}
 
 	return 0;
+}
+
+void G_DBOptimizeDatabaseIfNeeded(void) {
+	const time_t currentTime = time(NULL);
+	char s[16];
+
+	// optimize
+	G_DBGetMetadata("last_optimize", s, sizeof(s));
+	time_t last_optimize = VALIDSTRING(s) ? strtoll(s, NULL, 10) : 0;
+
+	if (last_optimize + DB_OPTIMIZE_INTERVAL < currentTime) {
+		Com_Printf("Optimizing database...\n");
+		sqlite3_exec(dbPtr, "PRAGMA optimize;", NULL, NULL, NULL);
+		G_DBSetMetadata("last_optimize", va("%lld", currentTime));
+	}
+
+	// vacuum
+	G_DBGetMetadata("last_vacuum", s, sizeof(s));
+	time_t last_autoclean = VALIDSTRING(s) ? strtoll(s, NULL, 10) : 0;
+
+	if (last_autoclean + DB_VACUUM_INTERVAL < currentTime) {
+		Com_Printf("Running vacuum on database...\n");
+		sqlite3_exec(dbPtr, "VACUUM;", NULL, NULL, NULL);
+		G_DBSetMetadata("last_vacuum", va("%lld", currentTime));
+	}
 }
 
 void G_DBLoadDatabase( void )
@@ -74,12 +99,14 @@ void G_DBLoadDatabase( void )
 
 	unsigned int existingDbAddress = strtoul(dbLocation.string, NULL, 10);
 
+	qboolean usingExistingFromMemory = qfalse;
 	if ( g_inMemoryDB.integer ) {
 		unsigned int existingDbAddress = strtoul(dbLocation.string, NULL, 10);
 		if (dbLocation.string[0] && existingDbAddress) {
 			// we have a db already open in memory; simply set the pointer to it
 			Com_Printf("Using existing in-memory database\n");
 			dbPtr = (sqlite3 *)existingDbAddress;
+			usingExistingFromMemory = qtrue;
 		}
 		else {
 			// server starting up for first time this session; open db in memory
@@ -119,56 +146,33 @@ void G_DBLoadDatabase( void )
 	}
 
 	// register trace callback if needed
-	if ( g_traceSQL.integer ) {
-		sqlite3_trace_v2( dbPtr, SQLITE_TRACE_STMT | SQLITE_TRACE_PROFILE, TraceCallback, NULL );
+	if (g_traceSQL.integer)
+		sqlite3_trace_v2(dbPtr, SQLITE_TRACE_STMT | SQLITE_TRACE_PROFILE, TraceCallback, NULL);
+	else
+		sqlite3_trace_v2(dbPtr, 0, NULL, NULL);
+
+	if (!usingExistingFromMemory) {
+		// do some more stuff if loading the db for the first time this session
+
+		char s[16] = { 0 };
+		// more db options
+		sqlite3_exec(dbPtr, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
+
+		// setup tables
+		sqlite3_exec(dbPtr, sqlCreateTables, 0, 0, 0);
+
+		// get version and call the upgrade routine
+
+		G_DBGetMetadata("schema_version", s, sizeof(s));
+
+		int version = VALIDSTRING(s) ? atoi(s) : 0;
+		G_DBUpgradeDatabaseSchema(version, dbPtr);
+
+		G_DBSetMetadata("schema_version", DB_SCHEMA_VERSION_STR);
 	}
 
-	// more db options
-	sqlite3_exec( dbPtr, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL );
-
-	// setup tables
-	sqlite3_exec( dbPtr, sqlCreateTables, 0, 0, 0 );
-
-	// get version and call the upgrade routine
-
-	char s[16];
-	G_DBGetMetadata( "schema_version", s, sizeof( s ) );
-
-	int version = VALIDSTRING( s ) ? atoi( s ) : 0;
-	G_DBUpgradeDatabaseSchema( version, dbPtr );
-
-	G_DBSetMetadata( "schema_version", DB_SCHEMA_VERSION_STR );
-
-	// optimize the db if needed
-
-	G_DBGetMetadata( "last_optimize", s, sizeof( s ) );
-
-	const time_t currentTime = time( NULL );
-	time_t last_optimize = VALIDSTRING( s ) ? strtoll( s, NULL, 10 ) : 0;
-
-	if ( last_optimize + DB_OPTIMIZE_INTERVAL < currentTime ) {
-		Com_Printf( "Automatically optimizing database...\n" );
-
-		sqlite3_exec( dbPtr, "PRAGMA optimize;", NULL, NULL, NULL );
-
-		G_DBSetMetadata( "last_optimize", va( "%lld", currentTime ) );
-	}
-
-	// if the server is empty, vacuum the db if needed
-
-	if ( !level.numConnectedClients ) {
-		G_DBGetMetadata( "last_vacuum", s, sizeof( s ) );
-
-		time_t last_autoclean = VALIDSTRING( s ) ? strtoll( s, NULL, 10 ) : 0;
-
-		if ( last_autoclean + DB_VACUUM_INTERVAL < currentTime ) {
-			Com_Printf( "Automatically running vacuum on database...\n" );
-
-			sqlite3_exec( dbPtr, "VACUUM;", NULL, NULL, NULL );
-
-			G_DBSetMetadata( "last_vacuum", va( "%lld", currentTime ) );
-		}
-	}
+	if (ServerIsEmpty())
+		G_DBOptimizeDatabaseIfNeeded();
 }
 
 void G_SaveDatabase(void) {
