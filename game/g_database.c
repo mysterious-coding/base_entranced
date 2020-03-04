@@ -45,6 +45,11 @@ static int TraceCallback( unsigned int type, void* ctx, void* ptr, void* info ) 
 }
 
 void G_DBOptimizeDatabaseIfNeeded(void) {
+	if (!dbPtr) {
+		assert(qfalse);
+		return;
+	}
+
 	const time_t currentTime = time(NULL);
 	char s[16];
 
@@ -240,7 +245,8 @@ void G_DBGetMetadata( const char *key,
 	rc = sqlite3_step( statement );
 	while ( rc == SQLITE_ROW ) {
 		const char *value = ( const char* )sqlite3_column_text( statement, 0 );
-		Q_strncpyz( outValue, value, outValueBufSize );
+		if (value)
+			Q_strncpyz( outValue, value, outValueBufSize );
 
 		rc = sqlite3_step( statement );
 	}

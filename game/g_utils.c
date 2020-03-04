@@ -3220,6 +3220,8 @@ qboolean FileExists(const char *fileName) {
 qboolean ServerIsEmpty(void) {
 	for (int i = 0; i < level.maxclients; i++) {
 		gentity_t *ent = &g_entities[i];
+		if (ent->inuse && !(ent->r.svFlags & SVF_BOT))
+			return qfalse;
 		if (ent->client && ent->client->pers.connected != CON_DISCONNECTED && !(ent->r.svFlags & SVF_BOT))
 			return qfalse;
 	}
