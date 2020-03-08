@@ -3217,6 +3217,7 @@ qboolean FileExists(const char *fileName) {
 }
 
 // returns qtrue if server is empty or only populated by bots
+// warning: this can erroneously return qtrue during G_InitGame
 qboolean ServerIsEmpty(void) {
 	for (int i = 0; i < level.maxclients; i++) {
 		gentity_t *ent = &g_entities[i];

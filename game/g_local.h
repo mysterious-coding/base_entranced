@@ -1402,8 +1402,6 @@ typedef struct {
 	char			mapname[MAX_STRING_CHARS];
 	siegeMap_t		siegeMap;
 
-	qboolean		serverEngineSupportsSetUserinfoWithoutUpdate;
-
 	fileHandle_t	logFile;
 	fileHandle_t	hackLogFile;
 	fileHandle_t	DBLogFile;
@@ -2792,7 +2790,7 @@ extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
 extern vmCvar_t	   g_siegeRespawnAutoChange;
 
-extern vmCvar_t    lastMapName;
+extern vmCvar_t    g_lastMapName;
 
 #define MAX_CUSTOM_VOTES	(10)
 extern vmCvar_t    g_customVotes;

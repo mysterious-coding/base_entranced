@@ -62,6 +62,9 @@ void G_DBOptimizeDatabaseIfNeeded(void) {
 		sqlite3_exec(dbPtr, "PRAGMA optimize;", NULL, NULL, NULL);
 		G_DBSetMetadata("last_optimize", va("%lld", currentTime));
 	}
+	else {
+		Com_DebugPrintf("Database does not need to be optimized.\n");
+	}
 
 	// vacuum
 	G_DBGetMetadata("last_vacuum", s, sizeof(s));
@@ -71,6 +74,9 @@ void G_DBOptimizeDatabaseIfNeeded(void) {
 		Com_Printf("Running vacuum on database...\n");
 		sqlite3_exec(dbPtr, "VACUUM;", NULL, NULL, NULL);
 		G_DBSetMetadata("last_vacuum", va("%lld", currentTime));
+	}
+	else {
+		Com_DebugPrintf("Database does not need to be vacuumed.\n");
 	}
 }
 
@@ -146,6 +152,7 @@ void G_DBLoadDatabase( void )
 
 	// use disk db by default in any case
 	if ( !dbPtr ) {
+		usingExistingFromMemory = qfalse;
 		Com_Printf( "Using on-disk database\n" );
 		dbPtr = diskDb;
 	}
@@ -157,7 +164,9 @@ void G_DBLoadDatabase( void )
 		sqlite3_trace_v2(dbPtr, 0, NULL, NULL);
 
 	if (!usingExistingFromMemory) {
-		// do some more stuff if loading the db for the first time this session
+		// do some more stuff if loading the db from disk
+
+		Com_DebugPrintf("Loaded from disk, so running extra routines (foreign_keys, etc.)\n");
 
 		char s[16] = { 0 };
 		// more db options
@@ -175,9 +184,6 @@ void G_DBLoadDatabase( void )
 
 		G_DBSetMetadata("schema_version", DB_SCHEMA_VERSION_STR);
 	}
-
-	if (ServerIsEmpty())
-		G_DBOptimizeDatabaseIfNeeded();
 }
 
 void G_SaveDatabase(void) {

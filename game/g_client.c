@@ -2616,7 +2616,11 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	if (g_gametype.integer == GT_SIEGE && g_delayClassUpdate.integer && !(ent->r.svFlags & SVF_BOT)) {
-		trap_SetConfigstringNoUpdate(CS_PLAYERS + clientNum, s); // set it on the server without updating everyone (if possible)
+
+		// first, set their true config string on the server without updating everyone
+		// we assume that the engine (openjkded_b_e) supports this
+		trap_SetConfigstringNoUpdate(CS_PLAYERS + clientNum, s);
+
 		qboolean pregame = (level.inSiegeCountdown || level.siegeStage == SIEGESTAGE_PREROUND1 || level.siegeStage == SIEGESTAGE_PREROUND2) ? qtrue : qfalse;
 		for (int i = 0; i < MAX_CLIENTS; i++) {
 			if (level.clients[i].pers.connected == CON_DISCONNECTED || g_entities[i].r.svFlags & SVF_BOT) {
@@ -2645,20 +2649,21 @@ void ClientUserinfoChanged( int clientNum ) {
 			}
 #endif
 
-			// if the engine supports setting user info without immediately updating,
-			// then we don't need to send another one to overwrite the one sent above
-			if (level.serverEngineSupportsSetUserinfoWithoutUpdate) {
-				if (client->sess.lastInfoSent[i][0] && !Q_stricmp(s, client->sess.lastInfoSent[i]))
-					continue; // client i already got this exact info from us last time; don't bother
-				Q_strncpyz(client->sess.lastInfoSent[i], s, sizeof(client->sess.lastInfoSent[i]));
+			// we assume the engine (openjkded_b_e) supports setting user info without immediately updating,
+			// so we don't need to send an additional fake configstring one to overwrite the real one sent above
+			if (client->sess.lastInfoSent[i][0] && !Q_stricmp(s, client->sess.lastInfoSent[i])) {
+				// client i already got this exact info from us last time; don't bother
+				continue;
 			}
-
-			// send whatever to client i
-			G_SendConfigstring(i, CS_PLAYERS + clientNum, s, qtrue);
+			else {
+				// send whatever to client i
+				Q_strncpyz(client->sess.lastInfoSent[i], s, sizeof(client->sess.lastInfoSent[i]));
+				G_SendConfigstring(i, CS_PLAYERS + clientNum, s, qtrue);
+			}
 		}
 	}
 	else {
-		// crappy server or gametype; just do normal behavior
+		// crappy server or g_delayClassUpdate 0; just do normal behavior
 		trap_SetConfigstring(CS_PLAYERS + clientNum, s);
 	}
 
@@ -5052,6 +5057,7 @@ void ClientDisconnect( int clientNum ) {
 
 	G_ClearClientLog(clientNum);
 
+	// whenever someone disconnects, optimize and save the db if the server has become empty
 	if (ServerIsEmpty()) {
 		G_DBOptimizeDatabaseIfNeeded();
 		G_SaveDatabase();

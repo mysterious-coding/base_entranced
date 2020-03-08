@@ -212,7 +212,7 @@ vmCvar_t	d_debugImprovedHoming;
 vmCvar_t	g_braindeadBots;
 vmCvar_t	g_siegeRespawnAutoChange;
 
-vmCvar_t	lastMapName;
+vmCvar_t	g_lastMapName;
 
 vmCvar_t	g_customVotes;
 vmCvar_t	g_customVote1_command;
@@ -1047,7 +1047,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_braindeadBots, "g_braindeadBots", "0", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_siegeRespawnAutoChange, "g_siegeRespawnAutoChange", "1", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
+	{ &g_lastMapName, "g_lastMapName", "", CVAR_TEMP | CVAR_ROM, 0, qtrue },
 
 	{ &g_customVotes, "g_customVotes", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_customVote1_command, "g_customVote1_command", "map_restart", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
@@ -2059,12 +2059,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	// if we changed siege maps, reset back to round 1
 	char lastMapName[MAX_QPATH] = { 0 };
-	trap_Cvar_VariableStringBuffer("lastMapName", lastMapName, sizeof(lastMapName));
+	trap_Cvar_VariableStringBuffer("g_lastMapName", lastMapName, sizeof(lastMapName));
 	int gametype = trap_Cvar_VariableIntegerValue("g_gametype");
 	int siegeTeamSwitch = trap_Cvar_VariableIntegerValue("g_siegeTeamSwitch");
 	if (gametype == GT_SIEGE && siegeTeamSwitch && lastMapName[0] && Q_stricmp(lastMapName, level.mapname))
 		SiegeClearSwitchData();
-	trap_Cvar_Set("lastMapName", level.mapname);
+	trap_Cvar_Set("g_lastMapName", level.mapname);
 
 #ifdef _XBOX
 	if(restart) {
@@ -2107,13 +2107,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.startTime = levelTime;
 
 	InitializeMapName();
-
-	char serverFeatures[MAX_STRING_CHARS];
-	trap_Cvar_VariableStringBuffer("b_e_server_features", serverFeatures, sizeof(serverFeatures));
-	if (serverFeatures[0] && atoi(serverFeatures) & 1)
-		level.serverEngineSupportsSetUserinfoWithoutUpdate = qtrue;
-
-	trap_Cvar_Set("b_e_game_features", "1"); // 1 == supports setting configstring without immediately updating it for clients
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
@@ -2374,8 +2367,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_BroadcastServerFeatureList(-1);
 
-	if (lastMapName[0] && Q_stricmp(lastMapName, level.mapname))
-		G_SaveDatabase(); // the map has been changed, so save db to disk
+	// optimize and save the db if it's the first map of the session or the map has been changed
+	if (!lastMapName[0] || Q_stricmp(lastMapName, level.mapname)) {
+		G_DBOptimizeDatabaseIfNeeded();
+		G_SaveDatabase();
+	}
 
 #ifdef _DEBUG
 	Com_Printf("Build date: %s %s\n", __DATE__, __TIME__);
