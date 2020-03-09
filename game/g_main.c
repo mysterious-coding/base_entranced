@@ -568,11 +568,6 @@ vmCvar_t     g_strafejump_mod;
 vmCvar_t	g_antiWallhack;
 vmCvar_t	g_wallhackMaxTraces;
 
-vmCvar_t	g_inMemoryDB;
-vmCvar_t	dbLocation;
-
-vmCvar_t	g_traceSQL;
-
 //allowing/disabling vote types
 vmCvar_t	g_allow_vote_customTeams;
 vmCvar_t    g_allow_vote_gametype;
@@ -946,11 +941,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_antiWallhack,	"g_antiWallhack"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_wallhackMaxTraces,	"g_wallhackMaxTraces"	, "1000"	, CVAR_ARCHIVE, 0, qtrue },
-
-	{ &g_inMemoryDB, "g_inMemoryDB", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
-	{ &dbLocation, "dbLocation", "", CVAR_ROM | CVAR_TEMP, 0, qfalse },
-
-	{ &g_traceSQL, "g_traceSQL", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse },
 
     { &g_restart_countdown, "g_restart_countdown", "0", CVAR_ARCHIVE, 0, qtrue }, 
 
@@ -2367,10 +2357,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_BroadcastServerFeatureList(-1);
 
-	// optimize and save the db if it's the first map of the session or the map has been changed
-	if (!lastMapName[0] || Q_stricmp(lastMapName, level.mapname)) {
-		G_DBOptimizeDatabaseIfNeeded();
-		G_SaveDatabase();
+	// optimize and save the db if the map has been changed
+	if (lastMapName[0] && Q_stricmp(lastMapName, level.mapname)) {
+		if (G_DBOptimizeDatabaseIfNeeded())
+			trap_SaveDB();
 	}
 
 #ifdef _DEBUG
@@ -2477,8 +2467,6 @@ void G_ShutdownGame( int restart ) {
 	ListClear(&level.siegeHelpList);
 
     //G_LogDbLogLevelEnd(level.db.levelId);
-
-	G_DBUnloadDatabase();
 
 	UnpatchEngine();
 }
@@ -6292,6 +6280,16 @@ void G_RunFrame( int levelTime ) {
 			}
 		}
 		lastTime = level.time;
+	}
+
+	// if someone left a few seconds ago and the server is still empty, save the database
+	// we use a delay to prevent instantly saving if someone types /reconnect while completely alone on the server
+	if (level.playerLeftTime && trap_Milliseconds() >= level.playerLeftTime + 5000) {
+		if (ServerIsEmpty()) {
+			G_DBOptimizeDatabaseIfNeeded();
+			trap_SaveDB();
+		}
+		level.playerLeftTime = 0;
 	}
 
 	level.wallhackTracesDone = 0; // reset the traces for the next ClientThink wave

@@ -1518,6 +1518,16 @@ void trap_OutOfBandPrint(int clientNum, const char* text)
 {
 	syscall(G_OOBPRINT, clientNum, text);
 }
+
+// returns qtrue if this is the first time we are ever getting it this session,
+// or if we changed between different db files (i.e., we switched mods/gametypes during a single session)
+qboolean trap_GetDB(void **ptr) {
+	return (qboolean)syscall(G_DB_GET, ptr);
+}
+
+void trap_SaveDB(void) {
+	syscall(G_DB_SAVE);
+}
 #endif
 
 #include "namespace_end.h"

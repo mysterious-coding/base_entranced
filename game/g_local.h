@@ -1674,6 +1674,7 @@ typedef struct {
 #endif
 
 	qboolean	endedWithEndMatchCommand;
+	int			playerLeftTime;
 
 } level_locals_t;
 
@@ -2640,11 +2641,6 @@ extern vmCvar_t     g_strafejump_mod;
 extern vmCvar_t     g_antiWallhack;
 extern vmCvar_t		g_wallhackMaxTraces;
 
-extern vmCvar_t     g_inMemoryDB;
-extern vmCvar_t		dbLocation;
-
-extern vmCvar_t		g_traceSQL;
-
 extern vmCvar_t     g_hackLog;
 
 extern vmCvar_t     g_fixPitKills;
@@ -3325,6 +3321,8 @@ void trap_Bot_CalculatePaths(int rmg);
 #ifdef NEW_TRAP_CALLS
 // new base_enhanced trap calls
 void trap_OutOfBandPrint(int clientNum, const char* text);
+qboolean trap_GetDB(void **ptr);
+void trap_SaveDB(void);
 #endif
 
 #include "namespace_end.h"

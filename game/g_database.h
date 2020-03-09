@@ -9,10 +9,8 @@
 #define DB_OPTIMIZE_INTERVAL	( 60*60*3 ) // every 3 hours
 #define DB_VACUUM_INTERVAL		( 60*60*24*7 ) // every week
 
-void G_DBOptimizeDatabaseIfNeeded(void);
+qboolean G_DBOptimizeDatabaseIfNeeded(void);
 void G_DBLoadDatabase( void );
-void G_SaveDatabase(void);
-void G_DBUnloadDatabase( void );
 
 qboolean G_DBUpgradeDatabaseSchema( int versionFrom, void* db );
 

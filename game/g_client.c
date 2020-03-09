@@ -2752,6 +2752,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	qboolean	hasSmod;
 	qboolean	canJoinLater = qtrue;
 
+	level.playerLeftTime = 0;
+
 	trap_Cvar_VariableStringBuffer("g_cleverFakeDetection",	cleverFakeDetection, 24);
 	ent = &g_entities[ clientNum ];
 	if (firstTime && clientNum < MAX_CLIENTS) {
@@ -5057,11 +5059,8 @@ void ClientDisconnect( int clientNum ) {
 
 	G_ClearClientLog(clientNum);
 
-	// whenever someone disconnects, optimize and save the db if the server has become empty
-	if (ServerIsEmpty()) {
-		G_DBOptimizeDatabaseIfNeeded();
-		G_SaveDatabase();
-	}
+	// whenever someone disconnects, wait a few seconds and then optimize and save the db if the server is empty
+	level.playerLeftTime = trap_Milliseconds();
 }   
 
 
