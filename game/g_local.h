@@ -1402,6 +1402,8 @@ typedef struct {
 	char			mapname[MAX_STRING_CHARS];
 	siegeMap_t		siegeMap;
 
+	qboolean		serverEngineSupportsSetUserinfoWithoutUpdate;
+
 	fileHandle_t	logFile;
 	fileHandle_t	hackLogFile;
 	fileHandle_t	DBLogFile;
@@ -1674,7 +1676,6 @@ typedef struct {
 #endif
 
 	qboolean	endedWithEndMatchCommand;
-	int			playerLeftTime;
 
 } level_locals_t;
 
@@ -1887,8 +1888,6 @@ void LivePugRuined(const char *reason, qboolean announce);
 void SiegeClearSwitchData(void);
 
 qboolean FileExists(const char *fileName);
-
-qboolean ServerIsEmpty(void);
 
 //
 // g_object.c
@@ -2641,6 +2640,10 @@ extern vmCvar_t     g_strafejump_mod;
 extern vmCvar_t     g_antiWallhack;
 extern vmCvar_t		g_wallhackMaxTraces;
 
+extern vmCvar_t     g_inMemoryDB;
+
+extern vmCvar_t		g_traceSQL;
+
 extern vmCvar_t     g_hackLog;
 
 extern vmCvar_t     g_fixPitKills;
@@ -2786,7 +2789,7 @@ extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
 extern vmCvar_t	   g_siegeRespawnAutoChange;
 
-extern vmCvar_t    g_lastMapName;
+extern vmCvar_t    lastMapName;
 
 #define MAX_CUSTOM_VOTES	(10)
 extern vmCvar_t    g_customVotes;
@@ -3321,8 +3324,6 @@ void trap_Bot_CalculatePaths(int rmg);
 #ifdef NEW_TRAP_CALLS
 // new base_enhanced trap calls
 void trap_OutOfBandPrint(int clientNum, const char* text);
-qboolean trap_GetDB(void **ptr);
-void trap_SaveDB(void);
 #endif
 
 #include "namespace_end.h"

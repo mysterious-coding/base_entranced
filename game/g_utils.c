@@ -3215,16 +3215,3 @@ qboolean FileExists(const char *fileName) {
 	trap_FS_FCloseFile(f);
 	return qtrue;
 }
-
-// returns qtrue if server is empty or only populated by bots
-// warning: this can erroneously return qtrue during G_InitGame
-qboolean ServerIsEmpty(void) {
-	for (int i = 0; i < level.maxclients; i++) {
-		gentity_t *ent = &g_entities[i];
-		if (ent->inuse && !(ent->r.svFlags & SVF_BOT))
-			return qfalse;
-		if (ent->client && ent->client->pers.connected != CON_DISCONNECTED && !(ent->r.svFlags & SVF_BOT))
-			return qfalse;
-	}
-	return qtrue;
-}

@@ -585,9 +585,7 @@ Ghoul2 Insert End
 
 #ifdef NEW_TRAP_CALLS
 	// new base_enhanced trap calls
-	G_OOBPRINT = 1337,
-	G_DB_GET,
-	G_DB_SAVE
+	G_OOBPRINT = 1337
 #endif
 
 } gameImport_t;

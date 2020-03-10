@@ -4,138 +4,189 @@
 
 #include "g_database_schema.h"
 
+static sqlite3* diskDb = NULL;
 static sqlite3* dbPtr = NULL;
 
-static void ErrorCallback(void *ctx, int code, const char *msg) {
-	Com_Printf("B_E: SQL error (code %d): %s\n", code, msg);
+static void ErrorCallback( void* ctx, int code, const char* msg ) {
+	Com_Printf( "SQL error (code %d): %s\n", code, msg );
 }
 
-static int TraceCallback(unsigned int type, void *ctx, void *ptr, void *info) {
-	if (!ptr || !info || !trap_Cvar_VariableIntegerValue("sv_traceSQL")) {
+static int TraceCallback( unsigned int type, void* ctx, void* ptr, void* info ) {
+	if ( !ptr || !info ) {
 		return 0;
 	}
 
-	if (type == SQLITE_TRACE_STMT) {
-		char *sql = (char *)info;
+	if ( type == SQLITE_TRACE_STMT ) {
+		char* sql = ( char* )info;
 
-		Com_Printf("B_E: executing SQL: \n");
+		Com_Printf( "Executing SQL: \n" );
 
-		if (!Q_stricmpn(sql, "--", 2)) {
+		if ( !Q_stricmpn( sql, "--", 2 ) ) {
 			// a comment, which means this is a trigger, log it directly
-			Com_Printf("--------------------------------------------------------------------------------\n");
-			Com_Printf("%s\n", sql);
-			Com_Printf("--------------------------------------------------------------------------------\n");
-		}
-		else {
+			Com_Printf( "--------------------------------------------------------------------------------\n" );
+			Com_Printf( "%s\n", sql );
+			Com_Printf( "--------------------------------------------------------------------------------\n" );
+		} else {
 			// expand the sql before logging it so we can see parameters
-			sqlite3_stmt *stmt = (sqlite3_stmt *)ptr;
-			sql = sqlite3_expanded_sql(stmt);
-			Com_Printf("--------------------------------------------------------------------------------\n");
-			Com_Printf("%s\n", sql);
-			Com_Printf("--------------------------------------------------------------------------------\n");
-			sqlite3_free(sql);
+			sqlite3_stmt* stmt = ( sqlite3_stmt* )ptr;
+			sql = sqlite3_expanded_sql( stmt );
+			Com_Printf( "--------------------------------------------------------------------------------\n" );
+			Com_Printf( "%s\n", sql );
+			Com_Printf( "--------------------------------------------------------------------------------\n" );
+			sqlite3_free( sql );
 		}
-	}
-	else if (type == SQLITE_TRACE_PROFILE) {
-		unsigned long long nanoseconds = *((unsigned long long *)info);
+	} else if ( type == SQLITE_TRACE_PROFILE ) {
+		unsigned long long nanoseconds = *( ( unsigned long long* )info );
 		unsigned int ms = nanoseconds / 1000000;
-		Com_Printf("Executed in %ums\n", ms);
+		Com_Printf( "Executed in %ums\n", ms );
 	}
 
 	return 0;
 }
 
-// returns qtrue if anything was actually done
-qboolean G_DBOptimizeDatabaseIfNeeded(void) {
-	if (!dbPtr) {
-		assert(qfalse);
-		return qfalse;
-	}
-
-	qboolean result = qfalse;
-	const time_t currentTime = time(NULL);
-	char s[16];
-
-	// optimize
-	G_DBGetMetadata("last_optimize", s, sizeof(s));
-	time_t last_optimize = VALIDSTRING(s) ? strtoll(s, NULL, 10) : 0;
-
-	if (last_optimize + DB_OPTIMIZE_INTERVAL < currentTime) {
-		Com_Printf("Optimizing database...\n");
-		sqlite3_exec(dbPtr, "PRAGMA optimize;", NULL, NULL, NULL);
-		G_DBSetMetadata("last_optimize", va("%lld", currentTime));
-		result = qtrue;
-	}
-	else {
-		Com_DebugPrintf("Database does not need to be optimized.\n");
-	}
-
-	// vacuum
-	G_DBGetMetadata("last_vacuum", s, sizeof(s));
-	time_t last_autoclean = VALIDSTRING(s) ? strtoll(s, NULL, 10) : 0;
-
-	if (last_autoclean + DB_VACUUM_INTERVAL < currentTime) {
-		Com_Printf("Running vacuum on database...\n");
-		sqlite3_exec(dbPtr, "VACUUM;", NULL, NULL, NULL);
-		G_DBSetMetadata("last_vacuum", va("%lld", currentTime));
-		result = qtrue;
-	}
-	else {
-		Com_DebugPrintf("Database does not need to be vacuumed.\n");
-	}
-
-	return result;
-}
-
 void G_DBLoadDatabase( void )
 {
-	qboolean firstTimeLoad = trap_GetDB(&dbPtr);
-	if (!dbPtr) {
-		Com_Printf("G_DBLoadDatabase: unable to get database from server executable!\n");
+    int rc;
+
+	// db options
+
+	sqlite3_config( SQLITE_CONFIG_SINGLETHREAD ); // we don't need multi threading
+	sqlite3_config( SQLITE_CONFIG_MEMSTATUS, 0 ); // we don't need allocation statistics
+	sqlite3_config( SQLITE_CONFIG_LOG, ErrorCallback, NULL ); // error logging
+
+	// initialize db
+
+    rc = sqlite3_initialize();
+
+	if ( rc != SQLITE_OK ) {
+		Com_Printf( "Failed to initialize SQLite3 (code: %d)\n", rc );
 		return;
 	}
 
-	int rc = sqlite3_initialize();
-	if (rc != SQLITE_OK) {
-		Com_Printf("G_DBLoadDatabase: failed to initialize SQLite3 (code: %d)!\n", rc);
-		dbPtr = NULL;
+    rc = sqlite3_open_v2( DB_FILENAME, &diskDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL );
+
+	if ( rc != SQLITE_OK ) {
+		Com_Printf( "Failed to open database file "DB_FILENAME" (code: %d)\n", rc );
 		return;
 	}
 
-	sqlite3_config(SQLITE_CONFIG_SINGLETHREAD); // we don't need multi threading
-	sqlite3_config(SQLITE_CONFIG_MEMSTATUS, 0); // we don't need allocation statistics
-	sqlite3_config(SQLITE_CONFIG_LOG, ErrorCallback, NULL); // error logging
-	if (trap_Cvar_VariableIntegerValue("sv_traceSQL"))
-		sqlite3_trace_v2(dbPtr, SQLITE_TRACE_STMT | SQLITE_TRACE_PROFILE, TraceCallback, NULL);
-	else
-		sqlite3_trace_v2(dbPtr, 0, NULL, NULL);
+	Com_Printf( "Successfully opened database file "DB_FILENAME"\n" );
 
-	if (!firstTimeLoad) {
-		Com_Printf("G_DBLoadDatabase: successfully loaded database from server executable.\n");
-		return; // we're loaded and ready to go
+	if ( g_inMemoryDB.integer ) {
+		Com_Printf( "Using in-memory database\n" );
+
+		// open db in memory
+		sqlite3* memoryDb = NULL;
+		rc = sqlite3_open_v2( ":memory:", &memoryDb, SQLITE_OPEN_READWRITE, NULL );
+
+		if ( rc == SQLITE_OK ) {
+			sqlite3_backup *backup = sqlite3_backup_init( memoryDb, "main", diskDb, "main" );
+			if ( backup ) {
+				rc = sqlite3_backup_step( backup, -1 );
+				if ( rc == SQLITE_DONE ) {
+					rc = sqlite3_backup_finish( backup );
+					if ( rc == SQLITE_OK ) {
+						dbPtr = memoryDb;
+					}
+				}
+			}
+		}
+
+		if ( !dbPtr ) {
+			Com_Printf( "WARNING: Failed to load database into memory!\n" );
+		}
 	}
 
-	// if we got here, it's the very first time loading the db this session, so do some extra init stuff
-	Com_DebugPrintf("First time load, so running extra routines (foreign_keys, etc.)\n");
+	// use disk db by default in any case
+	if ( !dbPtr ) {
+		Com_Printf( "Using on-disk database\n" );
+		dbPtr = diskDb;
+	}
+
+	// register trace callback if needed
+	if ( g_traceSQL.integer ) {
+		sqlite3_trace_v2( dbPtr, SQLITE_TRACE_STMT | SQLITE_TRACE_PROFILE, TraceCallback, NULL );
+	}
 
 	// more db options
-	sqlite3_exec(dbPtr, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
+	sqlite3_exec( dbPtr, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL );
 
 	// setup tables
-	sqlite3_exec(dbPtr, sqlCreateTables, 0, 0, 0);
+	sqlite3_exec( dbPtr, sqlCreateTables, 0, 0, 0 );
 
 	// get version and call the upgrade routine
-	char s[16] = { 0 };
-	G_DBGetMetadata("schema_version", s, sizeof(s));
-	int version = VALIDSTRING(s) ? atoi(s) : 0;
-	G_DBUpgradeDatabaseSchema(version, dbPtr);
-	G_DBSetMetadata("schema_version", DB_SCHEMA_VERSION_STR);
 
-	G_DBOptimizeDatabaseIfNeeded();
+	char s[16];
+	G_DBGetMetadata( "schema_version", s, sizeof( s ) );
 
-	trap_SaveDB();
+	int version = VALIDSTRING( s ) ? atoi( s ) : 0;
+	G_DBUpgradeDatabaseSchema( version, dbPtr );
 
-	Com_Printf("G_DBLoadDatabase: successfully loaded database from server executable.\n");
+	G_DBSetMetadata( "schema_version", DB_SCHEMA_VERSION_STR );
+
+	// optimize the db if needed
+
+	G_DBGetMetadata( "last_optimize", s, sizeof( s ) );
+
+	const time_t currentTime = time( NULL );
+	time_t last_optimize = VALIDSTRING( s ) ? strtoll( s, NULL, 10 ) : 0;
+
+	if ( last_optimize + DB_OPTIMIZE_INTERVAL < currentTime ) {
+		Com_Printf( "Automatically optimizing database...\n" );
+
+		sqlite3_exec( dbPtr, "PRAGMA optimize;", NULL, NULL, NULL );
+
+		G_DBSetMetadata( "last_optimize", va( "%lld", currentTime ) );
+	}
+
+	// if the server is empty, vacuum the db if needed
+
+	if ( !level.numConnectedClients ) {
+		G_DBGetMetadata( "last_vacuum", s, sizeof( s ) );
+
+		time_t last_autoclean = VALIDSTRING( s ) ? strtoll( s, NULL, 10 ) : 0;
+
+		if ( last_autoclean + DB_VACUUM_INTERVAL < currentTime ) {
+			Com_Printf( "Automatically running vacuum on database...\n" );
+
+			sqlite3_exec( dbPtr, "VACUUM;", NULL, NULL, NULL );
+
+			G_DBSetMetadata( "last_vacuum", va( "%lld", currentTime ) );
+		}
+	}
+
+	
+}
+
+void G_DBUnloadDatabase( void )
+{
+	int rc;
+
+	if ( dbPtr != diskDb ) {
+		Com_Printf( "Saving in-memory database changes to disk\n" );
+
+		// we are using in memory db, save changes to disk
+		qboolean success = qfalse;
+		sqlite3_backup *backup = sqlite3_backup_init( diskDb, "main", dbPtr, "main" );
+		if ( backup ) {
+			rc = sqlite3_backup_step( backup, -1 );
+			if ( rc == SQLITE_DONE ) {
+				rc = sqlite3_backup_finish( backup );
+				if ( rc == SQLITE_OK ) {
+					success = qtrue;
+				}
+			}
+		}
+
+		if ( !success ) {
+			Com_Printf( "WARNING: Failed to backup in-memory database! Changes from this session have NOT been saved!\n" );
+		}
+
+		sqlite3_close( dbPtr );
+	}
+
+	sqlite3_close( diskDb );
+	diskDb = dbPtr = NULL;
 }
 
 // =========== METADATA ========================================================
@@ -161,8 +212,7 @@ void G_DBGetMetadata( const char *key,
 	rc = sqlite3_step( statement );
 	while ( rc == SQLITE_ROW ) {
 		const char *value = ( const char* )sqlite3_column_text( statement, 0 );
-		if (value)
-			Q_strncpyz( outValue, value, outValueBufSize );
+		Q_strncpyz( outValue, value, outValueBufSize );
 
 		rc = sqlite3_step( statement );
 	}
