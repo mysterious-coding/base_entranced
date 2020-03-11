@@ -5121,7 +5121,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (targ->client->ps.clientNum < MAX_CLIENTS && targ->client->ps.m_iVehicleNum)
 		{
 			gentity_t *veh = &g_entities[targ->client->ps.m_iVehicleNum];
-			if (veh->m_pVehicle && veh->health > 0)
+			if (veh->m_pVehicle/* && veh->health > 0*/) // duo: fix for bug where killing shot on vehicle can also damage pilot
 			{
 				if (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER ||
 					veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
