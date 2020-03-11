@@ -2687,6 +2687,7 @@ static void TokenizeTeamChat( gentity_t *ent, char *dest, const char *src, size_
 	dest[i] = '\0';
 }
 
+void Cmd_CallVote_f(gentity_t *ent, int pause);
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j;
 	gentity_t	*other;
@@ -2717,6 +2718,10 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		mode = SAY_ALL;
 		trap_SendServerCommand(ent - g_entities, va("print \"You are on probation; your spec teamchat has been redirected into allchat.\n\""));
 	}
+
+	// allow typing "pause" in the chat to quickly call a pause vote
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && mode != SAY_TELL && !Q_stricmpn(chatText, "pause", 5) && strlen(chatText) <= 6 && g_quickPauseChat.integer) // allow a small typo at the end
+		Cmd_CallVote_f(ent, PAUSE_PAUSED);
 
 	switch ( mode ) {
 	default:
@@ -3972,7 +3977,7 @@ int G_GetArenaNumber( const char *map );
 
 static int      g_votedCounts[MAX_ARENAS];
 
-void Cmd_CallVote_f( gentity_t *ent ) {
+void Cmd_CallVote_f( gentity_t *ent, int pause ) {
 	int		i;
 	static char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_CVAR_VALUE_STRING];
@@ -4031,6 +4036,11 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	trap_Argv( 1, arg1, sizeof( arg1 ) );
 	trap_Argv( 2, arg2, sizeof( arg2 ) );
     argc = trap_Argc();
+
+	if (pause) {
+		Q_strncpyz(arg1, pause == PAUSE_PAUSED ? "pause" : "unpause", sizeof(arg1));
+		arg2[0] = '\0';
+	}
 
 	// *CHANGE 8a* anti callvote bug
 	if ((g_protectCallvoteHack.integer && (strchr( arg1, '\n' ) || strchr( arg2, '\n' ) ||	strchr( arg1, '\r' ) || strchr( arg2, '\r' ))) ) {
@@ -9347,6 +9357,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_multiVoteRNG);
 	PrintCvar(g_nextmapWarning);
 	PrintCvar(g_notifyNotLive);
+	PrintCvar(g_quickPauseChat);
 	PrintCvar(g_randomConeReflection);
 	PrintCvar(g_requireMoreCustomTeamVotes);
 	PrintCvar(g_rocketSurfing);
@@ -10140,8 +10151,12 @@ void ClientCommand( int clientNum ) {
 		Cmd_GetAnim_f(ent);
 	else if (Q_stricmp(cmd, "killtarget") == 0)
 		Cmd_KillTarget_f(ent);
-	else if (Q_stricmp (cmd, "callvote") == 0)
-		Cmd_CallVote_f (ent);
+	else if (Q_stricmp(cmd, "callvote") == 0)
+		Cmd_CallVote_f(ent, PAUSE_NONE);
+	else if (!Q_stricmp(cmd, "pause"))
+		Cmd_CallVote_f(ent, PAUSE_PAUSED); // allow "pause" command as alias for "callvote pause"
+	else if (!Q_stricmp(cmd, "unpause"))
+		Cmd_CallVote_f(ent, PAUSE_UNPAUSING); // allow "unpause" command as alias for "callvote unpause"
 	else if (Q_stricmp (cmd, "vote") == 0)
 		Cmd_Vote_f (ent);
 	else if (Q_stricmp(cmd, "callteamvote") == 0)

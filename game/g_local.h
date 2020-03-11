@@ -2788,6 +2788,7 @@ extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
 extern vmCvar_t	   g_siegeRespawnAutoChange;
+extern vmCvar_t    g_quickPauseChat;
 
 extern vmCvar_t    lastMapName;
 

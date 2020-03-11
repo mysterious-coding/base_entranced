@@ -211,6 +211,7 @@ vmCvar_t	g_improvedHomingThreshold;
 vmCvar_t	d_debugImprovedHoming;
 vmCvar_t	g_braindeadBots;
 vmCvar_t	g_siegeRespawnAutoChange;
+vmCvar_t	g_quickPauseChat;
 
 vmCvar_t	lastMapName;
 
@@ -1044,6 +1045,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &d_debugImprovedHoming, "d_debugImprovedHoming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_braindeadBots, "g_braindeadBots", "0", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_siegeRespawnAutoChange, "g_siegeRespawnAutoChange", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_quickPauseChat, "g_quickPauseChat", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
 
@@ -4857,7 +4859,13 @@ void CheckVote( void ) {
 					G_RefreshNextMap(level.votingGametypeTo, qfalse);
 				}
 			}
-            level.voteExecuteTime = level.time + 3000;
+
+			// set the delay
+			if (!Q_stricmpn(level.voteString, "pause", 5))
+				level.voteExecuteTime = level.time; // allow pause votes to take affect immediately
+			else
+				level.voteExecuteTime = level.time + 3000;
+
         } else {
             trap_SendServerCommand(-1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEFAILED")));
 			if (!Q_stricmpn(level.voteString, "svsay Poll", 10))
@@ -4927,7 +4935,12 @@ void CheckVote( void ) {
 						G_RefreshNextMap(level.votingGametypeTo, qfalse);
 					}
 				}
-				level.voteExecuteTime = level.time + 3000;
+
+				// set the delay
+				if (!Q_stricmpn(level.voteString, "pause", 5))
+					level.voteExecuteTime = level.time; // allow pause votes to take affect immediately
+				else
+					level.voteExecuteTime = level.time + 3000;
 			}
 			else if (IsVoteForCustomClasses(level.voteString) && level.voteYes >= FindRequiredCustomTeamYesVoters(level.numVotingClients))
 			{
