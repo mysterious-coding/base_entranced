@@ -4788,14 +4788,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			team2Count = atoi(count);
 		}
 		else if (shuffle) { // no arguments; get numbers based on current ingame player counts
+			int total = 0;
 			for (i = 0; i < MAX_CLIENTS; i++) {
 				if (level.clients[i].pers.connected == CON_DISCONNECTED)
 					continue;
-				if (level.clients[i].sess.sessionTeam == TEAM_RED)
-					team1Count++;
-				else if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
-					team2Count++;
+				if (level.clients[i].sess.sessionTeam == TEAM_RED || level.clients[i].sess.sessionTeam == TEAM_BLUE)
+					total++;
 			}
+			team1Count = team2Count = (total / 2); // e.g. 9 players in game will result in a 4v4 vote
 		}
 		if (team1Count <= 0 || team2Count <= 0) {
 			trap_SendServerCommand(ent - g_entities, "print \"Both teams need at least 1 player.\n\"");
