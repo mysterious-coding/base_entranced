@@ -770,6 +770,10 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue;
 		}
 
+		if (target->r.contents == CONTENTS_CORPSE) {
+			continue;
+		}
+
 		if (target->s.eType == ET_NPC &&
 			(target->s.NPC_class == CLASS_VEHICLE || target->s.NPC_class == CLASS_RANCOR || target->s.NPC_class == CLASS_WAMPA))
 		{ //don't get mad at vehicles, rancors, or wampas, silly.
