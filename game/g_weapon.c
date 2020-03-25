@@ -6027,8 +6027,8 @@ void SP_emplaced_gun( gentity_t *ent )
 
 	ent->genericValue5 = 0;
 
-	VectorSet( ent->r.mins, -30, -20, 8 );
-	VectorSet( ent->r.maxs, 30, 20, 60 );
+	VectorSet( ent->r.mins, -20, -20, 8 );
+	VectorSet( ent->r.maxs, 20, 20, 60 );
 
 	VectorCopy(ent->s.origin, down);
 
