@@ -2450,6 +2450,36 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.eFlags &= ~EF_JETPACK;
 	}
 
+	// duo: force people to stop holding their mouse1/mouse2 button(s) after they get forced off an emplaced gun
+	// fixes e.g. blowing yourself up if firing emplaced gun with rocket launcher equipped and then knockbacked off the emplaced gun
+	if (ent && client && ent->health > 0 && client->ps.pm_type != PM_DEAD) {
+		if (client->ps.emplacedIndex) {
+			// we are currently using emplaced; note this for the next think
+			client->usingEmplaced = qtrue;
+			client->forcingEmplacedNoAttack = qfalse;
+		}
+		else {
+			if (client->usingEmplaced && (ucmd->buttons & BUTTON_ATTACK || ucmd->buttons & BUTTON_ALT_ATTACK)) {
+				// we were using emplaced on the last think, are no longer using it, and are still holding down mouse buttons
+				// cancel their mouse button, and continue doing this on subsequent thinks until the mouse button is actually physically released
+				client->usingEmplaced = qfalse;
+				client->forcingEmplacedNoAttack = qtrue;
+				ucmd->buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK);
+			}
+			else if (client->forcingEmplacedNoAttack) {
+				if (!(ucmd->buttons & BUTTON_ATTACK) && !(ucmd->buttons & BUTTON_ALT_ATTACK))
+					client->forcingEmplacedNoAttack = qfalse; // they actually physically released mouse button; stop canceling attack
+				else
+					ucmd->buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK); // they have not yet released; cancel the attack
+			}
+			client->usingEmplaced = qfalse;
+		}
+	}
+	else if (client) { // sanity check to clear these when dead
+		client->usingEmplaced = qfalse;
+		client->forcingEmplacedNoAttack = qfalse;
+	}
+
     //OSP: pause
     if ( level.pause.state != PAUSE_NONE ) {
         ucmd->buttons = 0;

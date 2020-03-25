@@ -1165,6 +1165,9 @@ struct gclient_s {
 
 	int homingLockTime; // time at which homing weapon locked on to a target
 	int homingLockTarget; // the target of it
+
+	qboolean	usingEmplaced;
+	qboolean	forcingEmplacedNoAttack;
 };
 
 //Interest points
