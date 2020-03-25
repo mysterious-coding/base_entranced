@@ -1243,6 +1243,40 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 	}
 }
 
+int TypesOfAmmoPlayerHasGunsFor(gentity_t *ent) {
+	if (!ent || !ent->client) {
+		assert(qfalse);
+		return 0;
+	}
+
+	int weapons = ent->client->ps.stats[STAT_WEAPONS];
+	int result = 0;
+
+	// just manually check instead of some stupid loop, since there are troll/not real weapons
+	if (weapons & (1 << WP_BLASTER) || weapons & (1 << WP_BRYAR_OLD))
+		result |= (1 << AMMO_BLASTER);
+
+	if (weapons & (1 << WP_DISRUPTOR) || weapons & (1 << WP_BOWCASTER) || weapons & (1 << WP_DEMP2))
+		result |= (1 << AMMO_POWERCELL);
+
+	if (weapons & (1 << WP_REPEATER) || weapons & (1 << WP_FLECHETTE) || weapons & (1 << WP_CONCUSSION))
+		result |= (1 << AMMO_METAL_BOLTS);
+
+	if (weapons & (1 << WP_ROCKET_LAUNCHER))
+		result |= (1 << AMMO_ROCKETS);
+
+	if (weapons & (1 << WP_THERMAL))
+		result |= (1 << AMMO_THERMAL);
+
+	if (weapons & (1 << WP_TRIP_MINE))
+		result |= (1 << AMMO_TRIPMINE);
+
+	if (weapons & (1 << WP_DET_PACK))
+		result |= (1 << AMMO_DETPACK);
+
+	return result;
+}
+
 //dispense generic ammo
 void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
@@ -1253,6 +1287,8 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 	{
 		return;
 	}
+
+	int myAmmoTypes = g_gametype.integer == GT_SIEGE ? TypesOfAmmoPlayerHasGunsFor(activator) : -1;
 
 	if (self->setTime < level.time)
 	{
@@ -1267,6 +1303,11 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 		self->activator = activator;
 		while (i < AMMO_MAX)
 		{
+			if (!(myAmmoTypes & (1 << i))) { // duo: only give ammo for ammo types that we have weapons for
+				i++;
+				continue;
+			}
+
 			add = ammoData[i].max*0.05;
 			if (add < 1)
 			{
