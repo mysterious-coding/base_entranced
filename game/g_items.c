@@ -720,7 +720,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 	int			count, i;
 	float		bestDist = TURRET_RADIUS*TURRET_RADIUS;
 	float		enemyDist;
-	vec3_t		enemyDir, org, org2;
+	vec3_t		enemyDir, org, org2, turretShootOrigin;
 	gentity_t	*entity_list[MAX_GENTITIES], *target;
 	trace_t		tr;
 
@@ -735,6 +735,8 @@ static qboolean pas_find_enemies( gentity_t *self )
 	}
 
 	VectorCopy(self->s.pos.trBase, org2);
+	VectorCopy(org2, turretShootOrigin);
+	turretShootOrigin[2] += 24; // duo: try to actually trace from the shooty part instead of the base to see if we have sight of the target
 
 	count = G_RadiusList( org2, TURRET_RADIUS, self, qtrue, entity_list );
 
@@ -800,7 +802,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 			VectorCopy( target->r.currentOrigin, org );
 		}
 
-		trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT );
+		trap_Trace( &tr, turretShootOrigin, NULL, NULL, org, self->s.number, MASK_SHOT );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
