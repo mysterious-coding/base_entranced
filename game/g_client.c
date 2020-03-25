@@ -3109,7 +3109,8 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		"sci "
 		"vch2 "
 		"vchl "
-		"sgfl ";
+		"sgfl "
+		"femp ";
 
 	// shlp is dependent on whether we have it for this map
 	if (g_gametype.integer == GT_SIEGE) {
