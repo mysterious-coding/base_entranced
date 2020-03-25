@@ -802,7 +802,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 			VectorCopy( target->r.currentOrigin, org );
 		}
 
-		trap_Trace( &tr, turretShootOrigin, NULL, NULL, org, self->s.number, MASK_SHOT );
+		trap_Trace( &tr, turretShootOrigin, NULL, NULL, org, self->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_TERRAIN);
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -858,7 +858,7 @@ void pas_adjust_enemy( gentity_t *ent )
 			VectorCopy( ent->enemy->r.currentOrigin, org );
 		}
 
-		trap_Trace( &tr, org2, NULL, NULL, org, ent->s.number, MASK_SHOT );
+		trap_Trace( &tr, org2, NULL, NULL, org, ent->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_TERRAIN);
 
 		if ( tr.allsolid || tr.startsolid || tr.fraction < 0.9f || tr.entityNum == ent->s.number )
 		{

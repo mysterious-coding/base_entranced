@@ -743,7 +743,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			org[2] += 5;
 		}
 
-		trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT );
+		trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_TERRAIN);
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -890,7 +890,7 @@ void turretG2_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT );
+					trap_Trace( &tr, org2, NULL, NULL, org, self->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_TERRAIN);
 
 					if ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number )
 					{
