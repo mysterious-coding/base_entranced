@@ -2476,6 +2476,8 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 	{ //an ammo_all, give them a bit of everything
 		if ( g_gametype.integer == GT_SIEGE )	// complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
 		{
+			if (other && (other->s.eType == ET_NPC || other->m_pVehicle || PlayerIsHiddenPilot(other)))
+				return 0; // don't allow NPCs/vehicles/hidden pilots to pick up ammo canisters
 			int ammoTypesICanHave = other && other->client ? TypesOfAmmoPlayerHasGunsFor(other) : -1;
 			if (!ammoTypesICanHave)
 				return 0; // prevent people without guns from picking up ammo canisters

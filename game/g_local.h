@@ -1877,6 +1877,8 @@ qboolean TryHealingSomething(gentity_t *ent, gentity_t *target, qboolean doCheck
 char *ChopString(const char *in, size_t targetLen);
 void RemoveSpaces(char* s);
 void CheckSiegeHelpFromUse(const char *targetname);
+gentity_t *GetVehicleFromPilot(gentity_t *pilotEnt);
+qboolean PlayerIsHiddenPilot(gentity_t *pilotEnt);
 
 //
 // g_saga.c

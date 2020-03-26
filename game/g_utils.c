@@ -3215,3 +3215,19 @@ qboolean FileExists(const char *fileName) {
 	trap_FS_FCloseFile(f);
 	return qtrue;
 }
+
+gentity_t *GetVehicleFromPilot(gentity_t *pilotEnt) {
+	if (pilotEnt && pilotEnt->inuse && pilotEnt->client && pilotEnt->client->ps.m_iVehicleNum && pilotEnt->client->ps.m_iVehicleNum != ENTITYNUM_NONE) {
+		gentity_t *vehEnt = &g_entities[pilotEnt->client->ps.m_iVehicleNum];
+		if (vehEnt->m_pVehicle)
+			return vehEnt;
+	}
+	return NULL;
+}
+
+qboolean PlayerIsHiddenPilot(gentity_t *pilotEnt) {
+	gentity_t *vehEnt = GetVehicleFromPilot(pilotEnt);
+	if (vehEnt && vehEnt->m_pVehicle->m_pVehicleInfo && vehEnt->m_pVehicle->m_pVehicleInfo->hideRider)
+		return qtrue;
+	return qfalse;
+}
