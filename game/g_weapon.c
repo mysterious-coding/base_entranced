@@ -5205,6 +5205,12 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 		return;
 	}
 
+	// duo: fix for holding both mouse1 and mouse2 simultaneously in walker
+	if (alt_fire && pVeh->m_pVehicleInfo->type == VH_WALKER &&
+		ent->client && ent->client->pers.cmd.buttons & BUTTON_ATTACK && ent->client->pers.cmd.buttons & BUTTON_ALT_ATTACK) {
+		FireVehicleWeapon(ent, qfalse);
+	}
+
 	// TODO?: If possible (probably not enough time), it would be nice if secondary fire was actually a mode switch/toggle
 	// so that, for instance, an x-wing can have 4-gun fire, or individual muzzle fire. If you wanted a different weapon, you
 	// would actually have to press the 2 key or something like that (I doubt I'd get a graphic for it anyways though). -AReis
