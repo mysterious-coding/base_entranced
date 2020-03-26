@@ -2476,22 +2476,26 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 	{ //an ammo_all, give them a bit of everything
 		if ( g_gametype.integer == GT_SIEGE )	// complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
 		{
-			Add_Ammo(other, AMMO_BLASTER, 100);
-			Add_Ammo(other, AMMO_POWERCELL, 100);
-			Add_Ammo(other, AMMO_METAL_BOLTS, 100);
-			Add_Ammo(other, AMMO_ROCKETS, 5);
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_DET_PACK))
-			{
-				Add_Ammo(other, AMMO_DETPACK, 2);
-			}
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_THERMAL))
-			{
-				Add_Ammo(other, AMMO_THERMAL, 2);
-			}
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_TRIP_MINE))
-			{
-				Add_Ammo(other, AMMO_TRIPMINE, 2);
-			}
+			int ammoTypesICanHave = other && other->client ? TypesOfAmmoPlayerHasGunsFor(other) : -1;
+			if (!ammoTypesICanHave)
+				return 0; // prevent people without guns from picking up ammo canisters
+			int amountAdded = 0;
+			if (ammoTypesICanHave & (1 << AMMO_BLASTER))
+				amountAdded += Add_Ammo(other, AMMO_BLASTER, 100);
+			if (ammoTypesICanHave & (1 << AMMO_POWERCELL))
+				amountAdded += Add_Ammo(other, AMMO_POWERCELL, 100);
+			if (ammoTypesICanHave & (1 << AMMO_METAL_BOLTS))
+				amountAdded += Add_Ammo(other, AMMO_METAL_BOLTS, 100);
+			if (ammoTypesICanHave & (1 << AMMO_ROCKETS))
+				amountAdded += Add_Ammo(other, AMMO_ROCKETS, 5);
+			if (other && other->client && other->client->ps.stats[STAT_WEAPONS] & (1<<WP_DET_PACK))
+				amountAdded += Add_Ammo(other, AMMO_DETPACK, 2);
+			if (other && other->client && other->client->ps.stats[STAT_WEAPONS] & (1<<WP_THERMAL))
+				amountAdded += Add_Ammo(other, AMMO_THERMAL, 2);
+			if (other && other->client && other->client->ps.stats[STAT_WEAPONS] & (1<<WP_TRIP_MINE))
+				amountAdded += Add_Ammo(other, AMMO_TRIPMINE, 2);
+			if (!amountAdded)
+				return 0; // they were already maxed out; don't take the canister
 		}
 		else
 		{
@@ -2808,8 +2812,6 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 	}
 
-	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
-
 	predict = other->client->pers.predictItemPickup;
 
 	// call the item-specific pickup function
@@ -2869,6 +2871,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if ( !respawn ) {
 		return;
 	}
+
+	G_LogPrintf("Item: %i %s\n", other->s.number, ent->item->classname);
 
 	// play the normal pickup sound
 	if (predict) {
