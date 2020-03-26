@@ -1521,7 +1521,7 @@ void G_SpecialSpawnItem(gentity_t *ent, gitem_t *item)
 	ent->item = item;
 
 	//go away if no one wants me
-	ent->genericValue5 = level.time + TOSSED_ITEM_STAY_PERIOD;
+	ent->genericValue5 = level.time + g_dispenserLifetime.integer * 1000;
 	ent->think = SpecialItemThink;
 	ent->nextthink = level.time + 50;
 	ent->clipmask = MASK_SOLID;

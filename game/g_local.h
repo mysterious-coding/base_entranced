@@ -2798,6 +2798,7 @@ extern vmCvar_t    g_braindeadBots;
 extern vmCvar_t	   g_siegeRespawnAutoChange;
 extern vmCvar_t    g_quickPauseChat;
 extern vmCvar_t		g_multiUseGenerators;
+extern vmCvar_t		g_dispenserLifetime;
 
 extern vmCvar_t    lastMapName;
 

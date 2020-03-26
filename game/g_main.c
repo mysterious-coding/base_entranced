@@ -213,6 +213,7 @@ vmCvar_t	g_braindeadBots;
 vmCvar_t	g_siegeRespawnAutoChange;
 vmCvar_t	g_quickPauseChat;
 vmCvar_t	g_multiUseGenerators;
+vmCvar_t	g_dispenserLifetime;
 
 vmCvar_t	lastMapName;
 
@@ -1048,6 +1049,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeRespawnAutoChange, "g_siegeRespawnAutoChange", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_quickPauseChat, "g_quickPauseChat", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_multiUseGenerators, "g_multiUseGenerators", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_dispenserLifetime, "g_dispenserLifetime", "22", CVAR_ARCHIVE, 0, qtrue }, // up from 20
 
 	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
 
