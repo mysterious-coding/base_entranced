@@ -430,6 +430,8 @@ struct gentity_s {
 		qboolean	noTouchBreak;
 	};
 	gentity_t	*lastPilot;
+
+	int			perPlayerTime[MAX_CLIENTS]; // duo: to allow ammo/armor/health generators to have separate cooldown times for each player
 };
 
 #define DAMAGEREDIRECT_HEAD		1
@@ -2793,6 +2795,7 @@ extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
 extern vmCvar_t	   g_siegeRespawnAutoChange;
 extern vmCvar_t    g_quickPauseChat;
+extern vmCvar_t		g_multiUseGenerators;
 
 extern vmCvar_t    lastMapName;
 

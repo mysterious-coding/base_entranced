@@ -16,6 +16,10 @@
 void HolocronThink(gentity_t *ent);
 extern vmCvar_t g_MaxHolocronCarry;
 
+extern void health_power_converter_use(gentity_t *self, gentity_t *other, gentity_t *activator);
+extern void shield_power_converter_use(gentity_t *self, gentity_t *other, gentity_t *activator);
+extern void ammo_generic_power_converter_use(gentity_t *self, gentity_t *other, gentity_t *activator);
+
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
 */
@@ -1116,316 +1120,6 @@ void check_recharge(gentity_t *ent)
 	ent->nextthink = level.time;
 }
 
-/*
-================
-EnergyShieldStationSettings
-================
-*/
-void EnergyShieldStationSettings(gentity_t *ent)
-{
-	G_SpawnInt( "count", "200", &ent->count );
-
-	G_SpawnInt("chargerate", "0", &ent->genericValue5);
-
-	if (!ent->genericValue5)
-	{
-		ent->genericValue5 = STATION_RECHARGE_TIME;
-	}
-}
-
-/*
-================
-shield_power_converter_use
-================
-*/
-void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
-{
-	int dif,add;
-	int stop = 1;
-
-	if (!activator || !activator->client)
-	{
-		return;
-	}
-
-	if (activator->client->sess.siegeDuelInProgress)
-	{
-		return; //no getting armor while in a siege duel
-	}
-
-	if ( g_gametype.integer == GT_SIEGE 
-		&& other 
-		&& other->client 
-		&& other->client->siegeClass )
-	{
-		if ( !bgSiegeClasses[other->client->siegeClass].maxarmor )
-		{//can't use it!
-			G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
-			return;
-		}
-	}
-
-	if (self->setTime < level.time)
-	{
-		int	maxArmor;
-		if (!self->s.loopSound)
-		{
-			self->s.loopSound = G_SoundIndex("sound/interface/shieldcon_run");
-			self->s.loopIsSoundset = qfalse;
-		}
-		self->setTime = level.time + 100;
-
-		if ( g_gametype.integer == GT_SIEGE 
-			&& other 
-			&& other->client 
-			&& other->client->siegeClass != -1 )
-		{
-			maxArmor = bgSiegeClasses[other->client->siegeClass].maxarmor;
-		}
-		else
-		{
-			maxArmor = activator->client->ps.stats[STAT_MAX_HEALTH];
-		}
-		dif = maxArmor - activator->client->ps.stats[STAT_ARMOR];
-
-		if (dif > 0)					// Already at full armor?
-		{
-			if (dif >MAX_AMMO_GIVE)
-			{
-				add = MAX_AMMO_GIVE;
-			}
-			else
-			{
-				add = dif;
-			}
-
-			if (self->count<add)
-			{
-				add = self->count;
-			}
-
-		    if (!self->genericValue12)
-			{
-				self->count -= add;
-			}
-			if (self->count <= 0)
-			{
-				self->setTime = 0;
-			}
-			stop = 0;
-
-			self->fly_sound_debounce_time = level.time + 500;
-			self->activator = activator;
-
-			activator->client->ps.stats[STAT_ARMOR] += add;
-		}
-	}
-
-	if (stop || self->count <= 0)
-	{
-		if (self->s.loopSound && self->setTime < level.time)
-		{
-			if (self->count <= 0)
-			{
-				G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
-			}
-			else
-			{
-				G_Sound(self, CHAN_AUTO, self->genericValue7);
-			}
-		}
-		self->s.loopSound = 0;
-		self->s.loopIsSoundset = qfalse;
-		if (self->setTime < level.time)
-		{
-			self->setTime = level.time + self->genericValue5+100;
-		}
-	}
-}
-
-int TypesOfAmmoPlayerHasGunsFor(gentity_t *ent) {
-	if (!ent || !ent->client) {
-		assert(qfalse);
-		return 0;
-	}
-
-	int weapons = ent->client->ps.stats[STAT_WEAPONS];
-	int result = 0;
-
-	// just manually check instead of some stupid loop, since there are troll/not real weapons
-	if (weapons & (1 << WP_BLASTER) || weapons & (1 << WP_BRYAR_OLD))
-		result |= (1 << AMMO_BLASTER);
-
-	if (weapons & (1 << WP_DISRUPTOR) || weapons & (1 << WP_BOWCASTER) || weapons & (1 << WP_DEMP2))
-		result |= (1 << AMMO_POWERCELL);
-
-	if (weapons & (1 << WP_REPEATER) || weapons & (1 << WP_FLECHETTE) || weapons & (1 << WP_CONCUSSION))
-		result |= (1 << AMMO_METAL_BOLTS);
-
-	if (weapons & (1 << WP_ROCKET_LAUNCHER))
-		result |= (1 << AMMO_ROCKETS);
-
-	if (weapons & (1 << WP_THERMAL))
-		result |= (1 << AMMO_THERMAL);
-
-	if (weapons & (1 << WP_TRIP_MINE))
-		result |= (1 << AMMO_TRIPMINE);
-
-	if (weapons & (1 << WP_DET_PACK))
-		result |= (1 << AMMO_DETPACK);
-
-	return result;
-}
-
-//dispense generic ammo
-void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
-{
-	int add;
-	int stop = 1;
-
-	if (!activator || !activator->client)
-	{
-		return;
-	}
-
-	int myAmmoTypes = g_gametype.integer == GT_SIEGE ? TypesOfAmmoPlayerHasGunsFor(activator) : -1;
-
-	if (self->setTime < level.time)
-	{
-		qboolean gaveSome = qfalse;
-		int i = AMMO_BLASTER;
-		if (!self->s.loopSound)
-		{
-			self->s.loopSound = G_SoundIndex("sound/interface/ammocon_run");
-			self->s.loopIsSoundset = qfalse;
-		}
-		self->fly_sound_debounce_time = level.time + 500;
-		self->activator = activator;
-		while (i < AMMO_MAX)
-		{
-			if (!(myAmmoTypes & (1 << i))) { // duo: only give ammo for ammo types that we have weapons for
-				i++;
-				continue;
-			}
-
-			add = ammoData[i].max*0.05;
-			if (add < 1)
-			{
-				add = 1;
-			}
-
-			if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)) && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
-			{
-				if (activator->client->ps.ammo[i] < 2)
-				{
-					if (Add_Ammo(activator, i, add) > 0)
-					{
-						gaveSome = qtrue;
-						stop = 0;
-					}
-				}
-			}
-			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_SINGLE_ROCKET)))
-			{
-				if (activator->client->ps.ammo[i] < 1)
-				{
-					activator->client->ps.ammo[i] = 1;
-				}
-			}
-			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && bgSiegeClasses[activator->client->siegeClass].ammorockets && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
-			{
-				if (activator->client->ps.ammo[i] < (bgSiegeClasses[activator->client->siegeClass].ammorockets * 2))
-				{
-					if (Add_Ammo(activator, i, add) > 0)
-					{
-						gaveSome = qtrue;
-						stop = 0;
-					}
-				}
-			}
-			else if (g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && bgSiegeClasses[activator->client->siegeClass].ammorockets)
-			{
-				if (activator->client->ps.ammo[i] < bgSiegeClasses[activator->client->siegeClass].ammorockets)
-				{
-					if (Add_Ammo(activator, i, add) > 0)
-					{
-						gaveSome = qtrue;
-						stop = 0;
-					}
-				}
-			}
-			else if (g_gametype.integer == GT_SIEGE && i == AMMO_ROCKETS && (bgSiegeClasses[activator->client->siegeClass].classflags & (1 << CFL_EXTRA_AMMO)))
-			{
-				if (activator->client->ps.ammo[i] < 20)
-				{
-					if (Add_Ammo(activator, i, add) > 0)
-					{
-						gaveSome = qtrue;
-						stop = 0;
-					}
-				}
-			}
-			else if (g_gametype.integer == GT_SIEGE && i == AMMO_ROCKETS)
-			{
-				if (activator->client->ps.ammo[i] < 10)
-				{
-					if (Add_Ammo(activator, i, add) > 0)
-					{
-						gaveSome = qtrue;
-						stop = 0;
-					}
-				}
-			}
-			else
-			{
-				if (Add_Ammo(activator, i, add) > 0)
-				{
-					gaveSome = qtrue;
-					stop = 0;
-				}
-			}
-				
-			i++;
-			if (!self->genericValue12 && gaveSome)
-			{
-				int sub = (add*0.2);
-				if (sub < 1)
-				{
-					sub = 1;
-				}
-				self->count -= sub;
-				if (self->count <= 0)
-				{
-					self->count = 0;
-					stop = 1;
-					break;
-				}
-			}
-		}
-	}
-
-	if (stop || self->count <= 0)
-	{
-		if (self->s.loopSound && self->setTime < level.time)
-		{
-			if (self->count <= 0)
-			{
-				G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/ammocon_empty"));
-			}
-			else
-			{
-				G_Sound(self, CHAN_AUTO, self->genericValue7);
-			}
-		}
-		self->s.loopSound = 0;
-		self->s.loopIsSoundset = qfalse;
-		if (self->setTime < level.time)
-		{
-			self->setTime = level.time + self->genericValue5+100;
-		}
-	}
-}
-
 /*QUAKED misc_ammo_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
 model="/models/items/a_pwr_converter.md3"
 Gives generic ammo when used
@@ -1479,7 +1173,14 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
 
-	EnergyShieldStationSettings(ent);
+	G_SpawnInt("count", "200", &ent->count);
+
+	G_SpawnInt("chargerate", "0", &ent->genericValue5);
+
+	if (!ent->genericValue5)
+	{
+		ent->genericValue5 = STATION_RECHARGE_TIME;
+	}
 
 	ent->genericValue4 = ent->count; //initial value
 	ent->think = check_recharge;
@@ -1588,7 +1289,14 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
 
-	EnergyShieldStationSettings(ent);
+	G_SpawnInt("count", "200", &ent->count);
+
+	G_SpawnInt("chargerate", "0", &ent->genericValue5);
+
+	if (!ent->genericValue5)
+	{
+		ent->genericValue5 = STATION_RECHARGE_TIME;
+	}
 
 	ent->genericValue4 = ent->count; //initial value
 	ent->think = check_recharge;
@@ -1606,6 +1314,10 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	ent->nextthink = level.time + 200;
 
 	ent->use = shield_power_converter_use;
+
+	G_SpawnInt("amount", "2", &ent->genericValue17);
+	if (ent->genericValue17 <= 0)
+		ent->genericValue17 = MAX_AMMO_GIVE;
 
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
 	trap_LinkEntity (ent);
@@ -1661,7 +1373,14 @@ void SP_misc_model_shield_power_converter( gentity_t *ent )
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
 
-	EnergyShieldStationSettings(ent);
+	G_SpawnInt("count", "200", &ent->count);
+
+	G_SpawnInt("chargerate", "0", &ent->genericValue5);
+
+	if (!ent->genericValue5)
+	{
+		ent->genericValue5 = STATION_RECHARGE_TIME;
+	}
 
 	ent->genericValue4 = ent->count; //initial value
 	ent->think = check_recharge;
@@ -1682,22 +1401,13 @@ void SP_misc_model_shield_power_converter( gentity_t *ent )
 	ent->s.modelindex2 = G_ModelIndex("/models/items/psd_big.md3");	// Precache model
 }
 
-
-/*
-================
-EnergyAmmoShieldStationSettings
-================
-*/
-void EnergyAmmoStationSettings(gentity_t *ent)
-{
-	G_SpawnInt( "count", "200", &ent->count );
-}
-
+#if 0
 /*
 ================
 ammo_power_converter_use
 ================
 */
+// duo note: this is unused
 void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int			add = 0.0f;
@@ -1760,7 +1470,41 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 		self->s.loopIsSoundset = qfalse;
 	}
 }
+#endif
 
+int TypesOfAmmoPlayerHasGunsFor(gentity_t *ent) {
+	if (!ent || !ent->client) {
+		assert(qfalse);
+		return 0;
+	}
+
+	int weapons = ent->client->ps.stats[STAT_WEAPONS];
+	int result = 0;
+
+	// just manually check instead of some stupid loop, since there are troll/not real weapons
+	if (weapons & (1 << WP_BLASTER) || weapons & (1 << WP_BRYAR_OLD))
+		result |= (1 << AMMO_BLASTER);
+
+	if (weapons & (1 << WP_DISRUPTOR) || weapons & (1 << WP_BOWCASTER) || weapons & (1 << WP_DEMP2))
+		result |= (1 << AMMO_POWERCELL);
+
+	if (weapons & (1 << WP_REPEATER) || weapons & (1 << WP_FLECHETTE) || weapons & (1 << WP_CONCUSSION))
+		result |= (1 << AMMO_METAL_BOLTS);
+
+	if (weapons & (1 << WP_ROCKET_LAUNCHER))
+		result |= (1 << AMMO_ROCKETS);
+
+	if (weapons & (1 << WP_THERMAL))
+		result |= (1 << AMMO_THERMAL);
+
+	if (weapons & (1 << WP_TRIP_MINE))
+		result |= (1 << AMMO_TRIPMINE);
+
+	if (weapons & (1 << WP_DET_PACK))
+		result |= (1 << AMMO_DETPACK);
+
+	return result;
+}
 
 /*QUAKED misc_model_ammo_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/power_converter.md3"
@@ -1788,9 +1532,13 @@ void SP_misc_model_ammo_power_converter( gentity_t *ent )
 	ent->clipmask = MASK_SOLID;
 
 	G_SpawnInt("nodrain", "0", &ent->genericValue12);
+#if 0
 	ent->use = ammo_power_converter_use;
+#else
+	ent->use = ammo_generic_power_converter_use; // duo: changed to this
+#endif
 
-	EnergyAmmoStationSettings(ent);
+	G_SpawnInt("count", "200", &ent->count);
 
 	ent->genericValue4 = ent->count; //initial value
 	ent->think = check_recharge;
@@ -1810,85 +1558,6 @@ void SP_misc_model_ammo_power_converter( gentity_t *ent )
 	trap_LinkEntity (ent);
 
 }
-
-/*
-================
-EnergyHealthStationSettings
-================
-*/
-void EnergyHealthStationSettings(gentity_t *ent)
-{
-	G_SpawnInt( "count", "200", &ent->count );
-}
-
-/*
-================
-health_power_converter_use
-================
-*/
-void health_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
-{
-	int dif,add;
-	int stop = 1;
-
-	if (!activator || !activator->client)
-	{
-		return;
-	}
-
-	if (activator->client->sess.siegeDuelInProgress)
-	{
-		return; //no getting health while in a siege duel
-	}
-
-	if (level.zombies)
-	{
-		return;
-	}
-
-	if (self->setTime < level.time)
-	{
-		if (!self->s.loopSound)
-		{
-			self->s.loopSound = G_SoundIndex("sound/player/pickuphealth.wav");
-		}
-		self->setTime = level.time + 100;
-
-		dif = activator->client->ps.stats[STAT_MAX_HEALTH] - activator->health;
-
-		if (dif > 0)					// Already at full armor?
-		{
-			if (dif >5)
-			{
-				add = 5;
-			}
-			else
-			{
-				add = dif;
-			}
-
-			if (self->count<add)
-			{
-				add = self->count;
-			}
-
-			//self->count -= add;
-			stop = 0;
-
-			self->fly_sound_debounce_time = level.time + 500;
-			self->activator = activator;
-
-			activator->health += add;
-		}
-	}
-
-	if (stop)
-	{
-		self->s.loopSound = 0;
-		self->s.loopIsSoundset = qfalse;
-	}
-}
-
 
 /*QUAKED misc_model_health_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/power_converter.md3"
@@ -1918,7 +1587,16 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 
 	ent->use = health_power_converter_use;
 
-	EnergyHealthStationSettings(ent);
+	G_SpawnInt("count", "200", &ent->count);
+
+	// duo: added (health gens didn't have chargerate in base jka)
+	G_SpawnInt("chargerate", "0", &ent->genericValue5);
+	if (!ent->genericValue5)
+		ent->genericValue5 = STATION_RECHARGE_TIME;
+
+	G_SpawnInt("amount", "5", &ent->genericValue17);
+	if (ent->genericValue17 <= 0)
+		ent->genericValue17 = 5;
 
 	ent->genericValue4 = ent->count; //initial value
 	ent->think = check_recharge;

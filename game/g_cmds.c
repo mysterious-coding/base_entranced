@@ -9354,6 +9354,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_knockback);
 	PrintCvar(g_locationBasedDamage);
 	PrintCvar(g_moreTaunts);
+	PrintCvar(g_multiUseGenerators);
 	PrintCvar(g_multiVoteRNG);
 	PrintCvar(g_nextmapWarning);
 	PrintCvar(g_notifyNotLive);
