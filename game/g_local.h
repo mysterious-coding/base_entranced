@@ -1103,6 +1103,7 @@ struct gclient_s {
 
 	//seperate debounce time for refilling someone's ammo as a supplier
 	int			medSupplyDebounce;
+	int			medSupplyPerAmmoDebounce[AMMO_MAX]; // duo: allows each ammo type to have its own cooldown
 
 	//used in conjunction with ps.hackingTime
 	int			isHacking;
@@ -2799,6 +2800,7 @@ extern vmCvar_t	   g_siegeRespawnAutoChange;
 extern vmCvar_t    g_quickPauseChat;
 extern vmCvar_t		g_multiUseGenerators;
 extern vmCvar_t		g_dispenserLifetime;
+extern vmCvar_t		g_techAmmoForAllWeapons;
 
 extern vmCvar_t    lastMapName;
 

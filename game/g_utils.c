@@ -1817,6 +1817,8 @@ qboolean ValidUseTarget( gentity_t *ent )
 	return qtrue;
 }
 
+extern int Get_Max_Ammo(gentity_t *ent, ammo_t ammoIndex);
+
 //use an ammo/health dispenser on another client
 void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 {
@@ -1835,16 +1837,70 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 	}
 	else if (dispType == HI_AMMODISP)
 	{
-		if (ent->client->medSupplyDebounce < level.time)
-		{ //do the next increment
+		if (g_techAmmoForAllWeapons.integer) {
+			// give ammo for any and every type of ammo that they have a weapon for
+			// the cooldowns should be at least 100ms because of useDelay += 100
+			int myAmmoTypes = TypesOfAmmoPlayerHasGunsFor(target);
+			int svFps = trap_Cvar_VariableIntegerValue("sv_fps");
+			for (int i = AMMO_BLASTER; i < AMMO_MAX; i++) {
+				if (i == AMMO_EMPLACED)
+					continue; // skip raven spaghetti trolling
+
+				if (!(myAmmoTypes & (1 << i)))
+					continue; // does not have a weapon for this ammo type
+
+				if (ent->client->medSupplyPerAmmoDebounce[i] > level.time)
+					continue; // not yet time to refill this ammo type
+
+				int add, cooldown;
+				switch (i) {
+				case AMMO_BLASTER:
+				case AMMO_POWERCELL:
+				case AMMO_METAL_BOLTS:
+					// approximately 100 ammo per second
+					if (svFps == 30) {
+						add = 13;
+						cooldown = 132;
+					}
+					else {
+						add = 10;
+						cooldown = 100;
+					}
+					break;
+				case AMMO_ROCKETS:
+					// approximately 1 ammo per 900ms
+					add = 1;
+					if (svFps == 30)
+						cooldown = 891;
+					else
+						cooldown = 900;
+					break;
+				case AMMO_THERMAL:
+				case AMMO_TRIPMINE:
+				case AMMO_DETPACK:
+					// approximately 2 ammo per second
+					add = 1;
+					if (svFps == 30)
+						cooldown = 495;
+					else
+						cooldown = 500;
+					break;
+				}
+
+				target->client->ps.ammo[i] += add;
+				int max = Get_Max_Ammo(target, i);
+				if (target->client->ps.ammo[i] > max)
+					target->client->ps.ammo[i] = max;
+				ent->client->medSupplyPerAmmoDebounce[i] = level.time + cooldown;
+			}
+		}
+		else if (ent->client->medSupplyDebounce < level.time) {
 			//increment based on the amount of ammo used per normal shot.
 			target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] += weaponData[target->client->ps.weapon].energyPerShot;
-			extern int Get_Max_Ammo(gentity_t* ent, ammo_t ammoIndex);
-			if (target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] > 	Get_Max_Ammo(target, weaponData[target->client->ps.weapon].ammoIndex))
+			if (target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] > Get_Max_Ammo(target, weaponData[target->client->ps.weapon].ammoIndex))
 			{ //cap it off
 				target->client->ps.ammo[weaponData[target->client->ps.weapon].ammoIndex] = Get_Max_Ammo(target, weaponData[target->client->ps.weapon].ammoIndex);
 			}
-
 			//base the next supply time on how long the weapon takes to fire. Seems fair enough.
 			ent->client->medSupplyDebounce = level.time + weaponData[target->client->ps.weapon].fireTime;
 		}
@@ -1854,42 +1910,58 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 }
 
 //see if this guy needs servicing from a specific type of dispenser
-int G_CanUseDispOn(gentity_t *ent, int dispType)
+qboolean G_CanUseDispOn(gentity_t *ent, int dispType)
 {
 	if (!ent->client || !ent->inuse || ent->health < 1 ||
 		ent->client->ps.stats[STAT_HEALTH] < 1)
 	{ //dead or invalid
-		return 0;
+		return qfalse;
 	}
 
 	if (dispType == HI_HEALTHDISP)
 	{
         if (ent->client->ps.stats[STAT_HEALTH] < ent->client->ps.stats[STAT_MAX_HEALTH])
 		{ //he's hurt
-			return 1;
+			return qtrue;
 		}
 
 		//otherwise no
-		return 0;
+		return qfalse;
 	}
 	else if (dispType == HI_AMMODISP)
 	{
 		if (ent->client->ps.weapon <= WP_NONE || ent->client->ps.weapon > LAST_USEABLE_WEAPON)
 		{ //not a player-useable weapon
-			return 0;
+			return qfalse;
 		}
 
-		if (ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] < Get_Max_Ammo(ent, weaponData[ent->client->ps.weapon].ammoIndex))
-		{ //needs more ammo for current weapon
-			return 1;
+		if (g_techAmmoForAllWeapons.integer) {
+			// check whether they need ammo for any weapon that they have
+			int myAmmoTypes = TypesOfAmmoPlayerHasGunsFor(ent);
+			for (int i = AMMO_BLASTER; i < AMMO_MAX; i++) {
+				if (i == AMMO_EMPLACED)
+					continue;
+
+				if (!(myAmmoTypes & (1 << i)))
+					continue;
+
+				if (ent->client->ps.ammo[i] < Get_Max_Ammo(ent, i))
+					return qtrue; // there is at least one weapon that they need ammo for
+			}
+		}
+		else {
+			if (ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] < Get_Max_Ammo(ent, weaponData[ent->client->ps.weapon].ammoIndex))
+			{ //needs more ammo for current weapon
+				return qtrue;
+			}
 		}
 
 		//needs none
-		return 0;
+		return qfalse;
 	}
 
 	//invalid type?
-	return 0;
+	return qfalse;
 }
 
 void HealSomething(gentity_t *ent, gentity_t *target)

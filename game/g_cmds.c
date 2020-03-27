@@ -9370,6 +9370,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_siegeReflectionFix);
 	PrintCvar(g_specInfo);
 	PrintCvar(g_swoopKillPoints);
+	PrintCvar(g_techAmmoForAllWeapons);
 	PrintCvar(iLikeToDoorSpam);
 	PrintCvar(iLikeToMineSpam);
 	PrintCvar(iLikeToShieldSpam);
