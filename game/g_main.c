@@ -1050,7 +1050,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeRespawnAutoChange, "g_siegeRespawnAutoChange", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_quickPauseChat, "g_quickPauseChat", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_multiUseGenerators, "g_multiUseGenerators", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_dispenserLifetime, "g_dispenserLifetime", "22", CVAR_ARCHIVE, 0, qtrue }, // up from 20
+	{ &g_dispenserLifetime, "g_dispenserLifetime", "25", CVAR_ARCHIVE, 0, qtrue }, // up from 20
 	{ &g_techAmmoForAllWeapons, "g_techAmmoForAllWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
