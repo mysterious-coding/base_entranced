@@ -2478,10 +2478,11 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 		{
 			if (other && (other->s.eType == ET_NPC || other->m_pVehicle || PlayerIsHiddenPilot(other)))
 				return 0; // don't allow NPCs/vehicles/hidden pilots to pick up ammo canisters
-#if 0
 			int ammoTypesICanHave = other && other->client ? TypesOfAmmoPlayerHasGunsFor(other) : -1;
+#if 0
 			if (!ammoTypesICanHave)
 				return 0; // prevent people without guns from picking up ammo canisters
+#endif
 			int amountAdded = 0;
 			if (ammoTypesICanHave & (1 << AMMO_BLASTER))
 				amountAdded += Add_Ammo(other, AMMO_BLASTER, 100);
@@ -2497,6 +2498,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 				amountAdded += Add_Ammo(other, AMMO_THERMAL, 2);
 			if (other && other->client && other->client->ps.stats[STAT_WEAPONS] & (1<<WP_TRIP_MINE))
 				amountAdded += Add_Ammo(other, AMMO_TRIPMINE, 2);
+#if 0
 			if (!amountAdded)
 				return 0; // they were already maxed out; don't take the canister
 #endif
