@@ -903,7 +903,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 	fBias = 1.0f;
 	if (pVeh->m_pVehicleInfo->type == VH_WALKER)
 	{ //hacktastic!
-		fBias += 0.2f;
+		fBias += 0.5f;//0.2f;
 	}
 	VectorCopy( ent->currentOrigin, vExitPos );
 	fVehDiag = sqrtf( ( parent->maxs[0] * parent->maxs[0] ) + ( parent->maxs[1] * parent->maxs[1] ) );
