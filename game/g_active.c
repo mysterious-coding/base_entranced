@@ -730,7 +730,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 // returns global time in ms, this should persist between server restarts
 int getGlobalTime()
 {
-    return (int)(time(0)*1000);
+    return (int)time(0);
 }
 
 /*
@@ -747,7 +747,7 @@ qboolean CheckSpectatorInactivityTimer(gclient_t *client)
         // give everyone some time, so if the operator sets g_inactivity during
         // gameplay, everyone isn't kicked
 
-        client->sess.inactivityTime = getGlobalTime() + 60 * 1000;
+        client->sess.inactivityTime = getGlobalTime() + 60;
         client->inactivityWarning = qfalse;
     }
     else if (client->pers.cmd.forwardmove ||
@@ -762,7 +762,7 @@ qboolean CheckSpectatorInactivityTimer(gclient_t *client)
         client->sess.spectatorState == SPECTATOR_FOLLOW
         )
     {
-        client->sess.inactivityTime = getGlobalTime() + g_spectatorInactivity.integer * 1000;
+        client->sess.inactivityTime = getGlobalTime() + g_spectatorInactivity.integer;
         
         client->inactivityWarning = qfalse;
     }
@@ -774,7 +774,7 @@ qboolean CheckSpectatorInactivityTimer(gclient_t *client)
             trap_DropClient(client - level.clients, "dropped due to inactivity");
         }
 
-        if ((getGlobalTime() > (client->sess.inactivityTime - 10000)) && (!client->inactivityWarning))
+        if ((getGlobalTime() > (client->sess.inactivityTime - 10)) && (!client->inactivityWarning))
         {
             client->inactivityWarning = qtrue;
             trap_SendServerCommand(client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"");
@@ -825,13 +825,13 @@ qboolean CheckPlayerInactivityTimer(gclient_t *client)
     {
         // give everyone some time, so if the operator sets g_inactivity during
         // gameplay, everyone isn't kicked
-        client->sess.inactivityTime = getGlobalTime() + 60 * 1000;
+        client->sess.inactivityTime = getGlobalTime() + 60;
         
         client->inactivityWarning = qfalse;
     } 
     else if (didSomething)
     {
-        client->sess.inactivityTime = getGlobalTime() + g_inactivity.integer * 1000;
+        client->sess.inactivityTime = getGlobalTime() + g_inactivity.integer;
         client->inactivityWarning = qfalse;
     }
     else if (!client->pers.localClient)
@@ -848,12 +848,12 @@ qboolean CheckPlayerInactivityTimer(gclient_t *client)
                 // just force them to spec
                 trap_SendServerCommand(-1, va("print \"%s "S_COLOR_WHITE"forced to spectators due to inactivity\n\"", client->pers.netname));
                 trap_SendConsoleCommand(EXEC_APPEND, va("forceteam %i spectator\n", client - level.clients));
-                client->sess.inactivityTime = getGlobalTime() + 1000;
+                client->sess.inactivityTime = getGlobalTime() + 1;
             }
 
             active = qfalse;
         } 
-        else if ((getGlobalTime() > (client->sess.inactivityTime - 10000)) && (!client->inactivityWarning))
+        else if ((getGlobalTime() > (client->sess.inactivityTime - 10)) && (!client->inactivityWarning))
         {
             client->inactivityWarning = qtrue;
             trap_SendServerCommand(client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"");
@@ -4455,7 +4455,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
         if (level.pause.state != PAUSE_NONE) {
             if (!increasedEnterTime) // don't do it twice
 				ent->client->pers.enterTime += time_delta;
-            ent->client->sess.inactivityTime += time_delta;
+            ent->client->sess.inactivityTime += (time_delta / 1000);
         }
     }
 
@@ -4578,7 +4578,7 @@ void ClientEndFrame( gentity_t *ent ) {
         int i;
 
         ent->client->airOutTime += time_delta;
-        ent->client->sess.inactivityTime += time_delta;
+        ent->client->sess.inactivityTime += (time_delta / 1000);
 		if (!increasedEnterTime) // don't do it twice
 			ent->client->pers.enterTime += time_delta;
         ent->client->pers.teamState.lastreturnedflag += time_delta;

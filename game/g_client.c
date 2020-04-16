@@ -2303,7 +2303,7 @@ void ClientUserinfoChanged( int clientNum ) {
 					oldname, client->pers.netname);
 				client->pers.netnameTime = level.time + 700; //change time limit from 5s to 1s
 
-                G_DBLogNickname( client->sess.ip, oldname, (getGlobalTime() - client->sess.nameChangeTime ) / 1000, client->sess.auth == AUTHENTICATED ? client->sess.cuidHash : "");
+                G_DBLogNickname( client->sess.ip, oldname, getGlobalTime() - client->sess.nameChangeTime, client->sess.auth == AUTHENTICATED ? client->sess.cuidHash : "");
 
                 client->sess.nameChangeTime = getGlobalTime();
 
@@ -3410,10 +3410,10 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
         // update inactivity timer for proper team, must be done before client spawn
         if (client->sess.sessionTeam == TEAM_SPECTATOR){
-            client->sess.inactivityTime = getGlobalTime() + 1000 + g_spectatorInactivity.integer * 1000;
+            client->sess.inactivityTime = getGlobalTime() + 1 + g_spectatorInactivity.integer;
         }
         else {
-            client->sess.inactivityTime = getGlobalTime() + 1000 + g_inactivity.integer * 1000;
+            client->sess.inactivityTime = getGlobalTime() + 1 + g_inactivity.integer;
         }
 
 		// locate ent at a spawn point
@@ -4908,7 +4908,8 @@ void ClientDisconnect( int clientNum ) {
 		ent->client->sess.siegeFollowing.wasFollowing = qfalse;
 	}
 
-    G_DBLogNickname( ent->client->sess.ip, ent->client->pers.netname, (getGlobalTime() - ent->client->sess.nameChangeTime ) / 1000, ent->client->sess.auth == AUTHENTICATED ? ent->client->sess.cuidHash : "");
+    G_DBLogNickname( ent->client->sess.ip, ent->client->pers.netname, getGlobalTime() - ent->client->sess.nameChangeTime, ent->client->sess.auth == AUTHENTICATED ? ent->client->sess.cuidHash : "");
+
     ent->client->sess.nameChangeTime = getGlobalTime();
 
     //G_LogDbLogSessionEnd( ent->client->sess.sessionId );
