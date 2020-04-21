@@ -4150,6 +4150,10 @@ void Cmd_CallVote_f( gentity_t *ent, int pause ) {
 			continue;
 
 		// check whether this command is enabled
+		if (!g_customVotes.integer) {
+			trap_SendServerCommand(ent - g_entities, "print \"Custom votes are not enabled by the server.\n\"");
+			return;
+		}
 		char cmdBuf[256] = { 0 };
 		trap_Cvar_VariableStringBuffer(va("g_customVote%d_command", k + 1), cmdBuf, sizeof(cmdBuf));
 		if (!cmdBuf[0] || !Q_stricmp(cmdBuf, "0")) {
