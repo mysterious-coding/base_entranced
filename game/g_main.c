@@ -1057,34 +1057,34 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_customVotes, "g_customVotes", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_customVote1_command, "g_customVote1_command", "map_restart", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote1_command, "g_customVote1_label", "Restart Map", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote1_label, "g_customVote1_label", "Restart Map", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote2_command, "g_customVote2_command", "nextmap", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote2_command, "g_customVote2_label", "Restart Match (Round 1)", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote2_label, "g_customVote2_label", "Restart Match (Round 1)", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote3_command, "g_customVote3_command", "newpug", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote3_command, "g_customVote3_label", "New Pug Map Rotation", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote3_label, "g_customVote3_label", "New Pug Map Rotation", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote4_command, "g_customVote4_command", "nextpug", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote4_command, "g_customVote4_label", "Next Pug Map", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote4_label, "g_customVote4_label", "Next Pug Map", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote5_command, "g_customVote5_command", "randomteams 2 2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote5_command, "g_customVote5_label", "Random Teams: 2v2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote5_label, "g_customVote5_label", "Random Teams: 2v2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote6_command, "g_customVote6_command", "randomteams 3 3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote6_command, "g_customVote6_label", "Random Teams: 3v3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote6_label, "g_customVote6_label", "Random Teams: 3v3", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote7_command, "g_customVote7_command", "randomteams 4 4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote7_command, "g_customVote7_label", "Random Teams: 4v4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote7_label, "g_customVote7_label", "Random Teams: 4v4", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote8_command, "g_customVote8_command", "shuffleteams", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote8_command, "g_customVote8_label", "Shuffle Teams", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote8_label, "g_customVote8_label", "Shuffle Teams", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote9_command, "g_customVote9_command", "pause", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote9_command, "g_customVote9_label", "Pause", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote9_label, "g_customVote9_label", "Pause", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_customVote10_command, "g_customVote10_command", "unpause", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
-	{ &g_customVote10_command, "g_customVote10_label", "Unpause", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_customVote10_label, "g_customVote10_label", "Unpause", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_skillboost1_damageDealtBonus, "g_skillboost1_damageDealtBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_damageDealtBonus, "g_skillboost2_damageDealtBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
