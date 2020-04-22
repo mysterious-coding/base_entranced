@@ -4072,39 +4072,6 @@ void Cmd_CallVote_f( gentity_t *ent, int pause ) {
 		return;
 	}
 
-	for (int k = 0; k < MAX_CUSTOM_VOTES; k++) {
-		// check if the person entered "custom3" or whatever
-		char callvoteCommandBuf[64] = { 0 };
-		Com_sprintf(callvoteCommandBuf, sizeof(callvoteCommandBuf), "custom%d", k + 1);
-		if (Q_stricmp(arg1, callvoteCommandBuf))
-			continue;
-
-		// check whether this command is enabled
-		if (!g_customVotes.integer) {
-			trap_SendServerCommand(ent - g_entities, "print \"Custom votes are not enabled by the server.\n\"");
-			return;
-		}
-		char cmdBuf[256] = { 0 };
-		trap_Cvar_VariableStringBuffer(va("g_customVote%d_command", k + 1), cmdBuf, sizeof(cmdBuf));
-		if (!cmdBuf[0] || !Q_stricmp(cmdBuf, "0")) {
-			trap_SendServerCommand(ent - g_entities, va("print \"Custom vote %d is not enabled by the server.\n\"", k + 1));
-			return;
-		}
-
-		// overwrite arg1/arg2
-		Q_strncpyz(arg1, cmdBuf, sizeof(arg1));
-		char *space = strchr(arg1, ' ');
-		if (space && *(space + 1)) { // everything after the first space is arg2
-			*space = '\0';
-			Q_strncpyz(arg2, space + 1, sizeof(arg2));
-		}
-		else {
-			arg2[0] = '\0';
-		}
-
-		break;
-	}
-
 	if ( !Q_stricmp( arg1, "map_restart" ) ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
