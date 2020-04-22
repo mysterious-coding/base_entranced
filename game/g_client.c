@@ -3144,22 +3144,18 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 			trap_Cvar_VariableStringBuffer(va("g_customVote%d_command", i + 1), cmdBuf, sizeof(cmdBuf));
 			if (!cmdBuf[0] || !Q_stricmp(cmdBuf, "0"))
 				continue;
-			char *quote = strchr(cmdBuf, '"');
-			while (quote) { // sanity check to remove quotation marks
-				*quote = '\'';
-				quote = strchr(quote, '"');
-			}
+			Q_strstrip(cmdBuf, ";\"\n\r", NULL); // remove bad chars
+			if (!cmdBuf[0])
+				continue;
 
 			// get the label
 			char labelBuf[256] = { 0 };
 			trap_Cvar_VariableStringBuffer(va("g_customVote%d_label", i + 1), labelBuf, sizeof(labelBuf));
 			if (!labelBuf[0] || !Q_stricmp(labelBuf, "0"))
 				continue;
-			quote = strchr(labelBuf, '"');
-			while (quote) { // sanity check to remove quotation marks
-				*quote = '\'';
-				quote = strchr(quote, '"');
-			}
+			Q_strstrip(labelBuf, "\"\n\r", NULL); // remove bad chars
+			if (!labelBuf[0])
+				continue;
 
 			// append to the overall string
 			if (gotCustomVote)

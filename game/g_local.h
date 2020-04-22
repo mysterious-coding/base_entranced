@@ -1880,6 +1880,7 @@ void RemoveSpaces(char* s);
 void CheckSiegeHelpFromUse(const char *targetname);
 gentity_t *GetVehicleFromPilot(gentity_t *pilotEnt);
 qboolean PlayerIsHiddenPilot(gentity_t *pilotEnt);
+void Q_strstrip(char *string, const char *strip, const char *repl);
 
 //
 // g_saga.c
