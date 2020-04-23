@@ -5880,6 +5880,11 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 		ent->s.number != saberent->s.number && (noDCheck ||trap_InPVS(ent->r.currentOrigin, saberent->r.currentOrigin)))
 	{ //hit a non-client
 
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP &&
+		g_gametype.integer == GT_SIEGE && ent->inuse && VALIDSTRING(ent->classname) && !Q_stricmp(ent->classname, "rocket_proj")) {
+		return qfalse;
+	}
+
 		if (noDCheck)
 		{
 			veclen = 0;
@@ -6263,6 +6268,7 @@ void DownedSaberThink(gentity_t *saberent)
 		{
 			saberOwn->client->ps.saberInFlight = qfalse;
 			MakeDeadSaber(saberent);
+			memset(&saberOwn->client->saberThrowDamageTime, 0, sizeof(saberOwn->client->saberThrowDamageTime));
 		}
 
 		saberent->touch = SaberGotHit;
@@ -6277,6 +6283,7 @@ void DownedSaberThink(gentity_t *saberent)
 		if (saberOwn->health > 0)
 		{ //only set this if he's alive. If dead we want to reflect the lack of saber on the corpse, as he died with his saber out.
 			saberOwn->client->ps.saberInFlight = qfalse;
+			memset(&saberOwn->client->saberThrowDamageTime, 0, sizeof(saberOwn->client->saberThrowDamageTime));
 			WP_SaberRemoveG2Model( saberent );
 		}
 		saberOwn->client->ps.saberEntityState = 0;
@@ -6509,6 +6516,7 @@ qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t 
 	saberOwner->client->ps.saberEntityState = 1;
 
 	saberent->s.saberInFlight = qfalse;
+	memset(&saberOwner->client->saberThrowDamageTime, 0, sizeof(saberOwner->client->saberThrowDamageTime));
 
 	saberent->s.pos.trType = TR_LINEAR;
 	saberent->s.eType = ET_GENERAL;
@@ -6896,6 +6904,7 @@ void saberBackToOwner(gentity_t *saberent)
 			|| saberOwner->client->ps.saberHolstered )
 		{
 			saberent->s.saberInFlight = qfalse;
+			memset(&saberOwner->client->saberThrowDamageTime, 0, sizeof(saberOwner->client->saberThrowDamageTime));
 		}
 		saberent->s.loopSound = saberOwner->client->saber[0].soundLoop;
 		saberent->s.loopIsSoundset = qfalse;
@@ -6905,6 +6914,7 @@ void saberBackToOwner(gentity_t *saberent)
 			G_Sound( saberent, CHAN_AUTO, G_SoundIndex( "sound/weapons/saber/saber_catch.wav" ) );
 
 			saberOwner->client->ps.saberInFlight = qfalse;
+			memset(&saberOwner->client->saberThrowDamageTime, 0, sizeof(saberOwner->client->saberThrowDamageTime));
 			saberOwner->client->ps.saberEntityState = 0;
 			saberOwner->client->ps.saberCanThrow = qfalse;
 			saberOwner->client->ps.saberThrowDelay = level.time + 300;
@@ -7022,6 +7032,7 @@ void saberFirstThrown(gentity_t *saberent)
 		WP_SaberRemoveG2Model( saberent );
 
 		saberOwn->client->ps.saberInFlight = qfalse;
+		memset(&saberOwn->client->saberThrowDamageTime, 0, sizeof(saberOwn->client->saberThrowDamageTime));
 		saberOwn->client->ps.saberEntityState = 0;
 		saberOwn->client->ps.saberThrowDelay = level.time + 500;
 		saberOwn->client->ps.saberCanThrow = qfalse;
@@ -8526,6 +8537,7 @@ nextStep:
 					WP_SaberRemoveG2Model( saberent );
 					
 					self->client->ps.saberInFlight = qfalse;
+					memset(&self->client->saberThrowDamageTime, 0, sizeof(self->client->saberThrowDamageTime));
 					self->client->ps.saberEntityState = 0;
 					self->client->ps.saberThrowDelay = level.time + 500;
 					self->client->ps.saberCanThrow = qfalse;

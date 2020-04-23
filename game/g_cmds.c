@@ -9286,6 +9286,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_autoStats);
 	PrintCvar(g_antiLaming);
 	PrintCvar(g_autoResetCustomTeams);
+	PrintCvar(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame);
 	PrintCvar(g_botJumping);
 	PrintCvar(g_breakRNG);
 	PrintCvar(g_coneReflectAngle);

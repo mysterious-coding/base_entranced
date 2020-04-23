@@ -5175,6 +5175,34 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
+	// guaranteed 100 damage saber throws on gunners
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS &&
+		g_gametype.integer == GT_SIEGE &&
+		nonJediSaberDmgIncrease != NONJEDISABERDMGINCREASE_NO &&
+		targ && targ->client && targ - g_entities < MAX_CLIENTS &&
+		mod == MOD_SABER && (targ->client->ps.weapon != WP_SABER || nonJediSaberDmgIncrease == NONJEDISABERDMGINCREASE_YES) &&
+		attacker && attacker->client && attacker - g_entities < MAX_CLIENTS && attacker->client->ps.saberInFlight &&
+		attacker->client->ps.saberMove != LS_DUAL_FB && attacker->client->ps.saberMove != LS_DUAL_LR) {
+		// duoTODO: fix damage for saberthrow with dual saber when holding mouse1 with the other saber at the same time
+		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 250)
+			return; // allow one 100 damage hit on the same target from the same attacker every 250ms or so
+		damage = 100;
+		attacker->client->saberThrowDamageTime[targ - g_entities] = level.time;
+	}
+
+	// only enemy demp/disruptor can damage rockets
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP &&
+		g_gametype.integer == GT_SIEGE &&
+		targ && VALIDSTRING(targ->classname) && !Q_stricmp(targ->classname, "rocket_proj") &&
+		attacker && attacker - g_entities < MAX_CLIENTS && attacker->client) {
+		if (targ->parent && targ->parent - g_entities < MAX_CLIENTS &&
+			targ->parent->client && targ->parent->client->sess.sessionTeam == attacker->client->sess.sessionTeam) {
+			return; // no teamkills
+		}
+		if (mod != MOD_DISRUPTOR && mod != MOD_DISRUPTOR_SNIPER && mod != MOD_DEMP2 && mod != MOD_DEMP2_ALT)
+			return; // only allow disruptor and demp mouse2
+	}
+
 	if ( targ && targ->client && targ->client->ps.duelInProgress )
 	{
         // make sure we are attacked by client and not from environment

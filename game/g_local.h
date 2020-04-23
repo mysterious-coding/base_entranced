@@ -1171,6 +1171,8 @@ struct gclient_s {
 
 	qboolean	usingEmplaced;
 	qboolean	forcingEmplacedNoAttack;
+
+	int			saberThrowDamageTime[MAX_CLIENTS];
 };
 
 //Interest points
@@ -2130,6 +2132,7 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 void SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean CheckGauntletAttack( gentity_t *ent );
+void SetRocketContents(int contents);
 
 
 //
@@ -2802,6 +2805,11 @@ extern vmCvar_t    g_quickPauseChat;
 extern vmCvar_t		g_multiUseGenerators;
 extern vmCvar_t		g_dispenserLifetime;
 extern vmCvar_t		g_techAmmoForAllWeapons;
+extern vmCvar_t		g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
+
+#define BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS	(1 << 0)
+#define BLACKISRUININGTHEVIDEOGAME_ROCKET_HP			(1 << 1)
+
 
 extern vmCvar_t    lastMapName;
 
