@@ -7398,20 +7398,19 @@ void Cmd_Emote_f(gentity_t *ent) {
 	if (trap_Argc() >= 2)
 		trap_Argv(1, buf, sizeof(buf));
 	unsigned int hash;
-	int torsoTimer = EMOTE_DEFAULT_TIME, legsTimer = EMOTE_DEFAULT_TIME;
+	int torsoTimer = -1, legsTimer = -1;
 	if (buf[0]) { // manually-specified animation string
 		// allow manually-specified duration with a second argument
 		if (trap_Argc() >= 3) {
 			char durationBuf[8] = { 0 };
 			trap_Argv(2, durationBuf, sizeof(durationBuf));
 			int durationFromArg = atoi(durationBuf);
-			if (durationFromArg >= 100) {
-				durationFromArg = Com_Clampi(1, 20000, durationFromArg);
+			if (durationFromArg >= 1000) {
 				torsoTimer = durationFromArg;
 				legsTimer = durationFromArg;
 			}
 			else {
-				trap_SendServerCommand(ent - g_entities, va("print \"Usage: emote [keyword] [duration in milliseconds]  (duration must be at least 100 ms)\n\""));
+				trap_SendServerCommand(ent - g_entities, va("print \"Usage: emote [keyword] [duration in milliseconds]  (duration must be at least 1000 ms)\n\""));
 				return;
 			}
 		}
@@ -7451,8 +7450,14 @@ void Cmd_Emote_f(gentity_t *ent) {
 
 	ent->client->ps.torsoAnim = (signed)torsoAnim;
 	ent->client->ps.legsAnim = (signed)legsAnim;
-	ent->client->ps.torsoTimer = torsoTimer;
-	ent->client->ps.legsTimer = legsTimer;
+
+	if (torsoTimer == -1 || legsTimer == -1) {
+		ent->client->ps.torsoTimer = BG_AnimLength(ent->localAnimIndex, ent->client->ps.torsoAnim);
+		ent->client->ps.legsTimer = BG_AnimLength(ent->localAnimIndex, ent->client->ps.legsAnim);
+	}
+
+	ent->client->ps.torsoTimer = Com_Clampi(1000, 10000, torsoTimer);
+	ent->client->ps.legsTimer = Com_Clampi(1000, 10000, legsTimer);
 
 	BG_ClearRocketLock(&ent->client->ps);
 }
