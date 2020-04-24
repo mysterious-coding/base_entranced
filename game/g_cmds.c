@@ -7452,8 +7452,8 @@ void Cmd_Emote_f(gentity_t *ent) {
 	ent->client->ps.legsAnim = (signed)legsAnim;
 
 	if (torsoTimer == -1 || legsTimer == -1) {
-		ent->client->ps.torsoTimer = BG_AnimLength(ent->localAnimIndex, ent->client->ps.torsoAnim);
-		ent->client->ps.legsTimer = BG_AnimLength(ent->localAnimIndex, ent->client->ps.legsAnim);
+		torsoTimer = BG_AnimLength(ent->localAnimIndex, ent->client->ps.torsoAnim);
+		legsTimer = BG_AnimLength(ent->localAnimIndex, ent->client->ps.legsAnim);
 	}
 
 	ent->client->ps.torsoTimer = Com_Clampi(1000, 10000, torsoTimer);
