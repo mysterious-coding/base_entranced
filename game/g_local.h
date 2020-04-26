@@ -2806,6 +2806,7 @@ extern vmCvar_t		g_multiUseGenerators;
 extern vmCvar_t		g_dispenserLifetime;
 extern vmCvar_t		g_techAmmoForAllWeapons;
 extern vmCvar_t		g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
+extern vmCvar_t		g_healWalkerWithAmmoCans;
 
 #define BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS	(1 << 0)
 #define BLACKISRUININGTHEVIDEOGAME_ROCKET_HP			(1 << 1)

@@ -2474,10 +2474,18 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 	if (ent->item->giTag == -1)
 	{ //an ammo_all, give them a bit of everything
-		if ( g_gametype.integer == GT_SIEGE )	// complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
+		if (g_gametype.integer == GT_SIEGE)	// complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
 		{
-			if (other && (other->s.eType == ET_NPC || other->m_pVehicle || PlayerIsHiddenPilot(other)))
-				return 0; // don't allow NPCs/vehicles/hidden pilots to pick up ammo canisters
+			if (g_healWalkerWithAmmoCans.integer) { // silly base behavior
+				if (other && (PlayerIsHiddenPilot(other) ||
+					(other->s.eType == ET_NPC && !(other->s.NPC_class == CLASS_VEHICLE && other->m_pVehicle && other->m_pVehicle->m_pVehicleInfo && other->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)))) {
+					return 0; // don't allow non-walker NPCs or hidden pilots to pick up ammo canisters
+				}
+			}
+			else { // new behavior
+				if (other && (other->s.eType == ET_NPC || other->m_pVehicle || PlayerIsHiddenPilot(other)))
+					return 0; // don't allow NPCs/vehicles/hidden pilots to pick up ammo canisters
+		}
 			int ammoTypesICanHave = other && other->client ? TypesOfAmmoPlayerHasGunsFor(other) : -1;
 #if 0
 			if (!ammoTypesICanHave)
@@ -2796,7 +2804,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				ent->item->giTag == -1 &&
 				other->s.NPC_class == CLASS_VEHICLE &&
 				other->m_pVehicle &&
-				other->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)
+				other->m_pVehicle->m_pVehicleInfo->type == VH_WALKER &&
+				g_healWalkerWithAmmoCans.integer)
 			{ //yeah, uh, atst gets healed by these things
                 if (other->maxHealth &&
 					other->health < other->maxHealth)

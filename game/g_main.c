@@ -216,6 +216,7 @@ vmCvar_t	g_multiUseGenerators;
 vmCvar_t	g_dispenserLifetime;
 vmCvar_t	g_techAmmoForAllWeapons;
 vmCvar_t	g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
+vmCvar_t	g_healWalkerWithAmmoCans;
 
 vmCvar_t	lastMapName;
 
@@ -1054,6 +1055,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_dispenserLifetime, "g_dispenserLifetime", "25", CVAR_ARCHIVE, 0, qtrue }, // up from 20
 	{ &g_techAmmoForAllWeapons, "g_techAmmoForAllWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame, "g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_healWalkerWithAmmoCans, "g_healWalkerWithAmmoCans", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
 
