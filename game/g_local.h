@@ -2196,6 +2196,8 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 char* NM_SerializeUIntToColor(const unsigned int n);
 int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical, int clientNum, int *diffOut);
 void *G_SiegeClassFromName(char *s);
+void G_InitVchats();
+
 //
 // g_pweapon.c
 //
