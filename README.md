@@ -29,6 +29,8 @@ base_entranced is icensed under GPLv2 as free software. You are free to use, mod
 
 base_entranced is intended to be fully usable "out of the box." Most cvars default to their ideal/recommended setting for a pug server, as far as the Siege community is concerned. You shouldn't really need to change anything to get your server running, although the cvars are nevertheless there for you to change if you would like to customize your server to your liking.
 
+**You MUST use the following dedicated server executable for this mod to work** https://github.com/avygeil/openjk
+
 # base_entranced features
 These are unique features for base_entranced.
 
