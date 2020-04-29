@@ -1294,8 +1294,8 @@ static int LogCaptureTime(
 	else
 		newElement->recordHolderCuids[3][0] = '\0';
 
-	// match id is optional, empty if sv_uniqueid is not implemented in this OpenJK version
-	if (VALIDSTRING(matchId) && strlen(matchId) == SV_UNIQUEID_LEN - 1) {
+	// match id is optional, empty if sv_matchid is not implemented in this OpenJK version
+	if (VALIDSTRING(matchId) && strlen(matchId) == SV_MATCHID_LEN - 1) {
 		Q_strncpyz(newElement->matchId, matchId, sizeof(newElement->matchId));
 	}
 	else {
@@ -1557,8 +1557,8 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		clients[2] = clients[3] = NULL; // in any case, non-livepugs can only have 2 players at most
 	}
 
-	char matchId[SV_UNIQUEID_LEN];
-	trap_Cvar_VariableStringBuffer("sv_uniqueid", matchId, sizeof(matchId)); // this requires a custom OpenJK build
+	char matchId[SV_MATCHID_LEN];
+	trap_Cvar_VariableStringBuffer("sv_matchid", matchId, sizeof(matchId)); // this requires a custom OpenJK build
 
 	// store per-obj speeds for calculating the entire-map speeds later
 	float *disp[4] = { NULL }, *topSpeed[4] = { NULL };

@@ -1256,7 +1256,7 @@ typedef struct
 #define MAX_WHITELIST_LEN	16384
 
 // best capture times stuff
-#define SV_UNIQUEID_LEN		17 // 2 concatenated hex 4 bytes ints, so 2*8 chars + NULL
+#define SV_MATCHID_LEN		17 // 2 concatenated hex 4 bytes ints, so 2*8 chars + NULL
 #define MAX_SAVED_RECORDS	5 // records saved per mode
 
 typedef int CaptureCategoryFlags;
@@ -1275,7 +1275,7 @@ typedef struct {
 	int avgSpeed1; // average speed in ups
 	time_t date; // epoch time of the record (seconds)
 
-	char matchId[SV_UNIQUEID_LEN]; // used to link to the game on demoarchive, but requires special OpenJK (may be empty)
+	char matchId[SV_MATCHID_LEN]; // used to link to the game on demoarchive, but requires special OpenJK (may be empty)
 	int recordHolder1ClientId; // client id assigned when the record took place
 	int recordHolder2ClientId; // client id assigned when the record took place
 
