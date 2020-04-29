@@ -2127,13 +2127,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	InitializeMapName();
 
-	char serverFeatures[MAX_STRING_CHARS];
-	trap_Cvar_VariableStringBuffer("b_e_server_features", serverFeatures, sizeof(serverFeatures));
-	if (serverFeatures[0] && atoi(serverFeatures) & 1)
-		level.serverEngineSupportsSetUserinfoWithoutUpdate = qtrue;
-
-	trap_Cvar_Set("b_e_game_features", "1"); // 1 == supports setting configstring without immediately updating it for clients
-
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
 	level.snd_hack = G_SoundIndex("sound/player/hacking.wav");

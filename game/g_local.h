@@ -1410,8 +1410,6 @@ typedef struct {
 	char			mapname[MAX_STRING_CHARS];
 	siegeMap_t		siegeMap;
 
-	qboolean		serverEngineSupportsSetUserinfoWithoutUpdate;
-
 	fileHandle_t	logFile;
 	fileHandle_t	hackLogFile;
 	fileHandle_t	DBLogFile;

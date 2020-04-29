@@ -2647,7 +2647,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 			// if the engine supports setting user info without immediately updating,
 			// then we don't need to send another one to overwrite the one sent above
-			if (level.serverEngineSupportsSetUserinfoWithoutUpdate) {
+			if (qtrue) {
 				if (client->sess.lastInfoSent[i][0] && !Q_stricmp(s, client->sess.lastInfoSent[i]))
 					continue; // client i already got this exact info from us last time; don't bother
 				Q_strncpyz(client->sess.lastInfoSent[i], s, sizeof(client->sess.lastInfoSent[i]));
