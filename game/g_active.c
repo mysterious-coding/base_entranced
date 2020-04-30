@@ -733,6 +733,36 @@ int getGlobalTime()
     return (int)time(0);
 }
 
+static qboolean IsInputting(const gclient_t *client, qboolean checkPressingButtons, qboolean checkMovingMouse, qboolean checkPressingChatButton) {
+	if (!client) {
+		assert(qfalse);
+		return qfalse;
+	}
+
+	if (checkPressingButtons) {
+		if (client->pers.cmd.forwardmove || client->pers.cmd.rightmove || client->pers.cmd.upmove ||
+			client->pers.cmd.buttons & BUTTON_ATTACK || client->pers.cmd.buttons & BUTTON_ALT_ATTACK || client->pers.cmd.generic_cmd) {
+			return qtrue;
+		}
+	}
+
+	if (checkMovingMouse) {
+		if ((short)client->pers.cmd.angles[0] != (short)client->pers.lastCmd.angles[0] ||
+			(short)client->pers.cmd.angles[1] != (short)client->pers.lastCmd.angles[1] ||
+			(short)client->pers.cmd.angles[2] != (short)client->pers.lastCmd.angles[2]) {
+			return qtrue;
+		}
+	}
+
+	if (checkPressingChatButton) {
+		if ((client->pers.cmd.buttons ^ client->pers.lastCmd.buttons) & BUTTON_TALK) {
+			return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+
 /*
 =================
 ClientInactivityTimer
@@ -750,17 +780,7 @@ qboolean CheckSpectatorInactivityTimer(gclient_t *client)
         client->sess.inactivityTime = getGlobalTime() + 60;
         client->inactivityWarning = qfalse;
     }
-    else if (client->pers.cmd.forwardmove ||
-        client->pers.cmd.rightmove ||
-        client->pers.cmd.upmove ||
-        (client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) ||
-        client->pers.cmd.generic_cmd ||
-        (short)client->pers.cmd.angles[0] != (short)client->pers.lastCmd.angles[0] ||
-        (short)client->pers.cmd.angles[1] != (short)client->pers.lastCmd.angles[1] ||
-        (short)client->pers.cmd.angles[2] != (short)client->pers.lastCmd.angles[2] ||
-        ((client->pers.cmd.buttons ^ client->pers.lastCmd.buttons) & BUTTON_TALK) ||
-        client->sess.spectatorState == SPECTATOR_FOLLOW
-        )
+    else if (IsInputting(client, qtrue, qtrue, qtrue) || client->sess.spectatorState == SPECTATOR_FOLLOW)
     {
         client->sess.inactivityTime = getGlobalTime() + g_spectatorInactivity.integer;
         
@@ -796,6 +816,9 @@ Returns qfalse if the client is dropped/force specced
 */
 qboolean CheckPlayerInactivityTimer(gclient_t *client)
 {
+	if (IsInputting(client, qtrue, qtrue, qtrue))
+		client->pers.lastInputTime = getGlobalTime();
+
 	qboolean active = qtrue;
 
 	qboolean didSomething;
@@ -808,13 +831,7 @@ qboolean CheckPlayerInactivityTimer(gclient_t *client)
 			level.movedAtStart[client - level.clients] = qtrue;
 		}
 	}
-	else if ((client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ALT_ATTACK)) ||
-		client->pers.cmd.generic_cmd ||
-		(short)client->pers.cmd.angles[0] != (short)client->pers.lastCmd.angles[0] ||
-		(short)client->pers.cmd.angles[1] != (short)client->pers.lastCmd.angles[1] ||
-		(short)client->pers.cmd.angles[2] != (short)client->pers.lastCmd.angles[2] ||
-		((client->pers.cmd.buttons ^ client->pers.lastCmd.buttons) & BUTTON_TALK)
-		) {
+	else if (IsInputting(client, qtrue, qtrue, qtrue)) {
 		didSomething = qtrue;
 	}
 	else {

@@ -620,6 +620,11 @@ vmCvar_t	g_callvotemaplimit;
 vmCvar_t	sv_privateclients;
 vmCvar_t	sv_passwordlessSpectators;
 
+vmCvar_t	g_autoStart;
+vmCvar_t	g_autoStartTimer;
+vmCvar_t	g_autoStartAFKThreshold;
+vmCvar_t	g_autoStartMinPlayers;
+
 // nmckenzie: temporary way to show player healths in duels - some iface gfx in game would be better, of course.
 // DUEL_HEALTH
 vmCvar_t		g_showDuelHealths;
@@ -1282,6 +1287,11 @@ static cvarTable_t		gameCvarTable[] = {
     { &sv_privateclients, "sv_privateclients", "0", CVAR_ARCHIVE | CVAR_SERVERINFO },
 	{ &sv_passwordlessSpectators, "sv_passwordlessSpectators", "0", CVAR_ARCHIVE | CVAR_SERVERINFO },
     { &g_defaultBanHoursDuration, "g_defaultBanHoursDuration", "24", CVAR_ARCHIVE | CVAR_INTERNAL },      
+
+	{ &g_autoStart, "g_autoStart", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoStartTimer, "g_autoStartTimer", "10", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoStartAFKThreshold, "g_autoStartAFKThreshold", "5", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoStartMinPlayers, "g_autoStartMinPlayers", "4", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_bouncePadDoubleJump, "g_bouncePadDoubleJump", "1", CVAR_ARCHIVE, 0, qtrue }
 };
@@ -6185,6 +6195,162 @@ static void CheckNewmodSiegeClassLimits(void) {
 
 extern void WP_AddToClientBitflags(gentity_t *ent, int entNum);
 
+static int GetCurrentRestartCountdown(void) {
+	char buf[32] = { 0 };
+	trap_GetConfigstring(CS_WARMUP, buf, sizeof(buf));
+	if (buf[0]) {
+		int num = atoi(buf);
+		if (num > 0)
+			return num;
+	}
+	return 0;
+}
+
+#define AUTORESTART_AFK_MIN				(1)
+#define AUTORESTART_AFK_MAX				(30)
+#define AUTORESTART_AFK_DEFAULT			(5)
+
+#define AUTORESTART_COUNTDOWN_MIN		(3)
+#define AUTORESTART_COUNTDOWN_MAX		(30)
+#define AUTORESTART_COUNTDOWN_DEFAULT	(10)
+
+#define AUTORESTART_MINPLAYERS_MIN		(2)
+#define AUTORESTART_MINPLAYERS_MAX		(MAX_CLIENTS)
+#define AUTORESTART_MINPLAYERS_DEFAULT	(4) // 2v2
+
+static void RunAutoRestart(void) {
+	if (g_gametype.integer != GT_SIEGE)
+		return;
+
+	const int currentCountdown = GetCurrentRestartCountdown();
+	static int autoCountdown = 0;
+
+	if (!g_autoStart.integer || level.intermissiontime) {
+		if (currentCountdown && autoCountdown) {
+			// edge case: the g_autoStart cvar was disabled or intermission was reached while the auto countdown was active
+			// cancel the auto countdown
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart -1\n");
+			autoCountdown = 0;
+		}
+		return;
+	}
+
+	if (autoCountdown && !currentCountdown) {
+		// edge case: an admin used rcon map_restart -1 to cancel the auto countdown
+		// set the g_autoStart cvar to 0 to prevent instantly spamming auto countdown
+		trap_Cvar_Set("g_autoStart", "0");
+		autoCountdown = 0;
+		return;
+	}
+
+	if (currentCountdown && autoCountdown && abs(currentCountdown - autoCountdown) > 200) {
+		// edge case: a countdown was started elsewhere (map_restart vote/rcon, etc) while the auto countdown was active
+		// e.g., auto countdown was ticking down with 2 seconds left and then ski used rcon map_restart 300
+		// disable special auto countdown checks (afk detection, etc) so that this function treats it as a manual countdown
+		autoCountdown = 0;
+		return;
+	}
+
+	int numRed = 0, numBlue = 0;
+	enum {
+		CLIENTNUMAFK_MULTIPLE = -2,
+		CLIENTNUMAFK_NONE = -1
+	} clientNumAfk = CLIENTNUMAFK_NONE;
+	enum {
+		CLIENTNUMNOTREADY_MULTIPLE = -2,
+		CLIENTNUMNOTREADY_NONE = -1
+	} clientNumNotReady = CLIENTNUMNOTREADY_NONE;
+	int now = getGlobalTime();
+	int afkThreshold = g_autoStartAFKThreshold.integer;
+	if (afkThreshold <= 0)
+		afkThreshold = AUTORESTART_AFK_DEFAULT;
+	afkThreshold = Com_Clampi(AUTORESTART_AFK_MIN, AUTORESTART_AFK_MAX, afkThreshold);
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gentity_t *ent = &g_entities[i];
+		if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
+			continue;
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->sess.sessionTeam == TEAM_FREE)
+			continue;
+
+		if (ent->client->sess.sessionTeam == TEAM_RED)
+			numRed++;
+		else
+			numBlue++;
+
+		if (!ent->client->pers.ready) {
+			if (clientNumNotReady == CLIENTNUMNOTREADY_NONE)
+				clientNumNotReady = i;
+			else
+				clientNumNotReady = CLIENTNUMNOTREADY_MULTIPLE;
+		}
+		if (now - ent->client->pers.lastInputTime > afkThreshold) {
+			if (clientNumAfk == CLIENTNUMAFK_NONE)
+				clientNumAfk = i;
+			else
+				clientNumAfk = CLIENTNUMAFK_MULTIPLE;
+		}
+	}
+
+	int minPlayers = g_autoStartMinPlayers.integer;
+	if (minPlayers <= 0)
+		minPlayers = AUTORESTART_MINPLAYERS_DEFAULT;
+	minPlayers = Com_Clampi(AUTORESTART_MINPLAYERS_MIN, AUTORESTART_MINPLAYERS_MAX, minPlayers);
+	if (currentCountdown) {
+		if (!autoCountdown) {
+			// there is currently a countdown, but it wasn't from here (map_restart vote/rcon, etc); don't do anything at all.
+			return;
+		}
+		char cancelReason[256] = { 0 };
+		if (numRed + numBlue < minPlayers)
+			Q_strncpyz(cancelReason, "Not enough players ingame", sizeof(cancelReason));
+		else if (clientNumNotReady == CLIENTNUMNOTREADY_MULTIPLE)
+			Q_strncpyz(cancelReason, "Multiple players are not ready", sizeof(cancelReason));
+		else if (clientNumNotReady >= 0 && clientNumNotReady < MAX_CLIENTS)
+			Q_strncpyz(cancelReason, va("%s^7 is not ready", level.clients[clientNumNotReady].pers.netname), sizeof(cancelReason));
+		else if (numRed != numBlue)
+			Q_strncpyz(cancelReason, "Uneven # of players", sizeof(cancelReason));
+		else if (clientNumAfk == CLIENTNUMAFK_MULTIPLE)
+			Q_strncpyz(cancelReason, "Multiple players are AFK", sizeof(cancelReason));
+		else if (clientNumAfk >= 0 && clientNumAfk < MAX_CLIENTS)
+			Q_strncpyz(cancelReason, va("%s^7 is AFK", level.clients[clientNumAfk].pers.netname), sizeof(cancelReason));
+
+		if (cancelReason[0]) {
+			/*
+			there is currently an auto countdown, but ANY ONE of the following is true:
+			- someone has unreadied
+			- someone has become afk
+			- the teams have become uneven
+			- there are now less than 8 players ingame
+
+			cancel the auto countdown
+			*/
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart -1\n");
+			autoCountdown = 0;
+			trap_SendServerCommand(-1, va("print \"^1Auto-start cancelled:^7 %s^7\n\"", cancelReason));
+			trap_SendServerCommand(-1, va("cp \"^1Auto-start cancelled:^7\n%s^7\n\"", cancelReason));
+		}
+	}
+	else {
+		if (numRed == numBlue && numRed + numBlue >= minPlayers && clientNumNotReady == CLIENTNUMNOTREADY_NONE && clientNumAfk == CLIENTNUMAFK_NONE) {
+			/*
+			there is NOT currently a countdown, and ALL of the following are true:
+			- everyone is ready
+			- everyone is present
+			- there are at least 8 players ingame
+			- the teams are even
+
+			start the auto countdown
+			*/
+			int seconds = g_autoStartTimer.integer;
+			if (seconds <= 0)
+				seconds = AUTORESTART_COUNTDOWN_DEFAULT;
+			seconds = Com_Clampi(AUTORESTART_COUNTDOWN_MIN, AUTORESTART_COUNTDOWN_MAX, seconds);
+			trap_SendConsoleCommand(EXEC_NOW, va("map_restart %d\n", seconds));
+			autoCountdown = level.time + (seconds * 1000);
+		}
+	}
+}
+
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -7272,6 +7438,8 @@ void G_RunFrame( int levelTime ) {
 	RunSiegeHelpMessages();
 	RunImprovedHoming();
 #endif
+
+	RunAutoRestart();
 
 	level.frameStartTime = trap_Milliseconds(); // accurate timer
 

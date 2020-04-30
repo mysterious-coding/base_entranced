@@ -3036,6 +3036,16 @@ continueOuterLoop:
 		}
 	}
 
+	// unready everyone if autostart is enabled
+	if (g_autoStart.integer) {
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			gentity_t *ent = &g_entities[i];
+			if (!ent || !ent->inuse || !ent->client)
+				continue;
+			ent->client->pers.ready = qfalse;
+		}
+	}
+
 #if 0
 	if (redCaptain != -1)
 		trap_SendServerCommand(-1, va("print \"^2The captain in team ^1RED ^2is^7: %s\n\"", g_entities[redCaptain].client->pers.netname));

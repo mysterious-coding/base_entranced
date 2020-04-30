@@ -848,6 +848,8 @@ typedef struct {
 	float		fastcapTopSpeed;
 	float		fastcapDisplacement;
 	int			fastcapDisplacementSamples;
+
+	int			lastInputTime;
 } clientPersistant_t;
 
 typedef struct renderInfo_s
@@ -3021,6 +3023,11 @@ extern vmCvar_t	   g_callvotemaplimit;
 
 extern vmCvar_t	   sv_privateclients;
 extern vmCvar_t    sv_passwordlessSpectators;
+
+extern vmCvar_t		g_autoStart;
+extern vmCvar_t		g_autoStartTimer;
+extern vmCvar_t		g_autoStartAFKThreshold;
+extern vmCvar_t		g_autoStartMinPlayers;
 
 extern vmCvar_t	   g_wasIntermission;
 
