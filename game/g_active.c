@@ -772,6 +772,9 @@ Returns qfalse if the spectator is dropped
 */
 qboolean CheckSpectatorInactivityTimer(gclient_t *client)
 {
+	if (IsInputting(client, qtrue, qtrue, qtrue))
+		client->pers.lastInputTime = getGlobalTime();
+
     if (!g_spectatorInactivity.integer)
     {
         // give everyone some time, so if the operator sets g_inactivity during
