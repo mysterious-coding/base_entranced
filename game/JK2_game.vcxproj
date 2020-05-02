@@ -124,6 +124,7 @@
     <ClCompile Include="g_target.c" />
     <ClCompile Include="g_team.c" />
     <ClCompile Include="g_timer.c" />
+    <ClCompile Include="g_transfers.c" />
     <ClCompile Include="g_trigger.c" />
     <ClCompile Include="g_turret.c" />
     <ClCompile Include="g_turret_G2.c" />

@@ -2311,7 +2311,7 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 			if ( gent->takedamage 
 				&& gent->client ) 
 			{
-				if (!(gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE && !g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && gent->m_pVehicle && gent->m_pVehicle->m_pPilot && gent->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(gent->m_pVehicle->m_pPilot))->client &&
+				if (!(gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE && !g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && gent->m_pVehicle && gent->m_pVehicle->m_pPilot && (gentity_t *)gent->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(gent->m_pVehicle->m_pPilot))->client &&
 					((gentity_t *)(gent->m_pVehicle->m_pPilot))->client->sess.sessionTeam == ent->client->sess.sessionTeam) &&
 					!(gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE && !g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && gent->teamnodmg == ent->client->sess.sessionTeam)) {
 					if (gent->client->ps.electrifyTime < level.time)

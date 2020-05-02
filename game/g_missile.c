@@ -811,7 +811,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				{//vehicles hit by "ion cannons" lose control
 					if (!(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM &&
 						ent->parent && ent->parent - g_entities < MAX_CLIENTS && ent->parent->client &&
-						other->m_pVehicle->m_pPilot && other->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(other->m_pVehicle->m_pPilot))->client &&
+						other->m_pVehicle->m_pPilot && (gentity_t *)other->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(other->m_pVehicle->m_pPilot))->client &&
 						((gentity_t *)(other->m_pVehicle->m_pPilot))->client->sess.sessionTeam == ent->parent->client->sess.sessionTeam) &&
 						!(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->parent && ent->parent->client && other->teamnodmg == ent->parent->client->sess.sessionTeam)) {
 						if (other->client->ps.electrifyTime > level.time)
