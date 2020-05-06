@@ -287,6 +287,51 @@ vmCvar_t	g_skillboost5_movementSpeedBonus;
 vmCvar_t	g_skillboost5_selfDamageFactorOverride;
 vmCvar_t	g_skillboost5_splashRadiusBonus;
 
+vmCvar_t	g_skillboost6_damageDealtBonus;
+vmCvar_t	g_skillboost6_dempDamageDealtBonus;
+vmCvar_t	g_skillboost6_damageTakenReduction;
+vmCvar_t	g_skillboost6_forceRegenBonus;
+vmCvar_t	g_skillboost6_dempMaxFrozenTimeReduction;
+vmCvar_t	g_skillboost6_movementSpeedBonus;
+vmCvar_t	g_skillboost6_selfDamageFactorOverride;
+vmCvar_t	g_skillboost6_splashRadiusBonus;
+
+vmCvar_t	g_skillboost7_damageDealtBonus;
+vmCvar_t	g_skillboost7_dempDamageDealtBonus;
+vmCvar_t	g_skillboost7_damageTakenReduction;
+vmCvar_t	g_skillboost7_forceRegenBonus;
+vmCvar_t	g_skillboost7_dempMaxFrozenTimeReduction;
+vmCvar_t	g_skillboost7_movementSpeedBonus;
+vmCvar_t	g_skillboost7_selfDamageFactorOverride;
+vmCvar_t	g_skillboost7_splashRadiusBonus;
+
+vmCvar_t	g_skillboost8_damageDealtBonus;
+vmCvar_t	g_skillboost8_dempDamageDealtBonus;
+vmCvar_t	g_skillboost8_damageTakenReduction;
+vmCvar_t	g_skillboost8_forceRegenBonus;
+vmCvar_t	g_skillboost8_dempMaxFrozenTimeReduction;
+vmCvar_t	g_skillboost8_movementSpeedBonus;
+vmCvar_t	g_skillboost8_selfDamageFactorOverride;
+vmCvar_t	g_skillboost8_splashRadiusBonus;
+
+vmCvar_t	g_skillboost9_damageDealtBonus;
+vmCvar_t	g_skillboost9_dempDamageDealtBonus;
+vmCvar_t	g_skillboost9_damageTakenReduction;
+vmCvar_t	g_skillboost9_forceRegenBonus;
+vmCvar_t	g_skillboost9_dempMaxFrozenTimeReduction;
+vmCvar_t	g_skillboost9_movementSpeedBonus;
+vmCvar_t	g_skillboost9_selfDamageFactorOverride;
+vmCvar_t	g_skillboost9_splashRadiusBonus;
+
+vmCvar_t	g_skillboost10_damageDealtBonus;
+vmCvar_t	g_skillboost10_dempDamageDealtBonus;
+vmCvar_t	g_skillboost10_damageTakenReduction;
+vmCvar_t	g_skillboost10_forceRegenBonus;
+vmCvar_t	g_skillboost10_dempMaxFrozenTimeReduction;
+vmCvar_t	g_skillboost10_movementSpeedBonus;
+vmCvar_t	g_skillboost10_selfDamageFactorOverride;
+vmCvar_t	g_skillboost10_splashRadiusBonus;
+
 vmCvar_t	g_senseBoost1_interval;
 vmCvar_t	g_senseBoost2_interval;
 vmCvar_t	g_senseBoost3_interval;
@@ -1100,48 +1145,89 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_skillboost3_damageDealtBonus, "g_skillboost3_damageDealtBonus", "0.20", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_damageDealtBonus, "g_skillboost4_damageDealtBonus", "0.35", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_damageDealtBonus, "g_skillboost5_damageDealtBonus", "0.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_damageDealtBonus, "g_skillboost6_damageDealtBonus", "0.75", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_damageDealtBonus, "g_skillboost7_damageDealtBonus", "1.00", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_damageDealtBonus, "g_skillboost8_damageDealtBonus", "1.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_damageDealtBonus, "g_skillboost9_damageDealtBonus", "2.00", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_damageDealtBonus, "g_skillboost10_damageDealtBonus", "3.00", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_dempDamageDealtBonus, "g_skillboost1_dempDamageDealtBonus", "0.0333", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_dempDamageDealtBonus, "g_skillboost2_dempDamageDealtBonus", "0.0667", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_dempDamageDealtBonus, "g_skillboost3_dempDamageDealtBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_dempDamageDealtBonus, "g_skillboost4_dempDamageDealtBonus", "0.125", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_dempDamageDealtBonus, "g_skillboost5_dempDamageDealtBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_dempDamageDealtBonus, "g_skillboost6_dempDamageDealtBonus", "0.20", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_dempDamageDealtBonus, "g_skillboost7_dempDamageDealtBonus", "0.30", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_dempDamageDealtBonus, "g_skillboost8_dempDamageDealtBonus", "0.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_dempDamageDealtBonus, "g_skillboost9_dempDamageDealtBonus", "0.75", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_dempDamageDealtBonus, "g_skillboost10_dempDamageDealtBonus", "1.00", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_damageTakenReduction, "g_skillboost1_damageTakenReduction", "0.00", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_damageTakenReduction, "g_skillboost2_damageTakenReduction", "0.00", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_damageTakenReduction, "g_skillboost3_damageTakenReduction", "0.00", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_damageTakenReduction, "g_skillboost4_damageTakenReduction", "0.025", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_damageTakenReduction, "g_skillboost5_damageTakenReduction", "0.05", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_damageTakenReduction, "g_skillboost6_damageTakenReduction", "0.10", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_damageTakenReduction, "g_skillboost7_damageTakenReduction", "0.15", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_damageTakenReduction, "g_skillboost8_damageTakenReduction", "0.20", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_damageTakenReduction, "g_skillboost9_damageTakenReduction", "0.30", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_damageTakenReduction, "g_skillboost10_damageTakenReduction", "0.40", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_forceRegenBonus, "g_skillboost1_forceRegenBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_forceRegenBonus, "g_skillboost2_forceRegenBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_forceRegenBonus, "g_skillboost3_forceRegenBonus", "0.20", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_forceRegenBonus, "g_skillboost4_forceRegenBonus", "0.50", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_forceRegenBonus, "g_skillboost5_forceRegenBonus", "1.00", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_forceRegenBonus, "g_skillboost6_forceRegenBonus", "1.25", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_forceRegenBonus, "g_skillboost7_forceRegenBonus", "1.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_forceRegenBonus, "g_skillboost8_forceRegenBonus", "2.00", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_forceRegenBonus, "g_skillboost9_forceRegenBonus", "3.00", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_forceRegenBonus, "g_skillboost10_forceRegenBonus", "4.00", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_dempMaxFrozenTimeReduction, "g_skillboost1_dempMaxFrozenTimeReduction", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_dempMaxFrozenTimeReduction, "g_skillboost2_dempMaxFrozenTimeReduction", "0.15", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_dempMaxFrozenTimeReduction, "g_skillboost3_dempMaxFrozenTimeReduction", "0.20", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_dempMaxFrozenTimeReduction, "g_skillboost4_dempMaxFrozenTimeReduction", "0.30", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_dempMaxFrozenTimeReduction, "g_skillboost5_dempMaxFrozenTimeReduction", "0.45", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_dempMaxFrozenTimeReduction, "g_skillboost6_dempMaxFrozenTimeReduction", "0.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_dempMaxFrozenTimeReduction, "g_skillboost7_dempMaxFrozenTimeReduction", "0.60", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_dempMaxFrozenTimeReduction, "g_skillboost8_dempMaxFrozenTimeReduction", "0.70", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_dempMaxFrozenTimeReduction, "g_skillboost9_dempMaxFrozenTimeReduction", "0.80", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_dempMaxFrozenTimeReduction, "g_skillboost10_dempMaxFrozenTimeReduction", "0.90", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_movementSpeedBonus, "g_skillboost1_movementSpeedBonus", "0.05", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_movementSpeedBonus, "g_skillboost2_movementSpeedBonus", "0.075", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_movementSpeedBonus, "g_skillboost3_movementSpeedBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_movementSpeedBonus, "g_skillboost4_movementSpeedBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_movementSpeedBonus, "g_skillboost5_movementSpeedBonus", "0.20", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_movementSpeedBonus, "g_skillboost6_movementSpeedBonus", "0.30", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_movementSpeedBonus, "g_skillboost7_movementSpeedBonus", "0.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_movementSpeedBonus, "g_skillboost8_movementSpeedBonus", "0.75", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_movementSpeedBonus, "g_skillboost9_movementSpeedBonus", "1.00", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_movementSpeedBonus, "g_skillboost10_movementSpeedBonus", "1.50", CVAR_ARCHIVE, 0, qtrue },
+
 
 	{ &g_skillboost1_selfDamageFactorOverride, "g_skillboost1_selfDamageFactorOverride", "1.25", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_selfDamageFactorOverride, "g_skillboost2_selfDamageFactorOverride", "1.125", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_selfDamageFactorOverride, "g_skillboost3_selfDamageFactorOverride", "1.00", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_selfDamageFactorOverride, "g_skillboost4_selfDamageFactorOverride", "0.75", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_selfDamageFactorOverride, "g_skillboost5_selfDamageFactorOverride", "0.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_selfDamageFactorOverride, "g_skillboost6_selfDamageFactorOverride", "0.40", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_selfDamageFactorOverride, "g_skillboost7_selfDamageFactorOverride", "0.30", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_selfDamageFactorOverride, "g_skillboost8_selfDamageFactorOverride", "0.20", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_selfDamageFactorOverride, "g_skillboost9_selfDamageFactorOverride", "0.10", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_selfDamageFactorOverride, "g_skillboost10_selfDamageFactorOverride", "0.05", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_skillboost1_splashRadiusBonus, "g_skillboost1_splashRadiusBonus", "0.05", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost2_splashRadiusBonus, "g_skillboost2_splashRadiusBonus", "0.10", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost3_splashRadiusBonus, "g_skillboost3_splashRadiusBonus", "0.15", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost4_splashRadiusBonus, "g_skillboost4_splashRadiusBonus", "0.25", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_skillboost5_splashRadiusBonus, "g_skillboost5_splashRadiusBonus", "0.40", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost6_splashRadiusBonus, "g_skillboost6_splashRadiusBonus", "0.50", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost7_splashRadiusBonus, "g_skillboost7_splashRadiusBonus", "0.60", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost8_splashRadiusBonus, "g_skillboost8_splashRadiusBonus", "0.70", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost9_splashRadiusBonus, "g_skillboost9_splashRadiusBonus", "0.80", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_skillboost10_splashRadiusBonus, "g_skillboost10_splashRadiusBonus", "1.00", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_senseBoost1_interval, "g_senseBoost1_interval", "10100", CVAR_ARCHIVE, 0 , qtrue },
 	{ &g_senseBoost2_interval, "g_senseBoost2_interval", "7100", CVAR_ARCHIVE, 0 , qtrue },

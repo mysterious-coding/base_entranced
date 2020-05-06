@@ -2771,6 +2771,11 @@ void ClientThink_real( gentity_t *ent ) {
 				case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
 				case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
 				case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
+				case 6:		client->ps.speed += (client->ps.speed * g_skillboost6_movementSpeedBonus.value);		break;
+				case 7:		client->ps.speed += (client->ps.speed * g_skillboost7_movementSpeedBonus.value);		break;
+				case 8:		client->ps.speed += (client->ps.speed * g_skillboost8_movementSpeedBonus.value);		break;
+				case 9:		client->ps.speed += (client->ps.speed * g_skillboost9_movementSpeedBonus.value);		break;
+				case 10:		client->ps.speed += (client->ps.speed * g_skillboost10_movementSpeedBonus.value);		break;
 				}
 			}
 
@@ -3029,6 +3034,11 @@ void ClientThink_real( gentity_t *ent ) {
 						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
 						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
 						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
+						case 6:		client->ps.speed += (client->ps.speed * g_skillboost6_movementSpeedBonus.value);		break;
+						case 7:		client->ps.speed += (client->ps.speed * g_skillboost7_movementSpeedBonus.value);		break;
+						case 8:		client->ps.speed += (client->ps.speed * g_skillboost8_movementSpeedBonus.value);		break;
+						case 9:		client->ps.speed += (client->ps.speed * g_skillboost9_movementSpeedBonus.value);		break;
+						case 10:		client->ps.speed += (client->ps.speed * g_skillboost10_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -3043,6 +3053,11 @@ void ClientThink_real( gentity_t *ent ) {
 						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
 						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
 						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
+						case 6:		client->ps.speed += (client->ps.speed * g_skillboost6_movementSpeedBonus.value);		break;
+						case 7:		client->ps.speed += (client->ps.speed * g_skillboost7_movementSpeedBonus.value);		break;
+						case 8:		client->ps.speed += (client->ps.speed * g_skillboost8_movementSpeedBonus.value);		break;
+						case 9:		client->ps.speed += (client->ps.speed * g_skillboost9_movementSpeedBonus.value);		break;
+						case 10:		client->ps.speed += (client->ps.speed * g_skillboost10_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -3107,6 +3122,11 @@ void ClientThink_real( gentity_t *ent ) {
 						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
 						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
 						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
+						case 6:		client->ps.speed += (client->ps.speed * g_skillboost6_movementSpeedBonus.value);		break;
+						case 7:		client->ps.speed += (client->ps.speed * g_skillboost7_movementSpeedBonus.value);		break;
+						case 8:		client->ps.speed += (client->ps.speed * g_skillboost8_movementSpeedBonus.value);		break;
+						case 9:		client->ps.speed += (client->ps.speed * g_skillboost9_movementSpeedBonus.value);		break;
+						case 10:		client->ps.speed += (client->ps.speed * g_skillboost10_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;
@@ -3121,6 +3141,11 @@ void ClientThink_real( gentity_t *ent ) {
 						case 3:		client->ps.speed += (client->ps.speed * g_skillboost3_movementSpeedBonus.value);		break;
 						case 4:		client->ps.speed += (client->ps.speed * g_skillboost4_movementSpeedBonus.value);		break;
 						case 5:		client->ps.speed += (client->ps.speed * g_skillboost5_movementSpeedBonus.value);		break;
+						case 6:		client->ps.speed += (client->ps.speed * g_skillboost6_movementSpeedBonus.value);		break;
+						case 7:		client->ps.speed += (client->ps.speed * g_skillboost7_movementSpeedBonus.value);		break;
+						case 8:		client->ps.speed += (client->ps.speed * g_skillboost8_movementSpeedBonus.value);		break;
+						case 9:		client->ps.speed += (client->ps.speed * g_skillboost9_movementSpeedBonus.value);		break;
+						case 10:		client->ps.speed += (client->ps.speed * g_skillboost10_movementSpeedBonus.value);		break;
 						}
 					}
 					ent->client->ps.basespeed = client->ps.speed;

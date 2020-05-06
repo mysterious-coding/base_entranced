@@ -1484,7 +1484,7 @@ void Svcmd_Senseboost_f(void) {
 	cl = found->client;
 
 	trap_Argv(2, str, sizeof(str));
-	int newValue = Com_Clampi(0, MAX_SKILLBOOST, atoi(str));
+	int newValue = Com_Clampi(0, 5, atoi(str));
 
 	// notify everyone
 	if (!newValue) {

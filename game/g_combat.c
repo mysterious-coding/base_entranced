@@ -5027,6 +5027,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					case 3:		maxFreezeReductionFactor = g_skillboost3_dempMaxFrozenTimeReduction.value;		break;
 					case 4:		maxFreezeReductionFactor = g_skillboost4_dempMaxFrozenTimeReduction.value;		break;
 					case 5:		maxFreezeReductionFactor = g_skillboost5_dempMaxFrozenTimeReduction.value;		break;
+					case 6:		maxFreezeReductionFactor = g_skillboost6_dempMaxFrozenTimeReduction.value;		break;
+					case 7:		maxFreezeReductionFactor = g_skillboost7_dempMaxFrozenTimeReduction.value;		break;
+					case 8:		maxFreezeReductionFactor = g_skillboost8_dempMaxFrozenTimeReduction.value;		break;
+					case 9:		maxFreezeReductionFactor = g_skillboost9_dempMaxFrozenTimeReduction.value;		break;
+					case 10:		maxFreezeReductionFactor = g_skillboost10_dempMaxFrozenTimeReduction.value;		break;
 					}
 					maxFreezeTime -= (int)((float)maxFreezeTime * maxFreezeReductionFactor);
 				}
@@ -5627,6 +5632,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				case 3:		damageMultiplier = g_skillboost3_dempDamageDealtBonus.value;		break;
 				case 4:		damageMultiplier = g_skillboost4_dempDamageDealtBonus.value;		break;
 				case 5:		damageMultiplier = g_skillboost5_dempDamageDealtBonus.value;		break;
+				case 6:		damageMultiplier = g_skillboost6_dempDamageDealtBonus.value;		break;
+				case 7:		damageMultiplier = g_skillboost7_dempDamageDealtBonus.value;		break;
+				case 8:		damageMultiplier = g_skillboost8_dempDamageDealtBonus.value;		break;
+				case 9:		damageMultiplier = g_skillboost9_dempDamageDealtBonus.value;		break;
+				case 10:		damageMultiplier = g_skillboost10_dempDamageDealtBonus.value;		break;
 				}
 			}
 			else {
@@ -5636,6 +5646,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				case 3:		damageMultiplier = g_skillboost3_damageDealtBonus.value;			break;
 				case 4:		damageMultiplier = g_skillboost4_damageDealtBonus.value;			break;
 				case 5:		damageMultiplier = g_skillboost5_damageDealtBonus.value;			break;
+				case 6:		damageMultiplier = g_skillboost6_damageDealtBonus.value;		break;
+				case 7:		damageMultiplier = g_skillboost7_damageDealtBonus.value;		break;
+				case 8:		damageMultiplier = g_skillboost8_damageDealtBonus.value;		break;
+				case 9:		damageMultiplier = g_skillboost9_damageDealtBonus.value;		break;
+				case 10:		damageMultiplier = g_skillboost10_damageDealtBonus.value;		break;
 				}
 			}
 			damage += (int)((float)damage * damageMultiplier);
@@ -5649,6 +5664,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			case 3:		damageMultiplier = g_skillboost3_damageTakenReduction.value;		break;
 			case 4:		damageMultiplier = g_skillboost4_damageTakenReduction.value;		break;
 			case 5:		damageMultiplier = g_skillboost5_damageTakenReduction.value;		break;
+			case 6:		damageMultiplier = g_skillboost6_damageTakenReduction.value;		break;
+			case 7:		damageMultiplier = g_skillboost7_damageTakenReduction.value;		break;
+			case 8:		damageMultiplier = g_skillboost8_damageTakenReduction.value;		break;
+			case 9:		damageMultiplier = g_skillboost9_damageTakenReduction.value;		break;
+			case 10:		damageMultiplier = g_skillboost10_damageTakenReduction.value;		break;
 			}
 			damage -= (int)((float)damage * damageMultiplier);
 		}
@@ -5794,6 +5814,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				case 3:		damage *= g_skillboost3_selfDamageFactorOverride.value;		break;
 				case 4:		damage *= g_skillboost4_selfDamageFactorOverride.value;		break;
 				case 5:		damage *= g_skillboost5_selfDamageFactorOverride.value;		break;
+				case 6:		damage *= g_skillboost6_selfDamageFactorOverride.value;		break;
+				case 7:		damage *= g_skillboost7_selfDamageFactorOverride.value;		break;
+				case 8:		damage *= g_skillboost8_selfDamageFactorOverride.value;		break;
+				case 9:		damage *= g_skillboost9_selfDamageFactorOverride.value;		break;
+				case 10:		damage *= g_skillboost10_selfDamageFactorOverride.value;		break;
 				}
 			}
 			else {
@@ -6641,6 +6666,11 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			case 3:		radius += (radius * g_skillboost3_splashRadiusBonus.value);		break;
 			case 4:		radius += (radius * g_skillboost4_splashRadiusBonus.value);		break;
 			case 5:		radius += (radius * g_skillboost5_splashRadiusBonus.value);		break;
+			case 6:		radius += (radius * g_skillboost6_splashRadiusBonus.value);		break;
+			case 7:		radius += (radius * g_skillboost7_splashRadiusBonus.value);		break;
+			case 8:		radius += (radius * g_skillboost8_splashRadiusBonus.value);		break;
+			case 9:		radius += (radius * g_skillboost9_splashRadiusBonus.value);		break;
+			case 10:		radius += (radius * g_skillboost10_splashRadiusBonus.value);		break;
 			}
 		}
 	}

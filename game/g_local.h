@@ -2839,7 +2839,7 @@ extern vmCvar_t    g_customVote0_label;
 extern vmCvar_t    g_customVote10_command;
 extern vmCvar_t    g_customVote10_label;
 
-#define MAX_SKILLBOOST	(5)
+#define MAX_SKILLBOOST	(10)
 
 extern vmCvar_t	g_skillboost1_damageDealtBonus;
 extern vmCvar_t	g_skillboost1_dempDamageDealtBonus;
@@ -2885,6 +2885,51 @@ extern vmCvar_t	g_skillboost5_dempMaxFrozenTimeReduction;
 extern vmCvar_t	g_skillboost5_movementSpeedBonus;
 extern vmCvar_t	g_skillboost5_selfDamageFactorOverride;
 extern vmCvar_t	g_skillboost5_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost6_damageDealtBonus;
+extern vmCvar_t	g_skillboost6_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost6_damageTakenReduction;
+extern vmCvar_t	g_skillboost6_forceRegenBonus;
+extern vmCvar_t	g_skillboost6_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost6_movementSpeedBonus;
+extern vmCvar_t	g_skillboost6_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost6_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost7_damageDealtBonus;
+extern vmCvar_t	g_skillboost7_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost7_damageTakenReduction;
+extern vmCvar_t	g_skillboost7_forceRegenBonus;
+extern vmCvar_t	g_skillboost7_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost7_movementSpeedBonus;
+extern vmCvar_t	g_skillboost7_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost7_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost8_damageDealtBonus;
+extern vmCvar_t	g_skillboost8_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost8_damageTakenReduction;
+extern vmCvar_t	g_skillboost8_forceRegenBonus;
+extern vmCvar_t	g_skillboost8_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost8_movementSpeedBonus;
+extern vmCvar_t	g_skillboost8_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost8_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost9_damageDealtBonus;
+extern vmCvar_t	g_skillboost9_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost9_damageTakenReduction;
+extern vmCvar_t	g_skillboost9_forceRegenBonus;
+extern vmCvar_t	g_skillboost9_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost9_movementSpeedBonus;
+extern vmCvar_t	g_skillboost9_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost9_splashRadiusBonus;
+
+extern vmCvar_t	g_skillboost10_damageDealtBonus;
+extern vmCvar_t	g_skillboost10_dempDamageDealtBonus;
+extern vmCvar_t	g_skillboost10_damageTakenReduction;
+extern vmCvar_t	g_skillboost10_forceRegenBonus;
+extern vmCvar_t	g_skillboost10_dempMaxFrozenTimeReduction;
+extern vmCvar_t	g_skillboost10_movementSpeedBonus;
+extern vmCvar_t	g_skillboost10_selfDamageFactorOverride;
+extern vmCvar_t	g_skillboost10_splashRadiusBonus;
 
 extern vmCvar_t	g_senseBoost1_interval;
 extern vmCvar_t	g_senseBoost2_interval;

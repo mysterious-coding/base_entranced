@@ -5842,6 +5842,11 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				case 3:		forceRegenReductionFactor = g_skillboost3_forceRegenBonus.value;		break;
 				case 4:		forceRegenReductionFactor = g_skillboost4_forceRegenBonus.value;		break;
 				case 5:		forceRegenReductionFactor = g_skillboost5_forceRegenBonus.value;		break;
+				case 6:		forceRegenReductionFactor = g_skillboost6_forceRegenBonus.value;		break;
+				case 7:		forceRegenReductionFactor = g_skillboost7_forceRegenBonus.value;		break;
+				case 8:		forceRegenReductionFactor = g_skillboost8_forceRegenBonus.value;		break;
+				case 9:		forceRegenReductionFactor = g_skillboost9_forceRegenBonus.value;		break;
+				case 10:		forceRegenReductionFactor = g_skillboost10_forceRegenBonus.value;		break;
 				}
 				regenTime -= (int)((float)regenTime * forceRegenReductionFactor);
 			}
