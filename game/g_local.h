@@ -746,6 +746,7 @@ typedef struct {
 	} auth;
 	char		cuidHash[CRYPTO_HASH_HEX_SIZE]; // hash of the client cuid
 	int			serverKeys[2]; // randomly generated auth keys to confirm legit clients
+	char		nmVer[16];
 
 	enum {
 		WHITELIST_UNKNOWN = 0,
@@ -753,6 +754,11 @@ typedef struct {
 		WHITELIST_WHITELISTED
 	} whitelistStatus;
 #endif
+
+#define UNLAGGED_CLIENTINFO		(1 << 0)
+#define UNLAGGED_COMMAND		(1 << 1)
+	int		unlagged;
+	qboolean	basementNeckbeardsTriggered;
 
 	struct {
 		qboolean	wasFollowing;
@@ -923,6 +929,22 @@ typedef struct renderInfo_s
 
 	int			boltValidityTime;
 } renderInfo_t;
+
+void G_StoreTrail(gentity_t *ent);
+void G_ResetTrail(gentity_t *ent);
+void G_TimeShiftClient(gentity_t *ent, int time, qboolean timeshiftAnims);
+void G_TimeShiftAllClients(int time, gentity_t *skip, qboolean timeshiftAnims);
+void G_UnTimeShiftClient(gentity_t *ent, qboolean timeshiftAnims);
+void G_UnTimeShiftAllClients(gentity_t *skip, qboolean timeshiftAnims);
+void G_PredictPlayerStepSlideMove(gentity_t *ent, float frametime);
+
+//NT - client origin trails
+typedef struct { //Should this store their g2 anim? for proper g2 sync?
+	vec3_t	mins, maxs;
+	vec3_t	currentOrigin;//, currentAngles; //Well r.currentAngles are never actually used by clients in this game?
+	int		time, torsoAnim, torsoTimer, legsAnim, legsTimer;
+	float	realAngle; //Only the [YAW] is ever used for hit detection
+} clientTrail_t;
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
@@ -1685,6 +1707,14 @@ typedef struct {
 
 	qboolean	endedWithEndMatchCommand;
 
+	struct {
+		int				trailHead;
+#define MAX_UNLAGGED_TRAILS	(1000)
+		clientTrail_t	trail[MAX_UNLAGGED_TRAILS];
+		clientTrail_t	saved; // used to restore after time shift
+	} unlagged[MAX_CLIENTS];
+	int		lastThinkRealTime[MAX_CLIENTS];
+
 } level_locals_t;
 
 //
@@ -1883,6 +1913,7 @@ void CheckSiegeHelpFromUse(const char *targetname);
 gentity_t *GetVehicleFromPilot(gentity_t *pilotEnt);
 qboolean PlayerIsHiddenPilot(gentity_t *pilotEnt);
 void Q_strstrip(char *string, const char *strip, const char *repl);
+void PrintIngame(int clientNum, const char *s, ...);
 
 //
 // g_saga.c
@@ -2197,6 +2228,7 @@ char* NM_SerializeUIntToColor(const unsigned int n);
 int G_WouldExceedClassLimit(int team, int classType, qboolean hypothetical, int clientNum, int *diffOut);
 void *G_SiegeClassFromName(char *s);
 void G_InitVchats();
+int CompareVersions(const char *verStr, const char *compareToStr);
 
 //
 // g_pweapon.c
@@ -2809,6 +2841,11 @@ extern vmCvar_t		g_dispenserLifetime;
 extern vmCvar_t		g_techAmmoForAllWeapons;
 extern vmCvar_t		g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
 extern vmCvar_t		g_healWalkerWithAmmoCans;
+extern vmCvar_t		g_unlagged;
+extern vmCvar_t		g_unlaggedFactor;
+extern vmCvar_t		g_unlaggedOffset;
+extern vmCvar_t		g_unlaggedSkeletonTime;
+extern vmCvar_t		g_unlaggedDebug;
 
 #define BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS	(1 << 0)
 #define BLACKISRUININGTHEVIDEOGAME_ROCKET_HP			(1 << 1)

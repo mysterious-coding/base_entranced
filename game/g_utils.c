@@ -3343,3 +3343,20 @@ void Q_strstrip(char *string, const char *strip, const char *repl)
 	}
 	*out = '\0';
 }
+
+// quick way to print something ingame for everyone. does not include newline at end
+// -1 for all clients
+void PrintIngame(int clientNum, const char *msg, ...) {
+	va_list		argptr;
+	char		text[1024] = { 0 };
+
+	va_start(argptr, msg);
+	vsnprintf(text, sizeof(text), msg, argptr);
+	va_end(argptr);
+
+	char buf[MAX_STRING_CHARS] = "print \"";
+	Q_strcat(buf, sizeof(buf), text);
+	Q_strcat(buf, sizeof(buf), "\"");
+	trap_SendServerCommand(clientNum, buf);
+	Com_Printf(buf);
+}
