@@ -2834,6 +2834,7 @@ extern vmCvar_t    g_improvedHoming;
 extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
 extern vmCvar_t    g_braindeadBots;
+
 extern vmCvar_t	   g_siegeRespawnAutoChange;
 extern vmCvar_t    g_quickPauseChat;
 extern vmCvar_t		g_multiUseGenerators;
@@ -2846,6 +2847,7 @@ extern vmCvar_t		g_unlaggedFactor;
 extern vmCvar_t		g_unlaggedOffset;
 extern vmCvar_t		g_unlaggedSkeletonTime;
 extern vmCvar_t		g_unlaggedDebug;
+extern vmCvar_t    g_unlaggedMaxCompensation;
 
 #define BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS	(1 << 0)
 #define BLACKISRUININGTHEVIDEOGAME_ROCKET_HP			(1 << 1)
