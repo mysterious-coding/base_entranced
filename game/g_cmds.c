@@ -243,9 +243,11 @@ void Cmd_Unlagged_f(gentity_t *ent) {
 		}
 		Q_strcat(msg, sizeof(msg), "\n\"");
 		trap_SendServerCommand(ent - g_entities, msg);
+		Com_Printf("Client %d (%s^7) enabled unlagged\n", ent - g_entities, ent->client->pers.netname);
 	}
 	else {
 		trap_SendServerCommand(ent - g_entities, "print \"Unlagged ^1disabled^7.\n\"");
+		Com_Printf("Client %d (%s^7) disabled unlagged\n", ent - g_entities, ent->client->pers.netname);
 	}
 }
 
@@ -9508,8 +9510,13 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_infiniteCharge);
 	PrintCvar(g_intermissionKnockbackNPCs);
 	PrintCvar(g_unlagged);
+#ifdef _DEBUG
+	PrintCvar(g_unlaggedDebug);
 	PrintCvar(g_unlaggedFactor);
+	PrintCvar(g_unlaggedMaxCompensation);
 	PrintCvar(g_unlaggedOffset);
+	PrintCvar(g_unlaggedSkeletonTime);
+#endif
 	PrintCvar(g_knockback);
 	PrintCvar(g_locationBasedDamage);
 	PrintCvar(g_moreTaunts);
