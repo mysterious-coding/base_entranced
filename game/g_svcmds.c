@@ -3038,6 +3038,8 @@ continueOuterLoop:
 
 	// unready everyone if autostart is enabled
 	if (g_autoStart.integer) {
+		if (GetCurrentRestartCountdown())
+			level.randomizedTeams = qtrue; // to cancel the countdown
 		for (int i = 0; i < MAX_CLIENTS; i++) {
 			gentity_t *ent = &g_entities[i];
 			if (!ent || !ent->inuse || !ent->client)

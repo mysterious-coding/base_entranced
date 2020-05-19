@@ -6298,7 +6298,7 @@ static void CheckNewmodSiegeClassLimits(void) {
 
 extern void WP_AddToClientBitflags(gentity_t *ent, int entNum);
 
-static int GetCurrentRestartCountdown(void) {
+int GetCurrentRestartCountdown(void) {
 	char buf[32] = { 0 };
 	trap_GetConfigstring(CS_WARMUP, buf, sizeof(buf));
 	if (buf[0]) {
@@ -6328,7 +6328,8 @@ static void RunAutoRestart(void) {
 	const int currentCountdown = GetCurrentRestartCountdown();
 	static int autoCountdown = 0;
 
-	if (!g_autoStart.integer || level.intermissiontime) {
+	if (!g_autoStart.integer || level.intermissiontime || level.randomizedTeams) {
+		level.randomizedTeams = qfalse;
 		if (currentCountdown && autoCountdown) {
 			// edge case: the g_autoStart cvar was disabled or intermission was reached while the auto countdown was active
 			// cancel the auto countdown

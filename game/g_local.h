@@ -1715,6 +1715,8 @@ typedef struct {
 	} unlagged[MAX_CLIENTS];
 	int		lastThinkRealTime[MAX_CLIENTS];
 
+	qboolean	randomizedTeams; // teams were randomized; this will be cleared after 1 tick
+
 } level_locals_t;
 
 //
@@ -2265,6 +2267,7 @@ void UpdateNewmodSiegeClassLimits(int clientNum);
 void InitializeSiegeHelpMessages(void);
 void SendSiegeHelpForClient(int client, team_t teamOverride);
 #endif
+int GetCurrentRestartCountdown(void);
 
 //
 // g_client.c
