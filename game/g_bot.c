@@ -1254,7 +1254,7 @@ G_InitBots
 void G_InitBots( qboolean restart ) {
 	G_LoadBots();
 
-	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
+	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", 0 );
 
 	//rww - new bot route stuff
 	LoadPath_ThisLevel();

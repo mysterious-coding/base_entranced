@@ -705,7 +705,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	// latched vars
 	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
-	{ &g_MaxHolocronCarry, "g_MaxHolocronCarry", "3", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
+	{ &g_MaxHolocronCarry, "g_MaxHolocronCarry", "3", CVAR_LATCH, 0, qfalse  },
 
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qtrue  },
@@ -721,7 +721,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_maxForceRank, "g_maxForceRank", "6", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
 	{ &g_forceBasedTeams, "g_forceBasedTeams", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
-	{ &g_privateDuel, "g_privateDuel", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_privateDuel, "g_privateDuel", "1", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_duelLifes, "g_duelLifes", "100", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_duelShields, "g_duelShields", "25", CVAR_ARCHIVE, 0, qtrue  },
@@ -730,11 +730,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamChatLimit, "g_teamChatLimit", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_voiceChatLimit, "g_voiceChatLimit", "0", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_allowNPC, "g_allowNPC", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_allowNPC, "g_allowNPC", "1", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_armBreakage, "g_armBreakage", "0", 0, 0, qtrue  },
 
-	{ &g_saberLocking, "g_saberLocking", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_saberLocking, "g_saberLocking", "1", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_saberLockFactor, "g_saberLockFactor", "2", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_saberTraceSaberFirst, "g_saberTraceSaberFirst", "0", CVAR_ARCHIVE, 0, qtrue  },
 
@@ -800,7 +800,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_duel_fraglimit, "duel_fraglimit", "10", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_capturedifflimit, "capturedifflimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_capturedifflimit, "capturedifflimit", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse },
 
@@ -892,7 +892,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_debugSaberLocks, "g_debugSaberLocks", "0", CVAR_CHEAT, 0, qfalse },
 	{ &g_saberLockRandomNess, "g_saberLockRandomNess", "2", CVAR_CHEAT, 0, qfalse },
 	// nmckenzie: SABER_DAMAGE_WALLS
-		{ &g_saberWallDamageScale, "g_saberWallDamageScale", "0.4", CVAR_SERVERINFO, 0, qfalse },
+		{ &g_saberWallDamageScale, "g_saberWallDamageScale", "0.4", 0, 0, qfalse },
 
 		{ &d_saberStanceDebug, "d_saberStanceDebug", "0", 0, 0, qfalse },
 
