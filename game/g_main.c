@@ -218,6 +218,7 @@ vmCvar_t	g_techAmmoForAllWeapons;
 vmCvar_t	g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
 vmCvar_t	g_healWalkerWithAmmoCans;
 vmCvar_t	g_unlagged;
+vmCvar_t	g_friendlyFreeze;
 #ifdef _DEBUG
 vmCvar_t	g_unlaggedMaxCompensation;
 vmCvar_t	g_unlaggedSkeletonTime;
@@ -1114,6 +1115,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_techAmmoForAllWeapons, "g_techAmmoForAllWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame, "g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_healWalkerWithAmmoCans, "g_healWalkerWithAmmoCans", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_friendlyFreeze, "g_friendlyFreeze", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
 

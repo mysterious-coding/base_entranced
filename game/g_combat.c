@@ -5009,7 +5009,12 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				else {
 					rng = Q_irand(3000, 4000);
 				}
-				targ->client->ps.electrifyTime = level.time + rng;
+				if ((!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && attacker->client && targ->m_pVehicle && targ->m_pVehicle->m_pPilot && (gentity_t *)targ->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(targ->m_pVehicle->m_pPilot))->client &&
+					((gentity_t *)(targ->m_pVehicle->m_pPilot))->client->sess.sessionTeam == attacker->client->sess.sessionTeam) ||
+					(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && attacker->client && attacker - g_entities < MAX_CLIENTS && targ->teamnodmg == attacker->client->sess.sessionTeam)) {
+					rng = 0;
+				}
+					targ->client->ps.electrifyTime = level.time + rng;
 			}
 			else if ((targ->s.NPC_class != CLASS_VEHICLE
 				|| (targ->m_pVehicle && targ->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER)))
@@ -5041,6 +5046,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				}
 				else {
 					rng = Q_irand(300, maxFreezeTime);
+				}
+				if (!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && attacker->client && attacker - g_entities < MAX_CLIENTS &&
+					targ && targ->client && attacker->client->sess.sessionTeam == targ->client->sess.sessionTeam) {
+					// fixme? this doesn't account for non-walker non-speeder non-fighter vehicles e.g. rancor_vehicle
+					rng = 0;
 				}
 				overrideFreezeTimeActual = rng;
 				targ->client->ps.electrifyTime = level.time + rng;

@@ -809,33 +809,42 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					&& !FighterIsLanded( other->m_pVehicle , &other->client->ps )//not landed
 					&& !(other->spawnflags&2) )//and not suspended
 				{//vehicles hit by "ion cannons" lose control
-					if ( other->client->ps.electrifyTime > level.time )
-					{//add onto it
-						//FIXME: extern the length of the "out of control" time?
-						other->client->ps.electrifyTime += Q_irand(200,500);
-						if ( other->client->ps.electrifyTime > level.time + 4000 )
-						{//cap it
-							other->client->ps.electrifyTime = level.time + 4000;
+					if (!(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM &&
+						ent->parent && ent->parent - g_entities < MAX_CLIENTS && ent->parent->client &&
+						other->m_pVehicle->m_pPilot && other->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(other->m_pVehicle->m_pPilot))->client &&
+						((gentity_t *)(other->m_pVehicle->m_pPilot))->client->sess.sessionTeam == ent->parent->client->sess.sessionTeam) &&
+						!(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->parent && ent->parent->client && other->teamnodmg == ent->parent->client->sess.sessionTeam)) {
+						if (other->client->ps.electrifyTime > level.time)
+						{//add onto it
+							//FIXME: extern the length of the "out of control" time?
+							other->client->ps.electrifyTime += Q_irand(200, 500);
+							if (other->client->ps.electrifyTime > level.time + 4000)
+							{//cap it
+								other->client->ps.electrifyTime = level.time + 4000;
+							}
 						}
-					}
-					else
-					{//start it
-						//FIXME: extern the length of the "out of control" time?
-						other->client->ps.electrifyTime = level.time + Q_irand(200,500);
+						else
+						{//start it
+							//FIXME: extern the length of the "out of control" time?
+							other->client->ps.electrifyTime = level.time + Q_irand(200, 500);
+						}
 					}
 				}
 			}
 			else if ( other && other->client && other->client->ps.powerups[PW_CLOAKED] )
 			{
-				Jedi_Decloak( other );
-				if ( ent->methodOfDeath == MOD_DEMP2_ALT )
-				{//direct hit with alt disables cloak forever
-					//permanently disable the saboteur's cloak
-					other->client->cloakToggleTime = Q3_INFINITE;
-				}
-				else
-				{//temp disable
-					other->client->cloakToggleTime = level.time + Q_irand( 3000, 10000 );
+				if (!(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && other && other->client &&
+					ent->client->sess.sessionTeam == other->client->sess.sessionTeam)) {
+					Jedi_Decloak(other);
+					if (ent->methodOfDeath == MOD_DEMP2_ALT)
+					{//direct hit with alt disables cloak forever
+						//permanently disable the saboteur's cloak
+						other->client->cloakToggleTime = Q3_INFINITE;
+					}
+					else
+					{//temp disable
+						other->client->cloakToggleTime = level.time + Q_irand(3000, 10000);
+					}
 				}
 			}
 		}

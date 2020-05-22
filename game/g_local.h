@@ -2846,6 +2846,7 @@ extern vmCvar_t		g_techAmmoForAllWeapons;
 extern vmCvar_t		g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
 extern vmCvar_t		g_healWalkerWithAmmoCans;
 extern vmCvar_t    g_unlagged;
+extern vmCvar_t		g_friendlyFreeze;
 #ifdef _DEBUG
 extern vmCvar_t    g_unlaggedMaxCompensation;
 extern vmCvar_t	   g_unlaggedSkeletonTime;

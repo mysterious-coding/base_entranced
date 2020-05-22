@@ -2311,23 +2311,30 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 			if ( gent->takedamage 
 				&& gent->client ) 
 			{
-				if ( gent->client->ps.electrifyTime < level.time )
-				{//electrocution effect
-					if (gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE &&
-						gent->m_pVehicle && (gent->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || gent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
-					{ //do some extra stuff to speeders/walkers
-						gent->client->ps.electrifyTime = level.time + Q_irand( 3000, 4000 );
-					}
-					else if ( gent->s.NPC_class != CLASS_VEHICLE 
-						|| (gent->m_pVehicle && gent->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER) )
-					{//don't do this to fighters
-						gent->client->ps.electrifyTime = level.time + Q_irand( 300, 800 );
+				if (!(gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE && !g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && gent->m_pVehicle && gent->m_pVehicle->m_pPilot && gent->m_pVehicle->m_pPilot - g_entities < MAX_CLIENTS && ((gentity_t *)(gent->m_pVehicle->m_pPilot))->client &&
+					((gentity_t *)(gent->m_pVehicle->m_pPilot))->client->sess.sessionTeam == ent->client->sess.sessionTeam) &&
+					!(gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE && !g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && gent->teamnodmg == ent->client->sess.sessionTeam)) {
+					if (gent->client->ps.electrifyTime < level.time)
+					{//electrocution effect
+						if (gent->s.eType == ET_NPC && gent->s.NPC_class == CLASS_VEHICLE &&
+							gent->m_pVehicle && (gent->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER || gent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER))
+						{ //do some extra stuff to speeders/walkers
+							gent->client->ps.electrifyTime = level.time + Q_irand(3000, 4000);
+						}
+						else if (gent->s.NPC_class != CLASS_VEHICLE
+							|| (gent->m_pVehicle && gent->m_pVehicle->m_pVehicleInfo->type != VH_FIGHTER))
+						{//don't do this to fighters
+							gent->client->ps.electrifyTime = level.time + Q_irand(300, 800);
+						}
 					}
 				}
 				if ( gent->client->ps.powerups[PW_CLOAKED] )
 				{//disable cloak temporarily
-					Jedi_Decloak( gent );
-					gent->client->cloakToggleTime = level.time + Q_irand( 3000, 10000 );
+					if (!(!g_friendlyFreeze.integer && g_gametype.integer >= GT_TEAM && ent->client && gent && gent->client &&
+						ent->client->sess.sessionTeam == gent->client->sess.sessionTeam)) {
+						Jedi_Decloak(gent);
+						gent->client->cloakToggleTime = level.time + Q_irand(3000, 10000);
+					}
 				}
 			}
 		}
