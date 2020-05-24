@@ -2615,6 +2615,7 @@ extern	vmCvar_t	g_weaponRespawn;
 extern	vmCvar_t	g_weaponTeamRespawn;
 extern	vmCvar_t	g_adaptRespawn;
 extern	vmCvar_t	g_synchronousClients;
+extern	vmCvar_t	g_forceClientUpdateRate;
 extern	vmCvar_t	g_motd;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;
