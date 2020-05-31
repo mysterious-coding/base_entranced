@@ -3139,6 +3139,7 @@ extern vmCvar_t		g_autoStartAFKThreshold;
 extern vmCvar_t		g_autoStartMinPlayers;
 
 extern vmCvar_t	   g_wasIntermission;
+extern vmCvar_t		g_printCountry;
 
 int validateAccount(const char* username, const char* password, int num);
 void unregisterUser(const char* username);
@@ -3467,6 +3468,7 @@ void trap_SetConfigstringNoUpdate( int num, const char* string );
 qboolean trap_SendGETRequest( trsfHandle_t* handle, const char* url, const char* headerAccept, const char* headerContentType );
 qboolean trap_SendPOSTRequest( trsfHandle_t* handle, const char* url, const char* data, const char* headerAccept, const char* headerContentType, qboolean receiveResult );
 qboolean trap_SendMultipartPOSTRequest(trsfHandle_t* handle, const char* url, trsfFormPart_t* multiPart, size_t numParts, const char* headerAccept, const char* headerContentType, qboolean receiveResult);
+void trap_GetCountry(const char *ipStr, char *outBuf, int outBufSize);
 #endif
 
 #include "namespace_end.h"
