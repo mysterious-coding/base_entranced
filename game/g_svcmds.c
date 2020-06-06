@@ -4297,3 +4297,134 @@ void G_LogRconCommand(const char* ipFrom, const char* command) {
 		G_RconLog("rcon from {%s}: %s", ipFrom, command);
 	}
 }
+
+static char *GetUptime(void) {
+	static char buf[256] = { 0 };
+	time_t currTime;
+
+	time(&currTime);
+
+	int secs = difftime(currTime, trap_Cvar_VariableIntegerValue("sv_startTime"));
+	int mins = secs / 60;
+	int hours = mins / 60;
+	int days = hours / 24;
+
+	secs %= 60;
+	mins %= 60;
+	hours %= 24;
+	//days %= 365;
+
+	buf[0] = '\0';
+
+	if (days)
+		Com_sprintf(buf, sizeof(buf), "%id%ih%im%is", days, hours, mins, secs);
+	if (hours)
+		Com_sprintf(buf, sizeof(buf), "%ih%im%is", hours, mins, secs);
+	else if (mins)
+		Com_sprintf(buf, sizeof(buf), "%im%is", mins, secs);
+	else
+		Com_sprintf(buf, sizeof(buf), "%is", secs);
+
+	return buf;
+}
+
+const char *GetGametypeString(int gametype) {
+	switch (gametype) {
+	case GT_FFA: return "Free For All";
+	case GT_HOLOCRON: return "Holocron";
+	case GT_JEDIMASTER: return "Jedi Master";
+	case GT_DUEL: return "Duel";
+	case GT_POWERDUEL: return "Power Duel";
+	case GT_SINGLE_PLAYER: return "Cooperative";
+	case GT_TEAM: return "Team Free For All";
+	case GT_SIEGE: return "Siege";
+	case GT_CTF: return "Capture The Flag";
+	case GT_CTY: return "Capture The Ysalimiri";
+	default: return "Unknown Gametype";
+	}
+}
+
+void G_Status(void) {
+	int humans = 0, bots = 0;
+	for (int i = 0; i < level.maxclients; i++) {
+		if (level.clients[i].pers.connected) {
+			if (g_entities[i].r.svFlags & SVF_BOT)
+				bots++;
+			else
+				humans++;
+		}
+	}
+
+#if defined(_WIN32)
+#define STATUS_OS "Windows"
+#elif defined(__linux__)
+#define STATUS_OS "Linux"
+#elif defined(MACOS_X)
+#define STATUS_OS "OSX"
+#else
+#define STATUS_OS "Unknown OS"
+#endif
+
+	char *dedicatedStr;
+	switch (trap_Cvar_VariableIntegerValue("dedicated")) {
+	case 1: dedicatedStr = "LAN dedicated"; break;
+	case 2: dedicatedStr = "Public dedicated"; break;
+	default: dedicatedStr = "Listen"; break;
+	}
+
+	int days = level.time / 86400000;
+	int hours = (level.time % 86400000) / 3600000;
+	int mins = (level.time % 3600000) / 60000;
+	int secs = (level.time % 60000) / 1000;
+	char matchTime[64] = { 0 };
+	if (days)
+		Com_sprintf(matchTime, sizeof(matchTime), "%i day%s, %i:%02i:%02i", days, days > 1 ? "s" : "", hours, mins, secs);
+	else if (hours)
+		Com_sprintf(matchTime, sizeof(matchTime), "%i:%02i:%02i", hours, mins, secs);
+	else
+		Com_sprintf(matchTime, sizeof(matchTime), "%i:%02i", mins, secs);
+
+	Com_Printf("Hostname:   %s^7\n", Cvar_VariableString("sv_hostname"));
+	Com_Printf("UDP/IP:     %s:%i, %s, %s\n", Cvar_VariableString("net_ip"), trap_Cvar_VariableIntegerValue("net_port"), STATUS_OS, dedicatedStr);
+	Com_Printf("Uptime:     %s\n", GetUptime());
+	Com_Printf("Map:        %s (%s)\n", Cvar_VariableString("mapname"), GetGametypeString(g_gametype.integer));
+	Com_Printf("Players:    %i%s / %i%s max\n",
+		humans, bots ? va(" human%s + %d bot%s", humans > 1 ? "s" : "", bots, bots > 1 ? "s" : "") : "", level.maxclients - sv_privateclients.integer, sv_privateclients.integer ? va("+%i", sv_privateclients.integer) : "");
+	Com_Printf("Match time: %s\n", matchTime);
+	if (g_gametype.integer == GT_TEAM || g_gametype.integer == GT_CTF)
+	Com_Printf("Score:      ^1%d^7 - ^4%d^7\n", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE]);
+	if (g_cheats.integer)
+	Com_Printf("^3Cheats enabled^7\n");
+	Com_Printf("\n");
+
+	if (humans + bots == 0) {
+		Com_Printf("No players are currently connected.\n\n");
+		return;
+	}
+
+	Table *t = Table_Initialize(qtrue);
+
+	for (int i = 0; i < level.maxclients; i++) {
+		if (!level.clients[i].pers.connected)
+			continue;
+		Table_DefineRow(t, &level.clients[i]);
+	}
+
+	Table_DefineColumn(t, "#", TableCallback_ClientNum, qfalse, 2);
+	Table_DefineColumn(t, "Name", TableCallback_Name, qtrue, g_maxNameLength.integer);
+	Table_DefineColumn(t, "Alias", TableCallback_Alias, qtrue, g_maxNameLength.integer);
+	Table_DefineColumn(t, "Country", TableCallback_Country, qtrue, 64);
+	Table_DefineColumn(t, "IP", TableCallback_IP, qtrue, 21);
+	Table_DefineColumn(t, "Qport", TableCallback_Qport, qfalse, 5);
+	Table_DefineColumn(t, "Mod", TableCallback_Mod, qtrue, 64);
+	Table_DefineColumn(t, "Ping", TableCallback_Ping, qfalse, 4);
+	Table_DefineColumn(t, "Score", TableCallback_Score, qfalse, 5);
+	Table_DefineColumn(t, "Shadowmuted", TableCallback_Shadowmuted, qtrue, 64);
+
+	char buf[4096] = { 0 };
+	Table_WriteToBuffer(t, buf, sizeof(buf));
+	Table_Destroy(t);
+
+	Q_strcat(buf, sizeof(buf), "^7\n");
+	Com_Printf(buf);
+}

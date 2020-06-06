@@ -6,6 +6,7 @@
 #define __G_LOCAL__
 
 #include "q_shared.h"
+#include "collections.h"
 #include "bg_public.h"
 #include "bg_vehicles.h"
 #include "g_public.h"
@@ -759,6 +760,9 @@ typedef struct {
 #define UNLAGGED_COMMAND		(1 << 1)
 	int		unlagged;
 	qboolean	basementNeckbeardsTriggered;
+
+	char		country[128];
+	int			qport;
 
 	struct {
 		qboolean	wasFollowing;
@@ -1944,6 +1948,8 @@ void SiegeClearSwitchData(void);
 
 qboolean FileExists(const char *fileName);
 
+void Q_strstrip(char *string, const char *strip, const char *repl);
+
 const char *Cvar_VariableString(const char *var_name);
 
 //
@@ -2221,7 +2227,7 @@ void G_ChangePlayerReadiness(gclient_t *cl, qboolean ready, qboolean announce);
 char *GetNewestMapVersion(siegeMap_t map);
 #endif
 qboolean DoRunoff(void);
-
+void G_Status(void);
 
 //
 // g_weapon.c
@@ -2328,6 +2334,48 @@ typedef enum {
 	NMTAUNT_VICTORY2,
 	NMTAUNT_VICTORY3
 } nmTaunt_t;
+
+//
+// g_table.c
+//
+typedef struct {
+	node_t	node;
+	char	mapname[MAX_QPATH];
+	int		weight;
+} poolMap_t;
+typedef struct {
+	node_t	node;
+	char	shortName[64];
+	char	longName[64];
+} pool_t;
+typedef const char *(*ColumnDataCallback)(void *context);
+typedef struct {
+	list_t			columnList;
+	list_t			rowList;
+	qboolean		alternateColors;
+	int				lastColumnIdAssigned;
+} Table;
+void listMapsInPools(void *context, const char *long_name, int pool_id, const char *mapname, int mapWeight);
+void listPools(void *context, int pool_id, const char *short_name, const char *long_name);
+const char *TableCallback_MapName(void *context);
+const char *TableCallback_MapWeight(void *context);
+const char *TableCallback_PoolShortName(void *context);
+const char *TableCallback_PoolLongName(void *context);
+const char *TableCallback_ClientNum(void *context);
+const char *TableCallback_Name(void *context);
+const char *TableCallback_Alias(void *context);
+const char *TableCallback_Ping(void *context);
+const char *TableCallback_Score(void *context);
+const char *TableCallback_IP(void *context);
+const char *TableCallback_Qport(void *context);
+const char *TableCallback_Country(void *context);
+const char *TableCallback_Mod(void *context);
+const char *TableCallback_Shadowmuted(void *context);
+Table *Table_Initialize(qboolean alternateColors);
+void Table_DefineRow(Table *t, void *context);
+void Table_DefineColumn(Table *t, const char *title, ColumnDataCallback callback, qboolean leftAlign, int maxLen);
+void Table_Destroy(Table *t);
+void Table_WriteToBuffer(Table *t, char *buf, size_t bufSize);
 
 //
 // g_team.c

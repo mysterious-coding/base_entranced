@@ -3373,7 +3373,6 @@ void PrintIngame(int clientNum, const char *msg, ...) {
 		char buf[MAX_STRING_CHARS];
 		memset(&buf, 0, sizeof(buf));
 		Q_strcat(buf, sizeof(buf), "print \"");
-
 		qboolean endsInColor = qfalse;
 		if (strlen(chunkStart) > CHUNK_SIZE) {
 			char *lastDigit = chunkStart + CHUNK_SIZE - 1;

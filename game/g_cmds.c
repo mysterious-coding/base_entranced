@@ -8336,77 +8336,6 @@ qboolean G_OtherPlayersDueling(void)
 	return qfalse;
 }
 
-typedef struct 
-{
-    int entity;
-    int count;
-
-    char poolName[64];
-} ListPoolsContext;
-
-void listPools( void* context,
-    int pool_id,
-    const char* short_name,
-    const char* long_name )
-{
-    ListPoolsContext* thisContext = (ListPoolsContext*)context;
-    trap_SendServerCommand( thisContext->entity, va( "print \"%s (%s)\n\"", short_name, long_name ) );
-    ++(thisContext->count);
-}
-
-typedef struct
-{
-    int entity;
-    int count;
-    int pool_id;
-
-    char long_name[64];
-
-} ListMapsInPoolContext;
-
-void listMapsInPools( void** context,
-    const char* long_name,
-    int pool_id,
-    const char* mapname,
-    int mapWeight )
-{
-	ListMapsInPoolContext* thisContext = *( ( ListMapsInPoolContext** )context );
-    thisContext->pool_id = pool_id;
-    thisContext->count++;
-    Q_strncpyz( thisContext->long_name, long_name, sizeof( thisContext->long_name ) );
-    trap_SendServerCommand( thisContext->entity, va( "print \" %s\n\"", mapname ) );
-}
-
-
-static void Cmd_MapPool_f(gentity_t* ent)
-{
-	if (trap_Argc() > 1)
-	{
-        ListMapsInPoolContext context;
-        context.entity = ent - g_entities;
-        context.count = 0;
-		ListMapsInPoolContext *ctxPtr = &context;
-
-        char short_name[64];
-        trap_Argv( 1, short_name, sizeof( short_name ) );
-
-		G_DBListMapsInPool( short_name, "", listMapsInPools, ( void** )&ctxPtr );
-
-        trap_SendServerCommand( context.entity, va( "print \"Found %i maps for pool %s.\n\"",
-            context.count, short_name, context.long_name ) );
-	}
-	else
-	{
-        ListPoolsContext context;
-        context.entity = ent - g_entities;
-        context.count = 0;
-
-        G_DBListPools( listPools, &context );
-
-        trap_SendServerCommand( context.entity, va( "print \"Found %i map pools.\n\"", context.count ) );
-	}
-}
-
 #ifdef NEWMOD_SUPPORT
 static void Cmd_Svauth_f( gentity_t *ent ) {
 	if ( trap_Argc() < 2 ) {
@@ -8602,76 +8531,39 @@ void singleAliasCallback(void* context,
 	trap_SendServerCommand(thisContext->entNum, va("print \""S_COLOR_WHITE"* %s"S_COLOR_WHITE"\"", name));
 }
 
-void Cmd_WhoIs_f(gentity_t* ent)
-{
-	char buffer[64];
-	gentity_t* found = NULL;
-	AliasesContext context;
-	int i;
+void Cmd_WhoIs_f( gentity_t* ent ) {
+	int clientNum = -1;
+	if (trap_Argc() >= 2) {
+		char buf[64] = { 0 };
+		trap_Argv(1, buf, sizeof(buf));
+		gentity_t *found = found = G_FindClient(buf);
 
-	context.entNum = ent - g_entities;
-
-	if (trap_Argc() < 2)
-	{
-		for (i = 0; i < level.maxclients; ++i) {
-			if (level.clients[i].pers.connected != CON_DISCONNECTED && !(&g_entities[i] && g_entities[i].r.svFlags & SVF_BOT)) {
-				char* color;
-				switch (level.clients[i].sess.sessionTeam) {
-				case TEAM_RED: color = S_COLOR_RED; break;
-				case TEAM_BLUE: color = S_COLOR_BLUE; break;
-				case TEAM_FREE: color = S_COLOR_YELLOW; break;
-				default: color = S_COLOR_WHITE;
-				}
-
-				trap_SendServerCommand(ent - g_entities, va("print \"%sClient %i "S_COLOR_WHITE"(%s"S_COLOR_WHITE"): \"",
-					color, i, level.clients[i].pers.netname)
-				);
-
-				if (level.clients[i].account) {
-					trap_SendServerCommand(ent - g_entities, va("print \""S_COLOR_GREEN"* "S_COLOR_WHITE"%s\n\"", level.clients[i].account->name));
-				}
-				else {
-					G_DBListAliases(level.clients[i].sess.ip, (unsigned int)0xFFFFFFFF, 1, singleAliasCallback, &context, level.clients[i].sess.auth == AUTHENTICATED ? level.clients[i].sess.cuidHash : "");
-					trap_SendServerCommand(ent - g_entities, "print \"\n\"");
-				}
-			}
+		if (!found || !found->client) {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"", buf));
+			return;
 		}
-
-		return;
+		clientNum = found - g_entities;
 	}
 
-	trap_Argv(1, buffer, sizeof(buffer));
-	found = G_FindClient(buffer);
+	Table *t = Table_Initialize(qfalse);
 
-	if (!found || !found->client)
-	{
-		trap_SendServerCommand(
-			ent - g_entities,
-			va("print \"Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n\"",
-				buffer));
-		return;
+	for (int i = 0; i < level.maxclients; i++) {
+		if (!level.clients[i].pers.connected || (clientNum != -1 && i != clientNum))
+			continue;
+		Table_DefineRow(t, &level.clients[i]);
 	}
 
-	if (found->client->account) {
-		trap_SendServerCommand(ent - g_entities, va("print \"Client %i (%s"S_COLOR_WHITE"): %s\n\"",
-			found - g_entities, found->client->pers.netname, found->client->account->name));
-	}
-	else {
-		trap_SendServerCommand(ent - g_entities, va("print \"Aliases for client %i (%s"S_COLOR_WHITE").\n\"",
-			found - g_entities, found->client->pers.netname));
+	Table_DefineColumn(t, "#", TableCallback_ClientNum, qfalse, 2);
+	Table_DefineColumn(t, "Name", TableCallback_Name, qtrue, g_maxNameLength.integer);
+	Table_DefineColumn(t, "Alias", TableCallback_Alias, qtrue, g_maxNameLength.integer);
+	Table_DefineColumn(t, "Country", TableCallback_Country, qtrue, 64);
 
-		unsigned int maskInt = 0xFFFFFFFF;
+	char buf[MAX_STRING_CHARS] = { 0 };
+	Table_WriteToBuffer(t, buf, sizeof(buf));
+	Table_Destroy(t);
 
-		if (trap_Argc() > 2)
-		{
-			char mask[20];
-			trap_Argv(2, mask, sizeof(mask));
-			maskInt = 0;
-			getIpFromString(mask, &maskInt);
-		}
-
-		G_DBListAliases(found->client->sess.ip, maskInt, 3, listAliasesCallback, &context, found->client->sess.auth == AUTHENTICATED ? found->client->sess.cuidHash : "");
-	}
+	PrintIngame(ent - g_entities, buf);
 }
 #define MAX_STATS			16
 #define STATS_ROW_SEPARATOR	"-"
@@ -10344,8 +10236,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_TeamVote_f(ent);
 	else if (Q_stricmp(cmd, "ready") == 0)
 		Cmd_Ready_f(ent);
-	else if (Q_stricmp(cmd, "mappool") == 0)
-		Cmd_MapPool_f(ent);
     else if ( Q_stricmp( cmd, "whois" ) == 0 )
         Cmd_WhoIs_f( ent );
 	else if (Q_stricmp(cmd, "ctfstats") == 0 || Q_stricmp(cmd, "stats") == 0 || Q_stricmp(cmd, "siegestats") == 0)
