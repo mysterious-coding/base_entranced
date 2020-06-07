@@ -61,9 +61,9 @@ const char *TableCallback_ClientNum(void *context) {
 	const char *teamColor;
 
 	if (cl->pers.connected == CON_CONNECTING) teamColor = "^9";
-	else if (cl->sess.sessionTeam == TEAM_SPECTATOR) teamColor = "^7";
-	else if (cl->sess.sessionTeam == TEAM_RED) teamColor = "^1";
-	else if (cl->sess.sessionTeam == TEAM_BLUE) teamColor = "^4";
+	else if (GetRealTeam(cl) == TEAM_SPECTATOR) teamColor = "^7";
+	else if (GetRealTeam(cl) == TEAM_RED) teamColor = "^1";
+	else if (GetRealTeam(cl) == TEAM_BLUE) teamColor = "^4";
 	else teamColor = "^3";
 
 	return va("%s%d", teamColor, cl - level.clients);
