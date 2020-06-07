@@ -176,6 +176,18 @@ const char *TableCallback_Shadowmuted(void *context) {
 	return "Shadowmuted";
 }
 
+const char *TableCallback_Boost(void *context) {
+	gclient_t *cl = context;
+	if (cl->sess.skillBoost && cl->sess.senseBoost)
+		return va("Skill %d + Sense %d", cl->sess.skillBoost, cl->sess.senseBoost);
+	else if (cl->sess.skillBoost)
+		return va("Skill %d", cl->sess.skillBoost);
+	else if (cl->sess.senseBoost)
+		return va("Sense %d", cl->sess.senseBoost);
+	else
+		return NULL;
+}
+
 // initializes a table; use Table_Destroy when done
 Table *Table_Initialize(qboolean alternateColors) {
 	Table *t = malloc(sizeof(Table));

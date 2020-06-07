@@ -5923,7 +5923,7 @@ static const FancyObjNameData fancyObjNameData[] = {
 	{ NULL }
 };
 
-static char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj) {
+char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj) {
 	// try to get it from worldspawn if it's the current map
 	if (obj >= 1 && obj <= MAX_SAVED_OBJECTIVES && level.combinedObjName[obj - 1][0] && !Q_stricmp(mapname, level.mapname))
 		return level.combinedObjName[obj - 1];

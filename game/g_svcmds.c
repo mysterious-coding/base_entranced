@@ -4344,6 +4344,7 @@ const char *GetGametypeString(int gametype) {
 	}
 }
 
+extern char *ProperObjectiveName(const char *mapname, CombinedObjNumber obj);
 void G_Status(void) {
 	int humans = 0, bots = 0;
 	for (int i = 0; i < level.maxclients; i++) {
@@ -4391,8 +4392,32 @@ void G_Status(void) {
 	Com_Printf("Players:    %i%s / %i%s max\n",
 		humans, bots ? va(" human%s + %d bot%s", humans > 1 ? "s" : "", bots, bots > 1 ? "s" : "") : "", level.maxclients - sv_privateclients.integer, sv_privateclients.integer ? va("+%i", sv_privateclients.integer) : "");
 	Com_Printf("Match time: %s\n", matchTime);
-	if (g_gametype.integer == GT_TEAM || g_gametype.integer == GT_CTF)
+	if (g_gametype.integer == GT_TEAM || g_gametype.integer == GT_CTF) {
 	Com_Printf("Score:      ^1%d^7 - ^4%d^7\n", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE]);
+	}
+	else if (g_gametype.integer == GT_SIEGE) {
+		char siegeStr[1024] = { 0 }, *siegeStageStr;
+		switch (level.siegeStage) {
+		case SIEGESTAGE_PREROUND1: siegeStageStr = "Round 1 countdown"; break;
+		case SIEGESTAGE_ROUND1: siegeStageStr = "Round 1"; break;
+		case SIEGESTAGE_ROUND1POSTGAME: siegeStageStr = "Round 1 postgame"; break;
+		case SIEGESTAGE_PREROUND2: siegeStageStr = "Round 2 countdown"; break;
+		case SIEGESTAGE_ROUND2: siegeStageStr = "Round 2"; break;
+		case SIEGESTAGE_ROUND2POSTGAME: siegeStageStr = "Round 2 postgame"; break;
+		default: siegeStageStr = "";
+		}
+		int numRed = 0, numBlue = 0;
+		GetPlayerCounts(qtrue, qtrue, &numRed, &numBlue, NULL, NULL);
+		if (numRed && numBlue) {
+			Com_sprintf(siegeStr, sizeof(siegeStr), "%s%s: %d vs %d%s",
+				level.isLivePug == ISLIVEPUG_NO && level.siegeStage != SIEGESTAGE_PREROUND1 && level.siegeStage != SIEGESTAGE_PREROUND2 ? "(Not live) " : "",
+				siegeStageStr,
+				numRed,
+				numBlue,
+				(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) ? va(", %s", ProperObjectiveName(level.mapname, level.mapCaptureRecords.lastCombinedObjCompleted + 1)) : "");
+	Com_Printf("Siege:      %s\n", siegeStr);
+		}
+	}
 	if (g_cheats.integer)
 	Com_Printf("^3Cheats enabled^7\n");
 	Com_Printf("\n");
@@ -4420,6 +4445,7 @@ void G_Status(void) {
 	Table_DefineColumn(t, "Ping", TableCallback_Ping, qfalse, 4);
 	Table_DefineColumn(t, "Score", TableCallback_Score, qfalse, 5);
 	Table_DefineColumn(t, "Shadowmuted", TableCallback_Shadowmuted, qtrue, 64);
+	Table_DefineColumn(t, "Boost", TableCallback_Boost, qfalse, 2);
 
 	char buf[4096] = { 0 };
 	Table_WriteToBuffer(t, buf, sizeof(buf));

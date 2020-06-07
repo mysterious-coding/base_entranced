@@ -2371,6 +2371,7 @@ const char *TableCallback_Qport(void *context);
 const char *TableCallback_Country(void *context);
 const char *TableCallback_Mod(void *context);
 const char *TableCallback_Shadowmuted(void *context);
+const char *TableCallback_Boost(void *context);
 Table *Table_Initialize(qboolean alternateColors);
 void Table_DefineRow(Table *t, void *context);
 void Table_DefineColumn(Table *t, const char *title, ColumnDataCallback callback, qboolean leftAlign, int maxLen);
