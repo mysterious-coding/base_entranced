@@ -116,6 +116,7 @@ void G_PostScoreboardToWebhook(const char* stats) {
 			}
 		}
 	}
+	Q_CleanStr(mapStr);
 
 	// build the json string to post to discord
 	cJSON* root = cJSON_CreateObject();

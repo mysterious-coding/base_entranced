@@ -1446,6 +1446,7 @@ typedef struct {
 	//match log
 	qboolean	wasRestarted;
 	isLivePug_t	isLivePug;
+	qboolean	pugWasLiveAtSomePoint;
 	qboolean	movedAtStart[MAX_CLIENTS];
 	qboolean	selfKilledAtStart[MAX_CLIENTS];
 	qboolean    initialConditionsMatch;

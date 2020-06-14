@@ -3550,7 +3550,7 @@ void BeginIntermission(void) {
 		// * the sum of these average integers is >= 4 (at least 2s)
 		// * both averages are within +/- 0.1 of their rounded values
 		// (accounts for subs, ragequits, random joins... 0.1 represents 2 mins of a 20 mins pug)
-		if (level.isLivePug == ISLIVEPUG_YES &&
+		if (level.pugWasLiveAtSomePoint &&
 			level.siegeStage >= SIEGESTAGE_ROUND2 &&
 			avgRedInt == avgBlueInt &&
 			avgRedInt + avgBlueInt >= 4 &&
@@ -7364,6 +7364,7 @@ void G_RunFrame( int levelTime ) {
 			char *notLiveReason = NULL;
 			level.isLivePug = CheckLivePug(&notLiveReason);
 			if (level.isLivePug == ISLIVEPUG_YES) {
+				level.pugWasLiveAtSomePoint = qtrue;
 				Com_Printf("Pug is live\n");
 				SpeedRunModeRuined("G_RunFrame: CheckLivePug");
 			}
