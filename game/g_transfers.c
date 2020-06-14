@@ -48,7 +48,7 @@ void G_PostScoreboardToWebhook(const char* stats) {
 	if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND1OFFENSE) {
 		msgColor = 255;
 		Com_sprintf(round1OffenseString, sizeof(round1OffenseString), "WIN (%s) :trophy:", round1OffenseTimeString);
-		Com_sprintf(round2OffenseString, sizeof(round2OffenseString), "LOSE (DNF)");
+		Com_sprintf(round2OffenseString, sizeof(round2OffenseString), "LOSE");
 	}
 	else if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND2OFFENSE) {
 		msgColor = 16711680;
