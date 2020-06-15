@@ -52,15 +52,15 @@ void G_DBLoadDatabase( void )
 
     int rc;
 
+	// db options
+
+	sqlite3_config( SQLITE_CONFIG_SINGLETHREAD ); // we don't need multi threading
+	sqlite3_config( SQLITE_CONFIG_MEMSTATUS, 0 ); // we don't need allocation statistics
+	sqlite3_config( SQLITE_CONFIG_LOG, ErrorCallback, NULL ); // error logging
+
 	// initialize db
 
     rc = sqlite3_initialize();
-
-	// db options
-
-	sqlite3_config(SQLITE_CONFIG_SINGLETHREAD); // we don't need multi threading
-	sqlite3_config(SQLITE_CONFIG_MEMSTATUS, 0); // we don't need allocation statistics
-	sqlite3_config(SQLITE_CONFIG_LOG, ErrorCallback, NULL); // error logging
 
 	if ( rc != SQLITE_OK ) {
 		Com_Error( ERR_DROP, "Failed to initialize SQLite3 (code: %d)\n", rc );
