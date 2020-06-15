@@ -2980,11 +2980,13 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	level.teamChangeTime[clientNum] = 0;
     client->sess = sessOld;
 
-	value = Info_ValueForKey(userinfo, "qport");
-	if (VALIDSTRING(value))
-		client->sess.qport = atoi(value);
-	else
-		client->sess.qport = 0;
+	if (firstTime) {
+		value = Info_ValueForKey(userinfo, "qport");
+		if (VALIDSTRING(value))
+			client->sess.qport = atoi(value);
+		else
+			client->sess.qport = 0;
+	}
 
 	// country detection
 	if (isBot) {
