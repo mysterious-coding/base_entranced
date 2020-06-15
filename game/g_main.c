@@ -2422,6 +2422,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	ClearRegisteredItems();
 
+	G_DBLoadDatabase();
+
 	//make sure saber data is loaded before this! (so we can precache the appropriate hilts)
 	InitSiegeMode();
 
@@ -2520,7 +2522,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		PatchEngine();
 	}
 
-	G_DBLoadDatabase();
     //level.db.levelId = G_LogDbLogLevelStart(restart);
 
 	InitializeSiegeHelpMessages();
