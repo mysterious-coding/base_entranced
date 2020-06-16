@@ -790,7 +790,12 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 	{
 		G_LogPrintf("Q_strncpyz crash: NULL dest (NULL src also!)\n");
 	}
+#if 1
+	Com_Printf("Q_strncpyz: NULL dest\n");
+	return;
+#else
     Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
+#endif
   }
 	if ( !src ) {
 		if (dest)
@@ -801,7 +806,12 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 		{
 			G_LogPrintf("Q_strncpyz crash: NULL src (NULL dest also!)\n");
 		}
+#if 1
+		Com_Printf("Q_strncpyz: NULL src\n");
+		return;
+#else
 		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
+#endif
 	}
 	if ( destsize < 1 ) {
 		if (dest)
@@ -822,7 +832,12 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 			G_LogPrintf("Q_strncpyz crash: destsize < 1 (NULL src also!)\n");
 		}
 
+#if 1
+		Com_Printf("Q_strncpyz: destsize < 1\n");
+		return;
+#else
 		Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" ); 
+#endif
 	}
 
 	strncpy( dest, src, destsize-1 );
