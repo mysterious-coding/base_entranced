@@ -18,6 +18,10 @@ typedef struct {
 } ColumnData;
 
 void listMapsInPools(void *context, const char *long_name, int pool_id, const char *mapname, int mapWeight) {
+	if (!context) {
+		assert(qfalse);
+		return;
+	}
 	list_t *mapList = (list_t *)context;
 	poolMap_t *thisMap = ListAdd(mapList, sizeof(poolMap_t));
 
@@ -27,26 +31,46 @@ void listMapsInPools(void *context, const char *long_name, int pool_id, const ch
 }
 
 const char *TableCallback_MapName(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	poolMap_t *map = context;
 	return map->mapname;
 }
 
 const char *TableCallback_MapWeight(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	poolMap_t *map = context;
 	return va("%d", map->weight);
 }
 
 const char *TableCallback_PoolShortName(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	pool_t *pool = context;
 	return pool->shortName;
 }
 
 const char *TableCallback_PoolLongName(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	pool_t *pool = context;
 	return pool->longName;
 }
 
 void listPools(void *context, int pool_id, const char *short_name, const char *long_name) {
+	if (!context) {
+		assert(qfalse);
+		return;
+	}
 	list_t *poolList = (list_t *)context;
 	pool_t *thisPool = ListAdd(poolList, sizeof(pool_t));
 
@@ -57,6 +81,10 @@ void listPools(void *context, int pool_id, const char *short_name, const char *l
 }
 
 const char *TableCallback_ClientNum(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	const char *teamColor;
 
@@ -70,6 +98,10 @@ const char *TableCallback_ClientNum(void *context) {
 }
 
 const char *TableCallback_Name(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	return va("^7%s", cl->pers.netname);
 }
@@ -79,11 +111,19 @@ typedef struct {
 } AliasContext;
 
 void AliasPrint(void *context, const char *name, int duration) {
+	if (!context) {
+		assert(qfalse);
+		return;
+	}
 	AliasContext *writeContext = (AliasContext *)context;
 	Q_strncpyz(writeContext->buf, va("^7%s", name), sizeof(writeContext->buf));
 }
 
 const char *TableCallback_Alias(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 	if (ent->r.svFlags & SVF_BOT)
@@ -100,6 +140,10 @@ const char *TableCallback_Alias(void *context) {
 }
 
 const char *TableCallback_Ping(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 
@@ -112,6 +156,10 @@ const char *TableCallback_Ping(void *context) {
 }
 
 const char *TableCallback_Score(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	if (cl->pers.connected == CON_CONNECTING)
 		return NULL;
@@ -119,6 +167,10 @@ const char *TableCallback_Score(void *context) {
 }
 
 const char *TableCallback_IP(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 	if (ent->r.svFlags & SVF_BOT)
@@ -127,6 +179,10 @@ const char *TableCallback_IP(void *context) {
 }
 
 const char *TableCallback_Qport(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 	if (ent->r.svFlags & SVF_BOT || !cl->sess.qport)
@@ -135,6 +191,10 @@ const char *TableCallback_Qport(void *context) {
 }
 
 const char *TableCallback_Country(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 	if (ent->r.svFlags & SVF_BOT)
@@ -143,6 +203,10 @@ const char *TableCallback_Country(void *context) {
 }
 
 const char *TableCallback_Mod(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 	if (ent->r.svFlags & SVF_BOT)
@@ -169,6 +233,10 @@ const char *TableCallback_Mod(void *context) {
 }
 
 const char *TableCallback_Shadowmuted(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	gentity_t *ent = &g_entities[cl - level.clients];
 	if (ent->r.svFlags & SVF_BOT || !cl->sess.shadowMuted)
@@ -177,6 +245,10 @@ const char *TableCallback_Shadowmuted(void *context) {
 }
 
 const char *TableCallback_Boost(void *context) {
+	if (!context) {
+		assert(qfalse);
+		return NULL;
+	}
 	gclient_t *cl = context;
 	if (cl->sess.skillBoost && cl->sess.senseBoost)
 		return va("Skill %d + Sense %d", cl->sess.skillBoost, cl->sess.senseBoost);
