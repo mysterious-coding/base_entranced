@@ -222,6 +222,11 @@ void G_DBGetMetadata( const char *key,
 	char *outValue,
 	size_t outValueBufSize )
 {
+	if (!VALIDSTRING(key) || !outValue || !outValueBufSize) {
+		assert(qfalse);
+		return;
+	}
+
 	sqlite3_stmt* statement;
 
 	outValue[0] = '\0';
@@ -233,7 +238,8 @@ void G_DBGetMetadata( const char *key,
 	rc = sqlite3_step( statement );
 	while ( rc == SQLITE_ROW ) {
 		const char *value = ( const char* )sqlite3_column_text( statement, 0 );
-		Q_strncpyz( outValue, value, outValueBufSize );
+		if (VALIDSTRING(value))
+			Q_strncpyz( outValue, value, outValueBufSize );
 
 		rc = sqlite3_step( statement );
 	}
