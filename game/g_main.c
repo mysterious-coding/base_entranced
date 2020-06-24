@@ -2177,6 +2177,8 @@ static void InitializeMapName(void) {
 	} else if (stristr(level.mapname, "siege_imperial")){
 		level.siegeMap = SIEGEMAP_IMPERIAL;
 		level.numSiegeObjectivesOnMapCombined = 5;
+	} else if (stristr(level.mapname, "duel_lego")) {
+		level.siegeMap = SIEGEMAP_DUEL;
 	} else {
 		level.siegeMap = SIEGEMAP_UNKNOWN;
 		if (!Q_stricmp(level.mapname, "siege_cargobarge"))
@@ -3525,7 +3527,7 @@ void BeginIntermission(void) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(NULL, "obj", statsBuf, sizeof(statsBuf));
 			PrintStatsTo(NULL, "general", statsBuf, sizeof(statsBuf));
-			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
+			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL && level.siegeMap != SIEGEMAP_DUEL)
 				PrintStatsTo(NULL, "map", statsBuf, sizeof(statsBuf));
 			Q_StripColor(statsBuf);
 		}

@@ -2946,8 +2946,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 			else
 			{
-				if (g_gametype.integer != GT_SIEGE)
-				   AddScore( attacker, self->r.currentOrigin, -1 );
+				if (g_gametype.integer == GT_SIEGE) {
+					if (level.siegeMap == SIEGEMAP_DUEL && meansOfDeath != MOD_SUICIDE && meansOfDeath != MOD_TEAM_CHANGE) {
+						AddScore(self, self->r.currentOrigin, -1);
+					}
+				}
+				else {
+					AddScore(self, self->r.currentOrigin, -1);
+				}
 			}
 
 			if (g_gametype.integer == GT_JEDIMASTER)

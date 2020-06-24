@@ -9242,7 +9242,7 @@ void Cmd_PrintStats_f( gentity_t *ent ) {
 		if (g_gametype.integer == GT_SIEGE) {
 			PrintStatsTo(ent, "obj", NULL, 0);
 			PrintStatsTo(ent, "general", NULL, 0);
-			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL)
+			if (level.siegeMap != SIEGEMAP_UNKNOWN && level.siegeMap != SIEGEMAP_IMPERIAL && level.siegeMap != SIEGEMAP_DUEL)
 				PrintStatsTo(ent, "map", NULL, 0);
 		}
 		else {
