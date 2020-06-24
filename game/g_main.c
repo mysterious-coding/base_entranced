@@ -2432,6 +2432,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	navCalculatePaths	= ( trap_Nav_Load( mapname.string, ckSum.integer ) == qfalse );
 
+	G_DBLoadDatabase();
+
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString(qfalse);
 
@@ -2522,7 +2524,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		PatchEngine();
 	}
 
-	G_DBLoadDatabase();
     //level.db.levelId = G_LogDbLogLevelStart(restart);
 
 	InitializeSiegeHelpMessages();
