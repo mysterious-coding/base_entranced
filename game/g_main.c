@@ -2177,7 +2177,7 @@ static void InitializeMapName(void) {
 	} else if (stristr(level.mapname, "siege_imperial")){
 		level.siegeMap = SIEGEMAP_IMPERIAL;
 		level.numSiegeObjectivesOnMapCombined = 5;
-	} else if (stristr(level.mapname, "duel_lego")) {
+	} else if (stristr(level.mapname, "duel")) {
 		level.siegeMap = SIEGEMAP_DUEL;
 	} else {
 		level.siegeMap = SIEGEMAP_UNKNOWN;
