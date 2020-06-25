@@ -657,8 +657,10 @@ void SP_misc_turret( gentity_t *base )
 
 	base->r.contents = CONTENTS_BODY;
 
-	VectorSet( base->r.maxs, 32.0f, 32.0f, 128.0f );
-	VectorSet( base->r.mins, -32.0f, -32.0f, 0.0f );
+#define TURRET_HITBOX_SCALE	(0.9f)
+
+	VectorSet( base->r.maxs, (32.0f * TURRET_HITBOX_SCALE), (32.0f * TURRET_HITBOX_SCALE), 128.0f );
+	VectorSet( base->r.mins, -(32.0f * TURRET_HITBOX_SCALE), -(32.0f * TURRET_HITBOX_SCALE), 0.0f );
 
 	base->use = turret_base_use;
 	base->think = turret_base_think;
