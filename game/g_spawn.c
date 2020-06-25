@@ -244,6 +244,7 @@ void SP_path_corner (gentity_t *self);
 void SP_misc_teleporter_dest (gentity_t *self);
 void SP_misc_model(gentity_t *ent);
 void SP_misc_model_static(gentity_t *ent);
+void SP_misc_model_serverside(gentity_t *ent);
 void SP_misc_G2model(gentity_t *ent);
 void SP_misc_portal_camera(gentity_t *ent);
 void SP_misc_portal_surface(gentity_t *ent);
@@ -533,6 +534,7 @@ spawn_t	spawns[] = {
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},
 	{"misc_model", SP_misc_model},
 	{"misc_model_static", SP_misc_model_static},
+	{"misc_model_serverside", SP_misc_model_serverside},
 	{"misc_G2model", SP_misc_G2model},
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
@@ -1808,6 +1810,154 @@ void G_LinkLocations( void ) {
 	level.locations.linked = qtrue;
 }
 
+char *fixpath(char *str) {
+	char *h, *t;
+	t = h = str;
+	for (; *h && h - str < MAX_STRING_CHARS; h++) {
+		if (*h == '\\') {
+			*h = '/';
+		}
+	}
+	h = str;
+	if (*h == '/') {
+		h++;
+	}
+	if (Q_strncmp(h, "models/", 7) == 0) {
+		h += 7;
+	}
+
+	for (; *h
+		&& h - str < MAX_STRING_CHARS
+		&& Q_strncmp(h, ".md3", 4);
+		h++) {
+		*(t++) = *h;
+	}
+	*t = '\0';
+	//Com_Printf("info: %s\n", str);
+	return str;
+}
+
+qboolean SpawnEntModel(gentity_t *ent, qboolean isSolid, qboolean isAnimated) {
+	qboolean hasModel = qfalse;
+	ent->modelScale[1] = ent->modelScale[2] = ent->modelScale[0] = 1.0f;
+	ent->s.iModelScale = (short)(100 * ent->modelScale[0]);
+	if (ent->model && ent->model[0]) {
+		//Brushmodel
+		if (ent->model[0] == '*') {
+			trap_SetBrushModel(ent, ent->model);
+		}
+		else {
+			char *model = NULL;
+			G_SpawnString("model", "", &model);
+			hasModel = qtrue;
+			VectorCopy(ent->s.angles, ent->s.apos.trBase);
+			if (strstr(model, ".glm")) {
+				ent->s.modelindex = G_ModelIndex(va("models/%s", fixpath(model)));
+				ent->s.modelGhoul2 = 1;
+				G_SpawnVector("maxs", "8 8 16", ent->r.maxs);
+				G_SpawnVector("mins", "-8 -8 0", ent->r.mins);
+			}
+			else {
+				ent->s.modelindex = G_ModelIndex(va("models/%s.md3", fixpath(model)));
+				vec3_t maxs, mins;
+				
+				/*if (model_frames[ent->s.modelindex]) {
+					VectorCopy(model_mins[ent->s.modelindex], mins);
+					VectorCopy(model_maxs[ent->s.modelindex], maxs);
+					FixBox(mins, maxs, ent->s.angles);
+				}
+				else {*/
+					VectorSet(mins, 8, 8, 16);
+					VectorSet(maxs, -8, -8, 0);
+				/*}*/
+
+				G_SpawnVector("maxs", vtos2(maxs), ent->r.maxs);
+				G_SpawnVector("mins", vtos2(mins), ent->r.mins);
+				/*
+				if (isAnimated && (model_frames[ent->s.modelindex] > 1)) {
+					ent->genericValue4 = model_frames[ent->s.modelindex];
+					ent->think = animate_model;
+					ent->nextthink = level.time;
+				}*/
+			}
+			//G_Free(model);
+		}
+	}
+	if (ent->modelScale[0] > 0) {
+		VectorScale(ent->r.mins, ent->modelScale[0], ent->r.mins);
+		VectorScale(ent->r.maxs, ent->modelScale[0], ent->r.maxs);
+	}
+	if (isSolid && !VectorCompare(vec3_origin, ent->r.mins) && !VectorCompare(vec3_origin, ent->r.maxs)) {
+		ent->r.contents = CONTENTS_SOLID;
+		ent->clipmask = MASK_SOLID;
+		ent->s.solid = SOLID_BMODEL;
+		// fixme: doesn't actually work
+	}
+	else {
+		ent->r.contents = 0;
+	}
+	return hasModel;
+}
+
+//-----------------------------------------------------
+void SP_misc_model_serverside(gentity_t *ent)
+//-----------------------------------------------------
+{
+	char *s = NULL;
+	G_SpawnString("model", "", &s);
+	if (!VALIDSTRING(s)) {
+		G_FreeEntity(ent);
+		return;
+	}
+
+	SpawnEntModel(ent, qtrue, qfalse);
+
+	ent->s.eFlags = 0;
+
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+
+	trap_LinkEntity(ent);
+}
+
+// todo: make less extremely shitty and hardcoded lmfao
+static void DoEntrancedAddedSpawns(qboolean inSubBSP) {
+	if (level.siegeMap == SIEGEMAP_HOTH) {
+		/*
+		level.numSpawnVarChars = 0;
+		level.numSpawnVars = 0;
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("classname");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("misc_model_serverside");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("origin");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("4253 -64 -256");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("angles");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("0 180 0");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("model");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("models/map_objects/factory/f_con1.md3");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("mins");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("-64 -64 0");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("maxs");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("64 64 64");
+		if (inSubBSP)
+			HandleEntityAdjustment();
+		G_SpawnGEntityFromSpawnVars(inSubBSP);
+		*/
+
+		level.numSpawnVarChars = 0;
+		level.numSpawnVars = 0;
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("classname");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("misc_model_health_power_converter");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("origin");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1134 2066 -178");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("angle");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("100");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("teamuser");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1");
+		if (inSubBSP)
+			HandleEntityAdjustment();
+		G_SpawnGEntityFromSpawnVars(inSubBSP);
+	}
+}
+
 /*
 ==============
 G_SpawnEntitiesFromString
@@ -1851,6 +2001,8 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	while( G_ParseSpawnVars(inSubBSP) ) {
 		G_SpawnGEntityFromSpawnVars(inSubBSP);
 	}	
+
+	DoEntrancedAddedSpawns(inSubBSP);
 
 	if( g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN][0] )
 	{//World has a spawn script, but we don't want the world in ICARUS and running scripts,

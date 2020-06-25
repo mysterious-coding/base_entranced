@@ -1600,6 +1600,10 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 	if (ent->genericValue17 <= 0)
 		ent->genericValue17 = 5;
 
+	G_SpawnInt("teamuser", "", &ent->healingteam);
+	if (ent->healingteam != TEAM_RED && ent->healingteam != TEAM_BLUE)
+		ent->healingteam = 0;
+
 	ent->genericValue4 = ent->count; //initial value
 	ent->think = check_recharge;
 

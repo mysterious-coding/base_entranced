@@ -26,6 +26,9 @@ void health_power_converter_use(gentity_t *self, gentity_t *other, gentity_t *ac
 		return;
 	}
 
+	if (g_gametype.integer >= GT_TEAM && self->healingteam && self->healingteam != activator->client->sess.sessionTeam)
+		return;
+
 	int *timePtr;
 	if (g_multiUseGenerators.integer && activator - g_entities < MAX_CLIENTS)
 		timePtr = &self->perPlayerTime[activator - g_entities];

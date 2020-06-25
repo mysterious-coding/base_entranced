@@ -667,6 +667,10 @@ void SP_misc_turret( gentity_t *base )
 	// don't start working right away
 	base->nextthink = level.time + FRAMETIME * 5;
 
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && !Q_stricmp(base->targetname, "bigturrets")) {
+		base->health = 600; // nerf 2nd obj turret hp by 50%
+	}
+
 	trap_LinkEntity( base );
 
 	if ( !turret_base_spawn_top( base ) )

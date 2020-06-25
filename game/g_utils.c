@@ -3400,3 +3400,17 @@ const char *Cvar_VariableString(const char *var_name) {
 	trap_Cvar_VariableStringBuffer(var_name, buf[bufferNum], sizeof(buf[bufferNum]));
 	return buf[bufferNum];
 }
+
+char *vtos2(const vec3_t v) {
+	static	int		index;
+	static	char	str[8][32];
+	char *s;
+
+	// use an array so that multiple vtos won't collide
+	s = str[index];
+	index = (index + 1) & 7;
+
+	Com_sprintf(s, 32, "%.0f %.0f %.0f", v[0], v[1], v[2]);
+
+	return s;
+}

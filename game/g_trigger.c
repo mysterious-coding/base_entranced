@@ -681,6 +681,11 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 			}
 		}
 
+		if (level.siegeMap == SIEGEMAP_HOTH && !Q_stricmp(self->target, "sidehack1_relay")) {
+			self->genericValue7 = g_fixHoth2ndObj.integer ? 0 : 10000;
+			self->idealclass[0] = g_fixHoth2ndObj.integer ? '\0' : 'I';
+		}
+
 		if (self->genericValue7)
 		{ 
 			if (level.siegeMap == SIEGEMAP_HOTH && !Q_stricmp(self->target, "t712")) {
