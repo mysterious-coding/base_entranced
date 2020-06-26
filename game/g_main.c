@@ -206,6 +206,7 @@ vmCvar_t	g_autoSpec;
 vmCvar_t	g_intermissionKnockbackNPCs;
 vmCvar_t	g_emotes;
 vmCvar_t	g_siegeHelp;
+vmCvar_t	g_fixHoth2ndObj;
 
 vmCvar_t	g_webhookId;
 vmCvar_t	g_webhookToken;
@@ -1100,6 +1101,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamVoteFix, "g_teamVoteFix", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixHoth2ndObj, "g_fixHoth2ndObj", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_webhookId, "g_webhookId", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_webhookToken, "g_webhookToken", "", CVAR_ARCHIVE, 0, qfalse },

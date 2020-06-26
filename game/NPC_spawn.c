@@ -1222,6 +1222,14 @@ gentity_t *NPC_Spawn_Do( gentity_t *client_ent, gentity_t *ent )
 		}
 	}
 
+	if (level.siegeMap == SIEGEMAP_HOTH && g_fixHoth2ndObj.integer && ent->spawnflags == 17) { // move away from the wall
+		vec3_t newOrigin = { 1227.0f, 2295.0f, -200.0f };
+		G_SetOrigin(ent, newOrigin);
+		ent->s.origin[0] = 1227.0f;
+		ent->s.origin[1] = 2295.0f;
+		ent->s.origin[2] = -200.0f;
+	}
+
 	//Test for drop to floor
 	if ( ent->spawnflags & NSF_DROP_TO_FLOOR )
 	{

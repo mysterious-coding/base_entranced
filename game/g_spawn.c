@@ -1921,36 +1921,30 @@ void SP_misc_model_serverside(gentity_t *ent)
 
 // todo: make less extremely shitty and hardcoded lmfao
 static void DoEntrancedAddedSpawns(qboolean inSubBSP) {
-	if (level.siegeMap == SIEGEMAP_HOTH) {
-		/*
+	if (level.siegeMap == SIEGEMAP_HOTH && g_fixHoth2ndObj.integer) {
 		level.numSpawnVarChars = 0;
 		level.numSpawnVars = 0;
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("classname");
 		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("misc_model_serverside");
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("origin");
-		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("4253 -64 -256");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1201 2075 -178");
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("angles");
-		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("0 180 0");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("0 100 0");
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("model");
-		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("models/map_objects/factory/f_con1.md3");
-		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("mins");
-		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("-64 -64 0");
-		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("maxs");
-		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("64 64 64");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("models/items/power_converter.md3");
 		if (inSubBSP)
 			HandleEntityAdjustment();
 		G_SpawnGEntityFromSpawnVars(inSubBSP);
-		*/
 
 		level.numSpawnVarChars = 0;
 		level.numSpawnVars = 0;
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("classname");
 		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("misc_model_health_power_converter");
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("origin");
-		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1134 2066 -178");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1201 2076 -178");
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("angle");
 		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("100");
-		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("teamuser");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("healteam");
 		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1");
 		if (inSubBSP)
 			HandleEntityAdjustment();

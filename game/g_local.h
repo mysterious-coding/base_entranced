@@ -2900,6 +2900,7 @@ extern vmCvar_t    g_autoSpec;
 extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
 extern vmCvar_t    g_siegeHelp;
+extern vmCvar_t		g_fixHoth2ndObj;
 
 extern vmCvar_t    g_webhookId;
 extern vmCvar_t    g_webhookToken;

@@ -74,6 +74,8 @@ Wampa_Patrol
 */
 void Wampa_Patrol( void )
 {
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && level.isLivePug)
+		return;
 	NPCInfo->localState = LSTATE_CLEAR;
 
 	//If we have somewhere to go, then do that
@@ -106,6 +108,8 @@ Wampa_Move
 */
 void Wampa_Move( qboolean visible )
 {
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && level.isLivePug)
+		return;
 	if ( NPCInfo->localState != LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
@@ -156,6 +160,8 @@ extern int NPC_GetEntsNearBolt( int *radiusEnts, float radius, int boltIndex, ve
 
 void Wampa_Slash( int boltIndex, qboolean backhand )
 {
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && level.isLivePug)
+		return;
 	int			radiusEntNums[128];
 	int			numEnts;
 	const float	radius = 88;
@@ -246,6 +252,8 @@ void Wampa_Slash( int boltIndex, qboolean backhand )
 //------------------------------
 void Wampa_Attack( float distance, qboolean doCharge )
 {
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && level.isLivePug)
+		return;
 	if ( !TIMER_Exists( NPC, "attacking" ) )
 	{
 		if ( Q_irand(0, 2) && !doCharge )
@@ -323,6 +331,8 @@ void Wampa_Attack( float distance, qboolean doCharge )
 //----------------------------------
 void Wampa_Combat( void )
 {
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && level.isLivePug)
+		return;
 	// If we cannot see our target or we have somewhere to go, then do that
 	if ( !NPC_ClearLOS( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin ) )
 	{
@@ -486,6 +496,8 @@ NPC_BSWampa_Default
 void NPC_BSWampa_Default( void )
 {
 	NPC->client->ps.eFlags2 &= ~EF2_USE_ALT_ANIM;
+	if (g_fixHoth2ndObj.integer && level.siegeMap == SIEGEMAP_HOTH && level.isLivePug)
+		return;
 	//NORMAL ANIMS
 	//	stand1 = normal stand
 	//	walk1 = normal, non-angry walk

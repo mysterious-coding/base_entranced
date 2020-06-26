@@ -2960,6 +2960,18 @@ void SP_func_breakable(gentity_t *self)
 		}
 	}
 
+	G_SpawnInt("material", "0", (int *)&self->material);
+
+	if (g_fixHoth2ndObj.integer && g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_HOTH && self->material == 16) {
+		if (self->health == 800) { // remove inner rocks
+			G_FreeEntity(self);
+			return;
+		}
+		if (self->health == 1500) { // nerf outer rocks
+			self->health = 100;
+		}
+	}
+
 	G_SpawnInt("showhealth", "0", &t);
 
 	if (t)
@@ -2987,7 +2999,6 @@ void SP_func_breakable(gentity_t *self)
 
 	G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");//precaching
 	G_SpawnFloat("radius", "1", &self->radius); // used to scale chunk code if desired by a designer
-	G_SpawnInt("material", "0", (int*)&self->material);
 
 	G_SpawnInt("splashDamage", "0", &self->splashDamage);
 	G_SpawnInt("splashRadius", "0", &self->splashRadius);

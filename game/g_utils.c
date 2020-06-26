@@ -2508,6 +2508,22 @@ tryJetPack:
 		return;
 	if (TryTossAmmoPack(ent, qfalse))
 		return;
+
+	// hoth 2nd obj retreat teleport
+	if (g_fixHoth2ndObj.integer && g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_HOTH && level.objectiveJustCompleted == 1 &&
+		ent->health > 0 && ent->client->sess.sessionTeam == TEAM_BLUE &&
+		(VectorInsideBox(ent->client->ps.origin, 4960, 283, -349, 5222, 669, -235, 0.0f) || VectorInsideBox(ent->client->ps.origin, 4962, -1184, -336, 5208, -805, -228, 0.0f))) {
+		vec3_t teleportToOrigin;
+		gentity_t temp = { 0 };
+		do { // pick a random spot in their new spawn area
+			teleportToOrigin[0] = (float)Q_irand(-553, -350);
+			teleportToOrigin[1] = (float)Q_irand(-404, 500);
+			teleportToOrigin[2] = -231.0f;
+			VectorCopy(teleportToOrigin, temp.s.origin);
+		} while (SpotWouldTelefrag(&temp));
+
+		TeleportPlayer(ent, teleportToOrigin, vec3_origin);
+	}
 }
 
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs )
