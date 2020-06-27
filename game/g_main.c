@@ -1127,7 +1127,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_multiUseGenerators, "g_multiUseGenerators", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_dispenserLifetime, "g_dispenserLifetime", "25", CVAR_ARCHIVE, 0, qtrue }, // up from 20
 	{ &g_techAmmoForAllWeapons, "g_techAmmoForAllWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame, "g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame, "g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame", "-1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_healWalkerWithAmmoCans, "g_healWalkerWithAmmoCans", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_friendlyFreeze, "g_friendlyFreeze", "0", CVAR_ARCHIVE, 0, qtrue },
 
