@@ -328,7 +328,7 @@ bitflag 4 = d jedi gets heal 3
 #### `g_multiUseGenerators`
 0 = base JKA weird buggy behavior when multiple people are using an armor/ammo/health generator
 
-1 = allow multiple people to use armor/ammo/health generators at once without weird buggy behavior
+1 = (default) allow multiple people to use armor/ammo/health generators at once without weird buggy behavior
 
 #### `g_dispenserLifetime`
 20 = base JKA 20 seconds
