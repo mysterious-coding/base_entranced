@@ -323,7 +323,7 @@ bitflag 4 = d jedi gets heal 3
 #### `g_siegeRespawnAutoChange`
 0 = disable (useful for pub servers)
 
-1 = (default) `g_siegeRespawn` automatically changes between 1 and 20 depending on if it's a live pug (restarted, even teams, etc)
+1 = (default) `g_siegeRespawn` automatically changes between 1 and 20 depending on if the map was restarted (via vote or rcon)
 
 #### `g_multiUseGenerators`
 0 = base JKA weird buggy behavior when multiple people are using an armor/ammo/health generator
