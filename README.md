@@ -34,83 +34,83 @@ base_entranced is intended to be fully usable "out of the box." Most cvars defau
 # base_entranced features
 These are unique features for base_entranced.
 
-#### `/g_autoStats`
+#### `g_autoStats`
 0 = no stats (base JKA)
 
 1 = (default) automatically prints stats at the end of each round, including objective times, kills, deaths, damage, etc. Some maps also have their own unique stats for that map. Clients can also access these stats manually by using the `stats` command.
 
-#### `/g_classLimits`
+#### `g_classLimits`
 0 = no limits (base JKA)
 
 1 = (default) enable class limits + automatic overrides from map/server mod
 
 2 = enable class limits + DO NOT use automatic overrides from map/server mod
 
-If `/g_classLimits` is enabled, you can use twelve cvars to limit the number of people who can play a particular class. For example, `/dAssaultLimit 1` limits the number of defense assaults to one, `/oJediLimit 2` limits offense to two jedis, etc. With `/g_classLimits 1`, some automatic overrides for community maps will be applied from bsp files and from hardcoded limits in the server mod itself.
+If `g_classLimits` is enabled, you can use twelve cvars to limit the number of people who can play a particular class. For example, `dAssaultLimit 1` limits the number of defense assaults to one, `oJediLimit 2` limits offense to two jedis, etc. With `g_classLimits 1`, some automatic overrides for community maps will be applied from bsp files and from hardcoded limits in the server mod itself.
 
-#### `/g_delayClassUpdate`
+#### `g_delayClassUpdate`
 0 = instantly broadcast class changes
 
 1 = (default) instantly broadcast class changes to teammates; delay class change broadcast for enemies until after the respawn. Prevents the stupid "oh you changed class 150ms before the respawn? Let me counter you by changing class 140ms before the respawn" garbage.
 
-#### `/g_siegeTiebreakEnd`
+#### `g_siegeTiebreakEnd`
 0 = (default) no tiebreaking rules (base JKA)
 
 1 = enforce traditional siege community tiebreaking rule. If round 1 offense got held for maximum time(20 minutes on most maps), game will end once round 2 offense has completed one more objective. Round 2 offense will be declared the winner of the match.
 
-#### `/g_fixSiegeScoring`
+#### `g_fixSiegeScoring`
 0 = dumb base JKA scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
 
 1 = (default) improved/logical scoring (100 pts per obj)
 
-#### `/g_fixVoiceChat`
+#### `g_fixVoiceChat`
 0 = enemies can hear your voice chats and see icon over your head (base JKA)
 
 1 = (default) only teammates can hear your voice chats and see icon over your head (except for spot_air and spot_emplaced, which are used to BM your enemies)
 
-#### `/iLikeToDoorSpam`
+#### `iLikeToDoorSpam`
 0 = (default) door spam prohibited for blobs, golan balls, rockets, conc primaries, thermals, and bowcaster alternates within a limited distance of enemies in your FOV. Wait until door opens to fire (skilled players already do this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
 
 1 = door spam allowed, have fun immediately getting hit to 13hp because some shitty was raining blobs/golans/etc on the door before you entered (base JKA)
 
-#### `/iLikeToMineSpam`
+#### `iLikeToMineSpam`
 0 = (default) mine spam prohibited within a limited distance of enemies in your FOV. No throwing mines at incoming enemies anymore (skilled players already refrain from this). Does not apply if a walker, shield, or someone using protect or mindtrick is nearby. Warning: turning on this setting will cause terrible players to complain.
 
 1 = mine spam allowed, have fun insta-dying because some shitty was holding down mouse2 with mines before you entered the door (bonus points for "was planting, bro" excuse) (base JKA)
 
-#### `/iLikeToShieldSpam`
+#### `iLikeToShieldSpam`
 0 = (default) shield spam prohibited; you have to be killed by an enemy or walker explosion to place a new shield. You can place a new shield at each objective, with one freebie ("Yo shield") during the 20 seconds immediately after an objective.
 
 1 = shield spam allowed, have fun getting shield spammed
 
-#### `/g_autoKorribanSpam`
+#### `g_autoKorribanSpam`
 0 = spam-related cvars are unaffected by map
 
-1 = (default) `/iLikeToDoorSpam` and `/iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
+1 = (default) `iLikeToDoorSpam` and `iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
 
 #### Toptimes records and speedruns
 The server database tracks statistics on fastest objective/map completion times. For more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=23&t=215
 
 #### Live pug detection
-The server automatically detects when a pug (2v2 or greater) is live. It notifies you at the beginning if there's an issue (e.g. AFK player), and will automatically pause if someone 999s for several seconds (`/g_autoPause999`, default 3)
+The server automatically detects when a pug (2v2 or greater) is live. It notifies you at the beginning if there's an issue (e.g. AFK player), and will automatically pause if someone 999s for several seconds (`g_autoPause999`, default 3)
 
 #### Skillboost/senseboost
-You can give bad players a boost to help them be competitive. `/skillboost <player> <number 0 through 5>` gives them a boost to their stats (higher levels are better), while `/senseboost <player> <number 0 through 5>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `/skillboost` or `/senseboost` commands to see who is currently boosted. Generally, levels 1-3 should be used most of the time; 4-5 are more extreme boosts and should only be used for people who have absolutely no idea what they are doing. These values can be changed with cvars beginning with `g_skillboost` and `g_senseboost`; use `cvarlist` to see all of them.
+You can give bad players a boost to help them be competitive. `skillboost <player> <number 0 through 5>` gives them a boost to their stats (higher levels are better), while `senseboost <player> <number 0 through 5>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `skillboost` or `senseboost` commands to see who is currently boosted. Generally, levels 1-3 should be used most of the time; 4-5 are more extreme boosts and should only be used for people who have absolutely no idea what they are doing. These values can be changed with cvars beginning with `g_skillboost` and `g_senseboost`; use `cvarlist` to see all of them.
 
 #### Respawn times
 The server automatically defaults to instant respawn times. If the map is restarted (i.e. via vote or rcon) with at least one player on each team, the respawn timer will automatically be set to 20.
 
-#### `/g_emotes`
+#### `g_emotes`
 0 = disable
 
-1 = (default) clients can use custom animations with the `/emote` command
+1 = (default) clients can use custom animations with the `emote` command
 
-#### `/g_fixSaberDefense`
+#### `g_fixSaberDefense`
 0 = base JA saber blocking
 
 1 = (default) fixed saber defense, for more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=18&t=133
 
-#### `/g_locationBasedDamage`
+#### `g_locationBasedDamage`
 0 = no location-based damage
 
 1 = (old base JA default) base JA location-based damage
@@ -119,29 +119,29 @@ The server automatically defaults to instant respawn times. If the map is restar
 
 3 = (default) saber always hits for 1.00 damage multiplier, hands/arms count as chest, and feet count as legs
 
-#### `/g_fixShield`
+#### `g_fixShield`
 0 = bugged basejka shield behavior; shields placed along the x-axis of a map are 25% taller (even though they do not visually reflect it in unpatched client mods)
 
 1 = (default) fixed shield behavior; all shields are correct height
 
 2 = break all shields; all shields are 25% taller
 
-#### `/g_flechetteSpread`
+#### `g_flechetteSpread`
 0 = disable
 
 1 = improved golan primary spread pattern, guaranteeing one pellet to fire somewhere into each quadrant (±x, ±y)
 
-#### `/g_improvedDisarm`
+#### `g_improvedDisarm`
 0 = disable
 
 1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed
 
-#### `/g_fixHothBunkerLift`
+#### `g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (base JKA)
 
 1 = (default) Hoth codes bunker lift requires pressing `+use` button (prevents you from killing yourself way too easily on this dumb lift)
 
-#### `/g_hothHangarHack`
+#### `g_hothHangarHack`
 0 = no changes
 
 1 = (default) Hoth hangar hack time reduced to 5 seconds
@@ -150,17 +150,17 @@ The server automatically defaults to instant respawn times. If the map is restar
 
 -1 = both
 
-#### `/g_fixHothDoorSounds`
+#### `g_fixHothDoorSounds`
 0 = Hoth bunker doors at first objective are silent (bug from base JKA)
 
 1 = (default) Hoth bunker doors at first objective use standard door sounds
 
-#### `/g_antiHothCodesLiftLame`
+#### `g_antiHothCodesLiftLame`
 0 = normal behavior for Hoth codes delivery bunker lift
 
 1 = (default) defenders cannot call up Hoth codes delivery bunker lift if a non-Jedi codes carrier is inside the bunker
 
-#### `/g_antiHothHangarLiftLame`
+#### `g_antiHothHangarLiftLame`
 0 = normal behavior for Hoth hangar lift (base JKA)
 
 1 = defense tech uses a 2 second hack to call up the lift. Returns to normal behavior after the hangar objective is completed.
@@ -171,118 +171,132 @@ The server automatically defaults to instant respawn times. If the map is restar
 
 4 = (default) use both 1 and 2 methods, plus, after the infirmary has been breached, only allow the defense to call the lift up once within 15 seconds of the infirmary breach. (default setting)
 
-#### `/g_antiHothInfirmaryLiftLame`
+#### `g_antiHothInfirmaryLiftLame`
 0 = normal behavior for Hoth infirmary "short" lift (base JKA)
 
 1 = (default) defense cannot call the "short" lift up with the top button; they must use the lower button
 
-#### `/g_antiLaming`
+#### `g_antiLaming`
 0 = (default) no anti-laming provisions (base JKA, suggested setting for pug servers)
 
 1 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being killed.
 
 2 = laming codes/crystals/scepters/parts, objective skipping, and killing stations with swoops @ desert 1st obj is punished by automatically being kicked from the server.
 
-#### `/g_autoKorribanFloatingItems`
+#### `g_autoKorribanFloatingItems`
 0 = `g_floatingItems` is unaffected by map change
 
 1 = (default) `g_floatingItems` automatically gets set to 1 for Korriban, and automatically gets set to 0 for all other maps
 
-#### `/g_nextmapWarning`
+#### `g_nextmapWarning`
 0 = no warning (base JKA)
 
 1 = (default) when nextmap vote is called in round 2, a warning message appears (so you don't accidentally reset the timer going up when starting round 2)
 
-#### `/g_improvedTeamchat`
+#### `g_improvedTeamchat`
 0 = base JKA team chat
 
 1 = show selected class as "location" during countdown, show "(DEAD)" in teamchat for dead players, hide location from teamchat between spectators, hide location from teamchat during intermission
 
 2 = (default) all of the above, plus show HP in teamchat for alive players
 
-#### `/g_fixFallingSounds`
+#### `g_fixFallingSounds`
 0 = base JKA sound (normal death sound)
 
-1 = (default) use falling death scream sound when damaged by a `trigger_hurt` entity for >= 100 damage (i.e., death pits). Also plays scream sound if selfkilling while affected by `/g_fixPitKills`
+1 = (default) use falling death scream sound when damaged by a `trigger_hurt` entity for >= 100 damage (i.e., death pits). Also plays scream sound if selfkilling while affected by `g_fixPitKills`
 
-#### `/g_fixEweb`
+#### `g_fixEweb`
 0 = base JKA eweb behavior (huge annoying recoil, etc)
 
 1 = (default) remove eweb recoil, remove "unfolding" animation when pulling out eweb, make eweb crosshair start closer to normal crosshair
 
-#### `/g_enableCloak`
+#### `g_enableCloak`
 0 = (default) remove cloak from all siege classes (eliminates need for no-cloak PK3 patches)
 
 1 = cloak enabled (base JKA)
 
-#### `/g_fixRancorCharge`
+#### `g_fixRancorCharge`
 0 = (default) base JKA behavior - rancor can charge/jump through `BLOCKNPC` areas (e.g. desert arena door)
 
 1 = rancor cannot charge/jump through `BLOCKNPC` areas
 
-#### `/g_infiniteCharge`
+#### `g_friendlyFreeze`
+0 = (default) can't freeze allied vehicles with demp; can't give allies useless electrocution effect
+
+1 = enable (base JKA)
+
+#### `g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame`
+bitflag 1 = 100 damage saberthrows on gunners
+
+bitflag 2 = removed rocket HP except for enemy tenloss and demp altfire
+
+-1 = (default) both
+
+0 = disable (base JKA)
+
+#### `g_infiniteCharge`
 0 = no infinite charging bug ("bugfix" from Sil's base_enhanced)
 
 1 = infinite charging bug enabled (classic behavior, brought back by popular demand. hold `+useforce` or `+button2` to hold weapon charge indefinitely)
 
 2 = (default) infinite charge bug enabled, but you don't have to hold down any extra buttons.
 
-#### `/g_fixGripKills`
+#### `g_fixGripKills`
 0 = normal selfkilling while gripped (base JKA)
 
-1 = (default) selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill (similar to `/g_fixPitKills` from base_enhanced)
+1 = (default) selfkilling while gripped counts as a kill for the gripper. This prevents people from denying enemies' kills with selfkill (similar to `g_fixPitKills` from base_enhanced)
 
-#### `/g_antiCallvoteTakeover`
-0 = normal vote calling for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, and `lockteams` votes (base JKA)
+#### `g_antiCallvoteTakeover`
+0 = normal vote calling for `map`, `g_gametype`, `pug`, `pub`, `kick`, `clientkick`, and `lockteams` votes (base JKA)
 
-1 = (default) calling a vote for `/map`, `/g_gametype`, `/pug`, `/pub`, `/kick`, `/clientkick`, or `lockteams` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
+1 = (default) calling a vote for `map`, `g_gametype`, `pug`, `pub`, `kick`, `clientkick`, or `lockteams` when 6+ players are connected requires at least 2+ people to be ingame. This prevents a lone player calling lame unpopular votes when most of the server is in spec unable to vote no.
 
-#### `/g_moreTaunts`
-0 = base JKA behavior (only allow `/taunt` in non-duel gametypes)
+#### `g_moreTaunts`
+0 = base JKA behavior (only allow `taunt` in non-duel gametypes)
 
-1 = (default) enable `/gloat`, `/flourish`, and `/bow` in non-duel gametypes)
+1 = (default) enable `gloat`, `flourish`, and `bow` in non-duel gametypes)
 
-#### `/g_botJumping`
+#### `g_botJumping`
 0 = (default) bots jump around like crazy on maps without botroute support (base JKA)
 
 1 = bots stay on the ground on maps without botroute support
 
-#### `/g_swoopKillPoints`
+#### `g_swoopKillPoints`
 The number of points you gain from killing swoops (1 = base JKA). Set to 0 (the default) so you don't gain points from farming swoops.
 
-#### `/g_sexyDisruptor`
+#### `g_sexyDisruptor`
 0 = (default) lethal sniper shots with full charge (1.5 seconds or more) cause incineration effect (fixed base JKA setting, which was bugged)
 
 1 = all lethal sniper shots cause incineration effect (this is just for fun/cool visuals and makes it like singeplayer)
 
 2 = same as 1 but also for primary fire
 
-#### `/siege_restart`
-rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `/callvote nextmap` (lol)
+#### `siege_restart`
+rcon command that restarts the current map with siege timer going up from 00:00. Before this, there was no server command to reset siege to round 1, the only way was `callvote nextmap` (lol)
 
-#### `/forceround2 mm:ss`
-Restarts current map with siege timer going down from a specified time. For example, `/forceround2 7:30` starts siege in round 2 with the timer going down from 7:30. Can be executed from rcon or callvote.
+#### `forceround2 mm:ss`
+Restarts current map with siege timer going down from a specified time. For example, `forceround2 7:30` starts siege in round 2 with the timer going down from 7:30. Can be executed from rcon or callvote.
 
-#### `/killturrets`
+#### `killturrets`
 Removes all turrets from the map. Useful for capt duels. Can be executed from rcon or callvote.
 
-#### `/greenDoors`
+#### `greenDoors`
 "Greens" (unlocks) all doors on the map. For testing purposes only; should not be used in live games.
 
-#### `/autocfg_map`
+#### `autocfg_map`
 0 = (default) no automatic cfg execution (base JKA)
 
-1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` (if it exists). This should eliminate the need for map-specific cvars like `/g_autoKorribanFloatingItems`, etc.
+1 = server will automatically execute `mapcfgs/mapname.cfg` at the beginning of any siege round according to whatever the current map is. For example, if you change to `mp/siege_desert`, the server will automatically execute `mapcfgs/mp/siege_desert.cfg` (if it exists). This should eliminate the need for map-specific cvars like `g_autoKorribanFloatingItems`, etc.
 
-#### `/autocfg_unknown`
+#### `autocfg_unknown`
 0 = (default) if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, nothing will happen.
 
 1 = if `autocfg_map` is enabled, but the server is unable to find `mapcfgs/mapname.cfg`, the server will instead execute `mapcfgs/unknown.cfg` as a fallback (if it exists).
 
-#### `/g_defaultMap`
+#### `g_defaultMap`
 If specified, the server will change to this map after 60 seconds of being empty.
 
-#### `/g_hothRebalance`
+#### `g_hothRebalance`
 0 = (default) hoth classes are unchanged
 
 bitflag 1 = o assault gets big bacta
@@ -293,42 +307,88 @@ bitflag 4 = d jedi gets heal 3
 
 -1 = enable all
 
-#### `/g_antiSelfMax`
+#### `g_fixHoth2ndObj`
+
+ 0 = disable
+ 
+ 1 = (default) defenders can press +use inside either spawn bunker to teleport from the first obj to the second obj, ion hack is now instantaneous, ion hack can now be performed by any class, reduced 2nd area turrets HP to 600 (was 1200), added health dispenser in cave for offense only, reduced outer cave rocks HP to 100 (was 1500), removed inner cave rocks, wampa spawns farther away from the wall (allows more optimal movement through cave), wampa is braindead during live pugs
+
+#### `g_antiSelfMax`
 0 = disable
 
 1 = you cannot selfkill within the one second after a spawn (prevents accidental SK)
 
+#### `g_improvedHoming`
+0 = disable
+
+1 = (default) enable improved homing for rocket launchers (fixes weird behaviors, false positive locks etc)
+
+#### `g_siegeRespawnAutoChange`
+0 = disable (useful for pub servers)
+
+1 = (default) `g_siegeRespawn` automatically changes between 1 and 20 depending on if it's a live pug (restarted, even teams, etc)
+
+#### `g_multiUseGenerators`
+0 = base JKA weird buggy behavior when multiple people are using an armor/ammo/health generator
+
+1 = allow multiple people to use armor/ammo/health generators at once without weird buggy behavior
+
+#### `g_dispenserLifetime`
+20 = base JKA 20 seconds
+
+25 = (default) ammo canisters last for 5 seconds longer than base JKA; makes sense since spawn times are 20 seconds so they don't disappear right when you get to them
+
+#### `g_techAmmoForAllWeapons`
+0 = disable (base JKA)
+
+1 = (default) tech refills ammo for all weapons simultaneously instead of just whatever weapon you are holding at the primary fire rate of the weapon you are holding
+
+#### `g_healWalkerWithAmmoCans`
+0 = (default) disable
+
+1 = enable weird base JKA behavior where you can heal the walker with ammo cans (leads to the walker "stealing" ammo cans)
+
+#### `g_autoStart`
+0 = disable (base JKA)
+
+1 = (default) automatically restart when everyone has used the `ready` command and is not AFK. configurable parameters for this include `g_autoStartTimer`, `g_autoStartAFKThreshold`, and `g_autoStartMinPlayers`
+
+#### `g_unlagged`
+0 = disable
+
+1 = (default) enable unlagged; anyone can use it with the `unlagged` command even if they don't have a supporting mod
+
 #### Improved projectile pushing/deflection
-Pushing/deflection has been reworked in a way consistent with base siege gameplay, but in a bug-free manner. You can enable this with the recommended settings: `/g_siegeReflectionFix 1`, `/g_randomConeReflection -1`, `/g_coneReflectAngle 30`, `/g_breakRNG 0`. To disable, use the settings `/g_siegeReflectionFix 0`, `/g_randomConeReflection 0`, `/g_coneReflectAngle 30`, `/g_breakRNG -1`.
+Pushing/deflection has been reworked in a way consistent with base siege gameplay, but in a bug-free manner. You can enable this with the recommended settings: `g_siegeReflectionFix 1`, `g_randomConeReflection -1`, `g_coneReflectAngle 30`, `g_breakRNG 0`. To disable, use the settings `g_siegeReflectionFix 0`, `g_randomConeReflection 0`, `g_coneReflectAngle 30`, `g_breakRNG -1`.
 
 #### Chat limits
-(Defaults are 0) you can set `/g_chatLimit`, `/g_teamChatLimit`, and `/g_voiceChatLimit` to reduce the maximum amount of times people can spam chat during one second.
+(Defaults are 0) you can set `g_chatLimit`, `g_teamChatLimit`, and `g_voiceChatLimit` to reduce the maximum amount of times people can spam chat during one second.
 
 #### Custom team/class overrides
-You can override the classes for any siege map. Use `/g_redTeam <teamName>` and `/g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `/g_redTeam Siege3_Jedi` and `/g_blueTeam Siege3_DarkJedi`.
+You can override the classes for any siege map. Use `g_redTeam <teamName>` and `g_blueTeam <teamName>`. For example, to use Korriban classes on any map, you could type `g_redTeam Siege3_Jedi` and `g_blueTeam Siege3_DarkJedi`.
 
 To reset to base classes, use `0` or `none` as the argument.
 
-This also works with votes; you can do `/callvote g_redTeam <teamName>`. Enable this vote with `/g_allow_vote_customTeams`.
+This also works with votes; you can do `callvote g_redTeam <teamName>`. Enable this vote with `g_allow_vote_customTeams`.
 
 Make sure to use the correct team name, which is written inside the .team file -- NOT filename of the .team file itself. The base classes leave out a final "s" in some of the filenames (`Siege1_Rebels` versus `Siege1_Rebel`).
 
 A few important clientside bugs to be aware of:
-* If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use `/team r` or `/team b` (easiest method), autojoin, or use a CFG classbind.
-* Ravensoft decided to combine force powers and items into one menu/cycle in JKA; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `/use_field` bind.
+* If custom teams/classes are in use, you cannot use the Join Menu to join that team. You must either use `team r` or `team b` (easiest method), autojoin, or use a CFG classbind.
+* Ravensoft decided to combine force powers and items into one menu/cycle in JKA; however, if you have both items and force powers, it will only display the force powers. So for example if you are using Korriban classes on Hoth and want to place a shield as D tesh, you need to use a `use_field` bind.
 * If the server is using teams/class that you don't have at all (like completely new classes, or classes for a map you don't have), you will see people as using Kyle skin with no sounds and no class icons.
 
-#### `/g_autoResetCustomTeams`
+#### `g_autoResetCustomTeams`
 0 = retain custom teams/classes between map change votes
 
-1 = (default) `/g_redTeam` and `/g_blueTeam` are automatically reset to normal classes when map is changed via `/callvote`
+1 = (default) `g_redTeam` and `g_blueTeam` are automatically reset to normal classes when map is changed via `callvote`
 
-#### `/g_requireMoreCustomTeamVotes`
+#### `g_requireMoreCustomTeamVotes`
 0 = 51% yes votes required for all votes to pass (base JKA)
 
 1 = (default) custom team/class votes require 75% yes votes. This does not apply if the argument is `0` or `none` (resetting to normal classes)
 
-#### `/g_forceDTechItems`
+#### `g_forceDTechItems`
 This cvar helps custom team/class overrides by adding some extra weapons/items to the defense tech. Note: these do NOT apply to Korriban. The mod is hardcoded to ignore these values for Korriban. This cvar is only used when custom teams are in use, and does not affect any classes that already have demp/shield.
 
 0 = no additional weapons/items
@@ -348,7 +408,7 @@ This cvar helps custom team/class overrides by adding some extra weapons/items t
 7 = all DTechs get shield; only Hoth DTech gets demp also
 
 #### Weapon spawn preference
-Clients can decide their own preference of which weapon they would like to be holding when they spawn. To define your own preference list, type into your client JA: `/setu prefer <15 letters>`
+Clients can decide their own preference of which weapon they would like to be holding when they spawn. To define your own preference list, type into your client JA: `setu prefer <15 letters>`
 * `L` : Melee
 * `S` : Saber
 * `P` : Pistol
@@ -365,36 +425,36 @@ Clients can decide their own preference of which weapon they would like to be ho
 * `M` : Trip Mines
 * `K` : Det Packs
 
-Your most-preferred weapons go at the beginning; least-preferred weapons go at the end. For example, you could enter `/setu prefer RCTIGDUEBSMKYPL`
+Your most-preferred weapons go at the beginning; least-preferred weapons go at the end. For example, you could enter `setu prefer RCTIGDUEBSMKYPL`
 
 Note that this must contain EXACTLY 15 letters(one for each weapon). Also note that the command is `setu` with the letter `U` (as in "universe") at the end. Add this to your autoexec.cfg if you want ensure that it runs every time. Clients who do not enter this, or enter an invalid value, will simply use base JKA weapon priority.
 
-#### `/join`
-Clientside command. Use to join a specific class and team, e.g. `/join rj` for red jedi.
+#### `join`
+Clientside command. Use to join a specific class and team, e.g. `join rj` for red jedi.
 
-#### `/help` / `/rules` / `info`
-Client command; displays some helpful commands and features that clients should be aware of (how to use `/whois`, `/class`, etc) as well as version number of currently-running server mod.
+#### `help` / `rules` / `info`
+Client command; displays some helpful commands and features that clients should be aware of (how to use `whois`, `class`, etc) as well as version number of currently-running server mod.
 
-#### `/serverstatus2`
-Client command; displays many cvars to the client that are not shown with basejka `/serverstatus` command.
+#### `serverstatus2`
+Client command; displays many cvars to the client that are not shown with basejka `serverstatus` command.
 
-#### `/followtarget`
+#### `followtarget`
 Client command; also triggered by pressing your `+use` bind from spectator. Follows the player closest to where you are aiming.
 
-#### `/changes`
-Client command; if the creator of the current map included a file named `/maps/map_name_goes_here.changes`, it will print the contents of that file. Helpful for knowing the changelog for the current version of the map.
+#### `changes`
+Client command; if the creator of the current map included a file named `maps/map_name_goes_here.changes`, it will print the contents of that file. Helpful for knowing the changelog for the current version of the map.
 
-#### `/classes`
+#### `classes`
 Client command; displays all class loadouts on the current map.
 
 #### New item binds
-`/use_dispenser` = dispense an ammo can (works while jetpacking)
+`use_dispenser` = dispense an ammo can (works while jetpacking)
 
-`/use_anybacta` = use any bacta that you have
+`use_anybacta` = use any bacta that you have
 
-`/use_pack` = throw a health pack if the map supports it (works while jetpacking)
+`use_pack` = throw a health pack if the map supports it (works while jetpacking)
 
-You can also dispense ammo cans by pressing your `/saberAttackCycle` (saber stance) bind.
+You can also dispense ammo cans by pressing your `saberAttackCycle` (saber stance) bind.
 
 #### Broadcast `siegeStatus` in serverinfo
 base_entranced broadcasts some useful information, such as which round it currently is, what objective they are on, how much time is left, etc in the serverinfo. If you click to read the serverinfo from the game menu, you can see this information without connecting to the server.
@@ -403,61 +463,61 @@ base_entranced broadcasts some useful information, such as which round it curren
 No more changing maps with timer still going down.
 
 #### Random teams/capts in siege
-base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `/ready` command)
+base_enhanced supports random teams/capts, but it doesn't work for siege mode. In base_entranced this is fixed and you can generate random teams/capts even in siege(players must set "ready" status by using `ready` command)
 
 #### Map voting
-You can vote to start a new pug with `/callvote newpug <optional letters for maps>`, which allows players to vote for the map they want to play. If an argument is not specified, it will default to using the maps specified in `/g_defaultPugMaps`. Each letter corresponds to a map name defined via cvar. For example, to make mp/siege_desert the map for the letter "d", you set `/vote_map_d` to `mp/siege_desert` and set `/vote_map_shortname_d` to `Desert`. Players can `/callvote nextpug` to continue the pug map rotation. You can optionally enable `/g_multiVoteRNG` to have votes merely *increase the chance* for a map to be randomly picked by the server, but it's not recommended.
+You can vote to start a new pug with `callvote newpug <optional letters for maps>`, which allows players to vote for the map they want to play. If an argument is not specified, it will default to using the maps specified in `g_defaultPugMaps`. Each letter corresponds to a map name defined via cvar. For example, to make mp/siege_desert the map for the letter "d", you set `vote_map_d` to `mp/siege_desert` and set `vote_map_shortname_d` to `Desert`. Players can `callvote nextpug` to continue the pug map rotation. You can optionally enable `g_multiVoteRNG` to have votes merely *increase the chance* for a map to be randomly picked by the server, but it's not recommended.
 
 #### Unlimited class-changing during countdown
 Completely removed the cooldown for class-changing during the countdown.
 
-#### Improved `/tell`
-You can still use partial client names with `/tell` (for example, `/tell pada hi` will tell the player Padawan a message saying "hi")
+#### Improved `tell`
+You can still use partial client names with `tell` (for example, `tell pada hi` will tell the player Padawan a message saying "hi")
 
-#### Improved `/forceteam`
-Use partial client name with `/forceteam`. Optionally, you can include an additional argument for the number of seconds until they can change teams again (defaults to 0); for example, `/rcon forceteam douchebag r 60`
+#### Improved `forceteam`
+Use partial client name with `forceteam`. Optionally, you can include an additional argument for the number of seconds until they can change teams again (defaults to 0); for example, `rcon forceteam douchebag r 60`
 
-#### `/forceclass` and `/unforceclass`
-Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `/callteamvote`. For example, `/callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `/callteamvote unforceclass pad` to undo this restriction. Use `/teamvote yes` and `/teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
+#### `forceclass` and `unforceclass`
+Teams can call special, team-only votes to force a teammate to a certain class for 60 seconds. Use the command `callteamvote`. For example, `callteamvote forceclass pad j` will force Padawan to play jedi for 60 seconds. Use `callteamvote unforceclass pad` to undo this restriction. Use `teamvote yes` and `teamvote no` to vote on these special teamvotes. These commands can also be executed with rcon directly.
 
-#### `/g_teamVoteFix`
+#### `g_teamVoteFix`
 (default: 1) There is a bug preventing the on-screen teamvote text from displaying on clients' screens if they are running certain client mods (such as SMod). This workaround prints some text on your screen so you can see what the vote is for.
 
-#### `/forceready` and `/forceunready`
-Use `/forceready <clientnumber>` and `/forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
+#### `forceready` and `forceunready`
+Use `forceready <clientnumber>` and `forceunready <clientnumber>` to force a player to have ready or not ready status. Use -1 to force everybody.
 
-#### `/g_allow_ready`
-(default: 1) Use to enable/disable players from using the `/ready` command.
+#### `g_allow_ready`
+(default: 1) Use to enable/disable players from using the `ready` command.
 
-#### `/rename`
-Rcon command to forcibly rename a player. Use partial client name or client number. Optionally, you can include an additional argument for the number of seconds until they can rename again (defaults to 0); for example, `/rcon rename douchebag padawan 60`
+#### `rename`
+Rcon command to forcibly rename a player. Use partial client name or client number. Optionally, you can include an additional argument for the number of seconds until they can rename again (defaults to 0); for example, `rcon rename douchebag padawan 60`
 
 #### Duplicate names fix
 Players now gain a JA+-style client number appended to their name if they try to copy someone else's name.
 
 #### Lockdown
-Due to the possibility of troll players making trouble on the server and spamming reconnect under VPN IPs, you can lock down the server with `/g_lockdown` (default: 0). While enabled, only players who are whitelisted will be allowed to chat, join, rename, or vote. In addition, non-whitelisted players will be renamed to "Client 13" (or whatever their client number is) when they connect. You can add/remove whitelisted players by using the command `/whitelist`.
+Due to the possibility of troll players making trouble on the server and spamming reconnect under VPN IPs, you can lock down the server with `g_lockdown` (default: 0). While enabled, only players who are whitelisted will be allowed to chat, join, rename, or vote. In addition, non-whitelisted players will be renamed to "Client 13" (or whatever their client number is) when they connect. You can add/remove whitelisted players by using the command `whitelist`.
 
 #### Probation
 As a less severe alternative to banning troublemakers, you can simply place them under probation. Take their unique id from the server logs and write it into `probation.txt` in the server's /base/ folder (separate multiple ids with line breaks). Then the player will be treated according to the cvar `g_probation`:
 
 0 = nothing unusual happens; treat players on probation normally
 
-1 = players on probation cannot vote, call votes, use `/tell` to send or receive messages, or use teamchat in spec. their votes are not needed for votes to pass.
+1 = players on probation cannot vote, call votes, use `tell` to send or receive messages, or use teamchat in spec. their votes are not needed for votes to pass.
 
 2 = (default) same as 1, but they also cannot change teams without being forceteamed by admin.
 
 #### Siege captain dueling
-You can now challenge and accept captain duels using the basejka `/engage_duel` command/bind (assuming server has `/g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, no force powers, offense can go through defense-only doors, and turrets are automatically destroyed.
+You can now challenge and accept captain duels using the basejka `engage_duel` command/bind (assuming server has `g_privateDuel 1` enabled). Both players receive 100 HP, 0 armor, pistol only, 125% speed, no items, no force powers, offense can go through defense-only doors, and turrets are automatically destroyed.
 
 #### Awards/medals support
 Humiliation, impressive, etc. Extra awards are being implemented (work-in-progress) for siege maps. You can get rewards if you use a compatible clientside mod such as Smod and have `cg_drawRewards` enabled in your client game.
 
 #### Public server / Pug server modes
-Use `/callvote pug` to exec serverside `pug.cfg` or `/callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `/g_allow_vote_pug` and `/g_allow_vote_pub`
+Use `callvote pug` to exec serverside `pug.cfg` or `callvote pub` to exec serverside `pub.cfg` (server admin must obviously create and configure these cfg files). Allow vote with `g_allow_vote_pug` and `g_allow_vote_pub`
 
-#### `/removePassword`
-In basejka, it is impossible to remove an existing server password with rcon; the only way is by cfg. Now you can simply use the rcon command `/removePassword` to clear the value of `/g_password`.
+#### `removePassword`
+In basejka, it is impossible to remove an existing server password with rcon; the only way is by cfg. Now you can simply use the rcon command `removePassword` to clear the value of `g_password`.
 
 #### More custom character colors
 Some models allow you to use custom color shading (for example, trandoshan and weequay). Basejka had a lower limit of 100 for these settings(to ensure colors couldn't be too dark); this limit has been removed in base_entranced. Now you can play as a black trandoshan if you want. As in basejka, use the clientside commands `char_color_red`, `char_color_green`, and `char_color_blue` (valid values are between 0-255)
@@ -471,17 +531,17 @@ Some maps have hardcoded fixes in base_entranced in order to eliminate the need 
 #### Enhanced mapping framework
 base_entranced provides siege mapmakers with powerful new tools to have more control over their maps. You can do interesting things with these capabilities that are not possible in base JKA.
 
-Mapmakers can add a text file with the filename `/maps/mapname_goes_here.changes` to print a list of changes in the current version when a player enters `/changes` in the console (make sure to include /mp/ sub-folder if needed).
+Mapmakers can add a text file with the filename `maps/mapname_goes_here.changes` to print a list of changes in the current version when a player enters `changes` in the console (make sure to include /mp/ sub-folder if needed).
 
 Mapmakers can add some new extra keys to `worldspawn` entity for additional control over their maps:
 
-Mapmakers can set the new class limits keys in `worldspawn`, which automatically sets the cvars such as `/dAssaultLimit` on servers with `/g_classLimits` set to `1`. For example, adding the key `dHWLimit` with value `1` will cause the server to set the cvar `/dHWLimit` to `1`.
+Mapmakers can set the new class limits keys in `worldspawn`, which automatically sets the cvars such as `dAssaultLimit` on servers with `g_classLimits` set to `1`. For example, adding the key `dHWLimit` with value `1` will cause the server to set the cvar `dHWLimit` to `1`.
 
-Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `/g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
+Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces the server to execute `g_forceOnNpcs` to a desired number. If set, this cvar overrides `victimOfForce` for all NPCs on the map. If this key is not set, it will default to 0 (no force on NPCs - basejka setting).
 
-Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `/g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (base JKA default).
+Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (base JKA default).
 
-Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `/g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (base JKA default).
+Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (base JKA default).
 
 Mapmakers can define in `worldspawn` certain metadata about objectives for use with the top times feature. Enable this feature by setting the `combinedobjs` key to `1`. Then, using bitflags, follow the example below for siege_narshaddaa, which combines the third and fourth objs (station 1 and station 2) into one combined objective for the purposes of top times, by combining bitflags 4 and 8. To be clear, this feature is *only* for the top times feature, allowing objectives to be combined; in this example, you have to complete *both* stations objectives in order to trigger the "stations" objective (which is not a real objective). Without this feature, top times would be triggered for each station individually, which would allow you to achieve inhumanly fast times on either station by killing it extremely soon after killing the previous one.
 ```
@@ -716,25 +776,25 @@ Note that if a map includes these new special features, and is then played on a 
 
 #### Additional control over vote-calling
 In addition to the base_enhanced vote controls, you can use these:
-* `/g_allow_vote_randomteams` (default: 1)
-* `/g_allow_vote_randomcapts` (default: 1)
-* `/g_allow_vote_cointoss` (default: 1)
-* `/g_allow_vote_q` (default: 1)
-* `/g_allow_vote_killturrets` (default: 1)
-* `/g_allow_vote_pug` (default: 0)
-* `/g_allow_vote_pub` (default: 0)
-* `/g_allow_vote_customTeams` (default: 0)
-* `/g_allow_vote_forceclass` (default: 1)
-* `/g_allow_vote_zombies` (default: 1)
-* `/g_allow_vote_lockteams` (default: 1)
+* `g_allow_vote_randomteams` (default: 1)
+* `g_allow_vote_randomcapts` (default: 1)
+* `g_allow_vote_cointoss` (default: 1)
+* `g_allow_vote_q` (default: 1)
+* `g_allow_vote_killturrets` (default: 1)
+* `g_allow_vote_pug` (default: 0)
+* `g_allow_vote_pub` (default: 0)
+* `g_allow_vote_customTeams` (default: 0)
+* `g_allow_vote_forceclass` (default: 1)
+* `g_allow_vote_zombies` (default: 1)
+* `g_allow_vote_lockteams` (default: 1)
 
 #### Zombies
 "Zombies" is an unnoficial quasi-gametype that has been played by the siege community to kill time over years. It is a hide-and-seek game that involves one offense jedi hunting down defense gunners after some initial setup time. Gunners who die join offense jedi and hunt until there is only one gunner left.
 
-Zombies receives some much-needed help in base_entranced. To activate the zombies features, use `/zombies` (rcon command) or `/callvote zombies` (assuming you enabled `/g_allow_vote_zombies`). Zombies features include:
+Zombies receives some much-needed help in base_entranced. To activate the zombies features, use `zombies` (rcon command) or `callvote zombies` (assuming you enabled `g_allow_vote_zombies`). Zombies features include:
 * All doors are automatically greened
 * All turrets are automatically destroyed
-* `/g_siegeRespawn` is automatically set to 5
+* `g_siegeRespawn` is automatically set to 5
 * No changing to defense jedi
 * No changing to offense gunners
 * Non-selfkill deaths by blue gunners cause them to instantly switch to red jedi
@@ -765,18 +825,18 @@ Note: this list is not necessarily intended to be comprehensive. This mod fixes 
 * Fixed a bug in Sil's ammo code where `ammo_power_converter`s didn't check for custom maximum amounts (different thing from `ammo_floor_unit`s)
 * Fixed a bug in Sil's ammo code where direct-contact `+use` ammo-dispensing didn't check for custom maximum amounts
 * Fixed a bug where some people couldn't see spectator chat, caused by the countdown teamchat bugfix.
-* Fixed bug with `/class` command not working during countdown.
-* Added confirmation messages to the `/class` command
+* Fixed bug with `class` command not working during countdown.
+* Added confirmation messages to the `class` command
 * Fixed Bryar pistol not having unlimited ammo.
 * Changes to `g_allowVote` are now announced to the server.
-* Fixed `/flourish` not working with gun equipped.
+* Fixed `flourish` not working with gun equipped.
 * You can no longer switch teams in the moment after you died, or while being gripped by a Rancor.
-* You can no longer be `/forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
-* Fixed a bug with `/forceteam`/`/specall`/`/randomteams`/`/randomcapts`/auto inactivity timeout not working on dead players.
+* You can no longer be `forceteam`ed to the same team you are already on (prevents admin abusing forced selfkill).
+* Fixed a bug with `forceteam``specall``randomteams``randomcapts`auto inactivity timeout not working on dead players.
 * Fixed jumping on breakable objects with the `thin` flag not breaking them as a result of Sil's base_enhanced code.
 * Fixed `target_print` overflow causing server crashes.
 * Fixed bug with not regenerating force until a while after you captured an item with `forcelimit 1` (e.g. Korriban crystals)
-* Fixed `/bot_minplayers` not working in siege gametype.
+* Fixed `bot_minplayers` not working in siege gametype.
 * Fixed bug with shield disappearing when placing it near a turret.
 * Fixed bug that made it possible to teamkill with emplaced gun even with friendly fire disabled.
 * Fixed a rare bug with everyone being forced to spec and shown class selection menu.
@@ -820,7 +880,7 @@ Note: this list is not necessarily intended to be comprehensive. This mod fixes 
 * Filtered map callvotes to lowercase.
 * Hoth map vote is automatically filtered to hoth2 if the server has it.
 * Fixed SQL DB lag present in base_enhanced.
-* Classes with shield (i.e. tech on many maps) cannot trigger the `/g_fixPitKills` feature by manually SKing over a pit to get an early death at the hands of an enemy.
+* Classes with shield (i.e. tech on many maps) cannot trigger the `g_fixPitKills` feature by manually SKing over a pit to get an early death at the hands of an enemy.
 * Fixed bug where shields could not be destroyed while being attacked.
 * Fixed rare bug with incorrect walker spawn on Hoth.
 * Improved update rate of tech information on teammates (health/armor/ammo).
@@ -831,11 +891,14 @@ Note: this list is not necessarily intended to be comprehensive. This mod fixes 
 * Fixed not being able to dispense ammo cans while too close to a surface.
 * Fixed small turrets causing splash damage.
 * Fixed a bug where not all of your detpacks would explode if 10 of them were placed at the same time.
-* Fixed players having different physics depending on their framerate (requires `/pmove_float 1` and `/g_gravity 760`).
+* Fixed players having different physics depending on their framerate (requires `pmove_float 1` and `g_gravity 760`).
 * Fixed direct thermals potentially causing less damage than splash.
 * Fixed single-objective maps not ending properly.
 * Fixed not following the same person from spectator after the round ends or map changes.
 * Fixed weird behavior with emplaced guns (touching them without mounting them, long cooldown after exiting one).
+* Fixed big turrets' (like on Hoth) hitboxes not being accurate (invisible walls around them tanking shots)
+* Fixed spawn invulnerability expiring during pause
+* Fixed sometimes getting stuck and being unable to move when exiting the walker
 
 
 # Features that are also in Alpha's base_enhanced
@@ -852,22 +915,22 @@ Clients can use the following chat tokens:
 * `$l` = closest weapon spawn (not useful for siege)
 
 #### Advanced random map voting
-Instead of the traditional random map voting to have the server pick a map, `/g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `/vote 1`, `/vote 2`, etc.
+Instead of the traditional random map voting to have the server pick a map, `g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `vote 1`, `vote 2`, etc.
 
-#### `/sv_passwordlessSpectators`
+#### `sv_passwordlessSpectators`
 0 = (default) normal server password behavior
 
-1 = prevent people from joining red/blue team if they do not have the correct password entered in their client (using `/password` command or setting through the GUI). The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
+1 = prevent people from joining red/blue team if they do not have the correct password entered in their client (using `password` command or setting through the GUI). The server will automatically abolish its general password requirement if this is set(no password needed to connect to the server). This could be useful for opening up private/pug servers to the public for spectating.
 
-#### `/lockteams`
-Callvote or rcon command; shortcut for setting `/g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `/lockteams 4s` is the same as setting `/g_maxGameClients` to 8.
+#### `lockteams`
+Callvote or rcon command; shortcut for setting `g_maxGameClients`. Use arguments `2s`, `3s`, `4s`, `5s`, `6s`, `7s`, or `reset` to specify amount. For example, `lockteams 4s` is the same as setting `g_maxGameClients` to 8.
 
 Teams are automatically unlocked at intermission, or if there are 0 players in-game.
 
-#### `/g_teamOverlayUpdateRate`
+#### `g_teamOverlayUpdateRate`
 The interval in milliseconds for teamoverlay data to be updated and sent out to clients. Defaults to 250 (base JKA is 1000).
 
-#### `/g_balanceSaber` (bitflag cvar)
+#### `g_balanceSaber` (bitflag cvar)
 0 = (default) basejka saber moves
 
 1 = all saber stances can use kick move
@@ -878,18 +941,18 @@ The interval in milliseconds for teamoverlay data to be updated and sent out to 
 
 8 = (just for screwing around, not recommended) using saber offense level 2/3 grants you Tavion/Desann stance
 
-#### `/g_balanceSeeing`
+#### `g_balanceSeeing`
 0 = (default) basejka force sense behavior
 
 1 = when crouching with saber up with sense 3, dodging disruptor shots is guaranteed
 
-#### `/g_maxNameLength`
+#### `g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
 
-#### `/clientDesc`
+#### `clientDesc`
 Rcon command to see client mods people are using, if possible.
 
-#### `/shadowMute`
+#### `shadowMute`
 Rcon command to secretly mute people. Only shadowmuted players can see each others' chats.
 
 #### Simplified private messaging
@@ -901,28 +964,28 @@ Instead of using tell, you can send private messages to people by pressing your 
 # Features that are also in Sil's base_enhanced
 These are features in base_entranced that are also available in Sil's now-inactive base_enhanced mod (https://github.com/TheSil/base_enhanced), the legacy server mod of the CTF and siege communities. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
 
-#### `/class`
-Clientside command. Use first letter of class to change, like `/class a` for assault, `/class s` for scout, etc. For maps with more than 6 classes, you can use `/class 7`, `/class 8`, etc.
+#### `class`
+Clientside command. Use first letter of class to change, like `class a` for assault, `class s` for scout, etc. For maps with more than 6 classes, you can use `class 7`, `class 8`, etc.
 
-#### `/g_rocketSurfing`
+#### `g_rocketSurfing`
 0 = (default) no rocket surfing (ideal setting)
 
 1 = bullshit rocket surfing enabled; landing on top of a rocket will not explode the rocket (base JKA)
 
-#### `/g_floatingItems`
+#### `g_floatingItems`
 0 = (default) no floating siege items (ideal setting for most maps)
 
 1 = siege items float up walls when dropped - annoying bug on most maps, but classic strategy for korriban (base JKA)
 
-#### `/g_selfkillPenalty`
+#### `g_selfkillPenalty`
 Set to 0 (the default) so you don't lose points when you SK.
 
-#### `/g_fixPitKills`
+#### `g_fixPitKills`
 0 = normal pit kills (base JKA)
 
 1 = (default) if you selfkill while above a pit, it grants a kill to whoever pushed you into the pit. This prevents people from denying enemies' kills with selfkill.
 
-#### `/g_maxGameClients`
+#### `g_maxGameClients`
 0 = (default) people can freely join the game
 
 other number = only this many players may join the game; the reset must stay in spectators
@@ -930,20 +993,20 @@ other number = only this many players may join the game; the reset must stay in 
 ####"Joined the red/blue team" message
 See when someone joined a team in the center of your screen in siege mode.
 
-#### `/pause` and `/unpause`
-Use command `/pause` or `/unpause` (also can be called as vote) to stop the game temporarily. Useful if someone lags out. Stops game timer, siege timer, spawn timer, etc.
+#### `pause` and `unpause`
+Use command `pause` or `unpause` (also can be called as vote) to stop the game temporarily. Useful if someone lags out. Stops game timer, siege timer, spawn timer, etc.
 
-#### `/whois`
-Use command `/whois` to see a list of everyone in the server as well as their most-used alias. Optionally specify a client number or partial name to see the top aliases of that particular player.
+#### `whois`
+Use command `whois` to see a list of everyone in the server as well as their most-used alias. Optionally specify a client number or partial name to see the top aliases of that particular player.
 
 #### Auto-click on death
 If you die 1 second before the spawn, the game now automatically "clicks" on your behalf to make the respawn.
 
 #### Random teams/capts
-Use `/randomteams 2 2` for random 2v2, etc. and `/randomcapts` for random captains. Use `/shuffleteams 2 2` for random teams that are different from the current teams. Make sure clients use `/ready` to be eligible for selection (or use `/forceready`/`/forceunready` through rcon)
+Use `randomteams 2 2` for random 2v2, etc. and `randomcapts` for random captains. Use `shuffleteams 2 2` for random teams that are different from the current teams. Make sure clients use `ready` to be eligible for selection (or use `forceready``forceunready` through rcon)
 
-#### `/specall`
-Use the rcon command `/specall` to force all players to spec.
+#### `specall`
+Use the rcon command `specall` to force all players to spec.
 
 #### Start round with one player
 No longer need two players to start running around ingame in siege mode.
@@ -952,13 +1015,13 @@ No longer need two players to start running around ingame in siege mode.
 Log detailed user info, rcon commands, and crash attempts. Use `g_hacklog <filename>`, `g_logclientinfo 1`, and `g_logrcon 1`.
 
 #### Coin toss
-Call a `/cointoss` vote for random heads/tails result. Also works as an rcon command.
+Call a `cointoss` vote for random heads/tails result. Also works as an rcon command.
 
 #### Polls
-Ask everyone a question with `/callvote q`. For example, `/callvote q Keep same teams and restart?`
+Ask everyone a question with `callvote q`. For example, `callvote q Keep same teams and restart?`
 
 #### HTTP auto downloading
-Set url with `/g_dlurl`; clients with compatible mods such as SMod can download
+Set url with `g_dlurl`; clients with compatible mods such as SMod can download
 
 #### Quiet rcon
 Mis-typed commands are no longer sent out as a chat message to everyone on the server.
@@ -967,20 +1030,20 @@ Mis-typed commands are no longer sent out as a chat message to everyone on the s
 * Spectator chat can be seen by people who are in-game
 * Chat from dead players can be seen
 
-#### `/npc spawnlist`
+#### `npc spawnlist`
 Use this command to list possible npc spawns. Note that ingame console only lets you scroll up so far; use qconsole.log to see entire list.
 
 #### Control vote-calling
 Prevent calling votes for some things:
-* `/g_allow_vote_gametype` (default: 1023)
-* `/g_allow_vote_kick` (default: 1)
-* `/g_allow_vote_restart` (default: 1)
-* `/g_allow_vote_map` (default: 1)
-* `/g_allow_vote_nextmap` (default: 1)
-* `/g_allow_vote_timelimit` (default: 1)
-* `/g_allow_vote_fraglimit` (default: 1)
-* `/g_allow_vote_maprandom` (default: 4)
-* `/g_allow_vote_warmup` (default: 1)
+* `g_allow_vote_gametype` (default: 1023)
+* `g_allow_vote_kick` (default: 1)
+* `g_allow_vote_restart` (default: 1)
+* `g_allow_vote_map` (default: 1)
+* `g_allow_vote_nextmap` (default: 1)
+* `g_allow_vote_timelimit` (default: 1)
+* `g_allow_vote_fraglimit` (default: 1)
+* `g_allow_vote_maprandom` (default: 4)
+* `g_allow_vote_warmup` (default: 1)
 
 #### Bugfixes and other changes:
 * When you run someone over in the ATST, you get a kill.
