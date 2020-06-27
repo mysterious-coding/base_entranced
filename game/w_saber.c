@@ -1003,7 +1003,7 @@ static GAME_INLINE void G_G2PlayerAngles( gentity_t *ent, vec3_t legs[3], vec3_t
 	}
 }
 
-static GAME_INLINE qboolean SaberAttacking(gentity_t *self)
+qboolean SaberAttacking(gentity_t *self)
 {
 	if (PM_SaberInParry(self->client->ps.saberMove))
 	{
@@ -3494,13 +3494,14 @@ void WP_SaberDamageAdd( int trVictimEntityNum, vec3_t trDmgDir, vec3_t trDmgSpot
 	}
 }
 
-void WP_SaberApplyDamage( gentity_t *self )
+int WP_SaberApplyDamage( gentity_t *self )
 {
 	int i;
 	if ( !numVictims )
 	{
-		return;
+		return 0;
 	}
+	int total = 0;
 	for ( i = 0; i < numVictims; i++ )
 	{
 		gentity_t *victim = NULL;
@@ -3520,12 +3521,17 @@ void WP_SaberApplyDamage( gentity_t *self )
 		}
 		dflags |= saberKnockbackFlags[i];
 
-		G_Damage( victim, self, self, dmgDir[i], dmgSpot[i], totalDmg[i], dflags, MOD_SABER );
+		total += G_Damage( victim, self, self, dmgDir[i], dmgSpot[i], totalDmg[i], dflags, MOD_SABER );
 	}
+	return total;
 }
 
+typedef struct {
+	node_t	node;
+	gentity_t *ent;
+} saberHit_t;
 
-void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
+void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum, list_t *listPtr )
 {
 	int i;
 	if ( !numVictims )
@@ -3562,6 +3568,10 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 		te = G_TempEntity( dmgSpot[i], EV_SABER_HIT );
 		if ( te )
 		{
+			if (listPtr) {
+				saberHit_t *hit = ListAdd(listPtr, sizeof(saberHit_t));
+				hit->ent = te;
+			}
 			te->s.otherEntityNum = victimEntityNum[i];
 			te->s.otherEntityNum2 = self->s.number;
 			te->s.weapon = saberNum;
@@ -6511,6 +6521,8 @@ qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t 
 	{
 		return qfalse;
 	}
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)
+		return qfalse;
 
 	saberOwner->client->ps.saberInFlight = qtrue;
 	saberOwner->client->ps.saberEntityState = 1;
@@ -6736,6 +6748,9 @@ qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner,
 		return qfalse;
 	}
 
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)
+		return qfalse;
+
 	if ( other
 		&& other->inuse
 		&& other->client 
@@ -6779,6 +6794,9 @@ qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, 
 		tossIt = qtrue;
 	}
 	//otherwise don't
+
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)
+		return qfalse;
 
 	if (tossIt)
 	{
@@ -8617,6 +8635,8 @@ nextStep:
 		saberDoClashEffect = qfalse;
 
 		//Now cycle through each saber and each blade on the saber and do damage traces.
+		list_t hitList = { 0 };
+		int numHits = 0;
 		while (rSaberNum < MAX_SABERS)
 		{
 			if (!self->client->saber[rSaberNum].model[0])
@@ -8868,16 +8888,30 @@ nextStep:
 				self->client->hasCurrentPosition = qtrue;
 
 				//do hit effects
-				WP_SaberDoHit( self, rSaberNum, rBladeNum );
+				WP_SaberDoHit( self, rSaberNum, rBladeNum, &hitList );
 				WP_SaberDoClash( self, rSaberNum, rBladeNum );
+				numHits++;
 
 				rBladeNum++;
 			}
 
 			rSaberNum++;
 		}
-		
-		WP_SaberApplyDamage( self );
+
+		// if we didn't actually do any damage, loop through and remove all the hit effects
+		if (!WP_SaberApplyDamage(self)) {
+			if (numHits) {
+				iterator_t iter;
+				ListIterate(&hitList, &iter, qfalse);
+				while (IteratorHasNext(&iter)) {
+					saberHit_t *hit = (saberHit_t *)IteratorNext(&iter);
+					G_FreeEntity(hit->ent);
+					hit->ent = NULL;
+				}
+			}
+		}
+
+		ListClear(&hitList);
 		//NOTE: doing one call like this after the 2 loops above is a bit cheaper, tempentity-wise... but won't use the correct saber and blade numbers...
 		//now actually go through and apply all the damage we did
 

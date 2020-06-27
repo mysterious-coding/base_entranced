@@ -4818,7 +4818,12 @@ static qboolean IsNonLocationBasedDamageEligibleNPC(gentity_t *ent) {
 	return qfalse;
 }
 
-void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
+extern qboolean PM_SaberInBrokenParry(int move);
+extern qboolean BG_SabersOff(playerState_t *ps);
+extern qboolean SaberAttacking(gentity_t *self);
+extern qboolean PM_InSaberAnim(int anim);
+
+int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	vec3_t dir, vec3_t point, int damage, int dflags, int mod) {
 	gclient_t	*client;
 	int			take;
@@ -4834,25 +4839,25 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (targ && targ->damageRedirect)
 	{
 		G_Damage(&g_entities[targ->damageRedirectTo], inflictor, attacker, dir, point, damage, dflags, mod);
-		return;
+		return 0;
 	}
 
 	if (mod == MOD_DEMP2 && targ && targ->s.eType && targ->s.eType == ET_NPC && targ->NPC && targ->NPC->stats.nodmgfrom && (targ->NPC->stats.nodmgfrom & FLAG_VEHICLE_FREEZE || targ->NPC->stats.nodmgfrom == -1))
 	{
-		return;
+		return 0;
 	}
 
 	if (level.siegeMap == SIEGEMAP_URBAN && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && tolower(*attacker->NPC_type) == 'w') {
-		return;
+		return 0;
 	}
 
 	if (level.siegeMap == SIEGEMAP_BESPIN && attacker && attacker->s.eType == ET_NPC && targ && targ - g_entities < MAX_CLIENTS &&
 		targ->client && targ->client->sess.sessionTeam == TEAM_BLUE && VALIDSTRING(attacker->NPC_type) && *attacker->NPC_type == 'C') {
-		return;
+		return 0;
 	}
 
 	if (level.siegeMap == SIEGEMAP_ANSION && attacker && attacker->s.eType == ET_NPC && VALIDSTRING(attacker->NPC_type) && (!Q_stricmp(attacker->NPC_type, "Alpha") || !Q_stricmp(attacker->NPC_type, "Onasi")))
-		return;
+		return 0;
 
 	// target emoted == die easily
 	if (targ && targ->client && targ->client->emoted && targ - g_entities - MAX_CLIENTS && level.isLivePug != ISLIVEPUG_NO &&
@@ -4882,7 +4887,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		case MOD_SPECIAL_SENTRYBOMB:
 			break;
 		default:
-			return;
+			return 0;
 		}
 	}
 
@@ -4939,7 +4944,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			Com_Printf("Outgoing damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
 #endif
 			if (!damage)
-				return;
+				return 0;
 			break;
 		}
 	}
@@ -4989,7 +4994,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			Com_Printf("Incoming damage param: damage %d -> %d, knockback multiplier %.3f\n", originalDamage, damage, specialDamageParamKnockbackMultiplier);
 #endif
 			if (!damage)
-				return;
+				return 0;
 			break;
 		}
 	}
@@ -4998,7 +5003,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		attacker && attacker->client && attacker->client->ps.origin[0] <= 4000 &&
 		VALIDSTRING(targ->target) && !Q_stricmp(targ->target, "ansion_obj2_part2") &&
 		VALIDSTRING(targ->classname) && !Q_stricmp(targ->classname, "func_breakable")) {
-		return;
+		return 0;
 	}
 
 	if (freeze == FREEZE_YES || (freeze != FREEZE_NO && mod == MOD_DEMP2 && targ && targ->inuse && targ->client))
@@ -5096,9 +5101,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if (g_gametype.integer == GT_SIEGE && level.intermissiontime) { // allow damaging some NPCs in post game for fun
 		if (targ && (targ - g_entities < MAX_CLIENTS || !targ->client || !targ->NPC))
-			return;
+			return 0;
 		if (!g_intermissionKnockbackNPCs.integer)
-			return;
+			return 0;
 		targ->NPC->stats.nodmgfrom = 0;
 		targ->NPC->stats.specialKnockback = 0;
 		targ->alliedTeam = 0;
@@ -5106,34 +5111,34 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	else {
 		if (g_gametype.integer == GT_SIEGE && !gSiegeRoundBegun && mod != MOD_SUICIDE && damage != 6666)
 		{ //nothing can be damaged til the round starts, except killturrets command
-			return;
+			return 0;
 		}
 	}
 
 	if (!targ->takedamage) {
-		return;
+		return 0;
 	}
 
 	if (g_antiLaming.integer && targ->classname && targ->classname[0] && !Q_stricmp(targ->classname, "misc_siege_item") && level.siegeMap == SIEGEMAP_DESERT && !level.totalObjectivesCompleted)
 	{
 		//can't damage the stations until the game starts
-		return;
+		return 0;
 	}
 
 	if ((targ->flags&FL_SHIELDED) && mod != MOD_SABER  && !targ->client)
 	{//magnetically protected, this thing can only be damaged by lightsabers
-		return;
+		return 0;
 	}
 
 	if (level.siegeMap == SIEGEMAP_ANSION && targ->flags & (FL_DMG_BY_SABER_ONLY | FL_DMG_BY_HEAVY_WEAP_ONLY)) {
 		if (mod != MOD_SABER && !IsHeavyDamage(mod, G_HeavyMelee(attacker)))
-			return;
+			return 0;
 	}
 	else {
 		if ((targ->flags & FL_DMG_BY_SABER_ONLY) && mod != MOD_SABER)
-			return;
+			return 0;
 		if (targ->flags & FL_DMG_BY_HEAVY_WEAP_ONLY && !IsHeavyDamage(mod, G_HeavyMelee(attacker)))
-			return;
+			return 0;
 	}
 
 	if (targ->client)
@@ -5149,7 +5154,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				{
 					if (!(dflags & DAMAGE_NO_PROTECTION))
 					{
-						return;
+						return 0;
 					}
 				}
 			}
@@ -5166,7 +5171,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		{ //these don't damage bbrushes.. ever
 			if (mod != MOD_MELEE || !G_HeavyMelee(attacker))
 			{ //let classes with heavy melee ability damage breakable brushes with fists
-				return;
+				return 0;
 			}
 		}
 	}
@@ -5175,25 +5180,25 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		(targ->client->sess.siegeDuelIndex != attacker->s.number || !attacker->client->sess.siegeDuelInProgress))
 	{
 		//target is siegedueling, but attacker is not his duel partner (probably a troll trying to attack a duelist)
-		return;
+		return 0;
 	}
 
 	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && targ->client && targ->s.number != attacker->s.number &&
 		(attacker->client->sess.siegeDuelIndex != targ->s.number || !targ->client->sess.siegeDuelInProgress))
 	{
 		//attacker is siegedueling, but target is not his duel partner (maybe a duelist accidentally hit a troll running around)
-		return;
+		return 0;
 	}
 
 	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && (!targ->client || targ->s.eType == ET_NPC))
 	{
 		//a duelist hit a non-client object/NPC
-		return;
+		return 0;
 	}
 
 	if (attacker && attacker->client && attacker->client->sess.siegeDuelInProgress && targ && targ->client && targ->client->sess.siegeDuelInProgress && mod == MOD_MELEE)
 	{
-		return;
+		return 0;
 	}
 
 	// guaranteed 100 damage saber throws on gunners
@@ -5205,10 +5210,87 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		attacker && attacker->client && attacker - g_entities < MAX_CLIENTS && attacker->client->ps.saberInFlight &&
 		attacker->client->ps.saberMove != LS_DUAL_FB && attacker->client->ps.saberMove != LS_DUAL_LR) {
 		// duoTODO: fix damage for saberthrow with dual saber when holding mouse1 with the other saber at the same time
+
 		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 250)
-			return; // allow one 100 damage hit on the same target from the same attacker every 250ms or so
-		damage = 100;
+			return 0; // allow one 100 damage hit on the same target from the same attacker every 250ms or so
+
 		attacker->client->saberThrowDamageTime[targ - g_entities] = level.time;
+		damage = 100;
+	}
+
+	// improved damage system for saber vs saber
+	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS &&
+		g_gametype.integer == GT_SIEGE &&
+		targ && targ->client && targ - g_entities < MAX_CLIENTS &&
+		mod == MOD_SABER && targ->client->ps.weapon == WP_SABER &&
+		attacker && attacker->client && attacker - g_entities < MAX_CLIENTS && attacker->client->ps.saberInFlight && attacker->client->ps.saberEntityNum &&
+		attacker->client->ps.saberEntityNum != ENTITYNUM_NONE && attacker->client->ps.saberMove != LS_DUAL_FB && attacker->client->ps.saberMove != LS_DUAL_LR) {
+		// duoTODO: fix damage for saberthrow with dual saber when holding mouse1 with the other saber at the same time
+
+		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 250)
+			return 0; // allow damage on the same target from the same attacker every 250ms or so
+
+		attacker->client->saberThrowDamageTime[targ - g_entities] = level.time;
+		float multiplier;
+		gentity_t *thrownSaber = &g_entities[attacker->client->ps.saberEntityNum];
+		if (BG_SaberInAttack(targ->client->ps.saberMove) || PM_SaberInBrokenParry(targ->client->ps.saberMove) || !targ->client->ps.saberEntityNum ||
+			BG_SabersOff(&targ->client->ps) || targ->client->ps.weaponstate == WEAPON_RAISING || targ->client->ps.saberInFlight ||
+			targ->client->pers.cmd.buttons & BUTTON_ATTACK || SaberAttacking(targ) || (targ->client->ps.saberMove != LS_READY &&
+			!targ->client->ps.saberBlocking) || targ->client->ps.saberBlockTime >= level.time || (PM_InSaberAnim(targ->client->ps.torsoAnim) && !targ->client->ps.saberBlocked &&
+				targ->client->ps.saberMove != LS_READY && targ->client->ps.saberMove != LS_NONE &&
+				(targ->client->ps.saberMove < LS_PARRY_UP || targ->client->ps.saberMove > LS_REFLECT_LL))) {
+			multiplier = 1.0f;
+			if (g_saberDefensePrintAngle.integer) {
+				PrintIngame(attacker - g_entities, "Category: ^5Target attacking^7   Multiplier: ^5%0.1f^7", multiplier);
+				PrintIngame(targ - g_entities, "Category: ^5Target attacking^7   Multiplier: ^5%0.1f^7", multiplier);
+			}
+		}
+		else if (InFOV(thrownSaber, targ, 12, 180)) {
+			if (targ->client->ps.forceHandExtend) {
+				multiplier = 0.4f;
+				if (g_saberDefensePrintAngle.integer) {
+					PrintIngame(attacker - g_entities, "Category: ^5Small cone, pushed/pulled^7   Multiplier: ^5%0.1f^7", multiplier);
+					PrintIngame(targ - g_entities, "Category: ^5Small cone, pushed/pulled^7   Multiplier: ^5%0.1f^7", multiplier);
+				}
+			}
+			else {
+				if (g_saberDefensePrintAngle.integer) {
+					PrintIngame(attacker - g_entities, "Category: ^5Small cone, normal^7   ^1No damage^7\n");
+					PrintIngame(targ - g_entities, "Category: ^5Small cone, normal^7   ^1No damage^7\n");
+				}
+				return 0;
+			}
+		}
+		else if (InFOV(thrownSaber, targ, 60, 180)) {
+			if (targ->client->ps.forceHandExtend)
+				multiplier = 0.8f;
+			else
+				multiplier = 0.5f;
+			if (g_saberDefensePrintAngle.integer) {
+				PrintIngame(attacker - g_entities, "Category: ^5Medium cone, %s^7   Multiplier: ^5%0.1f^7", targ->client->ps.forceHandExtend ?  "pushed/pulled" : "normal", multiplier);
+				PrintIngame(targ - g_entities, "Category: ^5Medium cone, %s^7   Multiplier: ^5%0.1f^7", targ->client->ps.forceHandExtend ? "pushed/pulled" : "normal", multiplier);
+			}
+		}
+		else {
+			multiplier = 1.0f;
+			if (g_saberDefensePrintAngle.integer) {
+				PrintIngame(attacker - g_entities, "Category: ^5Other^7   Multiplier: ^5%0.1f^7", multiplier);
+				PrintIngame(targ - g_entities, "Category: ^5Other^7   Multiplier: ^5%0.1f^7", multiplier);
+			}
+		}
+
+		if (multiplier == 1.0f)
+			damage = targ->client->ps.stats[STAT_MAX_HEALTH];
+		else
+			damage = (int)round((double)targ->client->ps.stats[STAT_MAX_HEALTH] * (double)multiplier);
+
+		if (damage < 1)
+			damage = 1;
+
+		if (g_saberDefensePrintAngle.integer) {
+			PrintIngame(attacker - g_entities, "   Damage: ^5%d^7\n", damage);
+			PrintIngame(targ - g_entities, "   Damage: ^5%d^7\n", damage);
+		}
 	}
 
 	// only enemy demp/disruptor can damage rockets
@@ -5218,10 +5300,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		attacker && attacker - g_entities < MAX_CLIENTS && attacker->client) {
 		if (targ->parent && targ->parent - g_entities < MAX_CLIENTS &&
 			targ->parent->client && targ->parent->client->sess.sessionTeam == attacker->client->sess.sessionTeam) {
-			return; // no teamkills
+			return 0; // no teamkills
 		}
 		if (mod != MOD_DISRUPTOR && mod != MOD_DISRUPTOR_SNIPER && mod != MOD_DEMP2 && mod != MOD_DEMP2_ALT)
-			return; // only allow disruptor and demp mouse2
+			return 0; // only allow disruptor and demp mouse2
 	}
 
 	if ( targ && targ->client && targ->client->ps.duelInProgress )
@@ -5234,11 +5316,11 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
             {
 			    if (g_gametype.integer == GT_CTF){
 				    if (mod != MOD_BRYAR_PISTOL && mod != MOD_BRYAR_PISTOL_ALT){
-					    return;
+					    return 0;
 				    }
 			    } else {
 				    if (mod != MOD_SABER){
-					    return;
+					    return 0;
 				    }
 			    }  
             }
@@ -5256,7 +5338,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// the intermission has already been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued ) {
-		return;
+		return 0;
 	}
 	if ( !inflictor ) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];
@@ -5272,7 +5354,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( targ->use && targ->moverState == MOVER_POS1 ) {
 			GlobalUse( targ, inflictor, attacker );
 		}
-		return;
+		return 0;
 	}
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
@@ -5321,7 +5403,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	if ( client ) {
 		if ( client->noclip ) {
-			return;
+			return 0;
 		}
 
 		// anything that isn't fall dmg or scoped disruptor has an impact on the flag capture record type
@@ -5554,7 +5636,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	{
 		if (targ->NPC->stats.nodmgfrom == -1) //use -1 as a shortcut for invulnerability
 		{
-			return;
+			return 0;
 		}
 		else if (mod == MOD_MELEE && targ->NPC->stats.nodmgfrom & FLAG_MELEE ||
 			mod == MOD_STUN_BATON && targ->NPC->stats.nodmgfrom & FLAG_STUNBATON ||
@@ -5579,7 +5661,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			(mod == MOD_UNKNOWN || mod == MOD_TURBLAST || mod == MOD_WATER || mod == MOD_SLIME || mod == MOD_LAVA || mod == MOD_TELEFRAG || mod == MOD_SUICIDE
 				|| mod == MOD_TARGET_LASER || mod == MOD_TEAM_CHANGE || mod == MOD_SENTRY) && targ->NPC->stats.nodmgfrom & FLAG_MISC)
 		{
-			return;
+			return 0;
 		}
 	}
 	if ( (g_trueJedi.integer || g_gametype.integer == GT_SIEGE)
@@ -5622,7 +5704,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	if (level.intermissiontime || onlyKnockback)
-		return;
+		return 0;
 
 	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE && !targ->client->sess.siegeDuelInProgress &&
 		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
@@ -5701,7 +5783,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			{
 				if ( !g_friendlyFire.integer && !(negativeDamageOk && damage < 0) )
 				{
-					return;
+					return 0;
 				}
 			}
 			else if (targ->inuse && targ->client &&
@@ -5711,7 +5793,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				targ->client->sess.sessionTeam == attacker->alliedTeam &&
 				!g_friendlyFire.integer)
 			{ //things allied with my team should't hurt me.. I guess
-				return;
+				return 0;
 			}
 		}
 
@@ -5720,7 +5802,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ != attacker && !targ->client->ps.isJediMaster && !attacker->client->ps.isJediMaster &&
 			G_ThereIsAMaster())
 		{
-			return;
+			return 0;
 		}
 
 		if (targ->s.number >= MAX_CLIENTS && targ->client 
@@ -5733,14 +5815,14 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			{
 				if (!g_friendlyFire.integer)
 				{
-					return;
+					return 0;
 				}
 			}
 		}
 
 		// check for godmode
 		if ( (targ->flags & FL_GODMODE) && targ->s.eType != ET_NPC ) {
-			return;
+			return 0;
 		}
 
 		if (targ && targ->client && (targ->client->ps.eFlags & EF_INVULNERABLE) &&
@@ -5752,7 +5834,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 			else
 			{
-				return;
+				return 0;
 			}
 		}
 	}
@@ -5770,7 +5852,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				{//a client hit a non-client object
 					if ( targ->teamnodmg == attacker->client->sess.sessionTeam )
 					{
-						return;
+						return 0;
 					}
 				}
 				else if ( attacker->teamnodmg )
@@ -5787,7 +5869,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						}
 						else
 						{
-							return;
+							return 0;
 						}
 					}
 				}
@@ -5800,7 +5882,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( client && client->ps.powerups[PW_BATTLESUIT] && !client->sess.siegeDuelInProgress) {
 		G_AddEvent( targ, EV_POWERUP_BATTLESUIT, 0 );
 		if ( ( dflags & DAMAGE_RADIUS ) || ( mod == MOD_FALLING ) ) {
-			return;
+			return 0;
 		}
 		damage *= 0.5;
 	}
@@ -6544,7 +6626,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
 			G_ActivateBehavior( targ, BSET_DEATH );
-			return;
+			return take;
 		} 
 		else 
 		{
@@ -6577,7 +6659,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		G_LogWeaponDamage(attacker->s.number, mod, take);
 	}
-
+	return take;
 }
 
 

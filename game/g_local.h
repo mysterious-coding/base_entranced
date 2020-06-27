@@ -2073,7 +2073,7 @@ typedef enum {
 } reward_t;
 
 qboolean CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
+int G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
 qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod);
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientWeapon(gentity_t *self, vec3_t direction, float speed);
@@ -2929,6 +2929,7 @@ extern vmCvar_t	   g_unlaggedDebug;
 
 #define BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS	(1 << 0)
 #define BLACKISRUININGTHEVIDEOGAME_ROCKET_HP			(1 << 1)
+#define	BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS	(1 << 2)
 
 
 extern vmCvar_t    lastMapName;
