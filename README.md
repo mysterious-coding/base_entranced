@@ -97,9 +97,6 @@ The server automatically detects when a pug (2v2 or greater) is live. It notifie
 #### Skillboost/senseboost
 You can give bad players a boost to help them be competitive. `skillboost <player> <number 0 through 5>` gives them a boost to their stats (higher levels are better), while `senseboost <player> <number 0 through 5>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `skillboost` or `senseboost` commands to see who is currently boosted. Generally, levels 1-3 should be used most of the time; 4-5 are more extreme boosts and should only be used for people who have absolutely no idea what they are doing. These values can be changed with cvars beginning with `g_skillboost` and `g_senseboost`; use `cvarlist` to see all of them.
 
-#### Respawn times
-The server automatically defaults to instant respawn times. If the map is restarted (i.e. via vote or rcon) with at least one player on each team, the respawn timer will automatically be set to 20.
-
 #### `g_emotes`
 0 = disable
 
