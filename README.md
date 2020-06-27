@@ -704,7 +704,7 @@ Mapmakers can add support for three-dimensional siege help in certain client mod
 		 "origin":[6070, 1910, 179],
 		 "redMsg":"Get codes",
 		 "blueMsg":"Defend codes spawn"
-	  },
+	  }
    ]
 }
 ```
