@@ -1396,7 +1396,7 @@ static cvarTable_t		gameCvarTable[] = {
     
     { &sv_privateclients, "sv_privateclients", "0", CVAR_ARCHIVE | CVAR_SERVERINFO },
 	{ &sv_passwordlessSpectators, "sv_passwordlessSpectators", "0", CVAR_ARCHIVE | CVAR_SERVERINFO },
-    { &g_defaultBanHoursDuration, "g_defaultBanHoursDuration", "24", CVAR_ARCHIVE | CVAR_INTERNAL },      
+    { &g_defaultBanHoursDuration, "g_defaultBanHoursDuration", "9999999", CVAR_ARCHIVE | CVAR_INTERNAL },      
 
 	{ &g_autoStart, "g_autoStart", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoStartTimer, "g_autoStartTimer", "10", CVAR_ARCHIVE, 0, qtrue },
