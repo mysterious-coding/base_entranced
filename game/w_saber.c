@@ -6922,7 +6922,6 @@ void saberBackToOwner(gentity_t *saberent)
 			|| saberOwner->client->ps.saberHolstered )
 		{
 			saberent->s.saberInFlight = qfalse;
-			memset(&saberOwner->client->saberThrowDamageTime, 0, sizeof(saberOwner->client->saberThrowDamageTime));
 		}
 		saberent->s.loopSound = saberOwner->client->saber[0].soundLoop;
 		saberent->s.loopIsSoundset = qfalse;
