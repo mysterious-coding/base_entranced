@@ -432,6 +432,8 @@ struct gentity_s {
 	};
 	gentity_t	*lastPilot;
 
+	int			lastSaberBlockEventTick;
+
 	int			perPlayerTime[MAX_CLIENTS]; // duo: to allow ammo/armor/health generators to have separate cooldown times for each player
 };
 
@@ -2516,6 +2518,9 @@ int		OrgVisible		( vec3_t org1, vec3_t org2, int ignore);
 void	BotOrder		( gentity_t *ent, int clientnum, int ordernum);
 int		InFieldOfVision	( vec3_t viewangles, float fov, vec3_t angles);
 
+void G_TestLine(vec3_t start, vec3_t end, int color, int time);
+void G_TestPoint(vec3_t point, int color, int time);
+
 // ai_util.c
 void B_InitAlloc(void);
 void B_CleanupAlloc(void);
@@ -2612,7 +2617,7 @@ extern	vmCvar_t	g_fixSaberDefense;
 extern	vmCvar_t	g_saberDefense1Angle;
 extern	vmCvar_t	g_saberDefense2Angle;
 extern	vmCvar_t	g_saberDefense3Angle;
-extern	vmCvar_t	g_saberDefensePrintAngle;
+extern	vmCvar_t	g_saberDefenseDebug;
 
 extern	vmCvar_t	g_allowHighPingDuelist;
 
@@ -2901,6 +2906,17 @@ extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
 extern vmCvar_t    g_siegeHelp;
 extern vmCvar_t		g_fixHoth2ndObj;
+
+extern vmCvar_t		g_saberThrowDefenseSmallAngle;
+extern vmCvar_t		g_saberThrowDefenseLargeAngle;
+
+extern vmCvar_t		g_saberThrowDefenseSmallDamage;
+extern vmCvar_t		g_saberThrowDefenseLargeDamage;
+
+extern vmCvar_t		g_saberThrowDefenseCompromisedBonus;
+extern vmCvar_t		g_saberThrowDefensePushPullBonus;
+
+extern vmCvar_t		g_saberThrowDefenseRewind;
 
 extern vmCvar_t    g_webhookId;
 extern vmCvar_t    g_webhookToken;

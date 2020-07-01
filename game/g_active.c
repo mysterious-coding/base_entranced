@@ -114,7 +114,7 @@ Used below to interpolate between two previous vectors
 Returns a vector "frac" times the distance between "start" and "end"
 =============
 */
-static void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result) {
+void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result) {
 	float	comp = 1.0f - frac;
 
 	result[0] = frac * start[0] + comp * end[0];

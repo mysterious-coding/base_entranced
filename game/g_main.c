@@ -100,7 +100,7 @@ vmCvar_t	g_fixSaberDefense;
 vmCvar_t	g_saberDefense1Angle;
 vmCvar_t	g_saberDefense2Angle;
 vmCvar_t	g_saberDefense3Angle;
-vmCvar_t	g_saberDefensePrintAngle;
+vmCvar_t	g_saberDefenseDebug;
 
 vmCvar_t	g_allowHighPingDuelist;
 
@@ -207,6 +207,17 @@ vmCvar_t	g_intermissionKnockbackNPCs;
 vmCvar_t	g_emotes;
 vmCvar_t	g_siegeHelp;
 vmCvar_t	g_fixHoth2ndObj;
+
+vmCvar_t	g_saberThrowDefenseSmallAngle;
+vmCvar_t	g_saberThrowDefenseLargeAngle;
+
+vmCvar_t	g_saberThrowDefenseCompromisedBonus;
+vmCvar_t	g_saberThrowDefensePushPullBonus;
+
+vmCvar_t	g_saberThrowDefenseSmallDamage;
+vmCvar_t	g_saberThrowDefenseLargeDamage;
+
+vmCvar_t	g_saberThrowDefenseRewind;
 
 vmCvar_t	g_webhookId;
 vmCvar_t	g_webhookToken;
@@ -778,7 +789,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_saberDefense1Angle, "g_saberDefense1Angle", "6", 0, 0, qtrue },
 	{ &g_saberDefense2Angle, "g_saberDefense2Angle", "30", 0, 0, qtrue },
 	{ &g_saberDefense3Angle, "g_saberDefense3Angle", "73", 0, 0, qtrue },
-	{ &g_saberDefensePrintAngle, "g_saberDefensePrintAngle", "0", 0, 0, qtrue },
+	{ &g_saberDefenseDebug, "g_saberDefenseDebug", "0", 0, 0, qtrue },
 
 	{ &g_logClientInfo, "g_logClientInfo", "0", CVAR_ARCHIVE, 0, qtrue },
 
@@ -1102,6 +1113,16 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHoth2ndObj, "g_fixHoth2ndObj", "1", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_saberThrowDefenseSmallAngle, "g_saberThrowDefenseSmallAngle", "30", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_saberThrowDefenseLargeAngle, "g_saberThrowDefenseLargeAngle", "80", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_saberThrowDefenseCompromisedBonus, "g_saberThrowDefenseCompromisedBonus", "0.2", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_saberThrowDefensePushPullBonus, "g_saberThrowDefensePushPullBonus", "0.2", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_saberThrowDefenseSmallDamage, "g_saberThrowDefenseSmallDamage", "0.4", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_saberThrowDefenseLargeDamage, "g_saberThrowDefenseLargeDamage", "0.6", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_saberThrowDefenseRewind, "g_saberThrowDefenseRewind", "0.5", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_webhookId, "g_webhookId", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_webhookToken, "g_webhookToken", "", CVAR_ARCHIVE, 0, qfalse },

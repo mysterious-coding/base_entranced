@@ -221,6 +221,24 @@ void G_TestLine(vec3_t start, vec3_t end, int color, int time)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
+// draw a bunch of lines around a point; looks like an asterisk
+void G_TestPoint(vec3_t point, int color, int time) {
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			for (int k = -1; k <= 1; k += 2) {
+				for (int l = -1; l <= 1; l += 2) {
+					vec3_t end = { 0.0f };
+					VectorCopy(point, end);
+					end[i] += k * 1;
+					end[j] += l * 1;
+
+					G_TestLine(point, end, color, time);
+				}
+			}
+		}
+	}
+}
+
 void BotWaypointRender(void)
 {
 	int i, n;

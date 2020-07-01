@@ -3520,15 +3520,23 @@ int WP_SaberApplyDamage( gentity_t *self )
 			dflags |= DAMAGE_NO_DISMEMBER;
 		}
 		dflags |= saberKnockbackFlags[i];
-
-		total += G_Damage( victim, self, self, dmgDir[i], dmgSpot[i], totalDmg[i], dflags, MOD_SABER );
+		int thisDamage = G_Damage( victim, self, self, dmgDir[i], dmgSpot[i], totalDmg[i], dflags, MOD_SABER );
+		total += thisDamage;
+		if (g_saberDefenseDebug.integer >= 2) {
+			PrintIngame(-1, "Did %d damage from WP_SaberApplyDamage\n", thisDamage);
+		}
 	}
 	return total;
 }
 
 typedef struct {
-	node_t	node;
-	gentity_t *ent;
+	node_t		node;
+	gentity_t	*ent;
+	int			saberNum;
+	int			bladeNum;
+	int			victimNum;
+	vec3_t		origin;
+	vec3_t		angles;
 } saberHit_t;
 
 void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum, list_t *listPtr )
@@ -3568,10 +3576,6 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum, list_t *listPtr
 		te = G_TempEntity( dmgSpot[i], EV_SABER_HIT );
 		if ( te )
 		{
-			if (listPtr) {
-				saberHit_t *hit = ListAdd(listPtr, sizeof(saberHit_t));
-				hit->ent = te;
-			}
 			te->s.otherEntityNum = victimEntityNum[i];
 			te->s.otherEntityNum2 = self->s.number;
 			te->s.weapon = saberNum;
@@ -3620,6 +3624,16 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum, list_t *listPtr
 					}
 					te->s.eventParm = 0;
 				}
+			}
+
+			if (listPtr) {
+				saberHit_t *hit = ListAdd(listPtr, sizeof(saberHit_t));
+				hit->ent = te;
+				hit->bladeNum = bladeNum;
+				hit->saberNum = saberNum;
+				hit->victimNum = te->s.otherEntityNum;
+				VectorCopy(te->s.origin, hit->origin);
+				VectorCopy(te->s.angles, hit->angles);
 			}
 		}
 	}
@@ -3672,7 +3686,10 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 			{//must be a client
 				if ( G_EntIsBreakable( radiusEnt->s.number ) )
 				{//damage breakables within range, but not as much
-					G_Damage( radiusEnt, ent, ent, vec3_origin, radiusEnt->r.currentOrigin, 10, 0, MOD_MELEE );
+					int damageDone = G_Damage( radiusEnt, ent, ent, vec3_origin, radiusEnt->r.currentOrigin, 10, 0, MOD_MELEE );
+					if (g_saberDefenseDebug.integer >= 2) {
+						PrintIngame(-1, "Did %d damage from WP_SaberRadiusDamage 1\n", damageDone);
+					}
 				}
 				continue;
 			}
@@ -3689,7 +3706,10 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 				if ( damage > 0 )
 				{//do damage
 					int points = ceil((float)damage*dist/radius);
-					G_Damage( radiusEnt, ent, ent, vec3_origin, radiusEnt->r.currentOrigin, points, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+					int damageDone = G_Damage( radiusEnt, ent, ent, vec3_origin, radiusEnt->r.currentOrigin, points, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+					if (g_saberDefenseDebug.integer >= 2) {
+						PrintIngame(-1, "Did %d damage from WP_SaberRadiusDamage 2\n", damageDone);
+					}
 				}
 				if ( knockBack > 0 )
 				{//do knockback
@@ -3724,17 +3744,20 @@ static qboolean saberDoClashEffect = qfalse;
 static vec3_t saberClashPos = {0};
 static vec3_t saberClashNorm = {0};
 static int saberClashEventParm = 1;
-void WP_SaberDoClash( gentity_t *self, int saberNum, int bladeNum )
+void WP_SaberDoClash( gentity_t *self, int saberNum, int bladeNum, list_t *listPtr)
 {
-	if ( saberDoClashEffect )
-	{
-		gentity_t *te = G_TempEntity( saberClashPos, EV_SABER_BLOCK );
+	if (saberDoClashEffect) {
+		gentity_t *te = G_TempEntity(saberClashPos, EV_SABER_BLOCK);
 		VectorCopy(saberClashPos, te->s.origin);
 		VectorCopy(saberClashNorm, te->s.angles);
 		te->s.eventParm = saberClashEventParm;
 		te->s.otherEntityNum2 = self->s.number;
 		te->s.weapon = saberNum;
 		te->s.legsAnim = bladeNum;
+		if (listPtr) {
+			saberHit_t *hit = ListAdd(listPtr, sizeof(saberHit_t));
+			hit->ent = te;
+		}
 	}
 }
 
@@ -3782,6 +3805,8 @@ static float saberHitFraction = 1.0f;
 #include "namespace_begin.h"
 qboolean BG_SuperBreakWinAnim( int anim );
 #include "namespace_end.h"
+
+void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
 
 static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeNum, vec3_t saberStart, vec3_t saberEnd, qboolean doInterpolate, int trMask, qboolean extrapolate )
 {
@@ -4694,6 +4719,12 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		if (self->client->sess.siegeDuelInProgress &&
 			self->client->sess.siegeDuelIndex != otherOwner->s.number)
 		{
+			return qfalse;
+		}
+
+		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS &&
+			self->client->ps.saberEntityNum && self->client->ps.saberInFlight) {
+			//Com_DebugPrintf("Returning from saber collision\n");
 			return qfalse;
 		}
 
@@ -5745,6 +5776,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 #define SABER_THROWN_RETURN_HIT_DAMAGE 5
 
 void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace);
+void saberBackToOwner(gentity_t *saberent);
 
 static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gentity_t *ent, int dist, int returning, qboolean noDCheck)
 {
@@ -5802,7 +5834,7 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 
 			if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 			{ //Slice them
-				if (!saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, saberent, tr.endpos, 0, MOD_SABER, qfalse, 999))
+				if (!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS) && !saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, saberent, tr.endpos, 0, MOD_SABER, qfalse, 999))
 				{ //they blocked it
 					WP_SaberBlockNonRandom(ent, tr.endpos, qfalse);
 
@@ -5853,30 +5885,54 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 						dflags |= DAMAGE_SABER_KNOCKBACK1;
 					}
 
+					int damageDone;
 					if (saberOwner->client->ps.isJediMaster)
 					{ //2x damage for the Jedi Master
-						G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, saberent->damage*2, dflags, MOD_SABER);
+						damageDone = G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, saberent->damage*2, dflags, MOD_SABER);
 					}
 					else
 					{
-						G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, saberent->damage, dflags, MOD_SABER);
+						damageDone = G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, saberent->damage, dflags, MOD_SABER);
 					}
 
-					te = G_TempEntity( tr.endpos, EV_SABER_HIT );
-					te->s.otherEntityNum = ent->s.number;
-					te->s.otherEntityNum2 = saberOwner->s.number;
-					te->s.weapon = 0;//saberNum
-					te->s.legsAnim = 0;//bladeNum
-					VectorCopy(tr.endpos, te->s.origin);
-					VectorCopy(tr.plane.normal, te->s.angles);
-					if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
-					{
-						te->s.angles[1] = 1;
+					if (g_saberDefenseDebug.integer >= 2) {
+						PrintIngame(-1, "Did %d damage from CheckThrownSaberDamaged 1\n", damageDone);
 					}
 
-					te->s.eventParm = 1;
+					if (damageDone) { // duo: only do the hit effect if we actually did damage
+						te = G_TempEntity(tr.endpos, EV_SABER_HIT);
+						te->s.otherEntityNum = ent->s.number;
+						te->s.otherEntityNum2 = saberOwner->s.number;
+						te->s.weapon = 0;//saberNum
+						te->s.legsAnim = 0;//bladeNum
+						VectorCopy(tr.endpos, te->s.origin);
+						VectorCopy(tr.plane.normal, te->s.angles);
+						if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+						{
+							te->s.angles[1] = 1;
+						}
 
-					if (!returning)
+						te->s.eventParm = 1;
+					}
+					else if (ent && ent->health > 0 && ent->client && ent->client->ps.weapon == WP_SABER) {
+						// duo: if no damage and target is a saberist, play a clash effect and fake a block animation
+						WP_SaberBlockNonRandom(ent, tr.endpos, qfalse);
+						if (!ent->lastSaberBlockEventTick || ent->lastSaberBlockEventTick != level.framenum) {
+							te = G_TempEntity(tr.endpos, EV_SABER_BLOCK);
+							VectorCopy(tr.endpos, te->s.origin);
+							VectorCopy(tr.plane.normal, te->s.angles);
+							if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+							{
+								te->s.angles[1] = 1;
+							}
+							te->s.eventParm = 1;
+							te->s.weapon = 0;//saberNum
+							te->s.legsAnim = 0;//bladeNum
+							ent->lastSaberBlockEventTick = level.framenum; // don't do it too rapidly
+						}
+					}
+
+					if (!returning || (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS && saberent->think != saberBackToOwner))
 					{ //return to owner if blocked
 						thrownSaberTouch(saberent, saberent, NULL);
 					}
@@ -5941,50 +5997,74 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 					dflags |= DAMAGE_SABER_KNOCKBACK1;
 				}
 
+				int damageDone;
 				if (ent->s.eType == ET_NPC)
 				{ //an animent
-					G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 40, dflags, MOD_SABER);
+					damageDone = G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 40, dflags, MOD_SABER);
 				}
 				else
 				{
-					G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 5, dflags, MOD_SABER);
+					damageDone = G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 5, dflags, MOD_SABER);
 				}
 
-				te = G_TempEntity( tr.endpos, EV_SABER_HIT );
-				te->s.otherEntityNum = ENTITYNUM_NONE; //don't do this for throw damage
-				te->s.otherEntityNum2 = saberOwner->s.number;//actually, do send this, though - for the overridden per-saber hit effects/sounds
-				te->s.weapon = 0;//saberNum
-				te->s.legsAnim = 0;//bladeNum
-				VectorCopy(tr.endpos, te->s.origin);
-				VectorCopy(tr.plane.normal, te->s.angles);
-				if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
-				{
-					te->s.angles[1] = 1;
+				if (g_saberDefenseDebug.integer >= 2) {
+					PrintIngame(-1, "Did %d damage from CheckThrownSaberDamaged 2\n", damageDone);
 				}
 
-				if ( ent->s.eType == ET_MOVER )
-				{
-					if ( saberOwner
-						&& saberOwner->client
-						&& (saberOwner->client->saber[0].saberFlags2&SFL2_NO_CLASH_FLARE) ) 
-					{//don't do clash flare - NOTE: assumes same is true for both sabers if using dual sabers!
-						G_FreeEntity( te );//kind of a waste, but...
+				if (damageDone) {
+					te = G_TempEntity(tr.endpos, EV_SABER_HIT);
+					te->s.otherEntityNum = ENTITYNUM_NONE; //don't do this for throw damage
+					te->s.otherEntityNum2 = saberOwner->s.number;//actually, do send this, though - for the overridden per-saber hit effects/sounds
+					te->s.weapon = 0;//saberNum
+					te->s.legsAnim = 0;//bladeNum
+					VectorCopy(tr.endpos, te->s.origin);
+					VectorCopy(tr.plane.normal, te->s.angles);
+					if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+					{
+						te->s.angles[1] = 1;
+					}
+
+					if (ent->s.eType == ET_MOVER)
+					{
+						if (saberOwner
+							&& saberOwner->client
+							&& (saberOwner->client->saber[0].saberFlags2 & SFL2_NO_CLASH_FLARE))
+						{//don't do clash flare - NOTE: assumes same is true for both sabers if using dual sabers!
+							G_FreeEntity(te);//kind of a waste, but...
+						}
+						else
+						{
+							//I suppose I could tie this into the saberblock event, but I'm tired of adding flags to that thing.
+							gentity_t *teS = G_TempEntity(te->s.origin, EV_SABER_CLASHFLARE);
+							VectorCopy(te->s.origin, teS->s.origin);
+
+							te->s.eventParm = 0;
+						}
 					}
 					else
 					{
-						//I suppose I could tie this into the saberblock event, but I'm tired of adding flags to that thing.
-						gentity_t *teS = G_TempEntity( te->s.origin, EV_SABER_CLASHFLARE );
-						VectorCopy(te->s.origin, teS->s.origin);
-
-						te->s.eventParm = 0;
+						te->s.eventParm = 1;
 					}
 				}
-				else
-				{
-					te->s.eventParm = 1;
+				else if (ent && ent->health > 0 && ent->client && ent->client->ps.weapon == WP_SABER) {
+					// duo: if no damage and target is a saberist, play a clash effect and fake a block animation
+					WP_SaberBlockNonRandom(ent, tr.endpos, qfalse);
+					if (!ent->lastSaberBlockEventTick || ent->lastSaberBlockEventTick != level.framenum) {
+						te = G_TempEntity(tr.endpos, EV_SABER_BLOCK);
+						VectorCopy(tr.endpos, te->s.origin);
+						VectorCopy(tr.plane.normal, te->s.angles);
+						if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+						{
+							te->s.angles[1] = 1;
+						}
+						te->s.eventParm = 1;
+						te->s.weapon = 0;//saberNum
+						te->s.legsAnim = 0;//bladeNum
+						ent->lastSaberBlockEventTick = level.framenum; // don't do it too rapidly
+					}
 				}
 
-				if (!returning)
+				if (!returning || (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS && saberent->think != saberBackToOwner))
 				{ //return to owner if blocked
 					thrownSaberTouch(saberent, saberent, NULL);
 				}
@@ -8634,7 +8714,7 @@ nextStep:
 		saberDoClashEffect = qfalse;
 
 		//Now cycle through each saber and each blade on the saber and do damage traces.
-		list_t hitList = { 0 };
+		list_t hitList = { 0 }, clashList = { 0 };
 		int numHits = 0;
 		while (rSaberNum < MAX_SABERS)
 		{
@@ -8888,7 +8968,7 @@ nextStep:
 
 				//do hit effects
 				WP_SaberDoHit( self, rSaberNum, rBladeNum, &hitList );
-				WP_SaberDoClash( self, rSaberNum, rBladeNum );
+				WP_SaberDoClash( self, rSaberNum, rBladeNum, &clashList );
 				numHits++;
 
 				rBladeNum++;
@@ -8897,20 +8977,82 @@ nextStep:
 			rSaberNum++;
 		}
 
-		// if we didn't actually do any damage, loop through and remove all the hit effects
-		if (!WP_SaberApplyDamage(self)) {
+		if (!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)) {
+			WP_SaberApplyDamage(self); // legacy mode; simply apply the damage
+		}
+		else {
+			int damageDone = WP_SaberApplyDamage(self);
 			if (numHits) {
-				iterator_t iter;
+
+				// see if we got a hit
+				qboolean gotHit = qfalse, gotClash = qfalse;
+				iterator_t iter = { 0 };
 				ListIterate(&hitList, &iter, qfalse);
+				int hitSaberNum = 0, hitBladeNum = 0, hitVictimNum = -1;
+				vec3_t hitOrigin = { 0.0f }, hitAngles = { 0.0f };
 				while (IteratorHasNext(&iter)) {
 					saberHit_t *hit = (saberHit_t *)IteratorNext(&iter);
-					G_FreeEntity(hit->ent);
-					hit->ent = NULL;
+					hitSaberNum = hit->saberNum;
+					hitBladeNum = hit->bladeNum;
+					hitVictimNum = hit->victimNum;
+					VectorCopy(hit->origin, hitOrigin);
+					VectorCopy(hit->angles, hitAngles);
+					if (!damageDone) { // remove the hit if we did 0 damage
+						G_FreeEntity(hit->ent);
+						hit->ent = NULL;
+					}
+					gotHit = qtrue;
 				}
+
+				// see if we got a clash
+				memset(&iter, 0, sizeof(iter));
+				ListIterate(&clashList, &iter, qfalse);
+				while (IteratorHasNext(&iter)) {
+					saberHit_t *hit = (saberHit_t *)IteratorNext(&iter);
+					gotClash = qtrue;
+					if (damageDone) { // might as well remove the clash if we did damage
+						G_FreeEntity(hit->ent);
+						hit->ent = NULL;
+					}
+					else {
+						gentity_t *hitVictim = &g_entities[hitVictimNum];
+						if (!hitVictim->lastSaberBlockEventTick || hitVictim->lastSaberBlockEventTick != level.framenum) {
+							hitVictim->lastSaberBlockEventTick = level.framenum; // don't do it too often
+						}
+						else {
+							G_FreeEntity(hit->ent);
+							hit->ent = NULL;
+						}
+					}
+					break;
+				}
+
+				// if we did 0 damage to a saberist, make sure there is a clash and block animation
+				if (hitVictimNum >= 0 && !damageDone) {
+					gentity_t *hitVictim = &g_entities[hitVictimNum];
+					if (gotHit && hitVictim->client && hitVictim->s.weapon == WP_SABER) {
+						if (!gotClash && (!hitVictim->lastSaberBlockEventTick || hitVictim->lastSaberBlockEventTick != level.framenum)) { // make sure we have a clash
+							gentity_t *te = G_TempEntity(saberClashPos, EV_SABER_BLOCK);
+							VectorCopy(hitOrigin, te->s.origin);
+							VectorCopy(hitAngles, te->s.angles);
+							te->s.eventParm = saberClashEventParm;
+							te->s.otherEntityNum2 = self->s.number;
+							te->s.weapon = hitSaberNum;
+							te->s.legsAnim = hitBladeNum;
+							hitVictim->lastSaberBlockEventTick = level.framenum; // don't do it too often
+						}
+						WP_SaberBlockNonRandom(hitVictim, hitOrigin, qfalse); // also do a block animation
+					}
+				}
+
+				// if the saber touched a player in any way whatsoever, return it to its owner
+				if ((gotHit || gotClash || damageDone) && self->client->ps.saberInFlight && saberent->think != saberBackToOwner)
+					thrownSaberTouch(saberent, saberent, NULL);
 			}
 		}
 
 		ListClear(&hitList);
+		ListClear(&clashList);
 		//NOTE: doing one call like this after the 2 loops above is a bit cheaper, tempentity-wise... but won't use the correct saber and blade numbers...
 		//now actually go through and apply all the damage we did
 
@@ -9236,7 +9378,7 @@ int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags
 			AnglesSubtract(other->client->ps.viewangles, self->client->ps.viewangles, subtractedAngles);
 			float angle = 180.0f - fabs(subtractedAngles[1]);
 
-			if (g_saberDefensePrintAngle.integer)
+			if (g_saberDefenseDebug.integer)
 				trap_SendServerCommand( other - g_entities, va( "print \"Angle: %.2f\n\"", angle) );
 
 			// 100% block rate in range, 0% block rate otherwise

@@ -4822,6 +4822,68 @@ extern qboolean PM_SaberInBrokenParry(int move);
 extern qboolean BG_SabersOff(playerState_t *ps);
 extern qboolean SaberAttacking(gentity_t *self);
 extern qboolean PM_InSaberAnim(int anim);
+extern void saberBackToOwner(gentity_t *saberent);
+extern void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result);
+
+qboolean SaberThrowInFOV(gentity_t *ent, gentity_t *from, int hFOV, int vFOV, gentity_t *printAngle1, gentity_t *printAngle2) {
+	vec3_t	eyes;
+	vec3_t	spot;
+	vec3_t	deltaVector;
+	vec3_t	angles, fromAngles;
+	vec3_t	deltaAngles;
+
+	if (from->client)
+		VectorCopy(from->client->ps.viewangles, fromAngles);
+	else
+		VectorCopy(from->s.angles, fromAngles);
+
+	CalcEntitySpot(from, SPOT_ORIGIN, eyes);
+
+	CalcEntitySpot(ent, SPOT_ORIGIN, spot);
+
+	if (g_saberThrowDefenseRewind.value) {
+		vec3_t rewoundSpot;
+		/*if (spot[0] == ent->s.pos.trBase[0] && spot[1] == ent->s.pos.trBase[1] && spot[2] == ent->s.pos.trBase[2])
+			VectorSubtract(spot, ent->s.pos.trDelta, rewoundSpot);
+		else*/
+			VectorCopy(ent->s.pos.trBase, rewoundSpot);
+
+		if (fabs(g_saberThrowDefenseRewind.value) >= 1.0f) {
+			VectorCopy(rewoundSpot, spot);
+		}
+		else {
+			TimeShiftLerp(fabs(g_saberThrowDefenseRewind.value), rewoundSpot, spot, spot);
+		}
+	}
+	if (g_saberDefenseDebug.integer)
+		G_TestPoint(spot, 0x00ff00, 5000);
+
+	VectorSubtract(spot, eyes, deltaVector);
+
+	vectoangles(deltaVector, angles);
+	deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+	deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+	if (g_saberDefenseDebug.integer) {
+		static int lastPrintTime = 0;
+		static char lastPrint[128] = { 0 };
+		int now = trap_Milliseconds();
+		char thisPrint[128] = { 0 };
+		Com_sprintf(thisPrint, sizeof(thisPrint), "Angle: ^5%.2f^7   ", fabs(deltaAngles[YAW]));
+		if (!lastPrintTime || now - lastPrintTime > 250 || Q_stricmp(lastPrint, thisPrint)) {
+			if (printAngle1)
+				PrintIngame(printAngle1 - g_entities, thisPrint);
+			if (printAngle2)
+				PrintIngame(printAngle2 - g_entities, thisPrint);
+			lastPrintTime = now;
+			Q_strncpyz(lastPrint, thisPrint, sizeof(lastPrint));
+		}
+	}
+	if (fabs(deltaAngles[PITCH]) <= vFOV && fabs(deltaAngles[YAW]) <= hFOV)
+	{
+		return qtrue;
+	}
+	return qfalse;
+}
 
 int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	vec3_t dir, vec3_t point, int damage, int dflags, int mod) {
@@ -5227,70 +5289,120 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		attacker->client->ps.saberEntityNum != ENTITYNUM_NONE && attacker->client->ps.saberMove != LS_DUAL_FB && attacker->client->ps.saberMove != LS_DUAL_LR) {
 		// duoTODO: fix damage for saberthrow with dual saber when holding mouse1 with the other saber at the same time
 
-		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 250)
-			return 0; // allow damage on the same target from the same attacker every 250ms or so
+		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 1000)
+			return 0; // duoTODO: fix sabers to return instantly all the time...
 
 		attacker->client->saberThrowDamageTime[targ - g_entities] = level.time;
 		float multiplier;
 		gentity_t *thrownSaber = &g_entities[attacker->client->ps.saberEntityNum];
-		if (BG_SaberInAttack(targ->client->ps.saberMove) || PM_SaberInBrokenParry(targ->client->ps.saberMove) || !targ->client->ps.saberEntityNum ||
-			BG_SabersOff(&targ->client->ps) || targ->client->ps.weaponstate == WEAPON_RAISING || targ->client->ps.saberInFlight ||
-			targ->client->pers.cmd.buttons & BUTTON_ATTACK || SaberAttacking(targ) || (targ->client->ps.saberMove != LS_READY &&
-			!targ->client->ps.saberBlocking) || targ->client->ps.saberBlockTime >= level.time || (PM_InSaberAnim(targ->client->ps.torsoAnim) && !targ->client->ps.saberBlocked &&
-				targ->client->ps.saberMove != LS_READY && targ->client->ps.saberMove != LS_NONE &&
-				(targ->client->ps.saberMove < LS_PARRY_UP || targ->client->ps.saberMove > LS_REFLECT_LL))) {
+
+		if (!targ->client->ps.saberEntityNum || BG_SabersOff(&targ->client->ps) || targ->client->ps.saberInFlight) {
+
 			multiplier = 1.0f;
-			if (g_saberDefensePrintAngle.integer) {
-				PrintIngame(attacker - g_entities, "Category: ^5Target attacking^7   Multiplier: ^5%0.1f^7", multiplier);
-				PrintIngame(targ - g_entities, "Category: ^5Target attacking^7   Multiplier: ^5%0.1f^7", multiplier);
+
+			if (g_saberDefenseDebug.integer) {
+				char *reason = "No saber";
+				if (!targ->client->ps.saberEntityNum)
+					reason = "No saber entity";
+				else if (BG_SabersOff(&targ->client->ps))
+					reason = "Saber off";
+				/*else if (targ->client->ps.weaponstate == WEAPON_RAISING)
+					reason = "Weapon raising";*/
+				else if (targ->client->ps.saberInFlight)
+					reason = "Saber in flight";
+
+				PrintIngame(attacker - g_entities, "Category: ^1%s^7   Multiplier: ^5%0.2f^7", reason, multiplier);
+				PrintIngame(targ - g_entities, "Category: ^1%s^7   Multiplier: ^5%0.2f^7", reason, multiplier);
 			}
 		}
-		else if (InFOV(thrownSaber, targ, 12, 180)) {
-			if (targ->client->ps.forceHandExtend) {
-				multiplier = 0.4f;
-				if (g_saberDefensePrintAngle.integer) {
-					PrintIngame(attacker - g_entities, "Category: ^5Small cone, pushed/pulled^7   Multiplier: ^5%0.1f^7", multiplier);
-					PrintIngame(targ - g_entities, "Category: ^5Small cone, pushed/pulled^7   Multiplier: ^5%0.1f^7", multiplier);
-				}
-			}
-			else {
-				if (g_saberDefensePrintAngle.integer) {
-					PrintIngame(attacker - g_entities, "Category: ^5Small cone, normal^7   ^1No damage^7\n");
-					PrintIngame(targ - g_entities, "Category: ^5Small cone, normal^7   ^1No damage^7\n");
-				}
-				return 0;
+		else if (g_saberThrowDefenseSmallAngle.integer && SaberThrowInFOV(thrownSaber, targ, abs(g_saberThrowDefenseSmallAngle.integer), 180, attacker, targ)) {
+			multiplier = fabs(g_saberThrowDefenseSmallDamage.value);
+			if (g_saberDefenseDebug.integer) {
+				PrintIngame(attacker - g_entities, "Category: ^2Small cone^7   Multiplier: ^5%0.2f^7", multiplier);
+				PrintIngame(targ - g_entities, "Category: ^2Small cone^7   Multiplier: ^5%0.2f^7", multiplier);
 			}
 		}
-		else if (InFOV(thrownSaber, targ, 60, 180)) {
-			if (targ->client->ps.forceHandExtend)
-				multiplier = 0.8f;
-			else
-				multiplier = 0.5f;
-			if (g_saberDefensePrintAngle.integer) {
-				PrintIngame(attacker - g_entities, "Category: ^5Medium cone, %s^7   Multiplier: ^5%0.1f^7", targ->client->ps.forceHandExtend ?  "pushed/pulled" : "normal", multiplier);
-				PrintIngame(targ - g_entities, "Category: ^5Medium cone, %s^7   Multiplier: ^5%0.1f^7", targ->client->ps.forceHandExtend ? "pushed/pulled" : "normal", multiplier);
+		else if (g_saberThrowDefenseLargeAngle.integer && SaberThrowInFOV(thrownSaber, targ, abs(g_saberThrowDefenseLargeAngle.integer), 180, attacker, targ)) {
+			multiplier = fabs(g_saberThrowDefenseLargeDamage.value);
+			if (g_saberDefenseDebug.integer) {
+				PrintIngame(attacker - g_entities, "Category: ^3Large cone^7   Multiplier: ^5%0.1f^7", multiplier);
+				PrintIngame(targ - g_entities, "Category: ^3Large cone^7   Multiplier: ^5%0.1f^7", multiplier);
 			}
 		}
 		else {
 			multiplier = 1.0f;
-			if (g_saberDefensePrintAngle.integer) {
-				PrintIngame(attacker - g_entities, "Category: ^5Other^7   Multiplier: ^5%0.1f^7", multiplier);
-				PrintIngame(targ - g_entities, "Category: ^5Other^7   Multiplier: ^5%0.1f^7", multiplier);
+			if (g_saberDefenseDebug.integer) {
+				PrintIngame(attacker - g_entities, "Category: ^1Back^7   Multiplier: ^5%0.2f^7", multiplier);
+				PrintIngame(targ - g_entities, "Category: ^1Back^7   Multiplier: ^5%0.2f^7", multiplier);
 			}
+		}
+
+		qboolean printFinalMultiplier = qfalse;
+		if (g_saberThrowDefenseCompromisedBonus.value && (BG_SaberInAttack(targ->client->ps.saberMove) || PM_SaberInBrokenParry(targ->client->ps.saberMove) ||
+			/*targ->client->ps.weaponstate == WEAPON_RAISING || */ targ->client->pers.cmd.buttons & BUTTON_ATTACK || SaberAttacking(targ) || (targ->client->ps.saberMove != LS_READY &&
+				!targ->client->ps.saberBlocking) || targ->client->ps.saberBlockTime >= level.time || (PM_InSaberAnim(targ->client->ps.torsoAnim) && !targ->client->ps.saberBlocked &&
+					targ->client->ps.saberMove != LS_READY && targ->client->ps.saberMove != LS_NONE &&
+					(targ->client->ps.saberMove < LS_PARRY_UP || targ->client->ps.saberMove > LS_REFLECT_LL)))) {
+
+			multiplier += fabs(g_saberThrowDefenseCompromisedBonus.value);
+			printFinalMultiplier = qtrue;
+
+			if (g_saberDefenseDebug.integer) {
+				char *reason = "Saber defense compromised";
+				if (BG_SaberInAttack(targ->client->ps.saberMove))
+					reason = "In saber move";
+				else if (PM_SaberInBrokenParry(targ->client->ps.saberMove))
+					reason = "In broken parry";
+				/*else if (targ->client->ps.weaponstate == WEAPON_RAISING)
+					reason = "Weapon raising";*/
+				else if (targ->client->pers.cmd.buttons & BUTTON_ATTACK)
+					reason = "Attack button down";
+				else if (SaberAttacking(targ))
+					reason = "Saber attacking";
+				else if (targ->client->ps.saberMove != LS_READY && !targ->client->ps.saberBlocking)
+					reason = "Saber move != ready and not blocking";
+				else if (targ->client->ps.saberBlockTime >= level.time)
+					reason = "In saber block cooldown";
+				else if (PM_InSaberAnim(targ->client->ps.torsoAnim) && !targ->client->ps.saberBlocked &&
+					targ->client->ps.saberMove != LS_READY && targ->client->ps.saberMove != LS_NONE &&
+					(targ->client->ps.saberMove < LS_PARRY_UP || targ->client->ps.saberMove > LS_REFLECT_LL))
+					reason = "In saber animation";
+
+				if (g_saberDefenseDebug.integer) {
+					PrintIngame(attacker - g_entities, "   Defense compromised multiplier bonus: ^8+%0.2f^7", g_saberThrowDefenseCompromisedBonus.value);
+					PrintIngame(targ - g_entities, "   Defense compromised multiplier bonus: ^8+%0.2f^7", g_saberThrowDefenseCompromisedBonus.value);
+				}
+			}
+		}
+
+		if (targ->client->ps.forceHandExtend && g_saberThrowDefensePushPullBonus.value) {
+			multiplier += fabs(g_saberThrowDefensePushPullBonus.value);
+			printFinalMultiplier = qtrue;
+
+			if (g_saberDefenseDebug.integer) {
+				PrintIngame(attacker - g_entities, "   Push/pull multiplier bonus: ^8+%0.2f^7", g_saberThrowDefensePushPullBonus.value);
+				PrintIngame(targ - g_entities, "   Push/pull multiplier bonus: ^8+%0.2f^7", g_saberThrowDefensePushPullBonus.value);
+			}
+		}
+
+		if (printFinalMultiplier && g_saberDefenseDebug.integer) {
+			PrintIngame(attacker - g_entities, "   Final multiplier: ^6%0.2f^7", multiplier);
+			PrintIngame(targ - g_entities, "   Final multiplier: ^6%0.2f^7", multiplier);
 		}
 
 		if (multiplier == 1.0f)
 			damage = targ->client->ps.stats[STAT_MAX_HEALTH];
 		else
 			damage = (int)round((double)targ->client->ps.stats[STAT_MAX_HEALTH] * (double)multiplier);
+		damage = Com_Clampi(1, targ->client->ps.stats[STAT_MAX_HEALTH], damage);
 
-		if (damage < 1)
-			damage = 1;
-
-		if (g_saberDefensePrintAngle.integer) {
+		if (g_saberDefenseDebug.integer) {
 			PrintIngame(attacker - g_entities, "   Damage: ^5%d^7\n", damage);
 			PrintIngame(targ - g_entities, "   Damage: ^5%d^7\n", damage);
 		}
+
+		if (!multiplier)
+			return 0;
 	}
 
 	// only enemy demp/disruptor can damage rockets
