@@ -5273,8 +5273,8 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		attacker->client->ps.saberMove != LS_DUAL_FB && attacker->client->ps.saberMove != LS_DUAL_LR) {
 		// duoTODO: fix damage for saberthrow with dual saber when holding mouse1 with the other saber at the same time
 
-		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 250)
-			return 0; // allow one 100 damage hit on the same target from the same attacker every 250ms or so
+		if (level.time - attacker->client->saberThrowDamageTime[targ - g_entities] < 1000)
+			return 0; // duoTODO: fix sabers to return instantly all the time...
 
 		attacker->client->saberThrowDamageTime[targ - g_entities] = level.time;
 		damage = 100;

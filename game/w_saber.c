@@ -5777,6 +5777,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 
 void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace);
 void saberBackToOwner(gentity_t *saberent);
+void saberFirstThrown(gentity_t *saberent);
 
 static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gentity_t *ent, int dist, int returning, qboolean noDCheck)
 {
@@ -5932,9 +5933,20 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 						}
 					}
 
-					if (!returning || (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS && saberent->think != saberBackToOwner))
-					{ //return to owner if blocked
-						thrownSaberTouch(saberent, saberent, NULL);
+					if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS) {
+						if (!(ent && ent->health > 0)) { // target died; allow saber to keep going
+							saberent->think = saberFirstThrown;
+							saberent->nextthink = level.time - 50;
+						}
+						else if (!returning) {
+							thrownSaberTouch(saberent, saberent, NULL);
+						}
+					}
+					else {
+						if (!returning)
+						{ //return to owner if blocked
+							thrownSaberTouch(saberent, saberent, NULL);
+						}
 					}
 				}
 
@@ -6064,9 +6076,20 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 					}
 				}
 
-				if (!returning || (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS && saberent->think != saberBackToOwner))
-				{ //return to owner if blocked
-					thrownSaberTouch(saberent, saberent, NULL);
+				if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS) {
+					if (!(ent && ent->health > 0)) { // target died; allow saber to keep going
+						saberent->think = saberFirstThrown;
+						saberent->nextthink = level.time - 50;
+					}
+					else if (!returning) {
+						thrownSaberTouch(saberent, saberent, NULL);
+					}
+				}
+				else {
+					if (!returning)
+					{ //return to owner if blocked
+						thrownSaberTouch(saberent, saberent, NULL);
+					}
 				}
 
 				saberOwner->client->ps.saberAttackWound = level.time + 500;
@@ -9045,8 +9068,8 @@ nextStep:
 					}
 				}
 
-				// if the saber touched a player in any way whatsoever, return it to its owner
-				if ((gotHit || gotClash || damageDone) && self->client->ps.saberInFlight && saberent->think != saberBackToOwner)
+				// if the saber touched someone and they are still alive, return to owner
+				if (hitVictimNum >= 0 && g_entities[hitVictimNum].health > 0 && self->client->ps.saberInFlight && saberent->think != saberBackToOwner)
 					thrownSaberTouch(saberent, saberent, NULL);
 			}
 		}
