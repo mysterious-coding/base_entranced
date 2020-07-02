@@ -6192,7 +6192,8 @@ static GAME_INLINE void saberMoveBack( gentity_t *ent, qboolean goingBack )
 			{ //eh, this is a filthy lie. (obviously it had to hit something or it wouldn't be in here, so we'll say it hit the world)
 				tr.entityNum = ENTITYNUM_WORLD;
 			}
-			thrownSaberTouch(ent, &g_entities[tr.entityNum], &tr);
+			if (!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS))
+				thrownSaberTouch(ent, &g_entities[tr.entityNum], &tr);
 			return;
 		}
 	}
