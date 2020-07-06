@@ -2376,8 +2376,10 @@ static qboolean CheckSiegeKillAwards(gentity_t *self, gentity_t *attacker, int m
 				attacker->client->sess.siegeStats.mapSpecific[GetSiegeStatRound()][SIEGEMAPSTAT_NAR_TECHKILL]++;
 		}
 	}
-	else if (attacker->client->sess.sessionTeam == TEAM_BLUE && !self->NPC && !self->m_pVehicle)
+	else if (attacker->client->sess.sessionTeam == TEAM_BLUE && !self->NPC && !self->m_pVehicle) {
 		attacker->client->sess.siegeStats.dKills[GetSiegeStatRound()]++;
+		attacker->client->pers.fragsSinceObjStart++;
+	}
 
 	qboolean gaveAward = qfalse;
 

@@ -5968,7 +5968,27 @@ const char *GetLongNameForRecordFlags(const char *mapname, CaptureCategoryFlags 
 	const int size = RECORDTYPE_LONGNAME_BUFSIZE;
 	memset(buf, 0, RECORDTYPE_LONGNAME_BUFSIZE);
 
-	if (flags & CAPTURERECORDFLAG_ANYPERCENT || flags & CAPTURERECORDFLAG_LIVEPUG) {
+	if (flags & CAPTURERECORDFLAG_DEFENSE) {
+		Q_strcat(buf, size, "Defense");
+		if (flags & CAPTURERECORDFLAG_2V2)
+			Q_strcat(buf, size, " 2v2");
+		else if (flags & CAPTURERECORDFLAG_3V3)
+			Q_strcat(buf, size, " 3v3");
+		else if (flags & CAPTURERECORDFLAG_4V4)
+			Q_strcat(buf, size, " 4v4");
+		if (flags & CAPTURERECORDFLAG_FULLMAP) {
+			Q_strcat(buf, size, " FullMap");
+		}
+		else {
+			for (int i = 0; i < MAX_SAVED_OBJECTIVES; i++) {
+				if (flags & (1 << i)) {
+					Q_strcat(buf, size, va(" %s", ProperObjectiveName(mapname, i)));
+					break;
+				}
+			}
+		}
+	}
+	else if (flags & CAPTURERECORDFLAG_ANYPERCENT || flags & CAPTURERECORDFLAG_LIVEPUG || flags & CAPTURERECORDFLAG_DEFENSE) {
 		Q_strncpyz(buf, flags & CAPTURERECORDFLAG_LIVEPUG ? "LivePug" : "Any'/.", size);
 		if (flags & CAPTURERECORDFLAG_FULLMAP) {
 			Q_strcat(buf, size, " FullMap");
@@ -6033,7 +6053,17 @@ CaptureCategoryFlags GetRecordFlagsForString(const char *mapname, char *s, qbool
 
 	qboolean manuallySpecifiedMainCategory;
 	CaptureCategoryFlags flags = 0;
-	if (stristr(s, "speed") || stristr(s, "run")) {
+	if (stristr(s, "def")) {
+		flags |= CAPTURERECORDFLAG_DEFENSE;
+		manuallySpecifiedMainCategory = qtrue;
+		if (stristr(s, "2v") || stristr(s, "2s"))
+			flags |= CAPTURERECORDFLAG_2V2;
+		else if (stristr(s, "3v") || stristr(s, "3s"))
+			flags |= CAPTURERECORDFLAG_3V3;
+		else if (stristr(s, "4v") || stristr(s, "4s"))
+			flags |= CAPTURERECORDFLAG_4V4;
+	}
+	else if (stristr(s, "speed") || stristr(s, "run")) {
 		flags |= CAPTURERECORDFLAG_SPEEDRUN;
 		manuallySpecifiedMainCategory = qtrue;
 	}
@@ -6130,11 +6160,11 @@ CaptureCategoryFlags GetRecordFlagsForString(const char *mapname, char *s, qbool
 			flags |= CAPTURERECORDFLAG_FULLMAP;
 		else if (strchr(s, '1') && !(level.numSiegeObjectivesOnMapCombined && 1 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ1;
-		else if (strchr(s, '2') && !(level.numSiegeObjectivesOnMapCombined && 2 > level.numSiegeObjectivesOnMapCombined))
+		else if (strchr(s, '2') && !(flags & CAPTURERECORDFLAG_DEFENSE && (stristr(s, "2v") || stristr(s, "2s"))) && !(level.numSiegeObjectivesOnMapCombined && 2 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ2;
-		else if (strchr(s, '3') && !(level.numSiegeObjectivesOnMapCombined && 3 > level.numSiegeObjectivesOnMapCombined))
+		else if (strchr(s, '3') && !(flags & CAPTURERECORDFLAG_DEFENSE && (stristr(s, "3v") || stristr(s, "3s"))) && !(level.numSiegeObjectivesOnMapCombined && 3 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ3;
-		else if (strchr(s, '4') && !(level.numSiegeObjectivesOnMapCombined && 4 > level.numSiegeObjectivesOnMapCombined))
+		else if (strchr(s, '4') && !(flags & CAPTURERECORDFLAG_DEFENSE && (stristr(s, "4v") || stristr(s, "4s"))) && !(level.numSiegeObjectivesOnMapCombined && 4 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ4;
 		else if (strchr(s, '5') && !(level.numSiegeObjectivesOnMapCombined && 5 > level.numSiegeObjectivesOnMapCombined))
 			flags |= CAPTURERECORDFLAG_OBJ5;
@@ -6320,9 +6350,13 @@ static char *CombineNames(const char *inName1, const char *inName2, const char *
 	}
 	else {
 		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[1], allocated[1])));
-		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[2], allocated[2])));
-		if (players >= 4)
-			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[3], allocated[3])));
+		if (players >= 4) {
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s", ChopString(name[2], allocated[2])));
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, & ^7%s", ChopString(name[3], allocated[3])));
+		}
+		else {
+			Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, & ^7%s", ChopString(name[2], allocated[2])));
+		}
 	}
 	Q_strcat(combinedNameString, sizeof(combinedNameString), "^7");
 
@@ -6520,7 +6554,7 @@ static void printLatestTimesCallback(void *context, const char *mapname, const C
 #define MAPLIST_MAPS_PER_PAGE		(15)
 #define MAX_CATEGORIES_TO_PRINT		(4)
 #define DEMOARCHIVE_BASE_MATCH_URL	"https://demos.jactf.com/match.html#rpc=lookup&id=%s"
-#define TOPTIMES_HELPMSG			"For [category], enter any combination of terms (such as obj1, obj2, map, jedi, tech, solo, coop, speedrun, anypercent, oneshot) without spaces.\nExamples:    map     solo     obj5pug     obj2anypercent    codesjedi    coopscoutoneshot"
+#define TOPTIMES_HELPMSG			"For [category], enter any combination of terms (such as obj1, obj2, map, pug, defense, jedi, tech, solo, coop, speedrun, anypercent, oneshot) without spaces.\nExamples:    map     solo     obj5pug     defenseobj3     obj2anypercent    codesjedi    coopscoutoneshot"
 
 static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 	if (!flags)
@@ -6533,10 +6567,16 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 	const char* categoryName = GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, flags, qfalse);
 
 	// prepend a newline and print the header
-	trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-45s  %-9s  %-6s  %-6s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "TopSpd", "AvgSpd", "Date", "Category"));
+	if (flags & CAPTURERECORDFLAG_DEFENSE && flags & CAPTURERECORDFLAG_FULLMAP)
+		trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-45s  %-9s  %-4s  %-5s  %-14s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "Frags", "Kpm", "Objs completed", "Date", "Category"));
+	else if (flags & CAPTURERECORDFLAG_DEFENSE)
+		trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-45s  %-9s  %-4s  %-5s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "Frags", "Kpm", "Date", "Category"));
+	else
+		trap_SendServerCommand(ent - g_entities, va("print \"\n"S_COLOR_WHITE"Records for the "S_COLOR_YELLOW"%s "S_COLOR_WHITE"category on "S_COLOR_YELLOW"%s"S_COLOR_WHITE":\n"S_COLOR_CYAN"%s: %-45s  %-9s  %-4s  %-3s  %-18s  %-38s\n\"", categoryName, level.mapCaptureRecords.mapname, "#", "Name", "Time", "TopSpd", "AvgSpd", "Date", "Category"));
 
 	// print each record for this category as a row
 	int goldTime = -1, silverTime = -1, bronzeTime = -1, fourthTime = -1;
+	int goldObjs = -1, silverObjs = -1, bronzeObjs = -1, fourthObjs = -1;
 	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
 		CaptureRecord *record = &localRecords.records[i];
 
@@ -6549,54 +6589,58 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 		case 0:
 			goldTime = record->totalTime;
 			overrideRankColor = "^3";
+			goldObjs = record->objectivesCompleted;
 			break;
 		case 1:
-			if (record->totalTime == goldTime) {
+			if (record->totalTime == goldTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != goldObjs)) {
 				overrideRankColor = "^3";
 			}
 			else {
 				silverTime = record->totalTime;
 				overrideRankColor = "^9";
+				silverObjs = record->objectivesCompleted;
 			}
 			break;
 		case 2:
-			if (record->totalTime == goldTime) {
+			if (record->totalTime == goldTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != goldObjs)) {
 				overrideRankColor = "^3";
 			}
-			else if (record->totalTime == silverTime) {
+			else if (record->totalTime == silverTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != silverObjs)) {
 				overrideRankColor = "^9";
 			}
 			else {
 				bronzeTime = record->totalTime;
 				overrideRankColor = "^8";
+				bronzeObjs = record->objectivesCompleted;
 			}
 			break;
 		case 3:
-			if (record->totalTime == goldTime) {
+			if (record->totalTime == goldTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != goldObjs)) {
 				overrideRankColor = "^3";
 			}
-			else if (record->totalTime == silverTime) {
+			else if (record->totalTime == silverTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != silverObjs)) {
 				overrideRankColor = "^9";
 			}
-			else if (record->totalTime == bronzeTime) {
+			else if (record->totalTime == bronzeTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != bronzeObjs)) {
 				overrideRankColor = "^8";
 			}
 			else {
 				fourthTime = record->totalTime;
 				overrideRankColor = "^1";
+				fourthObjs = record->objectivesCompleted;
 			}
 			break;
 		case 4:
-			if (record->totalTime == goldTime) {
+			if (record->totalTime == goldTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != goldObjs)) {
 				overrideRankColor = "^3";
 			}
-			else if (record->totalTime == silverTime) {
+			else if (record->totalTime == silverTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != silverObjs)) {
 				overrideRankColor = "^9";
 			}
-			else if (record->totalTime == bronzeTime) {
+			else if (record->totalTime == bronzeTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != bronzeObjs)) {
 				overrideRankColor = "^8";
 			}
-			else if (record->totalTime == fourthTime) {
+			else if (record->totalTime == fourthTime && !(flags & CAPTURERECORDFLAG_FULLMAP && record->objectivesCompleted != fourthObjs)) {
 				overrideRankColor = "^1";
 			}
 			else {
@@ -6661,9 +6705,21 @@ static qboolean PrintCategory(CaptureCategoryFlags flags, gentity_t *ent) {
 			}
 		}
 
-		trap_SendServerCommand(ent - g_entities, va(
-			"print \"%s%d: ^7%s  ^7%-9s  ^7%-6d  ^7%-6d  %s%-18s  ^7%-38s\n\"",
-			rankColor, i + 1, combinedNameString, timeString, Com_Clampi(1, 99999999, record->maxSpeed1), Com_Clampi(1, 9999999, record->avgSpeed1), dateColor, date, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, record->flags, qtrue)));
+		if (flags & CAPTURERECORDFLAG_DEFENSE && flags & CAPTURERECORDFLAG_FULLMAP) {
+			trap_SendServerCommand(ent - g_entities, va(
+				"print \"%s%d: ^7%s  ^7%-9s  ^7%-5d  ^7%-5.1f  %-14d  %s%-18s  ^7%-38s\n\"",
+				rankColor, i + 1, combinedNameString, timeString, Com_Clampi(0, 99999999, record->frags), Com_Clamp(0.0f, 999.9f, record->kpm), Com_Clampi(0, 999, record->objectivesCompleted), dateColor, date, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, record->flags, qtrue)));
+		}
+		else if (flags & CAPTURERECORDFLAG_DEFENSE) {
+			trap_SendServerCommand(ent - g_entities, va(
+				"print \"%s%d: ^7%s  ^7%-9s  ^7%-5d  ^7%-5.1f  %s%-18s  ^7%-38s\n\"",
+				rankColor, i + 1, combinedNameString, timeString, Com_Clampi(0, 99999999, record->frags), Com_Clamp(0.0f, 999.9f, record->kpm), dateColor, date, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, record->flags, qtrue)));
+		}
+		else {
+			trap_SendServerCommand(ent - g_entities, va(
+				"print \"%s%d: ^7%s  ^7%-9s  ^7%-6d  ^7%-6d  %s%-18s  ^7%-38s\n\"",
+				rankColor, i + 1, combinedNameString, timeString, Com_Clampi(1, 99999999, record->maxSpeed1), Com_Clampi(1, 9999999, record->avgSpeed1), dateColor, date, GetLongNameForRecordFlags(level.mapCaptureRecords.mapname, record->flags, qtrue)));
+		}
 	}
 	return qtrue;
 }
@@ -6826,7 +6882,8 @@ void Cmd_TopTimes_f( gentity_t *ent ) {
 		}
 		else if (!Q_stricmp(buf, "rules") || !Q_stricmp(buf, "help") || !Q_stricmp(buf, "info")) {
 			char *text =
-				"^2Live pug^7 runs are for live pugs (even teams, etc.)\n\n"
+				"^2Live pug^7 runs are for live pugs (even teams, etc.)\n"
+				"^4Defensive^7 records are only recorded during live pugs.\n\n"
 				"^3Speedrun^7 runs require there to be nobody on blue team, nobody extra on red, and no changing teams after the start of the round.\n"
 				"While these conditions are intact, for consistent timings, you will spawn only at predetermined spawn points.\n"
 				"This category contains several sub-categories:\n"

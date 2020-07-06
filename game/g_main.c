@@ -5896,15 +5896,15 @@ void SendSiegeHelpForClient(int client, team_t teamOverride) {
 				continue;
 			if (level.clients[i].sess.siegeDesiredTeam == TEAM_RED) {
 				trap_SendServerCommand(i, red);
-				Com_DebugPrintf("Sent red help to client %d: %s^7\n", i, red);
+				//Com_DebugPrintf("Sent red help to client %d: %s^7\n", i, red);
 			}
 			else if (level.clients[i].sess.siegeDesiredTeam == TEAM_BLUE) {
 				trap_SendServerCommand(i, blue);
-				Com_DebugPrintf("Sent blue help to client %d: %s^7\n", i, blue);
+				//Com_DebugPrintf("Sent blue help to client %d: %s^7\n", i, blue);
 			}
 			else {
 				trap_SendServerCommand(i, both);
-				Com_DebugPrintf("Sent both help to client %d: %s^7\n", i, both);
+				//Com_DebugPrintf("Sent both help to client %d: %s^7\n", i, both);
 			}
 		}
 	}
@@ -5912,15 +5912,15 @@ void SendSiegeHelpForClient(int client, team_t teamOverride) {
 		team_t team = teamOverride ? teamOverride : level.clients[client].sess.siegeDesiredTeam;
 		if (team == TEAM_RED) {
 			trap_SendServerCommand(client, red);
-			Com_DebugPrintf("Sent red help to client %d: %s^7\n", client, red);
+			//Com_DebugPrintf("Sent red help to client %d: %s^7\n", client, red);
 		}
 		else if (team == TEAM_BLUE) {
 			trap_SendServerCommand(client, blue);
-			Com_DebugPrintf("Sent blue help to client %d: %s^7\n", client, blue);
+			//Com_DebugPrintf("Sent blue help to client %d: %s^7\n", client, blue);
 		}
 		else {
 			trap_SendServerCommand(client, both);
-			Com_DebugPrintf("Sent both help to client %d: %s^7\n", client, both);
+			//Com_DebugPrintf("Sent both help to client %d: %s^7\n", client, both);
 		}
 	}
 }

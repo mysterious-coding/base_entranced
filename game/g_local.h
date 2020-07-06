@@ -861,6 +861,8 @@ typedef struct {
 	float		fastcapDisplacement;
 	int			fastcapDisplacementSamples;
 
+	int			fragsSinceObjStart;
+
 	int			lastInputTime;
 } clientPersistant_t;
 
@@ -1301,8 +1303,14 @@ typedef struct {
 
 	int totalTime; // total time in ms
 	int objTimes[MAX_SAVED_OBJECTIVES]; // time for each obj in ms
-	int maxSpeed1; // max speed in ups
-	int avgSpeed1; // average speed in ups
+	int maxSpeed1; // max speed in ups (unused for defense)
+	int avgSpeed1; // average speed in ups (unused for defense)
+
+	int frags; // defense only (gets saved in same slot in table as max speed)
+	float kpm; // defense only (doesn't actually get saved)
+
+	int objectivesCompleted; // defense fullmap only (gets saved in same slot in table as average speed)
+
 	time_t date; // epoch time of the record (seconds)
 
 	char matchId[SV_MATCHID_LEN]; // used to link to the game on demoarchive, but requires special OpenJK (may be empty)
@@ -1325,7 +1333,8 @@ typedef struct {
 #define CAPTURERECORDFLAG_LIVEPUG		(1 << 10)
 #define CAPTURERECORDFLAG_SPEEDRUN		(1 << 11)
 #define CAPTURERECORDFLAG_ANYPERCENT	(1 << 12)
-// all flags below here are only subsets of the speedrun category (can't be combined with livepug or any%)
+
+// the flags below here are only subsets of the speedrun category (can't be combined with livepug or any%)
 #define CAPTURERECORDFLAG_SOLO			(1 << 13)
 #define CAPTURERECORDFLAG_COOP			(1 << 14)
 #define CAPTURERECORDFLAG_ONESHOT		(1 << 15)
@@ -1335,6 +1344,14 @@ typedef struct {
 #define CAPTURERECORDFLAG_TECH			(1 << 19)
 #define CAPTURERECORDFLAG_SCOUT			(1 << 20)
 #define CAPTURERECORDFLAG_JEDI			(1 << 21)
+// end subsets of the speedrun category only
+
+// the flags below here are only subsets of the defense category
+#define CAPTURERECORDFLAG_DEFENSE		(1 << 22)
+#define CAPTURERECORDFLAG_2V2			(1 << 23)
+#define CAPTURERECORDFLAG_3V3			(1 << 24)
+#define CAPTURERECORDFLAG_4V4			(1 << 25)
+// end subsets of the defense category only
 
 typedef struct {
 	node_t node;

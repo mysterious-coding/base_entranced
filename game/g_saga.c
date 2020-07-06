@@ -895,6 +895,40 @@ static int NumPlayersOnTeam(team_t team) {
 	return num;
 }
 
+static CaptureCategoryFlags CaptureFlagsForDefenseHold(gclient_t *client1, gclient_t *client2, CombinedObjNumber objNum) {
+	if (!g_saveCaptureRecords.integer || g_gametype.integer != GT_SIEGE ||
+		client1->sess.sessionTeam != TEAM_BLUE || (client2 && client2->sess.sessionTeam != TEAM_BLUE) ||
+#ifndef _DEBUG
+		level.mapCaptureRecords.readonly || !level.isLivePug || g_siegeRespawn.integer != level.worldspawnSiegeRespawnTime)
+#else
+		0)
+#endif
+		return 0;
+
+	CaptureCategoryFlags flags = CAPTURERECORDFLAG_DEFENSE;
+	
+	if (objNum == -1)
+		flags |= CAPTURERECORDFLAG_FULLMAP;
+	else if (objNum >= 1 && objNum <= MAX_SAVED_OBJECTIVES)
+		flags |= (1 << objNum);
+	else {
+		assert(qfalse);
+		return 0;
+	}
+
+	int numOnBlue = NumPlayersOnTeam(TEAM_BLUE);
+	if (numOnBlue == 2)
+		flags |= CAPTURERECORDFLAG_2V2;
+	else if (numOnBlue == 3)
+		flags |= CAPTURERECORDFLAG_3V3;
+	else if (numOnBlue == 4)
+		flags |= CAPTURERECORDFLAG_4V4;
+	else
+		return 0;
+
+	return flags;
+}
+
 static CaptureCategoryFlags CaptureFlagsForRun(gclient_t *client1, gclient_t *client2, CombinedObjNumber objNum) {
 	if (!g_saveCaptureRecords.integer || level.mapCaptureRecords.readonly || g_gametype.integer != GT_SIEGE ||
 		client1->sess.sessionTeam != TEAM_RED || (client2 && client2->sess.sessionTeam != TEAM_RED))
@@ -1322,6 +1356,275 @@ static int LogCaptureTime(
 	return newIndex + 1;
 }
 
+// like LogCaptureTime, but for defense
+static int LogDefenseCaptureTime(
+	unsigned int ipInt1,
+	unsigned int ipInt2,
+	const char *netname1,
+	const char *netname2,
+	const char *cuid1,
+	const char *cuid2,
+	const int client1Id,
+	const int client2Id,
+	const char *matchId,
+	const int totalTime,
+	const int frags,
+	const float kpm,
+	const time_t date,
+	const CaptureCategoryFlags flags,
+	CaptureRecordsForCategory *recordsPtr,
+	CombinedObjNumber objNum,
+	unsigned int ipInt3,
+	unsigned int ipInt4,
+	const char *netname3,
+	const char *netname4,
+	const char *cuid3,
+	const char *cuid4,
+	int *tiedOut
+)
+{
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags) {
+		return 0;
+	}
+
+	CaptureRecord *recordArray = &recordsPtr->records[0];
+	int newIndex;
+
+	int numPlayers = 0;
+	if (VALIDSTRING(netname1))
+		numPlayers++;
+	if (VALIDSTRING(netname2))
+		numPlayers++;
+	if (VALIDSTRING(netname3))
+		numPlayers++;
+	if (VALIDSTRING(netname4))
+		numPlayers++;
+
+	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
+	for (newIndex = 0; newIndex < MAX_SAVED_RECORDS; ++newIndex) {
+		if (!recordArray[newIndex].totalTime) {
+			continue; // not a valid record
+		}
+
+		qboolean match = RecordMatchesPlayers(
+			numPlayers,
+			&recordArray[newIndex],
+			cuid1,
+			cuid2,
+			cuid3,
+			cuid4,
+			ipInt1,
+			ipInt2,
+			ipInt3,
+			ipInt4);
+
+		if (match)
+			break;
+	}
+
+	int goldTime = -1, silverTime = -1, bronzeTime = -1, fourthTime = -1;
+	int goldObjs = -1, silverObjs = -1, bronzeObjs = -1, fourthObjs = -1;
+	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
+		if (!recordArray[i].totalTime) {
+			continue; // not a valid record
+		}
+		switch (i) {
+		case 0:
+			goldTime = recordArray[i].totalTime;
+			goldObjs = recordArray[i].objectivesCompleted;
+			break;
+		case 1:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else {
+				silverTime = recordArray[i].totalTime;
+				silverObjs = recordArray[i].objectivesCompleted;
+			}
+			break;
+		case 2:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else {
+				bronzeTime = recordArray[i].totalTime;
+				bronzeObjs = recordArray[i].objectivesCompleted;
+			}
+			break;
+		case 3:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else if (recordArray[i].totalTime == bronzeTime) {
+			}
+			else {
+				fourthTime = recordArray[i].totalTime;
+				fourthObjs = recordArray[i].objectivesCompleted;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (newIndex < MAX_SAVED_RECORDS) {
+		// we found an existing record for this player, so just use its index to overwrite it if it's better
+		if (totalTime < recordArray[newIndex].totalTime || (!(flags & CAPTURERECORDFLAG_FULLMAP) && totalTime == recordArray[newIndex].totalTime)) {
+			return 0; // our existing record is better (fullmap or individual obj), or it is the same (individual obj only), so don't save anything to avoid record spam
+		}
+
+		if (flags & CAPTURERECORDFLAG_FULLMAP && totalTime == recordArray[newIndex].totalTime) {
+			if (level.totalObjectivesCompleted >= recordArray[newIndex].objectivesCompleted)
+				return 0; // fullmap record with the same time AND same or more number of of objectives completed
+		}
+
+		// we know we have AT LEAST done better than our current record, so we will save something in any case
+		// now, if we didn't already have the top record, check if we did better than the better records
+		if (newIndex > 0) {
+			const int currentRecordIndex = newIndex;
+
+			if (flags & CAPTURERECORDFLAG_FULLMAP) {
+				for (; newIndex > 0; --newIndex) {
+					if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime > totalTime) {
+						break; // this one is better or equal, so use the index after it
+					}
+					else if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime == totalTime &&
+						recordArray[newIndex - 1].objectivesCompleted <= level.totalObjectivesCompleted) {
+						break; // this one is the same time but fewer or equal objectives completed, so use the index after it
+					}
+				}
+			}
+			else {
+				for (; newIndex > 0; --newIndex) {
+					if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime >= totalTime) {
+						break; // this one is better or equal, so use the index after it
+					}
+				}
+			}
+
+			if (newIndex != currentRecordIndex) {
+				// we indeed did better than a record which was better than our former record. use its index and shift the array
+				memmove(recordArray + newIndex + 1, recordArray + newIndex, (currentRecordIndex - newIndex) * sizeof(*recordArray));
+			}
+		}
+	}
+	else {
+		// this player doesn't have a record in this category yet, so find an index by comparing times from the worst to the best
+		if (flags & CAPTURERECORDFLAG_FULLMAP) {
+			for (newIndex = MAX_SAVED_RECORDS; newIndex > 0; --newIndex) {
+				if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime > totalTime) {
+					break; // this one is better, so use the index after it
+				}
+				else if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime == totalTime &&
+					recordArray[newIndex - 1].objectivesCompleted <= level.totalObjectivesCompleted) {
+					break; // this one is the same time but fewer or equal objectives completed, so use the index after it
+				}
+			}
+		}
+		else {
+			for (newIndex = MAX_SAVED_RECORDS; newIndex > 0; --newIndex) {
+				if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime >= totalTime) {
+					break; // this one is better or equal, so use the index after it
+				}
+			}
+		}
+
+		// if the worst time is better, the index will point past the array, so don't bother
+		if (newIndex >= MAX_SAVED_RECORDS) {
+			return 0;
+		}
+
+		// shift the array to the right unless this is already the last element
+		if (newIndex < MAX_SAVED_RECORDS - 1) {
+			memmove(recordArray + newIndex + 1, recordArray + newIndex, (MAX_SAVED_RECORDS - newIndex - 1) * sizeof(*recordArray));
+		}
+	}
+
+	// overwrite the selected element with the new record
+	CaptureRecord *newElement = &recordArray[newIndex];
+	if (VALIDSTRING(netname1))
+		Q_strncpyz(newElement->recordHolderNames[0], netname1, sizeof(newElement->recordHolderNames[0]));
+	else
+		newElement->recordHolderNames[0][0] = '\0';
+	if (VALIDSTRING(netname2))
+		Q_strncpyz(newElement->recordHolderNames[1], netname2, sizeof(newElement->recordHolderNames[1]));
+	else
+		newElement->recordHolderNames[1][0] = '\0';
+	if (VALIDSTRING(netname3))
+		Q_strncpyz(newElement->recordHolderNames[2], netname3, sizeof(newElement->recordHolderNames[2]));
+	else
+		newElement->recordHolderNames[2][0] = '\0';
+	if (VALIDSTRING(netname4))
+		Q_strncpyz(newElement->recordHolderNames[3], netname4, sizeof(newElement->recordHolderNames[3]));
+	else
+		newElement->recordHolderNames[3][0] = '\0';
+
+	newElement->recordHolderIpInts[0] = ipInt1;
+	newElement->recordHolderIpInts[1] = ipInt2;
+	newElement->recordHolderIpInts[2] = ipInt3;
+	newElement->recordHolderIpInts[3] = ipInt4;
+	newElement->totalTime = totalTime;
+	newElement->frags = frags;
+	if (flags & CAPTURERECORDFLAG_FULLMAP)
+		newElement->objectivesCompleted = level.totalObjectivesCompleted;
+	else
+		newElement->objectivesCompleted = 0;
+	newElement->avgSpeed1 = newElement->maxSpeed1 = 0;
+	newElement->kpm = kpm;
+	newElement->date = date;
+	newElement->recordHolder1ClientId = client1Id;
+	newElement->recordHolder2ClientId = client2Id;
+
+	if (flags & CAPTURERECORDFLAG_FULLMAP)
+		memcpy(&(newElement->objTimes), &objTimes[0], sizeof(newElement->objTimes));
+
+	// cuid is optional, empty for clients without one
+	if (VALIDSTRING(cuid1))
+		Q_strncpyz(newElement->recordHolderCuids[0], cuid1, sizeof(newElement->recordHolderCuids[0]));
+	else
+		newElement->recordHolderCuids[0][0] = '\0';
+	if (VALIDSTRING(cuid2))
+		Q_strncpyz(newElement->recordHolderCuids[1], cuid2, sizeof(newElement->recordHolderCuids[1]));
+	else
+		newElement->recordHolderCuids[1][0] = '\0';
+	if (VALIDSTRING(cuid3))
+		Q_strncpyz(newElement->recordHolderCuids[2], cuid3, sizeof(newElement->recordHolderCuids[2]));
+	else
+		newElement->recordHolderCuids[2][0] = '\0';
+	if (VALIDSTRING(cuid4))
+		Q_strncpyz(newElement->recordHolderCuids[3], cuid4, sizeof(newElement->recordHolderCuids[3]));
+	else
+		newElement->recordHolderCuids[3][0] = '\0';
+
+	// match id is optional, empty if sv_matchid is not implemented in this OpenJK version
+	if (VALIDSTRING(matchId) && strlen(matchId) == SV_MATCHID_LEN - 1) {
+		Q_strncpyz(newElement->matchId, matchId, sizeof(newElement->matchId));
+	}
+	else {
+		newElement->matchId[0] = '\0';
+	}
+
+	// save the changes later in db
+	level.mapCaptureRecords.changed = qtrue;
+
+	if (tiedOut) {
+		if (totalTime == goldTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != goldObjs))
+			*tiedOut = 1;
+		else if (totalTime == silverTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != silverObjs))
+			*tiedOut = 2;
+		else if (totalTime == bronzeTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != bronzeObjs))
+			*tiedOut = 3;
+		else if (totalTime == fourthTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != fourthObjs))
+			*tiedOut = 4;
+	}
+	else {
+		assert(qfalse);
+	}
+
+	return newIndex + 1;
+}
+
 // similar to LogCaptureTime, but used to check the ranking for a broader category without saving anything
 static int CheckRanking(
 	unsigned int ipInt1,
@@ -1454,6 +1757,177 @@ static int CheckRanking(
 		else if (totalTime == bronzeTime)
 			*tiedOut = 3;
 		else if (totalTime == fourthTime)
+			*tiedOut = 4;
+	}
+	else {
+		assert(qfalse);
+	}
+
+	return newIndex + 1;
+}
+
+// like CheckRanking, but for defense only
+static int CheckDefenseRanking(
+	unsigned int ipInt1,
+	unsigned int ipInt2,
+	unsigned int ipInt3,
+	unsigned int ipInt4,
+	const char *cuid1,
+	const char *cuid2,
+	const char *cuid3,
+	const char *cuid4,
+	const int numDefenders,
+	const int totalTime,
+	const CaptureCategoryFlags flags,
+	const CaptureCategoryFlags specificFlags,
+	CaptureRecordsForCategory *recordsPtr,
+	int *tiedOut) {
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || !flags || numDefenders < 2 || numDefenders > 4) {
+		return 0;
+	}
+
+	CaptureRecord *recordArray = &recordsPtr->records[0];
+
+	int goldTime = -1, silverTime = -1, bronzeTime = -1, fourthTime = -1;
+	int goldObjs = -1, silverObjs = -1, bronzeObjs = -1, fourthObjs = -1;
+	for (int i = 0; i < MAX_SAVED_RECORDS; ++i) {
+		if (!recordArray[i].totalTime) {
+			continue; // not a valid record
+		}
+		switch (i) {
+		case 0:
+			goldTime = recordArray[i].totalTime;
+			goldObjs = recordArray[i].objectivesCompleted;
+			break;
+		case 1:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else {
+				silverTime = recordArray[i].totalTime;
+				silverObjs = recordArray[i].objectivesCompleted;
+			}
+			break;
+		case 2:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else {
+				bronzeTime = recordArray[i].totalTime;
+				bronzeObjs = recordArray[i].objectivesCompleted;
+			}
+			break;
+		case 3:
+			if (recordArray[i].totalTime == goldTime) {
+			}
+			else if (recordArray[i].totalTime == silverTime) {
+			}
+			else if (recordArray[i].totalTime == bronzeTime) {
+			}
+			else {
+				fourthTime = recordArray[i].totalTime;
+				fourthObjs = recordArray[i].objectivesCompleted;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	int newIndex;
+
+	// we don't want more than one entry per category per player, so first, check if there is already one record for this player
+	for (newIndex = 0; newIndex < MAX_SAVED_RECORDS; ++newIndex) {
+		if (!recordArray[newIndex].totalTime) {
+			continue; // not a valid record
+		}
+
+		if (numDefenders == 4) {
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2) && VALIDSTRING(cuid3) && VALIDSTRING(cuid4)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[2]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[2]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[3]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[3]) &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
+					ipInt3 == recordArray[newIndex].recordHolderIpInts[2] && ipInt4 == recordArray[newIndex].recordHolderIpInts[3] &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+		}
+		else if (numDefenders == 3) {
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2) && VALIDSTRING(cuid3)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[2]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[2]) &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
+					ipInt3 == recordArray[newIndex].recordHolderIpInts[2] &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+		}
+		else { // 2
+			if (VALIDSTRING(cuid1) && VALIDSTRING(cuid2)) { // if we have a cuid, use that to find an existing record
+				if (VALIDSTRING(recordArray[newIndex].recordHolderCuids[0]) && !Q_stricmp(cuid1, recordArray[newIndex].recordHolderCuids[0]) &&
+					VALIDSTRING(recordArray[newIndex].recordHolderCuids[1]) && !Q_stricmp(cuid2, recordArray[newIndex].recordHolderCuids[1]) &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+			else { // fall back to the whois accuracy...
+				if (ipInt1 == recordArray[newIndex].recordHolderIpInts[0] && ipInt2 == recordArray[newIndex].recordHolderIpInts[1] &&
+					recordArray[newIndex].flags == specificFlags)
+					break;
+			}
+		}
+	}
+
+	if (newIndex < MAX_SAVED_RECORDS) {
+		// we found an existing record for this player, so just use its index to overwrite it if it's better
+		if (totalTime <= recordArray[newIndex].totalTime) {
+			return 0; // our existing record is better, so don't save anything to avoid record spam
+		}
+
+		// we know we have AT LEAST done better than our current record, so we will save something in any case
+		// now, if we didn't already have the top record, check if we did less than the better records
+		if (newIndex > 0) {
+			const int currentRecordIndex = newIndex;
+
+			for (; newIndex > 0; --newIndex) {
+				if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime >= totalTime) {
+					break; // this one is better or equal, so use the index after it
+				}
+			}
+		}
+	}
+	else {
+		// this player doesn't have a record in this category yet, so find an index by comparing times from the worst to the best
+		for (newIndex = MAX_SAVED_RECORDS; newIndex > 0; --newIndex) {
+			if (recordArray[newIndex - 1].totalTime && recordArray[newIndex - 1].totalTime >= totalTime) {
+				break; // this one is better or equal, so use the index after it
+			}
+		}
+
+		// if the worst time is better, the index will point past the array, so don't bother
+		if (newIndex >= MAX_SAVED_RECORDS) {
+			return 0;
+		}
+	}
+
+	if (tiedOut) {
+		if (totalTime == goldTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != goldObjs))
+			*tiedOut = 1;
+		else if (totalTime == silverTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != silverObjs))
+			*tiedOut = 2;
+		else if (totalTime == bronzeTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != bronzeObjs))
+			*tiedOut = 3;
+		else if (totalTime == fourthTime && !(flags & CAPTURERECORDFLAG_FULLMAP && level.totalObjectivesCompleted != fourthObjs))
 			*tiedOut = 4;
 	}
 	else {
@@ -1720,30 +2194,30 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 
 			// more swag colors if you got gold
 			if (broadRankTied == 1 || (!broadRankTied && broadRank == 1)) {
-				trap_SendServerCommand(-1, va("print \"^3New toptimes record by ^7%s^3!    %s    ^3Type: ^7%s    ^3%sop speed: ^7%d    ^3Avg: ^7%d    ^3Time: ^7%s\n\"",
+				trap_SendServerCommand(-1, va("print \"^3New offensive record by ^7%s^3!    %s    ^3Type: ^7%s    ^3%sop speed: ^7%d    ^3Avg: ^7%d    ^3Time: ^7%s\n\"",
 					combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 			}
 			else {
-				trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+				trap_SendServerCommand(-1, va("print \"^5New offensive record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
 					combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 			}
 
 			// more swag colors if you got gold
 			if (newRankTied == 1 || (!newRankTied && recordRank == 1))
-				trap_SendServerCommand(-1, va("print \"^3Also set record for ^7%s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+				trap_SendServerCommand(-1, va("print \"^3Also set offensive record for ^7%s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
 			else
-				trap_SendServerCommand(-1, va("print \"^7Also set record for %s ^7(%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+				trap_SendServerCommand(-1, va("print \"^7Also set offensive record for %s ^7(%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
 
 		}
 		else { // just print the exact category they ranked in
 
 			// more swag colors if you got gold
 			if (newRankTied == 1 || (!newRankTied && recordRank == 1)) {
-				trap_SendServerCommand(-1, va("print \"^3New toptimes record by ^7%s^3!    %s    ^3Type: ^7%s    ^3%sop speed: ^7%d    ^3Avg: ^7%d    ^3Time: ^7%s\n\"",
+				trap_SendServerCommand(-1, va("print \"^3New offensive record by ^7%s^3!    %s    ^3Type: ^7%s    ^3%sop speed: ^7%d    ^3Avg: ^7%d    ^3Time: ^7%s\n\"",
 					combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 			}
 			else {
-				trap_SendServerCommand(-1, va("print \"^5New toptimes record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+				trap_SendServerCommand(-1, va("print \"^5New offensive record by ^7%s^5!    %s    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
 					combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
 			}
 
@@ -1755,8 +2229,219 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 	else if (level.isLivePug == ISLIVEPUG_NO && !(flags & CAPTURERECORDFLAG_LIVEPUG)) {
 		// we didn't make a new record, but that was still a valid run. show everyone what time they did
 		// don't print this for pugs, though
-		trap_SendServerCommand(-1, va("print \"^7No toptimes record beaten.    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
+		trap_SendServerCommand(-1, va("print \"^7No offensive record beaten.    ^5Type: ^7%s    ^5%sop speed: ^7%d    ^5Avg: ^7%d    ^5Time: ^7%s\n\"",
 			GetLongNameForRecordFlags(level.mapname, flags, qtrue), topSpeedPhrase, maxSpeed, avgSpeed, timeString));
+	}
+}
+
+// if fullmap, objective == -1
+static void CheckDefenseRecords(int timeInMilliseconds, CombinedObjNumber objective) {
+	if (g_gametype.integer != GT_SIEGE || !g_saveCaptureRecords.integer || level.endedWithEndMatchCommand) {
+		// reset EVERYONE's frag since obj start stats
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			gclient_t *cl = &level.clients[i];
+			cl->pers.fragsSinceObjStart = 0;
+		}
+		return;
+	}
+
+	if (objective >= 1 && objective <= MAX_SAVED_OBJECTIVES)
+		objTimes[objective - 1] = timeInMilliseconds;
+
+	gclient_t *clients[4] = { NULL };
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED)
+			continue;
+		if (cl->sess.sessionTeam != TEAM_BLUE)
+			continue;
+		if (clients[0] == cl)
+			continue;
+		if (!clients[0]) {
+			clients[0] = cl;
+		}
+		else if (!clients[1]) {
+			clients[1] = cl;
+		}
+		else if (!clients[2]) {
+			clients[2] = cl;
+		}
+		else if (!clients[3]) {
+			clients[3] = cl;
+		}
+		else {
+			break;
+		}
+	}
+	if (!clients[0])
+		return; // nobody is on blue...?
+
+	const CaptureCategoryFlags flags = CaptureFlagsForDefenseHold(clients[0], clients[1], objective);
+	if (!flags)
+		return; // invalid
+	if (flags & CAPTURERECORDFLAG_2V2)
+		clients[2] = clients[3] = NULL; // sanity check; only 2 players in 2v2
+	else if (flags & CAPTURERECORDFLAG_3V3)
+		clients[3] = NULL; // sanity check; only 3 players in 3v3
+
+	char matchId[SV_MATCHID_LEN];
+	trap_Cvar_VariableStringBuffer("sv_matchid", matchId, sizeof(matchId)); // this requires a custom OpenJK build
+
+	// store per-obj frags for calculating the entire-map speeds later
+	int *frags[4] = { NULL };
+	if (flags & CAPTURERECORDFLAG_FULLMAP) { // full map
+		for (int i = 0; i < 4; i++) {
+			gclient_t *cl = clients[i];
+			if (!cl)
+				break;
+			frags[i] = &cl->sess.siegeStats.dKills[GetSiegeStatRound()];
+		}
+	}
+	else { // an individual obj
+		for (int i = 0; i < 4; i++) {
+			gclient_t *cl = clients[i];
+			if (!cl)
+				break;
+			frags[i] = &cl->pers.fragsSinceObjStart;
+		}
+	}
+
+	int teamFrags = 0;
+	float teamKpm = 0.0f;
+	for (int i = 0; i < 4; i++) {
+		if (!clients[i])
+			break;
+		int thisGuyFrags = *frags[i];
+		teamFrags += thisGuyFrags;
+	}
+	if (teamFrags)
+		teamKpm = ((float)teamFrags / (timeInMilliseconds ? (float)timeInMilliseconds : 1.0f)) * 60000.0f; // avoid division by zero
+	else
+		teamKpm = 0.0f;
+
+	// reset EVERYONE's per-obj frag stats
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gclient_t *cl = &level.clients[i];
+		cl->pers.fragsSinceObjStart = 0;
+	}
+
+	CaptureRecordsForCategory *recordsPtr = CaptureRecordsForCategoryFromFlags(flags);
+	if (!recordsPtr) {
+		assert(qfalse);
+		return; // ???
+	}
+
+#ifdef _DEBUG
+	if (z_debugSiegeTime.string[0])
+		timeInMilliseconds = z_debugSiegeTime.integer;
+#endif
+
+	// check whether we registered a rank for a broader (more prestigious) category
+	// e.g. if we performed a 2v2 hold, check if we also ranked for simply a defense hold (with an indeterminate number of defenders)
+	int broadRank = 0;
+	CaptureCategoryFlags broadFlags = flags;
+	int broadRankTied = 0;
+	broadFlags &= ~CAPTURERECORDFLAG_2V2;
+	broadFlags &= ~CAPTURERECORDFLAG_3V3;
+	broadFlags &= ~CAPTURERECORDFLAG_4V4;
+	int numDefenders = 0;
+	for (int i = 0; i < 4; i++) {
+		if (clients[i])
+			numDefenders++;
+	}
+	if (broadFlags != flags) { // sanity check; make sure we are actually checking something different
+		CaptureRecordsForCategory broadRecords = { 0 };
+		G_DBLoadCaptureRecords(level.mapCaptureRecords.mapname, broadFlags, qfalse, &broadRecords);
+		broadRank = CheckDefenseRanking(clients[0]->sess.ip,
+			clients[1] ? clients[1]->sess.ip : 0,
+			clients[2] ? clients[2]->sess.ip : 0,
+			clients[3] ? clients[3]->sess.ip : 0,
+			clients[0]->sess.auth == AUTHENTICATED ? clients[0]->sess.cuidHash : "",
+			clients[1] && clients[1]->sess.auth == AUTHENTICATED ? clients[1]->sess.cuidHash : "",
+			clients[2] && clients[2]->sess.auth == AUTHENTICATED ? clients[2]->sess.cuidHash : "",
+			clients[3] && clients[3]->sess.auth == AUTHENTICATED ? clients[3]->sess.cuidHash : "",
+			numDefenders, timeInMilliseconds, broadFlags, flags, &broadRecords, &broadRankTied);
+	}
+
+	int newRankTied = 0;
+	const int recordRank = LogDefenseCaptureTime(clients[0]->sess.ip,
+		clients[1] ? clients[1]->sess.ip : 0,
+		clients[0]->pers.netname,
+		clients[1] ? clients[1]->pers.netname : "",
+		clients[0]->sess.auth == AUTHENTICATED ? clients[0]->sess.cuidHash : "",
+		clients[1] && clients[1]->sess.auth == AUTHENTICATED ? clients[1]->sess.cuidHash : "",
+		clients[0] - level.clients,
+		clients[1] ? clients[1] - level.clients : -1,
+		matchId, timeInMilliseconds, teamFrags, teamKpm,
+		time(NULL), flags, recordsPtr, objective,
+		clients[2] ? clients[2]->sess.ip : 0,
+		clients[3] ? clients[3]->sess.ip : 0,
+		clients[2] ? clients[2]->pers.netname : "",
+		clients[3] ? clients[3]->pers.netname : "",
+		clients[2] && clients[2]->sess.auth == AUTHENTICATED ? clients[2]->sess.cuidHash : "",
+		clients[3] && clients[3]->sess.auth == AUTHENTICATED ? clients[3]->sess.cuidHash : "",
+		&newRankTied);
+
+	// print the name of everyone on defense
+	char combinedNameString[256] = { 0 };
+	Q_strncpyz(combinedNameString, clients[0]->pers.netname, sizeof(combinedNameString));
+	if (clients[1] && clients[2] && clients[3])
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s^9, ^7%s,^9 & ^7%s", clients[1]->pers.netname, clients[2]->pers.netname, clients[3]->pers.netname));
+	else if (clients[1] && clients[2])
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9, ^7%s^9, & ^7%s", clients[1]->pers.netname, clients[2]->pers.netname));
+	else if (clients[1])
+		Q_strcat(combinedNameString, sizeof(combinedNameString), va("^9 & ^7%s", clients[1]->pers.netname));
+
+	int mins, secs, millis;
+	PartitionedTimer(timeInMilliseconds, &mins, &secs, &millis);
+	char timeString[10] = { 0 };
+	if (mins > 9) // 12:59.123
+		Com_sprintf(timeString, sizeof(timeString), "%d:%02d.%03d", mins, secs, millis);
+	else if (mins > 0) // 2:59.123
+		Com_sprintf(timeString, sizeof(timeString), " %d:%02d.%03d", mins, secs, millis);
+	else if (secs > 9) // 59.123
+		Com_sprintf(timeString, sizeof(timeString), "   %d.%03d", secs, millis);
+	else // 9.123
+		Com_sprintf(timeString, sizeof(timeString), "    %d.%03d", secs, millis);
+
+	if (recordRank) {
+		// we just did a new capture record, broadcast it
+
+		if (broadRank) { // if they ranked in a broader category, print that, with the exact category as an afterthought
+
+			// more swag colors if you got gold
+			if (broadRankTied == 1 || (!broadRankTied && broadRank == 1)) {
+				trap_SendServerCommand(-1, va("print \"^3New defensive record by ^7%s^3!    %s    ^3Type: ^7%s    ^3Frags: ^7%d    ^3Kpm: ^7%0.1f    %s^3Time: ^7%s\n\"",
+					combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), teamFrags, teamKpm, broadFlags & CAPTURERECORDFLAG_FULLMAP ? va("^3Objs completed: ^7%d   ", level.totalObjectivesCompleted) : "", timeString));
+			}
+			else {
+				trap_SendServerCommand(-1, va("print \"^5New defensive record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Frags: ^7%d    ^5Kpm: ^7%0.1f    %s^5Time: ^7%s\n\"",
+					combinedNameString, RankString(broadRank, broadRankTied), GetLongNameForRecordFlags(level.mapname, broadFlags, qfalse), teamFrags, teamKpm, broadFlags & CAPTURERECORDFLAG_FULLMAP ? va("^5Objs completed: ^7%d   ", level.totalObjectivesCompleted) : "", timeString));
+			}
+
+			// more swag colors if you got gold
+			if (newRankTied == 1 || (!newRankTied && recordRank == 1))
+				trap_SendServerCommand(-1, va("print \"^3Also set defensive record for ^7%s (%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+			else
+				trap_SendServerCommand(-1, va("print \"^7Also set defensive record for %s ^7(%s)\n\"", GetLongNameForRecordFlags(level.mapname, flags, qtrue), RankString(recordRank, newRankTied)));
+
+		}
+		else { // just print the exact category they ranked in
+
+			// more swag colors if you got gold
+			if (newRankTied == 1 || (!newRankTied && recordRank == 1)) {
+				trap_SendServerCommand(-1, va("print \"^3New defensive record by ^7%s^3!    %s    ^3Type: ^7%s    ^3Frags: ^7%d    ^3Kpm: ^7%0.1f    %s^3Time: ^7%s\n\"",
+					combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), teamFrags, teamKpm, flags & CAPTURERECORDFLAG_FULLMAP ? va("^3Objs completed: ^7%d   ", level.totalObjectivesCompleted) : "", timeString));
+			}
+			else {
+				trap_SendServerCommand(-1, va("print \"^5New defensive record by ^7%s^5!    %s    ^5Type: ^7%s    ^5Frags: ^7%d    ^5Kpm: ^7%0.1f    %s^5Time: ^7%s\n\"",
+					combinedNameString, RankString(recordRank, newRankTied), GetLongNameForRecordFlags(level.mapname, flags, qtrue), teamFrags, teamKpm, flags & CAPTURERECORDFLAG_FULLMAP ? va("^5Objs completed: ^7%d   ", level.totalObjectivesCompleted) : "", timeString));
+			}
+
+		}
+
+		// update the in-memory db so that toptimes can reflect this change
+		G_DBSaveCaptureRecords(&level.mapCaptureRecords);
 	}
 }
 
@@ -1805,6 +2490,7 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 
 	if (winningteam == TEAM_RED && completedEntireMap)
 		CheckTopTimes(totalRoundTime, -1, winningclient >= 0 && winningclient < MAX_CLIENTS ? winningclient : -1);
+	CheckDefenseRecords(totalRoundTime, -1);
 
 	VectorClear(nomatter);
 
@@ -2298,6 +2984,7 @@ void SiegeBeginRound(int entNum)
 			level.clients[j].sess.siegeStats.oTime[i - 1] = 0;
 			level.clients[j].sess.siegeStats.dTime[i - 1] = 0;
 			memset(&level.clients[j].sess.siegeStats.mapSpecific[i - 1], 0, sizeof(level.clients[j].sess.siegeStats.mapSpecific[i - 1]));
+			level.clients[j].pers.fragsSinceObjStart = 0;
 		}
 	}
 
@@ -2815,6 +3502,7 @@ void SiegeObjectiveCompleted(int team, int objective, int final, int client) {
 
 	if (topTimesObjNum >= 1 && topTimesObjNum <= MAX_SAVED_OBJECTIVES) {
 		CheckTopTimes(ms, topTimesObjNum, client >= 0 && client < MAX_CLIENTS ? client : -1);
+		CheckDefenseRecords(ms, topTimesObjNum);
 		level.mapCaptureRecords.lastCombinedObjCompleted = topTimesObjNum;
 	}
 
