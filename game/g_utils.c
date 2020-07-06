@@ -2504,11 +2504,6 @@ tryJetPack:
 	if (ent->client->emoted)
 		return;
 
-	if (TryTossHealthPack(ent, qfalse))
-		return;
-	if (TryTossAmmoPack(ent, qfalse))
-		return;
-
 	// hoth 2nd obj retreat teleport
 	if (g_fixHoth2ndObj.integer && g_gametype.integer == GT_SIEGE && level.siegeMap == SIEGEMAP_HOTH && level.objectiveJustCompleted == 1 &&
 		ent->health > 0 && ent->client->sess.sessionTeam == TEAM_BLUE &&
@@ -2523,7 +2518,13 @@ tryJetPack:
 		} while (SpotWouldTelefrag(&temp));
 
 		TeleportPlayer(ent, teleportToOrigin, vec3_origin);
+		return;
 	}
+
+	if (TryTossHealthPack(ent, qfalse))
+		return;
+	if (TryTossAmmoPack(ent, qfalse))
+		return;
 }
 
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs )
