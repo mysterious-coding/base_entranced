@@ -8733,6 +8733,96 @@ static void PrintClientStats( const int id, const char *name, StatsDesc desc, St
 	if (outputBuffer) Q_strcat(outputBuffer, outSize, va("%s\n", s));
 }
 
+// prints colored lines as a visual indicator of what times you got each obj
+static void PrintSiegeObjGraphics(const int clientNum) {
+	if (g_gametype.integer != GT_SIEGE || level.siegeStage < SIEGESTAGE_ROUND1POSTGAME || !g_siegeTimeVisualAid.integer)
+		return;
+
+	// print a line for each round
+	int currentRound = level.siegeStage >= SIEGESTAGE_ROUND2POSTGAME ? 2 : 1;
+	int maximumTime = level.siegeMaximum;
+	int maximumTicks = (maximumTime / 10000) + 1;
+	int highestRoundTime = 1;
+	for (int round = 1; round <= currentRound; round++) {
+		char thisLine[8192] = { 0 };
+		int index = 0;
+		int thisRoundTime = 0;
+		Com_sprintf(thisLine, sizeof(thisLine), "Round %d  ", round);
+		index = strlen(thisLine);
+
+		int heldForMaxAt = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxat", round));
+		int heldForMaxTime = 0, incomplete = 0;
+		if (heldForMaxAt) {
+			incomplete = G_FirstIncompleteObjective(round);
+			heldForMaxTime = trap_Cvar_VariableIntegerValue(va("siege_r%i_heldformaxtime", round));
+		}
+		
+		int totalTicks = 0;
+		// print the lines for each obj adjacent to one another
+		for (int obj = 0; obj < MAX_STATS && obj < level.numSiegeObjectivesOnMap; ++obj) {
+			// determine how long of a line to draw
+			int objTime;
+			if (incomplete && obj + 1 == incomplete && heldForMaxTime) {
+				objTime = heldForMaxTime;
+			}
+			else {
+				objTime = G_ObjectiveTimeDifference(obj + 1, round);
+			}
+			thisRoundTime += objTime;
+			int ticks = (objTime + 5000) / 10000; // round to the nearest 10 second increment (each tick represents 10 seconds)
+
+			// make sure the total number of ticks doesn't go past the logical maximum
+			if (totalTicks + ticks > maximumTicks) {
+				ticks = maximumTicks - totalTicks;
+			}
+
+			if (ticks < 1) { // always guarantee a minimum of 1 tick
+				ticks = 1;
+			}
+
+			// draw the line
+			thisLine[index++] = '^';
+			thisLine[index++] = (unsigned char)('0' + ((obj + 1) % 10));
+			totalTicks += ticks;
+			while (ticks) {
+				if (incomplete && obj + 1 == incomplete && heldForMaxTime && ticks == 1)
+					thisLine[index++] = 'X'; // show 'X' as the last digit to show that they actually complete the obj
+				else
+					thisLine[index++] = '-';
+				ticks--;
+			}
+
+			if (incomplete && obj + 1 == incomplete && heldForMaxTime)
+				break; // no more objs because they didn't finish this one
+		}
+		Q_strcat(thisLine, sizeof(thisLine), "^7\n");
+		PrintIngame(clientNum, thisLine);
+
+		if (thisRoundTime > highestRoundTime)
+			highestRoundTime = thisRoundTime;
+	}
+
+	// print a line labeling the minutes
+	// we go 1 minute over what they did (e.g. for 13:37 we show up to minute 14),
+	// but we never go over the max (e.g. for 20:00 we just show up to minute 20)
+	char timeLine[2048] = { 0 };
+	int highestRoundMinutes = (highestRoundTime / (60 * 1000)) + 1;
+	int maximumMinutes = (maximumTime / 1000) / 60;
+	Com_sprintf(timeLine, sizeof(timeLine), "^9Time^7     ");
+	for (int minute = 0; minute <= highestRoundMinutes && minute <= maximumMinutes; minute++) {
+		// alternate between white and grey
+		char *minuteStr = va("%s%d", minute & 1 ? "^9" : "^7", minute);
+		int minuteStrLen = Q_PrintStrlen(minuteStr);
+		Q_strcat(timeLine, sizeof(timeLine), minuteStr);
+
+		// add spaces until the next minute
+		for (int numSpacesToPrint = 6 - minuteStrLen; numSpacesToPrint > 0; numSpacesToPrint--)
+			Q_strcat(timeLine, sizeof(timeLine), " ");
+	}
+	Q_strcat(timeLine, sizeof(timeLine), "^7\n\n");
+	PrintIngame(clientNum, timeLine);
+}
+
 static void PrintTeamStats(const int id, const team_t team, const char teamColor, StatsDesc desc, void(*fillCallback)(gclient_t *, Stat *), qboolean printHeader, char *outputBuffer, size_t outSize) {
 	int i, j, nameLen = 0, maxNameLen = 0;
 	Stat stats[MAX_CLIENTS][MAX_STATS], bestStats[MAX_STATS];
@@ -9292,6 +9382,9 @@ void PrintStatsTo( gentity_t *ent, const char *type, char* outputBuffer, size_t 
 	}
 	trap_SendServerCommand( id, "print \"\n\"" );
 	if (outputBuffer) Q_strcat(outputBuffer, outSize, "\n");
+
+	if (desc == &ObjStatsDesc)
+		PrintSiegeObjGraphics(id);
 }
 
 void Cmd_PrintStats_f( gentity_t *ent ) {

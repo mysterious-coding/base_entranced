@@ -1457,6 +1457,7 @@ typedef struct {
 
 	char			mapname[MAX_STRING_CHARS];
 	siegeMap_t		siegeMap;
+	int				siegeMaximum;
 
 	fileHandle_t	logFile;
 	fileHandle_t	hackLogFile;
@@ -2923,6 +2924,7 @@ extern vmCvar_t    g_intermissionKnockbackNPCs;
 extern vmCvar_t    g_emotes;
 extern vmCvar_t    g_siegeHelp;
 extern vmCvar_t		g_fixHoth2ndObj;
+extern vmCvar_t		g_siegeTimeVisualAid;
 
 extern vmCvar_t		g_saberThrowDefenseSmallAngle;
 extern vmCvar_t		g_saberThrowDefenseLargeAngle;

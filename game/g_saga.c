@@ -437,6 +437,7 @@ void InitSiegeMode(void)
 		if (BG_SiegeGetPairedValue(gParseObjectives, "Timed", goalreq))
 		{
 			rebel_time_limit = atoi(goalreq)*1000;
+			level.siegeMaximum = rebel_time_limit;
 			if (g_siegeTeamSwitch.integer &&
 				g_siegePersistant.beatingTime)
 			{
@@ -474,6 +475,7 @@ void InitSiegeMode(void)
 			else
 			{
 				imperial_time_limit = atoi(goalreq)*1000;
+				level.siegeMaximum = imperial_time_limit;
 				if (g_siegeTeamSwitch.integer &&
 					g_siegePersistant.beatingTime)
 				{

@@ -207,6 +207,7 @@ vmCvar_t	g_intermissionKnockbackNPCs;
 vmCvar_t	g_emotes;
 vmCvar_t	g_siegeHelp;
 vmCvar_t	g_fixHoth2ndObj;
+vmCvar_t	g_siegeTimeVisualAid;
 
 vmCvar_t	g_saberThrowDefenseSmallAngle;
 vmCvar_t	g_saberThrowDefenseLargeAngle;
@@ -1113,6 +1114,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_antiLaming, "g_antiLaming", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHoth2ndObj, "g_fixHoth2ndObj", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_siegeTimeVisualAid , "g_siegeTimeVisualAid", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saberThrowDefenseSmallAngle, "g_saberThrowDefenseSmallAngle", "30", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_saberThrowDefenseLargeAngle, "g_saberThrowDefenseLargeAngle", "80", CVAR_ARCHIVE, 0, qtrue },
