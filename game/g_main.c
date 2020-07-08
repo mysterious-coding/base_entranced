@@ -6925,6 +6925,7 @@ void G_RunFrame( int levelTime ) {
 
 		if (level.time > level.pause.time) {
 			level.pause.state = PAUSE_NONE;
+			level.pause.unpauseTime = level.time;
 			trap_SendServerCommand(-1, "cp \"^2Go!^7\n\"");
 		}
 	}
@@ -7117,7 +7118,7 @@ void G_RunFrame( int levelTime ) {
 				}
 				ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 
-				if (!(ent->client->pers.cmd.buttons & BUTTON_USE))
+				if (!(ent->client->pers.cmd.buttons & BUTTON_USE) && !(level.pause.unpauseTime && abs(level.time - level.pause.unpauseTime) < 100))
 				{ //have to keep holding use
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
@@ -7132,11 +7133,14 @@ void G_RunFrame( int levelTime ) {
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
 				}
-				else if (VectorLength(angDif) > 10.0f)
+				else if (VectorLength(angDif) > 10.0f && !(level.pause.unpauseTime && abs(level.time - level.pause.unpauseTime) < 100))
 				{ //must remain facing generally the same angle as when we start
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
 				}
+			}
+			else if (ent->client->isHacking) { // allow them to spin around without penalty if hacking during pause
+				VectorCopy(ent->client->ps.viewangles, ent->client->hackingAngles);
 			}
 
 #define JETPACK_DEFUEL_RATE		200 //approx. 20 seconds of idle use from a fully charged fuel amt

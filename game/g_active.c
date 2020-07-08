@@ -5104,6 +5104,8 @@ void ClientEndFrame( gentity_t *ent ) {
 		//      If we're paused, make sure other timers stay in sync
         int i;
 
+		if (ent->client->ps.hackingTime)
+			ent->client->ps.hackingTime += time_delta;
         ent->client->airOutTime += time_delta;
         ent->client->sess.inactivityTime += (time_delta / 1000);
 		if (!increasedEnterTime) // don't do it twice

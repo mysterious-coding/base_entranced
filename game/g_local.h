@@ -1674,6 +1674,7 @@ typedef struct {
             int state;              //OSP: paused state of the match
             int time;
 			char reason[128];
+			int unpauseTime;
     } pause;
 
     /*struct
