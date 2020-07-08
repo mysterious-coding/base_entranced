@@ -2840,6 +2840,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// allow typing "pause" in the chat to quickly call a pause vote
 	if (level.isLivePug != ISLIVEPUG_NO && ent->client->sess.sessionTeam != TEAM_SPECTATOR && mode != SAY_TELL && !Q_stricmpn(chatText, "pause", 5) && strlen(chatText) <= 6 && g_quickPauseChat.integer) // allow a small typo at the end
 		Cmd_CallVote_f(ent, PAUSE_PAUSED);
+	else if (level.isLivePug != ISLIVEPUG_NO && ent->client->sess.sessionTeam != TEAM_SPECTATOR && mode != SAY_TELL && !Q_stricmpn(chatText, "unpause", 7) && strlen(chatText) <= 8 && g_quickPauseChat.integer) // allow a small typo at the end
+		Cmd_CallVote_f(ent, PAUSE_UNPAUSING);
 
 	switch ( mode ) {
 	default:
