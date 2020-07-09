@@ -1754,7 +1754,7 @@ void CalculateSiegeGoals(void)
 			dif[1] = (tent->r.absmax[1]+tent->r.absmin[1])/2;
 			dif[2] = (tent->r.absmax[2]+tent->r.absmin[2])/2;
 
-			wpindex = GetNearestVisibleWP(dif, tent->s.number);
+			wpindex = GetNearestVisibleWP(dif, tent->s.number, -1);
 
 			if (wpindex != -1 && gWPArray[wpindex] && gWPArray[wpindex]->inuse)
 			{ //found the waypoint nearest the center of this objective-related object

@@ -353,7 +353,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime);
 void BotWaypointRender(void);
 int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore);
 int BotIsAChickenWuss(bot_state_t *bs);
-int GetNearestVisibleWP(vec3_t org, int ignore);
+int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum);
 int GetBestIdleGoal(bot_state_t *bs);
 
 char *ConcatArgs( int start );

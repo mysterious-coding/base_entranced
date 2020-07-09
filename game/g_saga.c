@@ -69,7 +69,7 @@ void UpdateNewmodSiegeTimers(void) {
 }
 #endif
 
-static int CurrentSiegeRound(void) {
+int CurrentSiegeRound(void) {
 	if (!g_siegeTeamSwitch.integer)
 		return 1;
 	if (g_siegePersistant.beatingTime)
@@ -3805,6 +3805,8 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		SetIconFromClassname("info_siege_objective", 2, qfalse);
 		level.wallCompleted = qtrue;
 	}
+
+	ent->genericValue17 = qtrue; // shitty hack to mark it as complete
 }
 
 /*QUAKED info_siege_objective (1 0 1) (-16 -16 -24) (16 16 32) ? x x STARTOFFRADAR

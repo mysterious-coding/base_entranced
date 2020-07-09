@@ -4,8 +4,8 @@
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
+#include "ai_main.h"
 #include "be_aas.h"
-#include "bg_saga.h"
 #include "G2.h"
 #include "q_shared.h"
 
@@ -1315,6 +1315,8 @@ void SetRocketContents(int contents) {
 	}
 }
 
+extern bot_state_t *botstates[MAX_CLIENTS];
+
 //---------------------------------------------------------
 static void WP_DisruptorMainFire( gentity_t *ent )
 //---------------------------------------------------------
@@ -1338,6 +1340,15 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	VectorCopy( ent->client->ps.origin, start );
 	start[2] += ent->client->ps.viewheight;//By eyes
 
+	gentity_t *botTarget = NULL;
+	if (g_botAimbot.integer && ent - g_entities < MAX_CLIENTS && ent->r.svFlags & SVF_BOT && botstates[ent - g_entities]->currentEnemy && botstates[ent - g_entities]->currentEnemy->client) {
+		botTarget = botstates[ent - g_entities]->currentEnemy;
+		VectorCopy(botTarget->client->ps.origin, end);
+		end[2] += botTarget->client->ps.viewheight;
+	}
+	vec3_t originalEnd = { 0.0f };
+	VectorCopy(end, originalEnd);
+
 	VectorMA( start, shotRange, forward, end );
 
 	qboolean compensate = ent && ent->client ? ent->client->sess.unlagged : qfalse;
@@ -1347,8 +1358,20 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 
 	ignore = ent->s.number;
 	traces = 0;
+	int botAttempts = 0;
 	while ( traces < 10 )
 	{//need to loop this in case we hit a Jedi who dodges the shot
+
+		// if this is an aimbotter, gradually adjust the aim spot by increasingly random amounts until we hit the target
+		if (botAttempts && botTarget) {
+			VectorCopy(originalEnd, end);
+			end[0] += Q_irand(-botAttempts, botAttempts);
+			end[1] += Q_irand(-botAttempts, botAttempts);
+			end[2] += Q_irand(-botAttempts, botAttempts);
+			if (BG_InRoll(&botTarget->client->ps, botTarget->client->ps.legsAnim))
+				end[2] -= botTarget->client->ps.viewheight;
+		}
+
 		// hack to include rockets in the trace
 		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(MASK_SHOT);
@@ -1365,6 +1388,13 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(0);
 
+		if (botTarget && tr.entityNum != botTarget - g_entities && !(tr.entityNum < ENTITYNUM_MAX_NORMAL && g_entities[tr.entityNum].client) && botAttempts < 64) {
+			botAttempts++;
+			continue;
+		}
+		//Com_Printf("botAttempts: %d, xdif: %0.1f, ydif: %0.1f, zdif: %0.1f\n", botAttempts, fabs(end[0] - originalEnd[0]), fabs(end[1] - originalEnd[1]), fabs(end[2] - originalEnd[2]));
+		botAttempts = 0;
+			
 		traceEnt = &g_entities[tr.entityNum];
 
 		if (d_projectileGhoul2Collision.integer && traceEnt->inuse && traceEnt->client)

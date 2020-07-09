@@ -557,9 +557,14 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 
 	if (bi->actionflags & ACTION_FORCEPOWER) ucmd->buttons |= BUTTON_FORCEPOWER;
 
-	if (useTime < level.time && Q_irand(1, 10) < 5)
-	{ //for now just hit use randomly in case there's something useable around
-		ucmd->buttons |= BUTTON_USE;
+	if (qtrue) {
+		ucmd->buttons |= BUTTON_USE; // just always hold use
+	}
+	else {
+		if (useTime < level.time && Q_irand(1, 10) < 5)
+		{ //for now just hit use randomly in case there's something useable around
+			ucmd->buttons |= BUTTON_USE;
+		}
 	}
 #if 0
 // Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
@@ -1097,8 +1102,10 @@ qboolean BotPVSCheck( const vec3_t p1, const vec3_t p2 )
 	return trap_InPVS(p1, p2);
 }
 
+int CurrentSiegeRound(void);
+
 //get the index to the nearest visible waypoint in the global trail
-int GetNearestVisibleWP(vec3_t org, int ignore)
+int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 {
 	int i;
 	float bestdist;
@@ -1140,6 +1147,96 @@ int GetNearestVisibleWP(vec3_t org, int ignore)
 		}
 
 		i++;
+	}
+
+	mins[0] = -64;
+	mins[1] = -64;
+	mins[2] = -32;
+	maxs[0] = 64;
+	maxs[1] = 64;
+	maxs[2] = 32;
+
+	static qboolean checkedWaypoints = qfalse;
+	static qboolean thereAreRealWaypoints = qfalse;
+	if (!checkedWaypoints) {
+		checkedWaypoints = qtrue;
+		if (gWPArray[0])
+			thereAreRealWaypoints = qtrue;
+	}
+	if (!thereAreRealWaypoints && g_gametype.integer == GT_SIEGE && bestindex == -1) {
+		// go to the nearest teammate
+		float closestTeammateDistance = 999999999.0f;
+		int closestTeammateNum = -1;
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			gentity_t *ent = &g_entities[i];
+			if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
+				continue;
+			if (i == myClientNum)
+				continue;
+			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
+				continue;
+			if (!BotPVSCheck(org, ent->client->ps.origin))
+				continue;
+			float dist = Distance(org, g_entities[i].client->ps.origin);
+			if (dist < closestTeammateDistance) {
+				closestTeammateNum = i;
+				closestTeammateDistance = dist;
+			}
+		}
+		if (closestTeammateNum != -1) {
+			static wpobject_t fakeWaypoint = { 0 };
+			memset(&fakeWaypoint, 0, sizeof(fakeWaypoint));
+			VectorCopy(g_entities[closestTeammateNum].client->ps.origin, fakeWaypoint.origin);
+			fakeWaypoint.inuse = qtrue;
+			gWPArray[0] = &fakeWaypoint;
+			return 0;
+		}
+
+		// go to the current objective
+		gentity_t *ent = NULL;
+		while ((ent = G_Find(ent, FOFS(classname), "info_siege_objective")) != NULL) {
+			if (ent->genericValue17)
+				continue; // already completed
+			int firstIncomplete = G_FirstIncompleteObjective(CurrentSiegeRound());
+			if (ent->objective != firstIncomplete)
+				continue;
+			if (!BotPVSCheck(org, ent->s.origin))
+				continue;
+			static wpobject_t fakeWaypoint = { 0 };
+			memset(&fakeWaypoint, 0, sizeof(fakeWaypoint));
+			VectorCopy(ent->s.origin, fakeWaypoint.origin);
+			fakeWaypoint.inuse = qtrue;
+			gWPArray[0] = &fakeWaypoint;
+			return 0;
+		}
+
+		// go to the nearest enemy
+		float closestEnemyDistance = 999999999.0f;
+		int closestEnemyNum = -1;
+		for (int i = 0; i < MAX_CLIENTS; i++) {
+			gentity_t *ent = &g_entities[i];
+			if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
+				continue;
+			if (i == myClientNum)
+				continue;
+			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
+				continue;
+			if (!BotPVSCheck(org, ent->client->ps.origin))
+				continue;
+			float dist = Distance(org, g_entities[i].client->ps.origin);
+			if (dist < closestEnemyDistance) {
+				closestEnemyNum = i;
+				closestEnemyDistance = dist;
+			}
+		}
+		if (closestEnemyNum != -1) {
+			static wpobject_t fakeWaypoint = { 0 };
+			memset(&fakeWaypoint, 0, sizeof(fakeWaypoint));
+			VectorCopy(g_entities[closestEnemyNum].client->ps.origin, fakeWaypoint.origin);
+			fakeWaypoint.inuse = qtrue;
+			gWPArray[0] = &fakeWaypoint;
+			return 0;
+		}
 	}
 
 	return bestindex;
@@ -2618,7 +2715,7 @@ int BotGetFlagBack(bot_state_t *bs)
 			VectorCopy(ent->s.origin, usethisvec);
 		}
 
-		tempInt = GetNearestVisibleWP(usethisvec, 0);
+		tempInt = GetNearestVisibleWP(usethisvec, 0, bs->client);
 
 		if (tempInt != -1 && TotalTrailDistance(bs->wpCurrent->index, tempInt, bs) != -1)
 		{
@@ -2684,7 +2781,7 @@ int BotGuardFlagCarrier(bot_state_t *bs)
 			VectorCopy(ent->s.origin, usethisvec);
 		}
 
-		tempInt = GetNearestVisibleWP(usethisvec, 0);
+		tempInt = GetNearestVisibleWP(usethisvec, 0, bs->client);
 
 		if (tempInt != -1 && TotalTrailDistance(bs->wpCurrent->index, tempInt, bs) != -1)
 		{
@@ -3180,7 +3277,7 @@ void Siege_DefendFromAttackers(bot_state_t *bs)
 		return;
 	}
 
-	wpClose = GetNearestVisibleWP(g_entities[bestindex].client->ps.origin, -1);	
+	wpClose = GetNearestVisibleWP(g_entities[bestindex].client->ps.origin, -1, bs->client);
 
 	if (wpClose != -1 && gWPArray[wpClose] && gWPArray[wpClose]->inuse)
 	{
@@ -3454,11 +3551,11 @@ int JMTakesPriority(bot_state_t *bs)
 	{
 		if (theImportantEntity->client)
 		{
-			wpClose = GetNearestVisibleWP(theImportantEntity->client->ps.origin, theImportantEntity->s.number);	
+			wpClose = GetNearestVisibleWP(theImportantEntity->client->ps.origin, theImportantEntity->s.number, bs->client);
 		}
 		else
 		{
-			wpClose = GetNearestVisibleWP(theImportantEntity->r.currentOrigin, theImportantEntity->s.number);	
+			wpClose = GetNearestVisibleWP(theImportantEntity->r.currentOrigin, theImportantEntity->s.number, bs->client);
 		}
 
 		if (wpClose != -1 && gWPArray[wpClose] && gWPArray[wpClose]->inuse)
@@ -3770,7 +3867,7 @@ void GetIdealDestination(bot_state_t *bs)
 				VectorCopy(bs->revengeEnemy->s.origin, usethisvec);
 			}
 
-			tempInt = GetNearestVisibleWP(usethisvec, 0);
+			tempInt = GetNearestVisibleWP(usethisvec, 0, bs->client);
 
 			if (tempInt != -1 && TotalTrailDistance(bs->wpCurrent->index, tempInt, bs) != -1)
 			{
@@ -3793,7 +3890,7 @@ void GetIdealDestination(bot_state_t *bs)
 				VectorCopy(bs->squadLeader->s.origin, usethisvec);
 			}
 
-			tempInt = GetNearestVisibleWP(usethisvec, 0);
+			tempInt = GetNearestVisibleWP(usethisvec, 0, bs->client);
 
 			if (tempInt != -1 && TotalTrailDistance(bs->wpCurrent->index, tempInt, bs) != -1)
 			{
@@ -3849,7 +3946,7 @@ void GetIdealDestination(bot_state_t *bs)
 		}
 		else if (bChicken != 2 && bs->wpDestSwitchTime < level.time)
 		{
-			tempInt = GetNearestVisibleWP(usethisvec, 0);
+			tempInt = GetNearestVisibleWP(usethisvec, 0, bs->client);
 
 			if (tempInt != -1 && TotalTrailDistance(bs->wpCurrent->index, tempInt, bs) != -1)
 			{
@@ -4646,7 +4743,7 @@ void BotAimOffsetGoalAngles(bot_state_t *bs)
 	float accVal;
 	i = 0;
 
-	if (bs->skills.perfectaim)
+	if (bs->skills.perfectaim || g_botAimbot.integer)
 	{
 		return;
 	}
@@ -6320,6 +6417,9 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	reaction = bs->skills.reflex/bs->settings.skill;
 
+	if (g_botAimbot.integer)
+		reaction = 0;
+
 	if (reaction < 0)
 	{
 		reaction = 0;
@@ -6429,9 +6529,17 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	//Apparently this "allows you to cheese" when fighting against bots. I'm not sure why you'd want to con bots
 	//into an easy kill, since they're bots and all. But whatever.
 
-	if (!bs->wpCurrent)
+	static qboolean checkedWaypoints = qfalse;
+	static qboolean thereAreRealWaypoints = qfalse;
+	if (!checkedWaypoints) {
+		checkedWaypoints = qtrue;
+		if (gWPArray[0])
+			thereAreRealWaypoints = qtrue;
+	}
+
+	if (!bs->wpCurrent || !thereAreRealWaypoints)
 	{
-		wp = GetNearestVisibleWP(bs->origin, bs->client);
+		wp = GetNearestVisibleWP(bs->origin, bs->client, bs->client);
 
 		if (wp != -1)
 		{

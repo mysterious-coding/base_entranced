@@ -208,6 +208,7 @@ vmCvar_t	g_emotes;
 vmCvar_t	g_siegeHelp;
 vmCvar_t	g_fixHoth2ndObj;
 vmCvar_t	g_siegeTimeVisualAid;
+vmCvar_t	g_botAimbot;
 
 vmCvar_t	g_saberThrowDefenseSmallAngle;
 vmCvar_t	g_saberThrowDefenseLargeAngle;
@@ -1115,6 +1116,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_probation, "g_probation", "2", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHoth2ndObj, "g_fixHoth2ndObj", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeTimeVisualAid , "g_siegeTimeVisualAid", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_botAimbot, "g_botAimbot", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saberThrowDefenseSmallAngle, "g_saberThrowDefenseSmallAngle", "30", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_saberThrowDefenseLargeAngle, "g_saberThrowDefenseLargeAngle", "80", CVAR_ARCHIVE, 0, qtrue },
@@ -7133,7 +7135,7 @@ void G_RunFrame( int levelTime ) {
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
 				}
-				else if (VectorLength(angDif) > 10.0f && !(level.pause.unpauseTime && abs(level.time - level.pause.unpauseTime) < 100))
+				else if (!(ent->r.svFlags & SVF_BOT) && VectorLength(angDif) > 10.0f && !(level.pause.unpauseTime && abs(level.time - level.pause.unpauseTime) < 100))
 				{ //must remain facing generally the same angle as when we start
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
