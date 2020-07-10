@@ -2005,6 +2005,8 @@ static void CheckTopTimes(int timeInMilliseconds, CombinedObjNumber objective, i
 		gclient_t *cl = &level.clients[i];
 		if (cl->pers.connected != CON_CONNECTED)
 			continue;
+		if (g_entities[i].r.svFlags & SVF_BOT)
+			return;
 		if (cl->sess.sessionTeam != TEAM_RED)
 			continue;
 		if (clients[0] == cl)
@@ -2255,6 +2257,8 @@ static void CheckDefenseRecords(int timeInMilliseconds, CombinedObjNumber object
 		gclient_t *cl = &level.clients[i];
 		if (cl->pers.connected != CON_CONNECTED)
 			continue;
+		if (g_entities[i].r.svFlags & SVF_BOT)
+			return;
 		if (cl->sess.sessionTeam != TEAM_BLUE)
 			continue;
 		if (clients[0] == cl)
