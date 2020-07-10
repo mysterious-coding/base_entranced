@@ -1175,7 +1175,7 @@ int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 				continue;
 			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
 				continue;
-			if (ent->r.svFlags & SVF_BOT)
+			if ((ent->r.svFlags & SVF_BOT) || ent->health <= 0 || ent->client->tempSpectate <= level.time)
 				continue;
 			if (!BotPVSCheck(org, ent->client->ps.origin))
 				continue;
@@ -1222,6 +1222,8 @@ int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 			if (i == myClientNum)
 				continue;
 			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
+				continue;
+			if (ent->health <= 0 || ent->client->tempSpectate <= level.time)
 				continue;
 			if (!BotPVSCheck(org, ent->client->ps.origin))
 				continue;
