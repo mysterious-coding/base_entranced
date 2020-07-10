@@ -1175,6 +1175,8 @@ int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 				continue;
 			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
 				continue;
+			if (ent->r.svFlags & SVF_BOT)
+				continue;
 			if (!BotPVSCheck(org, ent->client->ps.origin))
 				continue;
 			float dist = Distance(org, g_entities[i].client->ps.origin);
