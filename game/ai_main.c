@@ -38,6 +38,9 @@
 #define BOT_CTF_DEBUG	1
 */
 
+static qboolean checkedWaypoints = qfalse;
+static qboolean thereAreRealWaypoints = qfalse;
+
 #define MAX_PATH		144
 
 #define BOT_THINK_TIME	0
@@ -644,11 +647,17 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	if (bi.actionflags & ACTION_RESPAWN) {
 		if (bs->lastucmd.buttons & BUTTON_ATTACK) bi.actionflags &= ~(ACTION_RESPAWN|ACTION_ATTACK);
 	}
+
 	//convert the bot input to a usercmd
 	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime);
 	//subtract the delta angles
 	for (j = 0; j < 3; j++) {
 		bs->viewangles[j] = AngleMod(bs->viewangles[j] - SHORT2ANGLE(bs->cur_ps.delta_angles[j]));
+	}
+
+	//stop moving if hacking something
+	if (g_entities[bs->client].client->ps.hackingTime) {
+		bs->lastucmd.forwardmove = bs->lastucmd.rightmove = bs->lastucmd.upmove = 0;
 	}
 
 	if (g_braindeadBots.integer) {
@@ -1156,8 +1165,6 @@ int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 	maxs[1] = 64;
 	maxs[2] = 32;
 
-	static qboolean checkedWaypoints = qfalse;
-	static qboolean thereAreRealWaypoints = qfalse;
 	if (!checkedWaypoints) {
 		checkedWaypoints = qtrue;
 		if (gWPArray[0])
@@ -1175,7 +1182,7 @@ int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 				continue;
 			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
 				continue;
-			if ((ent->r.svFlags & SVF_BOT) || ent->health <= 0 || ent->client->tempSpectate <= level.time)
+			if ((ent->r.svFlags & SVF_BOT) || ent->health <= 0 || ent->client->tempSpectate > level.time)
 				continue;
 			if (!BotPVSCheck(org, ent->client->ps.origin))
 				continue;
@@ -1223,7 +1230,7 @@ int GetNearestVisibleWP(vec3_t org, int ignore, int myClientNum)
 				continue;
 			if (myClientNum >= 0 && myClientNum < MAX_CLIENTS && ent->client->sess.sessionTeam != g_entities[myClientNum].client->sess.sessionTeam)
 				continue;
-			if (ent->health <= 0 || ent->client->tempSpectate <= level.time)
+			if (ent->health <= 0 || ent->client->tempSpectate > level.time)
 				continue;
 			if (!BotPVSCheck(org, ent->client->ps.origin))
 				continue;
@@ -6532,8 +6539,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	//Apparently this "allows you to cheese" when fighting against bots. I'm not sure why you'd want to con bots
 	//into an easy kill, since they're bots and all. But whatever.
 
-	static qboolean checkedWaypoints = qfalse;
-	static qboolean thereAreRealWaypoints = qfalse;
 	if (!checkedWaypoints) {
 		checkedWaypoints = qtrue;
 		if (gWPArray[0])
