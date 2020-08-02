@@ -1009,8 +1009,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_saveCaptureRecords, "g_saveCaptureRecords", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_notifyNotLive, "g_notifyNotLive", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_autoPause999, "g_autoPause999", "3", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_autoPauseDisconnect, "g_autoPauseDisconnect", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoPause999, "g_autoPause999", "5", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_autoPauseDisconnect, "g_autoPauseDisconnect", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_minimumVotesCount, "g_minimumVotesCount", "0", CVAR_ARCHIVE, 0, qtrue },
 
