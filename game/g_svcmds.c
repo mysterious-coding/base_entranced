@@ -1500,6 +1500,58 @@ void Svcmd_Senseboost_f(void) {
 	found->client->sess.senseBoost = newValue;
 }
 
+void Svcmd_Aimboost_f(void) {
+	gentity_t *found = NULL;
+	gclient_t *cl;
+	char		str[MAX_TOKEN_CHARS];
+
+	if (trap_Argc() <= 2) {
+		Com_Printf("Usage:   aimboost [client num or partial name] [level from 1 to 5]     (use level 0 to reset).\n");
+		int i;
+		qboolean wrotePreface = qfalse;
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			if (&g_entities[i] && g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.aimBoost) {
+				if (!wrotePreface) {
+					Com_Printf("Currently aimboosted players:\n");
+					wrotePreface = qtrue;
+				}
+				Com_Printf("^7%s^7 has a level ^5%d^7 aimboost.\n",
+					g_entities[i].client->pers.netname, g_entities[i].client->sess.aimBoost);
+			}
+		}
+		if (!wrotePreface)
+			Com_Printf("No players are currently aimboosted.\n");
+		return;
+	}
+
+	// find the player
+	trap_Argv(1, str, sizeof(str));
+	found = G_FindClient(str);
+	if (!found || !found->client) {
+		Com_Printf("Client %s"S_COLOR_WHITE" not found or ambiguous. Use client number or be more specific.\n", str);
+		Com_Printf("Usage:   aimboost [client num or partial name] [level from 1 to 5]     (use level 0 to reset).\n");
+		return;
+	}
+
+	cl = found->client;
+
+	trap_Argv(2, str, sizeof(str));
+	int newValue = Com_Clampi(0, 5, atoi(str));
+
+	// notify everyone
+	if (!newValue) {
+		if (!found->client->sess.aimBoost)
+			Com_Printf("Client '%s'^7 already has an aimboost of zero.\n", found->client->pers.netname);
+		else
+			trap_SendServerCommand(-1, va("print \"^7%s^7's aimboost was disabled.\n\"", found->client->pers.netname));
+	}
+	else
+		trap_SendServerCommand(-1, va("print \"^7%s^7 was given a level ^5%d^7 aimboost.\n\"",
+			found->client->pers.netname, newValue));
+
+	found->client->sess.aimBoost = newValue;
+}
+
 void Svcmd_ShadowMute_f(void) {
 	gentity_t	*found = NULL;
 	gclient_t	*cl;
@@ -3936,6 +3988,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if (Q_stricmp(cmd, "senseboost") == 0) {
 		Svcmd_Senseboost_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "aimboost") == 0) {
+		Svcmd_Aimboost_f();
 		return qtrue;
 	}
 

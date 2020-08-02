@@ -33,6 +33,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 	memset(&client->sess.spawnedSiegeModel, 0, sizeof(client->sess.spawnedSiegeModel));
 	client->sess.spawnedSiegeMaxHealth = 0;
 	client->sess.skillBoost = 0;
+	client->sess.senseBoost = 0;
+	client->sess.aimBoost = 0;
 	client->sess.whitelistStatus = WHITELIST_UNKNOWN;
 	client->sess.siegeDesiredTeam = TEAM_FREE;
 

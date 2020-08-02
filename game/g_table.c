@@ -250,8 +250,16 @@ const char *TableCallback_Boost(void *context) {
 		return NULL;
 	}
 	gclient_t *cl = context;
-	if (cl->sess.skillBoost && cl->sess.senseBoost)
+	if (cl->sess.skillBoost && cl->sess.senseBoost && cl->sess.aimBoost)
+		return va("Skill %d + Sense %d + Aim", cl->sess.skillBoost, cl->sess.senseBoost);
+	else if (cl->sess.skillBoost && cl->sess.senseBoost)
 		return va("Skill %d + Sense %d", cl->sess.skillBoost, cl->sess.senseBoost);
+	else if (cl->sess.skillBoost && cl->sess.aimBoost)
+		return va("Skill %d + Aim", cl->sess.skillBoost);
+	else if (cl->sess.senseBoost && cl->sess.aimBoost)
+		return va("Sense %d + Aim", cl->sess.senseBoost);
+	else if (cl->sess.aimBoost)
+		return "Aim";
 	else if (cl->sess.skillBoost)
 		return va("Skill %d", cl->sess.skillBoost);
 	else if (cl->sess.senseBoost)

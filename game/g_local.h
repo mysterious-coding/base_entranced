@@ -717,6 +717,8 @@ typedef struct {
 
 	int senseBoost;
 
+	int aimBoost;
+
 	struct {
 		int caps[2];
 		int saves[2];

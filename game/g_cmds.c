@@ -3557,6 +3557,23 @@ void Cmd_SenseBoost_f(gentity_t *ent) {
 	}
 }
 
+void Cmd_AimBoost_f(gentity_t *ent) {
+	qboolean wrotePreface = qfalse;
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		if (g_entities[i].client && g_entities[i].client->pers.connected != CON_DISCONNECTED && g_entities[i].client->sess.aimBoost) {
+			if (!wrotePreface) {
+				trap_SendServerCommand(ent - g_entities, "print \"Currently aimboosted players:\n\"");
+				wrotePreface = qtrue;
+			}
+			trap_SendServerCommand(ent - g_entities, va("print \"^7%s^7 has a level ^5%d^7 aimboost.\n\"",
+				g_entities[i].client->pers.netname, g_entities[i].client->sess.aimBoost));
+		}
+	}
+	if (!wrotePreface) {
+		trap_SendServerCommand(ent - g_entities, "print \"No players are currently aimboosted.\n\"");
+	}
+}
+
 void Cmd_PugMaps_f(gentity_t *ent) {
 	qboolean gotOne = qfalse;
 	for (char c = 'a'; c <= 'z'; c++) {
@@ -10251,6 +10268,8 @@ void ClientCommand( int clientNum ) {
 			Cmd_SkillBoost_f(ent);
 		else if (!Q_stricmp(cmd, "senseboost"))
 			Cmd_SenseBoost_f(ent);
+		else if (!Q_stricmp(cmd, "aimboost"))
+			Cmd_AimBoost_f(ent);
 		else if (!Q_stricmp(cmd, "pugmaps"))
 			Cmd_PugMaps_f(ent);
 		else if (Q_stricmp(cmd, "whois") == 0)
@@ -10367,6 +10386,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_SkillBoost_f(ent);
 	else if (!Q_stricmp(cmd, "senseboost"))
 		Cmd_SenseBoost_f(ent);
+	else if (!Q_stricmp(cmd, "aimboost"))
+		Cmd_AimBoost_f(ent);
 	else if (!Q_stricmp(cmd, "pugmaps"))
 		Cmd_PugMaps_f(ent);
 	else if (!Q_stricmp(cmd, "anim"))

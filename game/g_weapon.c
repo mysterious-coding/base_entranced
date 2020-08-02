@@ -1317,6 +1317,147 @@ void SetRocketContents(int contents) {
 
 extern bot_state_t *botstates[MAX_CLIENTS];
 
+extern void CalcEntitySpot(const gentity_t *ent, const spot_t spot, vec3_t point);
+
+static qboolean InFOVFloat(gentity_t *ent, gentity_t *from, double hFOV, double vFOV)
+{
+	vec3_t	eyes;
+	vec3_t	spot;
+	vec3_t	deltaVector;
+	vec3_t	angles, fromAngles;
+	vec3_t	deltaAngles;
+
+	if (from->client)
+	{
+		if (!VectorCompare(from->client->renderInfo.eyeAngles, vec3_origin))
+		{//Actual facing of tag_head!
+			//NOTE: Stasis aliens may have a problem with this?
+			VectorCopy(from->client->renderInfo.eyeAngles, fromAngles);
+		}
+		else
+		{
+			VectorCopy(from->client->ps.viewangles, fromAngles);
+		}
+	}
+	else
+	{
+		VectorCopy(from->s.angles, fromAngles);
+	}
+
+	CalcEntitySpot(from, SPOT_HEAD_LEAN, eyes);
+
+	CalcEntitySpot(ent, SPOT_ORIGIN, spot);
+	VectorSubtract(spot, eyes, deltaVector);
+
+	vectoangles(deltaVector, angles);
+	deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+	deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+	if (fabs(deltaAngles[PITCH]) <= vFOV && fabs(deltaAngles[YAW]) <= hFOV)
+	{
+		return qtrue;
+	}
+
+	CalcEntitySpot(ent, SPOT_HEAD, spot);
+	VectorSubtract(spot, eyes, deltaVector);
+	vectoangles(deltaVector, angles);
+	deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+	deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+	if (fabs(deltaAngles[PITCH]) <= vFOV && fabs(deltaAngles[YAW]) <= hFOV)
+	{
+		return qtrue;
+	}
+
+	CalcEntitySpot(ent, SPOT_LEGS, spot);
+	VectorSubtract(spot, eyes, deltaVector);
+	vectoangles(deltaVector, angles);
+	deltaAngles[PITCH] = AngleDelta(fromAngles[PITCH], angles[PITCH]);
+	deltaAngles[YAW] = AngleDelta(fromAngles[YAW], angles[YAW]);
+	if (fabs(deltaAngles[PITCH]) <= vFOV && fabs(deltaAngles[YAW]) <= hFOV)
+	{
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+static gentity_t *PlayerThatPlayerIsAimingClosestTo(gentity_t *ent) {
+	// check who is eligible to be followed
+	qboolean valid[MAX_CLIENTS] = { qfalse }, gotValid = qfalse;
+	int i;
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		if (i == ent->s.number || !g_entities[i].inuse || level.clients[i].pers.connected != CON_CONNECTED || level.clients[i].sess.sessionTeam == TEAM_SPECTATOR)
+			continue;
+		if (level.clients[i].ps.stats[STAT_HEALTH] <= 0 || level.clients[i].ps.pm_type == PM_SPECTATOR || level.clients[i].tempSpectate >= level.time)
+			continue; // this guy is dead
+		valid[i] = qtrue;
+		gotValid = qtrue;
+	}
+	if (!gotValid)
+		return NULL; // nobody to follow
+
+	// check for aiming directly at someone
+	trace_t tr;
+	vec3_t start, end, forward;
+	VectorCopy(ent->client->ps.origin, start);
+	AngleVectors(ent->client->ps.viewangles, forward, NULL, NULL);
+	VectorMA(start, 16384, forward, end);
+	start[2] += ent->client->ps.viewheight;
+	trap_G2Trace(&tr, start, NULL, NULL, end, ent->s.number, MASK_SHOT, G2TRFLAG_DOGHOULTRACE | G2TRFLAG_GETSURFINDEX | G2TRFLAG_THICK | G2TRFLAG_HITCORPSES, g_g2TraceLod.integer);
+	if (tr.entityNum >= 0 && tr.entityNum < MAX_CLIENTS && valid[tr.entityNum])
+		return &g_entities[tr.entityNum];
+
+	// see who was closest to where we aimed
+	float closestDistance = -1;
+	int closestPlayer = -1;
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		if (!valid[i])
+			continue;
+
+		vec3_t distanceFromPlayerVec;
+		VectorSubtract(level.clients[i].ps.origin, ent->client->ps.origin, distanceFromPlayerVec);
+		double x = VectorLength(distanceFromPlayerVec);
+
+		double m, b;
+		if (x < 300.0) {
+			m = -0.035;
+			b = 15.5;
+		}
+		else {
+			m = -0.005;
+			b = 6.5;
+		}
+
+		double fov = (m * x) + b;
+		double originalFov = fov;
+		double addedFov = 1.0 * fov * (double)(ent->client->sess.aimBoost - 1);
+
+		fov += addedFov;
+
+		// bottom clamp
+		double floor = 1.0 * (double)ent->client->sess.aimBoost;
+		if (fov < floor)
+			fov = floor;
+
+#ifdef _DEBUG
+		PrintIngame(ent - g_entities, "Fov is %.3f (%.3f plus %.3f bonus); distance from player is %.3f\n", fov, originalFov, addedFov, x);
+#endif
+
+		if (!InFOVFloat(&g_entities[i], ent, fov, fov))
+			continue;
+		vec3_t difference;
+		VectorSubtract(level.clients[i].ps.origin, tr.endpos, difference);
+		if (difference && (closestDistance == -1 || VectorLength(difference) < closestDistance)) {
+			closestDistance = VectorLength(difference);
+			closestPlayer = i;
+		}
+	}
+
+	if (closestDistance != -1 && closestPlayer != -1)
+		return &g_entities[closestPlayer];
+
+	return NULL;
+}
+
 //---------------------------------------------------------
 static void WP_DisruptorMainFire( gentity_t *ent )
 //---------------------------------------------------------
@@ -1341,15 +1482,23 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	start[2] += ent->client->ps.viewheight;//By eyes
 
 	gentity_t *botTarget = NULL;
+	vec3_t botTargetAimSpot = { 0.0f };
 	if (g_botAimbot.integer && ent - g_entities < MAX_CLIENTS && ent->r.svFlags & SVF_BOT && botstates[ent - g_entities]->currentEnemy && botstates[ent - g_entities]->currentEnemy->client) {
 		botTarget = botstates[ent - g_entities]->currentEnemy;
-		VectorCopy(botTarget->client->ps.origin, end);
-		end[2] += botTarget->client->ps.viewheight;
+		VectorCopy(botTarget->client->ps.origin, botTargetAimSpot);
+		botTargetAimSpot[2] += botTarget->client->ps.viewheight;
 	}
-	vec3_t originalEnd = { 0.0f };
-	VectorCopy(end, originalEnd);
+	else if (ent->client->sess.aimBoost && ent - g_entities < MAX_CLIENTS) {
+		botTarget = PlayerThatPlayerIsAimingClosestTo(ent);
+		if (botTarget) {
+			VectorCopy(botTarget->client->ps.origin, botTargetAimSpot);
+			//botTargetAimSpot[2] += botTarget->client->ps.viewheight; // commented out so that aimboosters do not headshot
+		}
+	}
 
 	VectorMA( start, shotRange, forward, end );
+	vec3_t unchangedEnd;
+	VectorCopy(end, unchangedEnd);
 
 	qboolean compensate = ent && ent->client ? ent->client->sess.unlagged : qfalse;
 	qboolean ghoul2 = !!(d_projectileGhoul2Collision.integer);
@@ -1363,8 +1512,9 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	{//need to loop this in case we hit a Jedi who dodges the shot
 
 		// if this is an aimbotter, gradually adjust the aim spot by increasingly random amounts until we hit the target
-		if (botAttempts && botTarget) {
-			VectorCopy(originalEnd, end);
+#define MAX_BOT_ATTEMPTS	(64)
+		if (botAttempts && botAttempts < MAX_BOT_ATTEMPTS && botTarget) {
+			VectorCopy(botTargetAimSpot, end);
 			end[0] += Q_irand(-botAttempts, botAttempts);
 			end[1] += Q_irand(-botAttempts, botAttempts);
 			end[2] += Q_irand(-botAttempts, botAttempts);
@@ -1388,9 +1538,16 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(0);
 
-		if (botTarget && tr.entityNum != botTarget - g_entities && !(tr.entityNum < ENTITYNUM_MAX_NORMAL && g_entities[tr.entityNum].client) && botAttempts < 64) {
-			botAttempts++;
-			continue;
+		if (botTarget && tr.entityNum != botTarget - g_entities && !(tr.entityNum < ENTITYNUM_MAX_NORMAL && g_entities[tr.entityNum].client)) {
+			if (botAttempts < MAX_BOT_ATTEMPTS) {
+				botAttempts++;
+				continue;
+			}
+			else if (botAttempts == MAX_BOT_ATTEMPTS) { // tried to find a trace to the target too many times; give up
+				botAttempts++;
+				VectorCopy(unchangedEnd, end);
+				continue;
+			}
 		}
 		//Com_Printf("botAttempts: %d, xdif: %0.1f, ydif: %0.1f, zdif: %0.1f\n", botAttempts, fabs(end[0] - originalEnd[0]), fabs(end[1] - originalEnd[1]), fabs(end[2] - originalEnd[2]));
 		botAttempts = 0;
@@ -1643,6 +1800,21 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	}
 
 	damage += count;
+
+	gentity_t *botTarget = NULL;
+	vec3_t botTargetAimSpot = { 0.0f };
+	if (g_botAimbot.integer && ent - g_entities < MAX_CLIENTS && ent->r.svFlags & SVF_BOT && botstates[ent - g_entities]->currentEnemy && botstates[ent - g_entities]->currentEnemy->client) {
+		botTarget = botstates[ent - g_entities]->currentEnemy;
+		VectorCopy(botTarget->client->ps.origin, botTargetAimSpot);
+		botTargetAimSpot[2] += botTarget->client->ps.viewheight;
+	}
+	else if (ent->client->sess.aimBoost && ent - g_entities < MAX_CLIENTS) {
+		botTarget = PlayerThatPlayerIsAimingClosestTo(ent);
+		if (botTarget) {
+			VectorCopy(botTarget->client->ps.origin, botTargetAimSpot);
+			//botTargetAimSpot[2] += botTarget->client->ps.viewheight; // commented out so that aimboosters do not headshot
+		}
+	}
 	
 	skip = ent->s.number;
 
@@ -1651,9 +1823,22 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	if (g_unlagged.integer && compensate)
 		G_TimeShiftAllClients(trap_Milliseconds() - (level.time - ent->client->pers.cmd.serverTime), ent, ghoul2);
 
+	int botAttempts = 0;
 	for (i = 0; i < traces; i++ )
 	{
 		VectorMA( start, shotRange, forward, end );
+
+		vec3_t unchangedEnd;
+		VectorCopy(end, unchangedEnd);
+
+		if (!i && botAttempts && botAttempts < MAX_BOT_ATTEMPTS && botTarget) {
+			VectorCopy(botTargetAimSpot, end);
+			end[0] += Q_irand(-botAttempts, botAttempts);
+			end[1] += Q_irand(-botAttempts, botAttempts);
+			end[2] += Q_irand(-botAttempts, botAttempts);
+			if (BG_InRoll(&botTarget->client->ps, botTarget->client->ps.legsAnim))
+				end[2] -= botTarget->client->ps.viewheight;
+		}
 
 		// hack to include rockets in the trace
 		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
@@ -1670,6 +1855,20 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(0);
+
+		if (!i && botTarget && tr.entityNum != botTarget - g_entities && !(tr.entityNum < ENTITYNUM_MAX_NORMAL && g_entities[tr.entityNum].client)) {
+			if (botAttempts < MAX_BOT_ATTEMPTS) {
+				botAttempts++;
+				i--;
+				continue;
+			}
+			else if (botAttempts == MAX_BOT_ATTEMPTS) { // tried to find a trace to the target too many times; give up
+				botAttempts++;
+				VectorCopy(unchangedEnd, end);
+				i--;
+				continue;
+			}
+		}
 
 		traceEnt = &g_entities[tr.entityNum];
 
