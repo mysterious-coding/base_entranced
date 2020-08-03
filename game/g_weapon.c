@@ -1438,6 +1438,9 @@ static gentity_t *PlayerThatPlayerIsAimingClosestTo(gentity_t *ent) {
 		if (fov < floor)
 			fov = floor;
 
+		if (ent->client->sess.aimBoost == 5)
+			fov = 180.0;
+
 #ifdef _DEBUG
 		PrintIngame(ent - g_entities, "Fov is %.3f (%.3f plus %.3f bonus); distance from player is %.3f\n", fov, originalFov, addedFov, x);
 #endif
