@@ -2956,7 +2956,7 @@ extern vmCvar_t    g_quickPauseChat;
 extern vmCvar_t		g_multiUseGenerators;
 extern vmCvar_t		g_dispenserLifetime;
 extern vmCvar_t		g_techAmmoForAllWeapons;
-extern vmCvar_t		g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame;
+extern vmCvar_t		g_damageFixes;
 extern vmCvar_t		g_healWalkerWithAmmoCans;
 extern vmCvar_t    g_unlagged;
 extern vmCvar_t		g_friendlyFreeze;
@@ -2968,9 +2968,9 @@ extern vmCvar_t	   g_unlaggedOffset;
 extern vmCvar_t	   g_unlaggedDebug;
 #endif
 
-#define BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS	(1 << 0)
-#define BLACKISRUININGTHEVIDEOGAME_ROCKET_HP			(1 << 1)
-#define	BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS	(1 << 2)
+#define DAMAGEFIXES_SABERTHROW_GUNNERS		(1 << 0)
+#define DAMAGEFIXES_ROCKET_HP				(1 << 1)
+#define	DAMAGEFIXES_SABERTHROW_SABERISTS	(1 << 2)
 
 
 extern vmCvar_t    lastMapName;

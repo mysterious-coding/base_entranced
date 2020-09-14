@@ -4722,7 +4722,7 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			return qfalse;
 		}
 
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS &&
+		if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS &&
 			self->client->ps.saberEntityNum && self->client->ps.saberInFlight) {
 			//Com_DebugPrintf("Returning from saber collision\n");
 			return qfalse;
@@ -5835,7 +5835,7 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 
 			if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 			{ //Slice them
-				if (!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS) && !saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, saberent, tr.endpos, 0, MOD_SABER, qfalse, 999))
+				if (!(g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS) && !saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, saberent, tr.endpos, 0, MOD_SABER, qfalse, 999))
 				{ //they blocked it
 					WP_SaberBlockNonRandom(ent, tr.endpos, qfalse);
 
@@ -5933,7 +5933,7 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 						}
 					}
 
-					if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS) {
+					if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS) {
 						if (!(ent && ent->health > 0)) { // target died; allow saber to keep going
 							saberent->think = saberFirstThrown;
 							saberent->nextthink = level.time - 50;
@@ -5958,7 +5958,7 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 		ent->s.number != saberent->s.number && (noDCheck ||trap_InPVS(ent->r.currentOrigin, saberent->r.currentOrigin)))
 	{ //hit a non-client
 
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP &&
+	if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP &&
 		g_gametype.integer == GT_SIEGE && ent->inuse && VALIDSTRING(ent->classname) && !Q_stricmp(ent->classname, "rocket_proj")) {
 		return qfalse;
 	}
@@ -6076,7 +6076,7 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 					}
 				}
 
-				if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS) {
+				if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS) {
 					if (!(ent && ent->health > 0)) { // target died; allow saber to keep going
 						saberent->think = saberFirstThrown;
 						saberent->nextthink = level.time - 50;
@@ -6192,7 +6192,7 @@ static GAME_INLINE void saberMoveBack( gentity_t *ent, qboolean goingBack )
 			{ //eh, this is a filthy lie. (obviously it had to hit something or it wouldn't be in here, so we'll say it hit the world)
 				tr.entityNum = ENTITYNUM_WORLD;
 			}
-			if (!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS))
+			if (!(g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS))
 				thrownSaberTouch(ent, &g_entities[tr.entityNum], &tr);
 			return;
 		}
@@ -6625,7 +6625,7 @@ qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t 
 	{
 		return qfalse;
 	}
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)
 		return qfalse;
 
 	saberOwner->client->ps.saberInFlight = qtrue;
@@ -6852,7 +6852,7 @@ qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner,
 		return qfalse;
 	}
 
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)
 		return qfalse;
 
 	if ( other
@@ -6899,7 +6899,7 @@ qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, 
 	}
 	//otherwise don't
 
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)
 		return qfalse;
 
 	if (tossIt)
@@ -9001,7 +9001,7 @@ nextStep:
 			rSaberNum++;
 		}
 
-		if (!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS)) {
+		if (!(g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)) {
 			WP_SaberApplyDamage(self); // legacy mode; simply apply the damage
 		}
 		else {

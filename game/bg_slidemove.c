@@ -663,10 +663,10 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 
 		// see if we can make it there
 		// hack to include rockets in the trace
-		if (!g_rocketSurfing.integer && g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+		if (!g_rocketSurfing.integer && g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(MASK_SHOT);
 		pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
-		if (!g_rocketSurfing.integer && g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+		if (!g_rocketSurfing.integer && g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(0);
 		
 		if (trace.allsolid) {

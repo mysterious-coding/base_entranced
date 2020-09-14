@@ -5266,7 +5266,7 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// guaranteed 100 damage saber throws on gunners
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_GUNNERS &&
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_GUNNERS &&
 		g_gametype.integer == GT_SIEGE &&
 		nonJediSaberDmgIncrease != NONJEDISABERDMGINCREASE_NO &&
 		targ && targ->client && targ - g_entities < MAX_CLIENTS &&
@@ -5283,7 +5283,7 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// improved damage system for saber vs saber
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_SABERTHROW_SABERISTS &&
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS &&
 		g_gametype.integer == GT_SIEGE &&
 		targ && targ->client && targ - g_entities < MAX_CLIENTS &&
 		mod == MOD_SABER && targ->client->ps.weapon == WP_SABER &&
@@ -5408,7 +5408,7 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// only enemy demp/disruptor can damage rockets
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP &&
+	if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP &&
 		g_gametype.integer == GT_SIEGE &&
 		targ && VALIDSTRING(targ->classname) && !Q_stricmp(targ->classname, "rocket_proj") &&
 		attacker && attacker - g_entities < MAX_CLIENTS && attacker->client) {

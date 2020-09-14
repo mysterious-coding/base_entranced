@@ -1526,7 +1526,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		}
 
 		// hack to include rockets in the trace
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+		if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(MASK_SHOT);
 
 		if (d_projectileGhoul2Collision.integer)
@@ -1538,7 +1538,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			trap_Trace( &tr, start, NULL, NULL, end, ignore, MASK_SHOT );
 		}
 
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+		if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(0);
 
 		if (botTarget && tr.entityNum != botTarget - g_entities && !(tr.entityNum < ENTITYNUM_MAX_NORMAL && g_entities[tr.entityNum].client)) {
@@ -1599,7 +1599,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		}
 
 		// skip allied rockets
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
+		if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
 			VALIDSTRING(traceEnt->classname) && !Q_stricmp(traceEnt->classname, "rocket_proj") &&
 			traceEnt->parent && traceEnt->parent - g_entities < MAX_CLIENTS && traceEnt->parent->client &&
 			ent->client && traceEnt->parent->client->sess.sessionTeam == ent->client->sess.sessionTeam) {
@@ -1686,7 +1686,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 				VectorCopy(traceEnt->client->ps.viewangles, preAng);
 			}
 
-			if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
+			if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
 				VALIDSTRING(traceEnt->classname) && !Q_stricmp(traceEnt->classname, "rocket_proj"))
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos, 9999999, DAMAGE_NORMAL, MOD_DISRUPTOR );
 			else
@@ -1844,7 +1844,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		}
 
 		// hack to include rockets in the trace
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+		if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(MASK_SHOT);
 
 		if (d_projectileGhoul2Collision.integer)
@@ -1856,7 +1856,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			trap_Trace( &tr, start, NULL, NULL, end, skip, MASK_SHOT );
 		}
 
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+		if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 			SetRocketContents(0);
 
 		if (!i && botTarget && tr.entityNum != botTarget - g_entities && !(tr.entityNum < ENTITYNUM_MAX_NORMAL && g_entities[tr.entityNum].client)) {
@@ -1922,7 +1922,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		}
 
 		// skip allied rockets
-		if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
+		if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
 			VALIDSTRING(traceEnt->classname) && !Q_stricmp(traceEnt->classname, "rocket_proj") &&
 			traceEnt->parent && traceEnt->parent - g_entities < MAX_CLIENTS && traceEnt->parent->client &&
 			ent->client && traceEnt->parent->client->sess.sessionTeam == ent->client->sess.sessionTeam) {
@@ -1998,7 +1998,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 				 {
 					if ( traceEnt->takedamage )
 					{
-						if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
+						if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE &&
 							VALIDSTRING(traceEnt->classname) && !Q_stricmp(traceEnt->classname, "rocket_proj")) {
 							G_Damage(traceEnt, ent, ent, forward, tr.endpos, 9999999,
 								DAMAGE_NO_KNOCKBACK, MOD_DISRUPTOR_SNIPER);
@@ -2475,7 +2475,7 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 	{
 		gent = entityList[ e ];
 
-		qboolean isBlackProofRocket = !!(g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP &&
+		qboolean isBlackProofRocket = !!(g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP &&
 			g_gametype.integer == GT_SIEGE && VALIDSTRING(gent->classname) && !Q_stricmp(gent->classname, "rocket_proj"));
 
 		if ( !gent || !gent->takedamage || (!gent->r.contents && !isBlackProofRocket))
@@ -3228,7 +3228,7 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 		missile->splashMethodOfDeath = MOD_ROCKET_SPLASH;
 	}
 //===testing being able to shoot rockets out of the air==================================
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP &&
+	if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP &&
 		g_gametype.integer == GT_SIEGE) {
 		missile->health = 999999;
 	}

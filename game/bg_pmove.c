@@ -10694,7 +10694,7 @@ void Pmove (pmove_t *pmove) {
 	// chop the move up if it is too long, to prevent framerate
 	// dependent behavior
 	// hack to include rockets in tracing
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+	if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 		SetRocketContents(MASK_SHOT);
 	while ( pmove->ps->commandTime != finalTime ) {
 		int		msec;
@@ -10719,7 +10719,7 @@ void Pmove (pmove_t *pmove) {
 			pmove->cmd.upmove = 20;
 		}
 	}
-	if (g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame.integer & BLACKISRUININGTHEVIDEOGAME_ROCKET_HP && g_gametype.integer == GT_SIEGE)
+	if (g_damageFixes.integer & DAMAGEFIXES_ROCKET_HP && g_gametype.integer == GT_SIEGE)
 		SetRocketContents(0);
 }
 
