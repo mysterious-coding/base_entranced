@@ -229,7 +229,7 @@ bitflag 2 = removed rocket HP except for enemy tenloss and demp altfire
 
 bitflag 4 = new system for saberthrow damage on enemy saberists, which removes randomness BS and takes into account facing angles, saber holstered/ignited, push/pull, etc. in a consistent way. Also disables saber throw disarm, which was random BS as well.
 
--1 = (default) both
+-1 = (default) enable all
 
 0 = disable (base JKA)
 
