@@ -17,7 +17,7 @@ base_entranced has three goals:
 * Adding enhancements to basejka siege gameplay and server administration.
 * Providing an enhanced mapping framework that allows for many more possilibities for siege mappers.
 
-base_entranced strives to remain close to basejka gameplay. You won't see anything like grappling hooks or flamethrowers. It is a simple improvement of basejka Siege, with competitive gameplay in mind. The only sizable change to gameplay is the anti-spam cvars. Although base_entranced strives to remain faithful basejka Siege gameplay, doorspam, minespam, and shieldspam are fundamental flaws in the game design, and needed to be addressed. Apart from those cvars, everything else generally adheres to the "stay-close-to-basejka" philosophy.
+base_entranced remains close to base JA siege gameplay. It is a simple improvement of base JA siege, with the same classic gameplay in mind. The only huge change to gameplay is the anti-spam cvars. Doorspam, minespam, and shieldspam are massive fundamental flaws in the game design, and needed to be addressed. For years (until this mod), the stupidly overpowered nature of this spam was avoided by BS "honor systems" and "gentleman's agreements" that should never be a thing in a PVP game. These agreements were violated regularly, whether by accident or not. Even violating one of these agreements a single time (for example, dropping an extra shield) could and would completely alter the outcome of a match. Being able to completely break the game by spamming was absolutely essential to fix. With these fixes, players can use every possible tool at their disposal to impede enemies, just like any normal PVP game. Apart from these spam fixes, everything else generally adheres to the "stay-close-to-basejka" philosophy.
 
 You can discuss base_entranced on the **base_entranced forum** at [www.jasiege.com](https://www.jasiege.com)
 
@@ -51,7 +51,7 @@ If `g_classLimits` is enabled, you can use twelve cvars to limit the number of p
 #### `g_delayClassUpdate`
 0 = instantly broadcast class changes
 
-1 = (default) instantly broadcast class changes to teammates; delay class change broadcast for enemies until after the respawn. Prevents the stupid "oh you changed class 150ms before the respawn? Let me counter you by changing class 140ms before the respawn" garbage.
+1 = (default) instantly broadcast class changes to teammates; delay class change broadcast for enemies until after the respawn. This is a huge improvement to gameplay. Prevents the stupid "oh you changed class 150ms before the respawn? Let me counter you by changing class 140ms before the respawn" garbage. It also allows for more coordination between teammates, since they can now press their class change binds early, and change to synergize with each other well in advance of the spawn.
 
 #### `g_siegeTiebreakEnd`
 0 = (default) no tiebreaking rules (base JKA)
@@ -86,21 +86,21 @@ If `g_classLimits` is enabled, you can use twelve cvars to limit the number of p
 #### `g_autoKorribanSpam`
 0 = spam-related cvars are unaffected by map
 
-1 = (default) `iLikeToDoorSpam` and `iLikeToMineSpam` automatically get set to 1 for Korriban, and automatically get set to 0 for all other maps
+1 = (default) `iLikeToDoorSpam` and `iLikeToMineSpam` automatically get set to 1 for Korriban (where spam is essential), and automatically get set to 0 for all other maps
 
 #### Toptimes records and speedruns
-The server database tracks statistics on fastest objective/map completion times. For more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=23&t=215
+The server database tracks per-objective and per-map statistics on fastest offense times, and longest defense times. For more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=23&t=215
 
 #### Live pug detection
 The server automatically detects when a pug (2v2 or greater) is live. It notifies you at the beginning if there's an issue (e.g. AFK player), and will automatically pause if someone 999s for several seconds (`g_autoPause999`, default 3)
 
-#### Skillboost/senseboost
-You can give bad players a boost to help them be competitive. `skillboost <player> <number 0 through 5>` gives them a boost to their stats (higher levels are better), while `senseboost <player> <number 0 through 5>` gives them an intermittent wallhack to improve their game sense. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `skillboost` or `senseboost` commands to see who is currently boosted. Generally, levels 1-3 should be used most of the time; 4-5 are more extreme boosts and should only be used for people who have absolutely no idea what they are doing. These values can be changed with cvars beginning with `g_skillboost` and `g_senseboost`; use `cvarlist` to see all of them.
+#### Skillboost/senseboost/aimboost
+You can give bad players a boost to help them be competitive. `skillboost <player> <number 0 through 5>` gives them a boost to their stats, while `senseboost <player> <number 0 through 5>` gives them an intermittent wallhack to improve their game sense and `aimboost <player> <number 0 through 5>` allows their near-misses with disruptor to be changed to hits. Stats affected by skillboost include damage output, incoming damage, force regen time, movement speed, self damage factor, and splash radius. Clients can use the `skillboost`, `senseboost`, and `aimboost` commands to see who is currently boosted. Generally, levels 1-3 should be used most of the time; 4-5 are more extreme boosts and should only be used for people who have absolutely no idea what they are doing. Some parameters of boosts can be changed with cvars beginning with `g_skillboost` and `g_senseboost`; use `cvarlist g_skillboost` or `cvarlist g_senseboost` to see all of them. Using these boosts judiciously and conservatively is recommended; sometimes all that's needed is just giving a single person a single level one boost.
 
 #### `g_emotes`
 0 = disable
 
-1 = (default) clients can use custom animations with the `emote` command
+1 = (default) clients can use custom animations with the `emote` command. This is just a fun way to BM when the enemies are all dead and you are going to selfkill. It makes you auto-selfkill for the next spawn, and prevents you from dealing damage until you die. Therefore, you can't use it to cheese animations and hide inside the floor or something.
 
 #### `g_fixSaberDefense`
 0 = base JA saber blocking
@@ -117,21 +117,21 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 3 = (default) saber always hits for 1.00 damage multiplier, hands/arms count as chest, and feet count as legs
 
 #### `g_fixShield`
-0 = bugged basejka shield behavior; shields placed along the x-axis of a map are 25% taller (even though they do not visually reflect it in unpatched client mods)
+0 = bugged basejka shield behavior; shields placed along the x-axis of a map have a 25% taller hitbox than shields placed along the y-axis (even though they do not visually display as 25% taller in unpatched client mods)
 
-1 = (default) fixed shield behavior; all shields are correct height
+1 = (default) fix all shields; all shields are the correct height
 
 2 = break all shields; all shields are 25% taller
 
 #### `g_flechetteSpread`
-0 = disable
+0 = use base JA golan primary spread system, where one pellet is dead center and the other four pellets are *completely* random, e.g. they could all be way off in one corner.
 
-1 = improved golan primary spread pattern, guaranteeing one pellet to fire somewhere into each quadrant (±x, ±y)
+1 = (default) improved golan primary spread pattern, with one pellet dead center and each of the other four pellets guaranteed to fire somewhere into each quadrant (±x, ±y).
 
 #### `g_improvedDisarm`
 0 = disable
 
-1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed
+1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed. note that if using the saber throw vs. saberist fixes (see `g_damageFixes` bitflag 4 below) you won't really be getting disarmed anyway unless you do it to yourself intentionally.
 
 #### `g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (base JKA)
@@ -222,12 +222,14 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 
 1 = enable (base JKA)
 
-#### `g_blackIsNotConnectedSoWeGetToHaveAProperlyWorkingVideoGame`
-bitflag 1 = 100 damage saberthrows on gunners
+#### `g_damageFixes`
+bitflag 1 = removes randomness BS with saber throw damage on gunners; saber throw now deals a consistent 100 damage on enemy gunners. Also implements a consistent system for thrown saber travel -- sabers to always continue traveling through people they kill and get stopped from additional travel by people they fail to kill.
 
 bitflag 2 = removed rocket HP except for enemy tenloss and demp altfire
 
--1 = (default) both
+bitflag 4 = new system for saberthrow damage on enemy saberists, which removes randomness BS and takes into account facing angles, saber holstered/ignited, push/pull, etc. in a consistent way. Also disables saber throw disarm, which was random BS as well.
+
+-1 = (default) enable all
 
 0 = disable (base JKA)
 
@@ -257,6 +259,14 @@ bitflag 2 = removed rocket HP except for enemy tenloss and demp altfire
 0 = (default) bots jump around like crazy on maps without botroute support (base JKA)
 
 1 = bots stay on the ground on maps without botroute support
+
+#### `g_botDefaultSiegeClass`
+scout = (default) bots join as scout instead of assault
+
+#### `g_botAimbot`
+0 = disable
+
+1 = (default) bots aimbot people with disruptor
 
 #### `g_swoopKillPoints`
 The number of points you gain from killing swoops (1 = base JKA). Set to 0 (the default) so you don't gain points from farming swoops.
@@ -305,10 +315,14 @@ bitflag 4 = d jedi gets heal 3
 -1 = enable all
 
 #### `g_fixHoth2ndObj`
+0 = disable.
 
- 0 = disable
- 
- 1 = (default) defenders can press +use inside either spawn bunker to teleport from the first obj to the second obj, ion hack is now instantaneous, ion hack can now be performed by any class, reduced 2nd area turrets HP to 600 (was 1200), added health dispenser in cave for offense only, reduced outer cave rocks HP to 100 (was 1500), removed inner cave rocks, wampa spawns farther away from the wall (allows more optimal movement through cave), wampa is braindead during live pugs
+1 = (default) the base JA incarnation of Hoth's second objective Hoth is quite problematic. it's a "feast or famine" scenario where you either rush it and capture in under 20 seconds, or fail the rush and get held quite easily for a very long time (inverted bell curve). enabling this cvar implements the following changes, which make rushing *more* difficult, but normal completion of the obj *less* difficult (bell curve)
+
+* The defense can now teleport to the second obj from the first obj bunkers by pressing +use from anywhere inside either bunker.
+* Buffed the cave route by adding a health generator and streamlining movement (lobotomized the Wampa, moved him away from the wall, removed the inner rocks, and reduced the HP of the outer rocks by 93% (to 100 from 1500)).
+* Buffed the ion route by changing the hack to be instantaneous and performable by any class.
+* Reduced the HP of the two big turrets by 50% (to 600 from 1200).
 
 #### `g_antiSelfMax`
 0 = disable
@@ -353,7 +367,7 @@ bitflag 4 = d jedi gets heal 3
 #### `g_unlagged`
 0 = disable
 
-1 = (default) enable unlagged; anyone can use it with the `unlagged` command even if they don't have a supporting mod
+1 = (default) enable unlagged; anyone can use it with the `unlagged` command even if they don't have a supporting client mod
 
 #### Improved projectile pushing/deflection
 Pushing/deflection has been reworked in a way consistent with base siege gameplay, but in a bug-free manner. You can enable this with the recommended settings: `g_siegeReflectionFix 1`, `g_randomConeReflection -1`, `g_coneReflectAngle 30`, `g_breakRNG 0`. To disable, use the settings `g_siegeReflectionFix 0`, `g_randomConeReflection 0`, `g_coneReflectAngle 30`, `g_breakRNG -1`.
@@ -896,10 +910,22 @@ Note: this list is not necessarily intended to be comprehensive. This mod fixes 
 * Fixed big turrets' (like on Hoth) hitboxes not being accurate (invisible walls around them tanking shots)
 * Fixed spawn invulnerability expiring during pause
 * Fixed sometimes getting stuck and being unable to move when exiting the walker
+* Fixed the inaccurate, massive hitboxes of large Hoth turrets
+* Fixed hacks getting interrupted during server pause
+* Pause/unpause votes can be called by simply typing "pause" or "unpause" in the chat
 
 
 # Features that are also in Alpha's base_enhanced
 These are features in base_entranced that are also available in Alpha's base_enhanced (https://github.com/Avygeil/base_enhanced), the official server mod of the CTF community. base_entranced and Alpha's base_enhanced share the same ancestor (Sil's base_enhanced), and they are both open source, so they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
+
+#### Discord integration
+You can have the server automatically post pug results via Discord webhook, configurable using the cvars `g_webhookId` and `g_webhookToken`
+
+#### Country detection
+The country of anyone who connects will be printed in the connect message.
+
+#### Improved `status`
+The `rcon status` command has been improved for readability, showing more information, etc.
 
 #### Chat tokens
 Clients can use the following chat tokens:
@@ -957,6 +983,7 @@ Instead of using tell, you can send private messages to people by pressing your 
 
 #### Bugfixes and other changes
 * Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
+* Mitigated the ability of laggers to warp around unexpectedly by enforcing a minimum update rate.
 
 # Features that are also in Sil's base_enhanced
 These are features in base_entranced that are also available in Sil's now-inactive base_enhanced mod (https://github.com/TheSil/base_enhanced), the legacy server mod of the CTF and siege communities. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
