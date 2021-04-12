@@ -5103,6 +5103,12 @@ void Cmd_CallVote_f( gentity_t *ent, int pause ) {
 			trap_SendServerCommand(ent - g_entities, "print \"Ask question is disabled.\n\"");
 			return;
 		}
+
+		if (!arg2[0] || isspace(arg2[0])) {
+			trap_SendServerCommand(ent - g_entities, "print \"You must specify a poll question.\n\"");
+			return;
+		}
+
 		char		*questionstring;
 		questionstring = ConcatArgs(2);
 		if (strlen(questionstring) > 234)
