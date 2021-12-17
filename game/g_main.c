@@ -225,6 +225,8 @@ vmCvar_t	g_saberThrowDefenseRewind;
 vmCvar_t	g_webhookId;
 vmCvar_t	g_webhookToken;
 
+vmCvar_t	g_teamOverlayForce;
+
 vmCvar_t	g_improvedHoming;
 vmCvar_t	g_improvedHomingThreshold;
 vmCvar_t	d_debugImprovedHoming;
@@ -1132,6 +1134,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_webhookId, "g_webhookId", "", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_webhookToken, "g_webhookToken", "", CVAR_ARCHIVE, 0, qfalse },
+
+	{ &g_teamOverlayForce, "g_teamOverlayForce", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 
 	{ &g_teamOverlayUpdateRate, "g_teamOverlayUpdateRate", "250", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_delayClassUpdate, "g_delayClassUpdate", "1", CVAR_ARCHIVE, 0, qtrue },

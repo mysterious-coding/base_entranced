@@ -2946,6 +2946,8 @@ extern vmCvar_t		g_saberThrowDefenseRewind;
 extern vmCvar_t    g_webhookId;
 extern vmCvar_t    g_webhookToken;
 
+extern vmCvar_t		g_teamOverlayForce;
+
 extern vmCvar_t    g_improvedHoming;
 extern vmCvar_t    g_improvedHomingThreshold;
 extern vmCvar_t    d_debugImprovedHoming;
