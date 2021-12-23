@@ -5070,6 +5070,11 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return 0;
 	}
 
+	if (g_gametype.integer == GT_SIEGE && targ && targ->client && targ->client->ps.weapon == WP_MELEE && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].classflags & (1 << CFL_WONDERWOMAN)) {
+		float modifier = Com_Clamp(0.0f, 1.0f, g_wonderWomanDamageModifier.value);
+		damage = (int)((((float)damage) + 0.5f) * modifier);
+	}
+
 	if (freeze == FREEZE_YES || (freeze != FREEZE_NO && mod == MOD_DEMP2 && targ && targ->inuse && targ->client))
 	{
 		if (targ->client->ps.electrifyTime < level.time)

@@ -3,6 +3,7 @@
 #include "g_local.h"
 #include "w_saber.h"
 #include "q_shared.h"
+#include "bg_saga.h"
 
 #define	MISSILE_PRESTEP_TIME	50
 
@@ -503,6 +504,39 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			other->client->sess.siegeDuelIndex != ent->r.ownerNum)
 		{
 			goto killProj;
+		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE && other && other->client && other->client->ps.weapon == WP_MELEE && other->client->siegeClass != -1 && bgSiegeClasses[other->client->siegeClass].classflags & (1 << CFL_WONDERWOMAN)) {
+		if (ent->methodOfDeath != MOD_REPEATER_ALT &&
+			ent->methodOfDeath != MOD_ROCKET &&
+			ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH &&
+			ent->methodOfDeath != MOD_ROCKET_HOMING &&
+			ent->methodOfDeath != MOD_THERMAL &&
+			ent->methodOfDeath != MOD_THERMAL_SPLASH &&
+			ent->methodOfDeath != MOD_TRIP_MINE_SPLASH &&
+			ent->methodOfDeath != MOD_TIMED_MINE_SPLASH &&
+			ent->methodOfDeath != MOD_DET_PACK_SPLASH &&
+			ent->methodOfDeath != MOD_VEHICLE &&
+			ent->methodOfDeath != MOD_CONC &&
+			ent->methodOfDeath != MOD_CONC_ALT &&
+			ent->methodOfDeath != MOD_SABER &&
+			ent->methodOfDeath != MOD_TURBLAST)
+		{
+			vec3_t fwd;
+
+			if (trace)
+			{
+				VectorCopy(trace->plane.normal, fwd);
+			}
+			else
+			{ //oh well
+				AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
+			}
+
+			G_DeflectMissile(other, ent, fwd);
+			G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
+			return;
 		}
 	}
 

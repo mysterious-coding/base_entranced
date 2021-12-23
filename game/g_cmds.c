@@ -7176,6 +7176,7 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			case CFL_SPIDERMAN:				AddDesc(", ^3Perma-Wallgrab^7");					break;
 			case CFL_GRAPPLE:				AddDesc(", ^3Melee Grapple^7");						break;
 			case CFL_KICK:					AddDesc(", ^3Melee Kick^7");						break;
+			case CFL_WONDERWOMAN:					AddDesc(", ^3Wonder Woman^7");						break;
 			}
 		}
 	}

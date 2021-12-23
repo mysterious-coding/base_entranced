@@ -9283,6 +9283,10 @@ int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags
 		return 0;
 	}
 
+	if (g_gametype.integer == GT_SIEGE && self->client->ps.weapon == WP_MELEE && self->client->siegeClass != -1 && bgSiegeClasses[self->client->siegeClass].classflags & (1 << CFL_WONDERWOMAN)) {
+		return 1;
+	}
+
 	if (self->client->emoted)
 		return 0;
 
