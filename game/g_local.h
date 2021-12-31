@@ -2932,6 +2932,7 @@ extern vmCvar_t		g_siegeTimeVisualAid;
 extern vmCvar_t		g_botAimbot;
 extern vmCvar_t		g_botDefaultSiegeClass;
 extern vmCvar_t		g_wonderWomanDamageModifier;
+extern vmCvar_t		g_fixExplosiveHitboxes;
 
 extern vmCvar_t		g_saberThrowDefenseSmallAngle;
 extern vmCvar_t		g_saberThrowDefenseLargeAngle;
