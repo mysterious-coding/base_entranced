@@ -2341,6 +2341,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				pm->ps->fd.saberAnimLevel == SS_MEDIUM &&
 				pm->ps->velocity[2] > 100 &&
 				PM_GroundDistance() < 32 &&
+				(pm->cmd.upmove > 0 || (pm->ps->pm_flags & PMF_JUMP_HELD)) &&
 				!BG_InSpecialJump(pm->ps->legsAnim) &&
 				!BG_SaberInSpecialAttack(pm->ps->torsoAnim)&&
 				BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
@@ -2359,6 +2360,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				pm->ps->fd.saberAnimLevel == SS_STRONG &&
 				pm->ps->velocity[2] > 100 &&
 				PM_GroundDistance() < 32 &&
+				(pm->cmd.upmove > 0 || (pm->ps->pm_flags & PMF_JUMP_HELD)) &&
 				!BG_InSpecialJump(pm->ps->legsAnim) &&
 				!BG_SaberInSpecialAttack(pm->ps->torsoAnim)&&
 				BG_EnoughForcePowerForMove( SABER_ALT_ATTACK_POWER_FB ))

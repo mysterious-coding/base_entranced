@@ -7814,15 +7814,18 @@ void PM_AdjustAttackStates( pmove_t *pm )
 	}
 
 	// disruptor should convert a main fire to an alt-fire if the gun is currently zoomed
-	if ( pm->ps->weapon == WP_DISRUPTOR)
+	if (pm->ps->weapon == WP_DISRUPTOR)
 	{
-		if ( pm->cmd.buttons & BUTTON_ATTACK && pm->ps->zoomMode == 1 && pm->ps->zoomLocked)
+		if (pm->cmd.buttons & BUTTON_ATTACK && pm->ps->zoomMode == 1)
+			pm->ps->zoomLocked = qtrue; // fix scope bug
+
+		if (pm->cmd.buttons & BUTTON_ATTACK && pm->ps->zoomMode == 1 && pm->ps->zoomLocked)
 		{
 			// converting the main fire to an alt-fire
 			pm->cmd.buttons |= BUTTON_ALT_ATTACK;
 			pm->ps->eFlags |= EF_ALT_FIRING;
 		}
-		else if ( pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->ps->zoomMode == 1 && pm->ps->zoomLocked)
+		else if (pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->ps->zoomMode == 1 && pm->ps->zoomLocked)
 		{
 			pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 			pm->ps->eFlags &= ~EF_ALT_FIRING;
