@@ -1949,6 +1949,34 @@ static void DoEntrancedAddedSpawns(qboolean inSubBSP) {
 		if (inSubBSP)
 			HandleEntityAdjustment();
 		G_SpawnGEntityFromSpawnVars(inSubBSP);
+
+		level.numSpawnVarChars = 0;
+		level.numSpawnVars = 0;
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("classname");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("misc_model_serverside");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("origin");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1184 -1661 -84");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("angles");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("0 90 0");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("model");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("models/items/power_converter.md3");
+		if (inSubBSP)
+			HandleEntityAdjustment();
+		G_SpawnGEntityFromSpawnVars(inSubBSP);
+
+		level.numSpawnVarChars = 0;
+		level.numSpawnVars = 0;
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("classname");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("misc_model_health_power_converter");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("origin");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1184 -1660 -84");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("angle");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("90");
+		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken("healteam");
+		level.spawnVars[level.numSpawnVars++][1] = G_AddSpawnVarToken("1");
+		if (inSubBSP)
+			HandleEntityAdjustment();
+		G_SpawnGEntityFromSpawnVars(inSubBSP);
 	}
 }
 
