@@ -5071,7 +5071,7 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	if (g_gametype.integer == GT_SIEGE && targ && targ->client && targ->client->ps.weapon == WP_MELEE && targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].classflags & (1 << CFL_WONDERWOMAN)) {
-		float modifier = Com_Clamp(0.0f, 1.0f, g_wonderWomanDamageModifier.value);
+		float modifier = 0.5f;
 		damage = (int)((((float)damage) + 0.5f) * modifier);
 	}
 
@@ -5837,6 +5837,12 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		mod == MOD_SABER && attacker->client->saberBonusTime && level.time - attacker->client->saberBonusTime <= 1500 &&
 		targ && targ->client && targ - g_entities < MAX_CLIENTS && targ->s.weapon != WP_SABER) {
 		damage = (int)(((float)damage) * 1.5f);
+	}
+
+	if (g_gametype.integer == GT_SIEGE && targ && targ->client && targ - g_entities < MAX_CLIENTS &&
+		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].saberOffExtraDamage &&
+		targ->s.weapon == WP_SABER && targ->client->ps.saberHolstered) {
+		damage += (((float)damage) * bgSiegeClasses[targ->client->siegeClass].saberOffExtraDamage);
 	}
 
 	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself

@@ -3322,6 +3322,7 @@ typedef struct
 	qboolean	jetpackFreezeImmunity;
 	qboolean	audioMindTrick;
 	qboolean	saberOffDamageBoost;
+	float		saberOffExtraDamage;
 	qboolean	shortBurstJetpack;
 	qboolean	chargingDempRemovesSpawnShield;
 	qboolean	pull1IfSaberInAir;

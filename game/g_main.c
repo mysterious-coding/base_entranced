@@ -210,7 +210,6 @@ vmCvar_t	g_fixHoth2ndObj;
 vmCvar_t	g_siegeTimeVisualAid;
 vmCvar_t	g_botAimbot;
 vmCvar_t	g_botDefaultSiegeClass;
-vmCvar_t	g_wonderWomanDamageModifier;
 
 vmCvar_t	g_saberThrowDefenseSmallAngle;
 vmCvar_t	g_saberThrowDefenseLargeAngle;
@@ -1122,7 +1121,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeTimeVisualAid , "g_siegeTimeVisualAid", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botAimbot, "g_botAimbot", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botDefaultSiegeClass, "g_botDefaultSiegeClass", "scout", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_wonderWomanDamageModifier, "g_wonderWomanDamageModifier", "0.5", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saberThrowDefenseSmallAngle, "g_saberThrowDefenseSmallAngle", "30", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_saberThrowDefenseLargeAngle, "g_saberThrowDefenseLargeAngle", "80", CVAR_ARCHIVE, 0, qtrue },

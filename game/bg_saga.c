@@ -1106,6 +1106,11 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	else
 		scl->saberOffDamageBoost = qfalse;
 
+	if (BG_SiegeGetPairedValue(classInfo, "saberoffextradamage", parseBuf))
+		scl->saberOffExtraDamage = atof(parseBuf);
+	else
+		scl->saberOffExtraDamage = 0;
+
 	if (BG_SiegeGetPairedValue(classInfo, "shortburstjetpack", parseBuf))
 		scl->shortBurstJetpack = atoi(parseBuf) ? qtrue : qfalse;
 	else
