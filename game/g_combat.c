@@ -5842,7 +5842,7 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (g_gametype.integer == GT_SIEGE && targ && targ->client && targ - g_entities < MAX_CLIENTS &&
 		targ->client->siegeClass != -1 && bgSiegeClasses[targ->client->siegeClass].saberOffExtraDamage &&
 		targ->s.weapon == WP_SABER && targ->client->ps.saberHolstered) {
-		damage += (((float)damage) * bgSiegeClasses[targ->client->siegeClass].saberOffExtraDamage);
+		damage += (int)(((float)damage) * bgSiegeClasses[targ->client->siegeClass].saberOffExtraDamage);
 	}
 
 	if (!(attacker && attacker->client && targ && targ == attacker && attacker->client->sess.skillBoost)) { // not a skillboosted player attacking himself
