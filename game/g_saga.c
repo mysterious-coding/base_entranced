@@ -3006,6 +3006,15 @@ void SiegeBeginRound(int entNum)
 	level.siegeMatchWinner = SIEGEMATCHWINNER_NONE;
 	level.endedWithEndMatchCommand = qfalse; // sanity check; probably not needed
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
+
+	if (g_autoRestartAfterIntermission.integer && g_lastIntermissionStartTime.string[0] && Q_isanumber(g_lastIntermissionStartTime.string)) {
+		qboolean intermissionOccurredRecently = !!(((int)time(NULL)) - g_lastIntermissionStartTime.integer < 60);
+		if (intermissionOccurredRecently) {
+			int restartTime = Com_Clampi(5, 30, g_autoRestartAfterIntermission.integer);
+			trap_SendConsoleCommand(EXEC_APPEND, va("map_restart %d\n", restartTime));
+			trap_Cvar_Set("g_lastIntermissionStartTime", "");
+		}
+	}
 }
 
 void SiegeCheckTimers(void)

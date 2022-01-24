@@ -212,6 +212,8 @@ vmCvar_t	g_botAimbot;
 vmCvar_t	g_botDefaultSiegeClass;
 
 vmCvar_t	g_preventJoiningLargerTeam;
+vmCvar_t	g_lastIntermissionStartTime;
+vmCvar_t	g_autoRestartAfterIntermission;
 
 vmCvar_t	g_saberThrowDefenseSmallAngle;
 vmCvar_t	g_saberThrowDefenseLargeAngle;
@@ -1125,6 +1127,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_botDefaultSiegeClass, "g_botDefaultSiegeClass", "scout", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_preventJoiningLargerTeam, "g_preventJoiningLargerTeam", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_lastIntermissionStartTime, "g_lastIntermissionStartTime", "", CVAR_TEMP | CVAR_ROM, 0, qfalse },
+	{ &g_autoRestartAfterIntermission, "g_autoRestartAfterIntermission", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_saberThrowDefenseSmallAngle, "g_saberThrowDefenseSmallAngle", "30", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_saberThrowDefenseLargeAngle, "g_saberThrowDefenseLargeAngle", "80", CVAR_ARCHIVE, 0, qtrue },
@@ -3600,6 +3604,10 @@ void BeginIntermission(void) {
 			G_PostScoreboardToWebhook(statsBuf);
 		}
 	}
+
+	char timeBuf[MAX_STRING_CHARS] = { 0 };
+	Com_sprintf(timeBuf, sizeof(timeBuf), "%d", (int)time(NULL));
+	trap_Cvar_Set("g_lastIntermissionStartTime", timeBuf);
 }
 
 qboolean DuelLimitHit(void)

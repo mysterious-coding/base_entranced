@@ -2933,6 +2933,8 @@ extern vmCvar_t		g_botAimbot;
 extern vmCvar_t		g_botDefaultSiegeClass;
 
 extern vmCvar_t		g_preventJoiningLargerTeam;
+extern vmCvar_t		g_lastIntermissionStartTime;
+extern vmCvar_t		g_autoRestartAfterIntermission;
 
 extern vmCvar_t		g_saberThrowDefenseSmallAngle;
 extern vmCvar_t		g_saberThrowDefenseLargeAngle;
