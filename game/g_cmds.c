@@ -1042,6 +1042,27 @@ void SetTeam( gentity_t *ent, char *s, qboolean forceteamed ) {
 			teamChanged = qtrue;
 		}
 
+		if (g_preventJoiningLargerTeam.integer && g_gametype.integer >= GT_TEAM &&
+			!forceteamed && !(ent->r.svFlags & SVF_BOT) && teamChanged && (team == TEAM_RED || team == TEAM_BLUE)) {
+			int numRed = 0, numBlue = 0;
+			for (int i = 0; i < MAX_CLIENTS; i++) {
+				gentity_t *thisEnt = &g_entities[i];
+				if (thisEnt == ent || !thisEnt->inuse || !thisEnt->client)
+					continue;
+				if (thisEnt->client->sess.siegeDesiredTeam == TEAM_RED)
+					++numRed;
+				else if (thisEnt->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					++numBlue;
+			}
+			if ((team == TEAM_RED && numRed > numBlue) || (team == TEAM_BLUE && numBlue > numRed)) {
+				trap_SendServerCommand(ent - g_entities,
+					"cp \"^7Please join the other team to help balance the teams.\n\"");
+				trap_SendServerCommand(ent - g_entities,
+					"print \"^7Please join the other team to help balance the teams.\n\"");
+				return;
+			}
+		}
+
 		client->sess.siegeDesiredTeam = team;
 
 		if (client->sess.sessionTeam != TEAM_SPECTATOR && team != TEAM_SPECTATOR) {
