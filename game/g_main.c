@@ -210,6 +210,7 @@ vmCvar_t	g_fixHoth2ndObj;
 vmCvar_t	g_siegeTimeVisualAid;
 vmCvar_t	g_botAimbot;
 vmCvar_t	g_botDefaultSiegeClass;
+vmCvar_t	g_speedrunRoundOneRestart;
 
 vmCvar_t	g_preventJoiningLargerTeam;
 vmCvar_t	g_lastIntermissionStartTime;
@@ -1125,6 +1126,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeTimeVisualAid , "g_siegeTimeVisualAid", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botAimbot, "g_botAimbot", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botDefaultSiegeClass, "g_botDefaultSiegeClass", "scout", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_speedrunRoundOneRestart, "g_speedrunRoundOneRestart", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_preventJoiningLargerTeam, "g_preventJoiningLargerTeam", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lastIntermissionStartTime, "g_lastIntermissionStartTime", "", CVAR_TEMP | CVAR_ROM, 0, qfalse },

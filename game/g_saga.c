@@ -2559,7 +2559,7 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 		G_UseTargets2(&g_entities[originalWinningClient], &g_entities[originalWinningClient], teamstr);
 	}
 
-	if (level.isLivePug != ISLIVEPUG_YES && !level.mapCaptureRecords.speedRunModeRuined) {
+	if (level.isLivePug != ISLIVEPUG_YES && !level.mapCaptureRecords.speedRunModeRuined && g_speedrunRoundOneRestart.integer) {
 		SiegeClearSwitchData(); // if map is completed in speedrun mode, just restart round 1 afterwards and don't switch teams
 	}
 	else if (g_siegeTeamSwitch.integer &&
