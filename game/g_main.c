@@ -3694,8 +3694,7 @@ void ExitLevel (void) {
 	level.changemap = NULL;
 	level.intermissiontime = 0;
 
-	if (g_gametype.integer == GT_SIEGE &&
-		g_siegeTeamSwitch.integer && !(level.isLivePug != ISLIVEPUG_YES && !level.mapCaptureRecords.speedRunModeRuined))
+	if (g_gametype.integer == GT_SIEGE && g_siegeTeamSwitch.integer && (!g_speedrunRoundOneRestart.integer || !(level.isLivePug != ISLIVEPUG_YES && !level.mapCaptureRecords.speedRunModeRuined)))
 	{ //switch out now, unless map was completed under speedrun conditions
 		SiegeDoTeamAssign();
 	}
