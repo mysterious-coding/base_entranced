@@ -44,70 +44,13 @@ static int TraceCallback( unsigned int type, void* ctx, void* ptr, void* info ) 
 	return 0;
 }
 
-void G_DBLoadDatabase( void )
+void G_DBLoadDatabase( void *serverDbPtr )
 {
-	if (dbPtr) {
-		return;
+	if (!serverDbPtr) {
+		Com_Error(ERR_DROP, "Null db pointer from server");
 	}
 
-    int rc;
-
-	// db options
-
-	sqlite3_config( SQLITE_CONFIG_SINGLETHREAD ); // we don't need multi threading
-	sqlite3_config( SQLITE_CONFIG_MEMSTATUS, 0 ); // we don't need allocation statistics
-	sqlite3_config( SQLITE_CONFIG_LOG, ErrorCallback, NULL ); // error logging
-
-	// initialize db
-
-    rc = sqlite3_initialize();
-
-	if ( rc != SQLITE_OK ) {
-		Com_Error( ERR_DROP, "Failed to initialize SQLite3 (code: %d)\n", rc );
-		return;
-	}
-
-	Com_Printf("SQLite version: %s\n", sqlite3_libversion());
-
-    rc = sqlite3_open_v2( DB_FILENAME, &diskDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL );
-
-	if ( rc != SQLITE_OK ) {
-		Com_Error( ERR_DROP, "Failed to open database file "DB_FILENAME" (code: %d)\n", rc );
-		return;
-	}
-
-	Com_Printf( "Successfully opened database file "DB_FILENAME"\n" );
-
-	if ( g_inMemoryDB.integer ) {
-		Com_Printf( "Using in-memory database\n" );
-
-		// open db in memory
-		sqlite3* memoryDb = NULL;
-		rc = sqlite3_open_v2( ":memory:", &memoryDb, SQLITE_OPEN_READWRITE, NULL );
-
-		if ( rc == SQLITE_OK ) {
-			sqlite3_backup *backup = sqlite3_backup_init( memoryDb, "main", diskDb, "main" );
-			if ( backup ) {
-				rc = sqlite3_backup_step( backup, -1 );
-				if ( rc == SQLITE_DONE ) {
-					rc = sqlite3_backup_finish( backup );
-					if ( rc == SQLITE_OK ) {
-						dbPtr = memoryDb;
-					}
-				}
-			}
-		}
-
-		if ( !dbPtr ) {
-			Com_Printf( "ERROR: Failed to load database into memory!\n" );
-		}
-	}
-
-	// use disk db by default in any case
-	if ( !dbPtr ) {
-		Com_Printf( "Using on-disk database\n" );
-		dbPtr = diskDb;
-	}
+	dbPtr = serverDbPtr;
 
 	// register trace callback if needed
 	if ( g_traceSQL.integer ) {
@@ -115,7 +58,7 @@ void G_DBLoadDatabase( void )
 	}
 
 	// more db options
-	sqlite3_exec( dbPtr, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL );
+	trap_sqlite3_exec( dbPtr, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL );
 
 	// get version and call the upgrade routine
 
@@ -126,17 +69,17 @@ void G_DBLoadDatabase( void )
 	// setup tables if database was just created
 	// NOTE: this means g_database_schema.h must always reflect the latest version
 	if (!version) {
-		sqlite3_exec(dbPtr, sqlCreateTables, 0, 0, 0);
+		trap_sqlite3_exec(dbPtr, sqlCreateTables, 0, 0, 0);
 	}
 
 	if ( !G_DBUpgradeDatabaseSchema( version, dbPtr ) ) {
 		// don't let server load if an upgrade failed
 
-		if (dbPtr != diskDb) {
+		/*if (dbPtr != diskDb) {
 			// close in memory db immediately
 			sqlite3_close(dbPtr);
 			dbPtr = NULL;
-		}
+		}*/
 
 		Com_Error(ERR_DROP, "Failed to upgrade database, shutting down to avoid data corruption\n");
 	}
@@ -153,7 +96,7 @@ void G_DBLoadDatabase( void )
 	if ( last_optimize + DB_OPTIMIZE_INTERVAL < currentTime ) {
 		Com_Printf( "Automatically optimizing database...\n" );
 
-		sqlite3_exec( dbPtr, "PRAGMA optimize;", NULL, NULL, NULL );
+		trap_sqlite3_exec( dbPtr, "PRAGMA optimize;", NULL, NULL, NULL );
 
 		G_DBSetMetadata( "last_optimize", va( "%lld", currentTime ) );
 	}
@@ -168,7 +111,7 @@ void G_DBLoadDatabase( void )
 		if ( last_autoclean + DB_VACUUM_INTERVAL < currentTime ) {
 			Com_Printf( "Automatically running vacuum on database...\n" );
 
-			sqlite3_exec( dbPtr, "VACUUM;", NULL, NULL, NULL );
+			trap_sqlite3_exec( dbPtr, "VACUUM;", NULL, NULL, NULL );
 
 			G_DBSetMetadata( "last_vacuum", va( "%lld", currentTime ) );
 		}
@@ -179,35 +122,7 @@ void G_DBLoadDatabase( void )
 
 void G_DBUnloadDatabase( void )
 {
-	int rc;
 
-	if ( dbPtr && diskDb && dbPtr != diskDb ) {
-		Com_Printf( "Saving in-memory database changes to disk\n" );
-
-		// we are using in memory db, save changes to disk
-		qboolean success = qfalse;
-		sqlite3_backup *backup = sqlite3_backup_init( diskDb, "main", dbPtr, "main" );
-		if ( backup ) {
-			rc = sqlite3_backup_step( backup, -1 );
-			if ( rc == SQLITE_DONE ) {
-				rc = sqlite3_backup_finish( backup );
-				if ( rc == SQLITE_OK ) {
-					success = qtrue;
-				}
-			}
-		}
-
-		if ( !success ) {
-			Com_Printf( "WARNING: Failed to backup in-memory database! Changes from this session have NOT been saved!\n" );
-		}
-
-		sqlite3_close( dbPtr );
-	}
-
-	if (diskDb) {
-		sqlite3_close(diskDb);
-		diskDb = dbPtr = NULL;
-	}
 }
 
 // =========== METADATA ========================================================
@@ -231,20 +146,20 @@ void G_DBGetMetadata( const char *key,
 
 	outValue[0] = '\0';
 
-	int rc = sqlite3_prepare_v2( dbPtr, sqlGetMetadata, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlGetMetadata, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, key, -1, SQLITE_STATIC );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	while ( rc == SQLITE_ROW ) {
 		const char *value = ( const char* )sqlite3_column_text( statement, 0 );
 		if (VALIDSTRING(value))
 			Q_strncpyz( outValue, value, outValueBufSize );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 void G_DBSetMetadata( const char *key,
@@ -252,14 +167,14 @@ void G_DBSetMetadata( const char *key,
 {
 	sqlite3_stmt* statement;
 
-	int rc = sqlite3_prepare_v2( dbPtr, sqlSetMetadata, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlSetMetadata, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, key, -1, SQLITE_STATIC );
 	sqlite3_bind_text( statement, 2, value, -1, SQLITE_STATIC );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 // =========== ACCOUNTS ========================================================
@@ -308,12 +223,12 @@ qboolean G_DBGetAccountByID( const int id,
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlGetAccountByID, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlGetAccountByID, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, id );
 
 	qboolean found = qfalse;
-	int rc = sqlite3_step( statement );
+	int rc = trap_sqlite3_step( statement );( statement );
 
 	if ( rc == SQLITE_ROW ) {
 		const char* name = ( const char* )sqlite3_column_text( statement, 0 );
@@ -336,7 +251,7 @@ qboolean G_DBGetAccountByID( const int id,
 		found = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return found;
 }
@@ -346,12 +261,12 @@ qboolean G_DBGetAccountByName( const char* name,
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlGetAccountByName, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlGetAccountByName, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, name, -1, 0 );
 
 	qboolean found = qfalse;
-	int rc = sqlite3_step( statement );
+	int rc = trap_sqlite3_step( statement );( statement );
 
 	if ( rc == SQLITE_ROW ) {
 		const int account_id = sqlite3_column_int( statement, 0 );
@@ -374,7 +289,7 @@ qboolean G_DBGetAccountByName( const char* name,
 		found = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return found;
 }
@@ -383,28 +298,28 @@ void G_DBCreateAccount( const char* name )
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlCreateAccount, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlCreateAccount, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, name, -1, 0 );
 
-	sqlite3_step( statement );
+	trap_sqlite3_step( statement );( statement );
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 qboolean G_DBDeleteAccount( account_t* account )
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlDeleteAccount, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlDeleteAccount, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, account->id );
 
-	sqlite3_step( statement );
+	trap_sqlite3_step( statement );( statement );
 
 	qboolean success = sqlite3_changes( dbPtr ) != 0;
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -414,12 +329,12 @@ qboolean G_DBGetSessionByID( const int id,
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlGetSessionByID, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlGetSessionByID, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, id );
 
 	qboolean found = qfalse;
-	int rc = sqlite3_step( statement );
+	int rc = trap_sqlite3_step( statement );( statement );
 
 	if ( rc == SQLITE_ROW ) {
 		const sessionIdentifier_t identifier = sqlite3_column_int64( statement, 0 );
@@ -439,7 +354,7 @@ qboolean G_DBGetSessionByID( const int id,
 		found = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return found;
 }
@@ -449,12 +364,12 @@ qboolean G_DBGetSessionByIdentifier( const sessionIdentifier_t identifier,
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlGetSessionByIdentifier, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlGetSessionByIdentifier, -1, &statement, 0 );
 
 	sqlite3_bind_int64( statement, 1, identifier );
 
 	qboolean found = qfalse;
-	int rc = sqlite3_step( statement );
+	int rc = trap_sqlite3_step( statement );( statement );
 
 	if ( rc == SQLITE_ROW ) {
 		const int session_id = sqlite3_column_int( statement, 0 );
@@ -474,7 +389,7 @@ qboolean G_DBGetSessionByIdentifier( const sessionIdentifier_t identifier,
 		found = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return found;
 }
@@ -484,14 +399,14 @@ void G_DBCreateSession( const sessionIdentifier_t identifier,
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlCreateSession, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlCreateSession, -1, &statement, 0 );
 
 	sqlite3_bind_int64( statement, 1, identifier );
 	sqlite3_bind_text( statement, 2, info, -1, 0 );
 
-	sqlite3_step( statement );
+	trap_sqlite3_step( statement );( statement );
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 void G_DBLinkAccountToSession( session_t* session,
@@ -499,7 +414,7 @@ void G_DBLinkAccountToSession( session_t* session,
 {
 	sqlite3_stmt* statement;
 
-	sqlite3_prepare( dbPtr, sqlLinkAccountToSession, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlLinkAccountToSession, -1, &statement, 0 );
 
 	if ( account ) {
 		sqlite3_bind_int( statement, 1, account->id );
@@ -509,14 +424,14 @@ void G_DBLinkAccountToSession( session_t* session,
 	
 	sqlite3_bind_int( statement, 2, session->id );
 
-	sqlite3_step( statement );
+	trap_sqlite3_step( statement );( statement );
 
 	// link in the struct too if successful
 	if ( sqlite3_changes( dbPtr ) != 0 ) {
 		session->accountId = account ? account->id : ACCOUNT_ID_UNLINKED;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 void G_DBUnlinkAccountFromSession( session_t* session )
@@ -530,11 +445,11 @@ void G_DBListSessionsForAccount( account_t* account,
 {
 	sqlite3_stmt* statement;
 
-	int rc = sqlite3_prepare( dbPtr, sqlListSessionIdsForAccount, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlListSessionIdsForAccount, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, account->id );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	while ( rc == SQLITE_ROW ) {
 		session_t session;
 
@@ -550,10 +465,10 @@ void G_DBListSessionsForAccount( account_t* account,
 
 		callback( ctx, &session, !referenced );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 // =========== NICKNAMES =======================================================
@@ -600,7 +515,7 @@ void G_DBLogNickname( unsigned int ipInt,
 	sqlite3_stmt* statement;
 
 	// prepare insert statement
-	sqlite3_prepare( dbPtr, VALIDSTRING( cuidHash ) ? sqlAddNameNM : sqlAddName, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, VALIDSTRING( cuidHash ) ? sqlAddNameNM : sqlAddName, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ipInt );
 	sqlite3_bind_text( statement, 2, name, -1, 0 );
@@ -608,9 +523,9 @@ void G_DBLogNickname( unsigned int ipInt,
 	if ( VALIDSTRING( cuidHash ) )
 		sqlite3_bind_text( statement, 4, cuidHash, -1, 0 );
 
-	sqlite3_step( statement );
+	trap_sqlite3_step( statement );( statement );
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 void G_DBListAliases( unsigned int ipInt,
@@ -626,71 +541,71 @@ void G_DBListAliases( unsigned int ipInt,
 	int duration;
 	if ( VALIDSTRING( cuidHash ) ) { // newmod user; check for cuid matches first before falling back to checking for unique id matches
 		int numNMFound = 0;
-		rc = sqlite3_prepare( dbPtr, sqlCountNMAliases, -1, &statement, 0 );
+		rc = trap_sqlite3_prepare_v2( dbPtr, sqlCountNMAliases, -1, &statement, 0 );
 		sqlite3_bind_text( statement, 1, cuidHash, -1, 0 );
 		sqlite3_bind_int( statement, 2, limit );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 		while ( rc == SQLITE_ROW ) {
 			numNMFound = sqlite3_column_int( statement, 0 );
-			rc = sqlite3_step( statement );
+			rc = trap_sqlite3_step( statement );( statement );
 		}
 		sqlite3_reset( statement );
 
 		if ( numNMFound ) { // we found some cuid matches; let's use these
-			rc = sqlite3_prepare( dbPtr, sqlGetNMAliases, -1, &statement, 0 );
+			rc = trap_sqlite3_prepare_v2( dbPtr, sqlGetNMAliases, -1, &statement, 0 );
 			sqlite3_bind_text( statement, 1, cuidHash, -1, 0 );
 			sqlite3_bind_int( statement, 2, limit );
 
-			rc = sqlite3_step( statement );
+			rc = trap_sqlite3_step( statement );( statement );
 			while ( rc == SQLITE_ROW ) {
 				name = ( const char* )sqlite3_column_text( statement, 0 );
 				duration = sqlite3_column_int( statement, 1 );
 
 				callback( context, name, duration );
 
-				rc = sqlite3_step( statement );
+				rc = trap_sqlite3_step( statement );( statement );
 			}
-			sqlite3_finalize( statement );
+			trap_sqlite3_finalize( statement );
 		}
 		else { // didn't find any cuid matches; use the old unique id method
-			rc = sqlite3_prepare( dbPtr, sqlGetAliases, -1, &statement, 0 );
+			rc = trap_sqlite3_prepare_v2( dbPtr, sqlGetAliases, -1, &statement, 0 );
 			sqlite3_bind_int( statement, 1, ipInt );
 			sqlite3_bind_int( statement, 2, ipMask );
 			sqlite3_bind_int( statement, 3, limit );
 
-			rc = sqlite3_step( statement );
+			rc = trap_sqlite3_step( statement );( statement );
 			while ( rc == SQLITE_ROW ) {
 				name = ( const char* )sqlite3_column_text( statement, 0 );
 				duration = sqlite3_column_int( statement, 1 );
 
 				callback( context, name, duration );
 
-				rc = sqlite3_step( statement );
+				rc = trap_sqlite3_step( statement );( statement );
 			}
-			sqlite3_finalize( statement );
+			trap_sqlite3_finalize( statement );
 		}
 	}
 	else { // non-newmod; just use the old unique id method
 		sqlite3_stmt* statement;
 		// prepare insert statement
-		int rc = sqlite3_prepare( dbPtr, sqlGetAliases, -1, &statement, 0 );
+		int rc = trap_sqlite3_prepare_v2( dbPtr, sqlGetAliases, -1, &statement, 0 );
 
 		sqlite3_bind_int( statement, 1, ipInt );
 		sqlite3_bind_int( statement, 2, ipMask );
 		sqlite3_bind_int( statement, 3, limit );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 		while ( rc == SQLITE_ROW ) {
 			name = ( const char* )sqlite3_column_text( statement, 0 );
 			duration = sqlite3_column_int( statement, 1 );
 
 			callback( context, name, duration );
 
-			rc = sqlite3_step( statement );
+			rc = trap_sqlite3_step( statement );( statement );
 		}
 
-		sqlite3_finalize( statement );
+		trap_sqlite3_finalize( statement );
 	}
 }
 
@@ -822,13 +737,13 @@ void G_DBLoadCaptureRecords(const char *mapname, CaptureCategoryFlags flags, qbo
 	int loaded = 0;
 
 	sqlite3_stmt* statement;
-	int rc = sqlite3_prepare(dbPtr, flags & CAPTURERECORDFLAG_DEFENSE ? (strict ? sqlGetSiegeFastcapsStrictDescending : sqlGetSiegeFastcapsRelaxedDescending) : (strict ? sqlGetSiegeFastcapsStrict : sqlGetSiegeFastcapsRelaxed), -1, &statement, 0);
+	int rc = trap_sqlite3_prepare_v2(dbPtr, flags & CAPTURERECORDFLAG_DEFENSE ? (strict ? sqlGetSiegeFastcapsStrictDescending : sqlGetSiegeFastcapsRelaxedDescending) : (strict ? sqlGetSiegeFastcapsStrict : sqlGetSiegeFastcapsRelaxed), -1, &statement, 0);
 
 	sqlite3_bind_text(statement, 1, mapname, -1, 0);
 	sqlite3_bind_int(statement, 2, flags);
 	sqlite3_bind_int(statement, 3, MAX_SAVED_RECORDS);
 
-	rc = sqlite3_step(statement);
+	rc = trap_sqlite3_step( statement );(statement);
 
 	int j = 0;
 	while (rc == SQLITE_ROW && j < MAX_SAVED_RECORDS) {
@@ -925,11 +840,11 @@ void G_DBLoadCaptureRecords(const char *mapname, CaptureCategoryFlags flags, qbo
 			k += 6;
 		}
 
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 		++loaded;
 		++j;
 	}
-	sqlite3_finalize(statement);
+	trap_sqlite3_finalize(statement);
 
 	// write the remaining global fields
 	//recordsToLoad->enabled = qtrue;
@@ -945,13 +860,13 @@ void G_DBListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int of
 		return;
 	}
 	sqlite3_stmt* statement;
-	int rc = sqlite3_prepare(dbPtr, sqlListBestSiegeFastcaps, -1, &statement, 0);
+	int rc = trap_sqlite3_prepare_v2(dbPtr, sqlListBestSiegeFastcaps, -1, &statement, 0);
 
 	sqlite3_bind_int(statement, 1, flags);
 	sqlite3_bind_int(statement, 2, limit);
 	sqlite3_bind_int(statement, 3, offset);
 
-	rc = sqlite3_step(statement);
+	rc = trap_sqlite3_step( statement );(statement);
 	while (rc == SQLITE_ROW) {
 		int k = 0;
 		const int thisRecordFlags = sqlite3_column_int(statement, k++);
@@ -972,21 +887,21 @@ void G_DBListAllMapsCaptureRecords(CaptureCategoryFlags flags, int limit, int of
 		const time_t date = sqlite3_column_int64(statement, k++);
 
 		callback(context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, player3_name, player3_ip_int, player3_cuid_hash2, player4_name, player4_ip_int, player4_cuid_hash2, best_time, date);
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 	}
 
-	sqlite3_finalize(statement);
+	trap_sqlite3_finalize(statement);
 }
 
 void G_DBListLatestCaptureRecords(CaptureCategoryFlags flags, int limit, int offset, ListLastestCapturesCallback callback, void *context) {
 	sqlite3_stmt* statement;
-	int rc = sqlite3_prepare(dbPtr, sqlListLatestSiegeFastcaps, -1, &statement, 0);
+	int rc = trap_sqlite3_prepare_v2(dbPtr, sqlListLatestSiegeFastcaps, -1, &statement, 0);
 
 	sqlite3_bind_int(statement, 1, flags);
 	sqlite3_bind_int(statement, 2, limit);
 	sqlite3_bind_int(statement, 3, offset);
 
-	rc = sqlite3_step(statement);
+	rc = trap_sqlite3_step( statement );(statement);
 	while (rc == SQLITE_ROW) {
 		int k = 0;
 		const int thisRecordFlags = sqlite3_column_int(statement, k++);
@@ -1008,10 +923,10 @@ void G_DBListLatestCaptureRecords(CaptureCategoryFlags flags, int limit, int off
 		const int rank = sqlite3_column_int(statement, k++);
 
 		callback(context, mapname, flags, thisRecordFlags, player1_name, player1_ip_int, player1_cuid_hash2, player2_name, player2_ip_int, player2_cuid_hash2, player3_name, player3_ip_int, player3_cuid_hash2, player4_name, player4_ip_int, player4_cuid_hash2, best_time, date, rank);
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 	}
 
-	sqlite3_finalize(statement);
+	trap_sqlite3_finalize(statement);
 }
 
 static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCategory, void *mapname) {
@@ -1023,13 +938,13 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 	{
 		// first, delete all of the old records for this category on this map, even those that didn't change
 		sqlite3_stmt* statement;
-		sqlite3_prepare(dbPtr, sqlremoveSiegeFastcaps, -1, &statement, 0);
+		trap_sqlite3_prepare_v2(dbPtr, sqlremoveSiegeFastcaps, -1, &statement, 0);
 		sqlite3_bind_text(statement, 1, mapname, -1, 0);
 		sqlite3_bind_int(statement, 2, recordsForCategory->flags);
-		int rc = sqlite3_step(statement);
+		int rc = trap_sqlite3_step( statement );(statement);
 		if (rc != SQLITE_DONE)
 			Com_Printf("SaveCapturesForCategory: error deleting\n");
-		sqlite3_finalize(statement);
+		trap_sqlite3_finalize(statement);
 	}
 
 	int saved = 0;
@@ -1039,7 +954,7 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 			continue; // not a valid record
 
 		sqlite3_stmt *statement;
-		sqlite3_prepare(dbPtr, sqlAddSiegeFastcapV2, -1, &statement, 0);
+		trap_sqlite3_prepare_v2(dbPtr, sqlAddSiegeFastcapV2, -1, &statement, 0);
 
 		int k = 1;
 		sqlite3_bind_text(statement, k++, mapname, -1, 0);
@@ -1122,10 +1037,10 @@ static qboolean SaveCapturesForCategory(CaptureRecordsForCategory *recordsForCat
 				sqlite3_bind_null(statement, k++);
 		}
 
-		int rc = sqlite3_step(statement);
+		int rc = trap_sqlite3_step( statement );(statement);
 		if (rc != SQLITE_DONE)
 			Com_Printf("SaveCapturesForCategory: error saving\n");
-		sqlite3_finalize(statement);
+		trap_sqlite3_finalize(statement);
 		++saved;
 	}
 
@@ -1178,27 +1093,27 @@ int G_DBPlayerLockdownWhitelisted(unsigned long long uniqueID, const char* cuidH
 
 	if (VALIDSTRING(cuidHash)) {
 		// check for cuid whitelist
-		rc = sqlite3_prepare(dbPtr, sqlCheckNMPlayerWhitelisted, -1, &statement, 0);
+		rc = trap_sqlite3_prepare_v2(dbPtr, sqlCheckNMPlayerWhitelisted, -1, &statement, 0);
 		sqlite3_bind_text(statement, 1, cuidHash, -1, 0);
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 		while (rc == SQLITE_ROW) {
 			if (sqlite3_column_int(statement, 0) > 0)
 				whitelistedFlags |= LOCKDOWNWHITELISTED_CUID;
-			rc = sqlite3_step(statement);
+			rc = trap_sqlite3_step( statement );(statement);
 		}
 		sqlite3_reset(statement);
 	}
 
 	// check for ip whitelist
-	rc = sqlite3_prepare(dbPtr, sqlCheckPlayerWhitelisted, -1, &statement, 0);
+	rc = trap_sqlite3_prepare_v2(dbPtr, sqlCheckPlayerWhitelisted, -1, &statement, 0);
 	sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
-	rc = sqlite3_step(statement);
+	rc = trap_sqlite3_step( statement );(statement);
 	while (rc == SQLITE_ROW) {
 		if (sqlite3_column_int(statement, 0) > 0)
 			whitelistedFlags |= LOCKDOWNWHITELISTED_ID;
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 	}
-	sqlite3_finalize(statement);
+	trap_sqlite3_finalize(statement);
 
 	return whitelistedFlags;
 }
@@ -1208,40 +1123,40 @@ void G_DBStorePlayerInLockdownWhitelist(unsigned long long uniqueID, const char*
 	int rc;
 
 	if (uniqueID && VALIDSTRING(cuidHash)) {
-		rc = sqlite3_prepare(dbPtr, sqlAddUniqueIDAndCuidToWhitelist, -1, &statement, 0);
+		rc = trap_sqlite3_prepare_v2(dbPtr, sqlAddUniqueIDAndCuidToWhitelist, -1, &statement, 0);
 		sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
 		sqlite3_bind_text(statement, 2, cuidHash, -1, 0);
 		sqlite3_bind_text(statement, 3, name, -1, 0);
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 	}
 	else if (uniqueID) {
-		rc = sqlite3_prepare(dbPtr, sqlAddUniqueIDToWhitelist, -1, &statement, 0);
+		rc = trap_sqlite3_prepare_v2(dbPtr, sqlAddUniqueIDToWhitelist, -1, &statement, 0);
 		sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
 		sqlite3_bind_text(statement, 2, name, -1, 0);
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 	}
 	else if (VALIDSTRING(cuidHash)) {
-		rc = sqlite3_prepare(dbPtr, sqlAddCuidToWhitelist, -1, &statement, 0);
+		rc = trap_sqlite3_prepare_v2(dbPtr, sqlAddCuidToWhitelist, -1, &statement, 0);
 		sqlite3_bind_text(statement, 1, cuidHash, -1, 0);
 		sqlite3_bind_text(statement, 2, name, -1, 0);
-		rc = sqlite3_step(statement);
+		rc = trap_sqlite3_step( statement );(statement);
 	}
 
-	sqlite3_finalize(statement);
+	trap_sqlite3_finalize(statement);
 }
 
 void G_DBRemovePlayerFromLockdownWhitelist(unsigned long long uniqueID, const char* cuidHash) {
 	sqlite3_stmt* statement;
 
-	int rc = sqlite3_prepare(dbPtr, VALIDSTRING(cuidHash) ? sqlDeleteNMPlayerFromWhitelist : sqlDeletePlayerFromWhitelist, -1, &statement, 0);
+	int rc = trap_sqlite3_prepare_v2(dbPtr, VALIDSTRING(cuidHash) ? sqlDeleteNMPlayerFromWhitelist : sqlDeletePlayerFromWhitelist, -1, &statement, 0);
 
 	sqlite3_bind_int64(statement, 1, (signed long long)uniqueID);
 	if (VALIDSTRING(cuidHash))
 		sqlite3_bind_text(statement, 2, cuidHash, -1, 0);
 
-	rc = sqlite3_step(statement);
+	rc = trap_sqlite3_step( statement );(statement);
 
-	sqlite3_finalize(statement);
+	trap_sqlite3_finalize(statement);
 }
 
 // =========== WHITELIST =======================================================
@@ -1270,11 +1185,11 @@ qboolean G_DBIsFilteredByWhitelist( unsigned int ip,
 	sqlite3_stmt* statement;
 
 	// prepare whitelist check statement
-	sqlite3_prepare( dbPtr, sqlIsIpWhitelisted, -1, &statement, 0 );
+	trap_sqlite3_prepare_v2( dbPtr, sqlIsIpWhitelisted, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ip );
 
-	sqlite3_step( statement );
+	trap_sqlite3_step( statement );( statement );
 	int count = sqlite3_column_int( statement, 0 );
 
 	if ( count == 0 )
@@ -1283,7 +1198,7 @@ qboolean G_DBIsFilteredByWhitelist( unsigned int ip,
 		filtered = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return filtered;
 }
@@ -1296,20 +1211,20 @@ qboolean G_DBAddToWhitelist( unsigned int ip,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlAddToWhitelist, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlAddToWhitelist, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ip );
 	sqlite3_bind_int( statement, 2, mask );
 
 	sqlite3_bind_text( statement, 3, notes, -1, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		success = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1321,12 +1236,12 @@ qboolean G_DBRemoveFromWhitelist( unsigned int ip,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlremoveFromWhitelist, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlremoveFromWhitelist, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ip );
 	sqlite3_bind_int( statement, 2, mask );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		int changes = sqlite3_changes( dbPtr );
@@ -1336,7 +1251,7 @@ qboolean G_DBRemoveFromWhitelist( unsigned int ip,
 		}
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1372,11 +1287,11 @@ qboolean G_DBIsFilteredByBlacklist( unsigned int ip,
 	sqlite3_stmt* statement;
 
 	// prepare blacklist check statement
-	int rc = sqlite3_prepare( dbPtr, sqlIsIpBlacklisted, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlIsIpBlacklisted, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ip );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 
 	// blacklisted => we forbid it
 	if ( rc == SQLITE_ROW )
@@ -1390,7 +1305,7 @@ qboolean G_DBIsFilteredByBlacklist( unsigned int ip,
 		filtered = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return filtered;
 }
@@ -1399,9 +1314,9 @@ void G_DBListBlacklist( BlackListCallback callback )
 {
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlListBlacklist, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlListBlacklist, -1, &statement, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	while ( rc == SQLITE_ROW )
 	{
 		unsigned int ip = sqlite3_column_int( statement, 0 );
@@ -1413,10 +1328,10 @@ void G_DBListBlacklist( BlackListCallback callback )
 
 		callback( ip, mask, notes, reason, banned_since, banned_until );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 qboolean G_DBAddToBlacklist( unsigned int ip,
@@ -1429,7 +1344,7 @@ qboolean G_DBAddToBlacklist( unsigned int ip,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlAddToBlacklist, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlAddToBlacklist, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ip );
 	sqlite3_bind_int( statement, 2, mask );
@@ -1439,13 +1354,13 @@ qboolean G_DBAddToBlacklist( unsigned int ip,
 
 	sqlite3_bind_int( statement, 5, hours );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		success = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1457,12 +1372,12 @@ qboolean G_DBRemoveFromBlacklist( unsigned int ip,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlRemoveFromBlacklist, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlRemoveFromBlacklist, -1, &statement, 0 );
 
 	sqlite3_bind_int( statement, 1, ip );
 	sqlite3_bind_int( statement, 2, mask );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 
 	if ( rc == SQLITE_DONE )
 	{
@@ -1473,7 +1388,7 @@ qboolean G_DBRemoveFromBlacklist( unsigned int ip,
 		}
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1539,9 +1454,9 @@ void G_DBListPools( ListPoolCallback callback,
 {
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlListPools, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlListPools, -1, &statement, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	while ( rc == SQLITE_ROW )
 	{
 		int pool_id = sqlite3_column_int( statement, 0 );
@@ -1550,10 +1465,10 @@ void G_DBListPools( ListPoolCallback callback,
 
 		callback( context, pool_id, short_name, long_name );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 void G_DBListMapsInPool( const char* short_name,
@@ -1565,12 +1480,12 @@ void G_DBListMapsInPool( const char* short_name,
 {
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlListMapsInPool, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlListMapsInPool, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 	sqlite3_bind_text( statement, 2, ignore, -1, 0 ); // ignore map, we 
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	while ( rc == SQLITE_ROW )
 	{
 		const char* long_name = ( const char* )sqlite3_column_text( statement, 0 );
@@ -1585,10 +1500,10 @@ void G_DBListMapsInPool( const char* short_name,
 			callback( context, long_name, pool_id, mapname, weight );
 		}
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 }
 
 qboolean G_DBFindPool( const char* short_name,
@@ -1599,11 +1514,11 @@ qboolean G_DBFindPool( const char* short_name,
 	sqlite3_stmt* statement;
 
 	// prepare blacklist check statement
-	int rc = sqlite3_prepare( dbPtr, sqlFindPool, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlFindPool, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 
 	// blacklisted => we forbid it
 	if ( rc == SQLITE_ROW )
@@ -1617,7 +1532,7 @@ qboolean G_DBFindPool( const char* short_name,
 		found = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return found;
 }
@@ -1760,18 +1675,18 @@ qboolean G_DBPoolCreate( const char* short_name,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlCreatePool, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlCreatePool, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 	sqlite3_bind_text( statement, 2, long_name, -1, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		success = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1782,11 +1697,11 @@ qboolean G_DBPoolDeleteAllMaps( const char* short_name )
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlDeleteAllMapsInPool, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlDeleteAllMapsInPool, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		int changes = sqlite3_changes( dbPtr );
@@ -1796,7 +1711,7 @@ qboolean G_DBPoolDeleteAllMaps( const char* short_name )
 		}
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1809,11 +1724,11 @@ qboolean G_DBPoolDelete( const char* short_name )
 	{
 		sqlite3_stmt* statement;
 		// prepare insert statement
-		int rc = sqlite3_prepare( dbPtr, sqlDeletePool, -1, &statement, 0 );
+		int rc = trap_sqlite3_prepare_v2( dbPtr, sqlDeletePool, -1, &statement, 0 );
 
 		sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 
-		rc = sqlite3_step( statement );
+		rc = trap_sqlite3_step( statement );( statement );
 		if ( rc == SQLITE_DONE )
 		{
 			int changes = sqlite3_changes( dbPtr );
@@ -1823,7 +1738,7 @@ qboolean G_DBPoolDelete( const char* short_name )
 			}
 		}
 
-		sqlite3_finalize( statement );
+		trap_sqlite3_finalize( statement );
 	}
 
 	return success;
@@ -1837,19 +1752,19 @@ qboolean G_DBPoolMapAdd( const char* short_name,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlAddMapToPool, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlAddMapToPool, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, mapname, -1, 0 );
 	sqlite3_bind_int( statement, 2, weight );
 	sqlite3_bind_text( statement, 3, short_name, -1, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		success = qtrue;
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
@@ -1861,12 +1776,12 @@ qboolean G_DBPoolMapRemove( const char* short_name,
 
 	sqlite3_stmt* statement;
 	// prepare insert statement
-	int rc = sqlite3_prepare( dbPtr, sqlRemoveMapToPool, -1, &statement, 0 );
+	int rc = trap_sqlite3_prepare_v2( dbPtr, sqlRemoveMapToPool, -1, &statement, 0 );
 
 	sqlite3_bind_text( statement, 1, short_name, -1, 0 );
 	sqlite3_bind_text( statement, 2, mapname, -1, 0 );
 
-	rc = sqlite3_step( statement );
+	rc = trap_sqlite3_step( statement );( statement );
 	if ( rc == SQLITE_DONE )
 	{
 		int changes = sqlite3_changes( dbPtr );
@@ -1876,7 +1791,7 @@ qboolean G_DBPoolMapRemove( const char* short_name,
 		}
 	}
 
-	sqlite3_finalize( statement );
+	trap_sqlite3_finalize( statement );
 
 	return success;
 }
