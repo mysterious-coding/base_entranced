@@ -550,7 +550,7 @@ void G_DBListAliases( unsigned int ipInt,
 			numNMFound = sqlite3_column_int( statement, 0 );
 			rc = trap_sqlite3_step( statement );( statement );
 		}
-		sqlite3_reset( statement );
+		trap_sqlite3_reset( statement );
 
 		if ( numNMFound ) { // we found some cuid matches; let's use these
 			rc = trap_sqlite3_prepare_v2( dbPtr, sqlGetNMAliases, -1, &statement, 0 );
@@ -1101,7 +1101,7 @@ int G_DBPlayerLockdownWhitelisted(unsigned long long uniqueID, const char* cuidH
 				whitelistedFlags |= LOCKDOWNWHITELISTED_CUID;
 			rc = trap_sqlite3_step( statement );(statement);
 		}
-		sqlite3_reset(statement);
+		trap_sqlite3_reset(statement);
 	}
 
 	// check for ip whitelist
