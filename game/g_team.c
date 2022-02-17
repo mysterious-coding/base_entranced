@@ -1498,7 +1498,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 				// modified behavior: compatible client mods can display everything properly; incompatible clients will see force in place of armor
 				// armor slot = force power points
 				// powerups slot = armor in the upper 8 (unused) bits; actual powerups in the lower bits as normal
-				a = player->client->ps.fd.forcePower;
+				a = player->client->ps.fd.forcePowersKnown ? player->client->ps.fd.forcePower : -1;
 				byte clampedArmor = (byte)Com_Clampi(0, 255, player->client->ps.stats[STAT_ARMOR]);
 				p = (int)(clampedArmor << 24);
 				p |= player->s.powerups;
@@ -1508,9 +1508,9 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 				// armor slot = armor
 				// powerups slot = powerups
 				a = player->client->ps.stats[STAT_ARMOR];
+				if (a < 0) a = 0;
 				p = player->s.powerups;
 			}
-			if (a < 0) a = 0;
 
 			
 
