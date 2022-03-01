@@ -72,6 +72,8 @@ void G_DBLoadDatabase( void *serverDbPtr )
 		trap_sqlite3_exec(dbPtr, sqlCreateTables, 0, 0, 0);
 	}
 
+#if 0
+	// unused thus far
 	if ( !G_DBUpgradeDatabaseSchema( version, dbPtr ) ) {
 		// don't let server load if an upgrade failed
 
@@ -83,6 +85,7 @@ void G_DBLoadDatabase( void *serverDbPtr )
 
 		Com_Error(ERR_DROP, "Failed to upgrade database, shutting down to avoid data corruption\n");
 	}
+#endif
 
 	G_DBSetMetadata( "schema_version", DB_SCHEMA_VERSION_STR );
 
