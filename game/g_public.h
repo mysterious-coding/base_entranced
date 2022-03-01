@@ -97,6 +97,9 @@ typedef struct {
 	// by the second array index.
 	int			broadcastClients[2];
 
+	qboolean	singleEntityCollision;
+	int			singleEntityThatCanCollide;
+
 } entityShared_t;
 
 //===============================================================
