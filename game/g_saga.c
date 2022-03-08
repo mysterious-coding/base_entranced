@@ -55,17 +55,11 @@ static char gObjectiveCfgStr[1024];
 void UpdateNewmodSiegeTimers(void) {
 	if (!g_siegeRespawn.integer || g_siegeRespawn.integer == 1)
 		return;
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		gentity_t *ent = &g_entities[i];
-		if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
-			continue;
-		gentity_t *te = G_TempEntity(ent->client->ps.origin, EV_SIEGESPEC);
-		te->s.time = level.siegeRespawnCheck;
-		te->s.owner = SIEGETIMER_FAKEOWNER;
-		te->s.saberInFlight = qtrue;
-		te->r.svFlags |= SVF_SINGLECLIENT;
-		te->r.singleClient = i;
-	}
+	gentity_t *te = G_TempEntity(vec3_origin, EV_SIEGESPEC);
+	te->s.time = level.siegeRespawnCheck;
+	te->s.owner = SIEGETIMER_FAKEOWNER;
+	te->s.saberInFlight = qtrue;
+	te->r.svFlags |= SVF_BROADCAST;
 }
 #endif
 
