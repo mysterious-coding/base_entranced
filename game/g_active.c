@@ -2895,7 +2895,7 @@ void ClientThink_real( gentity_t *ent ) {
 		// dead siege spec; try to follow a teammate if anyone else is still alive
 		client->oldbuttons = client->buttons;
 		client->buttons = ucmd->buttons;
-		int offset = client->fakeSpec ? client->fakeSpecClient : 0;
+		int offset = client->fakeSpecClient;
 		int direction = 1;
 		qboolean tryChange = qfalse;
 
