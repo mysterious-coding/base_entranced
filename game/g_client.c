@@ -3185,6 +3185,9 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	if (g_teamOverlayForce.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "tolf ");
 
+	if (!g_siegeGhosting.integer)
+		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "sgho ");
+
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
 	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };
@@ -3922,6 +3925,8 @@ void ClientSpawn(gentity_t *ent, qboolean forceUpdateInfo) {
 
 	index = ent - g_entities;
 	client = ent->client;
+
+	client->fakeSpec = qfalse;
 
 	if (index >= 0 && index < MAX_CLIENTS && client) {
 		client->emoted = qfalse;

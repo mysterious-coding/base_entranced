@@ -2891,14 +2891,128 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
-	// spectators don't do much
-	if ( client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time ) {
-        CheckSpectatorInactivityTimer(client);
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
+	if (!g_siegeGhosting.integer && g_gametype.integer == GT_SIEGE && client->tempSpectate > level.time && client->ps.clientNum < MAX_CLIENTS && !(g_entities[client->ps.clientNum].r.svFlags & SVF_BOT)) {
+		// dead siege spec; try to follow a teammate if anyone else is still alive
+		client->oldbuttons = client->buttons;
+		client->buttons = ucmd->buttons;
+		int offset = client->fakeSpec ? client->fakeSpecClient : 0;
+		int direction = 1;
+		qboolean tryChange = qfalse;
+
+		if ((client->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK)) { // mouse1
+			tryChange = qtrue;
+		}
+		else if ((client->buttons & BUTTON_ALT_ATTACK) && !(client->oldbuttons & BUTTON_ALT_ATTACK)) { // mouse2
+			tryChange = qtrue;
+			direction = -1;
+		}
+
+		gentity_t *followee = NULL;
+
+		// try to keep following the person we were already following
+		if (client->fakeSpec) {
+			followee = &g_entities[client->fakeSpecClient];
+			if (!followee->inuse || followee == ent || !followee->client || followee->client->pers.connected != CON_CONNECTED ||
+				followee->client->sess.sessionTeam != ent->client->sess.sessionTeam || followee->client->tempSpectate >= level.time) {
+				followee = NULL; // the followee has died or disconnected or something
+			}
+		}
+
+		// try to cycle to someone else
+		if (tryChange || !followee) {
+			offset %= MAX_CLIENTS;
+			int limit = direction == 1 ? MAX_CLIENTS : -MAX_CLIENTS;
+			for (int i = 0; i != limit; i += direction) {
+				int j = (i + offset) % MAX_CLIENTS;
+				if (j < 0)
+					j = MAX_CLIENTS - j;
+				followee = &g_entities[j];
+				if (!followee->inuse || !followee->client || followee->client->pers.connected != CON_CONNECTED || followee == ent || (client->fakeSpec && client->fakeSpecClient == j) ||
+					followee->client->sess.sessionTeam != ent->client->sess.sessionTeam || followee->client->tempSpectate >= level.time) {
+					followee = NULL;
+					continue;
+				}
+				break;
+			}
+			if (!followee && client->fakeSpec)
+				followee = &g_entities[client->fakeSpecClient]; // couldn't find anyone; just keep following the person we were already following
+		}
+		else {
+			// just keep following the person we were already following
+			if (client->fakeSpec)
+				followee = &g_entities[client->fakeSpecClient];
+		}
+
+		if (followee && (!followee->inuse || followee == ent || !followee->client || followee->client->pers.connected != CON_CONNECTED ||
+			followee->client->sess.sessionTeam != ent->client->sess.sessionTeam || followee->client->tempSpectate >= level.time)) {
+			followee = NULL; // the followee has died or disconnected or something
+		}
+
+		qboolean changed = qfalse;
+		if (followee) { // we have someone to follow
+			if (!client->fakeSpec || client->fakeSpecClient != followee->client->ps.clientNum)
+				changed = qtrue;
+			client->fakeSpec = qtrue;
+			client->fakeSpecClient = followee->client->ps.clientNum;
+
+			pmove_t	pm;
+
+			client->ps.pm_type = PM_FLOAT; // mega hack
+			client->ps.speed = 0;
+			client->ps.basespeed = 0;
+			client->ps.legsAnim = 0;
+			client->ps.legsTimer = 0;
+			client->ps.torsoAnim = 0;
+			client->ps.torsoTimer = 0;
+			memset(&pm, 0, sizeof(pm));
+			pm.ps = &client->ps;
+			pm.cmd = *ucmd;
+			pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+			pm.trace = trap_Trace;
+			pm.pointcontents = trap_PointContents;
+			pm.noSpecMove = 1;
+			pm.animations = NULL;
+			pm.nonHumanoid = qfalse;
+			pm.baseEnt = (bgEntity_t *)g_entities;
+			pm.entSize = sizeof(gentity_t);
+			Pmove(&pm);
+			VectorCopy(followee->client->ps.origin, client->ps.origin);
+			if (changed) {
+				client->ps.eFlags ^= EF_TELEPORT_BIT; // toggle the teleport bit so the client knows to not lerp
+				SetClientViewAngle(ent, followee->client->ps.viewangles); // reset angles when starting to follow someone
+			}
+			VectorCopy(client->ps.origin, ent->s.origin);
+			trap_UnlinkEntity(ent);
+
+			if (changed)
+				trap_SendServerCommand(ent - g_entities, va("kls -1 -1 sgho %d", client->fakeSpecClient));
+		}
+		else { // nobody available to follow
+			if (client->fakeSpec)
+				trap_SendServerCommand(ent - g_entities, "kls -1 -1 sgho");
+			client->fakeSpec = qfalse;
+
+			// spectators don't do much
+			if (client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time) {
+				CheckSpectatorInactivityTimer(client);
+				if (client->sess.spectatorState == SPECTATOR_SCOREBOARD) {
+					return;
+				}
+				SpectatorThink(ent, ucmd);
+			}
+		}
+		return;
+	}
+	else {
+		// spectators don't do much
+		if (client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time) {
+			CheckSpectatorInactivityTimer(client);
+			if (client->sess.spectatorState == SPECTATOR_SCOREBOARD) {
+				return;
+			}
+			SpectatorThink(ent, ucmd);
 			return;
 		}
-		SpectatorThink( ent, ucmd );
-		return;
 	}
 
     if (ent->s.eType != ET_NPC && ent - g_entities < MAX_CLIENTS && client)

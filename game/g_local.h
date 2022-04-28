@@ -1208,6 +1208,9 @@ struct gclient_s {
 	qboolean	forcingEmplacedNoAttack;
 
 	int			saberThrowDamageTime[MAX_CLIENTS];
+
+	qboolean fakeSpec;
+	int fakeSpecClient;
 };
 
 //Interest points
@@ -2932,6 +2935,7 @@ extern vmCvar_t		g_siegeTimeVisualAid;
 extern vmCvar_t		g_botAimbot;
 extern vmCvar_t		g_botDefaultSiegeClass;
 extern vmCvar_t		g_speedrunRoundOneRestart;
+extern vmCvar_t		g_siegeGhosting;
 
 extern vmCvar_t		g_preventJoiningLargerTeam;
 extern vmCvar_t		g_lastIntermissionStartTime;
