@@ -2984,8 +2984,32 @@ void ClientThink_real( gentity_t *ent ) {
 			VectorCopy(client->ps.origin, ent->s.origin);
 			trap_UnlinkEntity(ent);
 
-			if (changed)
-				trap_SendServerCommand(ent - g_entities, va("kls -1 -1 sgho %d", client->fakeSpecClient));
+			// send enough data to constitute a fake hud
+			static int lastUpdate[MAX_CLIENTS] = { 0 };
+			if (changed || !lastUpdate || level.time - lastUpdate[ent - g_entities] > 125 /*Com_Clampi(1, 1000, g_teamOverlayUpdateRate.integer)*/) {
+				trap_SendServerCommand(ent - g_entities, va("kls -1 -1 sgho %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+					client->fakeSpecClient,
+					followee->health >= 0 ? followee->health : 0,
+					followee->health >= 0 ? followee->client->ps.stats[STAT_ARMOR] : 0,
+					followee->client->ps.stats[STAT_MAX_HEALTH],
+					followee->client->ps.fd.forcePowersKnown ? followee->client->ps.fd.forcePower : -1,
+					followee->client->ps.weapon,
+					weaponData[followee->client->ps.weapon].energyPerShot ? Com_Clampi(0, 999, followee->client->ps.ammo[weaponData[followee->client->ps.weapon].ammoIndex]) : -1,
+					followee->client->ps.fd.saberAnimLevel,
+					followee->client->ps.emplacedIndex,
+					followee->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK) ? followee->client->ps.jetpackFuel : -1,
+					followee->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK) ? followee->client->ps.cloakFuel : -1,
+					followee->client->ps.fd.forcePowersActive,
+					followee->client->ps.fd.forceRageRecoveryTime,
+					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? followee->client->ps.m_iVehicleNum : /*-1 */ 0,
+					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].health : -1,
+					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_iTurboTime : -1,
+					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[0].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[0].ammo : -1,
+					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[1].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[1].ammo : -1,
+					followee->client->ps.m_iVehicleNum &&g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].playerState->stats[STAT_ARMOR] : -1
+					));
+				lastUpdate[ent - g_entities] = level.time;
+			}
 		}
 		else { // nobody available to follow
 			if (client->fakeSpec)
