@@ -2986,7 +2986,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 			// send enough data to constitute a fake hud
 			static int lastUpdate[MAX_CLIENTS] = { 0 };
-			if (changed || !lastUpdate || level.time - lastUpdate[ent - g_entities] > 125 /*Com_Clampi(1, 1000, g_teamOverlayUpdateRate.integer)*/) {
+			if (changed || !lastUpdate[ent - g_entities] || level.time - lastUpdate[ent - g_entities] > 100 /*Com_Clampi(1, 1000, g_teamOverlayUpdateRate.integer)*/) {
 				trap_SendServerCommand(ent - g_entities, va("kls -1 -1 sgho %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
 					client->fakeSpecClient,
 					followee->health >= 0 ? followee->health : 0,
