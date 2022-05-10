@@ -1288,6 +1288,8 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.jetpackFuel = 100;
 	ent->client->ps.crouchheight = CROUCH_MAXS_2;
 	ent->client->ps.standheight = DEFAULT_MAXS_2;
+
+	SiegeGhostUpdate(ent - g_entities, qtrue); // force a ghost update since we changed follow targets
 }
 
 #ifdef NEWMOD_SUPPORT
@@ -2464,6 +2466,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
 		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+		SiegeGhostUpdate(ent - g_entities, qtrue); // force a ghost update since we changed follow targets
 		return;
 	} while ( clientnum != original );
 
@@ -2510,6 +2513,7 @@ void Cmd_FollowFlag_f( gentity_t *ent )
 			// this is good, we can use it
 			ent->client->sess.spectatorClient = clientnum;
 			ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+			SiegeGhostUpdate(ent - g_entities, qtrue); // force a ghost update since we changed follow targets
 			return;		
 		}
 	} while ( clientnum != original );
@@ -2571,6 +2575,7 @@ void Cmd_FollowTarget_f(gentity_t *ent) {
 	if (closestDistance != -1 && closestPlayer != -1) {
 		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
 		ent->client->sess.spectatorClient = closestPlayer;
+		SiegeGhostUpdate(ent - g_entities, qtrue); // force a ghost update since we changed follow targets
 	}
 }
 

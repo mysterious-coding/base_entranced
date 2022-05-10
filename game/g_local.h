@@ -2369,6 +2369,9 @@ typedef enum {
 	NMTAUNT_VICTORY3
 } nmTaunt_t;
 
+void SiegeGhostUpdate(int sendClientNum, qboolean forceUpdate);
+void ForceSiegeGhostUpdateForFollowers(int followedClientNum);
+
 //
 // g_table.c
 //

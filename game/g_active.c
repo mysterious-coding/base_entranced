@@ -2695,6 +2695,78 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 	}
 }
 
+void SiegeGhostUpdate(int sendClientNum, qboolean forceUpdate) {
+	if (g_gametype.integer != GT_SIEGE || !g_siegeGhosting.integer)
+		return;
+
+	if (sendClientNum < 0 || sendClientNum >= MAX_CLIENTS) {
+		assert(qfalse);
+		return;
+	}
+
+	static int lastUpdate[MAX_CLIENTS] = { 0 };
+	if (!forceUpdate && !(level.time - lastUpdate[sendClientNum] > 200))
+		return;
+	lastUpdate[sendClientNum] = level.time;
+
+	gclient_t *client = &level.clients[sendClientNum];
+	gentity_t *followee = NULL;
+
+	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if (client->sess.spectatorState == SPECTATOR_FOLLOW && client->sess.spectatorClient < MAX_CLIENTS && g_entities[client->sess.spectatorClient].inuse &&
+			g_entities[client->sess.spectatorClient].client && g_entities[client->sess.spectatorClient].client->fakeSpec) {
+			followee = &g_entities[g_entities[client->sess.spectatorClient].client->fakeSpecClient];
+		}
+	}
+	else if (client->fakeSpec) {
+		followee = &g_entities[client->fakeSpecClient];
+	}
+
+	// we probably don't need to bother validating the followee here
+
+	if (followee) { // send some info to constitute a fake hud
+		trap_SendServerCommand(sendClientNum, va("kls -1 -1 sgho %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+			followee - g_entities,
+			followee->health >= 0 ? followee->health : 0,
+			followee->health >= 0 ? followee->client->ps.stats[STAT_ARMOR] : 0,
+			followee->client->ps.stats[STAT_MAX_HEALTH],
+			followee->client->ps.fd.forcePowersKnown ? followee->client->ps.fd.forcePower : -1,
+			followee->client->ps.weapon,
+			weaponData[followee->client->ps.weapon].energyPerShot ? Com_Clampi(0, 999, followee->client->ps.ammo[weaponData[followee->client->ps.weapon].ammoIndex]) : -1,
+			followee->client->ps.fd.saberAnimLevel,
+			followee->client->ps.emplacedIndex,
+			followee->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK) ? followee->client->ps.jetpackFuel : -1,
+			followee->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK) ? followee->client->ps.cloakFuel : -1,
+			followee->client->ps.fd.forcePowersActive,
+			followee->client->ps.fd.forceRageRecoveryTime,
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? followee->client->ps.m_iVehicleNum : /*-1 */ 0,
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].health : -1,
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_iTurboTime : -1,
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[0].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[0].ammo : -1,
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[1].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[1].ammo : -1,
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].playerState->stats[STAT_ARMOR] : -1
+		));
+	}
+	else { // send a non-update
+		trap_SendServerCommand(sendClientNum, "kls -1 -1 sgho");
+	}
+}
+
+void ForceSiegeGhostUpdateForFollowers(int followedClientNum) {
+	assert(followedClientNum >= 0 && followedClientNum < MAX_CLIENTS);
+
+	for (int i = 0; i < MAX_CLIENTS; i++) { // send an update to anyone following this guy
+		if (i == followedClientNum)
+			continue;
+
+		gentity_t *thisGuy = &g_entities[i];
+		if (thisGuy->inuse && thisGuy->client && thisGuy->client->sess.sessionTeam == TEAM_SPECTATOR &&
+			thisGuy->client->sess.spectatorState == SPECTATOR_FOLLOW && thisGuy->client->sess.spectatorClient == followedClientNum) {
+			SiegeGhostUpdate(thisGuy - g_entities, qtrue);
+		}
+	}
+}
+
 /*
 ==============
 ClientThink
@@ -2987,36 +3059,14 @@ void ClientThink_real( gentity_t *ent ) {
 			VectorCopy(client->ps.origin, ent->s.origin);
 			trap_UnlinkEntity(ent);
 
-			// send enough data to constitute a fake hud
-			static int lastUpdate[MAX_CLIENTS] = { 0 };
-			if (changed || !lastUpdate[ent - g_entities] || level.time - lastUpdate[ent - g_entities] > 100 /*Com_Clampi(1, 1000, g_teamOverlayUpdateRate.integer)*/) {
-				trap_SendServerCommand(ent - g_entities, va("kls -1 -1 sgho %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
-					client->fakeSpecClient,
-					followee->health >= 0 ? followee->health : 0,
-					followee->health >= 0 ? followee->client->ps.stats[STAT_ARMOR] : 0,
-					followee->client->ps.stats[STAT_MAX_HEALTH],
-					followee->client->ps.fd.forcePowersKnown ? followee->client->ps.fd.forcePower : -1,
-					followee->client->ps.weapon,
-					weaponData[followee->client->ps.weapon].energyPerShot ? Com_Clampi(0, 999, followee->client->ps.ammo[weaponData[followee->client->ps.weapon].ammoIndex]) : -1,
-					followee->client->ps.fd.saberAnimLevel,
-					followee->client->ps.emplacedIndex,
-					followee->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK) ? followee->client->ps.jetpackFuel : -1,
-					followee->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK) ? followee->client->ps.cloakFuel : -1,
-					followee->client->ps.fd.forcePowersActive,
-					followee->client->ps.fd.forceRageRecoveryTime,
-					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? followee->client->ps.m_iVehicleNum : /*-1 */ 0,
-					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].health : -1,
-					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_iTurboTime : -1,
-					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[0].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[0].ammo : -1,
-					followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[1].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[1].ammo : -1,
-					followee->client->ps.m_iVehicleNum &&g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].playerState->stats[STAT_ARMOR] : -1
-					));
-				lastUpdate[ent - g_entities] = level.time;
-			}
+			SiegeGhostUpdate(ent - g_entities, changed); // force it if they just started ghosting or changed ghost targets
+			if (changed)
+				ForceSiegeGhostUpdateForFollowers(ent - g_entities);
 		}
 		else { // nobody available to follow
+			SiegeGhostUpdate(ent - g_entities, client->fakeSpec); // force it if they just became a free ghost
 			if (client->fakeSpec)
-				trap_SendServerCommand(ent - g_entities, "kls -1 -1 sgho");
+				ForceSiegeGhostUpdateForFollowers(ent - g_entities);
 			client->fakeSpec = qfalse;
 
 			// spectators don't do much
@@ -3049,6 +3099,8 @@ void ClientThink_real( gentity_t *ent ) {
 			if (client->sess.spectatorState == SPECTATOR_SCOREBOARD) {
 				return;
 			}
+			if (client->sess.sessionTeam == TEAM_SPECTATOR)
+				SiegeGhostUpdate(ent - g_entities, qfalse); // periodically update specs if they are following ghosts
 			SpectatorThink(ent, ucmd);
 			return;
 		}

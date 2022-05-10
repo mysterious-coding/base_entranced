@@ -3929,6 +3929,7 @@ void ClientSpawn(gentity_t *ent, qboolean forceUpdateInfo) {
 	client = ent->client;
 
 	client->fakeSpec = qfalse;
+	ForceSiegeGhostUpdateForFollowers(ent - g_entities);
 
 	if (index >= 0 && index < MAX_CLIENTS && client) {
 		client->emoted = qfalse;
