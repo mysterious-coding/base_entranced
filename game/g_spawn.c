@@ -1352,6 +1352,14 @@ void SP_worldspawn( void )
 	G_SpawnString("forceOnNPCs", "0", &text); //if not defined, set to 0
 	trap_Cvar_Set("g_forceOnNPCs", text);
 
+	if (G_SpawnVector("ghostcamera_origin", "", level.ghostCameraOrigin)) {
+		G_SpawnFloat("ghostcamera_yaw", "0", &level.ghostCameraYaw);
+		level.gotGhostCameraFromWorldspawn = qtrue;
+	}
+	else {
+		level.gotGhostCameraFromWorldspawn = qfalse;
+	}
+
 	// class limits: "1" setting for g_classLimits allows map/mod overrides
 	if (g_classLimits.integer == 1) {
 		int assaultLimit[2] = { 0 }, hwLimit[2] = { 0 }, demoLimit[2] = { 0 }, techLimit[2] = { 0 }, scoutLimit[2] = { 0 }, jediLimit[2] = { 0 };

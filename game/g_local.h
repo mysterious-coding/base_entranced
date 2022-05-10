@@ -1755,6 +1755,10 @@ typedef struct {
 
 	qboolean	randomizedTeams; // teams were randomized; this will be cleared after 1 tick
 
+	qboolean gotGhostCameraFromWorldspawn;
+	vec3_t ghostCameraOrigin;
+	float ghostCameraYaw;
+
 } level_locals_t;
 
 //

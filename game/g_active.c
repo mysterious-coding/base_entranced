@@ -1143,7 +1143,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		pm.trace = trap_Trace;
 		pm.pointcontents = trap_PointContents;
 
-		pm.noSpecMove = g_noSpecMove.integer;
+		if (g_siegeGhosting.integer && g_gametype.integer == GT_SIEGE && (client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE))
+			pm.noSpecMove = 1;
+		else
+			pm.noSpecMove = g_noSpecMove.integer;
 
 		pm.animations = NULL;
 		pm.nonHumanoid = qfalse;
@@ -2891,7 +2894,7 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
-	if (!g_siegeGhosting.integer && g_gametype.integer == GT_SIEGE && client->tempSpectate > level.time && client->ps.clientNum < MAX_CLIENTS && !(g_entities[client->ps.clientNum].r.svFlags & SVF_BOT)) {
+	if (g_siegeGhosting.integer && g_gametype.integer == GT_SIEGE && client->tempSpectate > level.time && client->ps.clientNum < MAX_CLIENTS && !(g_entities[client->ps.clientNum].r.svFlags & SVF_BOT)) {
 		// dead siege spec; try to follow a teammate if anyone else is still alive
 		client->oldbuttons = client->buttons;
 		client->buttons = ucmd->buttons;
@@ -3021,6 +3024,18 @@ void ClientThink_real( gentity_t *ent ) {
 				CheckSpectatorInactivityTimer(client);
 				if (client->sess.spectatorState == SPECTATOR_SCOREBOARD) {
 					return;
+				}
+				if (g_siegeGhosting.integer == 2) { // force you to a specific camera spot if everyone is dead
+					float distToCamera = Distance(client->ps.origin, level.ghostCameraOrigin);
+					if (distToCamera > 50)
+						client->ps.eFlags ^= EF_TELEPORT_BIT; // don't predict
+					VectorCopy(level.ghostCameraOrigin, client->ps.origin);
+					VectorCopy(client->ps.origin, ent->s.origin);
+					vec3_t angs;
+					angs[PITCH] = 0;
+					angs[YAW] = level.ghostCameraYaw;
+					angs[ROLL] = 0;
+					SetClientViewAngle(ent, angs);
 				}
 				SpectatorThink(ent, ucmd);
 			}

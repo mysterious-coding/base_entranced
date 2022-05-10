@@ -3001,6 +3001,39 @@ void SiegeBeginRound(int entNum)
 	level.endedWithEndMatchCommand = qfalse; // sanity check; probably not needed
 	trap_SetConfigstring(CS_SIEGE_STATE, va("0|%i", level.time)); //we're ready to g0g0g0
 
+	// if no ghost camera in world spawn, try to figure one out based on first objective offense spawns
+	if (!level.gotGhostCameraFromWorldspawn) {
+		gentity_t *camera = NULL;
+
+#if 0
+		// try to get an initial offense spawnpoint
+		for (int i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+			gentity_t *ent = &g_entities[i];
+			if (!ent->inuse || !ent->genericValue1 || !VALIDSTRING(ent->classname) || Q_stricmp(ent->classname, "info_player_siegeteam1"))
+				continue;
+			camera = ent;
+			break;
+		}
+#endif
+
+		if (!camera) {
+			// use the spectator spawnpoint
+			for (int i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+				gentity_t *ent = &g_entities[i];
+				if (!ent->inuse || !VALIDSTRING(ent->classname) || Q_stricmp(ent->classname, "info_player_deathmatch"))
+					continue;
+				camera = ent;
+				break;
+			}
+		}
+
+		if (camera) {
+			VectorCopy(camera->r.currentOrigin, level.ghostCameraOrigin);
+			//level.ghostCameraOrigin[2] += 100; // bump it up a little higher
+			//level.ghostCameraYaw = camera->s.angles[YAW] + 180; // flip the yaw so they can't see anything idk
+		}
+	}
+
 	if (g_autoRestartAfterIntermission.integer && g_lastIntermissionStartTime.string[0] && Q_isanumber(g_lastIntermissionStartTime.string)) {
 		qboolean intermissionOccurredRecently = !!(((int)time(NULL)) - g_lastIntermissionStartTime.integer < 60);
 		if (intermissionOccurredRecently) {

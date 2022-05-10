@@ -1196,7 +1196,7 @@ void respawn( gentity_t *ent ) {
 			ent->client->ps.eFlags = 0;
 			ent->client->ps.saberMove = LS_NONE;
 			ent->takedamage = qfalse;
-			if (!g_siegeGhosting.integer)
+			if (g_siegeGhosting.integer)
 				ent->client->ps.eFlags |= EF_NODRAW; // prevent player model from bugging out for a nanosecond
 			trap_LinkEntity(ent);
 			// Respawn time.
@@ -3187,7 +3187,7 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	if (g_teamOverlayForce.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "tolf ");
 
-	if (!g_siegeGhosting.integer)
+	if (g_siegeGhosting.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "sgho ");
 
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
