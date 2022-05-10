@@ -3003,34 +3003,57 @@ void SiegeBeginRound(int entNum)
 
 	// if no ghost camera in world spawn, try to figure one out based on first objective offense spawns
 	if (!level.gotGhostCameraFromWorldspawn) {
-		gentity_t *camera = NULL;
+		if (level.siegeMap == SIEGEMAP_HOTH) {
+			static vec3_t cameraPoint = { -438, 17, 496 };
+			VectorCopy(cameraPoint, level.ghostCameraOrigin);
+			level.ghostCameraYaw = 180;
+		}
+		else if (level.siegeMap == SIEGEMAP_CARGO && Q_stricmp(level.mapname, "siege_cargobarge")) {
+			static vec3_t cameraPoint = { 1820, 989, 168 };
+			VectorCopy(cameraPoint, level.ghostCameraOrigin);
+			level.ghostCameraYaw = 160;
+		}
+		else if (level.siegeMap == SIEGEMAP_NAR) {
+			static vec3_t cameraPoint = { 141, 2298, 24 };
+			VectorCopy(cameraPoint, level.ghostCameraOrigin);
+			level.ghostCameraYaw = -90;
+		}
+		else if (level.siegeMap == SIEGEMAP_URBAN) {
+			static vec3_t cameraPoint = { 1254, -2582, 450 };
+			VectorCopy(cameraPoint, level.ghostCameraOrigin);
+			level.ghostCameraYaw = 0;
+		}
+		else {
+
+			gentity_t *camera = NULL;
 
 #if 0
-		// try to get an initial offense spawnpoint
-		for (int i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
-			gentity_t *ent = &g_entities[i];
-			if (!ent->inuse || !ent->genericValue1 || !VALIDSTRING(ent->classname) || Q_stricmp(ent->classname, "info_player_siegeteam1"))
-				continue;
-			camera = ent;
-			break;
-		}
-#endif
-
-		if (!camera) {
-			// use the spectator spawnpoint
+			// try to get an initial offense spawnpoint
 			for (int i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
 				gentity_t *ent = &g_entities[i];
-				if (!ent->inuse || !VALIDSTRING(ent->classname) || Q_stricmp(ent->classname, "info_player_deathmatch"))
+				if (!ent->inuse || !ent->genericValue1 || !VALIDSTRING(ent->classname) || Q_stricmp(ent->classname, "info_player_siegeteam1"))
 					continue;
 				camera = ent;
 				break;
 			}
-		}
+#endif
 
-		if (camera) {
-			VectorCopy(camera->r.currentOrigin, level.ghostCameraOrigin);
-			//level.ghostCameraOrigin[2] += 100; // bump it up a little higher
-			//level.ghostCameraYaw = camera->s.angles[YAW] + 180; // flip the yaw so they can't see anything idk
+			if (!camera) {
+				// use the spectator spawnpoint
+				for (int i = MAX_CLIENTS; i < MAX_GENTITIES; i++) {
+					gentity_t *ent = &g_entities[i];
+					if (!ent->inuse || !VALIDSTRING(ent->classname) || Q_stricmp(ent->classname, "info_player_deathmatch"))
+						continue;
+					camera = ent;
+					break;
+				}
+			}
+
+			if (camera) {
+				VectorCopy(camera->r.currentOrigin, level.ghostCameraOrigin);
+				//level.ghostCameraOrigin[2] += 100; // bump it up a little higher
+				//level.ghostCameraYaw = camera->s.angles[YAW] + 180; // flip the yaw so they can't see anything idk
+			}
 		}
 	}
 

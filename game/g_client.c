@@ -3187,7 +3187,9 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	if (g_teamOverlayForce.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "tolf ");
 
-	if (g_siegeGhosting.integer)
+	if (g_siegeGhosting.integer == 2)
+		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "sgh2 ");
+	else if (g_siegeGhosting.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "sgho ");
 
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);

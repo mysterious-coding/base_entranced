@@ -1125,8 +1125,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
-		client->ps.speed = 400;	// faster than normal
-		client->ps.basespeed = 400;
 
 		//hmm, shouldn't have an anim if you're a spectator, make sure
 		//it gets cleared.
@@ -1143,10 +1141,16 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		pm.trace = trap_Trace;
 		pm.pointcontents = trap_PointContents;
 
-		if (g_siegeGhosting.integer && g_gametype.integer == GT_SIEGE && (client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE))
+		if (g_siegeGhosting.integer && g_gametype.integer == GT_SIEGE && (client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE)) {
 			pm.noSpecMove = 1;
-		else
+			client->ps.speed = 0;
+			client->ps.basespeed = 0;
+		}
+		else {
 			pm.noSpecMove = g_noSpecMove.integer;
+			client->ps.speed = 400;	// faster than normal
+			client->ps.basespeed = 400;
+		}
 
 		pm.animations = NULL;
 		pm.nonHumanoid = qfalse;
