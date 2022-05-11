@@ -3075,6 +3075,7 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->ps.crouchheight = followee->client->ps.crouchheight;
 			ent->client->ps.viewheight = followee->client->ps.viewheight;
 			ent->client->ps.pm_flags = followee->client->ps.pm_flags;
+			ent->client->ps.stats[STAT_DEAD_YAW] = followee->client->ps.stats[STAT_DEAD_YAW];
 			trap_UnlinkEntity(ent);
 
 			SiegeGhostUpdate(ent - g_entities, changed); // force it if they just started ghosting or changed ghost targets
@@ -3112,6 +3113,7 @@ void ClientThink_real( gentity_t *ent ) {
 					ent->client->ps.crouchheight = CROUCH_VIEWHEIGHT;
 					ent->client->ps.viewheight = DEFAULT_VIEWHEIGHT;
 					ent->client->ps.pm_flags = 0;
+					ent->client->ps.stats[STAT_DEAD_YAW] = 0;
 				}
 				SpectatorThink(ent, ucmd);
 			}
