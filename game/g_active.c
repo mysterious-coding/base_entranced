@@ -3069,6 +3069,12 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->ps.holocronBits = followee->client->ps.holocronBits;
 			ent->client->ps.rocketLockIndex = followee->client->ps.rocketLockIndex;
 			ent->client->ps.rocketLockTime = followee->client->ps.rocketLockTime;
+			ent->client->ps.hackingBaseTime = followee->client->ps.hackingBaseTime;
+			ent->client->ps.hackingTime = followee->client->ps.hackingTime;
+			ent->client->ps.standheight = followee->client->ps.standheight;
+			ent->client->ps.crouchheight = followee->client->ps.crouchheight;
+			ent->client->ps.viewheight = followee->client->ps.viewheight;
+			ent->client->ps.pm_flags = followee->client->ps.pm_flags;
 			trap_UnlinkEntity(ent);
 
 			SiegeGhostUpdate(ent - g_entities, changed); // force it if they just started ghosting or changed ghost targets
@@ -3101,6 +3107,11 @@ void ClientThink_real( gentity_t *ent ) {
 					VectorClear(client->ps.velocity);
 					ent->client->ps.zoomFov = ent->client->ps.zoomLocked = ent->client->ps.zoomLockTime = ent->client->ps.zoomMode = ent->client->ps.zoomTime = 0;
 					ent->client->ps.rocketLockIndex = ent->client->ps.rocketLockTime = ent->client->ps.holocronBits = 0;
+					ent->client->ps.hackingBaseTime = ent->client->ps.hackingTime = 0;
+					ent->client->ps.standheight = DEFAULT_MAXS_2;
+					ent->client->ps.crouchheight = CROUCH_VIEWHEIGHT;
+					ent->client->ps.viewheight = DEFAULT_VIEWHEIGHT;
+					ent->client->ps.pm_flags = 0;
 				}
 				SpectatorThink(ent, ucmd);
 			}
