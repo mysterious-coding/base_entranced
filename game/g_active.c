@@ -3058,8 +3058,8 @@ void ClientThink_real( gentity_t *ent ) {
 			VectorCopy(followee->client->ps.origin, client->ps.origin);
 			if (changed) {
 				client->ps.eFlags ^= EF_TELEPORT_BIT; // toggle the teleport bit so the client knows to not lerp
-				SetClientViewAngle(ent, followee->client->ps.viewangles); // reset angles when starting to follow someone
 			}
+			SetClientViewAngle(ent, followee->client->ps.viewangles);
 			VectorCopy(client->ps.origin, ent->s.origin);
 			trap_UnlinkEntity(ent);
 
