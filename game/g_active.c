@@ -3090,6 +3090,7 @@ void ClientThink_real( gentity_t *ent ) {
 					angs[YAW] = level.ghostCameraYaw;
 					angs[ROLL] = 0;
 					SetClientViewAngle(ent, angs);
+					VectorClear(client->ps.velocity);
 				}
 				SpectatorThink(ent, ucmd);
 			}
