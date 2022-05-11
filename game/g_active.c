@@ -3061,6 +3061,11 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			SetClientViewAngle(ent, followee->client->ps.viewangles);
 			VectorCopy(client->ps.origin, ent->s.origin);
+			ent->client->ps.zoomFov = followee->client->ps.zoomFov;
+			ent->client->ps.zoomLocked = followee->client->ps.zoomLocked;
+			ent->client->ps.zoomLockTime = followee->client->ps.zoomLockTime;
+			ent->client->ps.zoomMode = followee->client->ps.zoomMode;
+			ent->client->ps.zoomTime = followee->client->ps.zoomTime;
 			trap_UnlinkEntity(ent);
 
 			SiegeGhostUpdate(ent - g_entities, changed); // force it if they just started ghosting or changed ghost targets
@@ -3091,6 +3096,7 @@ void ClientThink_real( gentity_t *ent ) {
 					angs[ROLL] = 0;
 					SetClientViewAngle(ent, angs);
 					VectorClear(client->ps.velocity);
+					ent->client->ps.zoomFov = ent->client->ps.zoomLocked = ent->client->ps.zoomLockTime = ent->client->ps.zoomMode = ent->client->ps.zoomTime = 0;
 				}
 				SpectatorThink(ent, ucmd);
 			}
