@@ -611,6 +611,8 @@ vmCvar_t    g_minimumVotesCount;
 vmCvar_t    g_fixPitKills;
 vmCvar_t	g_fixGripKills;
 
+vmCvar_t	g_fixForceJumpAnimationLock;
+
 vmCvar_t	g_balanceSaber;
 vmCvar_t	g_balanceSeeing;
 
@@ -697,6 +699,7 @@ vmCvar_t    g_maxstatusrequests;
 vmCvar_t	g_testdebug; //for tmp debug
 vmCvar_t	g_rconpassword;
 
+vmCvar_t	g_allowMoveDisable;
 
 vmCvar_t	g_callvotedelay;
 vmCvar_t	g_callvotemaplimit;
@@ -995,6 +998,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixPitKills,	"g_fixPitKills"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixGripKills,	"g_fixGripKills", "1"	, CVAR_ARCHIVE, 0, qtrue },
 
+	{ &g_fixForceJumpAnimationLock,	"g_fixForceJumpAnimationLock"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
+
 	{ &g_balanceSaber, "g_balanceSaber", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_balanceSeeing, "g_balanceSeeing", "0", CVAR_ARCHIVE, 0, qtrue },
 
@@ -1087,8 +1092,12 @@ static cvarTable_t		gameCvarTable[] = {
 
 
 	{ &g_dlURL,	"g_dlURL"	, ""	, CVAR_SYSTEMINFO, 0, qtrue },
+
 	{ &cl_allowDownload,	"cl_allowDownload"	, "0"	, CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_fixboon,	"g_fixboon"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_allowMoveDisable, "g_allowMoveDisable", "-1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+
 	{ &g_flags_overboarding, "g_flags_overboarding", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_sexyDisruptor, "g_sexyDisruptor", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixSiegeScoring, "g_fixSiegeScoring", "1", CVAR_ARCHIVE, 0, qtrue },

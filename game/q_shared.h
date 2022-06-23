@@ -355,6 +355,16 @@ typedef unsigned char 		byte;
 typedef unsigned short		word;
 typedef unsigned long		ulong;
 
+typedef enum {
+	SHITTYSABERMOVE_BUTTERFLY = 0,
+	SHITTYSABERMOVE_STAB,
+	SHITTYSABERMOVE_DFA,
+	SHITTYSABERMOVE_LUNGE,
+	SHITTYSABERMOVE_CARTWHEEL,
+	SHITTYSABERMOVE_KATA,
+	NUM_SHITTYSABERMOVES
+} shittySaberMove_t;
+
 typedef enum {qfalse, qtrue}	qboolean;
 #ifdef _DEBUG
 #define IsDebugBuild	(qtrue)

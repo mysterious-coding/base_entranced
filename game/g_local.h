@@ -768,6 +768,8 @@ typedef struct {
 	int		unlagged;
 	qboolean	basementNeckbeardsTriggered;
 
+	qboolean disableShittySaberMoves;
+
 	char		country[128];
 	int			qport;
 
@@ -2809,6 +2811,8 @@ extern vmCvar_t     g_fixGripKills;
 
 extern vmCvar_t		g_allow_vote_customTeams;
 
+extern vmCvar_t		g_fixForceJumpAnimationLock;
+
 // flags for g_balanceSaber
 #define SB_KICK				(1<<0) // kick with all sabers
 #define SB_BACKFLIP			(1<<1) // backflip with all sabers
@@ -2959,8 +2963,11 @@ extern vmCvar_t		g_saberThrowDefenseLargeAngle;
 extern vmCvar_t		g_saberThrowDefenseSmallDamage;
 extern vmCvar_t		g_saberThrowDefenseLargeDamage;
 
+
 extern vmCvar_t		g_saberThrowDefenseCompromisedBonus;
 extern vmCvar_t		g_saberThrowDefensePushPullBonus;
+
+extern vmCvar_t		g_allowMoveDisable;
 
 extern vmCvar_t		g_saberThrowDefenseRewind;
 

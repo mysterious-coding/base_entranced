@@ -2253,12 +2253,26 @@ void ClientUserinfoChanged( int clientNum ) {
 		client->sess.nmVer[0] = '\0';
 
 	s = Info_ValueForKey(userinfo, "nm_flags");
-	if (!!(VALIDSTRING(s) && strchr(s, 'u'))) {
-		client->sess.unlagged |= UNLAGGED_CLIENTINFO;
-		client->sess.unlagged &= ~UNLAGGED_COMMAND;
+	if (VALIDSTRING(s)) {
+		client->sess.disableShittySaberMoves = 0;
+		if (strchr(s, 'a')) { client->sess.disableShittySaberMoves |= (1 << SHITTYSABERMOVE_BUTTERFLY); }
+		if (strchr(s, 'b')) { client->sess.disableShittySaberMoves |= (1 << SHITTYSABERMOVE_STAB); }
+		if (strchr(s, 'c')) { client->sess.disableShittySaberMoves |= (1 << SHITTYSABERMOVE_DFA); }
+		if (strchr(s, 'd')) { client->sess.disableShittySaberMoves |= (1 << SHITTYSABERMOVE_LUNGE); }
+		if (strchr(s, 'e')) { client->sess.disableShittySaberMoves |= (1 << SHITTYSABERMOVE_CARTWHEEL); }
+		if (strchr(s, 'f')) { client->sess.disableShittySaberMoves |= (1 << SHITTYSABERMOVE_KATA); }
+
+		if (strchr(s, 'u')) {
+			client->sess.unlagged |= UNLAGGED_CLIENTINFO;
+			client->sess.unlagged &= ~UNLAGGED_COMMAND;
+		}
+		else {
+			client->sess.unlagged &= ~UNLAGGED_CLIENTINFO;
+		}
 	}
 	else {
 		client->sess.unlagged &= ~UNLAGGED_CLIENTINFO;
+		client->sess.disableShittySaberMoves = 0;
 	}
 
 	// passwordless spectators - check for password change
@@ -3187,10 +3201,18 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 	if (g_teamOverlayForce.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "tolf ");
 
+
 	if (g_siegeGhosting.integer == 2)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "sgh2 ");
 	else if (g_siegeGhosting.integer)
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "sgho ");
+
+	if (g_allowMoveDisable.integer)
+		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "amd ");
+
+	if (g_fixForceJumpAnimationLock.integer)
+		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "fjal ");
+
 
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
