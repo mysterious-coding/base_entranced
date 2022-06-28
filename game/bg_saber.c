@@ -2643,6 +2643,9 @@ qboolean PM_CanDoKata( void )
 static qboolean CanSaberAnimKick( void ) {
 	if (pm->ps->clientNum < MAX_CLIENTS && level.clients[pm->ps->clientNum].emoted)
 		return qfalse;
+	if (!ShittySaberMoveEnabled(SHITTYSABERMOVE_KICK)) {
+		return qfalse;
+	}
 
 	if ( pm->ps->fd.saberAnimLevel == SS_STAFF ) {
 		return qtrue; // always true for staff
@@ -2658,6 +2661,9 @@ static qboolean CanSaberAnimKick( void ) {
 
 qboolean PM_CheckAltKickAttack( void )
 {
+	if (!ShittySaberMoveEnabled(SHITTYSABERMOVE_KICK))
+		return qfalse;
+
 	if ( pm->ps->weapon == WP_SABER )
 	{
 		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
