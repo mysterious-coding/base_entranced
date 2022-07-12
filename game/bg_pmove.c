@@ -6790,7 +6790,7 @@ static void PM_Weapon( void )
 						{
 							qboolean prohibitedShield = qfalse;
 							if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SHIELD && pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) {
-								if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && !G_ShieldSpamAllowed(g_entities[pm->ps->clientNum].client->sess.sessionTeam) && (g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_RED || g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[g_entities[pm->ps->clientNum].client->sess.sessionTeam]) {
+								if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && !G_ShieldSpamAllowed(pm->ps->clientNum) && (g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_RED || g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[g_entities[pm->ps->clientNum].client->sess.sessionTeam]) {
 									if (!lastCantShieldMessageTime[pm->ps->clientNum] || level.time - lastCantShieldMessageTime[pm->ps->clientNum] > 1000) {
 										trap_SendServerCommand(pm->ps->clientNum, "print \"You are not allowed to place a shield at the moment.\n\"");
 										lastCantShieldMessageTime[pm->ps->clientNum] = level.time;
@@ -6870,7 +6870,7 @@ static void PM_Weapon( void )
 				{
 					qboolean prohibitedShield = qfalse;
 					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SHIELD && pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) {
-						if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && !G_ShieldSpamAllowed(g_entities[pm->ps->clientNum].client->sess.sessionTeam) && (g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_RED || g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[g_entities[pm->ps->clientNum].client->sess.sessionTeam]) {
+						if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && !G_ShieldSpamAllowed(pm->ps->clientNum) && (g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_RED || g_entities[pm->ps->clientNum].client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[g_entities[pm->ps->clientNum].client->sess.sessionTeam]) {
 							if (!lastCantShieldMessageTime[pm->ps->clientNum] || level.time - lastCantShieldMessageTime[pm->ps->clientNum] > 1000) {
 								trap_SendServerCommand(pm->ps->clientNum, "print \"You are not allowed to place a shield at the moment.\n\"");
 								lastCantShieldMessageTime[pm->ps->clientNum] = level.time;

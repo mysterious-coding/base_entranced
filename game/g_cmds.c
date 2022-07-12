@@ -4387,22 +4387,38 @@ void Cmd_CallVote_f( gentity_t *ent, int pause ) {
 		for (; *p; ++p)
 			*p = tolower(*p);
 
-		// redirect hoth vote to hoth2 if the server has it
+		// redirect hoth vote to hoth3 if the server has it
 		if (!Q_stricmp(arg2, "mp/siege_hoth")) {
-			static qboolean serverHasHoth2 = qfalse;
-			if (serverHasHoth2) {
-				Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
+			static qboolean serverHasHoth3 = qfalse;
+			if (serverHasHoth3) {
+				Q_strncpyz(arg2, "siege_hoth3", sizeof(arg2));
 			}
 			else {
 				fileHandle_t f;
-				trap_FS_FOpenFile("maps/mp/siege_hoth2.bsp", &f, FS_READ);
+				trap_FS_FOpenFile("maps/siege_hoth3.bsp", &f, FS_READ);
 				if (f) {
 					trap_FS_FCloseFile(f);
-					serverHasHoth2 = qtrue;
-					Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
+					serverHasHoth3 = qtrue;
+					Q_strncpyz(arg2, "siege_hoth3", sizeof(arg2));
 				}
 				else {
-					serverHasHoth2 = qfalse;
+					serverHasHoth3 = qfalse;
+					static qboolean serverHasHoth2 = qfalse;
+					if (serverHasHoth2) {
+						Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
+					}
+					else {
+						fileHandle_t f;
+						trap_FS_FOpenFile("maps/mp/siege_hoth2.bsp", &f, FS_READ);
+						if (f) {
+							trap_FS_FCloseFile(f);
+							serverHasHoth2 = qtrue;
+							Q_strncpyz(arg2, "mp/siege_hoth2", sizeof(arg2));
+						}
+						else {
+							serverHasHoth2 = qfalse;
+						}
+					}
 				}
 			}
 		}
@@ -5951,7 +5967,7 @@ static const FancyObjNameData fancyObjNameData[] = {
 		{ "HoldLock", "CommArray", "Nodes", "CC", "Codes", "Escape" } },
 	{ "siege_urban", NULL, qfalse, 5,
 		{"Crack", "LiquorStore", "Prostitute", "Bike", "Witnesses" } },
-	{ "mp/siege_hoth", "mp/siege_hoth2", qtrue, 6,
+	{ "mp/siege_hoth", "siege_hoth", qfalse, 6,
 		{ "Trench", "Bridge", "ShieldGen", "Codes", "Hangar", "CC" } },
 	{ "siege_narshaddaa", NULL, qtrue, 5,
 		{ "Entrance", "Checkpoint", "Stations", "Bridge", "Codes" } },
@@ -7194,15 +7210,16 @@ static char *GenerateSiegeClassDescription(siegeClass_t *scl) {
 			case CFL_MORESABERDMG:			AddDesc(", ^3More Saber Dmg^7");					break;
 			case CFL_STRONGAGAINSTPHYSICAL:	AddDesc(", ^3Strong Against Physical^7");			break;
 			case CFL_FASTFORCEREGEN:		AddDesc(", ^3Fast Force Regen^7");					break;
-			case CFL_STATVIEWER:			AddDesc(", ^3Sees Allied HP/Armor/Ammo Bars^7");	break;
+			case CFL_STATVIEWER:			AddDesc(", ^3Sees Allied HP/Armor/Ammo Bars^7");		break;
 			case CFL_HEAVYMELEE:			AddDesc(", ^3Heavy Melee^7");						break;
 			case CFL_SINGLE_ROCKET:			AddDesc(", ^3Single Rocket^7");						break;
 			case CFL_CUSTOMSKEL:			AddDesc(", ^3Custom Skeleton^7");					break;
 			case CFL_EXTRA_AMMO:			AddDesc(", ^3Double Ammo^7");						break;
-			case CFL_SPIDERMAN:				AddDesc(", ^3Perma-Wallgrab^7");					break;
+			case CFL_SPIDERMAN:				AddDesc(", ^3Perma-Wallgrab^7");						break;
 			case CFL_GRAPPLE:				AddDesc(", ^3Melee Grapple^7");						break;
-			case CFL_KICK:					AddDesc(", ^3Melee Kick^7");						break;
-			case CFL_WONDERWOMAN:					AddDesc(", ^3Wonder Woman^7");						break;
+			case CFL_KICK:					AddDesc(", ^3Melee Kick^7");							break;
+			case CFL_WONDERWOMAN:			AddDesc(", ^3Wonder Woman^7");						break;
+			case CFL_SMALLSHIELD:			AddDesc(", ^3Small Shield^7");						break;
 			}
 		}
 	}

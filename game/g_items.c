@@ -153,13 +153,15 @@ void ShieldThink(gentity_t *self)
 	}
 	self->s.trickedentindex = 0;
 
-	if (g_gametype.integer == GT_SIEGE)
-	{
-		self->health -= SHIELD_SIEGE_HEALTH_DEC;
-	}
-	else
-	{
-		self->health -= SHIELD_HEALTH_DEC;
+	if (!self->isSmallShield) {
+		if (g_gametype.integer == GT_SIEGE)
+		{
+			self->health -= SHIELD_SIEGE_HEALTH_DEC;
+		}
+		else
+		{
+			self->health -= SHIELD_HEALTH_DEC;
+		}
 	}
 	self->nextthink = level.time + 1000;
 	if (self->health <= 0)
@@ -252,7 +254,8 @@ void ShieldGoSolid(gentity_t *self)
 	trace_t		tr;
 
 	// see if we're valid
-	self->health--;
+	if (!self->isSmallShield)
+		self->health--;
 	if (self->health <= 0)
 	{
 		if (debug_shieldLog.integer)
@@ -392,11 +395,26 @@ void CreateShield(gentity_t *ent)
 	qboolean	xaxis;
 	int			paramData = 0;
 
+	ent->isSmallShield = !!(ent && ent->parent && ent->parent->client && ent->parent->client->siegeClass != -1 && bgSiegeClasses[ent->parent->client->siegeClass].classflags & (1 << CFL_SMALLSHIELD));
+	if (ent->isSmallShield) {
+		// remove old shields
+		for (int i = level.maxclients; i < MAX_GENTITIES; i++) {
+			gentity_t *oldShield = &g_entities[i];
+			if (oldShield == ent)
+				continue;
+			if (oldShield->die == ShieldDie && oldShield->parent && oldShield->parent->client == ent->parent->client)
+				ShieldDie(oldShield, NULL, NULL, 999999, MOD_UNKNOWN);
+		}
+	}
+
+	float maxHeight = ent->isSmallShield ? 80 : MAX_SHIELD_HEIGHT;
+	float maxHalfWidth = ent->isSmallShield ? 60 : MAX_SHIELD_HALFWIDTH;
+
 	// trace upward to find height of shield
 	VectorCopy(ent->r.currentOrigin, end);
-	end[2] += MAX_SHIELD_HEIGHT;
+	end[2] += maxHeight;
 	trap_Trace(&tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT & ~CONTENTS_BODY);
-	height = (int)(MAX_SHIELD_HEIGHT * tr.fraction);
+	height = (int)(maxHeight * tr.fraction);
 
 	// use angles to find the proper axis along which to align the shield
 	VectorCopy(ent->r.currentOrigin, posTraceEnd);
@@ -404,14 +422,14 @@ void CreateShield(gentity_t *ent)
 
 	if ((int)(ent->s.angles[YAW]) == 0) // shield runs along y-axis
 	{
-		posTraceEnd[1] += MAX_SHIELD_HALFWIDTH;
-		negTraceEnd[1] -= MAX_SHIELD_HALFWIDTH;
+		posTraceEnd[1] += maxHalfWidth;
+		negTraceEnd[1] -= maxHalfWidth;
 		xaxis = qfalse;
 	}
 	else  // shield runs along x-axis
 	{
-		posTraceEnd[0] += MAX_SHIELD_HALFWIDTH;
-		negTraceEnd[0] -= MAX_SHIELD_HALFWIDTH;
+		posTraceEnd[0] += maxHalfWidth;
+		negTraceEnd[0] -= maxHalfWidth;
 		xaxis = qtrue;
 	}
 
@@ -420,10 +438,10 @@ void CreateShield(gentity_t *ent)
 	VectorCopy(ent->r.currentOrigin, start);
 	start[2] += (height >> 1);
 	trap_Trace(&tr, start, 0, 0, posTraceEnd, ent->s.number, MASK_SHOT & ~CONTENTS_BODY);
-	posWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
+	posWidth = maxHalfWidth * tr.fraction;
 	// negative trace
 	trap_Trace(&tr, start, 0, 0, negTraceEnd, ent->s.number, MASK_SHOT & ~CONTENTS_BODY);
-	negWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
+	negWidth = maxHalfWidth * tr.fraction;
 
 	// kef -- monkey with dimensions and place origin in center
 	halfWidth = (posWidth + negWidth) >> 1;
@@ -492,7 +510,10 @@ void CreateShield(gentity_t *ent)
 
 	if (g_gametype.integer == GT_SIEGE)
 	{
-		ent->health = ceil((float)(SHIELD_SIEGE_HEALTH * 1));
+		if (ent->isSmallShield)
+			ent->health = ceil((float)(400 * 1));
+		else
+			ent->health = ceil((float)(SHIELD_SIEGE_HEALTH * 1));
 	}
 	else
 	{

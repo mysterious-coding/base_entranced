@@ -2195,7 +2195,7 @@ static void InitializeMapName(void) {
 	trap_Cvar_VariableStringBuffer("mapname", level.mapname, sizeof(level.mapname));
 	Q_strlwr(level.mapname);
 	Q_strncpyz(level.mapCaptureRecords.mapname, level.mapname, sizeof(level.mapCaptureRecords.mapname));
-	if (!Q_stricmpn(level.mapname, "mp/siege_hoth", 13)) {
+	if (!Q_stricmpn(level.mapname, "mp/siege_hoth", 13) || !Q_stricmpn(level.mapname, "siege_hoth", 10)) {
 		level.siegeMap = SIEGEMAP_HOTH;
 		level.numSiegeObjectivesOnMapCombined = 6;
 	} else if (!Q_stricmp(level.mapname, "mp/siege_desert")) {

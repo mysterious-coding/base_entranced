@@ -5618,7 +5618,8 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 	if (pVeh->m_pVehicleInfo->type == VH_WALKER &&
 		ent->client->ps.electrifyTime > level.time)
 	{ //don't fire while being electrocuted
-		return;
+		if (!(pVeh->m_pVehicleInfo && !Q_stricmp(pVeh->m_pVehicleInfo->name, "atst_vehicle_hoth3")))
+			return;
 	}
 
 	// duo: fix for holding both mouse1 and mouse2 simultaneously in walker

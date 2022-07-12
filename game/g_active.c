@@ -4660,7 +4660,7 @@ void ClientThink_real( gentity_t *ent ) {
 			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) &&
 				G_ItemUsable(&ent->client->ps, HI_SHIELD) )
 			{
-				if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && !G_ShieldSpamAllowed(ent->client->sess.sessionTeam) && (ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[ent->client->sess.sessionTeam]) {
+				if (g_gametype.integer == GT_SIEGE && !iLikeToShieldSpam.integer && !G_ShieldSpamAllowed(ent - g_entities) && (ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE) && !level.canShield[ent->client->sess.sessionTeam]) {
 					trap_SendServerCommand(ent - g_entities, "print \"You are not allowed to place a shield at the moment.\n\"");
 				}
 				else {

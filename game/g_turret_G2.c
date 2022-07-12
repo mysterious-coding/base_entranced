@@ -725,6 +725,9 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			continue;
 		}
 
+		if (level.siegeMap == SIEGEMAP_HOTH && target && target->r.currentOrigin[0] > -1250)
+			continue; // don't shoot into the lift shaft
+
 		if ( target->client )
 		{
 			VectorCopy( target->client->renderInfo.eyePoint, org );
@@ -830,7 +833,7 @@ void turretG2_base_think( gentity_t *self )
 
 	if ( self->enemy )
 	{
-		if ( self->enemy->health <= 0 
+		if ( self->enemy->health <= 0 || (level.siegeMap == SIEGEMAP_HOTH && self->enemy->r.currentOrigin[0] > -1250)
 			|| !self->enemy->inuse || self->enemy->flags & FL_NOTARGET || self->alliedTeam && self->enemy->client && self->enemy->client->sess.sessionTeam == self->alliedTeam)
 		{ // duo: fixed bugs when targeting player who uses cloak or changes team
 			self->enemy = NULL;

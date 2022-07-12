@@ -207,7 +207,10 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 	if (parentPS && parentPS->electrifyTime > pm->cmd.serverTime)
 	{
-		speedMax *= 0.5f;
+		if (pVeh->m_pVehicleInfo && !Q_stricmp(pVeh->m_pVehicleInfo->name, "atst_vehicle_hoth3"))
+			speedMax *= 0.75f;
+		else
+			speedMax *= 0.5f;
 	}
 
 	fWalkSpeedMax = speedMax * 0.275f;

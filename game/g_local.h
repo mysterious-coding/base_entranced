@@ -392,6 +392,7 @@ struct gentity_s {
 	int			genericValue15;
 	int			genericValue16;
 	int			genericValue17;
+	qboolean		isSmallShield;
 	int			recallSiegeItem;
 	char		*recallTarget;
 	char		*recallOrigin;
@@ -1951,7 +1952,7 @@ int G_GetAccurateTimerOnTrigger( accurateTimer *timer, gentity_t *activator, gen
 typedef qboolean ( *entityFilter_func )( gentity_t* );
 gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func );
 void G_FormatLocalDateFromEpoch(char* buf, size_t bufSize, time_t epochSecs);
-qboolean G_ShieldSpamAllowed(team_t t);
+qboolean G_ShieldSpamAllowed(int clientNum);
 qboolean VectorInsideBox(const vec3_t v, float x1, float y1, float z1, float x2, float y2, float z2, float wiggleRoom);
 
 qboolean TryTossHealthPack(gentity_t *ent, qboolean doChecks);

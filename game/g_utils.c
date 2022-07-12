@@ -3189,16 +3189,23 @@ gentity_t* G_ClosestEntity( gentity_t *ref, entityFilter_func filterFunc ) {
 	return found;
 }
 
-qboolean G_ShieldSpamAllowed(team_t t) {
+qboolean G_ShieldSpamAllowed(int clientNum) {
 	vmCvar_t mapname;
 	trap_Cvar_Register(&mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM);
 	if (!Q_stricmp(mapname.string, "siege_codes"))
 		return qfalse; // hack so neither team can spam on this map
-	
-	if (t == TEAM_RED && level.shieldSpamAllowed & TEAM_RED)
+
+	if (clientNum >= MAX_CLIENTS)
 		return qtrue;
-	
-	if (t == TEAM_BLUE && level.shieldSpamAllowed & TEAM_BLUE)
+
+	gclient_t *cl = &level.clients[clientNum];
+	if (cl && cl->siegeClass != -1 && bgSiegeClasses[cl->siegeClass].classflags & (1 << CFL_SMALLSHIELD))
+		return qtrue;
+
+	if (cl && cl->sess.sessionTeam == TEAM_RED && level.shieldSpamAllowed & TEAM_RED)
+		return qtrue;
+
+	if (cl && cl->sess.sessionTeam == TEAM_BLUE && level.shieldSpamAllowed & TEAM_BLUE)
 		return qtrue;
 
 	return qfalse;

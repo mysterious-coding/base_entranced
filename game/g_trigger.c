@@ -690,7 +690,10 @@ void Touch_Multi(gentity_t *self, gentity_t *other, trace_t *trace)
 		{ 
 			if (level.siegeMap == SIEGEMAP_HOTH && !Q_stricmp(self->target, "t712")) {
 				self->genericValue7 = g_hothHangarHack.integer & HOTHHANGARHACK_5SECONDS ? 5000 : 10000;
-				self->idealclass[0] = g_hothHangarHack.integer & HOTHHANGARHACK_ANYCLASS ? '\0' : 'I';
+				if (!Q_stricmpn(level.mapname, "siege_hoth3", 11))
+					self->idealClassType = g_hothHangarHack.integer & HOTHHANGARHACK_ANYCLASS ? 0 : CLASSTYPE_TECH;
+				else if (self->idealclass)
+					self->idealclass[0] = g_hothHangarHack.integer & HOTHHANGARHACK_ANYCLASS ? '\0' : 'I';
 			}
 			//we have to be holding the use key in this trigger for x milliseconds before firing
 			if (g_gametype.integer == GT_SIEGE &&

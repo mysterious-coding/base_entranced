@@ -3233,6 +3233,7 @@ typedef enum
 	CFL_GRAPPLE,
 	CFL_KICK,
 	CFL_WONDERWOMAN,
+	CFL_SMALLSHIELD,
 	NUM_CLASSFLAGS
 } siegeClassFlags_t;
 
