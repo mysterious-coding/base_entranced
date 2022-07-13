@@ -867,7 +867,7 @@ void UnLockDoors(gentity_t *const ent)
 	gentity_t	*slave = ent;
 	do
 	{	// want to allow locked toggle doors, so keep the targetname
-		if (!(slave->spawnflags & MOVER_TOGGLE))
+		if (!(slave->spawnflags & MOVER_TOGGLE) && !slave->remainUsableIfUnlocked)
 		{
 			slave->targetname = NULL;//not usable ever again
 		}
@@ -924,9 +924,23 @@ void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			// justopen: open the locked door once instead of unlocking it
 			if (ent->moverState == MOVER_1TO2)
 				return; // already opening
+
+			if (other->genericValue16 == 2) { // only open the locked door if we're on red team (if it becomes unlocked, anyone will be able to open it)
+				if (!(activator && activator->client && activator->client->sess.sessionTeam == TEAM_RED))
+					return;
+				// fall through to open the door
+			}
+			else if (other->genericValue16 == 3) { // only open the locked door if we're on blue team (if it becomes unlocked, anyone will be able to open it)
+				if (!(activator && activator->client && activator->client->sess.sessionTeam == TEAM_BLUE))
+					return;
+				// fall through to open the door
+			}
+			else {
+				// fall through to open the door
+			}
 		}
 		else {
-			UnLockDoors(ent);
+			UnLockDoors(ent); // unlock the door and go no further (do not open it)
 			return;
 		}
 	}
@@ -1452,6 +1466,7 @@ void SP_func_door(gentity_t *ent)
 	float	lip;
 
 	G_SpawnInt("vehopen", "0", &ent->genericValue14);
+	G_SpawnInt("remainusableifunlocked", "0", &ent->remainUsableIfUnlocked);
 
 	ent->blocked = Blocked_Door;
 

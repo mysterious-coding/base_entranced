@@ -436,6 +436,8 @@ struct gentity_s {
 	int			lastSaberBlockEventTick;
 
 	int			perPlayerTime[MAX_CLIENTS]; // duo: to allow ammo/armor/health generators to have separate cooldown times for each player
+
+	int remainUsableIfUnlocked;
 };
 
 #define DAMAGEREDIRECT_HEAD		1
