@@ -333,7 +333,6 @@ bitflag 4 = d jedi gets heal 3
 * Buffed the cave route by adding a health generator and streamlining movement (lobotomized the Wampa, moved him away from the wall, removed the inner rocks, and reduced the HP of the outer rocks by 93% (to 100 from 1500)).
 * Buffed the ion route by changing the hack to be instantaneous and performable by any class.
 * Reduced the HP of the two big turrets by 50% (to 600 from 1200).
-* Added a health generator in cave.
 * Added a health generator just up the ramp from the ion hack door.
 
 #### `g_antiSelfMax`
@@ -972,7 +971,7 @@ Clients can use the following chat tokens:
 #### Advanced random map voting
 Instead of the traditional random map voting to have the server pick a map, `g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `vote 1`, `vote 2`, etc.
 
-### `g_teamOverlayForce`
+#### `g_teamOverlayForce`
 0 = (default) base jka team overlay behavior
 
 1 = broadcast force points in the armor field of team overlay. broadcast actual armor in the unused bits of the powerups field, which compatible client mods can display separately
