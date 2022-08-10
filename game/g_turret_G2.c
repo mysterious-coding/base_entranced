@@ -725,7 +725,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			continue;
 		}
 
-		if (level.siegeMap == SIEGEMAP_HOTH && target && target->r.currentOrigin[0] > -1250)
+		if (level.siegeMap == SIEGEMAP_HOTH && g_fixHothHangarTurrets.integer && target && target->r.currentOrigin[0] > -1250)
 			continue; // don't shoot into the lift shaft
 
 		if ( target->client )

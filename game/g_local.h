@@ -2946,6 +2946,7 @@ extern vmCvar_t		g_botAimbot;
 extern vmCvar_t		g_botDefaultSiegeClass;
 extern vmCvar_t		g_speedrunRoundOneRestart;
 extern vmCvar_t		g_siegeGhosting;
+extern vmCvar_t		g_fixHothHangarTurrets;
 
 extern vmCvar_t		g_preventJoiningLargerTeam;
 extern vmCvar_t		g_lastIntermissionStartTime;
