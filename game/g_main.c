@@ -1129,7 +1129,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_botAimbot, "g_botAimbot", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_botDefaultSiegeClass, "g_botDefaultSiegeClass", "scout", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_speedrunRoundOneRestart, "g_speedrunRoundOneRestart", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_siegeGhosting, "g_siegeGhosting", "1", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
+	{ &g_siegeGhosting, "g_siegeGhosting", "2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_fixHothHangarTurrets, "g_fixHothHangarTurrets", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_preventJoiningLargerTeam, "g_preventJoiningLargerTeam", "0", CVAR_ARCHIVE, 0, qtrue },
