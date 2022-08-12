@@ -89,9 +89,11 @@ If `g_classLimits` is enabled, you can use twelve cvars to limit the number of p
 1 = (default) `iLikeToDoorSpam` and `iLikeToMineSpam` automatically get set to 1 for Korriban (where spam is essential), and automatically get set to 0 for all other maps
 
 #### `g_siegeGhosting`
-0 = disable ghosting; when you are dead you can click to cycle through following your teammates as if you were a spec, similar to literally any other video game. if nobody on the team is alive then you view some useless spot on the map. has some visual issues unless you use a compatible client mod that fixes them
+0 = enable idiotic siege ghosting mechanic where the informational advantage is held by the team with more dead people (???)
 
-1 = (default) enable idiotic siege ghosting mechanic where the informational advantage is held by the team with more dead people (???)
+1 = disable ghosting; when you are dead you can click to cycle through following your teammates as if you were a spec, similar to literally any other video game. has some visual issues unless you use a compatible client mod that fixes them
+
+2 = (default) same as 1, but if nobody on the team is alive then you view some useless spot on the map.
 
 #### Toptimes records and speedruns
 The server database tracks per-objective and per-map statistics on fastest offense times, and longest defense times. For more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=23&t=215
@@ -579,6 +581,8 @@ Mapmakers can set the new `forceOnNpcs` key in `worldspawn` to 1-3, which forces
 Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the server to execute `g_siegeRespawn` to a desired number. If this key is not set, it will default to 20 (base JKA default).
 
 Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (base JKA default).
+
+Mapmakers can set the new `ghostcamera_origin` key (format: x y z) and `ghostcamera_yaw` keys in `worldspawn`, which governs where the ghost camera should be looking (with `g_siegeGhosting 2` and all teammates dead.
 
 Mapmakers can define in `worldspawn` certain metadata about objectives for use with the top times feature. Enable this feature by setting the `combinedobjs` key to `1`. Then, using bitflags, follow the example below for siege_narshaddaa, which combines the third and fourth objs (station 1 and station 2) into one combined objective for the purposes of top times, by combining bitflags 4 and 8. To be clear, this feature is *only* for the top times feature, allowing objectives to be combined; in this example, you have to complete *both* stations objectives in order to trigger the "stations" objective (which is not a real objective). Without this feature, top times would be triggered for each station individually, which would allow you to achieve inhumanly fast times on either station by killing it extremely soon after killing the previous one.
 ```
