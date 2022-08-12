@@ -54,9 +54,9 @@ If `g_classLimits` is enabled, you can use twelve cvars to limit the number of p
 1 = (default) instantly broadcast class changes to teammates; delay class change broadcast for enemies until after the respawn. This is a huge improvement to gameplay. Prevents the stupid "oh you changed class 150ms before the respawn? Let me counter you by changing class 140ms before the respawn" garbage. It also allows for more coordination between teammates, since they can now press their class change binds early, and change to synergize with each other well in advance of the spawn.
 
 #### `g_siegeTiebreakEnd`
-0 = (default) no tiebreaking rules (base JKA)
+0 = no tiebreaking rules (base JKA)
 
-1 = enforce traditional siege community tiebreaking rule. If round 1 offense got held for maximum time(20 minutes on most maps), game will end once round 2 offense has completed one more objective. Round 2 offense will be declared the winner of the match.
+1 = (default) enforce traditional siege community tiebreaking rule. If round 1 offense got held for maximum time(20 minutes on most maps), game will end once round 2 offense has completed one more objective. Round 2 offense will be declared the winner of the match.
 
 #### `g_fixSiegeScoring`
 0 = dumb base JKA scoring (20 pts per obj, 30 pts for final obj, 10 pt bonus at end)
@@ -316,7 +316,7 @@ Removes all turrets from the map. Useful for capt duels. Can be executed from rc
 If specified, the server will change to this map after 60 seconds of being empty.
 
 #### `g_hothRebalance`
-0 = (default) hoth classes are unchanged
+0 = hoth classes are unchanged
 
 bitflag 1 = o assault gets big bacta
 
@@ -325,6 +325,8 @@ bitflag 2 = o hw gets regular bacta and e11
 bitflag 4 = d jedi gets heal 3
 
 -1 = enable all
+
+default setting: 3 (combination of 1 and 2)
 
 #### `g_fixHoth2ndObj`
 0 = disable.
