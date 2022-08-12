@@ -1099,7 +1099,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_enableCloak, "g_enableCloak", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixHothBunkerLift, "g_fixHothBunkerLift", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_infiniteCharge, "g_infiniteCharge", "2", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_siegeTiebreakEnd, "g_siegeTiebreakEnd", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_siegeTiebreakEnd, "g_siegeTiebreakEnd", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_moreTaunts, "g_moreTaunts", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixRancorCharge, "g_fixRancorCharge", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_autoKorribanFloatingItems, "g_autoKorribanFloatingItems", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -1305,7 +1305,7 @@ static cvarTable_t		gameCvarTable[] = {
 	// level 5 is just constant
 
 	{ &g_lockdown, "g_lockdown", "0", 0, 0, qtrue },
-	{ &g_hothRebalance, "g_hothRebalance", "-1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_hothRebalance, "g_hothRebalance", "3", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_hothHangarHack, "g_hothHangarHack", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixShield, "g_fixShield", "1", CVAR_ARCHIVE, 0, qtrue },
 	/*{ &debug_testHeight1, "debug_testHeight1", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -6739,7 +6739,7 @@ void G_RunFrame( int levelTime ) {
 			G_Printf( S_COLOR_YELLOW"Respawn time is not standard. Capture records won't be tracked during this map.\n" );
 			level.mapCaptureRecords.readonly = qtrue;
 #endif
-		} else if (level.siegeMap == SIEGEMAP_HOTH && (g_hothHangarHack.integer != HOTHHANGARHACK_5SECONDS || g_hothRebalance.integer != -1)) {
+		} else if (level.siegeMap == SIEGEMAP_HOTH && (g_hothHangarHack.integer != HOTHHANGARHACK_5SECONDS || g_hothRebalance.integer != 3)) {
 			G_Printf(S_COLOR_YELLOW"Hoth settings are not standard. Capture records won't be tracked during this map.\n");
 			level.mapCaptureRecords.readonly = qtrue;
 		}
