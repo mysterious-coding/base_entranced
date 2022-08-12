@@ -88,6 +88,13 @@ If `g_classLimits` is enabled, you can use twelve cvars to limit the number of p
 
 1 = (default) `iLikeToDoorSpam` and `iLikeToMineSpam` automatically get set to 1 for Korriban (where spam is essential), and automatically get set to 0 for all other maps
 
+#### `g_siegeGhosting`
+0 = enable idiotic siege ghosting mechanic where the informational advantage is held by the team with more dead people (???)
+
+1 = disable ghosting; when you are dead you can click to cycle through following your teammates as if you were a spec, similar to literally any other video game. has some visual issues unless you use a compatible client mod that fixes them
+
+2 = (default) same as 1, but if nobody on the team is alive then you view some useless spot on the map.
+
 #### Toptimes records and speedruns
 The server database tracks per-objective and per-map statistics on fastest offense times, and longest defense times. For more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=23&t=215
 
@@ -151,6 +158,11 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 0 = Hoth bunker doors at first objective are silent (bug from base JKA)
 
 1 = (default) Hoth bunker doors at first objective use standard door sounds
+
+#### `g_fixHothHangarTurrets`
+0 = hoth hangar turrets can shoot at people in the lift shaft, absolutely idiotic mechanic and basically up to RNG whether you successfully dodge the shots even with constant zigzagging
+
+1 = (default) hoth turrets do not shoot at people in the lift shaft
 
 #### `g_antiHothCodesLiftLame`
 0 = normal behavior for Hoth codes delivery bunker lift
@@ -323,6 +335,7 @@ bitflag 4 = d jedi gets heal 3
 * Buffed the cave route by adding a health generator and streamlining movement (lobotomized the Wampa, moved him away from the wall, removed the inner rocks, and reduced the HP of the outer rocks by 93% (to 100 from 1500)).
 * Buffed the ion route by changing the hack to be instantaneous and performable by any class.
 * Reduced the HP of the two big turrets by 50% (to 600 from 1200).
+* Added a health generator just up the ramp from the ion hack door.
 
 #### `g_antiSelfMax`
 0 = disable
@@ -338,6 +351,21 @@ bitflag 4 = d jedi gets heal 3
 0 = disable (useful for pub servers)
 
 1 = (default) `g_siegeRespawn` automatically changes between 1 and 20 depending on if the map was restarted (via vote or rcon)
+
+#### `g_preventJoiningLargerTeam`
+0 = (default) disable
+
+1 = prevent people from joining the team that has more people than the other team (useful for pub servers)
+
+#### `g_autoRestartAfterIntermission`
+0 = (default) disable
+
+15 = (example) automatically do a 15-second rs for each round, similar to the old UJ server mod (useful for pub servers)
+
+#### `g_speedrunRoundOneRestart`
+0 = disable (useful for pub servers)
+
+1 = (default) automatically restart in round 1 without team swapping if the map is completed in speedrun mode
 
 #### `g_multiUseGenerators`
 0 = base JKA weird buggy behavior when multiple people are using an armor/ammo/health generator
@@ -554,6 +582,8 @@ Mapmakers can set the new `siegeRespawn` key in `worldspawn`, which forces the s
 
 Mapmakers can set the new `siegeTeamSwitch` key in `worldspawn`, which forces the server to execute `g_siegeTeamSwitch` to a desired number. If this key is not set, it will default to 1 (base JKA default).
 
+Mapmakers can set the new `ghostcamera_origin` key (format: x y z) and `ghostcamera_yaw` keys in `worldspawn`, which governs where the ghost camera should be looking (with `g_siegeGhosting 2` and all teammates dead.
+
 Mapmakers can define in `worldspawn` certain metadata about objectives for use with the top times feature. Enable this feature by setting the `combinedobjs` key to `1`. Then, using bitflags, follow the example below for siege_narshaddaa, which combines the third and fourth objs (station 1 and station 2) into one combined objective for the purposes of top times, by combining bitflags 4 and 8. To be clear, this feature is *only* for the top times feature, allowing objectives to be combined; in this example, you have to complete *both* stations objectives in order to trigger the "stations" objective (which is not a real objective). Without this feature, top times would be triggered for each station individually, which would allow you to achieve inhumanly fast times on either station by killing it extremely soon after killing the previous one.
 ```
 combinedobjs    1
@@ -608,6 +638,9 @@ Mapmakers can add some new extra flags to .scl siege class files for additional 
 * `classflags CFL_SPIDERMAN` - permanent wallgrab
 * `classflags CFL_GRAPPLE` - melee grapple
 * `classflags CFL_KICK` - melee kick
+* `classflags CFL_WONDERWOMAN` - with melee equipped you block disrupts, reflect non-explosive projectiles, and take 50% damage from everything else
+* `classflags CFL_SMALLSHIELD` - place a small shield that lasts forever but has limited HP instead of the base jka shield
+* `saberoffextradamage 0.5` - take 50% extra damage while saber is equipped and holstered
 
 Note about ammo: for example, adding `ammorockets 5` will cause a class to spawn with 5 rockets, and it will only be able to obtain a maximum of 5 rockets from ammo dispensers and ammo canisters. Note that the `CFL_EXTRA_AMMO` classflag still works in conjunction with these custom ammo amounts; for example, `ammodetpacks 3` combined with `CFL_EXTRA_AMMO` will give 6 detpacks (plus double ammo for all other weapons)
 
@@ -688,7 +721,9 @@ Mapmakers can use the new entity `target_delay_cancel` to cancel the pending tar
 
 Mapmakers can now use the `setteamallow` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set to `1` or `2` and targets a door, then that door will only have its `teamallow` property set when it's used by the trigger/relay. For example, you can now have a 100% locked door that nobody can access, and then it can be hacked so that it is still locked but now allows passage for one team. Use `1` for red team, `2` for blue team.
 
-Mapmakers can now use the `justopen` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set and targets a locked door, then that door will just open once instead of unlocking (like the Ambush Room door at Cargo's first obj)
+Mapmakers can now use the `justopen` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set and targets a locked door, then that door will just open once instead of unlocking (like the Ambush Room door at Cargo's first obj). You can set it to `1` for standard behavior (like cargo 1st obj door) or you can set it to `2` to allow only red team opening it or set it to `3` to allow only blue team opening it.
+
+Mapmakers can use the `remainusableifunlocked` key on `func_door`s, which allows the door to remain usable (via targetname, i.e. from hacking a panel) after becoming unlocked. Ordinarily, once a locked door becomes unlocked, it is no longer usable in this way.
 
 Mapmakers can add support for three-dimensional siege help in certain client mods by including a file with the filename `maps/map_name_goes_here.siegehelp` such as the following:
 ```json
@@ -940,6 +975,11 @@ Clients can use the following chat tokens:
 #### Advanced random map voting
 Instead of the traditional random map voting to have the server pick a map, `g_allow_vote_maprandom`, if set to a number higher than `1`, will cause the server to randomly pick a few maps from a pool, after which players can vote to increase the weight of their preferred map with `vote 1`, `vote 2`, etc.
 
+#### `g_teamOverlayForce`
+0 = (default) base jka team overlay behavior
+
+1 = broadcast force points in the armor field of team overlay. broadcast actual armor in the unused bits of the powerups field, which compatible client mods can display separately
+
 #### `sv_passwordlessSpectators`
 0 = (default) normal server password behavior
 
@@ -984,6 +1024,11 @@ Instead of using tell, you can send private messages to people by pressing your 
 #### Bugfixes and other changes
 * Troll/box characters (WSI fonts) are now disallowed from being in player names due to breaking formatting.
 * Mitigated the ability of laggers to warp around unexpectedly by enforcing a minimum update rate.
+* Fixed the bug where you would fire a shot and continue zooming in upon scoping with disruptor.
+* Fixed performing DFA saber moves when simply holding W+attack while moving up a slope.
+* Fixed a Sil bug that caused detpacks to float 1 unit higher than they should.
+* Database load now happens when changing maps instead of at the start of every round, dramatically reducing restart times.
+* Fixed grip draining your force but not actually gripping if you were at just the right distance from the target.
 
 # Features that are also in Sil's base_enhanced
 These are features in base_entranced that are also available in Sil's now-inactive base_enhanced mod (https://github.com/TheSil/base_enhanced), the legacy server mod of the CTF and siege communities. Since base_entranced was originally based on Sil's base_enhanced, and they are both open source, they share a number of features. Note that I have not attempted to list every base_enhanced feature here; only the ones that are most relevant to siege.
