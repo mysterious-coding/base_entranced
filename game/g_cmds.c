@@ -4391,15 +4391,15 @@ void Cmd_CallVote_f( gentity_t *ent, int pause ) {
 		if (!Q_stricmp(arg2, "mp/siege_hoth")) {
 			static qboolean serverHasHoth3 = qfalse;
 			if (serverHasHoth3) {
-				Q_strncpyz(arg2, "siege_hoth3", sizeof(arg2));
+				Q_strncpyz(arg2, "siege_hoth3_v2", sizeof(arg2));
 			}
 			else {
 				fileHandle_t f;
-				trap_FS_FOpenFile("maps/siege_hoth3.bsp", &f, FS_READ);
+				trap_FS_FOpenFile("maps/siege_hoth3_v2.bsp", &f, FS_READ);
 				if (f) {
 					trap_FS_FCloseFile(f);
 					serverHasHoth3 = qtrue;
-					Q_strncpyz(arg2, "siege_hoth3", sizeof(arg2));
+					Q_strncpyz(arg2, "siege_hoth3_v2", sizeof(arg2));
 				}
 				else {
 					serverHasHoth3 = qfalse;
