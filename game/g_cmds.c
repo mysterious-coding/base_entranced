@@ -9612,6 +9612,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_fixHothBunkerLift);
 	PrintCvar(g_fixHothDoorSounds);
 	PrintCvar(g_fixHothHangarTurrets);
+	PrintCvar(g_fixLiftkillTraps);
 	PrintCvar(g_fixPitKills);
 	PrintCvar(g_fixRancorCharge);
 	PrintCvar(g_fixShield);

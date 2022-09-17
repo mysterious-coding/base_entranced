@@ -213,6 +213,7 @@ vmCvar_t	g_botDefaultSiegeClass;
 vmCvar_t	g_speedrunRoundOneRestart;
 vmCvar_t	g_siegeGhosting;
 vmCvar_t	g_fixHothHangarTurrets;
+vmCvar_t	g_fixLiftkillTraps;
 
 vmCvar_t	g_preventJoiningLargerTeam;
 vmCvar_t	g_lastIntermissionStartTime;
@@ -1175,6 +1176,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_damageFixes, "g_damageFixes", "-1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_healWalkerWithAmmoCans, "g_healWalkerWithAmmoCans", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_friendlyFreeze, "g_friendlyFreeze", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixLiftkillTraps, "g_fixLiftkillTraps", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &lastMapName, "lastMapName", "", CVAR_ARCHIVE | CVAR_ROM, 0, qtrue },
 

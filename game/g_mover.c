@@ -1083,19 +1083,26 @@ void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy)
 		ent->spawnflags |= MOVER_CRUSHER;
 		fixedHothBridge = qtrue;
 	}
-	
-	if (ent->damage) {
-		// duo: properly credit liftkills
-		if (blockedBy && other && other - g_entities < MAX_CLIENTS) {
-			if (blockedBy - g_entities < MAX_CLIENTS)
-				G_Damage(other, blockedBy, blockedBy, NULL, NULL, ent->damage, 0, MOD_CRUSH); // killed by player
-			else if (blockedBy->parent && blockedBy->parent - g_entities < MAX_CLIENTS)
-				G_Damage(other, blockedBy->parent, blockedBy->parent, NULL, NULL, ent->damage, 0, MOD_CRUSH); // killed by something owned by a player
-			else
+
+	if (g_fixLiftkillTraps.integer && blockedBy &&
+		(!Q_stricmp(blockedBy->classname, "sentryGun") || !Q_stricmp(blockedBy->classname, "item_shield")) &&
+		other && other - g_entities < MAX_CLIENTS) {
+		G_Damage(blockedBy, ent, ent, NULL, NULL, 999999, 0, MOD_CRUSH);
+	}
+	else {
+		if (ent->damage) {
+			// duo: properly credit liftkills
+			if (blockedBy && other && other - g_entities < MAX_CLIENTS) {
+				if (blockedBy - g_entities < MAX_CLIENTS)
+					G_Damage(other, blockedBy, blockedBy, NULL, NULL, ent->damage, 0, MOD_CRUSH); // killed by player
+				else if (blockedBy->parent && blockedBy->parent - g_entities < MAX_CLIENTS)
+					G_Damage(other, blockedBy->parent, blockedBy->parent, NULL, NULL, ent->damage, 0, MOD_CRUSH); // killed by something owned by a player
+				else
+					G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+			}
+			else {
 				G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
-		}
-		else {
-			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+			}
 		}
 	}
 
