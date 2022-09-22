@@ -2729,7 +2729,13 @@ void SiegeGhostUpdate(int sendClientNum, qboolean forceUpdate) {
 	// we probably don't need to bother validating the followee here
 
 	if (followee) { // send some info to constitute a fake hud
-		trap_SendServerCommand(sendClientNum, va("kls -1 -1 sgho %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+
+#define GHOSTDATA_MISCELLANEOUSINTEGER_HASSENSE2OR3	(1 << 0)
+		int miscellaneousInteger = 0;
+		if (followee->client->ps.fd.forcePowerLevel[FP_SEE] >= FORCE_LEVEL_2)
+			miscellaneousInteger |= GHOSTDATA_MISCELLANEOUSINTEGER_HASSENSE2OR3;
+
+		trap_SendServerCommand(sendClientNum, va("kls -1 -1 sgho %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
 			followee - g_entities,
 			followee->health >= 0 ? followee->health : 0,
 			followee->health >= 0 ? followee->client->ps.stats[STAT_ARMOR] : 0,
@@ -2748,7 +2754,8 @@ void SiegeGhostUpdate(int sendClientNum, qboolean forceUpdate) {
 			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_iTurboTime : -1,
 			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[0].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[0].ammo : -1,
 			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->weapon[1].ID ? g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle->weaponStatus[1].ammo : -1,
-			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].playerState->stats[STAT_ARMOR] : -1
+			followee->client->ps.m_iVehicleNum && g_entities[followee->client->ps.m_iVehicleNum].m_pVehicle ? g_entities[followee->client->ps.m_iVehicleNum].playerState->stats[STAT_ARMOR] : -1,
+			miscellaneousInteger
 		));
 	}
 	else { // send a non-update
