@@ -185,6 +185,11 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 
 1 = (default) defense cannot call the "short" lift up with the top button; they must use the lower button
 
+#### `g_fixLiftkillTraps`
+0 = disable
+
+1 = sentries/shields placed at the top of lifts cannot crush people who come up the lift; instead they are destroyed
+
 #### `g_antiLaming`
 0 = (default) no anti-laming provisions (base JKA, suggested setting for pug servers)
 
@@ -1010,6 +1015,14 @@ The interval in milliseconds for teamoverlay data to be updated and sent out to 
 0 = (default) basejka force sense behavior
 
 1 = when crouching with saber up with sense 3, dodging disruptor shots is guaranteed
+
+#### `g_allowMoveDisable`
+-1 = (default) allow clients to disable some shitty saber moves
+
+#### `g_fixForceJumpAnimationLock`
+0 = (default) disable
+
+1 = fix superman jumps going lower than regular jumps
 
 #### `g_maxNameLength`
 Sets the maximum permissible player name length. 35 is the basejka default; anything higher than that is untested (this cvar was intended to be set *lower* than 35).
