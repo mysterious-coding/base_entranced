@@ -188,7 +188,7 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 #### `g_fixLiftkillTraps`
 0 = disable
 
-1 = sentries/shields placed at the top of lifts cannot crush people who come up the lift; instead they are destroyed
+1 = (default) sentries/shields placed at the top of lifts cannot crush people who come up the lift; instead they are destroyed
 
 #### `g_antiLaming`
 0 = (default) no anti-laming provisions (base JKA, suggested setting for pug servers)
