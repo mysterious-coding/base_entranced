@@ -998,7 +998,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixPitKills,	"g_fixPitKills"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixGripKills,	"g_fixGripKills", "1"	, CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_fixForceJumpAnimationLock,	"g_fixForceJumpAnimationLock"	, "1"	, CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fixForceJumpAnimationLock,	"g_fixForceJumpAnimationLock"	, "0"	, CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_balanceSaber, "g_balanceSaber", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_balanceSeeing, "g_balanceSeeing", "0", CVAR_ARCHIVE, 0, qtrue },
