@@ -140,6 +140,11 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 
 1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed. note that if using the saber throw vs. saberist fixes (see `g_damageFixes` bitflag 4 below) you won't really be getting disarmed anyway unless you do it to yourself intentionally.
 
+#### `g_fixDempSaberThrow`
+0 = disable
+
+1 = (default) fix base jka bug where demp CC would never decrease during saber throw (e.g. throw -> demped -> hold mouse2 for 9 years -> saber returns -> still must wait 2 seconds to unfreeze)
+
 #### `g_fixHothBunkerLift`
 0 = normal lift behavior for Hoth codes bunker lift (base JKA)
 
