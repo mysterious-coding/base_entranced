@@ -168,6 +168,14 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	gentity_t	*block, *confirmedBlocker = NULL;
 	*blocker = NULL;
 
+	// fix issue with horizontal "doors" being way too easily greenable with a detpack placed on top
+	qboolean isCargoTrollDetpack = qfalse;
+	if (level.siegeMap == SIEGEMAP_CARGO && check && !Q_stricmp(check->classname, "detpack") &&
+		check->r.currentOrigin[0] >= 7034 && check->r.currentOrigin[0] <= 7322 &&
+		check->r.currentOrigin[1] >= -456 && check->r.currentOrigin[1] <= -110) {
+		isCargoTrollDetpack = qtrue;
+	}
+
 	//This was only serverside not to mention it was never set.
 	if (pusher->s.apos.trType != TR_STATIONARY//rotating
 		&& (pusher->spawnflags & 16) //IMPACT
@@ -190,59 +198,70 @@ qboolean	G_TryPushingEntity(gentity_t *check, gentity_t *pusher, vec3_t move, ve
 	}
 	pushed_p++;
 
-	// try moving the contacted entity 
-	// figure movement due to the pusher's amove
-	G_CreateRotationMatrix(amove, transpose);
-	G_TransposeMatrix(transpose, matrix);
-	if (check->client) {
-		VectorSubtract(check->client->ps.origin, pusher->r.currentOrigin, org);
+	if (isCargoTrollDetpack && pusher->moverState == MOVER_2TO1) {
+		check->s.groundEntityNum = ENTITYNUM_WORLD; // don't push the detpack back while it closes; consider it stuck to the floor from now on
 	}
 	else {
-		VectorSubtract(check->s.pos.trBase, pusher->r.currentOrigin, org);
-	}
-	VectorCopy(org, org2);
-	G_RotatePoint(org2, matrix);
-	VectorSubtract(org2, org, move2);
-	// add movement
-	VectorAdd(check->s.pos.trBase, move, check->s.pos.trBase);
-	VectorAdd(check->s.pos.trBase, move2, check->s.pos.trBase);
-	if (check->client) {
-		VectorAdd(check->client->ps.origin, move, check->client->ps.origin);
-		VectorAdd(check->client->ps.origin, move2, check->client->ps.origin);
-		// make sure the client's view rotates when on a rotating mover
-		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
-	}
-
-	// may have pushed them off an edge
-	if (check->s.groundEntityNum != pusher->s.number) {
-		check->s.groundEntityNum = ENTITYNUM_NONE;
-	}
-
-	block = G_TestEntityPosition(check);
-	if (block) {
-		confirmedBlocker = block;
-	}
-	else {
-		// pushed ok
+		// try moving the contacted entity 
+		// figure movement due to the pusher's amove
+		G_CreateRotationMatrix(amove, transpose);
+		G_TransposeMatrix(transpose, matrix);
 		if (check->client) {
-			VectorCopy(check->client->ps.origin, check->r.currentOrigin);
+			VectorSubtract(check->client->ps.origin, pusher->r.currentOrigin, org);
 		}
 		else {
-			VectorCopy(check->s.pos.trBase, check->r.currentOrigin);
+			VectorSubtract(check->s.pos.trBase, pusher->r.currentOrigin, org);
 		}
-		trap_LinkEntity(check);
-		return qtrue;
+		VectorCopy(org, org2);
+		G_RotatePoint(org2, matrix);
+		VectorSubtract(org2, org, move2);
+		// add movement
+		VectorAdd(check->s.pos.trBase, move, check->s.pos.trBase);
+		VectorAdd(check->s.pos.trBase, move2, check->s.pos.trBase);
+		if (check->client) {
+			VectorAdd(check->client->ps.origin, move, check->client->ps.origin);
+			VectorAdd(check->client->ps.origin, move2, check->client->ps.origin);
+			// make sure the client's view rotates when on a rotating mover
+			check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
+		}
+
+		// may have pushed them off an edge
+		if (check->s.groundEntityNum != pusher->s.number) {
+			check->s.groundEntityNum = ENTITYNUM_NONE;
+		}
+
+		block = G_TestEntityPosition(check);
+		if (block) {
+			confirmedBlocker = block;
+		}
+		else {
+			// pushed ok
+			if (check->client) {
+				VectorCopy(check->client->ps.origin, check->r.currentOrigin);
+			}
+			else {
+				VectorCopy(check->s.pos.trBase, check->r.currentOrigin);
+			}
+			trap_LinkEntity(check);
+			return qtrue;
+		}
 	}
 
-	if (check->takedamage && !check->client && check->s.weapon && check->r.ownerNum < MAX_CLIENTS &&
-		check->health < 500)
-	{
-		if (check->health > 0)
-		{
-			G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN);
-		}
-		return qfalse;
+	if (isCargoTrollDetpack) {
+		return qtrue; // push the detpack
 	}
+	else {
+		if (check->takedamage && !check->client && check->s.weapon && check->r.ownerNum < MAX_CLIENTS &&
+			check->health < 500)
+		{
+			if (check->health > 0)
+			{
+				G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN);
+			}
+			return qfalse;
+		}
+	}
+
 	// if it is ok to leave in the old position, do it
 	// this is only relevent for riding entities, not pushed
 	// Sliding trapdoors can cause this.
@@ -1082,6 +1101,13 @@ void Blocked_Door(gentity_t *ent, gentity_t *other, gentity_t *blockedBy)
 		ent->damage = 9999;
 		ent->spawnflags |= MOVER_CRUSHER;
 		fixedHothBridge = qtrue;
+	}
+
+	// fix issue with horizontal "doors" being way too easily greenable with a detpack placed on top
+	if (level.siegeMap == SIEGEMAP_CARGO && other && !Q_stricmp(other->classname, "detpack") &&
+		other->r.currentOrigin[0] >= 7034 && other->r.currentOrigin[0] <= 7322 &&
+		other->r.currentOrigin[1] >= -456 && other->r.currentOrigin[1] <= -110) {
+		return;
 	}
 
 	if (g_fixLiftkillTraps.integer && blockedBy &&
