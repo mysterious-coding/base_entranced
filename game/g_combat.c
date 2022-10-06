@@ -5475,6 +5475,13 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		return 0;
 	}
+
+	// guarantee sabers oneshot mines/detpacks (fix stupid low damage bug)
+	if (mod == MOD_SABER && targ && VALIDSTRING(targ->classname) && (!strcmp(targ->classname, "laserTrap") || !strcmp(targ->classname, "detpack"))
+		&& attacker && attacker->client && attacker - g_entities < MAX_CLIENTS) {
+		damage = 999;
+	}
+
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
 	if ( attacker->client 
