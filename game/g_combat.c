@@ -6660,6 +6660,9 @@ int G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 
+		if (targ->health > 0 && (targ->health < targ->lowestHealth || !targ->lowestHealth))
+			targ->lowestHealth = targ->health;
+
 		//We want to go ahead and set gPainHitLoc regardless of if we have a pain func,
 		//so we can adjust the location damage too.
 		if (targ->client && targ->ghoul2 && targ->client->g2LastSurfaceTime == level.time)

@@ -2017,21 +2017,13 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 	if (ent && ent->client && ent->client->emoted)
 		return qfalse;
 	int max = target->maxHealth;
-	if (level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') {
-		static enum {
-			ONETHIRD = 0,
-			TWOTHIRDS,
-			FULL
-		} healthStatus = FULL;
-		if (target->health <= (int)(((double)max) / 3))
-			healthStatus = ONETHIRD;
-		else if (healthStatus == FULL && target->health <= (int)((((double)max) / 3) * 2))
-			healthStatus = TWOTHIRDS;
-		
-		if (healthStatus == ONETHIRD)
-			max = (int)(((double)max) / 3);
-		else if (healthStatus == TWOTHIRDS)
-			max = (int)((((double)max) / 3) * 2);
+	if (level.siegeMap == SIEGEMAP_URBAN && VALIDSTRING(target->NPC_type) && tolower(*target->NPC_type) == 'w') { // to do: make this in a generic way
+		if (target->lowestHealth <= (int)(((double)max) / 4))
+			max = (int)(((double)max) / 4);
+		else if (target->lowestHealth <= (int)((((double)max) / 4) * 2))
+			max = (int)((((double)max) / 4) * 2);
+		else if (target->lowestHealth <= (int)((((double)max) / 4) * 3))
+			max = (int)((((double)max) / 4) * 3);
 	}
 
 	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 &&
