@@ -140,6 +140,11 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 
 1 = you only get disarmed for 2 seconds, and can regenerate force while disarmed. note that if using the saber throw vs. saberist fixes (see `g_damageFixes` bitflag 4 below) you won't really be getting disarmed anyway unless you do it to yourself intentionally.
 
+#### `g_fixDodge`
+0 = dumb base behavior; attempt to dodge disrupts/snipes before attempting to saber block
+
+1 = (default) attempt to saber block disrupts/snipes before attempting to dodge
+
 #### `g_fixDempSaberThrow`
 0 = disable
 
