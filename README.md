@@ -10,7 +10,7 @@ a fork of Sil's old [base_enhanced](https://github.com/TheSil/base_enhanced) CTF
 
 base_entranced is intended mainly for the Siege gametype, although it can be played with any gametype. It is intended for **classic, competitive Siege gameplay**, not as a general-purpose "hangout server" mod.
 
-base_entranced is the official server mod of the siege community [(www.jasiege.com)](https://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is extremely buggy and frustrating, not to mention that many siege maps now *require* base_entranced's enhanced mapping framework to function properly.
+base_entranced is the official server mod of the siege community [(www.jasiege.com)](https://www.jasiege.com). Due to its large amount of bugfixes and enhancements, playing siege on any other mod is extremely buggy and frustrating, not to mention that most actively played siege maps now *require* base_entranced's enhanced mapping framework to function properly.
 
 base_entranced has three goals:
 * Fixing bugs.
@@ -731,6 +731,8 @@ Mapmakers are advised to include the new `healingteam` key to healable `func_bre
 
 Mapmakers can use the new entity `target_delay_cancel` to cancel the pending target-firing of a `target_delay`. This can be used to create Counter-Strike-style bomb-defusal objectives in which one team must plant a bomb, and the other team must defuse it. For example, an offense hack(planting the bomb) could trigger a `target_delay` for a 10 second delay for the bomb detonation, and a defense hack(defusing the bomb) could trigger a `target_delay_cancel` to cancel the explosion.
 
+Mapmakers can now use the new `recallsiegeitem` key (set to `1`) on triggers to force a siege item to respawn if it is not currently being carried. Put the targetname of the item as the value of `recalltarget` key. It will respawn in its original spot unless you specify the targetname of a `target_position` entity as the value of the `recallorigin` key, in which case it will spawn at that `target_position`'s location.
+
 Mapmakers can now use the `setteamallow` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set to `1` or `2` and targets a door, then that door will only have its `teamallow` property set when it's used by the trigger/relay. For example, you can now have a 100% locked door that nobody can access, and then it can be hacked so that it is still locked but now allows passage for one team. Use `1` for red team, `2` for blue team.
 
 Mapmakers can now use the `justopen` key on `trigger_once`, `trigger_multiple`, and `target_relay`. If it has this key set and targets a locked door, then that door will just open once instead of unlocking (like the Ambush Room door at Cargo's first obj). You can set it to `1` for standard behavior (like cargo 1st obj door) or you can set it to `2` to allow only red team opening it or set it to `3` to allow only blue team opening it.
@@ -960,6 +962,7 @@ Note: this list is not necessarily intended to be comprehensive. This mod fixes 
 * Fixed the inaccurate, massive hitboxes of large Hoth turrets
 * Fixed hacks getting interrupted during server pause
 * Pause/unpause votes can be called by simply typing "pause" or "unpause" in the chat
+* Fixed mines and detpacks sometimes mysteriously tanking saber throws
 
 
 # Features that are also in Alpha's base_enhanced
