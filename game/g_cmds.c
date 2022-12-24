@@ -9607,6 +9607,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_enableCloak);
 	PrintCvar(g_siegeTiebreakEnd);
 	PrintCvar(g_fixDempSaberThrow);
+	PrintCvar(g_fixDodge);
 	PrintCvar(g_fixEweb);
 	PrintCvar(g_fixFallingSounds);
 	PrintCvar(g_fixGripKills);

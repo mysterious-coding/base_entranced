@@ -2955,6 +2955,7 @@ extern vmCvar_t		g_siegeGhosting;
 extern vmCvar_t		g_fixHothHangarTurrets;
 extern vmCvar_t		g_fixLiftkillTraps;
 extern vmCvar_t		g_fixDempSaberThrow;
+extern vmCvar_t		g_fixDodge;
 
 extern vmCvar_t		g_preventJoiningLargerTeam;
 extern vmCvar_t		g_lastIntermissionStartTime;

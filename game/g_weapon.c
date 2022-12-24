@@ -1613,38 +1613,74 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		{//stopped cold
 			return;
 		}
-		else if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos) ) )
-		{//act like we didn't even hit him
-			VectorCopy( tr.endpos, start );
-			ignore = tr.entityNum;
-			traces++;
-			continue;
-		}
-		else if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/)
-		{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
-			if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0))
-			{ //broadcast and stop the shot because it was blocked
-				gentity_t *te = NULL;
+		else if (g_fixDodge.integer) { // reordered logic; attempt saber block before attempting dodge
+			if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/
+				&& WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0))
+			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock //broadcast and stop the shot because it was blocked
+					gentity_t *te = NULL;
 
-				tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_MAIN_SHOT );
-				VectorCopy( muzzle, tent->s.origin2 );
-				tent->s.eventParm = ent->s.number;
+					tent = G_TempEntity(tr.endpos, EV_DISRUPTOR_MAIN_SHOT);
+					VectorCopy(muzzle, tent->s.origin2);
+					tent->s.eventParm = ent->s.number;
 
-				te = G_TempEntity( tr.endpos, EV_SABER_BLOCK );
-				VectorCopy(tr.endpos, te->s.origin);
-				VectorCopy(tr.plane.normal, te->s.angles);
-				if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
-				{
-					te->s.angles[1] = 1;
+					te = G_TempEntity(tr.endpos, EV_SABER_BLOCK);
+					VectorCopy(tr.endpos, te->s.origin);
+					VectorCopy(tr.plane.normal, te->s.angles);
+					if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+					{
+						te->s.angles[1] = 1;
+					}
+					te->s.eventParm = 0;
+					te->s.weapon = 0;//saberNum
+					te->s.legsAnim = 0;//bladeNum
+
+					if (g_unlagged.integer && compensate)
+						G_UnTimeShiftAllClients(ent, ghoul2);
+
+					return;
 				}
-				te->s.eventParm = 0;
-				te->s.weapon = 0;//saberNum
-				te->s.legsAnim = 0;//bladeNum
+			else if (Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
+			{//act like we didn't even hit him
+				VectorCopy(tr.endpos, start);
+				ignore = tr.entityNum;
+				traces++;
+				continue;
+			}
+		}
+		else { // old behavior; attempt dodge before attempting saber block
+			if (Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
+			{//act like we didn't even hit him
+				VectorCopy(tr.endpos, start);
+				ignore = tr.entityNum;
+				traces++;
+				continue;
+			}
+			else if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/)
+			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
+				if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0))
+				{ //broadcast and stop the shot because it was blocked
+					gentity_t *te = NULL;
 
-				if (g_unlagged.integer && compensate)
-					G_UnTimeShiftAllClients(ent, ghoul2);
+					tent = G_TempEntity(tr.endpos, EV_DISRUPTOR_MAIN_SHOT);
+					VectorCopy(muzzle, tent->s.origin2);
+					tent->s.eventParm = ent->s.number;
 
-				return;
+					te = G_TempEntity(tr.endpos, EV_SABER_BLOCK);
+					VectorCopy(tr.endpos, te->s.origin);
+					VectorCopy(tr.plane.normal, te->s.angles);
+					if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+					{
+						te->s.angles[1] = 1;
+					}
+					te->s.eventParm = 0;
+					te->s.weapon = 0;//saberNum
+					te->s.legsAnim = 0;//bladeNum
+
+					if (g_unlagged.integer && compensate)
+						G_UnTimeShiftAllClients(ent, ghoul2);
+
+					return;
+				}
 			}
 		}
 		//a Jedi is not dodging this shot
@@ -1932,37 +1968,72 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			continue;
 		}
 
-		if (Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
-		{
-			skip = tr.entityNum;
-			VectorCopy(tr.endpos, start);
-			continue;
+		if (g_fixDodge.integer) {
+			if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/
+				&& WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0))
+			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
+					gentity_t *te = NULL;
+
+					tent = G_TempEntity(tr.endpos, EV_DISRUPTOR_SNIPER_SHOT);
+					VectorCopy(muzzle, tent->s.origin2);
+					tent->s.shouldtarget = fullCharge;
+					tent->s.eventParm = ent->s.number;
+
+					te = G_TempEntity(tr.endpos, EV_SABER_BLOCK);
+					VectorCopy(tr.endpos, te->s.origin);
+					VectorCopy(tr.plane.normal, te->s.angles);
+					if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+					{
+						te->s.angles[1] = 1;
+					}
+					te->s.eventParm = 0;
+					te->s.weapon = 0;//saberNum
+					te->s.legsAnim = 0;//bladeNum
+
+					if (g_unlagged.integer && compensate)
+						G_UnTimeShiftAllClients(ent, ghoul2);
+					return;
+			}
+			else if (Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
+			{
+				skip = tr.entityNum;
+				VectorCopy(tr.endpos, start);
+				continue;
+			}
 		}
-		else if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/)
-		{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
-			if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0))
-			{ //broadcast and stop the shot because it was blocked
-				gentity_t *te = NULL;
+		else {
+			if (Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
+			{
+				skip = tr.entityNum;
+				VectorCopy(tr.endpos, start);
+				continue;
+			}
+			else if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/)
+			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
+				if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0))
+				{ //broadcast and stop the shot because it was blocked
+					gentity_t *te = NULL;
 
-				tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_SHOT );
-				VectorCopy( muzzle, tent->s.origin2 );
-				tent->s.shouldtarget = fullCharge;
-				tent->s.eventParm = ent->s.number;
+					tent = G_TempEntity(tr.endpos, EV_DISRUPTOR_SNIPER_SHOT);
+					VectorCopy(muzzle, tent->s.origin2);
+					tent->s.shouldtarget = fullCharge;
+					tent->s.eventParm = ent->s.number;
 
-				te = G_TempEntity( tr.endpos, EV_SABER_BLOCK );
-				VectorCopy(tr.endpos, te->s.origin);
-				VectorCopy(tr.plane.normal, te->s.angles);
-				if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
-				{
-					te->s.angles[1] = 1;
+					te = G_TempEntity(tr.endpos, EV_SABER_BLOCK);
+					VectorCopy(tr.endpos, te->s.origin);
+					VectorCopy(tr.plane.normal, te->s.angles);
+					if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+					{
+						te->s.angles[1] = 1;
+					}
+					te->s.eventParm = 0;
+					te->s.weapon = 0;//saberNum
+					te->s.legsAnim = 0;//bladeNum
+
+					if (g_unlagged.integer && compensate)
+						G_UnTimeShiftAllClients(ent, ghoul2);
+					return;
 				}
-				te->s.eventParm = 0;
-				te->s.weapon = 0;//saberNum
-				te->s.legsAnim = 0;//bladeNum
-
-				if (g_unlagged.integer && compensate)
-					G_UnTimeShiftAllClients(ent, ghoul2);
-				return;
 			}
 		}
 
