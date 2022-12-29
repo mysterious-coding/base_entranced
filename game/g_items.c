@@ -395,7 +395,6 @@ void CreateShield(gentity_t *ent)
 	qboolean	xaxis;
 	int			paramData = 0;
 
-	ent->isSmallShield = !!(ent && ent->parent && ent->parent->client && ent->parent->client->siegeClass != -1 && bgSiegeClasses[ent->parent->client->siegeClass].classflags & (1 << CFL_SMALLSHIELD));
 	if (ent->isSmallShield) {
 		// remove old shields
 		for (int i = level.maxclients; i < MAX_GENTITIES; i++) {
@@ -616,6 +615,7 @@ qboolean PlaceShield(gentity_t *playerent) {
 			shield->think = CreateShield;
 			shield->nextthink = level.time + 500;	// power up after .5 seconds
 			shield->parent = playerent;
+			shield->isSmallShield = !!(shield->parent && shield->parent->client && shield->parent->client->siegeClass != -1 && bgSiegeClasses[shield->parent->client->siegeClass].classflags & (1 << CFL_SMALLSHIELD));
 
 			// Set team number.
 			shield->s.otherEntityNum2 = playerent->client->sess.sessionTeam;
