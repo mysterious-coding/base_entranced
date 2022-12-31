@@ -7173,7 +7173,8 @@ void G_RunFrame( int levelTime ) {
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
 				}
-				else if (!(ent->r.svFlags & SVF_BOT) && VectorLength(angDif) > 10.0f && !(level.pause.unpauseTime && abs(level.time - level.pause.unpauseTime) < 100))
+				else if (!(ent->r.svFlags & SVF_BOT) && VectorLength(angDif) > 10.0f && !(level.pause.unpauseTime && abs(level.time - level.pause.unpauseTime) < 100) &&
+					!ent->client->sess.skillBoost)
 				{ //must remain facing generally the same angle as when we start
 					ent->client->isHacking = 0;
 					ent->client->ps.hackingTime = 0;
