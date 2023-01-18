@@ -786,7 +786,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave, unless they have a detpack in the world
+		if (timeSinceRespawn < 3000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave, unless they have a detpack in the world
 			return;
 		}
 		if (ent->client->sess.skillBoost) {
@@ -1977,7 +1977,7 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 	if (g_gametype.integer == GT_SIEGE && g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave
+		if (timeSinceRespawn < 3000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave
 			return;
 		}
 		if (ent->client->sess.skillBoost && ent->health > 0 && !(ent->client->tempSpectate >= level.time)) {
@@ -2071,7 +2071,7 @@ void Cmd_Join_f(gentity_t *ent)
 	if (g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave, unless they have a detpack in the world
+		if (timeSinceRespawn < 3000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave, unless they have a detpack in the world
 			return;
 		}
 		if (ent->client->sess.skillBoost && ent->health > 0 && !(ent->client->tempSpectate >= level.time)) {
@@ -2181,7 +2181,7 @@ void Cmd_Class_f(gentity_t *ent)
 
 	if (g_antiSelfMax.integer && g_siegeRespawn.integer >= 10 && (level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2)) {
 		int timeSinceRespawn = (level.time + (g_siegeRespawn.integer * 1000)) - level.siegeRespawnCheck;
-		if (timeSinceRespawn < 1000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave, unless they have a detpack in the world
+		if (timeSinceRespawn < 3000 && !HasDetpackInWorld(ent)) { // normal players cannot sk within 1 second AFTER the spawn wave, unless they have a detpack in the world
 			return;
 		}
 		if (ent->client->sess.skillBoost && ent->health > 0 && !(ent->client->tempSpectate >= level.time)) {
