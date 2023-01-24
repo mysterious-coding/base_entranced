@@ -216,6 +216,7 @@ vmCvar_t	g_fixHothHangarTurrets;
 vmCvar_t	g_fixLiftkillTraps;
 vmCvar_t	g_fixDempSaberThrow;
 vmCvar_t	g_fixDodge;
+vmCvar_t	g_joinMenuHack;
 
 vmCvar_t	g_preventJoiningLargerTeam;
 vmCvar_t	g_lastIntermissionStartTime;
@@ -1145,6 +1146,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fixHothHangarTurrets, "g_fixHothHangarTurrets", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixDempSaberThrow, "g_fixDempSaberThrow", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixDodge, "g_fixDodge", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_joinMenuHack, "g_joinMenuHack", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_preventJoiningLargerTeam, "g_preventJoiningLargerTeam", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lastIntermissionStartTime, "g_lastIntermissionStartTime", "", CVAR_TEMP | CVAR_ROM, 0, qfalse },

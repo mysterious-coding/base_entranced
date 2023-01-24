@@ -1989,6 +1989,175 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 		}
 	}
 
+	// quick and dirty hack to make the join menu work for altered classes on base maps
+	// basically, the base jka join menu will send /siegeclass "Imperial Snowtrooper" if you try to change to offense HW on hoth,
+	// regardless of what g_redTeam is currently set to. ordinarily this will do nothing if the offense HW class isn't actually Imperial Snowtrooper.
+	// this hack effectively turns that command into /class h
+
+	if (((g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none")) || (g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))) && g_joinMenuHack.integer) {
+		stupidSiegeClassNum_t classNum = 0;
+		team_t teamNum = 0;
+		if (!Q_stricmp(level.mapname, "mp/siege_hoth")) {
+			if (!Q_stricmp(className, "Imperial Snowtrooper")) {
+				classNum = SSCN_ASSAULT;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Rocket Trooper")) {
+				classNum = SSCN_HW;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Imperial Demolitionist")) {
+				classNum = SSCN_DEMO;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Imperial Sniper")) {
+				classNum = SSCN_SCOUT;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Imperial Tech")) {
+				classNum = SSCN_TECH;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Invader")) {
+				classNum = SSCN_JEDI;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Rebel Infantry")) {
+				classNum = SSCN_ASSAULT;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Wookie")) {
+				classNum = SSCN_HW;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Rebel Demolitionist")) {
+				classNum = SSCN_DEMO;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Rebel Sniper")) {
+				classNum = SSCN_SCOUT;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Rebel Tech")) {
+				classNum = SSCN_TECH;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Jedi Guardian")) {
+				classNum = SSCN_JEDI;
+				teamNum = TEAM_BLUE;
+			}
+		}
+		else if (!Q_stricmp(level.mapname, "mp/siege_desert")) {
+			if (!Q_stricmp(className, "Bounty Hunter")) {
+				classNum = SSCN_ASSAULT;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Merc Assault Specialist")) {
+				classNum = SSCN_HW;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Merc Demolitionist")) {
+				classNum = SSCN_DEMO;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Merc Sniper")) {
+				classNum = SSCN_SCOUT;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Smuggler")) {
+				classNum = SSCN_TECH;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Marauder")) {
+				classNum = SSCN_JEDI;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Rebel Assault Specialist")) {
+				classNum = SSCN_ASSAULT;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Wookie")) {
+				classNum = SSCN_HW;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Rebel Demolitionist")) {
+				classNum = SSCN_DEMO;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Rebel Sniper")) {
+				classNum = SSCN_SCOUT;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Rebel Tech")) {
+				classNum = SSCN_TECH;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Jedi Duelist")) {
+				classNum = SSCN_JEDI;
+				teamNum = TEAM_RED;
+			}
+		}
+		else if (!Q_stricmp(level.mapname, "mp/siege_korriban")) {
+			if (!Q_stricmp(className, "Dark Side Mauler")) {
+				classNum = SSCN_ASSAULT;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Destroyer")) {
+				classNum = SSCN_HW;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Demolitionist")) {
+				classNum = SSCN_DEMO;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Interceptor")) {
+				classNum = SSCN_SCOUT;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Tech")) {
+				classNum = SSCN_TECH;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Dark Jedi Duelist")) {
+				classNum = SSCN_JEDI;
+				teamNum = TEAM_BLUE;
+			}
+			else if (!Q_stricmp(className, "Jedi Warrior")) {
+				classNum = SSCN_ASSAULT;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Jedi Knight")) {
+				classNum = SSCN_HW;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Jedi Demolitionist")) {
+				classNum = SSCN_DEMO;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Jedi Scout")) {
+				classNum = SSCN_SCOUT;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Jedi Healer")) {
+				classNum = SSCN_TECH;
+				teamNum = TEAM_RED;
+			}
+			else if (!Q_stricmp(className, "Jedi Lightsaber Master")) {
+				classNum = SSCN_JEDI;
+				teamNum = TEAM_RED;
+			}
+		}
+
+		if (classNum && teamNum) {
+			siegeClass_t *siegeClass = BG_SiegeGetClass(teamNum, classNum);
+
+			if (siegeClass) {
+				SetSiegeClass(ent, siegeClass->name);
+				return;
+			}
+		}
+	}
+
 	SetSiegeClass(ent, className);
 }
 
