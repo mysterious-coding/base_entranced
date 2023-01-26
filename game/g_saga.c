@@ -2825,14 +2825,102 @@ void SiegeRespawn(gentity_t *ent)
 		Q_strncpyz(ent->client->sess.spawnedSiegeClass, ent->client->sess.siegeClass, sizeof(ent->client->sess.spawnedSiegeClass));
 	else
 		memset(&ent->client->sess.spawnedSiegeClass, 0, sizeof(ent->client->sess.spawnedSiegeClass));
-	siegeClass_t *scl = BG_SiegeFindClassByName(ent->client->sess.spawnedSiegeClass);
-	if (scl && scl->forcedModel[0])
-		Q_strncpyz(ent->client->sess.spawnedSiegeModel, scl->forcedModel, sizeof(ent->client->sess.spawnedSiegeModel));
-	else
-		memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
 
-	if (scl)
-		ent->client->sess.spawnedSiegeMaxHealth = scl->maxhealth;
+	{
+		siegeClass_t *scl = BG_SiegeFindClassByName(ent->client->sess.spawnedSiegeClass);
+		if (scl && scl->forcedModel[0])
+			Q_strncpyz(ent->client->sess.spawnedSiegeModel, scl->forcedModel, sizeof(ent->client->sess.spawnedSiegeModel));
+		else
+			memset(&ent->client->sess.spawnedSiegeModel, 0, sizeof(ent->client->sess.spawnedSiegeModel));
+
+		if (scl)
+			ent->client->sess.spawnedSiegeMaxHealth = scl->maxhealth;
+	}
+
+	if (((g_redTeam.string[0] && Q_stricmp(g_redTeam.string, "none")) || (g_blueTeam.string[0] && Q_stricmp(g_blueTeam.string, "none"))) &&
+		g_joinMenuHack.integer && g_joinMenuHack.integer != 2) {
+		if (ent->client->siegeClass != -1) {
+			siegeClass_t *scl = &bgSiegeClasses[ent->client->siegeClass];
+			if (!Q_stricmp(level.mapname, "mp/siege_hoth")) {
+				if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Imperial Snowtrooper", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rocket Trooper", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_DEMOLITIONIST && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Imperial Demolitionist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_SUPPORT && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Imperial Tech", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Imperial Sniper", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Invader", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Infantry", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Wookie", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_DEMOLITIONIST && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Demolitionist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_SUPPORT && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Tech", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Sniper", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Guardian", sizeof(ent->client->sess.spawnedSiegeClass));
+			}
+			else if (!Q_stricmp(level.mapname, "mp/siege_desert")) {
+				if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Bounty Hunter", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Merc Assault Specialist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_DEMOLITIONIST && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Merc Demolitionist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_SUPPORT && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Smuggler", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Merc Sniper", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Marauder", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Assault Specialist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Wookie", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_DEMOLITIONIST && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Demolitionist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_SUPPORT && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Tech", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Sniper", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Duelist", sizeof(ent->client->sess.spawnedSiegeClass));
+			}
+			else if (!Q_stricmp(level.mapname, "mp/siege_korriban")) {
+				if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Side Mauler", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Destroyer", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_DEMOLITIONIST && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Demolitionist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_SUPPORT && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Tech", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Interceptor", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Duelist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Warrior", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Knight", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_DEMOLITIONIST && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Demolitionist", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_SUPPORT && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Healer", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Scout", sizeof(ent->client->sess.spawnedSiegeClass));
+				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_RED)
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Jedi Lightsaber Master", sizeof(ent->client->sess.spawnedSiegeClass));
+			}
+		}
+	}
 
 	if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
 	{
