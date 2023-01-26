@@ -2068,7 +2068,7 @@ void Cmd_SiegeClass_f(gentity_t *ent)
 				classNum = SSCN_TECH;
 				teamNum = TEAM_BLUE;
 			}
-			else if (!Q_stricmp(className, "Dark Jedi Marauder")) {
+			else if (!Q_stricmp(className, "Dark Side Marauder")) {
 				classNum = SSCN_JEDI;
 				teamNum = TEAM_BLUE;
 			}

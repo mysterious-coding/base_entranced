@@ -2474,7 +2474,7 @@ void ClientUserinfoChanged( int clientNum ) {
 					else if (scl->playerClass == SPC_VANGUARD && client->sess.siegeDesiredTeam == TEAM_BLUE)
 						Q_strncpyz(className, "Merc Sniper", sizeof(className));
 					else if (scl->playerClass == SPC_JEDI && client->sess.siegeDesiredTeam == TEAM_BLUE)
-						Q_strncpyz(className, "Dark Jedi Marauder", sizeof(className));
+						Q_strncpyz(className, "Dark Side Marauder", sizeof(className));
 					else if (scl->playerClass == SPC_INFANTRY && client->sess.siegeDesiredTeam == TEAM_RED)
 						Q_strncpyz(className, "Rebel Assault Specialist", sizeof(className));
 					else if (scl->playerClass == SPC_HEAVY_WEAPONS && client->sess.siegeDesiredTeam == TEAM_RED)

@@ -2879,7 +2879,7 @@ void SiegeRespawn(gentity_t *ent)
 				else if (scl->playerClass == SPC_VANGUARD && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
 					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Merc Sniper", sizeof(ent->client->sess.spawnedSiegeClass));
 				else if (scl->playerClass == SPC_JEDI && ent->client->sess.siegeDesiredTeam == TEAM_BLUE)
-					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Jedi Marauder", sizeof(ent->client->sess.spawnedSiegeClass));
+					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Dark Side Marauder", sizeof(ent->client->sess.spawnedSiegeClass));
 				else if (scl->playerClass == SPC_INFANTRY && ent->client->sess.siegeDesiredTeam == TEAM_RED)
 					Q_strncpyz(ent->client->sess.spawnedSiegeClass, "Rebel Assault Specialist", sizeof(ent->client->sess.spawnedSiegeClass));
 				else if (scl->playerClass == SPC_HEAVY_WEAPONS && ent->client->sess.siegeDesiredTeam == TEAM_RED)
