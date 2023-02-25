@@ -3000,6 +3000,36 @@ static void TokenizeTeamChat( gentity_t *ent, char *dest, const char *src, size_
 	dest[i] = '\0';
 }
 
+static qboolean ChatMessageShouldPause(const char *s) {
+	if (!VALIDSTRING(s)) {
+		assert(qfalse);
+		return qfalse;
+	}
+
+	size_t len = strlen(s);
+
+	if (!Q_stricmpn(s, "pause", 5) && len <= 6)
+		return qtrue;
+
+	if (!Q_stricmpn(s, "need to pause", 13) && len <= 14) // lg brain
+		return qtrue;
+
+	if (!Q_stricmpn(s, "sec", 3) && len <= 4) { // stricter requirement since this is so short
+		const unsigned char c = (unsigned) *(s + 3);
+		if (!c || isspace(c) || ispunct(c) || c == '\\' || c == '\'' || c == '~' || c == '`')
+			return qtrue;
+		return qfalse;
+	}
+
+	if (!Q_stricmpn(s, "1sec", 4) && len <= 5)
+		return qtrue;
+
+	if (!Q_stricmpn(s, "1 sec", 5) && len <= 6)
+		return qtrue;
+
+	return qfalse;
+}
+
 void Cmd_CallVote_f(gentity_t *ent, int pause);
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j;
@@ -3033,7 +3063,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	// allow typing "pause" in the chat to quickly call a pause vote
-	if (level.isLivePug != ISLIVEPUG_NO && ent->client->sess.sessionTeam != TEAM_SPECTATOR && mode != SAY_TELL && !Q_stricmpn(chatText, "pause", 5) && strlen(chatText) <= 6 && g_quickPauseChat.integer) { // allow a small typo at the end
+	if (level.isLivePug != ISLIVEPUG_NO && ent->client->sess.sessionTeam != TEAM_SPECTATOR && mode != SAY_TELL && ChatMessageShouldPause(chatText) && g_quickPauseChat.integer) { // allow a small typo at the end
 		// allow setting g_quickPauseChat to 2 for callvote-only mode
 		if (g_quickPauseChat.integer != 2) {
 			// instapause
