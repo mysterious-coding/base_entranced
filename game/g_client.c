@@ -3300,6 +3300,9 @@ void G_BroadcastServerFeatureList( int clientNum ) {
 		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "fjal ");
 
 
+	if (g_fixSniperSwitch.integer)
+		Q_strcat(featureListConfigString, sizeof(featureListConfigString), "fss ");
+
 	trap_SetConfigstring(CS_SERVERFEATURELIST, featureListConfigString);
 
 	static char locationsListConfigString[MAX_TOKEN_CHARS] = { 0 };
