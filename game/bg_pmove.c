@@ -5504,6 +5504,26 @@ void BG_ClearRocketLock( playerState_t *ps )
 	}
 }
 
+// cram canDisruptTime into the most significant 10 bits
+static void SetCanDisruptTime(int *out, int newTime) {
+	if (!out) {
+		assert(qfalse);
+		return;
+	}
+
+	*out = (*out & 0x003fffff) | ((newTime & 0x3ff) << 22);
+}
+
+// retrieve canDisruptTime from the most significant 10 bits
+static int GetCanDisruptTime(int *in) {
+	if (!in) {
+		assert(qfalse);
+		return 0;
+	}
+
+	return (*in >> 22) & 0x3ff;
+}
+
 /*
 ===============
 PM_BeginWeaponChange
@@ -5531,7 +5551,7 @@ void PM_BeginWeaponChange( int weapon ) {
 			pm->ps->zoomFov = 0;
 			pm->ps->zoomLocked = qfalse;
 			pm->ps->zoomLockTime = 0;
-			pm->ps->weaponTime = 1000; // yes, this stacks with the 200ms below
+			SetCanDisruptTime(&pm->ps->holocronBits, 1000);
 		}
 	}
 
@@ -6942,6 +6962,16 @@ static void PM_Weapon( void )
 		pm->ps->weaponTime -= pml.msec;
 	}
 
+	if (g_fixSniperSwitch.integer) {
+		int canDisruptTime = GetCanDisruptTime(&pm->ps->holocronBits);
+		if (canDisruptTime) {
+			canDisruptTime -= pml.msec;
+			if (canDisruptTime < 0)
+				canDisruptTime = 0;
+			SetCanDisruptTime(&pm->ps->holocronBits, canDisruptTime);
+		}
+	}
+
 	if (pm->ps->isJediMaster && pm->ps->emplacedIndex)
 	{
 		pm->ps->emplacedIndex = 0;
@@ -7087,6 +7117,14 @@ static void PM_Weapon( void )
 			}
 		}
 		return;
+	}
+
+	if (g_fixSniperSwitch.integer) {
+		if (pm->ps->weapon == WP_DISRUPTOR) {
+			int canDisruptTime = GetCanDisruptTime(&pm->ps->holocronBits);
+			if (canDisruptTime > 0)
+				return;
+		}
 	}
 
 	if (PM_CanSetWeaponAnims() &&
@@ -7753,7 +7791,10 @@ void PM_AdjustAttackStates( pmove_t *pm )
 				pm->ps->zoomTime = pm->ps->commandTime;
 				pm->ps->zoomLocked = qfalse;
 				PM_AddEvent(EV_DISRUPTOR_ZOOMSOUND);
-				pm->ps->weaponTime = 1000;
+				if (g_fixSniperSwitch.integer)
+					SetCanDisruptTime(&pm->ps->holocronBits, 1000);
+				else
+					pm->ps->weaponTime = 1000;
 			}
 		}
 		else if ( !(pm->cmd.buttons & BUTTON_ALT_ATTACK ) && pm->ps->zoomLockTime < pm->cmd.serverTime)
