@@ -2113,6 +2113,7 @@ typedef enum {
 qboolean CanDamage (gentity_t *targ, vec3_t origin);
 int G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
 qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod);
+qboolean G_RadiusDamageKnockbackOnly (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod);
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientWeapon(gentity_t *self, vec3_t direction, float speed);
 void TossClientItems( gentity_t *self );
@@ -2145,6 +2146,7 @@ int G_SiegeClassCount(int team, int classType, qboolean mustBeAlive, int ignoreC
 #define DAMAGE_SABER_KNOCKBACK2		0x00020000	// Check the attacker's second saber for a knockbackScale
 #define DAMAGE_SABER_KNOCKBACK1_B2	0x00040000	// Check the attacker's first saber for a knockbackScale2
 #define DAMAGE_SABER_KNOCKBACK2_B2	0x00080000	// Check the attacker's second saber for a knockbackScale2
+#define DAMAGE_KNOCKBACK_ONLY		0x00100000	// b_e: added
 //
 // g_exphysics.c
 //
@@ -2815,6 +2817,8 @@ extern vmCvar_t		g_allow_vote_customTeams;
 
 extern vmCvar_t		g_fixForceJumpAnimationLock;
 extern vmCvar_t		g_fixSniperSwitch;
+extern vmCvar_t		g_fixGolanDamage;
+extern vmCvar_t		g_locationBasedDamage_splash;
 
 // flags for g_balanceSaber
 #define SB_KICK				(1<<0) // kick with all sabers
