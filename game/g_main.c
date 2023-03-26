@@ -5,6 +5,7 @@
 #include "g_ICARUScb.h"
 #include "g_nav.h"
 #include "bg_saga.h"
+#include "sodium.h"
 
 //#include "accounts.h"
 #include "jp_engine.h"
@@ -2269,6 +2270,33 @@ void WP_SaberLoadParms( void );
 void BG_VehicleLoadParms( void );
 #include "namespace_end.h"
 
+static void LoadPepper(void) {
+	fileHandle_t f = 0;
+	int len = trap_FS_FOpenFile("pepper.bin", &f, FS_READ);
+
+	if (len != PEPPER_CHARS) {
+		if (f)
+			trap_FS_FCloseFile(f);
+
+		trap_FS_FOpenFile("pepper.bin", &f, FS_WRITE);
+
+		if (!f) {
+			Com_Error(ERR_FATAL, "Unable to acquire file handle on pepper");
+			return;
+		}
+
+		unsigned char arr[PEPPER_CHARS];
+		randombytes_buf(arr, PEPPER_CHARS);
+		memcpy(level.pepper, arr, PEPPER_CHARS);
+		trap_FS_Write(arr, PEPPER_CHARS, f);
+	}
+	else {
+		trap_FS_Read(&level.pepper, len, f);
+	}
+
+	trap_FS_FCloseFile(f);
+}
+
 /*
 ============
 G_InitGame
@@ -2415,7 +2443,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart, void *serverDbPtr )
 #ifdef NEWMOD_SUPPORT
 	level.nmAuthEnabled = qfalse;
 
-	if ( g_enableNmAuth.integer && Crypto_Init( G_Printf ) != CRYPTO_ERROR ) {
+	if (Crypto_Init(G_Printf) == CRYPTO_ERROR) {
+		Com_Error(ERR_FATAL, "Crypto_Init failed!");
+		return;
+	}
+
+	if ( g_enableNmAuth.integer ) {
 		if ( Crypto_LoadKeysFromFiles( &level.publicKey, PUBLIC_KEY_FILENAME, &level.secretKey, SECRET_KEY_FILENAME ) != CRYPTO_ERROR ) {
 			// got the keys, all is good
 			G_Printf( "Loaded crypto key files from disk successfully\n" );
@@ -2434,6 +2467,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart, void *serverDbPtr )
 		G_Printf( S_COLOR_RED"Newmod auth support is not active. Some functionality will be unavailable for these clients.\n" );
 	}
 #endif
+
+	LoadPepper();
 
 	// accounts system
 	//initDB();

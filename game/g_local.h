@@ -1766,6 +1766,9 @@ typedef struct {
 	vec3_t ghostCameraOrigin;
 	float ghostCameraYaw;
 
+#define PEPPER_CHARS	(32)
+	unsigned char pepper[PEPPER_CHARS];
+
 } level_locals_t;
 
 //

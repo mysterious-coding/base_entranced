@@ -7,6 +7,7 @@
 
 //#include "accounts.h"
 #include "sha1.h"
+#include "sha3.h"
 
 #define POWER_DUEL_START_HEALTH 150
 #define POWER_DUEL_END_HEALTH 90
@@ -2629,20 +2630,8 @@ void ClientUserinfoChanged( int clientNum ) {
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader, className, saberName, saber2Name, client->sess.duelTeam, client->sess.siegeDesiredTeam );
 	} else {
 		// compute and send a uniqueid
-		int ipHash = 0, guidHash = 0;\
+		uint32_t guidHash = 0u;
 		SHA1Context ctx;
-		SHA1Reset( &ctx );
-
-		{
-            unsigned int ip = 0;
-			getIpFromString( client->sess.ipString, &ip );
-			SHA1Input( &ctx, (unsigned char *)&ip, sizeof( ip ) );
-		}
-
-		if ( SHA1Result( &ctx ) == 1 ) {
-			ipHash = ctx.Message_Digest[0];
-		}
-		guidHash = 0;
 		// openjk clients send over a (theoretically) consistent guid so we can track them across ip changes
 		value = Info_ValueForKey( userinfo, "ja_guid" );
 		if ( value && *value ) {
@@ -2668,7 +2657,7 @@ void ClientUserinfoChanged( int clientNum ) {
 					if ( value && *value ) {
 						// player previously had an id but the guid didn't stick, try to set it again
 						char *endptr = NULL;
-						unsigned long long int prevHash = Q_strtoull( value, &endptr, 10 );
+						uint64_t prevHash = Q_strtoull( value, &endptr, 10 );
 						if ( *endptr == '\0' ) {
 							if ( prevHash == ULLONG_MAX && errno == ERANGE ) {
 								// parsed, but value was out of range
@@ -2692,7 +2681,16 @@ void ClientUserinfoChanged( int clientNum ) {
 				G_SendConfigstring( clientNum, CS_SYSTEMINFO, NULL, qfalse );
 			}
 		}
-		totalHash = ((unsigned long long int) ipHash) << 32 | (((unsigned long long int) guidHash) & 0xFFFFFFFF);
+
+		sha3_context c;
+		sha3_Init512(&c);
+		uint32_t ip = getIpFromString(client->sess.ipString, &ip);
+		sha3_Update(&c, &ip, sizeof(ip));
+		sha3_Update(&c, &level.pepper, PEPPER_CHARS);
+		uint32_t ipHash;
+		memcpy(&ipHash, sha3_Finalize(&c), sizeof(ipHash));
+		uint64_t totalHash = ((uint64_t)ipHash) << 32 | (((uint64_t)guidHash) & 0xFFFFFFFF);
+
 		level.clientUniqueIds[clientNum] = totalHash;
 		G_LogPrintf( "Client %d (%s) has unique id %llu%s\n", clientNum, client->pers.netname, totalHash, G_ClientIsWhitelisted(clientNum) ? " (whitelisted)" : " (NOT whitelisted)");
 		if (G_ClientIsOnProbation(clientNum)) {
