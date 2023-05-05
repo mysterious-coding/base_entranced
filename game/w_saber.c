@@ -4500,7 +4500,7 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		if ( !d_saberSPStyleDamage.integer//let's trying making blocks have to be blocked by a saber
 			&& g_entities[tr.entityNum].client 
 			&& !unblockable 
-			&& WP_SaberCanBlock(&g_entities[tr.entityNum], self, tr.endpos, 0, MOD_SABER, qfalse, attackStr))
+			&& WP_SaberCanBlock(&g_entities[tr.entityNum], self, tr.endpos, 0, MOD_SABER, qfalse, attackStr, NULL))
 		{//hit a client who blocked the attack (fake: didn't actually hit their saber)
 			if (dmg <= SABER_NONATTACK_DAMAGE)
 			{
@@ -5835,7 +5835,7 @@ static GAME_INLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity
 
 			if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 			{ //Slice them
-				if (!(g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS) && !saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, saberent, tr.endpos, 0, MOD_SABER, qfalse, 999))
+				if (!(g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS) && !saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, saberent, tr.endpos, 0, MOD_SABER, qfalse, 999, NULL))
 				{ //they blocked it
 					WP_SaberBlockNonRandom(ent, tr.endpos, qfalse);
 
@@ -9273,7 +9273,7 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, qboolean missileBlock )
 }
 
 // alpha: added an "other" parameter, which is the entity responsible for triggering the block (allows for more sophisticated checks)
-int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags, int mod, qboolean projectile, int attackStr)
+int WP_SaberCanBlock(gentity_t *self, gentity_t* other, vec3_t point, int dflags, int mod, qboolean projectile, int attackStr, vec_t *overrideAngleCalculationSpot)
 {
 	qboolean thrownSaber = qfalse;
 	float blockFactor = 0;
@@ -9454,7 +9454,13 @@ int WP_SaberCanBlock(gentity_t *self, gentity_t *other, vec3_t point, int dflags
 		blockFactor -= 0.25f;
 	}
 
-	if (!InFront( point, self->client->ps.origin, self->client->ps.viewangles, blockFactor )) //orig 0.2f
+	vec3_t angleCalculationSpot;
+	if (overrideAngleCalculationSpot)
+		VectorCopy(overrideAngleCalculationSpot, angleCalculationSpot);
+	else
+		VectorCopy(point, angleCalculationSpot);
+
+	if (!InFront(angleCalculationSpot, self->client->ps.origin, self->client->ps.viewangles, blockFactor )) //orig 0.2f
 	{
 		return 0;
 	}

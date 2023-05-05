@@ -1615,7 +1615,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		}
 		else if (g_fixDodge.integer) { // reordered logic; attempt saber block before attempting dodge
 			if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/
-				&& WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0))
+				&& WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0, NULL))
 			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock //broadcast and stop the shot because it was blocked
 					gentity_t *te = NULL;
 
@@ -1657,7 +1657,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			}
 			else if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/)
 			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
-				if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0))
+				if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR, qtrue, 0, NULL))
 				{ //broadcast and stop the shot because it was blocked
 					gentity_t *te = NULL;
 
@@ -1970,7 +1970,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		if (g_fixDodge.integer) {
 			if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/
-				&& WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0))
+				&& WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0, NULL))
 			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
 					gentity_t *te = NULL;
 
@@ -2010,7 +2010,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			}
 			else if (traceEnt && traceEnt->client /*&& traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3*/)
 			{ // alpha: moved the saber def 3 check above inside WP_SaberCanBlock
-				if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0))
+				if (WP_SaberCanBlock(traceEnt, ent, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, qtrue, 0, NULL))
 				{ //broadcast and stop the shot because it was blocked
 					gentity_t *te = NULL;
 
