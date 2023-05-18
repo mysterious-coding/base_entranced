@@ -217,6 +217,7 @@ vmCvar_t	g_botDefaultSiegeClass;
 vmCvar_t	g_speedrunRoundOneRestart;
 vmCvar_t	g_siegeGhosting;
 vmCvar_t	g_fixHothHangarTurrets;
+vmCvar_t	g_removeHothHangarTurrets;
 vmCvar_t	g_fixLiftkillTraps;
 vmCvar_t	g_fixDempSaberThrow;
 vmCvar_t	g_fixDodge;
@@ -1154,6 +1155,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_speedrunRoundOneRestart, "g_speedrunRoundOneRestart", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_siegeGhosting, "g_siegeGhosting", "2", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue },
 	{ &g_fixHothHangarTurrets, "g_fixHothHangarTurrets", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_removeHothHangarTurrets, "g_removeHothHangarTurrets", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixDempSaberThrow, "g_fixDempSaberThrow", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fixDodge, "g_fixDodge", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_joinMenuHack, "g_joinMenuHack", "1", CVAR_ARCHIVE, 0, qtrue },

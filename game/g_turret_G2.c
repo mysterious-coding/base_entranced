@@ -805,6 +805,12 @@ void turretG2_base_think( gentity_t *self )
 
 	self->nextthink = level.time + FRAMETIME;
 
+	if (level.siegeMap == SIEGEMAP_HOTH && g_removeHothHangarTurrets.integer &&
+		(level.siegeStage == SIEGESTAGE_ROUND1 || level.siegeStage == SIEGESTAGE_ROUND2) && !Q_stricmp(self->targetname, "hangar_turrets")) {
+		self->think = G_FreeEntity;
+		return;
+	}
+
 	if ( self->health <= 0 )
 	{//dead
 		if (self->spawnflags & SPF_TURRETG2_CANRESPAWN)
@@ -999,6 +1005,7 @@ Turret that hangs from the ceiling, will aim and shoot at enemies
 void SP_misc_turretG2( gentity_t *base )
 //-----------------------------------------------------
 {
+
 	int customscaleVal;
 	char* s;
 

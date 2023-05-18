@@ -9861,6 +9861,7 @@ void Cmd_ServerStatus2_f(gentity_t *ent)
 	PrintCvar(g_quickPauseChat);
 	PrintCvar(g_randomConeReflection);
 	PrintCvar(g_requireMoreCustomTeamVotes);
+	PrintCvar(g_removeHothHangarTurrets);
 	PrintCvar(g_rocketSurfing);
 	PrintCvar(g_runoffVote);
 	PrintCvar(g_saberDamageScale);
