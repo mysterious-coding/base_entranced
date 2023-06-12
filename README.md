@@ -112,7 +112,14 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 #### `g_fixSaberDefense`
 0 = base JA saber blocking
 
-1 = (default) fixed saber defense, for more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=18&t=133
+1 = old fixed saber defense, for more information see https://forums.jasiege.com/phpBB3/viewtopic.php?f=18&t=133
+
+2 = (default) newer fixed saber defense, e.g. prevents bullshit staff blocks on projectiles shot into your back from behind
+
+#### `g_fixGolanDamage`
+0 = bugged base JA golan damage (see discord thread)
+
+1 = fixed golan damage (default)
 
 #### `g_locationBasedDamage`
 0 = no location-based damage
@@ -173,6 +180,9 @@ You can give bad players a boost to help them be competitive. `skillboost <playe
 0 = hoth hangar turrets can shoot at people in the lift shaft, absolutely idiotic mechanic and basically up to RNG whether you successfully dodge the shots even with constant zigzagging
 
 1 = (default) hoth turrets do not shoot at people in the lift shaft
+
+#### `g_removeHothHangarTurrets`
+1 = (default) remove hoth hangar turrets entirely
 
 #### `g_antiHothCodesLiftLame`
 0 = normal behavior for Hoth codes delivery bunker lift
@@ -383,6 +393,11 @@ default setting: 3 (combination of 1 and 2)
 0 = disable (useful for pub servers)
 
 1 = (default) automatically restart in round 1 without team swapping if the map is completed in speedrun mode
+
+#### `g_joinMenuHack`
+0 = disable
+
+1 = (default) allows peasants on outdated client mods to use the join menu with modified classes on base maps
 
 #### `g_multiUseGenerators`
 0 = base JKA weird buggy behavior when multiple people are using an armor/ammo/health generator
