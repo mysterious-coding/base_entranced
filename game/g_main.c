@@ -812,7 +812,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_allowHighPingDuelist, "g_allowHighPingDuelist", "1", 0, 0, qtrue },
 
-	{ &g_fixSaberDefense, "g_fixSaberDefense", "1", 0, 0, qtrue },
+	{ &g_fixSaberDefense, "g_fixSaberDefense", "2", 0, 0, qtrue },
 	{ &g_saberDefense1Angle, "g_saberDefense1Angle", "6", 0, 0, qtrue },
 	{ &g_saberDefense2Angle, "g_saberDefense2Angle", "30", 0, 0, qtrue },
 	{ &g_saberDefense3Angle, "g_saberDefense3Angle", "73", 0, 0, qtrue },
