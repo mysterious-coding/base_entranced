@@ -6736,6 +6736,7 @@ void G_RunFrame( int levelTime ) {
 								continue;
 							gentity_t *te = G_TempEntity(cl->ps.origin, EV_TEAM_POWER);
 							te->s.eventParm = 2;
+							te->s.saberInFlight = 1; // tell client this is a special te
 							te->r.svFlags |= SVF_SINGLECLIENT;
 							te->r.svFlags |= SVF_BROADCAST;
 							te->r.singleClient = j;
