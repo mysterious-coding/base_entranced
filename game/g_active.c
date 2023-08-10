@@ -5246,6 +5246,33 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	}
 }
 
+void NoteClientsOnLiftAtPause(void) {
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		level.clients[i].pers.onLiftDuringPause = NULL;
+
+	for (int i = 0; i < MAX_CLIENTS; i++) {
+		gentity_t *ent = &g_entities[i];
+
+		if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
+			continue;
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE || ent->client->ps.groundEntityNum == ENTITYNUM_WORLD)
+			continue;
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+			continue;
+		if (ent->client->ps.pm_type == PM_SPECTATOR)
+			continue;
+		
+		gentity_t *groundEnt = &g_entities[ent->client->ps.groundEntityNum];
+
+		if (groundEnt->client)
+			continue;
+		if (!groundEnt->blocked)
+			continue;
+
+		ent->client->pers.onLiftDuringPause = groundEnt;
+	}
+}
+
 /*
 ==============
 ClientEndFrame
@@ -5289,6 +5316,7 @@ void ClientEndFrame( gentity_t *ent ) {
 					level.siegeRoundStartTime && level.time - level.siegeRoundStartTime >= LIVEPUG_AUTOPAUSE_TIME) {
 					level.pause.state = PAUSE_PAUSED;
 					level.pause.time = level.time + 300000;
+					NoteClientsOnLiftAtPause();
 					Q_strncpyz(level.pause.reason, va("%s^7 is 999\n", ent->client->pers.netname), sizeof(level.pause.reason));
 				}
 			}

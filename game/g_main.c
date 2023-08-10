@@ -7735,6 +7735,13 @@ void G_RunFrame( int levelTime ) {
 
 	RunAutoRestart();
 
+	// clear out onLiftDuringPause if we've been unpaused for more than 2 ticks
+	int tickTime = 1000 / g_svfps.integer;
+	if (level.pause.unpauseTime && level.pause.state == PAUSE_NONE && level.time - level.pause.unpauseTime > tickTime * 2) {
+		for (int i = 0; i < MAX_CLIENTS; i++)
+			level.clients[i].pers.onLiftDuringPause = NULL;
+	}
+
 	level.frameStartTime = trap_Milliseconds(); // accurate timer
 
 	g_LastFrameTime = level.time;

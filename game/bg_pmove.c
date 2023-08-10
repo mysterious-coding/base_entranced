@@ -3737,7 +3737,6 @@ PM_CorrectAllSolid
 =============
 */
 static int PM_CorrectAllSolid( trace_t *trace ) {
-	int			i, j, k;
 	vec3_t		point;
 
 	if ( pm->debugLevel ) {
@@ -3745,9 +3744,9 @@ static int PM_CorrectAllSolid( trace_t *trace ) {
 	}
 
 	// jitter around
-	for (i = -1; i <= 1; i++) {
-		for (j = -1; j <= 1; j++) {
-			for (k = -1; k <= 1; k++) {
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			for (int k = -1; k <= 1; k++) {
 				VectorCopy(pm->ps->origin, point);
 				point[0] += (float) i;
 				point[1] += (float) j;
@@ -3762,6 +3761,25 @@ static int PM_CorrectAllSolid( trace_t *trace ) {
 					pml.groundTrace = *trace;
 					return qtrue;
 				}
+			}
+		}
+	}
+
+	// fix liftkill when unpausing while riding lift
+	if (pm->ps->clientNum < MAX_CLIENTS && g_entities[pm->ps->clientNum].client && g_entities[pm->ps->clientNum].client->pers.onLiftDuringPause) {
+		for (int k = 0; k < 64; k++) {
+			VectorCopy(pm->ps->origin, point);
+			point[2] += (float)k;
+			pm->trace(trace, point, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+			if (!trace->allsolid) {
+				/*point[0] = pm->ps->origin[0];
+				point[1] = pm->ps->origin[1];
+				point[2] = pm->ps->origin[2] - 0.25;
+
+				pm->trace(trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);*/
+				pml.groundTrace = *trace;
+				VectorCopy(point, pm->ps->origin);
+				return qtrue;
 			}
 		}
 	}

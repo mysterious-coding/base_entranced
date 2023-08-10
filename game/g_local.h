@@ -858,6 +858,7 @@ typedef struct {
 	int			protDmgAvoided;
 	int			protTimeUsed;
 	int			protsince;
+	gentity_t	*onLiftDuringPause;
 
 	// speed stats
 	float		topSpeed;
@@ -2383,6 +2384,7 @@ typedef enum {
 
 void SiegeGhostUpdate(int sendClientNum, qboolean forceUpdate);
 void ForceSiegeGhostUpdateForFollowers(int followedClientNum);
+void NoteClientsOnLiftAtPause(void);
 
 //
 // g_table.c

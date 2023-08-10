@@ -5085,6 +5085,7 @@ void ClientDisconnect( int clientNum ) {
 		Q_strncpyz(level.pause.reason, va("%s^7 disconnected\n", ent->client->pers.netname), sizeof(level.pause.reason));
 
 		level.pause.state = PAUSE_PAUSED;
+		NoteClientsOnLiftAtPause();
 	}
 
 	if (clientNum < MAX_CLIENTS) {
