@@ -3017,6 +3017,7 @@ extern vmCvar_t	   g_unlaggedDebug;
 #define DAMAGEFIXES_SABERTHROW_GUNNERS		(1 << 0)
 #define DAMAGEFIXES_ROCKET_HP				(1 << 1)
 #define	DAMAGEFIXES_SABERTHROW_SABERISTS	(1 << 2)
+#define	DAMAGEFIXES_SABERTHROW_DISARM		(1 << 3)
 
 
 extern vmCvar_t    lastMapName;

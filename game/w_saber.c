@@ -6625,7 +6625,7 @@ qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t 
 	{
 		return qfalse;
 	}
-	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_DISARM)
 		return qfalse;
 
 	saberOwner->client->ps.saberInFlight = qtrue;
@@ -6852,7 +6852,7 @@ qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner,
 		return qfalse;
 	}
 
-	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_DISARM)
 		return qfalse;
 
 	if ( other
@@ -6899,7 +6899,7 @@ qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, 
 	}
 	//otherwise don't
 
-	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_SABERISTS)
+	if (g_damageFixes.integer & DAMAGEFIXES_SABERTHROW_DISARM)
 		return qfalse;
 
 	if (tossIt)
