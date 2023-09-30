@@ -2527,9 +2527,10 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 				amountAdded += Add_Ammo(other, AMMO_THERMAL, 2);
 			if (other && other->client && other->client->ps.stats[STAT_WEAPONS] & (1<<WP_TRIP_MINE))
 				amountAdded += Add_Ammo(other, AMMO_TRIPMINE, 2);
-
-			if (!amountAdded && other && other->client && Q_stristrclean(other->client->pers.netname, "grab"))
+#if 0
+			if (!amountAdded)
 				return 0; // they were already maxed out; don't take the canister
+#endif
 		}
 		else
 		{
