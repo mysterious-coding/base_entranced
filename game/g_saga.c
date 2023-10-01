@@ -2480,6 +2480,7 @@ void G_SiegeRoundComplete(int winningteam, int winningclient, qboolean completed
 		}
 		totalRoundTime = realTime ? realTime : abs(level.time - level.siegeRoundStartTime);
 		trap_Cvar_Set("siege_r1_total", va("%i", realTime));
+		trap_Cvar_Set("siege_r1_matchid", Cvar_VariableString("sv_matchid"));
 	}
 	else if (level.siegeStage == SIEGESTAGE_ROUND2) {
 		level.siegeStage = SIEGESTAGE_ROUND2POSTGAME;

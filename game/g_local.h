@@ -3245,6 +3245,7 @@ extern vmCvar_t    siege_r1_obj15;
 extern vmCvar_t    siege_r1_objscompleted;
 extern vmCvar_t    siege_r1_heldformaxat;
 extern vmCvar_t    siege_r1_heldformaxtime;
+extern vmCvar_t    siege_r1_matchid;
 extern vmCvar_t    siege_r2_obj0;
 extern vmCvar_t    siege_r2_obj1;
 extern vmCvar_t    siege_r2_obj2;

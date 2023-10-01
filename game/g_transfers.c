@@ -48,7 +48,12 @@ void G_PostScoreboardToWebhook(const char* stats) {
 	if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND1OFFENSE) {
 		msgColor = 255;
 		Com_sprintf(round1OffenseString, sizeof(round1OffenseString), "WIN (%s) :trophy:", round1OffenseTimeString);
-		Com_sprintf(round2OffenseString, sizeof(round2OffenseString), "LOSE");
+
+		const int missingObjs = level.numSiegeObjectivesOnMap - level.totalObjectivesCompleted;
+		if (missingObjs > 0)
+			Com_sprintf(round2OffenseString, sizeof(round2OffenseString), "LOSE (-%d obj)", missingObjs);
+		else
+			Com_sprintf(round2OffenseString, sizeof(round2OffenseString), "LOSE");
 	}
 	else if (level.siegeMatchWinner == SIEGEMATCHWINNER_ROUND2OFFENSE) {
 		msgColor = 16711680;
@@ -100,6 +105,9 @@ void G_PostScoreboardToWebhook(const char* stats) {
 	// get match id for demo link if possible
 	char matchId[SV_MATCHID_LEN];
 	trap_Cvar_VariableStringBuffer("sv_matchid", matchId, sizeof(matchId));
+
+	char round1MatchId[SV_MATCHID_LEN];
+	trap_Cvar_VariableStringBuffer("siege_r1_matchid", round1MatchId, sizeof(round1MatchId));
 
 	// get map str
 	char mapStr[256] = { 0 };
@@ -153,10 +161,20 @@ void G_PostScoreboardToWebhook(const char* stats) {
 					}
 					{
 						if (VALIDSTRING(matchId)) {
-							cJSON* linkField = cJSON_CreateObject();
-							cJSON_AddStringToObject(linkField, "name", "Demoarchive link");
-							cJSON_AddStringToObject(linkField, "value", va(DEMOARCHIVE_MATCH_FORMAT"\n(May not work until uploaded)", matchId));
-							cJSON_AddItemToArray(fields, linkField);
+							if (VALIDSTRING(round1MatchId)) {
+								// we have both
+								cJSON *link1Field = cJSON_CreateObject();
+								cJSON_AddStringToObject(link1Field, "name", "Demoarchive links");
+								cJSON_AddStringToObject(link1Field, "value", va(DEMOARCHIVE_MATCH_FORMAT"\n"DEMOARCHIVE_MATCH_FORMAT"\n(May not work until uploaded)", round1MatchId, matchId));
+								cJSON_AddItemToArray(fields, link1Field);
+							}
+							else {
+								// we only have round 2 somehow
+								cJSON *linkField = cJSON_CreateObject();
+								cJSON_AddStringToObject(linkField, "name", "Demoarchive link");
+								cJSON_AddStringToObject(linkField, "value", va(DEMOARCHIVE_MATCH_FORMAT"\n(May not work until uploaded)", matchId));
+								cJSON_AddItemToArray(fields, linkField);
+							}
 						}
 					}
 					{
