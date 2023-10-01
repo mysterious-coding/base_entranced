@@ -432,6 +432,7 @@ vmCvar_t	siege_r1_obj15;
 vmCvar_t	siege_r1_objscompleted;
 vmCvar_t	siege_r1_heldformaxat;
 vmCvar_t	siege_r1_heldformaxtime;
+vmCvar_t	siege_r1_matchid;
 vmCvar_t	siege_r2_obj0;
 vmCvar_t	siege_r2_obj1;
 vmCvar_t	siege_r2_obj2;
@@ -1383,7 +1384,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &siege_r1_obj15, "siege_r1_obj15", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r1_objscompleted, "siege_r1_objscompleted", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r1_heldformaxat, "siege_r1_heldformaxat", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
-	{ &siege_r1_heldformaxat, "siege_r1_heldformaxtime", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_heldformaxtime, "siege_r1_heldformaxtime", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
+	{ &siege_r1_matchid, "siege_r1_matchid", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r2_obj0, "siege_r2_obj0", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r2_obj1, "siege_r2_obj1", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
 	{ &siege_r2_obj2, "siege_r2_obj2", "", CVAR_ARCHIVE | CVAR_ROM, 0, qfalse },
